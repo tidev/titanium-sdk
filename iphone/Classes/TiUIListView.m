@@ -1655,54 +1655,26 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
-// Gets the visible index paths and removes the top row that is not completely visible
--(NSIndexPath*)firstVisibleIndexPath:(NSInteger)index
-{
-    UITableView* tableView = [self tableView];
-    NSArray* array = [tableView indexPathsForVisibleRows];
-    NSIndexPath* indexPath = [array objectAtIndex: index];
-    CGRect cellRect = [tableView rectForRowAtIndexPath:indexPath];
-    CGRect tableRect = [tableView bounds];
-    
-    if(tableRect.origin.y <= (cellRect.origin.y - [self tableView:tableView heightForHeaderInSection:[indexPath section]])) {
-        return indexPath;
-    }
-
-    index += 1;
-    if([array count] >= index) {
-        return [self firstVisibleIndexPath:index];
-    }
-    if(indexPath == nil) {
-        return [NSIndexPath indexPathForRow:0 inSection:0];
-    }
-    return indexPath;
-}
-
 
 // For now, this is fired on `scrollstart` and `scrollend`
-- (void)fireScrollEvent:(NSString*)eventName
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UITableView*)tableView
 {
-    if([[self proxy] _hasListeners:eventName])
+    if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
     {
-        UITableView* tableView = [self tableView];
-        
-        NSIndexPath* indexPath = [self firstVisibleIndexPath:0];
         NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+
         NSUInteger visibleItemCount = [indexPaths count];
         
-        for(NSIndexPath *currentIndexPath in indexPaths) {
-            if ([currentIndexPath isEqual:indexPath]) break;
-            visibleItemCount -= 1;
-        }
-        
         TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
-        NSDictionary* eventArgs = @{
-                                    @"firstVisibleSectionIndex": NUMINTEGER([indexPath section]),
-                                    @"firstVisibleItemIndex": NUMINTEGER([indexPath row]),
-                                    @"firstVisibleSection": section,
-                                    @"firstVisibleItem": [section itemAtIndex:[indexPath row]],
-                                    @"visibleItemCount": NUMUINTEGER(visibleItemCount)
-                                    };
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
@@ -1710,13 +1682,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] suspend];
-    [self fireScrollEvent:@"scrollstart"];
+    [self fireScrollEvent:@"scrollstart" forTableView:(UITableView*)scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if(!decelerate) {
-        [self fireScrollEvent:@"scrollend"];
+        [self fireScrollEvent:@"scrollend" forTableView:(UITableView*)scrollView];
     }
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
@@ -1730,7 +1702,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] resume];
-    [self fireScrollEvent:@"scrollend"];
+    [self fireScrollEvent:@"scrollend" forTableView:(UITableView*)scrollView];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
