@@ -38,7 +38,7 @@ description: |
       * For all other data types on Android, the content type is set to `application/x-www-form-urlencoded`.
       * For all other data types on iOS, the content type is **NOT** set.
 
-    On the BlackBerry and Mobile Web platforms, the content type is always set to
+    On the Mobile Web platforms, the content type is always set to
     `application/x-www-form-urlencoded` as the default.
 
     Use the [setRequestHeader](Titanium.Network.HTTPClient.setRequestHeader) method to override the

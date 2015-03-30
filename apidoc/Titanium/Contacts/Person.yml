@@ -62,8 +62,6 @@ properties:
     summary: Date of birth of the person. Single value.
     description: |
         Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        On BlackBerry pass in a JavaScript Date object.
     type: String
     platforms: [android, iphone, ipad]
     
@@ -159,11 +157,6 @@ properties:
         
         The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
         `Jabber`, `MSN`, `QQ`, `Skype`, or `Yahoo`. These values are key sensitive.
-        
-        On BlackBerry, the following apply: `aim`, `aliwangwang`, `bbmPin`, `googleTalk`, `icq`,
-        `irc`, `jabber`, `msLcs`, `msn`, `qq`, `sametime`, `skype`, `yahooMessenger`
-
-
     type: Dictionary
     platforms: [android, iphone, ipad]
     

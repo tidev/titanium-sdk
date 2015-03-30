@@ -7,11 +7,10 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
-        <td><img src="images/tableview/tableview_bb.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
@@ -19,7 +18,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
     
     #### Creating Tables
     
@@ -1173,7 +1172,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+        [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
