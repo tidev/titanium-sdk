@@ -36,7 +36,7 @@ description: |
     mode changes.
 
     For more information about broadcasts, see the
-    [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+    [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
     and [Titanium.Android.BroadcastReceiver API reference](Titanium.Android.BroadcastReceiver).
 
     #### Intents
@@ -54,7 +54,7 @@ description: |
     can define intent filters to let Android know your application can handle those data types.
 
     For more information about intent filters, see the
-    [Android Intent Filters guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Intent_Filters).
+    [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
     #### Notifications
 

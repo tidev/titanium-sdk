@@ -5,11 +5,10 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/textfield/textfield_android.png" height="25" /></td>
-        <td><img src="images/textfield/textfield_bb.png" height="25" /></td>
         <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
         <td><img src="images/textfield/textfield_mobileweb.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.

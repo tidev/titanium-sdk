@@ -21,9 +21,6 @@ description: |
     and [pump](Titanium.Stream.pump) methods provided by the <Titanium.Stream> module,
     rather than using the socket object's `read` and `write` methods directly.
 
-    Note: With BlackBerry OS it is best to call the socket object's `read` and `write` methods 
-    directly.
-    
     A familiarity with the basics of BSD socket programming is a recommended before using 
     sockets with Titanium.
 
