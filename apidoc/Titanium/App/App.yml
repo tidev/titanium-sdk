@@ -118,7 +118,7 @@ description: |
     This can lead to memory leaks if application-level event listeners are added and not
     removed.
 
-    See also: [Event Handling](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Event_Handling)
+    See also: [Event Handling](http://docs.appcelerator.com/platform/latest/#!/guide/Event_Handling)
     in the Titanium Mobile Guides.
 
     #### System Level Accessibility Events

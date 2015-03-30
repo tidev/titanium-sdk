@@ -5,11 +5,10 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
-        <td><img src="images/progressbar/progressbar_bb.png" height="25" /></td>
         <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
         <td><img src="images/progressbar/progressbar_mobileweb.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
     </table>
 
     A progress bar is used for displaying an ongoing activity with a defined progression. 
