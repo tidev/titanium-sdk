@@ -237,13 +237,13 @@ function validateDataType (type) {
 		if (type === 'Callback<void>') {
 			return errors;
 		}
-        // Compound data type
+		// Compound data type
 		errors = errors.concat(validateDataType(type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))));
 	} else if (validateClass(type) == null || ~common.DATA_TYPES.indexOf(type)) {
 		return errors;
 	} else if (standaloneFlag) {
-        // For standalone mode, log warning but not an error
-        // Data type can exist in a parent class not in the data set
+		// For standalone mode, log warning but not an error
+		// Data type can exist in a parent class not in the data set
 		console.warn('WARNING! Could not validate data type: %s'.yellow, type);
 	} else {
 		errors.push(type);
