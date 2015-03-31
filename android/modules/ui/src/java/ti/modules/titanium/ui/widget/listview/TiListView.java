@@ -80,8 +80,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
-	
-	private int scrollingTo = -1;
+
 
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
 	 * However, since Android randomly selects a cached view to recycle, our cached properties
@@ -307,31 +306,56 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		listView.setFocusableInTouchMode(true);
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
+		final TiViewProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
 		{
+			private int _firstVisibleItem = 0;
+			private int _visibleItemCount = 0;
+			private boolean canFireScrollStart = true;
+			private boolean canFireScrollEnd = false;
+
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
-				switch(scrollState) {
-
-					/*
-					 * Not supporting this one for now
-					 *
-					 * case OnScrollListener.SCROLL_STATE_FLING:
-					 * 		return;
-					 */
-
-					case OnScrollListener.SCROLL_STATE_IDLE:
-						fireScrollEvent(TiC.EVENT_SCROLLEND);
-					break;
-					case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-						fireScrollEvent(TiC.EVENT_SCROLLSTART);
-					break;
+				String eventName;
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE && canFireScrollEnd) {
+					eventName = TiC.EVENT_SCROLLEND;
+					canFireScrollEnd = false;
+					canFireScrollStart = true;
+				} else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL && canFireScrollStart) {
+					eventName = TiC.EVENT_SCROLLSTART;					
+					canFireScrollEnd = true;
+					canFireScrollStart = false;
+				} else {
+					return;
 				}
+
+				KrollDict eventArgs = new KrollDict();
+				Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(_firstVisibleItem);
+				int visibleItemCount = _visibleItemCount;
+				
+				int itemIndex = info.second.second;
+				ListSectionProxy section = info.first;
+				
+				if (section.getHeaderTitle() == null || section.getHeaderView() == null) {
+					if (itemIndex > 0) {
+						itemIndex -= 1;
+					}
+					visibleItemCount -=1;
+				}
+				eventArgs.put("firstVisibleSection", section);
+				eventArgs.put("firstVisibleSectionIndex", info.second.first);
+				eventArgs.put("firstVisibleItem", section.getItemAt(itemIndex));
+				eventArgs.put("firstVisibleItemIndex", itemIndex);
+				eventArgs.put("visibleItemCount", visibleItemCount);
+				
+				fProxy.fireEvent(eventName, eventArgs, false);
 			}
 
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 			{
+				_firstVisibleItem = firstVisibleItem;
+				_visibleItemCount = visibleItemCount;
 			}
 		});
 		
@@ -502,37 +526,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 		listView.setAdapter(adapter);
 		super.processProperties(d);
-		
-	}
-	
-	private void fireScrollEvent(String eventName) {
-		if(listView == null) return;
-		if(!proxy.hasListeners(TiC.EVENT_SCROLLSTART) && !proxy.hasListeners(TiC.EVENT_SCROLLEND)) return;
-		
-		int startIndex = listView.getFirstVisiblePosition();
-		int endIndex = listView.getLastVisiblePosition();
-		int visibleItemCount = Math.abs(endIndex - startIndex);
-		
-		if(scrollingTo > -1 && scrollingTo < startIndex) return;
-		scrollingTo = -1;
-			
-		KrollDict eventArgs = new KrollDict();
-		Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(startIndex);
-		
-		int itemIndex = info.second.second;
-		ListSectionProxy section = info.first;
-		
-		if(section.getHeaderTitle() == null || section.getHeaderView() == null) {
-			if(itemIndex > 0) itemIndex -= 1;
-			visibleItemCount -=1;
-		}
-		eventArgs.put("firstVisibleSection", section);
-		eventArgs.put("firstVisibleSectionIndex", info.second.first);
-		eventArgs.put("firstVisibleItem", section.getItemAt(itemIndex));
-		eventArgs.put("firstVisibleItemIndex", itemIndex);
-		eventArgs.put("visibleItemCount", visibleItemCount);
-		
-		proxy.fireEvent(eventName, eventArgs, false);
 		
 	}
 
@@ -872,8 +865,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		final int position = findItemPosition(sectionIndex, sectionItemIndex);
 		if (position > -1) {
 			if (animated) {
-				fireScrollEvent(TiC.EVENT_SCROLLSTART);
-				scrollingTo = position;
 				listView.smoothScrollToPosition(position + 1);
 			} else {
 				listView.post(new Runnable() 
