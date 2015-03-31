@@ -5,9 +5,9 @@ module.exports = function (grunt) {
 		appcJs: {
 			src: ['Gruntfile.js', 'apidoc/**/*.js', '!apidoc/node_modules/**']
 		},
-        clangFormat: {
-            src: [] // unused ATM
-        },
+		clangFormat: {
+			src: [] // unused ATM
+		},
 	});
 
 	// Load grunt plugins for modules
