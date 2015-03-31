@@ -23,7 +23,7 @@ description: |
          notification.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
 
     ### Local Interactive Notifications
 
@@ -43,7 +43,7 @@ description: |
       4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
 
     ### Background Downloads
 
@@ -51,7 +51,7 @@ description: |
     content in the background. These background modes are supported in Titanium SDK 3.2.0 and later.
 
     For more information on getting started, refer to the
-    [iOS Background Services guide](http://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Background_Services).
+    [iOS Background Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
 
 extends: Titanium.Module
 platforms: [iphone, ipad]

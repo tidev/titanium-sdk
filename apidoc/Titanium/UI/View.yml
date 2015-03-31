@@ -104,7 +104,7 @@ description: |
     
     For more details see: 
     
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/!/guide/UI_Composite_Layout_Behavior_Spec)
     
     #### Size and Position
     
@@ -1068,7 +1068,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp'). 
         Can also be one of the following special values:
@@ -1180,7 +1180,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`. 
             
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
             in the Titanium Mobile Guides. 
             
          *  `vertical`. Children are laid out vertically from top to bottom. The first child 
@@ -1363,7 +1363,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values: 

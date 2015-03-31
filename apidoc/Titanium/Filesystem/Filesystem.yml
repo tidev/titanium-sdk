@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 description: |
     For examples of using the Filesystem APIs, refer to the
-    [Filesystem Access and Storage guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Filesystem_Access_and_Storage)
+    [Filesystem Access and Storage guide](http://docs.appcelerator.com/platform/latest/#!/guide/Filesystem_Access_and_Storage)
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -253,10 +253,5 @@ properties:
     description: |
         This directory can be used for storing temporary files. Files in this directory
         may not persist when the application is shut down and restarted.
-
-        On BlackBerry, files in this directory *will* be deleted by the OS when the application
-        is shut down.
-
-
     type: String
     permission: read-only
