@@ -398,7 +398,7 @@ events:
         type: Boolean
 
   - name: scrollstart
-    summary: Fires when the listview starts scrolling
+    summary: Fires when the listview starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
     description: |
         This event will fire when the user starts scrolling the listview. Use the `firstVisibleSectionIndex` and 
         the `firstVisibleItemIndex` to determine the position of the listview.
@@ -426,7 +426,7 @@ events:
         type: Number
 
   - name: scrollend
-    summary: Fires when the listview ends scrolling
+    summary: Fires when the listview ends scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
         This event will fire when the listview ends scrolling. Use the `firstVisibleSectionIndex` and 
         the `firstVisibleItemIndex` to determine the position of the listview.
