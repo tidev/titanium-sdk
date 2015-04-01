@@ -299,6 +299,14 @@
     }
 }
 
+-(void)willChangeLayout
+{
+    if (layoutProperties.layoutStyle != TiLayoutRuleAbsolute) {
+        layoutProperties.layoutStyle = TiLayoutRuleAbsolute;
+    }
+    [super willChangeLayout];
+}
+
 @end
 
 #endif
