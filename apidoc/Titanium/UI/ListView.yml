@@ -410,7 +410,7 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the listView when the event fires
+        summary: The first visible item in the listView when the event fires, this item might not be fully visible
         type: Object
 
       - name: firstVisibleSection
@@ -418,7 +418,7 @@ events:
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the listView when the event fires
+        summary: The index of the first visible item in the listView when the event fires, this item might not be fully visible
         type: Number
 
       - name: firstVisibleSectionIndex
@@ -438,7 +438,7 @@ events:
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the listView when the event fires
+        summary: The first visible item in the listView when the event fires, this item might not be fully visible
         type: Object
 
       - name: firstVisibleSection
@@ -446,7 +446,7 @@ events:
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the listView when the event fires
+        summary: The index of the first visible item in the listView when the event fires, this item might not be fully visible
         type: Number
 
       - name: firstVisibleSectionIndex
