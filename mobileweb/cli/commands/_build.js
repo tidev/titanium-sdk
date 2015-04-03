@@ -881,7 +881,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 				var p = file.replace(prefix, '').replace(/\\/g, '/');
 				fonts[m[1]] || (fonts[m[1]] = {});
 				fonts[m[1]][m[2]] = {
-					path: '/' + (isMobileWebDir ? p.replace('mobileweb/', '') : p),
+					path: isMobileWebDir ? p.replace('mobileweb/', '') : p,
 					format: fontFormats[m[2]] || m[2]
 				};
 			}
@@ -896,7 +896,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 
 		['woff', 'otf', 'ttf', 'svg'].forEach(function (type) {
 			if (font[type]) {
-				this.prefetch.push(font[type].path);
+				// this.prefetch.push(font[type].path);
 				src.push('url("' + font[type].path + '") format("' + font[type].format + '")');
 			}
 		}, this);
