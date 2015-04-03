@@ -398,59 +398,59 @@ events:
         type: Boolean
 
   - name: scrollstart
-    summary: Fires when the listview starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
+    summary: Fires when the list view starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
     description: |
-        This event will fire when the user starts scrolling the listview. Use the `firstVisibleSectionIndex` and 
-        the `firstVisibleItemIndex` to determine the position of the listview.
+        This event will fire when the user starts scrolling the list view. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the list view.
     platforms: [iphone, ipad, android]
     since: 4.1.0
     properties: 
       - name: visibleItemCount
-        summary: The number of visible items in the listView when the event fires
+        summary: The number of visible items in the list view when the event fires.
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the listView when the event fires, this item might not be fully visible
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
         type: Object
 
       - name: firstVisibleSection
-        summary: The first visible section in the listView when the event fires
+        summary: The first visible section in the list view when the event fires.
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the listView when the event fires, this item might not be fully visible
+        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the listView when the event fires
+        summary: The index of the first visible section in the list view when the event fires.
         type: Number
 
   - name: scrollend
-    summary: Fires when the listview ends scrolling. Calling the `scrollTo` methods will not fire this event
+    summary: Fires when the list view ends scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
-        This event will fire when the listview ends scrolling. Use the `firstVisibleSectionIndex` and 
-        the `firstVisibleItemIndex` to determine the position of the listview.
+        This event will fire when the list view ends scrolling. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the list view.
     platforms: [iphone, ipad, android]
     since: 4.1.0
     properties: 
       - name: visibleItemCount
-        summary: The number of visible items in the listView when the event fires
+        summary: The number of visible items in the list view when the event fires.
         type: Number
 
       - name: firstVisibleItem
-        summary: The first visible item in the listView when the event fires, this item might not be fully visible
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
         type: Object
 
       - name: firstVisibleSection
-        summary: The first visible section in the listView when the event fires
+        summary: The first visible section in the list view when the event fires.
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the listView when the event fires, this item might not be fully visible
+        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the listView when the event fires
+        summary: The index of the first visible section in the list view when the event fires.
         type: Number
 
 properties:
