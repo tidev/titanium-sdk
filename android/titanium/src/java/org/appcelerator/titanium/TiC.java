@@ -116,17 +116,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DOUBLE_CLICK = "dblclick";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DOUBLE_CLICK = "dblclick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api
@@ -441,11 +446,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api
