@@ -425,6 +425,10 @@ events:
         summary: The index of the first visible section in the list view when the event fires.
         type: Number
 
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
   - name: scrollend
     summary: Fires when the list view ends scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
@@ -452,6 +456,10 @@ events:
       - name: firstVisibleSectionIndex
         summary: The index of the first visible section in the list view when the event fires.
         type: Number
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
 
 properties:
 
