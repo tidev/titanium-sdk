@@ -67,6 +67,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     BOOL canFireScrollStart;
     BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
 }
 
 - (id)init
@@ -1724,19 +1725,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] resume];
-    [self fireScrollEnd:(UITableView *)scrollView];
+    if(isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UITableView *)scrollView];
+    }
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] suspend];
+    isScrollingToTop = YES;
     [self fireScrollStart:(UITableView*) scrollView];
     return YES;
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    [self scrollViewDidEndDecelerating:scrollView];
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
