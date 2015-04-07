@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
+import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -52,6 +53,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.AbsListView.OnScrollListener;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener {
 
@@ -78,7 +80,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
-	
+
+
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
 	 * However, since Android randomly selects a cached view to recycle, our cached properties
 	 * will not be in sync with the native view's properties when user changes those values via
@@ -303,6 +306,59 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		listView.setFocusableInTouchMode(true);
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
+		final TiViewProxy fProxy = proxy;
+		listView.setOnScrollListener(new OnScrollListener()
+		{
+			private int _firstVisibleItem = 0;
+			private int _visibleItemCount = 0;
+			private boolean canFireScrollStart = true;
+			private boolean canFireScrollEnd = false;
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState)
+			{
+				String eventName;
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE && canFireScrollEnd) {
+					eventName = TiC.EVENT_SCROLLEND;
+					canFireScrollEnd = false;
+					canFireScrollStart = true;
+				} else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL && canFireScrollStart) {
+					eventName = TiC.EVENT_SCROLLSTART;					
+					canFireScrollEnd = true;
+					canFireScrollStart = false;
+				} else {
+					return;
+				}
+
+				KrollDict eventArgs = new KrollDict();
+				Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(_firstVisibleItem);
+				int visibleItemCount = _visibleItemCount;
+				
+				int itemIndex = info.second.second;
+				ListSectionProxy section = info.first;
+				
+				if (section.getHeaderTitle() == null || section.getHeaderView() == null) {
+					if (itemIndex > 0) {
+						itemIndex -= 1;
+					}
+					visibleItemCount -=1;
+				}
+				eventArgs.put("firstVisibleSection", section);
+				eventArgs.put("firstVisibleSectionIndex", info.second.first);
+				eventArgs.put("firstVisibleItem", section.getItemAt(itemIndex));
+				eventArgs.put("firstVisibleItemIndex", itemIndex);
+				eventArgs.put("visibleItemCount", visibleItemCount);
+				
+				fProxy.fireEvent(eventName, eventArgs, false);
+			}
+
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+			{
+				_firstVisibleItem = firstVisibleItem;
+				_visibleItemCount = visibleItemCount;
+			}
+		});
+		
 		try {
 			headerFooterId = TiRHelper.getResource("layout.titanium_ui_list_header_or_footer");
 			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
