@@ -9,7 +9,7 @@ deploy:
   provider: npm
   email: npmjs@appcelerator.com
   api_key:
-    secure: MEdXdhRAwNuZ9cLNLPobzxCigS3WbE+pQweMCt6Z+BBtoBK/zMqSxvt8ruAEIdijohrC5Ffct+RDPYipHJ5WYL7DgN6uhmlKR6x8KiEruVHBN51QvDMDekjbz//fa7SzYMx6szoNQmFI9iEApLkITeQXdNPpsdQmL8CVnLSS0mQ=
+    secure: iCUxS0ZEktC7Pg+cNyuV1JadgEVMUOH/QydPPo+r458v7iG4J+CQXcYfAn8I0oDkY34r41anIh4rKArm0Wn1bnZ8M204htahyCgsoOzTjx7CNduKzrNFSk53+KheyVrquNM7EazzDfqWdfqiCaD4JahGqGKDiulOvDrmDOcOslE=
   on:
     tags: true
     repo: appcelerator/ioslib

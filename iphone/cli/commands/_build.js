@@ -1257,9 +1257,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		if (!this.xcodeEnv) {
 			// this should never happen
 			if (selectedSim) {
-				logger.error(__('Unable to find any Xcode installs that has iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], selectedSim.ios) + '\n');
+				logger.error(__('Unable to find any Xcode installs that have iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], selectedSim.ios) + '\n');
 			} else {
-				logger.error(__('Unable to find any Xcode installs that has iOS SDK %s', cli.argv['ios-version']) + '\n');
+				logger.error(__('Unable to find any Xcode installs that have iOS SDK %s', cli.argv['ios-version']) + '\n');
 			}
 			logger.log(__('Available iOS SDKs and iOS Simulators:'));
 			Object.keys(this.iosInfo.xcode).forEach(function (ver) {
@@ -3104,7 +3104,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 			},
 			function() {
 				var productPath = path.join(xcodeBuildDirectory, this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
-					productFileName = proj.target + '.appex';				
+					productFileName = proj.target + '.appex';
 				this.builtExtensions.push({
 					extensionName: productFileName,
 					extensionFile: path.join(productPath, productFileName)
