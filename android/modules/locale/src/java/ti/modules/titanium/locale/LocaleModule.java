@@ -87,7 +87,26 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.setProperty
 	public void setLanguage(String language) 
 	{
-		Log.w(TAG, "Locale.setLanguage not supported for Android.");
+		try {
+			String[] parts = language.split("-");
+			Locale locale = null;
+			
+			if (parts.length > 1) {
+				locale = new Locale(parts[0], parts[1]);
+			} else {
+				locale = new Locale(parts[0]);
+			}
+			 
+			Locale.setDefault(locale);
+			
+			Configuration config = new Configuration();
+			config.locale = locale;
+			
+			Context ctx =  TiApplication.getInstance().getBaseContext();
+			ctx.getResources().updateConfiguration(config, ctx.getResources().getDisplayMetrics());
+		} catch (Exception e) {
+			Log.e(TAG, "Error trying to set language '" + language + "':", e);
+		}
 	}
 
 	@Kroll.method  @Kroll.topLevel("L")
