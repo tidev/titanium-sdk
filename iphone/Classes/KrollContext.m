@@ -1138,16 +1138,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(int)forceGarbageCollectNow
 {
-	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
+#ifdef USE_JSCORE_FRAMEWORK
+    gcrequest = NO;
+    loopCount = 0;
+#else
+    NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
 	NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested",self);
 #endif
+
 	pthread_mutex_lock(&KrollEntryLock);
 	TiGarbageCollect(context);
 	pthread_mutex_unlock(&KrollEntryLock);
 	gcrequest = NO;
 	loopCount = 0;
 	[garbagePool drain];
+#endif
 	return 0;
 }
 
