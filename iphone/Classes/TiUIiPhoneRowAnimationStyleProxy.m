@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
 
 #import "TiUIiPhoneRowAnimationStyleProxy.h"
-
+#import "TiBase.h"
 
 @implementation TiUIiPhoneRowAnimationStyleProxy
 
