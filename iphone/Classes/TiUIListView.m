@@ -55,7 +55,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
-
+    
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
     BOOL searchActive;
@@ -64,12 +64,18 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     UIEdgeInsets _defaultSeparatorInsets;
     
     NSMutableDictionary* _measureProxies;
+    
+    BOOL canFireScrollStart;
+    BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
 }
 
 - (id)init
 {
     self = [super init];
     if (self) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
         _defaultSeparatorInsets = UIEdgeInsetsZero;
     }
@@ -1653,18 +1659,60 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
     }
-    
+}
+
+
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UITableView*)tableView
+{
+    if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
+    {
+        NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+
+        NSUInteger visibleItemCount = [indexPaths count];
+        
+        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+
+- (void)fireScrollEnd:(UITableView*)tableView
+{
+    if(canFireScrollEnd) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+        [self fireScrollEvent:@"scrollend" forTableView:tableView];
+    }
+}
+- (void)fireScrollStart:(UITableView *)tableView
+{
+    if(canFireScrollStart) {
+        canFireScrollStart = NO;
+        canFireScrollEnd = YES;
+        [self fireScrollEvent:@"scrollstart" forTableView:tableView];
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] suspend];
-    //Events - None (maybe dragstart later)
+    [self fireScrollStart: (UITableView*)scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    //Events - pullend (maybe dragend later)
+    if(!decelerate) {
+        [self fireScrollEnd:(UITableView *)scrollView];
+    }
     if (![self.proxy _hasListeners:@"pullend"]) {
         return;
     }
@@ -1677,17 +1725,25 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] resume];
-    //Events - none (maybe scrollend later)
+    if(isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UITableView *)scrollView];
+    }
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] suspend];
+    isScrollingToTop = YES;
+    [self fireScrollStart:(UITableView*) scrollView];
     return YES;
 }
+
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
     [[ImageLoader sharedLoader] resume];
+    [self fireScrollEnd:(UITableView *)scrollView];
     //Events none (maybe scroll later)
 }
 
