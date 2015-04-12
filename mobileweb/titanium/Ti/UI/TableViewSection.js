@@ -105,10 +105,10 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 		},
 
 		add: function(value, index) {
-
 			var rows = this._rows._children,
 				rowCount = this.rowCount;
-			if (!lang.isDef(index)) {
+
+			if (index === void 0) {
 				index = rowCount;
 			}
 			if (index < 0 || index > rowCount) {
