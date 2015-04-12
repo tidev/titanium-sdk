@@ -17,39 +17,39 @@ import org.apache.http.message.BasicHttpRequest;
 
 public class TiDefaultHttpRequestFactory extends DefaultHttpRequestFactory {
 
-    private static final String  PATCH_METHOD = "PATCH";
+	private static final String  PATCH_METHOD = "PATCH";
 
 
-    public TiDefaultHttpRequestFactory() {
-        super();
-    }
+	public TiDefaultHttpRequestFactory() {
+		super();
+	}
 
-    @Override
-    public HttpRequest newHttpRequest(final RequestLine requestline)
-            throws MethodNotSupportedException {
+	@Override
+	public HttpRequest newHttpRequest(final RequestLine requestline)
+			throws MethodNotSupportedException {
 
-        String method = requestline.getMethod();
+		String method = requestline.getMethod();
 
-        if (requestline == null) {
-            throw new IllegalArgumentException("Request line may not be null");
-        }
+		if (requestline == null) {
+			throw new IllegalArgumentException("Request line may not be null");
+		}
 
-        if (PATCH_METHOD.equalsIgnoreCase(method)){
-            return new BasicHttpEntityEnclosingRequest(requestline);
-        }
+		if (PATCH_METHOD.equalsIgnoreCase(method)){
+			return new BasicHttpEntityEnclosingRequest(requestline);
+		}
 
-        return super.newHttpRequest(requestline);
-    }
+		return super.newHttpRequest(requestline);
+	}
 
-    @Override
-    public HttpRequest newHttpRequest(final String method, final String uri)
-            throws MethodNotSupportedException {
+	@Override
+	public HttpRequest newHttpRequest(final String method, final String uri)
+			throws MethodNotSupportedException {
 
-        if (PATCH_METHOD.equalsIgnoreCase(method)){
-            return new BasicHttpEntityEnclosingRequest(method, uri);
-        }
+		if (PATCH_METHOD.equalsIgnoreCase(method)){
+			return new BasicHttpEntityEnclosingRequest(method, uri);
+		}
 
-        return super.newHttpRequest(method, uri);
-    }
+		return super.newHttpRequest(method, uri);
+	}
 
 }
