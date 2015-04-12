@@ -864,7 +864,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 		fontFormats = {
 			'ttf': 'truetype'
 		},
-		prefix = this.projectResDir + '/';
+		prefix = this.projectResDir.replace(/\\/g, '/') + '/';
 
 	(function walk(dir, isMobileWebDir, isRoot) {
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
@@ -878,7 +878,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 
 			var m = name.match(/^(.+)\.(otf|woff|ttf|svg)$/);
 			if (m) {
-				var p = file.replace(prefix, '').replace(/\\/g, '/');
+				var p = file.replace(/\\/g, '/').replace(prefix, '');
 				fonts[m[1]] || (fonts[m[1]] = {});
 				fonts[m[1]][m[2]] = {
 					path: isMobileWebDir ? p.replace('mobileweb/', '') : p,
