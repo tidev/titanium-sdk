@@ -155,6 +155,33 @@ exports.detect = function detect(options, callback) {
 			return vers.sort().reverse();
 		}
 
+		function findIosSimSdks(dir, xcodeVer) {
+			var vers = findIosSdks(dir),
+				simRuntimesDir = '/Library/Developer/CoreSimulator/Profiles/Runtimes';
+
+			if (fs.existsSync(simRuntimesDir) && appc.version.gte(xcodeVer, '6.2')) {
+				fs.readdirSync(simRuntimesDir).forEach(function (name) {
+					var file = path.join(simRuntimesDir, name);
+					if (!fs.existsSync(file) || !fs.statSync(file).isDirectory()) return;
+
+					var m = name.match(/^iOS (.+)\.simruntime$/);
+					if (m && (!options.minIosVersion || appc.version.gte(m[1], options.minIosVersion))) {
+						var ver = m[1];
+						file = path.join(file, 'Contents', 'Resources', 'RuntimeRoot', 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
+						if (fs.existsSync(file)) {
+							var p = new appc.plist(file);
+							if (p.ProductVersion) {
+								ver = p.ProductVersion;
+							}
+						}
+						vers.push(ver);
+					}
+				});
+			}
+
+			return vers.sort().reverse();
+		}
+
 		xcodes.forEach(function (dir) {
 			var p = new appc.plist(path.join(path.dirname(dir), 'version.plist')),
 				selected = dir == selectedXcodePath,
@@ -171,7 +198,7 @@ exports.detect = function detect(options, callback) {
 					build: p.ProductBuildVersion,
 					supported: supported,
 					sdks: findIosSdks(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs')),
-					sims: findIosSdks(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs')),
+					sims: findIosSimSdks(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), p.CFBundleShortVersionString),
 					executables: {
 						xcodebuild: fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,
 						clang:      fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang')) ? f : null,
