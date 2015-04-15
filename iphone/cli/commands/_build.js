@@ -3739,15 +3739,37 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
+	//This is default behavior for now. Move this to true in phase 2. 
+	//Remove this logic when we have debugging/profiling support with JSCore framework
+	//TIMOB-17892
+	var useJSCore = false;
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
+		useJSCore = true;
+	}
+
+	if (this.debugHost || this.profilerHost) {
+		useJSCore = false;
+	}
+
+	var dest = path.join(this.buildDir, 'Classes', 'defines.h');
+
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
+		// BEGIN TIMOB-17892 changes
+		if (useJSCore) {
+			this.logger.debug(__('Using JavaScriptCore Framework'));
+			fs.writeFileSync(
+				dest,
+				fs.readFileSync(path.join(this.platformPath, 'Classes', 'defines.h')).toString() + '\n#define USE_JSCORE_FRAMEWORK'
+			);
+		} 
+		// END TIMOB-17892 changes
 		return finished();
 	}
 
 	// build the defines.h file
-	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
-		contents = [
+	var contents = [
 			'// Warning: this is generated file. Do not modify!',
 			'',
 			'#define TI_VERSION ' + this.titaniumSdkVersion
@@ -3782,6 +3804,12 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		'#define USE_TI_UITEXTAREA',
 		'#endif'
 	);
+	// BEGIN TIMOB-17892 changes
+	if (useJSCore) {
+		this.logger.debug(__('Using JavaScriptCore Framework'));
+		contents.push('#define USE_JSCORE_FRAMEWORK')
+	}
+	// END TIMOB-17892 changes
 
 	contents = contents.join('\n');
 
