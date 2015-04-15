@@ -16,10 +16,11 @@
 {
     pthread_rwlock_init(&viewsLock, NULL);
     [self initializeProperty:@"currentPage" defaultValue:NUMINT(0)];
-    [self initializeProperty:@"pagingControlColor" defaultValue:@"black"];
+    [self initializeProperty:@"pagingControlColor" defaultValue:nil];
+    [self initializeProperty:@"pageIndicatorTintColor" defaultValue:nil];
+    [self initializeProperty:@"currentPageIndicatorTintColor" defaultValue:nil];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];
-    [self initializeProperty:@"pagingControlAlpha" defaultValue:NUMFLOAT(1.0)];
     [self initializeProperty:@"overlayEnabled" defaultValue:NUMBOOL(NO)];
     [self initializeProperty:@"pagingControlOnTop" defaultValue:NUMBOOL(NO)];
     [super _initWithProperties:properties];

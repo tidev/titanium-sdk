@@ -38,6 +38,8 @@
 	RELEASE_TO_NIL(pageControl);
 #endif
     RELEASE_TO_NIL(pageControlBackgroundColor);
+	RELEASE_TO_NIL(pageIndicatorColor);
+	RELEASE_TO_NIL(currentPageIndicatorColor);
 	[super dealloc];
 }
 
@@ -48,10 +50,11 @@
         cacheSize = 3;
 #endif
         pageControlHeight=20;
-        pageControlBackgroundColor = [[UIColor blackColor] retain];
+        pageControlBackgroundColor = nil;
+        pageIndicatorColor = nil;
+        currentPageIndicatorColor = nil;
         pagingControlOnTop = NO;
         overlayEnabled = NO;
-        pagingControlAlpha = 1.0;
         showPageControl = YES;
 	}
 	return self;
@@ -100,6 +103,8 @@
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
 		[pageControl addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
 		[pageControl setBackgroundColor:pageControlBackgroundColor];
+		[pageControl setPageIndicatorTintColor:pageIndicatorColor];
+		[pageControl setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
 		[self addSubview:pageControl];
 	}
 	return pageControl;
@@ -278,8 +283,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #endif
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
+        [pg setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+        [pg setPageIndicatorTintColor:pageIndicatorColor];
 		pg.currentPage = currentPage;
-        pg.alpha = pagingControlAlpha;
         pg.backgroundColor = pageControlBackgroundColor;
 	}	
 }
@@ -620,23 +626,30 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
         }
     }
 }
--(void)setPagingControlAlpha_:(id)args
+-(void)setPageIndicatorColor_:(id)args
 {
-#ifdef TI_USE_AUTOLAYOUT
-    UIScrollView* scrollview = _scrollView;
-#endif
-    pagingControlAlpha = [TiUtils floatValue:args def:1.0];
-    if(pagingControlAlpha > 1.0){
-        pagingControlAlpha = 1;
-    }    
-    if(pagingControlAlpha < 0.0 ){
-        pagingControlAlpha = 0;
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(pageIndicatorColor);
+        pageIndicatorColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setPageIndicatorTintColor:pageIndicatorColor];
+        }
     }
-    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
-        [[self pagecontrol] setAlpha:pagingControlAlpha];
-    }
-    
 }
+
+-(void)setCurrentPageIndicatorColor_:(id)args
+{
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(currentPageIndicatorColor);
+        currentPageIndicatorColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+        }
+    }
+}
+
 -(void)setPagingControlOnTop_:(id)args
 {
 #ifdef TI_USE_AUTOLAYOUT

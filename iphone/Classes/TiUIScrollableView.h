@@ -31,8 +31,9 @@
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
+	UIColor *pageIndicatorColor;
+	UIColor *currentPageIndicatorColor;
 	CGFloat pageControlHeight;
-    CGFloat pagingControlAlpha;
 	BOOL handlingPageControlEvent;
     BOOL scrollingEnabled;
     BOOL pagingControlOnTop;
