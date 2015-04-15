@@ -1,12 +1,17 @@
-# iOS Utility Library [![Build Status](https://travis-ci.org/appcelerator/ioslib.svg?branch=master)](https://travis-ci.org/appcelerator/ioslib) 
+# iOS Utility Library
 
-This is a library of utilities for dealing programmatically with iOS applications,
+> This is a library of utilities for dealing programmatically with iOS applications,
 used namely for tools like [Hyperloop](https://github.com/appcelerator/hyperloop)
 and [Titanium](https://github.com/appcelerator/titanium).
 
 ioslib supports Xcode 5 and Xcode 6.
 
-[![NPM](https://nodei.co/npm/ioslib.png?downloads=true&stars=true)](https://nodei.co/npm/ioslib/)
+[![Build Status](https://travis-ci.org/appcelerator/ioslib.svg?branch=master)](https://travis-ci.org/appcelerator/ioslib)
+[![Dependency Status](https://david-dm.org/appcelerator/ioslib.svg)](https://david-dm.org/appcelerator/ioslib)
+[![devDependency Status](https://david-dm.org/appcelerator/ioslib/dev-status.svg)](https://david-dm.org/appcelerator/ioslib#info=devDependencies)
+[![NPM version](https://badge.fury.io/js/ioslib.svg)](http://badge.fury.io/js/ioslib)
+
+[![NPM](https://nodei.co/npm-dl/ioslib.png)](https://nodei.co/npm/ioslib/)
 
 ## Known Issues
 

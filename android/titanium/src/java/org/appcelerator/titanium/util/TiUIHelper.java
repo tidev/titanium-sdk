@@ -575,7 +575,7 @@ public class TiUIHelper
 		Drawable imageDrawable = null;
 		if (image != null) {
 			TiFileHelper tfh = TiFileHelper.getInstance();
-			imageDrawable = tfh.loadDrawable(image, false, true);
+			imageDrawable = tfh.loadDrawable(image, false, true, false);
 
 			if (tileImage) {
 				if (imageDrawable instanceof BitmapDrawable) {

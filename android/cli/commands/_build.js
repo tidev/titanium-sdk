@@ -903,14 +903,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				}
 			};
 
-			// we need to map store-password to password for backwards compatibility
-			// because we needed to change it as to not conflict with the login
-			// password and be more descriptive compared to the --key-password
-			conf.options.password = appc.util.mix({
-				hidden: true
-			}, conf.options['store-password']);
-			delete conf.options.password.abbr;
-
 			callback(null, _t.conf = conf);
 		})(function (err, result) {
 			finished(result);

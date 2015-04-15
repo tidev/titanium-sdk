@@ -127,7 +127,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", 'Ti/_/has', "
 					listWindow._add(listDialog);
 
 					listDialog._add(listTable);
-					listDialog._add(cancelButton);
+					listDialog.add(cancelButton);
 
 					// Add a view to handle padding since there is no TI API to do it
 					listDialog._add(UI.createView({ height: "5px" }));
