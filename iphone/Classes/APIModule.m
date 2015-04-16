@@ -9,7 +9,11 @@
 #import "TiBase.h"
 #import "TiApp.h"
 #import "TiExceptionHandler.h"
+
+#ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
+#endif
+
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation APIModule
@@ -23,6 +27,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 {
     
     NSString* lcSeverity = [severity lowercaseString];
+#ifndef USE_JSCORE_FRAMEWORK
     DebuggerLogLevel level = OUT;
     if ([lcSeverity isEqualToString:@"warn"]) {
         level = WARN;
@@ -49,12 +54,15 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
         TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
     }
     else
+#endif
     {
+#ifndef USE_JSCORE_FRAMEWORK
         if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
             if (level != ERR) {
                 return;
             }
         }
+#endif
         NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
         fflush(stderr);
     }

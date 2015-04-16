@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import "TiToJS.h"
 #import "KrollBridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
@@ -22,7 +22,9 @@
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
+#ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
+#endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_GUID;
@@ -448,13 +450,18 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
+
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
+#else
+        TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
+#endif
         if (exception == NULL) {
             evaluationError = NO;
         }
@@ -908,16 +915,19 @@ loadNativeJS:
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
         KrollWrapper* wrapper = nil;
        	const char *urlCString = [[url_ absoluteString] UTF8String];
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
-		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+#endif
+        NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
-
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
+#endif
 		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
             [self setCurrentURL:oldURL];
 			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" 

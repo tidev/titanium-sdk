@@ -6,10 +6,10 @@
 //  Copyright 2014 Instinctive Code.
 //
 //	License and code at http://github.com/mattgemmell/MGSplitViewController/
-#import "TiBase.h"
-#import "TiApp.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
+#import "TiBase.h"
+#import "TiApp.h"
 
 #import "MGSplitViewController.h"
 #import "MGSplitDividerView.h"
