@@ -297,7 +297,7 @@ static NSArray* popoverSequence;
     [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [contentViewProxy windowDidClose];
-    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]] || [TiUtils isIOS8OrGreater]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
             TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
