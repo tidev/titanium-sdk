@@ -39,14 +39,16 @@
 	} else {
 		CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
 		
-		// Build a context that's the same dimensions as the new size
-		CGContextRef bitmap = CGBitmapContextCreate(NULL,
-													newRect.size.width,
-													newRect.size.height,
-													8,
-													0,
-													colorSpace,
-													kCGBitmapAlphaInfoMask & kCGImageAlphaPremultipliedLast);
+        CGImageAlphaInfo alphaInfo = [UIImageAlpha hasAlpha:image] ? kCGImageAlphaPremultipliedLast : kCGImageAlphaNoneSkipLast;
+        // Build a context that's the same dimensions as the new size
+        CGContextRef bitmap = CGBitmapContextCreate(NULL,
+                                                    newRect.size.width,
+                                                    newRect.size.height,
+                                                    8,
+                                                    0,
+                                                    colorSpace,
+                                                    kCGBitmapAlphaInfoMask & alphaInfo);
+        
 		
 		// Rotate and/or flip the image if required by its orientation
 		CGContextConcatCTM(bitmap, transform);
