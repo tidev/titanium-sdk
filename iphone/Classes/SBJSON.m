@@ -30,6 +30,7 @@
 #import "SBJSON.h"
 #import "TiProxy.h"
 #import "TiHost.h"
+#import "TiBase.h"
 
 NSString * SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 

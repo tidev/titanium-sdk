@@ -7,7 +7,7 @@
 
 #import "TiFile.h"
 #import "TiBlob.h"
-
+#import "TiBase.h"
 
 @implementation TiFile
 

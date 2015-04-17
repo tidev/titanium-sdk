@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "Ti2DMatrix.h"
-
+#import "TiBase.h"
 
 @implementation Ti2DMatrix
 

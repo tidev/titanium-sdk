@@ -7,9 +7,9 @@
 //
 //	License and code at http://github.com/mattgemmell/MGSplitViewController/
 
-#import "TiBase.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
+#import "TiBase.h"
 
 #import "MGSplitDividerView.h"
 #import "MGSplitViewController.h"
