@@ -18,7 +18,7 @@ describe('wptool', function () {
 		should(windowslib.wptool).be.an.Object;
 	});
 
-	it('should enumerate all Windows Phone devices and emulators', function (done) {
+	(process.platform === 'win32' ? it : it.skip)('should enumerate all Windows Phone devices and emulators', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
 
@@ -68,7 +68,7 @@ describe('wptool', function () {
 		}).on('error', function () {}); // squeltch mocha
 	});
 
-	it('should connect to a device with a valid udid', function (done) {
+	(process.platform === 'win32' ? it : it.skip)('should connect to a device with a valid udid', function (done) {
 		this.timeout(10000);
 		this.slow(9000);
 
