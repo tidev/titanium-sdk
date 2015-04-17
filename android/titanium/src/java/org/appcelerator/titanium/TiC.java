@@ -991,6 +991,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_COLOR = "color";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SELECTED_COLOR = "selectedColor";
 
 	/**
 	 * @module.api
