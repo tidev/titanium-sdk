@@ -29,7 +29,10 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "App.AndroidModule";
 	private int appVersionCode = -1;
 	private String appVersionName;
-
+    
+    @Kroll.constant public static final String EVENT_ACCESSIBILITY_FOCUS_CHANGED = "accessibilityfocuschanged";
+    @Kroll.constant public static final String EVENT_ACCESSIBILITY_VIEW_FOCUS_CHANGED = "accessibilityviewfocuschanged";
+    
 	public AndroidModule()
 	{
 		super();

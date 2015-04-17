@@ -496,8 +496,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		ENSURE_ARG_AT_INDEX(argument, args, 1, NSString);
 	} else if ([eventName isEqualToString:@"accessibilitylayoutchanged"]) {
 		notification = UIAccessibilityLayoutChangedNotification;
+        if([args count] > 1){
+            id proxy = nil;
+            ENSURE_ARG_AT_INDEX(proxy, args, 1, TiViewProxy);
+            argument = [proxy view];
+        }
 	} else if ([eventName isEqualToString:@"accessibilityscreenchanged"]) {
 		notification = UIAccessibilityScreenChangedNotification;
+        if([args count] > 1){
+            id proxy = nil;
+            ENSURE_ARG_AT_INDEX(proxy, args, 1, TiViewProxy);
+            argument = [proxy view];
+        }
 	} else {
 		NSLog(@"[WARN] unknown system event: %@",eventName);
 		return;
