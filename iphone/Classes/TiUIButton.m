@@ -263,6 +263,26 @@
 	}
 }
 
+-(void)setBackgroundSelectedColor_:(id)value
+{
+    if (value!=nil)
+    {
+        TiColor *ticolor = [TiUtils colorValue:value];
+        
+        CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+        UIGraphicsBeginImageContext(rect.size);
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        
+        CGContextSetFillColorWithColor(context, [ticolor _color].CGColor);
+        CGContextFillRect(context, rect);
+        
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        
+        [[self button] setBackgroundImage:image forState:UIControlStateHighlighted];
+    }
+}
+
 -(void)setFont_:(id)font
 {
 	if (font!=nil)
