@@ -68,7 +68,7 @@ public class DisplayCapsProxy extends KrollProxy
 			case DisplayMetrics.DENSITY_MEDIUM :
 				return "medium";
 			case 213: //TV
-				return "xhigh";
+				return "high";
 			case 280: //Introduce in API 22.
 				return "xhigh";
 			case 320:
