@@ -437,7 +437,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				KrollDict data = new KrollDict();
 				data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
 				data.put(TiC.PROPERTY_ITEM_INDEX, sectionItemIndex);
-				proxy.fireEvent(TiC.EVENT_MARKER, data, false);
+				if (proxy != null && proxy.hasListeners(TiC.EVENT_MARKER)) {
+					proxy.fireEvent(TiC.EVENT_MARKER, data, false);
+				}
 				iterator.remove();
 			}
 		}
