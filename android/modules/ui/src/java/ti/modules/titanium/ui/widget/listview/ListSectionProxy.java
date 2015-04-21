@@ -866,6 +866,10 @@ public class ListSectionProxy extends ViewProxy{
 		return (listview.getSearchText() != null && filterIndices.isEmpty());
 	}
 	
+	public boolean hasHeader() {
+		return (headerTitle != null || headerView != null);
+	}
+
 	public boolean isHeaderView(int pos) {
 		return (headerView != null && pos == 0);
 	}

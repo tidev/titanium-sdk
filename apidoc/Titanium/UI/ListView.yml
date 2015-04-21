@@ -268,9 +268,9 @@ events:
         type: Boolean
 
   - name: marker
-    summary: Fired when the list view displays the reference item or an item beyond the reference item.
+    summary: Fired when the list view displays the reference item.
     description: |
-        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        This event is fired only once per reference item. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
         On iOS this method does not fire when list view is in search mode.
     platforms: [iphone, ipad, android]
     since: 3.2.0
@@ -278,6 +278,14 @@ events:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
 
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
@@ -888,6 +896,7 @@ methods:
   - name: setMarker
     summary: Sets a reference item in the list view.
     description: |
+        This method replace previous reference items with the current one.
         See [marker](Titanium.UI.ListView.marker) event for details. 
     parameters:
       - name: markerProps
@@ -895,6 +904,17 @@ methods:
         type: ListViewMarkerProps
     platforms: [iphone, ipad, android]
     since: 3.2.0
+    
+  - name: addMarker
+    summary: Adds a reference item in the list view.
+    description: |
+        See [marker](Titanium.UI.ListView.marker) event for details. 
+    parameters:
+      - name: markerProps
+        summary: Dictionary to describe the reference item.
+        type: ListViewMarkerProps
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
 
 examples:
   - title: List View Sections
@@ -1372,11 +1392,12 @@ properties:
 
 ---
 name: ListViewMarkerProps
-summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
 description: |
-    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
+    Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
 
         setMarker({sectionIndex:5, itemIndex:10});
+        addMarker({sectionIndex:7, itemIndex: 2});
 since: 3.2.0
 platforms: [iphone, ipad, android]
 
