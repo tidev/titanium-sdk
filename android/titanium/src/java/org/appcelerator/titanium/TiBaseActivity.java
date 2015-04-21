@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -80,6 +81,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private static OrientationChangedListener orientationChangedListener = null;
 	private static OrientationEventListener orientationListener;
 
+	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= 21);
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
@@ -396,6 +398,27 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				});
 			}
 		}
+		
+		if (activityProxy == null) return;
+		
+		if (window.hasProperty(TiC.PROPERTY_BAR_COLOR)) {
+			final String barColor = TiConvert.toString(window.getProperty(TiC.PROPERTY_BAR_COLOR), "");
+			runOnUiThread(new Runnable(){
+				public void run() {
+					activityProxy.getActionBar().setBackgroundColor(barColor);
+				}
+			});
+		}
+		
+		if (window.hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+			final HashMap titleAttributes = (HashMap) window.getProperty(TiC.PROPERTY_TITLE_ATTRIBUTES);
+			titleAttributes.put(TiC.PROPERTY_TITLE, (String) getTitle());
+			runOnUiThread(new Runnable(){
+				public void run() {
+					activityProxy.getActionBar().setTitleProperties(titleAttributes);
+				}
+			});
+		}
 	}
 
 	// Subclasses can override to provide a custom layout
@@ -534,7 +557,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
 			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
 		}
-
+		
+		//set status bar color
+		if (LOLLIPOP_OR_GREATER) {
+			String color = getIntentString(TiC.PROPERTY_STATUS_BAR_COLOR, "");
+			if(color != ""){
+				getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				getWindow().setStatusBarColor(TiConvert.toColor(color));	
+			}
+		}
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 

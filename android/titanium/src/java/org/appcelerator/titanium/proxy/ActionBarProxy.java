@@ -14,11 +14,18 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.util.TypefaceSpan;
 
 import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.graphics.drawable.ColorDrawable;
+
+import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = {
@@ -39,6 +46,11 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 109;
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 111;
+	private static final int MSG_SET_BACKGROUND_COLOR = MSG_FIRST_ID + 112;
+	private static final int MSG_SET_TITLE_PROPERTIES = MSG_FIRST_ID + 113;
+	private static final int MSG_SET_SUBTITLE_PROPERTIES = MSG_FIRST_ID + 114;
+	private static final int MSG_SET_CUSTOM_VIEW = MSG_FIRST_ID + 115;
+	private static final int MSG_SET_DISPLAY_SHOW_CUSTOM = MSG_FIRST_ID + 116;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
@@ -46,9 +58,13 @@ public class ActionBarProxy extends KrollProxy
 	private static final String LOGO = "logo";
 	private static final String ICON = "icon";
 	private static final String NAVIGATION_MODE = "navigationMode";
+	private static final String BACKGROUND_COLOR = "backgroundColor";
+	private static final String TITLE_PROPERTIES = "titleProperties";
+	private static final String SUBTITLE_PROPERTIES = "subtitleProperties";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
+	private TiViewProxy customView;
 	private boolean showTitleEnabled = true;
 
 	public ActionBarProxy(ActionBarActivity activity)
@@ -104,6 +120,18 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setBackgroundColor(String bgColor)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetBackgroundColor(bgColor);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_COLOR, bgColor);
+			message.getData().putString(BACKGROUND_COLOR, bgColor);
+			message.sendToTarget();
+		}
+	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setTitle(String title)
@@ -125,6 +153,69 @@ public class ActionBarProxy extends KrollProxy
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
 			message.getData().putString(TiC.PROPERTY_SUBTITLE, subTitle);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setTitleProperties(HashMap d)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetTitleProperties(d);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE_PROPERTIES, d);
+			message.getData().putSerializable(TITLE_PROPERTIES, d);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setSubtitleProperties(HashMap d)
+	{
+		if (TiApplication.isUIThread()) {
+			handleSetSubtitleProperties(d);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE_PROPERTIES, d);
+			message.getData().putSerializable(SUBTITLE_PROPERTIES, d);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setCustomView(TiViewProxy viewProxy)
+	{
+		if(viewProxy == null){
+			Log.w(TAG, "Invalid value for customView");
+			return;
+		}
+
+		customView = viewProxy;
+		
+		if (TiApplication.isUIThread()) {
+			handleSetCustomView();
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOM_VIEW);
+			message.sendToTarget();
+		}
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public TiViewProxy getCustomView()
+	{
+		return customView;
+	}
+	
+	@Kroll.method 
+	public void setDisplayShowCustomEnabled(boolean show)
+	{
+		if (actionBar == null) {
+			return;
+		}
+		
+		if (TiApplication.isUIThread()) {
+			actionBar.setDisplayShowCustomEnabled(show);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_DISPLAY_SHOW_CUSTOM, show);
 			message.sendToTarget();
 		}
 	}
@@ -298,6 +389,124 @@ public class ActionBarProxy extends KrollProxy
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
+	
+	private void handleSetBackgroundColor(String bgColor)
+	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
+		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
+		if (bgColor != null) {
+			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+			actionBar.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor(bgColor)));
+		}
+	}
+	
+	private void handleSetTitleProperties(HashMap d)
+	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
+		SpannableStringBuilder ssb;
+		String title = "";
+		
+		if (d.containsKey(TiC.PROPERTY_TITLE)){
+			title = (String) d.get(TiC.PROPERTY_TITLE);
+		}else if(actionBar.getTitle() instanceof String){
+			title = TiConvert.toString(actionBar.getTitle());
+		}
+		
+		if (actionBar.getTitle() instanceof SpannableStringBuilder){
+			ssb = (SpannableStringBuilder) actionBar.getTitle();
+			ssb.clear();
+			ssb.append(title);
+		} else {
+			ssb = new SpannableStringBuilder(title);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			ssb.setSpan(
+					new ForegroundColorSpan(TiConvert.toColor((String) d
+							.get(TiC.PROPERTY_COLOR))), 0, ssb.length(),
+					Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			Object font = d.get(TiC.PROPERTY_FONT);
+			String fontFamily;
+			if(font instanceof HashMap){
+				fontFamily = (String) ((HashMap) font).get(TiC.PROPERTY_FONTFAMILY);
+			}else{
+				fontFamily = (String) font;
+			}
+			ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), fontFamily), 0,
+					ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		}
+		
+		actionBar.setTitle(ssb);
+	}
+	
+	private void handleSetSubtitleProperties(HashMap d)
+	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
+		TiApplication appContext = TiApplication.getInstance();
+		SpannableStringBuilder ssb;
+		String subtitle = "";
+		
+		if (d.containsKey(TiC.PROPERTY_SUBTITLE)){
+			subtitle = (String) d.get(TiC.PROPERTY_SUBTITLE);
+		}else if(actionBar.getSubtitle() instanceof String){
+			subtitle = TiConvert.toString(actionBar.getSubtitle());
+		}
+		
+		if (actionBar.getSubtitle() instanceof SpannableStringBuilder){
+			ssb = (SpannableStringBuilder) actionBar.getSubtitle();
+			ssb.clear();
+			ssb.append(subtitle);
+		} else {
+			ssb = new SpannableStringBuilder(subtitle);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			ssb.setSpan(
+					new ForegroundColorSpan(TiConvert.toColor((String) d
+							.get(TiC.PROPERTY_COLOR))), 0, ssb.length(),
+					Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			Object font = d.get(TiC.PROPERTY_FONT);
+			String fontFamily;
+			if(font instanceof HashMap){
+				fontFamily = (String) ((HashMap) font).get(TiC.PROPERTY_FONTFAMILY);
+			}else{
+				fontFamily = (String) font;
+			}
+			ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), fontFamily), 0,
+					ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		}
+		
+		actionBar.setSubtitle(ssb);
+	}
+	
+	private void handleSetCustomView(){
+		
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+		
+		actionBar.setCustomView(customView.getOrCreateView().getNativeView());
+	}
 
 	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
 	{
@@ -355,12 +564,31 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_BACKGROUND_IMAGE:
 				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
 				return true;
+			case MSG_SET_BACKGROUND_COLOR:
+				handleSetBackgroundColor(msg.getData().getString(BACKGROUND_COLOR));
+				return true;
 			case MSG_SET_TITLE:
 				handleSetTitle(msg.getData().getString(TITLE));
 				return true;
 			case MSG_SET_SUBTITLE:
 				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
 				return true;
+			case MSG_SET_TITLE_PROPERTIES:
+				handleSetTitleProperties((HashMap) msg.getData().getSerializable(TITLE_PROPERTIES));
+				return true;
+			case MSG_SET_SUBTITLE_PROPERTIES:
+				handleSetSubtitleProperties((HashMap) msg.getData().getSerializable(SUBTITLE_PROPERTIES));
+				return true;
+			case MSG_SET_CUSTOM_VIEW:
+				handleSetCustomView();
+				return true;
+			case MSG_SET_DISPLAY_SHOW_CUSTOM: {
+				boolean show = TiConvert.toBoolean(msg.obj, true);
+				if (actionBar != null) {
+					actionBar.setDisplayShowCustomEnabled(show);
+				}
+				return true;
+			}
 			case MSG_SET_DISPLAY_SHOW_HOME: {
 				boolean show = TiConvert.toBoolean(msg.obj, true);
 				if (actionBar != null) {

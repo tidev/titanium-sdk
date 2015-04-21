@@ -2252,6 +2252,11 @@ public class TiC
 	* @module.api
 	*/
 	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+	
+	/**
+	* @module.api
+	*/
+	public static final String PROPERTY_STATUS_BAR_COLOR = "statusBarColor";
 
 	/**
 	 * @module.api
@@ -2397,6 +2402,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TITLE = "title";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 
 	/**
 	 * @module.api
