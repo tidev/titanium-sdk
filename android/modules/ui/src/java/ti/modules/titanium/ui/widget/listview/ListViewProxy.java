@@ -25,7 +25,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
-import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
@@ -61,7 +60,7 @@ public class ListViewProxy extends TiViewProxy {
 	//indicate if user attempts to add/modify/delete sections before TiListView is created 
 	private boolean preload = false;
 	private ArrayList<ListSectionProxy> preloadSections;
-	private HashMap<String, Integer> preloadMarker;
+	private ArrayList<HashMap<String, Integer>> preloadMarkers;
 	
 	public ListViewProxy() {
 		super();
@@ -73,6 +72,7 @@ public class ListViewProxy extends TiViewProxy {
 	
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		preloadSections = new ArrayList<ListSectionProxy>();
+		preloadMarkers = new ArrayList<HashMap<String, Integer>>();
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		super.handleCreationArgs(createdInModule, args);
@@ -109,9 +109,9 @@ public class ListViewProxy extends TiViewProxy {
 		preload = pload;
 	}
 	
-	public HashMap<String, Integer> getPreloadMarker()
+	public ArrayList<HashMap<String, Integer>> getPreloadMarkers()
 	{
-		return preloadMarker;
+		return preloadMarkers;
 	}
 
 	private void addPreloadSections(Object secs, int index, boolean arrayOnly) {
@@ -182,11 +182,25 @@ public class ListViewProxy extends TiViewProxy {
 			if (listView != null) {
 				((TiListView)listView).setMarker(m);
 			} else {
-				preloadMarker = m;
+				preloadMarkers.clear();
+				preloadMarkers.add(m);
 			}
 		}
 	}
 	
+	@Kroll.method
+	public void addMarker(Object marker) 
+	{
+		if (marker instanceof HashMap) {
+			HashMap<String, Integer> m = (HashMap<String, Integer>) marker;
+			TiUIView listView = peekView();
+			if (listView != null) {
+				((TiListView)listView).addMarker(m);
+			} else {
+				preloadMarkers.add(m);
+			}
+		}
+	}
 
 	@Override
 	public boolean handleMessage(final Message msg) 	{
