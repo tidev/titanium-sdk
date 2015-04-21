@@ -34,7 +34,6 @@ import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
-import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -47,13 +46,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener {
 
@@ -73,6 +72,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
+	private int dividerHeight;
 	private int[] marker = new int[2];
 	private View headerView;
 	private View footerView;
@@ -447,6 +447,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_DIVIDER_HEIGHT)) {
+			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_DIVIDER_HEIGHT), -1);
+			int height = dHeight.getAsPixels(listView);
+			if (height > 0) {
+				dividerHeight = height;
+				listView.setDividerHeight(height);
+			}
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
 			setSeparatorColor(color);
@@ -654,6 +663,13 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			String color = TiConvert.toString(newValue);
 			setSeparatorColor(color);
+		} else if (key.equals(TiC.PROPERTY_DIVIDER_HEIGHT)) {
+			TiDimension dHeight = TiConvert.toTiDimension(newValue, -1);
+			int height = dHeight.getAsPixels(listView);
+			if (height > 0) {
+				dividerHeight = height;
+				listView.setDividerHeight(height);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -670,9 +686,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 	private void setSeparatorColor(String color) {
 		int sepColor = TiColorHelper.parseColor(color);
-		int dividerHeight = listView.getDividerHeight();
+		int dHeight = 0;
+		if (dividerHeight == 0) {
+			dHeight = listView.getDividerHeight();
+		} else {
+			dHeight = dividerHeight;
+		}
 		listView.setDivider(new ColorDrawable(sepColor));
-		listView.setDividerHeight(dividerHeight);
+		listView.setDividerHeight(dHeight);
 	}
 
 	private void refreshItems() {

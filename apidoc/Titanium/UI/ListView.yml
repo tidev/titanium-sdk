@@ -521,6 +521,15 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
+  - name: dividerHeight
+    summary: height of the ListView divider.
+    description: |
+        Height of the ListView divider, in platform-specific units. If undefined, default native height will be used.
+        Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
+    type: [String, Number]
+    since: "4.1.0"
+    platforms: [android]
+
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
     type: Boolean
