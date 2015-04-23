@@ -66,6 +66,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.support.v4.view.WindowCompat;
 
 import com.appcelerator.analytics.APSAnalytics;
 
@@ -557,14 +558,18 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
 		}
 		
+		//action bar color must be set to transparent to get translucent window
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_TRANSLUCENT)) {
+			supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
+			supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		}
+		
 		//set status bar color
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			String color = getIntentString(TiC.PROPERTY_STATUS_BAR_COLOR, "");
-			if(color != ""){
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-				getWindow().setStatusBarColor(TiConvert.toColor(color));	
-			}
+		String color = getIntentString(TiC.PROPERTY_STATUS_BAR_COLOR, "");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && color != "") {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			getWindow().setStatusBarColor(TiConvert.toColor(color));	
 		}
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.

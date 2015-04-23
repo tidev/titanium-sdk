@@ -36,6 +36,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -49,7 +50,8 @@ import android.view.WindowManager;
 	TiC.PROPERTY_FLAG_SECURE,
 	TiC.PROPERTY_BAR_COLOR,
 	TiC.PROPERTY_STATUS_BAR_COLOR,
-	TiC.PROPERTY_TITLE_ATTRIBUTES
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
+	TiC.PROPERTY_TRANSLUCENT
 })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -60,6 +62,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
+	private static final int MSG_SET_STATUS_BAR_COLOR = MSG_FIRST_ID + 103;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private WeakReference<TiBaseActivity> windowActivity;
@@ -339,10 +342,18 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 		
+		// request translucent action bar
+		if (hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
+			boolean translucentActionBar = TiConvert.toBoolean(getProperty(TiC.PROPERTY_TRANSLUCENT), false);
+			if (translucentActionBar) {
+				intent.putExtra(TiC.PROPERTY_TRANSLUCENT, translucentActionBar);
+			}
+		}
+		
 		// Set the statusBarColor property
 		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
-			String statusBarColor = TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR), "");
-			if (statusBarColor != "") {
+			String statusBarColor = TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR));
+			if (statusBarColor != null) {
 				intent.putExtra(TiC.PROPERTY_STATUS_BAR_COLOR, statusBarColor);
 			}
 		}
@@ -354,6 +365,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (opening || opened)  {
 			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
+			} else if (TiC.PROPERTY_STATUS_BAR_COLOR.equals(name)) {
+				getMainHandler().obtainMessage(MSG_SET_STATUS_BAR_COLOR, value).sendToTarget();
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
 			} else if (TiC.PROPERTY_TOP.equals(name) || TiC.PROPERTY_BOTTOM.equals(name) || TiC.PROPERTY_LEFT.equals(name)
@@ -419,6 +432,21 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					if (win != null) {
 						win.setFormat(TiConvert.toInt((Object)(msg.obj), PixelFormat.UNKNOWN));
 						win.getDecorView().invalidate();
+					}
+				}
+				return true;
+			}
+			case MSG_SET_STATUS_BAR_COLOR: {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+					return true;
+				}
+				Activity activity = getWindowActivity();
+				if (activity != null) {
+					Window win = activity.getWindow();
+					if (win != null) {
+						win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+						win.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+						win.setStatusBarColor(TiConvert.toColor((String)(msg.obj)));	
 					}
 				}
 				return true;
