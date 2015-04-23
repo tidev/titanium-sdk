@@ -526,7 +526,7 @@
                                             NUMINTEGER(marker.row), @"itemIndex",
                                             nil];
         [self fireEvent:@"marker" withObject:eventObject withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        [marker release];
+        [eventObject release];
     }
 }
 
@@ -547,7 +547,7 @@
                                             NUMINTEGER(marker.row), @"itemIndex",
                                             nil];
         [self fireEvent:@"marker" withObject:eventObject withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-        [marker release];
+        [eventObject release];
     }
 }
 
