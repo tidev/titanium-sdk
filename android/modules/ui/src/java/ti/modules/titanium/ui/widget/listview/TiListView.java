@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,7 +74,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
-	private int[] marker = new int[2];
+	private ArrayList<Pair<Integer,Integer>> markers = new ArrayList<Pair<Integer,Integer>>();
 	private View headerView;
 	private View footerView;
 	private String searchText;
@@ -225,12 +226,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			ListSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
 			int sectionIndex = info.second.first;
-			//check marker
-			if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
-				proxy.fireEvent(TiC.EVENT_MARKER, null, false);
-				resetMarker();
-			}
-
+		
 			View content = convertView;
 
 			//Handles header/footer views and titles.
@@ -246,6 +242,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				return content;
 			}
 			
+			//check marker and fire appropriate events
+			checkMarker(sectionIndex, sectionItemIndex, section.hasHeader());
+
 			//Handling templates
 			KrollDict data = section.getListItemData(sectionItemIndex);
 			TiListViewTemplate template = section.getTemplateByIndex(sectionItemIndex);
@@ -278,12 +277,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		caseInsensitive = true;
 		
 		//handling marker
-		HashMap<String, Integer> preloadMarker = ((ListViewProxy)proxy).getPreloadMarker();
-		if (preloadMarker != null) {
-			setMarker(preloadMarker);
-		} else {
-			resetMarker();
-		}
+		ArrayList<HashMap<String, Integer>> preloadMarkers = ((ListViewProxy)proxy).getPreloadMarkers();
+		if (preloadMarkers != null) {
+			setMarkers(preloadMarkers);
+		} 
 		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
@@ -384,11 +381,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		return caseInsensitive;
 	}
 
-	private void resetMarker() 
-	{
-		marker[0] = Integer.MAX_VALUE;
-		marker[1] = Integer.MAX_VALUE;
-	}
 
 	public void setHeaderTitle(String title) {
 		TextView textView = (TextView) headerView.findViewById(titleId);
@@ -414,9 +406,50 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	
 	public void setMarker(HashMap<String, Integer> markerItem) 
 	{
-		marker[0] = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
-		marker[1] = markerItem.get(TiC.PROPERTY_ITEM_INDEX);
+		markers.clear();
+		addMarker(markerItem);
+	}
+	
+	
+	public void setMarkers(ArrayList<HashMap<String, Integer>> markerItems)
+	{
+		markers.clear();
+		for (int i = 0; i < markerItems.size(); ++i) {
+			HashMap<String, Integer> markerItem = markerItems.get(i);
+			addMarker(markerItem);
+		}
+	}
+	
+	public void checkMarker(int sectionIndex, int sectionItemIndex, boolean hasHeader)
+	{
+		if (markers.isEmpty()) {
+			return;
+		}
 		
+		if (hasHeader) {
+			sectionItemIndex--;
+		}
+
+		Iterator<Pair<Integer, Integer>> iterator = markers.iterator();
+		while (iterator.hasNext()) {
+			Pair<Integer, Integer> marker = iterator.next();
+			if (sectionIndex == marker.first && sectionItemIndex == marker.second) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+				data.put(TiC.PROPERTY_ITEM_INDEX, sectionItemIndex);
+				if (proxy != null && proxy.hasListeners(TiC.EVENT_MARKER)) {
+					proxy.fireEvent(TiC.EVENT_MARKER, data, false);
+				}
+				iterator.remove();
+			}
+		}
+	}
+	
+	public void addMarker(HashMap<String, Integer> markerItem)
+	{
+		int sectionIndex = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
+		int itemIndex = markerItem.get(TiC.PROPERTY_ITEM_INDEX);
+		markers.add(new Pair<Integer, Integer>(sectionIndex, itemIndex));
 	}
 	
 	public void processProperties(KrollDict d) {
