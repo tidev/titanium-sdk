@@ -81,7 +81,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private static OrientationChangedListener orientationChangedListener = null;
 	private static OrientationEventListener orientationListener;
 
-	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= 21);
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
@@ -559,7 +558,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 		
 		//set status bar color
-		if (LOLLIPOP_OR_GREATER) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			String color = getIntentString(TiC.PROPERTY_STATUS_BAR_COLOR, "");
 			if(color != ""){
 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);

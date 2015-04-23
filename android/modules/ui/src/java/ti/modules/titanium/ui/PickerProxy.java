@@ -525,9 +525,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public void showDatePickerDialog(Object[] args)
 	{
 		HashMap settings = new HashMap();
+		boolean cancelable = true;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		if (args.length > 0) {
 			settings = (HashMap) args[0];
+		}
+		if (settings.containsKey(TiC.PROPERTY_CANCELABLE)) {
+			cancelable = TiConvert.toBoolean(settings, TiC.PROPERTY_CANCELABLE);
 		}
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey("value")) {
@@ -631,7 +635,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
 		}
 		
-		dialog.setCancelable(true);
+		dialog.setCancelable(cancelable);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
 		}
@@ -669,12 +673,23 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		HashMap settings = new HashMap();
 		boolean is24HourView = false;
+		boolean cancelable = true;
+		int minuteInterval = 1;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		if (args.length > 0) {
 			settings = (HashMap) args[0];
 		}
 		if (settings.containsKey("format24")) {
 			is24HourView = TiConvert.toBoolean(settings, "format24");
+		}
+		if (settings.containsKey(TiC.PROPERTY_CANCELABLE)) {
+			cancelable = TiConvert.toBoolean(settings, TiC.PROPERTY_CANCELABLE);
+		}
+		if (settings.containsKey(TiC.PROPERTY_MINUTE_INTERVAL)) {
+			minuteInterval = TiConvert.toInt(settings, TiC.PROPERTY_MINUTE_INTERVAL);
+			if (minuteInterval < 1) {
+				minuteInterval = 1;
+			}
 		}
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey("value")) {
@@ -694,6 +709,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 		TimePickerDialog.OnTimeSetListener timeSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
+		final int fMinuteInterval = minuteInterval;
 		if (callback != null) {
 			timeSetListener = new TimePickerDialog.OnTimeSetListener()
 			{
@@ -704,7 +720,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 						callbackCount.incrementAndGet();
 						Calendar calendar = Calendar.getInstance();
 						calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-						calendar.set(Calendar.MINUTE, minute);
+						calendar.set(Calendar.MINUTE, minute * fMinuteInterval);
 						Date value = calendar.getTime();
 						KrollDict data = new KrollDict();
 						data.put("cancel", false);
@@ -729,29 +745,24 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			};
 		}
 		
-		// TimePickerDialog has a bug in Android 4.x
-		// If build version is using Android 4.x, use
-		// our TiTimePickerDialog. It was fixed from Android 5.0.
-		TimePickerDialog dialog;
-		
-		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
-				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
-			dialog = new TiTimePickerDialog(
-					getActivity(),
-					timeSetListener,
+		// use default theme if minuteInterval is 1
+		// Android 5.0 onwards this hack doesn't work because of the default clock theme
+		// so use THEME_HOLO_LIGHT always when minuteInterval > 1
+		TiTimePickerDialog dialog;
+		if (minuteInterval != 1) {
+			dialog = new TiTimePickerDialog(getActivity(),
+					TimePickerDialog.THEME_HOLO_LIGHT, timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
-					calendar.get(Calendar.MINUTE),
+					calendar.get(Calendar.MINUTE) / minuteInterval,
 					is24HourView);
+			dialog.setMinuteInterval(minuteInterval);
 		} else {
-			dialog = new TimePickerDialog(
-					getActivity(),
-					timeSetListener,
+			dialog = new TiTimePickerDialog(getActivity(), timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
-					calendar.get(Calendar.MINUTE),
-					is24HourView);
+					calendar.get(Calendar.MINUTE), is24HourView);
 		}
 
-		dialog.setCancelable(true);
+		dialog.setCancelable(cancelable);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
 		}
