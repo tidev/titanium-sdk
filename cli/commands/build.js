@@ -126,7 +126,14 @@ exports.config = function (logger, config, cli) {
 
 									// check that the Titanium SDK version is correct
 									if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-										throw new cli.GracefulShutdown();
+										var dm = require('domain').create();
+										dm.on('error', function(err) {
+											// handle the error safely and silently
+										});
+
+										dm.run(function() {
+											throw new cli.GracefulShutdown();
+										});
 									}
 
 									cli.argv.type = 'app';
