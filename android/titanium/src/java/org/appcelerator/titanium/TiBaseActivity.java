@@ -415,7 +415,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			titleAttributes.put(TiC.PROPERTY_TITLE, (String) getTitle());
 			runOnUiThread(new Runnable(){
 				public void run() {
-					activityProxy.getActionBar().setTitleProperties(titleAttributes);
+					activityProxy.getActionBar().setTitleAttributes(titleAttributes);
 				}
 			});
 		}

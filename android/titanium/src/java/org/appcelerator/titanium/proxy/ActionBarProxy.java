@@ -47,8 +47,8 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 111;
 	private static final int MSG_SET_BACKGROUND_COLOR = MSG_FIRST_ID + 112;
-	private static final int MSG_SET_TITLE_PROPERTIES = MSG_FIRST_ID + 113;
-	private static final int MSG_SET_SUBTITLE_PROPERTIES = MSG_FIRST_ID + 114;
+	private static final int MSG_SET_TITLE_ATTRIBUTES = MSG_FIRST_ID + 113;
+	private static final int MSG_SET_SUBTITLE_ATTRIBUTES = MSG_FIRST_ID + 114;
 	private static final int MSG_SET_CUSTOM_VIEW = MSG_FIRST_ID + 115;
 	private static final int MSG_SET_DISPLAY_SHOW_CUSTOM = MSG_FIRST_ID + 116;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
@@ -59,8 +59,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final String ICON = "icon";
 	private static final String NAVIGATION_MODE = "navigationMode";
 	private static final String BACKGROUND_COLOR = "backgroundColor";
-	private static final String TITLE_PROPERTIES = "titleProperties";
-	private static final String SUBTITLE_PROPERTIES = "subtitleProperties";
+	private static final String SUBTITLE_ATTRIBUTES = "subtitleAttributes";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
@@ -158,25 +157,25 @@ public class ActionBarProxy extends KrollProxy
 	}
 	
 	@Kroll.method @Kroll.setProperty
-	public void setTitleProperties(HashMap d)
+	public void setTitleAttributes(HashMap d)
 	{
 		if (TiApplication.isUIThread()) {
-			handleSetTitleProperties(d);
+			handleSetTitleAttributes(d);
 		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE_PROPERTIES, d);
-			message.getData().putSerializable(TITLE_PROPERTIES, d);
+			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE_ATTRIBUTES, d);
+			message.getData().putSerializable(TiC.PROPERTY_TITLE_ATTRIBUTES, d);
 			message.sendToTarget();
 		}
 	}
 	
 	@Kroll.method @Kroll.setProperty
-	public void setSubtitleProperties(HashMap d)
+	public void setSubtitleAttributes(HashMap d)
 	{
 		if (TiApplication.isUIThread()) {
-			handleSetSubtitleProperties(d);
+			handleSetSubtitleAttributes(d);
 		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE_PROPERTIES, d);
-			message.getData().putSerializable(SUBTITLE_PROPERTIES, d);
+			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE_ATTRIBUTES, d);
+			message.getData().putSerializable(SUBTITLE_ATTRIBUTES, d);
 			message.sendToTarget();
 		}
 	}
@@ -405,7 +404,7 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 	
-	private void handleSetTitleProperties(HashMap d)
+	private void handleSetTitleAttributes(HashMap d)
 	{
 		if (actionBar == null) {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -451,7 +450,7 @@ public class ActionBarProxy extends KrollProxy
 		actionBar.setTitle(ssb);
 	}
 	
-	private void handleSetSubtitleProperties(HashMap d)
+	private void handleSetSubtitleAttributes(HashMap d)
 	{
 		if (actionBar == null) {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -573,11 +572,11 @@ public class ActionBarProxy extends KrollProxy
 			case MSG_SET_SUBTITLE:
 				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
 				return true;
-			case MSG_SET_TITLE_PROPERTIES:
-				handleSetTitleProperties((HashMap) msg.getData().getSerializable(TITLE_PROPERTIES));
+			case MSG_SET_TITLE_ATTRIBUTES:
+				handleSetTitleAttributes((HashMap) msg.getData().getSerializable(TiC.PROPERTY_TITLE_ATTRIBUTES));
 				return true;
-			case MSG_SET_SUBTITLE_PROPERTIES:
-				handleSetSubtitleProperties((HashMap) msg.getData().getSerializable(SUBTITLE_PROPERTIES));
+			case MSG_SET_SUBTITLE_ATTRIBUTES:
+				handleSetSubtitleAttributes((HashMap) msg.getData().getSerializable(SUBTITLE_ATTRIBUTES));
 				return true;
 			case MSG_SET_CUSTOM_VIEW:
 				handleSetCustomView();
