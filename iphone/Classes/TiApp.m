@@ -483,6 +483,48 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     completionHandler();
 }
 
+
+#pragma mark Apple Watch
+- (void)application:(UIApplication *)application
+            handleWatchKitExtensionRequest:(NSDictionary *)userInfo
+              reply:(void (^)(NSDictionary *replyInfo))reply
+{
+
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"watch-reply-%f",[[NSDate date] timeIntervalSince1970]];
+    
+    if (pendingReplyHandlers == nil) {
+        pendingReplyHandlers = [[NSMutableDictionary alloc] init];
+    }
+    
+    [pendingReplyHandlers setObject:[[reply copy] autorelease ]forKey:key];
+    
+    NSMutableDictionary* dic = [[[NSMutableDictionary alloc] init] autorelease];
+    [dic setObject:key forKey:@"handlerId"];
+    if(userInfo!=nil){
+        [dic setObject:userInfo forKey:@"userInfo"];
+    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:KTiWatchKitExtensionRequest object:self userInfo:dic];
+}
+
+-(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo
+{
+    if (pendingReplyHandlers == nil) {
+        DebugLog(@"[ERROR] No WatchKitExtensionRequest have been recieved yet");
+        return;
+    }
+
+    if ([pendingReplyHandlers objectForKey:key]) {
+        void(^replyBlock)(NSDictionary *input);
+        replyBlock = [pendingReplyHandlers objectForKey:key];
+        replyBlock(userInfo);
+        [pendingReplyHandlers removeObjectForKey:key];
+    } else {
+        DebugLog(@"[ERROR] The specified WatchKitExtensionRequest Handler with ID: %@ has already expired or removed from the system", key);
+    }
+}
+
 #pragma mark -
 
 #pragma mark Helper Methods

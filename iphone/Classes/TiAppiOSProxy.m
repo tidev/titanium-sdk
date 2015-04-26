@@ -82,6 +82,10 @@
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
              (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
         }
+        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:KTiWatchKitExtensionRequest object:nil];
+        }
     }
 
 }
@@ -126,6 +130,9 @@
     if ([TiUtils isIOS8OrGreater]){
         if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiWatchKitExtensionRequest object:nil];
         }
     }
 }
@@ -542,6 +549,31 @@
 {
     [self fireEvent:@"usernotificationsettings"
          withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
+}
+
+-(void)didReceiveWatchExtensionRequestNotification:(NSNotification*)notif
+{
+    [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
+}
+
+-(void)sendWatchExtensionReply:(id)args
+{
+    enum Args {
+        kArgKey = 0,
+        kArgCount,
+        kArgUserInfo = kArgCount
+    };
+    
+    ENSURE_TYPE(args,NSArray);
+    ENSURE_ARG_COUNT(args, kArgCount);
+    
+    NSString *key = [TiUtils stringValue:[args objectAtIndex:kArgKey]];
+    NSDictionary *userInfo = [args objectAtIndex:kArgUserInfo];
+    if([args count] > 1){
+        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:userInfo];
+    }else{
+        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:nil];
+    }
 }
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
