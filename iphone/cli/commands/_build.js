@@ -2574,10 +2574,10 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 		}
 
 		projectContents.split('\n').forEach(function (line) {
-			line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-			line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
-			line.indexOf('/* libTiCore.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
-			line.indexOf('/* libTiCore.a */,') !== -1 && groupMarkers.push(line);
+			line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+			line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
+			line.indexOf('/* libtiverify.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
+			line.indexOf('/* libtiverify.a */,') !== -1 && groupMarkers.push(line);
 		});
 
 		fileMarkers.forEach(function (marker) {
@@ -2598,7 +2598,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				fileMarkers2FileRefs[m[1].trim()] = newUUID;
@@ -2611,8 +2611,8 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/lib\/libTiCore\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/lib\/libtiverify\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(/SOURCE_ROOT/g, '"<absolute>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -2623,7 +2623,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					end = begin + marker.length,
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2634,7 +2634,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(m[1].trim(), 'g'), fileMarkers2FileRefs[m[1].trim()]);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2694,8 +2694,8 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			}
 
 			projectContents.split('\n').forEach(function (line) {
-				line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-				line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
+				line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+				line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
 			});
 
 			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
@@ -2728,7 +2728,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Resources')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
@@ -2741,7 +2741,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Embed App Extensions')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID)
@@ -2769,9 +2769,9 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					line = projectContents
 						.substring(begin, end)
 						.replace(/archive.ar/g, '\"wrapper.app-extension\"')
-						.replace(/lib\/libTiCore\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
-						.replace(/name = libTiCore.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/lib\/libtiverify\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
+						.replace(/name = libtiverify.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/SOURCE_ROOT/g, '"<group>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
