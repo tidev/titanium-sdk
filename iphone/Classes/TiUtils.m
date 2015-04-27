@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -795,7 +795,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		}
 	}
 
-	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+	result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]relativeToURL:rootPath];
     
     //TIMOB-18262
     if (result && ([[result scheme] isEqualToString:@"file"])){
