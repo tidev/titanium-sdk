@@ -1721,8 +1721,8 @@ iOSBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForceRebu
 		return true;
 	}
 
-	// if encryptJS changed, and current encryptJS is true, then we need to recompile
-	if ((this.encryptJS === true) && (this.encryptJS !== manifest.encryptJS)) {
+	// if encryptJS changed, then we need to recompile
+	if (this.encryptJS !== manifest.encryptJS) {
 		this.logger.info(__('Forcing rebuild: JavaScript encryption flag changed'));
 		this.logger.info('  ' + __('Was: %s', manifest.encryptJS));
 		this.logger.info('  ' + __('Now: %s', this.encryptJS));
