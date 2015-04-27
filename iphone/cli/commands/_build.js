@@ -99,6 +99,7 @@ function iOSBuilder() {
 	];
 
 	this.tiSymbols = {};
+	this.useJSCore=false;
 
 	// populated when config() is called after iOS info has been detected
 	this.defaultIosVersion = null;
@@ -1403,6 +1404,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		},
 
 		'initBuildDir',
+		'updateXCConfig',
 		'createInfoPlist',
 		'createEntitlementsPlist',
 		'injectModulesIntoXcodeProject',
@@ -1537,6 +1539,17 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 
 	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
 	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
+
+	//This is default behavior for now. Move this to true in phase 2. 
+	//Remove this logic when we have debugging/profiling support with JSCore framework
+	//TIMOB-17892
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
+		this.useJSCore = true;
+	}
+
+	if (this.debugHost || this.profilerHost) {
+		this.useJSCore = false;
+	}
 
 	next();
 };
@@ -1902,6 +1915,24 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
 	wrench.mkdirSyncRecursive(this.xcodeAppDir);
 	wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
 
+	next();
+};
+
+iOSBuilder.prototype.updateXCConfig = function updateXCConfig(next) {
+	var configContents = [
+		'TI_VERSION=' + this.titaniumSdkVersion,
+		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+		'TI_APPID=' + this.tiapp.id,
+		'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
+		'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore'
+	];
+	if (this.useJSCore) {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)','#include "module"')
+	} else {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)','#include "module"')
+	}
+	this.logger.info(__('Updating Xcode project configuration: %s', 'project.xcconfig'.cyan));
+	fs.writeFileSync(this.xcodeProjectConfigFile, configContents.join('\n') + '\n');
 	next();
 };
 
@@ -2338,16 +2369,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	);
 
 	fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
-
-	this.logger.info(__('Writing Xcode project configuration: %s', 'project.xcconfig'.cyan));
-	fs.writeFileSync(this.xcodeProjectConfigFile, [
-		'TI_VERSION=' + this.titaniumSdkVersion,
-		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
-		'TI_APPID=' + this.tiapp.id,
-		'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd',
-		'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd',
-		'#include "module"'
-	].join('\n') + '\n');
 
 	this.logger.info(__('Writing Xcode module configuration: %s', 'module.xcconfig'.cyan));
 	fs.writeFileSync(path.join(this.buildDir, 'module.xcconfig'), '// this is a generated file - DO NOT EDIT\n\n');
@@ -3739,25 +3760,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
-	//This is default behavior for now. Move this to true in phase 2. 
-	//Remove this logic when we have debugging/profiling support with JSCore framework
-	//TIMOB-17892
-	var useJSCore = false;
-	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
-		useJSCore = true;
-	}
-
-	if (this.debugHost || this.profilerHost) {
-		useJSCore = false;
-	}
-
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h');
 
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		// BEGIN TIMOB-17892 changes
-		if (useJSCore) {
+		if (this.useJSCore) {
 			this.logger.debug(__('Using JavaScriptCore Framework'));
 			fs.writeFileSync(
 				dest,
@@ -3805,7 +3814,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		'#endif'
 	);
 	// BEGIN TIMOB-17892 changes
-	if (useJSCore) {
+	if (this.useJSCore) {
 		this.logger.debug(__('Using JavaScriptCore Framework'));
 		contents.push('#define USE_JSCORE_FRAMEWORK')
 	}
