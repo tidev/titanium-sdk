@@ -551,13 +551,21 @@
          withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
 }
 
+#pragma mark Apple Watchkit notifications
+
 -(void)didReceiveWatchExtensionRequestNotification:(NSNotification*)notif
 {
     [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
 }
 
+#pragma mark Apple Watchkit handleWatchKitExtensionRequest reply
+
 -(void)sendWatchExtensionReply:(id)args
 {
+    if(![TiUtils isIOS8OrGreater]) {
+        return;
+    }
+    
     enum Args {
         kArgKey = 0,
         kArgCount,

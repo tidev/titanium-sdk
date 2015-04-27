@@ -484,14 +484,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 }
 
 
-#pragma mark Apple Watch
+#pragma mark Apple Watchkit handleWatchKitExtensionRequest
 - (void)application:(UIApplication *)application
             handleWatchKitExtensionRequest:(NSDictionary *)userInfo
               reply:(void (^)(NSDictionary *replyInfo))reply
 {
 
     // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"watch-reply-%f",[[NSDate date] timeIntervalSince1970]];
+    id key = [NSString stringWithFormat:@"watchkit-reply-%f",[[NSDate date] timeIntervalSince1970]];
     
     if (pendingReplyHandlers == nil) {
         pendingReplyHandlers = [[NSMutableDictionary alloc] init];
