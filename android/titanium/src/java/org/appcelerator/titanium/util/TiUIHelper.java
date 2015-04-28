@@ -358,6 +358,20 @@ public class TiUIHelper
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
 
+	public static boolean isAndroidTypeface(String fontFamily)
+	{
+		if (fontFamily != null) {
+			if ("monospace".equals(fontFamily)) {
+				return true;
+			} else if ("serif".equals(fontFamily)) {
+				return true;
+			} else if ("sans-serif".equals(fontFamily)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static Typeface toTypeface(Context context, String fontFamily)
 	{
 		Typeface tf = Typeface.SANS_SERIF; // default
