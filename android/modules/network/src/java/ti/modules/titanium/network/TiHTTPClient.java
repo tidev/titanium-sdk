@@ -1130,7 +1130,7 @@ public class TiHTTPClient
 		} else if (!validating) {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 		} else {
-			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new TLSSNISocketFactory(), 443));
 		}
 		
 		return client;
