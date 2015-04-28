@@ -1130,6 +1130,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DIVIDER_HEIGHT = "dividerHeight";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMAIN = "domain";
 
 	/**
