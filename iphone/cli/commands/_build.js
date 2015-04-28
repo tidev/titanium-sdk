@@ -99,6 +99,7 @@ function iOSBuilder() {
 	];
 
 	this.tiSymbols = {};
+	this.useJSCore=false;
 
 	// populated when config() is called after iOS info has been detected
 	this.defaultIosVersion = null;
@@ -1403,6 +1404,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		},
 
 		'initBuildDir',
+		'updateXCConfig',
 		'createInfoPlist',
 		'createEntitlementsPlist',
 		'injectModulesIntoXcodeProject',
@@ -1537,6 +1539,17 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 
 	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
 	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
+
+	//This is default behavior for now. Move this to true in phase 2. 
+	//Remove this logic when we have debugging/profiling support with JSCore framework
+	//TIMOB-17892
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
+		this.useJSCore = true;
+	}
+
+	if (this.debugHost || this.profilerHost) {
+		this.useJSCore = false;
+	}
 
 	next();
 };
@@ -1902,6 +1915,24 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
 	wrench.mkdirSyncRecursive(this.xcodeAppDir);
 	wrench.mkdirSyncRecursive(path.join(this.buildDir, 'Classes'));
 
+	next();
+};
+
+iOSBuilder.prototype.updateXCConfig = function updateXCConfig(next) {
+	var configContents = [
+		'TI_VERSION=' + this.titaniumSdkVersion,
+		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+		'TI_APPID=' + this.tiapp.id,
+		'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
+		'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore'
+	];
+	if (this.useJSCore) {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)','#include "module"')
+	} else {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)','#include "module"')
+	}
+	this.logger.info(__('Updating Xcode project configuration: %s', 'project.xcconfig'.cyan));
+	fs.writeFileSync(this.xcodeProjectConfigFile, configContents.join('\n') + '\n');
 	next();
 };
 
@@ -2339,16 +2370,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 
 	fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
 
-	this.logger.info(__('Writing Xcode project configuration: %s', 'project.xcconfig'.cyan));
-	fs.writeFileSync(this.xcodeProjectConfigFile, [
-		'TI_VERSION=' + this.titaniumSdkVersion,
-		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
-		'TI_APPID=' + this.tiapp.id,
-		'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd',
-		'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd',
-		'#include "module"'
-	].join('\n') + '\n');
-
 	this.logger.info(__('Writing Xcode module configuration: %s', 'module.xcconfig'.cyan));
 	fs.writeFileSync(path.join(this.buildDir, 'module.xcconfig'), '// this is a generated file - DO NOT EDIT\n\n');
 };
@@ -2553,10 +2574,10 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 		}
 
 		projectContents.split('\n').forEach(function (line) {
-			line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-			line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
-			line.indexOf('/* libTiCore.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
-			line.indexOf('/* libTiCore.a */,') !== -1 && groupMarkers.push(line);
+			line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+			line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
+			line.indexOf('/* libtiverify.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
+			line.indexOf('/* libtiverify.a */,') !== -1 && groupMarkers.push(line);
 		});
 
 		fileMarkers.forEach(function (marker) {
@@ -2577,7 +2598,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				fileMarkers2FileRefs[m[1].trim()] = newUUID;
@@ -2590,8 +2611,8 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/lib\/libTiCore\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/lib\/libtiverify\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(/SOURCE_ROOT/g, '"<absolute>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -2602,7 +2623,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					end = begin + marker.length,
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2613,7 +2634,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(m[1].trim(), 'g'), fileMarkers2FileRefs[m[1].trim()]);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2673,8 +2694,8 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			}
 
 			projectContents.split('\n').forEach(function (line) {
-				line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-				line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
+				line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+				line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
 			});
 
 			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
@@ -2707,7 +2728,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Resources')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
@@ -2720,7 +2741,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Embed App Extensions')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID)
@@ -2748,9 +2769,9 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					line = projectContents
 						.substring(begin, end)
 						.replace(/archive.ar/g, '\"wrapper.app-extension\"')
-						.replace(/lib\/libTiCore\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
-						.replace(/name = libTiCore.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/lib\/libtiverify\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
+						.replace(/name = libtiverify.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/SOURCE_ROOT/g, '"<group>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -3739,25 +3760,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
-	//This is default behavior for now. Move this to true in phase 2. 
-	//Remove this logic when we have debugging/profiling support with JSCore framework
-	//TIMOB-17892
-	var useJSCore = false;
-	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
-		useJSCore = true;
-	}
-
-	if (this.debugHost || this.profilerHost) {
-		useJSCore = false;
-	}
-
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h');
 
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		// BEGIN TIMOB-17892 changes
-		if (useJSCore) {
+		if (this.useJSCore) {
 			this.logger.debug(__('Using JavaScriptCore Framework'));
 			fs.writeFileSync(
 				dest,
@@ -3805,7 +3814,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		'#endif'
 	);
 	// BEGIN TIMOB-17892 changes
-	if (useJSCore) {
+	if (this.useJSCore) {
 		this.logger.debug(__('Using JavaScriptCore Framework'));
 		contents.push('#define USE_JSCORE_FRAMEWORK')
 	}
