@@ -23,9 +23,7 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 
 public class TiSocketFactory extends SSLSocketFactory {
@@ -84,7 +82,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 	}
 	
 	@Override
-	public Socket createSocket (Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
