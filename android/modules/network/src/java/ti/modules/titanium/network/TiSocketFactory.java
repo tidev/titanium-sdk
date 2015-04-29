@@ -35,7 +35,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
 	private static final String TLS_VERSION_1_0_PROTOCOL = "TLSv1";
-	private String[] enabledProtocols;
+	protected String[] enabledProtocols;
 	
 	public TiSocketFactory(KeyManager[] keyManagers, TrustManager[] trustManagers, int protocol) throws NoSuchAlgorithmException, 
 	KeyManagementException, KeyStoreException, UnrecoverableKeyException
@@ -94,7 +94,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 		return true;
 	}
 	
-	private SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
+	protected SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
 	{
 		String[] supportedProtocols = sslSocket.getSupportedProtocols();
 		List<String> supportedAndEnabledProtocols = new ArrayList<String>();
