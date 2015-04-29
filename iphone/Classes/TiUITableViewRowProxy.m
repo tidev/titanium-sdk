@@ -374,6 +374,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	[(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
 	[(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+    [(TiUITableViewCell *)cell setSelectionAsOverlay_:[self valueForKey:@"selectionAsOverlay"]];
 
 	id bgImage = [self valueForKey:@"backgroundImage"];
 	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
@@ -876,6 +877,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	TiThreadPerformOnMainThread(^{[callbackCell setSelectedBackgroundGradient_:newGradient];}, NO);
 }
 
+-(void)setSelectionAsOverlay:(id)arg
+{
+    [self replaceValue:arg forKey:@"selectionAsOverlay" notification:NO];
+    TiThreadPerformOnMainThread(^{[callbackCell setSelectionAsOverlay_:arg];}, NO);
+}
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {

@@ -32,7 +32,7 @@
 @end
 
 @implementation TiUITableViewCell
-@synthesize hitPoint,proxy;
+@synthesize hitPoint,proxy,selectionAsOverlay;
 #pragma mark Touch event handling
 
 // TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
@@ -43,6 +43,7 @@
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
 		proxy = [row_ retain];
 		[proxy setCallbackCell:self];
+        selectionAsOverlay = NO;
 		self.exclusiveTouch = YES;
 	}
 	
@@ -222,15 +223,25 @@
 	[gradientLayer setNeedsDisplay];
 }
 
+-(void) setSelectionAsOverlay_:(id)value
+{
+    selectionAsOverlay = [TiUtils boolValue:value def:NO];
+}
+
+-(void)updateBackgroundColor:(BOOL)yn
+{
+    [self setBackgroundColor:[[TiUtils colorValue:[proxy valueForKey:(yn ? @"selectedBackgroundColor" : @"backgroundColor")]] _color]];
+}
+
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
-    [super setSelected:yn animated:animated];
+    selectionAsOverlay ? [self updateBackgroundColor:yn] : [super setSelected:yn animated:animated];
     [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
-    [super setHighlighted:yn animated:animated];
+    selectionAsOverlay ? [self updateBackgroundColor:yn] : [super setHighlighted:yn animated:animated];
     [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 

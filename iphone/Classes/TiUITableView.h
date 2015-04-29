@@ -28,6 +28,7 @@
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
 @property (nonatomic,readwrite,retain) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite,assign) BOOL selectionAsOverlay;
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
@@ -38,6 +39,8 @@
 
 -(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
 -(CGSize)computeCellSize;
+
+-(void) setSelectionAsOverlay_:(id)value;
 
 @end
 
