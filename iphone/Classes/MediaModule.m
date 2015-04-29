@@ -28,6 +28,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
+#import <AVFoundation/AVFoundation.h>
 
 #import <UIKit/UIPopoverController.h>
 // by default, we want to make the camera fullscreen and 
@@ -177,6 +178,11 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_CAF,kAudioFileCAFType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP,kAudioFile3GPType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
+
+MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_AUTHORIZED, AVAuthorizationStatusAuthorized);
+MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_DENIED, AVAuthorizationStatusDenied);
+MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_RESTRICTED, AVAuthorizationStatusRestricted);
+MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_NOT_DETERMINED, AVAuthorizationStatusNotDetermined);
 
 //Constants for audioLineType
 MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES,-1,@"Media.AUDIO_HEADPHONES",@"3.4.2",@"3.6.0");
@@ -538,6 +544,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return NUMBOOL([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]);
 }
 
+/**
+ Check if camera is authorized, only available for >= iOS 7
+ **/
+
+-(NSNumber*)cameraAuthorizationStatus
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return nil;
+    }
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    return NUMUINT(authStatus);
+}
+
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
@@ -663,6 +682,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     return NUMBOOL(NO);
 }
+
 
 -(void)takeScreenshot:(id)arg
 {
@@ -927,6 +947,24 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return NUMINT(UIImagePickerControllerCameraDeviceRear);
 }
 
+//request camera access. for >= IOS7
+-(void)requestCameraAccess:(id)arg
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return;
+    }
+    ENSURE_SINGLE_ARG(arg, KrollCallback);
+    KrollCallback * callback = arg;
+    TiThreadPerformOnMainThread(^(){
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                     thisObject:self];
+            [[callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+        }];
+    }, NO);
+}
 /**
  End Camera Support
  **/
