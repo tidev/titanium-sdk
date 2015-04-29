@@ -31,19 +31,6 @@ public class TLSSNISocketFactory extends TiSocketFactory
 		super(null, null, protocol);
 	}
 
-	public Socket createSocket() throws IOException {
-		return null;
-	}
-
-
-	@Override
-	public boolean isSecure(Socket socket) throws IllegalArgumentException {
-		if (socket instanceof SSLSocket) {
-			return ((SSLSocket)socket).isConnected();
-		}
-		return false;
-	}
-
 	@Override
 	public Socket createSocket(Socket plainSocket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
 		if (autoClose) {
