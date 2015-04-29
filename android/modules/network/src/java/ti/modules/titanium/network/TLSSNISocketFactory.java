@@ -4,27 +4,32 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
-import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.common.Log;
 
 import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
 
-public class TLSSNISocketFactory implements LayeredSocketFactory
+public class TLSSNISocketFactory extends TiSocketFactory
 {
 
 	private static final HostnameVerifier hostnameVerifier = new StrictHostnameVerifier();
 	private static final String TAG = "TLSSNISocketFactory";
 
+	public TLSSNISocketFactory(int protocol) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
+	{
+		super(null, null, protocol);
+	}
 
 	public Socket createSocket() throws IOException {
 		return null;
@@ -51,7 +56,7 @@ public class TLSSNISocketFactory implements LayeredSocketFactory
 		SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(InetAddress.getByName(host), port);
 
 		// enable TLS if available
-		sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
+		setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
 
 		// set up SNI before the handshake
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -73,12 +78,5 @@ public class TLSSNISocketFactory implements LayeredSocketFactory
 		}
 
 		return sslSocket;
-	}
-
-	@Override
-	public Socket connectSocket(Socket arg0, String arg1, int arg2, InetAddress arg3, int arg4, HttpParams arg5)
-			throws IOException, UnknownHostException, ConnectTimeoutException
-	{
-		return null;
 	}
 }
