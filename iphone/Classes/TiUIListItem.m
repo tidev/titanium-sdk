@@ -28,6 +28,7 @@
 @synthesize templateStyle = _templateStyle;
 @synthesize proxy = _proxy;
 @synthesize dataItem = _dataItem;
+@synthesize selectionAsOverlay;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
 {
@@ -39,6 +40,7 @@
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:5];
 		_proxy = [proxy retain];
 		_proxy.listItem = self;
+        selectionAsOverlay = NO;
     }
     return self;
 }
@@ -184,15 +186,27 @@
 	[gradientLayer setNeedsDisplay];
 }
 
+-(void) setSelectionAsOverlay_:(id)value
+{
+    selectionAsOverlay = [TiUtils boolValue:value def:NO];
+}
+
+-(void)updateBackgroundColor:(BOOL)yn
+{
+    id propertiesValue = [_dataItem objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    [self setBackgroundColor:[[TiUtils colorValue:[properties objectForKey:(yn ? @"selectedBackgroundColor" : @"backgroundColor")]] _color]];
+}
+
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
-    [super setSelected:yn animated:animated];
+    selectionAsOverlay ? [self updateBackgroundColor:yn] : [super setSelected:yn animated:animated];
     [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
-    [super setHighlighted:yn animated:animated];
+    selectionAsOverlay ? [self updateBackgroundColor:yn] : [super setHighlighted:yn animated:animated];
     [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
@@ -452,7 +466,8 @@
 				self.selectionStyle = selectionStyle;
 			}];
 		}
-	}
+    }
+    [self setSelectionAsOverlay_:[properties objectForKey:@"selectionAsOverlay"]];
     
     id backgroundGradientValue = [properties objectForKey:@"backgroundGradient"];
     if (IS_NULL_OR_NIL(backgroundGradientValue)) {

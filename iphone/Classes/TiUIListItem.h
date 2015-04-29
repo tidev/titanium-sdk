@@ -25,6 +25,7 @@ enum {
 @property (nonatomic, readonly) NSInteger templateStyle;
 @property (nonatomic, readonly) TiUIListItemProxy *proxy;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
+@property (nonatomic, readwrite, assign) BOOL selectionAsOverlay;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy;
 - (id)initWithProxy:(TiUIListItemProxy *)proxy reuseIdentifier:(NSString *)reuseIdentifier;
