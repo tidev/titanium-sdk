@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -158,9 +159,17 @@ public class AttributedStringProxy extends KrollProxy
 														Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 												}
 												if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
-													spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
-														range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													if(TiUIHelper.isAndroidTypeface(fontProperties[TiUIHelper.FONT_FAMILY_POSITION])){
+														spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
+																range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													} else {
+														// If it is not an Android Typeface, it is a custom font
+														Typeface font = TiUIHelper.toTypeface(activity, fontProperties[TiUIHelper.FONT_FAMILY_POSITION]);
+														spannableText.setSpan(new CustomTypefaceSpan(font),
+															range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													}
 												}
+
 											}
 										}
 										break;
