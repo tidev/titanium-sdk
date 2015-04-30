@@ -88,6 +88,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static boolean USE_LEGACY_WINDOW = false;
 
 	private boolean restartPending = false;
+	private boolean relaunchingFromRootIntent = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -740,6 +741,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isRestartPending()
 	{
 		return restartPending;
+	}
+
+	public boolean isRelaunchingFromRootIntent()
+	{
+		return relaunchingFromRootIntent;
+	}
+
+	public void setRelaunchingFromRootIntent(boolean newValue)
+	{
+		relaunchingFromRootIntent = newValue;
 	}
 
 	public TiTempFileHelper getTempFileHelper()
