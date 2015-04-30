@@ -928,6 +928,25 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@Override
 	protected void onNewIntent(Intent intent) 
 	{
+		// When running in singleInstance mode, we should intercept intents sent to the
+		// root activity.  We'll then copy this intent into a dict and fire an app event.
+		if (this instanceof TiLaunchActivity) {
+			Log.d(TAG, "root activity received intent: " + intent.toString());
+			TiApplication tiApp = getTiApp();
+			TiProperties systemProperties = tiApp.getAppProperties();
+			if (systemProperties.getBool("ti.android.root.interceptintent", false) == true) {
+				Log.e(TAG, "ti.android.root.interceptintent = true");
+
+				// Create an application event rather than continuing with this intent.
+				IntentProxy ip = new IntentProxy(intent);
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_INTENT, ip);
+				tiApp.setRelaunchingFromRootIntent(true);
+				tiApp.fireAppEvent("newintent", data);
+				return;
+			}
+		}
+
 		super.onNewIntent(intent);
 
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);

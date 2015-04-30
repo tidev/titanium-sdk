@@ -10,6 +10,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -111,7 +113,21 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onResume()
 	{
 		Log.checkpoint(TAG, "checkpoint, on root activity resume. activity = " + this);
+
+		// Keep track of the current activity so we can bring it to front.
+		TiApplication tiApp = getTiApp();
+		Activity currentActivity = tiApp.getCurrentActivity();
+
 		super.onResume();
+
+		// Was the app re-launched from an external intent?
+		if (tiApp.isRelaunchingFromRootIntent()) {
+			// When this happens, we need to re-order the activity stack.
+			Intent bringToFront = new Intent(getApplicationContext(), currentActivity.getClass());
+			bringToFront.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+			startActivity(bringToFront);
+			tiApp.setRelaunchingFromRootIntent(false);
+		}
 	}
 
 	@Override
