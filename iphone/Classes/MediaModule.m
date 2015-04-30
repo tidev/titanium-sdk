@@ -1720,7 +1720,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
         }
         if (saveToRoll) {
-            NSString *tempFilePath = [mediaURL absoluteString];
+            NSString *tempFilePath = [mediaURL path];
             UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
         }
     }
