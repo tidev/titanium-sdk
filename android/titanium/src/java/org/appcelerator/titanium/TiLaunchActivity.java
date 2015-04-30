@@ -8,15 +8,12 @@ package org.appcelerator.titanium;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.proxy.IntentProxy;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -117,7 +114,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		TiApplication tiApp = getTiApp();
-		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 
 		if (!tiApp.isRestartPending()) {
 			// Check for a system application restart that we can't support.
@@ -130,12 +126,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			if (checkInvalidLaunch(savedInstanceState)) {
 				return;
 			}
-
-			// App relaunching?
-			if (tiApp.isRelaunching()) {
-				super.onCreate(savedInstanceState);
-				return;
-			}
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
@@ -143,6 +133,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
 		// so we don't run into problems when we bind the current activity
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
 		// set the current activity back to what it was originally
@@ -155,11 +146,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void windowCreated(Bundle savedInstanceState)
 	{
-		TiApplication tiApp = getTiApp();
 		super.windowCreated(savedInstanceState);
-		if (savedInstanceState == null || !tiApp.isRelaunching()) {
-			loadActivityScript();
-		}
+		loadActivityScript();
 		scriptLoaded();
 	}
 
@@ -295,6 +283,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (!isFinishing()) {
 			finish();
 		}
+
 	}
 
 	public boolean isJSActivity()
@@ -396,6 +385,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			activityOnResume();
 			return;
 		}
+
 		super.onResume();
 	}
 
@@ -424,13 +414,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		super.onDestroy();
-	}
-
-	@Override
-	protected void onNewIntent(Intent intent)
-	{
-		Log.checkpoint(TAG, "TONO BAGGINS - Got to launch activity onNewIntent");
-		super.onNewIntent(intent);
 	}
 
 	/**

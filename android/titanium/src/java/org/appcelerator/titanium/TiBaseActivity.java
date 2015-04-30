@@ -473,15 +473,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			return;
 		}
 
-		// Are we recreating the root window?
-		if ((this instanceof TiLaunchActivity) && tiApp.isRelaunching()) {
-			super.onCreate(savedInstanceState);
-
-			// Replace the root activity in the activity stack with this freshly created activity.
-			tiApp.replaceRootActivityInStack(this);
-			return;
-		}
-
 		// If all the activities has been killed and the runtime has been disposed or the app's hosting process has
 		// been killed, we cannot recover one specific activity because the info of the top-most view proxy has been
 		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
@@ -501,11 +492,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
 		KrollRuntime.incrementActivityRefCount();
 
-		Log.checkpoint(TAG, "TONO BAGGINS - The activity ref count is currently: " + KrollRuntime.getActivityRefCount());
-
 		Intent intent = getIntent();
 		if (intent != null) {
-			Log.checkpoint(TAG, "TONO BAGGINS - BASE: Got an intent inside onCreate");
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
@@ -539,6 +527,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
 			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
 		}
+
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -553,6 +542,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 
 		windowCreated(savedInstanceState);
+
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -940,6 +930,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onNewIntent(Intent intent) 
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		// When running in singleInstance mode, we should intercept intents sent to the
 		// root activity.  We'll then copy this intent into a dict and fire an app event.
 		if (this instanceof TiLaunchActivity) {
@@ -962,6 +953,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		Log.checkpoint(TAG, "TONO BAGGINS - Got to base activity onNewIntent");
 >>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
 
+=======
+>>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 		super.onNewIntent(intent);
 
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
@@ -1152,7 +1145,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		} 
 		
 		tiApp.setCurrentActivity(this, this);
-
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
