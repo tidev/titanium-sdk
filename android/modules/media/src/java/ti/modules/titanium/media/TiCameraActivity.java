@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
+@SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback
 {
 	private static final String TAG = "TiCameraActivity";

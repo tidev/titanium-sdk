@@ -16,8 +16,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View.MeasureSpec;
 
 public class TiBaseListViewItem extends TiCompositeLayout{
 

@@ -22,7 +22,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
