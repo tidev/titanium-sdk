@@ -88,6 +88,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static boolean USE_LEGACY_WINDOW = false;
 
 	private boolean restartPending = false;
+	private boolean relaunching = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -169,6 +170,58 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		Log.e(TAG, "Unable to get the TiApplication instance");
 		return null;
+	}
+
+	public static Activity getFirstNonRootActivity()
+	{
+		Log.checkpoint(TAG, "TONO BAGGINS - trying to get last activity, size is " + activityStack.size());
+		if (activityStack == null || activityStack.size() == 0) {
+			Log.checkpoint(TAG, "TONO BAGGINS - activityStack is empty");
+			return null;
+		}
+
+		Log.checkpoint(TAG, "TONO BAGGINS - should be returning a real activity from the stack");
+		int i = 0;
+		for (WeakReference<Activity> activityRef : activityStack) {
+			if (activityRef.get() instanceof TiLaunchActivity) {
+				Log.checkpoint(TAG, "TONO BAGGINS - Passing on this activity as it appears to be the root.");
+				i += 1;
+				continue;
+			}
+			if (activityRef != null) {
+				Activity tempActivity = activityRef.get();
+				if (tempActivity != null) {
+					Log.checkpoint(TAG, "TONO BAGGINS - Supposedly activity at index " + i + " is the correct non-launch activity");
+					return tempActivity;
+				} else {
+					Log.checkpoint(TAG, "TONO BAGGINS - Passing on this activity as it appears to be null.");
+				}
+			} else {
+				Log.checkpoint(TAG, "TONO BAGGINS - For some reason, activityRef at index " + i + " is null?");
+			}
+			i += 1;
+		}
+		Log.checkpoint(TAG, "TONO BAGGINS - never found a non-launch activity!");
+		return null;
+	}
+
+	public static void replaceRootActivityInStack(Activity newRoot)
+	{
+		Activity tempActivity;
+		WeakReference<Activity> activityRef;
+
+		// Add the other non-root activities.
+		for (int i = 0; i < activityStack.size(); i++) {
+			activityRef = activityStack.get(i);
+			if (activityRef != null) {
+				tempActivity = activityRef.get();
+				if (tempActivity instanceof TiLaunchActivity) {
+					activityStack.set(i, new WeakReference<Activity>(newRoot));
+					Log.checkpoint(TAG, "TONO BAGGINS: Successfully replaced the root activity.");
+					return;
+				}
+			}
+		}
 	}
 
 	public static void addToActivityStack(Activity activity)
@@ -740,6 +793,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isRestartPending()
 	{
 		return restartPending;
+	}
+
+	public boolean isRelaunching()
+	{
+		return relaunching;
+	}
+
+	public void setRelaunching(boolean newValue)
+	{
+		relaunching = newValue;
 	}
 
 	public TiTempFileHelper getTempFileHelper()
