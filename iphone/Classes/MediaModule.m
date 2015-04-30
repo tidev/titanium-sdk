@@ -19,12 +19,8 @@
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaItem.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#import <AVFoundation/AVAsset.h>
-#import <AVFoundation/AVAssetExportSession.h>
-#import <AVFoundation/AVMediaFormat.h>
+#import <AVFoundation/AVFoundation.h>
+
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
@@ -537,6 +533,60 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
+}
+
+-(void)requestMediaAcces:(NSString*)type callback:(KrollCallback*)args
+{
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:type];
+    
+    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    [dict setValue:NUMINT(authStatus) forKey:@"code"];
+    BOOL callFunction = YES;
+    switch (authStatus)
+    {
+        case AVAuthorizationStatusAuthorized:
+        {
+            [dict setValue:NUMBOOL(YES) forKey:@"success"];
+            break;
+        }
+        case AVAuthorizationStatusDenied:
+        {
+            [dict setValue:NUMBOOL(NO) forKey:@"success"];
+            break;
+        }
+        case AVAuthorizationStatusRestricted:
+        {
+            [dict setValue:NUMBOOL(NO) forKey:@"success"];
+            break;
+        }
+        case AVAuthorizationStatusNotDetermined:
+        {
+            callFunction = NO;
+            __block MediaModule* mod = self;
+            [AVCaptureDevice requestAccessForMediaType:type completionHandler:^(BOOL granted) {
+                NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+                [dict setValue:NUMINT(granted ? AVAuthorizationStatusAuthorized : AVAuthorizationStatusDenied) forKey:@"code"];
+                [dict setValue:NUMBOOL(granted) forKey:@"success"];
+                [(KrollCallback*)args call:@[dict] thisObject:mod];
+            }];
+            break;
+        }
+    }
+    if (callFunction) {
+        [(KrollCallback*)args call:@[dict] thisObject:self];
+    }
+}
+
+-(void)requestCameraAccess:(id)args
+{
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    [self requestMediaAcces:AVMediaTypeVideo callback:args];
+}
+
+-(void)requestMicrophoneAccess:(id)args
+{
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    [self requestMediaAcces:AVMediaTypeAudio callback:args];
 }
 
 -(NSNumber*)isCameraSupported

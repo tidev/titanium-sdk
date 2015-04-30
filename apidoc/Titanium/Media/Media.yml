@@ -161,6 +161,20 @@ methods:
   - name: stopMicrophoneMonitor
     summary: Stops monitoring the microphone sound level.
     platforms: [iphone, ipad]
+  - name: requestCameraAccess
+    summary: Requests permission to use the camera
+    platforms: [iphone, ipad]
+    parameters:
+      - name: callback
+        summary: Function to call upon capture. 
+        type: Callback<PermissionResult>
+  - name: requestMicrophoneAccess
+    summary: Requests permission to use the microphone
+    platforms: [iphone, ipad]
+    parameters:
+      - name: callback
+        summary: Function to call upon capture. 
+        type: Callback<PermissionResult>
   - name: takePicture
     summary: Uses the device camera to capture a photo. 
     description: |
@@ -1670,6 +1684,17 @@ properties:
     summary: The screenshot image.
     type: Titanium.Blob
     accessors: false
+---
+name: PermissionResult
+summary: The parameter passed to the <Titanium.Media.requestCameraAccess> and <Titanium.Media.requestMicrophoneAccess> callback.
+platforms: [iphone, ipad]
+properties:
+  - name: success
+    summary: True if permission granted, false otherwise
+    type: Boolean
+  - name: code
+    summary: Permission code given by the system
+    type: Number
 ---
 name: MediaAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
