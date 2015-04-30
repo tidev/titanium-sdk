@@ -7,20 +7,15 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.proxy.IntentProxy;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Window;
-import android.content.Intent;
 
 public class TiRootActivity extends TiLaunchActivity
 	implements TiActivitySupport
@@ -76,7 +71,6 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		Log.checkpoint(TAG, "TONO BAGGINS - ROOT.onCreate");
 		if (willFinishFalseRootActivity(savedInstanceState)) {
 			return;
 		}
@@ -93,39 +87,15 @@ public class TiRootActivity extends TiLaunchActivity
 			return;
 		}
 
-		// Do we have another activity?
-		Activity tempCurrentActivity = tiApp.getCurrentActivity();
-		if (tempCurrentActivity != null && !(tempCurrentActivity instanceof TiLaunchActivity)) {
-			savedInstanceState = new Bundle();
-			savedInstanceState.putBoolean("relaunch", true);
-			Log.checkpoint(TAG, "TONO BAGGINS - I've already got a current activity, why would I make this one current?");
-			tiApp.setRelaunching(true);
-
-			// Create the intent that brings the other window back to the front.
-			Intent bringToFront = new Intent(getApplicationContext(), tempCurrentActivity.getClass());
-			bringToFront.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			tempCurrentActivity.startActivity(bringToFront);
-			super.onCreate(savedInstanceState);
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
-			return;
-		} else if (tiApp.isRelaunching()) {
-			Log.checkpoint(TAG, "TONO BAGGINS: The app is restarting, I couldn't find another activity, count is: " + KrollRuntime.getActivityRefCount());
-			finish();
-			return;
-		}
-
 		tiApp.setCurrentActivity(this, this);
-		tiApp.setRootActivity(this);
+
 		Log.checkpoint(TAG, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
+
+		tiApp.setRootActivity(this);
 
 		super.onCreate(savedInstanceState);
 
-		// Make sure we set the previous activity as current.
-		tiApp.setCurrentActivity(this, tempCurrentActivity);
-
-		if (tiApp.isRelaunching() == false) {
-			tiApp.verifyCustomModules(this);
-		}
+		tiApp.verifyCustomModules(this);
 	}
 
 	@Override
@@ -142,10 +112,6 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		Log.checkpoint(TAG, "checkpoint, on root activity resume. activity = " + this);
 		super.onResume();
-
-		// All done with the relaunch.
-		TiApplication tiApp = getTiApp();
-		tiApp.setRelaunching(false);
 	}
 
 	@Override
@@ -180,13 +146,6 @@ public class TiRootActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent)
-	{
-		Log.checkpoint(TAG, "TONO BAGGINS - Got to root activity onNewIntent");
-		super.onNewIntent(intent);
-	}
-
-	@Override
 	public void finish()
 	{
 		if (finishing2373) {
@@ -203,4 +162,5 @@ public class TiRootActivity extends TiLaunchActivity
 			super.finish();
 		}
 	}
+
 }
