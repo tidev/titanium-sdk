@@ -938,7 +938,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			TiApplication tiApp = getTiApp();
 			TiProperties systemProperties = tiApp.getAppProperties();
 			if (systemProperties.getBool("ti.android.root.interceptintent", false) == true) {
-				Log.e(TAG, "ti.android.root.interceptintent = true");
+				Log.d(TAG, "ti.android.root.interceptintent = true");
 
 				// Create an application event rather than continuing with this intent.
 				IntentProxy ip = new IntentProxy(intent);
