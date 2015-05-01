@@ -953,7 +953,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				if (extraBundle != null) {
 					for (String key : extraBundle.keySet()) {
 						Object value = extraBundle.get(key);
-						extra.put(key, value.toString());
+						boolean extraSet = false;
 						if (key.equals(Intent.EXTRA_STREAM)) {
 							// Check if this is an image on the filesystem, and if so, get the real path.
 							Uri uri = (Uri)value;
@@ -967,12 +967,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 									contents.put("realPath", filePath);
 									contents.put("path", uri.toString());
 									extra.put(key, contents);
+									extraSet = true;
 								}
 							}
 						}
+						if (extraSet == false) {
+							extra.put(key, value.toString());
+						}
 					}
-					data.put("extra", extra);
 				}
+				data.put("extra", extra);
 				data.put(TiC.PROPERTY_INTENT, ip);
 				tiApp.setRelaunchingFromRootIntent(true);
 				tiApp.fireAppEvent("newintent", data);
