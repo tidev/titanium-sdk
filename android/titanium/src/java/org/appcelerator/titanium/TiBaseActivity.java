@@ -999,7 +999,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 									extension = baseFilename.substring(pos, baseFilename.length());
 									baseFilename = baseFilename.substring(0, pos);
 								}
-								File outputFile = File.createTempFile(baseFilename, extension, getApplicationContext().getCacheDir());
+								File outputFile = File.createTempFile(baseFilename, extension, getApplicationContext().getDir("app_data", 0));
 								fileOutputStream = new FileOutputStream(outputFile);
 								fileOutputStream.write(outputStream.toByteArray());
 
@@ -1008,6 +1008,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 								blobDict.put("originalPath", filePath);
 								blobDict.put("contentType", contentType);
 								blobDict.put("path", outputFile.getPath());
+								blobDict.put("filename", Uri.parse(outputFile.getPath()).getLastPathSegment());
 								extra.put(key, blobDict);
 							} catch (Throwable e) {
 								Log.e(TAG, "root activity intent: Error creating blob from EXTRA_STREAM");
