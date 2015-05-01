@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
@@ -957,6 +959,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 						if (key.equals(Intent.EXTRA_STREAM)) {
 							Uri uri = (Uri)value;
 							ByteArrayOutputStream outputStream = null;
+							FileOutputStream fileOutputStream = null;
 							InputStream inputStream = null;
 							try {
 								// Try to add this as a blob.
@@ -973,13 +976,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 								while ((bytesRead = inputStream.read(buffer)) != -1) {
 									outputStream.write(buffer);
 								}
-
-								// Convert the byte stream into a blob.
 								String contentType = contentResolver.getType(uri);
-								String filePath = null;
-								TiBlob blob = TiBlob.blobFromData(outputStream.toByteArray(), contentType);
 
 								// Is this an image?  If so, let's try to get the original path.
+								String filePath = uri.toString();
 								if (contentType.indexOf("image/") == 0) {
 									Cursor cursor = contentResolver.query(uri, null, null, null, null);
 									cursor.moveToFirst();
@@ -989,12 +989,25 @@ public abstract class TiBaseActivity extends ActionBarActivity
 									}
 								}
 
+								// Save the output to a temporary file.
+								String filename = Uri.parse(filePath).getLastPathSegment();
+								String baseFilename = filename;
+								String extension = null;
+								// Get the base filename and extension.
+								int pos = baseFilename.lastIndexOf(".");
+								if (pos > 0) {
+									extension = baseFilename.substring(pos, baseFilename.length());
+									baseFilename = baseFilename.substring(0, pos);
+								}
+								File outputFile = File.createTempFile(baseFilename, extension, getApplicationContext().getCacheDir());
+								fileOutputStream = new FileOutputStream(outputFile);
+								fileOutputStream.write(outputStream.toByteArray());
+
 								// Put everything together.
 								KrollDict blobDict = new KrollDict();
-								blobDict.put("filePath", filePath);
+								blobDict.put("originalPath", filePath);
 								blobDict.put("contentType", contentType);
-								blobDict.put("path", uri.toString());
-								blobDict.put("blob", blob);
+								blobDict.put("path", outputFile.getPath());
 								extra.put(key, blobDict);
 							} catch (Throwable e) {
 								Log.e(TAG, "root activity intent: Error creating blob from EXTRA_STREAM");
@@ -1003,6 +1016,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 								try {
 									if (outputStream != null) {
 										outputStream.close();
+									}
+								} catch (Throwable e) {}
+								try {
+									if (fileOutputStream != null) {
+										fileOutputStream.close();
 									}
 								} catch (Throwable e) {}
 								try {
