@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Stack;
@@ -24,6 +26,7 @@ import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
+import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -46,6 +49,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.ContentResolver;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
@@ -950,25 +954,64 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				if (extraBundle != null) {
 					for (String key : extraBundle.keySet()) {
 						Object value = extraBundle.get(key);
-						boolean extraSet = false;
 						if (key.equals(Intent.EXTRA_STREAM)) {
-							// Check if this is an image on the filesystem, and if so, get the real path.
 							Uri uri = (Uri)value;
-							Cursor cursor = TiApplication.getInstance().getContentResolver().query(uri, null, null, null, null);
-							if (cursor != null) {
-								cursor.moveToFirst();
-								int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-								if (index != -1) {
-									String filePath = cursor.getString(index);
-									KrollDict contents = new KrollDict();
-									contents.put("realPath", filePath);
-									contents.put("path", uri.toString());
-									extra.put(key, contents);
-									extraSet = true;
+							ByteArrayOutputStream outputStream = null;
+							InputStream inputStream = null;
+							try {
+								// Try to add this as a blob.
+								ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+								TitaniumBlob tiBlob = new TitaniumBlob(value.toString());
+
+								// Use a ByteArrayOutputStream rather than trying to figure out the size.
+								outputStream = new ByteArrayOutputStream();
+								inputStream = contentResolver.openInputStream(uri);
+								byte[] buffer = new byte[1024];
+
+								// Read the input stream.
+								int bytesRead = 0;
+								while ((bytesRead = inputStream.read(buffer)) != -1) {
+									outputStream.write(buffer);
 								}
+
+								// Convert the byte stream into a blob.
+								String contentType = contentResolver.getType(uri);
+								String filePath = null;
+								TiBlob blob = TiBlob.blobFromData(outputStream.toByteArray(), contentType);
+
+								// Is this an image?  If so, let's try to get the original path.
+								if (contentType.indexOf("image/") == 0) {
+									Cursor cursor = contentResolver.query(uri, null, null, null, null);
+									cursor.moveToFirst();
+									int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+									if (index != -1) {
+										filePath = cursor.getString(index);
+									}
+								}
+
+								// Put everything together.
+								KrollDict blobDict = new KrollDict();
+								blobDict.put("filePath", filePath);
+								blobDict.put("contentType", contentType);
+								blobDict.put("path", uri.toString());
+								blobDict.put("blob", blob);
+								extra.put(key, blobDict);
+							} catch (Throwable e) {
+								Log.e(TAG, "root activity intent: Error creating blob from EXTRA_STREAM");
+								extra.put(key, value.toString());
+							} finally {
+								try {
+									if (outputStream != null) {
+										outputStream.close();
+									}
+								} catch (Throwable e) {}
+								try {
+									if (inputStream != null) {
+										inputStream.close();
+									}
+								} catch (Throwable e) {}
 							}
-						}
-						if (extraSet == false) {
+						} else {
 							extra.put(key, value.toString());
 						}
 					}
