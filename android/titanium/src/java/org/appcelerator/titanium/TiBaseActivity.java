@@ -47,12 +47,15 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -943,6 +946,33 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				// Create an application event rather than continuing with this intent.
 				IntentProxy ip = new IntentProxy(intent);
 				KrollDict data = new KrollDict();
+				KrollDict extra = new KrollDict();
+
+				// Copy all of the extras.
+				Bundle extraBundle = intent.getExtras();
+				if (extraBundle != null) {
+					for (String key : extraBundle.keySet()) {
+						Object value = extraBundle.get(key);
+						extra.put(key, value.toString());
+						if (key.equals(Intent.EXTRA_STREAM)) {
+							// Check if this is an image on the filesystem, and if so, get the real path.
+							Uri uri = (Uri)value;
+							Cursor cursor = TiApplication.getInstance().getContentResolver().query(uri, null, null, null, null);
+							if (cursor != null) {
+								cursor.moveToFirst();
+								int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+								if (index != -1) {
+									String filePath = cursor.getString(index);
+									KrollDict contents = new KrollDict();
+									contents.put("realPath", filePath);
+									contents.put("path", uri.toString());
+									extra.put(key, contents);
+								}
+							}
+						}
+					}
+					data.put("extra", extra);
+				}
 				data.put(TiC.PROPERTY_INTENT, ip);
 				tiApp.setRelaunchingFromRootIntent(true);
 				tiApp.fireAppEvent("newintent", data);
