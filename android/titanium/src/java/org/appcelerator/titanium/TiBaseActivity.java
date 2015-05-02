@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Stack;
@@ -960,49 +961,76 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				if (extraBundle != null) {
 					for (String key : extraBundle.keySet()) {
 						Object value = extraBundle.get(key);
-
 						if (key.equals(Intent.EXTRA_STREAM)) {
 							Uri uri = (Uri)value;
 							ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-							String contentType = contentResolver.getType(uri);
 
-							// Only handle image types for now.
-							if (contentType.indexOf("image/") != 0) {
+							// Get the content type, ignore anything that's not an image.
+							String contentType = contentResolver.getType(uri);
+							if (contentType == null) {
+								contentType = intent.getType();
+							}
+							if (contentType == null || !contentType.startsWith("image/")) {
 								extra.put(key, value.toString());
 								continue;
 							}
 
 							// Get the original filename.
-							String filename = value.toString();
+							String filename = Uri.parse(value.toString()).getLastPathSegment();
 							Cursor cursor = contentResolver.query(uri, null, null, null, null);
-							cursor.moveToFirst();
-							int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-							if (index != -1) {
-								filename = Uri.parse(cursor.getString(index)).getLastPathSegment();
+							int index = 0;
+							if (cursor != null) {
+								cursor.moveToFirst();
+								index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+								if (index != -1) {
+									filename = Uri.parse(cursor.getString(index)).getLastPathSegment();
+								}
+								cursor.close();
+							}
+
+							// Copy the file to the application directory.
+							String baseFilename = null;
+							String extension = null;
+							index = filename.lastIndexOf(".");
+							if (index > 1) {
+								baseFilename = filename.substring(0, index);
+								extension = filename.substring(index);
 							} else {
-								extra.put(key, value.toString());
-								continue;
+								baseFilename = filename;
+								extension = ".jpg";
+								filename = baseFilename + extension;
 							}
-							cursor.close();
-
-							// And finally, convert the bitmap to a blob.
-							Bitmap bitmap = null;
+							InputStream inputStream = null;
+							FileOutputStream imageOut = null;
 							try {
-								bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
-							} catch (Exception e) {
-								Log.e(TAG, "intercepted intent: Error converting input stream to bitmap: " + e.toString());
-								extra.put(key, value.toString());
-								continue;
-							}
-							TiBlob imageBlob = TiBlob.blobFromImage(bitmap);
+								inputStream = contentResolver.openInputStream(uri);
+								File imageFile = new File(getApplicationContext().getCacheDir(), filename);
+								imageOut = new FileOutputStream(imageFile);
+								byte[] buffer = new byte[1024];
+								int bytesRead = 0;
+								while ((bytesRead = inputStream.read(buffer)) != -1) {
+									imageOut.write(buffer, 0, bytesRead);
+								}
+								imageOut.flush();
 
-							// Add the blob to our result dict.
-							KrollDict blobDict = new KrollDict();
-							blobDict.put("originalPath", value.toString());
-							blobDict.put("contentType", contentType);
-							blobDict.put("filename", filename);
-							blobDict.put("blob", imageBlob);
-							extra.put(key, blobDict);
+								// Add the blob to our result dict.
+								KrollDict blobDict = new KrollDict();
+								blobDict.put("originalPath", value.toString());
+								blobDict.put("contentType", contentType);
+								blobDict.put("filename", filename);
+								blobDict.put("path", imageFile.getPath());
+								extra.put(key, blobDict);
+							} catch (Throwable e) {
+								Log.e(TAG, "intercepted intent: Error copying intercepted intent image to application directory: " + e.toString());
+								extra.put(key, value.toString());
+							} finally {
+								if (imageOut != null) {
+									try { imageOut.close(); } catch (IOException e) {};
+								}
+								if (inputStream != null) {
+									try { inputStream.close(); } catch (IOException e) {};
+								}
+							}
 						} else {
 							extra.put(key, value.toString());
 						}
