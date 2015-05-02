@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
@@ -28,6 +29,7 @@ import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -54,6 +56,8 @@ import android.content.pm.ActivityInfo;
 import android.content.ContentResolver;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -959,80 +963,49 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				if (extraBundle != null) {
 					for (String key : extraBundle.keySet()) {
 						Object value = extraBundle.get(key);
+
 						if (key.equals(Intent.EXTRA_STREAM)) {
 							Uri uri = (Uri)value;
-							ByteArrayOutputStream outputStream = null;
-							FileOutputStream fileOutputStream = null;
-							InputStream inputStream = null;
-							try {
-								// Try to add this as a blob.
-								ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-								TitaniumBlob tiBlob = new TitaniumBlob(value.toString());
+							ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+							String contentType = contentResolver.getType(uri);
 
-								// Use a ByteArrayOutputStream rather than trying to figure out the size.
-								outputStream = new ByteArrayOutputStream();
-								inputStream = contentResolver.openInputStream(uri);
-								byte[] buffer = new byte[1024];
-
-								// Read the input stream.
-								int bytesRead = 0;
-								while ((bytesRead = inputStream.read(buffer)) != -1) {
-									outputStream.write(buffer);
-								}
-								String contentType = contentResolver.getType(uri);
-
-								// Is this an image?  If so, let's try to get the original path.
-								String filePath = uri.toString();
-								if (contentType.indexOf("image/") == 0) {
-									Cursor cursor = contentResolver.query(uri, null, null, null, null);
-									cursor.moveToFirst();
-									int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-									if (index != -1) {
-										filePath = cursor.getString(index);
-									}
-								}
-
-								// Save the output to a temporary file.
-								String filename = Uri.parse(filePath).getLastPathSegment();
-								String baseFilename = filename;
-								String extension = null;
-								// Get the base filename and extension.
-								int pos = baseFilename.lastIndexOf(".");
-								if (pos > 0) {
-									extension = baseFilename.substring(pos, baseFilename.length());
-									baseFilename = baseFilename.substring(0, pos);
-								}
-								File outputFile = File.createTempFile(baseFilename, extension, getApplicationContext().getDir("app_data", 0));
-								fileOutputStream = new FileOutputStream(outputFile);
-								fileOutputStream.write(outputStream.toByteArray());
-
-								// Put everything together.
-								KrollDict blobDict = new KrollDict();
-								blobDict.put("originalPath", filePath);
-								blobDict.put("contentType", contentType);
-								blobDict.put("path", outputFile.getPath());
-								blobDict.put("filename", Uri.parse(outputFile.getPath()).getLastPathSegment());
-								extra.put(key, blobDict);
-							} catch (Throwable e) {
-								Log.e(TAG, "root activity intent: Error creating blob from EXTRA_STREAM");
+							// Only handle image types for now.
+							if (contentType.indexOf("image/") != 0) {
 								extra.put(key, value.toString());
-							} finally {
-								try {
-									if (outputStream != null) {
-										outputStream.close();
-									}
-								} catch (Throwable e) {}
-								try {
-									if (fileOutputStream != null) {
-										fileOutputStream.close();
-									}
-								} catch (Throwable e) {}
-								try {
-									if (inputStream != null) {
-										inputStream.close();
-									}
-								} catch (Throwable e) {}
+								continue;
 							}
+
+							// Get the original filename.
+							String filename = value.toString();
+							Cursor cursor = contentResolver.query(uri, null, null, null, null);
+							cursor.moveToFirst();
+							int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+							if (index != -1) {
+								filename = Uri.parse(cursor.getString(index)).getLastPathSegment();
+							} else {
+								extra.put(key, value.toString());
+								continue;
+							}
+							cursor.close();
+
+							// And finally, convert the bitmap to a blob.
+							Bitmap bitmap = null;
+							try {
+								bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
+							} catch (Exception e) {
+								Log.e(TAG, "intercepted intent: Error converting input stream to bitmap: " + e.toString());
+								extra.put(key, value.toString());
+								continue;
+							}
+							TiBlob imageBlob = TiBlob.blobFromImage(bitmap);
+
+							// Add the blob to our result dict.
+							KrollDict blobDict = new KrollDict();
+							blobDict.put("originalPath", value.toString());
+							blobDict.put("contentType", contentType);
+							blobDict.put("filename", filename);
+							blobDict.put("blob", imageBlob);
+							extra.put(key, blobDict);
 						} else {
 							extra.put(key, value.toString());
 						}
