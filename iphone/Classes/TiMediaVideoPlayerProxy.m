@@ -495,7 +495,7 @@ NSArray* moviePlayerKeys = nil;
     volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
         [TiUtils setVolume:volume onObject:[MPMusicPlayerController applicationMusicPlayer]];
-	}, NO);
+	}, YES);
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value
@@ -526,7 +526,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.5.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.6.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
     return nil;
 }
 

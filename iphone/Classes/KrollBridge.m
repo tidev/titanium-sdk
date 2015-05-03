@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import "TiToJS.h"
 #import "KrollBridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
@@ -22,7 +22,7 @@
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -442,23 +442,25 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-	// validate script
-	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-	}
+//  TIMOB-18152. There is no need to check syntax since TiEvalScript
+//  will check syntax before evaluation of the script.
+//	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
+//		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
+//	}
 	
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
-#endif
+
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-#ifdef TI_DEBUGGER_PROFILER
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
+#else
+        TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 #endif
         if (exception == NULL) {
             evaluationError = NO;
@@ -912,17 +914,16 @@ loadNativeJS:
         NSString* urlPath = (filepath != nil) ? filepath : fullPath;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
         KrollWrapper* wrapper = nil;
-#ifdef TI_DEBUGGER_PROFILER
        	const char *urlCString = [[url_ absoluteString] UTF8String];
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
 #endif
-		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
-		
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
@@ -978,7 +979,8 @@ loadNativeJS:
 		return module;
 	}
 	
-	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+	NSString *arch = [TiUtils currentArchitecture];
+	@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

@@ -864,7 +864,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 		fontFormats = {
 			'ttf': 'truetype'
 		},
-		prefix = this.projectResDir + '/';
+		prefix = this.projectResDir.replace(/\\/g, '/') + '/';
 
 	(function walk(dir, isMobileWebDir, isRoot) {
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
@@ -878,30 +878,30 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 
 			var m = name.match(/^(.+)\.(otf|woff|ttf|svg)$/);
 			if (m) {
-				var p = file.replace(prefix, '').replace(/\\/g, '/');
-				fonts[m[1]] || (fonts[m[1]] = []);
-				fonts[m[1]].push({
+				var p = file.replace(/\\/g, '/').replace(prefix, '');
+				fonts[m[1]] || (fonts[m[1]] = {});
+				fonts[m[1]][m[2]] = {
 					path: isMobileWebDir ? p.replace('mobileweb/', '') : p,
 					format: fontFormats[m[2]] || m[2]
-				});
+				};
 			}
 		});
 	}(this.projectResDir, false, true));
 
 	Object.keys(fonts).forEach(function (name) {
 		var font = fonts[name],
-			i = 0,
-			l = font.length,
 			src = [];
 
 		this.logger.debug(__('Found font: %s', name.cyan));
 
-		for (; i < l; i++) {
-			this.prefetch.push(font[i].path);
-			src.push('url("' + font[i].path + '") format("' + font[i].format + '")');
-		}
+		['woff', 'otf', 'ttf', 'svg'].forEach(function (type) {
+			if (font[type]) {
+				// this.prefetch.push(font[type].path);
+				src.push('url("' + font[type].path + '") format("' + font[type].format + '")');
+			}
+		}, this);
 
-		tiCSS.push('@font-face{font-family:"' + name + '";' + src.join(',') + ';}\n');
+		tiCSS.push('@font-face{font-family:"' + name + '";src:' + src.join(',') + ';}\n');
 	}, this);
 
 	// write the titanium.css

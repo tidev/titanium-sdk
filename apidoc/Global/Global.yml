@@ -35,7 +35,7 @@ description: |
     
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
 
-platforms: [android, blackberry, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
   - name: alert
@@ -88,8 +88,7 @@ methods:
       - name: encodedURI
         summary: Text that optionally contains encoded escape sequences.
         type: String
-    exclude-platforms: [blackberry]
-        
+
   - name: encodeURIComponent
     summary: |
         Replaces each special character in the specified string with the equivalent URI escape 
@@ -105,8 +104,7 @@ methods:
       - name: string
         summary: Text that optionally contains special characters.
         type: String
-    exclude-platforms: [blackberry]
-        
+
   - name: L
     summary: An alias for <Titanium.Locale.getString>.
     returns:
@@ -137,7 +135,7 @@ methods:
           3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
-        [Using a Module](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module).
+        [Using a Module](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
         

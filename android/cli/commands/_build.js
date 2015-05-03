@@ -91,6 +91,8 @@ function AndroidBuilder() {
 
 	this.tiSymbols = {};
 
+	this.dexAgent = false;
+
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -133,10 +135,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		for (; i < len; i++) {
 			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
 				issues[i].message.split('\n').forEach(function (line) {
-					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+					logger[issues[i].type === 'error' ? 'error' : 'warn'](line.replace(/(__(.+?)__)/g, '$2'.bold));
 				});
 				logger.log();
-				process.exit(1);
+				if (issues[i].type === 'error') {process.exit(1);}
 			}
 		}
 	}
@@ -160,6 +162,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
@@ -900,14 +903,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				}
 			};
 
-			// we need to map store-password to password for backwards compatibility
-			// because we needed to change it as to not conflict with the login
-			// password and be more descriptive compared to the --key-password
-			conf.options.password = appc.util.mix({
-				hidden: true
-			}, conf.options['store-password']);
-			delete conf.options.password.abbr;
-
 			callback(null, _t.conf = conf);
 		})(function (err, result) {
 			finished(result);
@@ -1040,7 +1035,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// check that the proguard config exists
-	var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
+	var proguardConfigFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'proguard.cfg');
 	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
 		logger.error(__('Missing ProGuard configuration file'));
 		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
@@ -1065,7 +1060,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	try {
-		var customAndroidManifestFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
+		var customAndroidManifestFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'AndroidManifest.xml');
 		this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
 	} catch (ex) {
 		logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
@@ -1566,7 +1561,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 								}
 							});
 						}
-					});
+					}, this);
 
 					// check missing abis
 					var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
@@ -1870,6 +1865,8 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 	this.activitiesHash = this.hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
 	this.servicesHash = this.hash(android && android.services ? JSON.stringify(android.services) : '');
 
+	var self = this;
+
 	function walk(dir, re) {
 		var hashes = [];
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
@@ -1877,7 +1874,7 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 			if (fs.existsSync(file)) {
 				var stat = fs.statSync(file);
 				if (stat.isFile() && re.test(name)) {
-					hashes.push(this.hash(fs.readFileSync(file).toString()));
+					hashes.push(self.hash(fs.readFileSync(file).toString()));
 				} else if (stat.isDirectory()) {
 					hashes = hashes.concat(walk(file, re));
 				}
@@ -2526,7 +2523,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	this.modules.forEach(function (module) {
 		platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
 	});
-	platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
+	platformPaths.push(path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'android'));
 	platformPaths.forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			tasks.push(function (cb) {
@@ -2682,7 +2679,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
 				opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
@@ -2705,7 +2702,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						return next();
 					}
 
-					if (process.platform != 'win32') {
+					if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
 						fatal(err);
 					}
 
@@ -3632,8 +3629,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				delete am['uses-sdk'];
 				finalAndroidManifest.merge(am);
 			}
+
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
 		}
-	});
+	}, this);
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
@@ -3918,6 +3920,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
 		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
+	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
+	// dexAgent is set in the module's timodule.xml
+	if (this.dexAgent) {
+		dexArgs.unshift('-javaagent:' + this.dexAgent);
+	}
 
 	if (this.allowDebugging && this.debugPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));

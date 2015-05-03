@@ -313,40 +313,10 @@
 
 #pragma mark - UINavController, NavItem UI
 
-
--(void)showNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(showNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:NO animated:animated];
-	}
-}
-
--(void)hideNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(hideNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
-		//TODO: need to fix height
-	}
-}
-
 -(void)setNavTintColor:(id)colorString
 {
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
-    
     TiThreadPerformOnMainThread(^{
         if(controller != nil) {
             TiColor * newColor = [TiUtils colorValue:color];
@@ -380,11 +350,7 @@
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
         [navBar setBarStyle:navBarStyle];
-        if([TiUtils isIOS7OrGreater]) {
-            [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-        } else {
-            [navBar setTintColor:barColor];
-        }
+        [navBar setBarTintColor:barColor];
         [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
 }
@@ -442,13 +408,7 @@
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
     UIImage* theImage = nil;
-    if ([TiUtils isIOS7OrGreater]) {
-        //TIMOB-16490
-        theImage = [TiUtils toImage:barImageValue proxy:self];
-    } else {
-        //TIMOB-16338
-        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
-    }
+    theImage = [TiUtils toImage:barImageValue proxy:self];
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -508,8 +468,7 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-        BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
-		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:def];
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:YES];
 	}
 }
 
@@ -577,9 +536,15 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
+            [self forgetProxy:curProxy];
         }
     }
-    
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
+	
     [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
@@ -641,9 +606,14 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
+            [self forgetProxy:curProxy];
         }
     }
-
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
     [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
@@ -855,7 +825,7 @@
         if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
             controller.navigationItem.title = title;
         }
-    }, NO);
+    }, [NSThread isMainThread]);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
@@ -923,20 +893,17 @@
 				}
 			}
 			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
-			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:[TiUtils isIOS7OrGreater]];
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
 			TiColor* toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
 			UIColor* barColor = [TiUtils barColorForColor:toolbarColor];
 			[controller setToolbarItems:array animated:animated];
 			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
-			if ([TiUtils isIOS7OrGreater]) {
-				UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
-				[ourNC.toolbar performSelector:@selector(setBarTintColor:) withObject:barColor];
-				[ourNC.toolbar setTintColor:tintColor];
-			} else {
-				[ourNC.toolbar setTintColor:barColor];
-			}
+			UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
+			[ourNC.toolbar setBarTintColor:barColor];
+			[ourNC.toolbar setTintColor:tintColor];
+			
 			[array release];
 			
 		}
@@ -998,17 +965,6 @@ else{\
     [self updateBarImage];
     [self updateNavButtons];
     [self refreshBackButton];
-
-    id navBarHidden = [self valueForKey:@"navBarHidden"];
-    if (navBarHidden!=nil) {
-        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
-        if ([TiUtils boolValue:navBarHidden]) {
-            [self hideNavBar:properties];
-        }
-        else {
-            [self showNavBar:properties];
-        }
-    }
 }
 
 -(void)cleanupWindowDecorations

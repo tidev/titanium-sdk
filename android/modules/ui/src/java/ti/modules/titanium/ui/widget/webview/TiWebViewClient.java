@@ -10,12 +10,15 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.media.TiVideoActivity;
+import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.webkit.HttpAuthHandler;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
@@ -42,20 +45,25 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageFinished(WebView view, String url)
 	{
 		super.onPageFinished(view, url);
-
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
-		webView.getProxy().fireEvent(TiC.EVENT_LOAD, data);
-		WebView nativeWebView = webView.getWebView();
-
-		if (nativeWebView != null) {
-			if (webView.shouldInjectBindingCode()) {
-				nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
-			}
-			nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+		proxy.fireEvent(TiC.EVENT_LOAD, data);
+		boolean enableJavascriptInjection = true;
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
+		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+			WebView nativeWebView = webView.getWebView();
 
+			if (nativeWebView != null) {
+				if (webView.shouldInjectBindingCode()) {
+					nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
+				}
+				nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+			}
+		}
 		webView.setBindingCodeInjected(false);
 	}
 
@@ -187,4 +195,14 @@ public class TiWebViewClient extends WebViewClient
 			Log.e(TAG, "SSL error occurred: " + error.toString());
 		}
 	}
+
+	@Override
+	public void onLoadResource(WebView view, String url)
+	{
+		super.onLoadResource(view, url);
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_URL, url);
+		webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
+	}
+
 }

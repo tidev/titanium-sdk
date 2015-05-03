@@ -36,7 +36,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		version = [[theDevice systemVersion] retain];
 		processorCount = [[NSNumber numberWithInt:1] retain];
 		username = [[theDevice name] retain];
+#ifdef __LP64__
+		ostype = [@"64bit" retain];
+#else
 		ostype = [@"32bit" retain];
+#endif
 		
 		if ([TiUtils isIPad])
 		{
@@ -54,8 +58,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		// attempt to determine extended phone info
 		struct utsname u;
 		uname(&u);
-		
-		NSString *arch = @"arm";
 		
 		// detect iPhone 3G model
 		if (!strcmp(u.machine, "iPhone1,2")) 
@@ -86,19 +88,17 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		else if (!strcmp(u.machine, "i386")) 
 		{
 			model = [@"Simulator" retain];
-			arch = @"i386";
 		}
 		// detect simulator for x86_64
 		else if (!strcmp(u.machine, "x86_64")) 
 		{
 			model = [@"Simulator" retain];
-			arch = @"x86_64";
 		}
 		else 
 		{
 			model = [[NSString alloc] initWithUTF8String:u.machine];
 		}
-		architecture = [arch retain];
+		architecture = [[TiUtils currentArchitecture] retain];
 
 		// needed for platform displayCaps orientation to be correct
 		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -126,20 +126,39 @@ NSString* const DATA_IFACE = @"pdp_ip0";
     return @"Ti.Platform";
 }
 
+-(void)registerListeners:(id)unused
+{
+    UIDevice *device = [UIDevice currentDevice];
+    // set a flag to temporarily turn on battery enablement
+    if (batteryEnabled==NO && device.batteryMonitoringEnabled==NO)
+    {
+        batteryEnabled = YES;
+        [device setBatteryMonitoringEnabled:YES];
+    }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:device];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:device];
+}
+
+-(void)unregisterListeners:(id)unused
+{
+    UIDevice *device = [UIDevice currentDevice];
+    if (batteryEnabled)
+    {
+        [device setBatteryMonitoringEnabled:NO];
+        batteryEnabled = NO;
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:device];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:device];
+}
+
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
 	if (count == 1 && [type isEqualToString:@"battery"])
 	{
-		UIDevice *device = [UIDevice currentDevice];
-		// set a flag to temporarily turn on battery enablement
-		if (batteryEnabled==NO && device.batteryMonitoringEnabled==NO)
-		{
-			batteryEnabled = YES;
-			[device setBatteryMonitoringEnabled:YES];
-		}
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:device];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:device];
+        TiThreadPerformOnMainThread(^{
+            [self registerListeners:nil];
+        }, YES);
 	}
 }
 
@@ -147,14 +166,9 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 {
 	if (count == 0 && [type isEqualToString:@"battery"])
 	{
-		UIDevice *device = [UIDevice currentDevice];
-		if (batteryEnabled)
-		{
-			[device setBatteryMonitoringEnabled:NO];
-		}
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:device];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:device];
+        TiThreadPerformOnMainThread(^{
+            [self unregisterListeners:nil];
+        }, YES);
 	}
 }
 
@@ -282,21 +296,47 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(void)setBatteryMonitoring:(NSNumber *)yn
 {
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{
+            [self setBatteryMonitoring:yn];
+        }, YES);
+    }
 	[[UIDevice currentDevice] setBatteryMonitoringEnabled:[TiUtils boolValue:yn]];
 }
 
 -(NSNumber*)batteryMonitoring
 {
+    if (![NSThread isMainThread]) {
+        __block NSNumber* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self batteryMonitoring] retain];
+        }, YES);
+        return [result autorelease];
+    }
 	return NUMBOOL([UIDevice currentDevice].batteryMonitoringEnabled);
 }
 
 -(NSNumber*)batteryState
 {
+    if (![NSThread isMainThread]) {
+        __block NSNumber* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self batteryState] retain];
+        }, YES);
+        return [result autorelease];
+    }
 	return NUMINT([[UIDevice currentDevice] batteryState]);
 }
 
 -(NSNumber*)batteryLevel
 {
+    if (![NSThread isMainThread]) {
+        __block NSNumber* result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self batteryLevel] retain];
+        }, YES);
+        return [result autorelease];
+    }
 	return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
 

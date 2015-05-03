@@ -5,8 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "JavaScriptCore/TiCore.h"
-#import "TiBase.h"
+#import "TiToJS.h"
 
 @class TiProxy;
 

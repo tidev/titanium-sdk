@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,6 +44,10 @@
 #ifdef USE_TI_UITABBEDBAR
     #import "TiUIiOSTabbedBarProxy.h"
 #endif
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
+#endif
+
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -298,27 +302,27 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 
 -(NSString*)TEXT_STYLE_HEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+    return UIFontTextStyleHeadline;
 }
 -(NSString*)TEXT_STYLE_SUBHEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+    return UIFontTextStyleSubheadline;
 }
 -(NSString*)TEXT_STYLE_BODY
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+    return UIFontTextStyleBody;
 }
 -(NSString*)TEXT_STYLE_FOOTNOTE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+    return UIFontTextStyleFootnote;
 }
 -(NSString*)TEXT_STYLE_CAPTION1
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+    return UIFontTextStyleCaption1;
 }
 -(NSString*)TEXT_STYLE_CAPTION2
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+    return UIFontTextStyleCaption2;
 }
 
 -(NSNumber*)isLandscape:(id)args
@@ -514,7 +518,95 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
     
     return [NSNumber numberWithFloat:result];
 }
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
+MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BACKGROUND_COLOR, AttributeNameBackgroundColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LIGATURE, AttributeNameLigature);
+MAKE_SYSTEM_PROP(ATTRIBUTE_KERN, AttributeNameKern);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_STYLE, AttributeNameStrikethroughStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINES_STYLE, AttributeNameUnderlineStyle);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_COLOR, AttributeNameStrokeColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STROKE_WIDTH, AttributeNameStrokeWidth);
+MAKE_SYSTEM_PROP(ATTRIBUTE_SHADOW, AttributeNameShadow);
+MAKE_SYSTEM_PROP(ATTRIBUTE_VERTICAL_GLYPH_FORM, AttributeNameVerticalGlyphForm);
+MAKE_SYSTEM_PROP(ATTRIBUTE_WRITING_DIRECTION, AttributeNameWritingDirection);
+MAKE_SYSTEM_PROP(ATTRIBUTE_TEXT_EFFECT, AttributeNameTextEffect);
+MAKE_SYSTEM_PROP(ATTRIBUTE_ATTACHMENT, AttributeNameAttachment);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINK, AttributeNameLink);
+MAKE_SYSTEM_PROP(ATTRIBUTE_BASELINE_OFFSET, AttributeNameBaselineOffset);
+MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
+MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
+MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
+{
+    return NUMINTEGER(NSUnderlineStyleNone);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+{
+    return NUMINTEGER(NSUnderlineStyleSingle);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
+{
+    return NUMINTEGER(NSUnderlineStyleThick);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
+{
+    return NUMINTEGER(NSUnderlineStyleDouble);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
+{
+    return NUMINTEGER(NSUnderlinePatternSolid);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
+{
+    return NUMINTEGER(NSUnderlinePatternDot);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
+{
+    return NUMINTEGER(NSUnderlinePatternDash);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
+{
+    return NUMINTEGER(NSUnderlinePatternDashDot);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
+{
+    return NUMINTEGER(NSUnderlinePatternDashDotDot);
+}
+-(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
+{
+    return NUMINTEGER(NSUnderlineByWord);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
+{
+    return NUMINTEGER(NSWritingDirectionNatural);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
+{
+    return NUMINTEGER(NSWritingDirectionLeftToRight);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
+{
+    return NUMINTEGER(NSWritingDirectionRightToLeft);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
+{
+    return NUMINTEGER(NSTextWritingDirectionEmbedding);
+}
+-(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
+{
+    return NUMINTEGER(NSTextWritingDirectionOverride);
+}
+-(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
+{
+    return NSTextEffectLetterpressStyle;
+}
+
+#endif
 
 @end
 

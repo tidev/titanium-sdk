@@ -11,13 +11,16 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
+import android.os.Build;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Layout;
@@ -27,6 +30,7 @@ import android.text.Spannable.Factory;
 import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -103,21 +107,26 @@ public class TiUILabel extends TiUIView
 			                ClickableSpan[] link = buffer.getSpans(off, off,
 			                        ClickableSpan.class);
 
-			                if (link.length != 0) {
-			                	ClickableSpan cSpan = link[0];
-			                    if (action == MotionEvent.ACTION_UP) {
-			                        cSpan.onClick(textView);
-			                    } else if (action == MotionEvent.ACTION_DOWN) {
-			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
-			                    }
-			                }
+							if (link.length != 0) {
+								ClickableSpan cSpan = link[0]; 
+								if (action == MotionEvent.ACTION_UP) {
+									TiViewProxy proxy = getProxy();
+									if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+										KrollDict evnt = new KrollDict();
+										evnt.put("url", ((URLSpan)cSpan).getURL());
+										proxy.fireEvent("link", evnt, false);
+									} else {
+										cSpan.onClick(textView);
+									}
+								} else if (action == MotionEvent.ACTION_DOWN) {
+									Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
+								}
+							}
 			            }
 
 			        }
-
 			        return super.onTouchEvent(event);
-			    } 
-			
+			    }
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
@@ -152,6 +161,13 @@ public class TiUILabel extends TiUIView
 				}
 			} else {
 				tv.setMovementMethod(null);
+				// Before Jelly Bean (API < 16), disabling the movement method will 
+				// disable focusable, clickable and longclickable.
+				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
+					tv.setFocusable(true);
+					tv.setClickable(true);
+					tv.setLongClickable(true);
+				}
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
@@ -215,6 +231,15 @@ public class TiUILabel extends TiUIView
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
+				if (spannableText != null) {
+					tv.setText(spannableText);
+				}
+			}
+		}
 		// This needs to be the last operation.
 		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		tv.invalidate();
@@ -276,6 +301,11 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
+			if (spannableText != null) {
+				tv.setText(spannableText);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -284,5 +314,4 @@ public class TiUILabel extends TiUIView
 	public void setClickable(boolean clickable) {
 		((TextView)getNativeView()).setClickable(clickable);
 	}
-
 }

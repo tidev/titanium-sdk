@@ -36,6 +36,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -124,6 +125,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	protected void handleOpen(KrollDict options)
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
+		// Don't open if app is closing or closed
+		if (topActivity == null || topActivity.isFinishing()) {
+			return;
+		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
@@ -169,7 +174,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void windowCreated(TiBaseActivity activity) {
+	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState) {
 		windowActivity = new WeakReference<TiBaseActivity>(activity);
 		activity.setWindowProxy(this);
 		setActivity(activity);

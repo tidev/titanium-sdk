@@ -57,6 +57,22 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
 	return [dict autorelease];
 }
 
+#ifdef USE_JSCORE_FRAMEWORK
+BOOL TiValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref) {
+    JSStringRef property_name = JSStringCreateWithUTF8CString("Array");
+    JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
+    JSStringRelease(property_name);
+    BOOL isArray = JSValueIsInstanceOfConstructor(js_context_ref, js_value_ref, js_object_ref, NULL);
+    return isArray;
+}
+BOOL TiValueIsDate(JSContextRef js_context_ref, JSValueRef js_value_ref) {
+    JSStringRef property_name = JSStringCreateWithUTF8CString("Date");
+    JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
+    JSStringRelease(property_name);
+    BOOL isDate = JSValueIsInstanceOfConstructor(js_context_ref, js_value_ref, js_object_ref, NULL);
+    return isDate;
+}
+#endif
 
 //
 // function for converting a TiValueRef into an NSObject* (as ID)

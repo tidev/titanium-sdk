@@ -12,10 +12,6 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
-#ifdef TI_DEBUGGER_PROFILER
-#import "TiDebugger.h"
-#endif
-#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -24,6 +20,10 @@
 #import "Mimetypes.h"
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
+#endif
+#ifndef USE_JSCORE_FRAMEWORK
+#import "TiDebugger.h"
+#import "TiProfiler/TiProfiler.h"
 #endif
 
 TiApp* sharedApp;
@@ -176,74 +176,94 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     }
 }
 
+- (void)createDefaultDirectories
+{
+    NSError* error = nil;
+    NSURL* dir = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+                                                        inDomain:NSUserDomainMask
+                                               appropriateForURL:nil
+                                                          create:YES
+                                                           error:&error];
+    if(error)
+    {
+        DebugLog(@"[ERROR]  %@ %@", error, [error userInfo]);
+    }
+}
+
 - (void)boot
 {
 	DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
         NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
         if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
             TiDebuggerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setDebugMode:YES];
-					TiDebuggerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			return;
+				TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setDebugMode:YES];
+						TiDebuggerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
 #endif
     }
-#endif
-	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+    filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
         NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
         NSString *host = [params objectForKey:@"host"];
-        NSInteger port = [[params objectForKey:@"port"] integerValue];
-        NSString *airkey = [params objectForKey:@"airkey"];
+        NSInteger port = [[params objectForKey:@"port"] integerValue];		
         if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"])
         {
             [self setProfileMode:YES];
             TiProfilerStart(host, port);
         }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+		else
 		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setProfileMode:YES];
-					TiProfilerStart(host, port);
+			NSString *airkey = [params objectForKey:@"airkey"];
+			if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"])
+			{
+				NSArray *hosts = nil;
+				NSString *hostsString = [params objectForKey:@"hosts"];
+				if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
+					hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
 				}
-				[self appBoot];
-			});
-			return;
+				TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+					if (host != nil) {
+						[self setProfileMode:YES];
+						TiProfilerStart(host, port);
+					}
+					[self appBoot];
+				});
+				return;
+			}
 		}
 #endif
     }
+#endif
     [self appBoot];
 }
 
@@ -381,7 +401,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
     [self launchToUrl];
 	[self boot];
-	
+    [self createDefaultDirectories];
 	return YES;
 }
 
@@ -611,11 +631,26 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-    //FunctionName();
-    TiBlob * downloadedFile =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedFile,@"data", nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
-    
+	//FunctionName();
+	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+	NSError *error;
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *destinationFilename = location.lastPathComponent;
+	NSURL *destinationURL = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:destinationFilename];
+	if ([fileManager fileExistsAtPath:[destinationURL path]]) {
+		[fileManager removeItemAtURL:destinationURL error:nil];
+	}
+	BOOL success = [fileManager copyItemAtURL:location toURL:destinationURL error:&error];
+	TiBlob* downloadedData;
+	if (!success) {
+		DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+		downloadedData =[[[TiBlob alloc] initWithData:[NSData dataWithContentsOfURL:location] mimetype:[Mimetypes mimeTypeForExtension:[location absoluteString]]] autorelease];
+	}
+	else {
+		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+	}
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
@@ -937,11 +972,11 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
+#ifndef USE_JSCORE_FRAMEWORK
     if ([self debugMode]) {
-#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
-#endif
     }
+#endif
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
 	[super dealloc];

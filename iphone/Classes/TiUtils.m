@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -795,7 +795,17 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		}
 	}
 
-	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+	result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+    
+    //TIMOB-18262
+    if (result && ([[result scheme] isEqualToString:@"file"])){
+        BOOL isDir = NO;
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
+        
+        if (exists && !isDir) {
+            return [TiUtils checkFor2XImage:result];
+        }
+    }
 
 	//TODO: Make this less ugly.
 	if ([relativeString hasPrefix:@"/"])
@@ -1359,7 +1369,9 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
+#ifndef __clang_analyzer__
 			leadingSlashRemoved = YES;
+#endif
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
@@ -1465,7 +1477,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     //Must be called on the main thread
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(setVolume:)]) {
             [(id<VolumeSupport>)theObject setVolume:volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(void)setVolume:(float)volume",[theObject description]);
@@ -1478,7 +1490,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     //Must be called on the main thread
     float returnValue = def;
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(volume)]) {
             returnValue = [(id<VolumeSupport>)theObject volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(float)volume",[theObject description]);
@@ -1526,26 +1538,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     UIBarStyle barStyle = [self barStyleForColor:color];
     BOOL isTranslucent = [self barTranslucencyForColor:color];
 
-    BOOL isIOS7 = [self isIOS7OrGreater];
-
     UINavigationBar * navBar = [navController navigationBar];
     [navBar setBarStyle:barStyle];
     [navBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [navBar setTintColor:barColor];
-    }
+    [navBar setBarTintColor:barColor];
     
     //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
     UIToolbar * toolBar = [navController toolbar];
     [toolBar setBarStyle:barStyle];
     [toolBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [toolBar setTintColor:barColor];
-    }
+    [toolBar setBarTintColor:barColor];
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
@@ -1910,6 +1912,23 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSLog(@"Could not parse JSON. Error: %@", error);
     }
     return r;
+}
+
++(NSString*)currentArchitecture
+{
+#ifdef __arm64__
+    return @"arm64";
+#endif
+#ifdef __arm__
+    return @"armv7";
+#endif
+#ifdef __x86_64__
+    return @"x86_64";
+#endif
+#ifdef __i386__
+    return @"i386";
+#endif
+    return @"Unknown";
 }
 
 @end

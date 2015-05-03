@@ -8,11 +8,9 @@ description: |
     as a shorthand for `<PickerRow>` (see Examples).
     
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 extends: Titanium.UI.View
 since: "0.9"
-excludes:
-    properties: [enabled]
 
 methods:
   - name: add
@@ -29,11 +27,11 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb, tizen, iphone, ipad]
+    platforms: [mobileweb, iphone, ipad]
   - name: title
     summary: Item text.
     type: String

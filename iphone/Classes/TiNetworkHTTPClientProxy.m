@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -83,6 +83,13 @@ extern NSString * const TI_APPLICATION_GUID;
     [httpRequest setMethod: method];
     [httpRequest setUrl:url];
     
+    // twitter specifically disallows X-Requested-With so we only add this normal
+    // XHR header if not going to twitter. however, other services generally expect
+    // this header to indicate an XHR request (such as RoR)
+    if ([[url absoluteString] rangeOfString:@"twitter.com"].location==NSNotFound)
+    {
+        [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
+    }
     if ( (apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url]) ){
         apsConnectionDelegate = [[apsConnectionManager connectionDelegateForUrl:url] retain];
     }
@@ -140,13 +147,6 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     if([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
-    }
-    // twitter specifically disallows X-Requested-With so we only add this normal
-    // XHR header if not going to twitter. however, other services generally expect
-    // this header to indicate an XHR request (such as RoR)
-    if ([[self valueForUndefinedKey:@"url"] rangeOfString:@"twitter.com"].location==NSNotFound)
-    {
-        [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
     }
     id file = [self valueForUndefinedKey:@"file"];
     if(file) {
@@ -283,7 +283,12 @@ extern NSString * const TI_APPLICATION_GUID;
         if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [response downloadProgress]] forKey:@"progress"];
+            float downloadProgress = [response downloadProgress];
+            // return progress as -1 if it is outside the valid range
+            if (downloadProgress > 1 || downloadProgress < 0) {
+                downloadProgress = -1.0f;
+            }
+            [eventDict setValue:[NSNumber numberWithFloat: downloadProgress] forKey:@"progress"];
             [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
         }
         if(_downloadTime == 0) {
@@ -313,6 +318,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
+        [self forgetSelf];
         return;
     }
     NSInteger responseCode = [response status];
@@ -339,6 +345,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     [[TiApp app] stopNetwork];
     if([request cancelled]) {
+        [self forgetSelf];
         return;
     }
     if(hasOnerror) {
@@ -408,7 +415,10 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)setRequestHeader:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
-    [self ensureClient];
+    if (httpRequest == nil) {
+        NSLog(@"[ERROR] No request object found. Did you call open?");
+        return;
+    }
     NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
     [httpRequest addRequestHeader:key value:value];

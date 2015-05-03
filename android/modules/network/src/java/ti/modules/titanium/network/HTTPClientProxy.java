@@ -14,14 +14,13 @@ import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.os.Build;
 import ti.modules.titanium.xml.DocumentProxy;
+import android.os.Build;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILE
@@ -56,7 +55,15 @@ public class HTTPClientProxy extends KrollProxy
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
 			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
 		}
-		
+
+		if (hasProperty(TiC.PROPERTY_AUTO_REDIRECT)) {
+			client.setAutoRedirect(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_REDIRECT)),true));
+		}
+
+		if (hasProperty(TiC.PROPERTY_AUTO_ENCODE_URL)) {
+			client.setAutoEncodeUrl(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_ENCODE_URL)),true));
+		}
+
 		//Set the securityManager on the client if it is defined as a valid value
 		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
 			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);

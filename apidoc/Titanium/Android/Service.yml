@@ -1,23 +1,48 @@
 ---
 name: Titanium.Android.Service
-summary: The Titanium binding of an Android service.
+summary: Android application component that executes in the background.
 description: |
-    This object can be used to start or stop a service directly and listen for service-specific events.  
+    A service is a component started by an application that runs in the background. The service
+    does not have any application UI associated with it, so the user does not directly interact
+    with it, only your application.
 
-    From a JavaScript-based service, this can be referenced with <Titanium.Android.currentService>.  
+    The Titanium SDK gives you the ability to write your own Android Services using JavaScript.
+    The service executes your JavaScript code at intervals you specify.  Note that the service
+    may stop running if the application is killed.
 
-    Use the <Titanium.Android.createService> method to create an instance of a service.
+    To create a service:
 
-    See also [Service](http://developer.android.com/reference/android/app/Service.html)
-    in the Android Developer Reference.
+      1. Write the JavaScript code you want the service to execute in a separate file.
+         The service can execute any Titanium APIs but you should only use non-UI APIs.
+      2. Register the service in your `tiapp.xml` file. Refer to the example below.
+      3. Create a service intent by passing the JavaScript file to
+         the <Titanium.Android.createServiceIntent> method and set the interval to run the
+         code using the intent's `putExtra()` method.
+      4. Pass the Intent object to either the <Titanium.Android.createService> method
+         to create a `Service` object (*bound service*), where the application can
+         manage the service by invoking methods and binding callbacks on the object,
+         or to the <Titanium.Android.startService> method to start the service (*started service*)
+         and the service manages itself.
+
+    Use the `Titanium.Android.Service` API to manage the service.
+
+    To get a reference to the `Service` inside the JavaScript service code, use the
+    <Titanium.Android.currentService> property to retrieve a reference to the service,
+    then invoke the `Titanium.Android.Service` APIs on the `Service` object.
+
+    Further Reading:
+
+      * [Android Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
+      * [Android Developer: Service](http://developer.android.com/reference/android/app/Service.html)
+
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 methods:
   - name: start
-    summary: Starts the Service.  
+    summary: Starts the Service.
     description: |
-        Effective only if this instance of <Titanium.Android.Service> was created 
+        Effective only if this instance of <Titanium.Android.Service> was created
         with <Titanium.Android.createService>.
 
   - name: stop
@@ -27,37 +52,37 @@ events:
 
   - name: pause
     summary: |
-        For Javascript-based services that you create, `pause` fires after each time the JavaScript 
-        code executes.  
+        For Javascript-based services that you create, `pause` fires after each time the JavaScript
+        code executes.
     description: |
-        The `resume` and `pause` events occur in pairs, with `resume` firing just before your 
+        The `resume` and `pause` events occur in pairs, with `resume` firing just before your
         JavaScript service code executes, and `pause` just after.
     properties:
       - name: iteration
         summary: |
-            Incrementing integer indicating which iteration of an interval-based Service is pausing. 
-            For example, if you have an interval-based Service running every 10 seconds, iteration 
-            3 would occur at about 30 seconds after you start the instance (assuming your service 
+            Incrementing integer indicating which iteration of an interval-based Service is pausing.
+            For example, if you have an interval-based Service running every 10 seconds, iteration
+            3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
 
   - name: resume
     summary: |
-        For JavaScript-based Services which you create, `resume` fires each time the JavaScript 
-        code executes. 
+        For JavaScript-based Services which you create, `resume` fires each time the JavaScript
+        code executes.
     description: |
-         For example, if your Service runs on an interval of 10000 (10 seconds), you would expect 
-         to see `resume` fired every 10 seconds, just as the JavaScript service code you wrote is 
+         For example, if your Service runs on an interval of 10000 (10 seconds), you would expect
+         to see `resume` fired every 10 seconds, just as the JavaScript service code you wrote is
          about to execute.
     properties:
       - name: iteration
         summary: |
-            Incrementing integer indicating which iteration of an interval-based Service is pausing. 
-            For example, if you have an interval-based Service running every 10 seconds, iteration 
-            3 would occur at about 30 seconds after you start the instance (assuming your service 
+            Incrementing integer indicating which iteration of an interval-based Service is pausing.
+            For example, if you have an interval-based Service running every 10 seconds, iteration
+            3 would occur at about 30 seconds after you start the instance (assuming your service
             code runs quickly).
 
   - name: start
-    summary: Fired when the bound service instance starts.  
+    summary: Fired when the bound service instance starts.
     description: |
         Bound service instances are created via <Titanium.Android.createService>.
 
@@ -65,13 +90,13 @@ events:
     summary: Fired when the bound service instance stops.
     description: |
          The service stops when <Titanium.Android.Service.stop> or
-         <Titanium.Android.stopService> is called and there are no more bound, 
+         <Titanium.Android.stopService> is called and there are no more bound,
          un-stopped clients.
 
   - name: taskremoved
     summary: Fired when the task that comes from the service's application has been removed.
     description: |
-         This event is fired if the service is currently running and the user has removed a task 
+         This event is fired if the service is currently running and the user has removed a task
          that comes from the service's application, eg. the user swipes the application away from
          the recent applications list. It only works for unbound service which is
          started using <Titanium.Android.startService>.
@@ -84,7 +109,7 @@ properties:
 
   - name: serviceInstanceId
     summary: |
-        A service can be started more than once -- this number (based on an incrementing integer) 
+        A service can be started more than once -- this number (based on an incrementing integer)
         indicates which "start number" in the sequence the current service instance is.
     type: Number
     permission: read-only
@@ -93,35 +118,37 @@ examples:
   - title: Hello World Service
     example: |
         This example shows how to create a service in JavaScript.
-        Your service code is included in its own JavaScript file.  
+        Your service code is included in its own JavaScript file.
 
-        In this example, the service reads data from the <Titanium.Android.Intent> which created it, 
+        In this example, the service reads data from the <Titanium.Android.Intent> which created it,
         to see what it should say besides "Hello World".
-        
+
         File: myservice.js:
-        
+
             var service = Titanium.Android.currentService;
             var intent = service.intent;
             var message = intent.getStringExtra("message_to_echo");
             Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + message);
-        
+
         Register the service in tiapp.xml:
-        
-            <android xmlns:android="http://schemas.android.com/apk/res/android">
-                <services>
-                    <service url="myservice.js" type="interval"/>
-                </services>
-            </android>
-        
-        Code in "regular" Titanium file to launch the service and listen for pause/resume events.  
+
+            <ti:app>
+                <android xmlns:android="http://schemas.android.com/apk/res/android">
+                    <services>
+                        <service url="myservice.js" type="interval"/>
+                    </services>
+                </android>
+            </ti:app>
+
+        Code in "regular" Titanium file to launch the service and listen for pause/resume events.
         Code also stops the service after its code runs 3 times.
-        
+
             var intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
             // Service should run its code every 2 seconds.
             intent.putExtra('interval', 2000);
             // A message that the service should 'echo'
             intent.putExtra('message_to_echo', 'Titanium rocks!');
-            
+
             var service = Titanium.Android.createService(intent);
             service.addEventListener('resume', function(e) {
                 Titanium.API.info('Service code resumes, iteration ' + e.iteration);
@@ -134,9 +161,9 @@ examples:
                 }
             });
             service.start();
-        
+
         Console Output:
-        
+
             [INFO] [29,1942] Service code resumes, iteration 1
             [INFO] [70,2029] Hello World! I am a Service. I have this to say: Titanium rocks!
             [INFO] [3,2070] Service code pauses, iteration 1
@@ -147,5 +174,5 @@ examples:
             [INFO] [27,5961] Hello World! I am a Service. I have this to say: Titanium rocks!
             [INFO] [16,5980] Service code pauses, iteration 3
             [INFO] [1,5981] Service code has run 3 times, will now stop it.
-        
-    
+
+

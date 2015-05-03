@@ -14,6 +14,7 @@
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSNotificationActionProxy.h"
 #import "TiAppiOSNotificationCategoryProxy.h"
+#import "TiAppiOSUserDefaultsProxy.h"
 
 
 @implementation TiAppiOSProxy
@@ -130,6 +131,21 @@
 }
 
 #pragma mark Public
+
+-(id)createUserDefaults:(id)args
+{
+    NSString *suiteName;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(suiteName, args, @"suiteName", NSString);
+    
+    NSUserDefaults *defaultsObject = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+    
+    TiAppiOSUserDefaultsProxy *userDefaultsProxy = [[[TiAppiOSUserDefaultsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    
+    userDefaultsProxy.defaultsObject = defaultsObject;
+    
+    return userDefaultsProxy;
+}
 
 -(id)registerBackgroundService:(id)args
 {
@@ -531,13 +547,9 @@
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
-    if ([TiUtils isIOS7OrGreater]) {
-        double fetchInterval = [TiUtils doubleValue:value];
-        fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
-        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
-    } else {
-        DebugLog(@"[ERROR] Methond only available on iOS 7 and above.");
-    }
+    double fetchInterval = [TiUtils doubleValue:value];
+    fetchInterval = MAX(MIN(fetchInterval, UIApplicationBackgroundFetchIntervalNever),UIApplicationBackgroundFetchIntervalMinimum);
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
 -(void)endBackgroundHandler:(id)arg
@@ -551,17 +563,11 @@
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_MIN {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalMinimum);
 }
 
 -(NSNumber*)BACKGROUNDFETCHINTERVAL_NEVER {
-    if ([TiUtils isIOS7OrGreater]) {
-        return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
-    }
-    return nil;
+    return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_NONE

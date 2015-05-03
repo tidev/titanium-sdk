@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -852,16 +852,25 @@
 
 -(void)showControllerModal:(UIViewController*)theController animated:(BOOL)animated
 {
+    BOOL trulyAnimated = animated;
     UIViewController* topVC = [self topPresentedController];
+    
+    if ([topVC isBeingDismissed]) {
+        topVC = [topVC presentingViewController];
+    }
+    
     if ([topVC isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
         return;
     }
     if ([TiUtils isIOS8OrGreater]) {
-        if ([topVC isKindOfClass:[UIAlertController class]] && ![theController isKindOfClass:[TiErrorController class]]) {
-            if ( ((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
-                DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
-                return;
+        if ([topVC isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+                if (![theController isKindOfClass:[TiErrorController class]]) {
+                    DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+                    return;
+                }
             }
         }
     }
@@ -874,7 +883,7 @@
         }
     }
     [self dismissKeyboard];
-    [topVC presentViewController:theController animated:animated completion:nil];
+    [topVC presentViewController:theController animated:trulyAnimated completion:nil];
 }
 
 -(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated
@@ -883,8 +892,17 @@
     if (topVC != theController) {
         DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
     }
+    BOOL trulyAnimated = animated;
     UIViewController* presenter = [theController presentingViewController];
-    [presenter dismissViewControllerAnimated:animated completion:^{
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([presenter isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+            }
+        }
+    }
+    [presenter dismissViewControllerAnimated:trulyAnimated completion:^{
         if (presenter == self) {
             [self didCloseWindow:nil];
         } else {
@@ -894,6 +912,14 @@
                 id theProxy = [(id)presenter proxy];
                 if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                     [(id<TiWindowProtocol>)theProxy gainFocus];
+                }
+            } else if ([TiUtils isIOS8OrGreater]){
+                //This code block will only execute when errorController is presented on top of an alert
+                if ([presenter isKindOfClass:[UIAlertController class]] && (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert)) {
+                    UIViewController* alertPresenter = [presenter presentingViewController];
+                    [alertPresenter dismissViewControllerAnimated:NO completion:^{
+                        [alertPresenter presentViewController:presenter animated:NO completion:nil];
+                    }];
                 }
             }
         }
@@ -1042,33 +1068,24 @@
         }
         
         CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-        CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
         CGRect viewBounds = [[self view] bounds];
         
-        if ([TiUtils isIOS7OrGreater]) {
-            //Need to do this to force navigation bar to draw correctly on iOS7
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
-            if (statusBarFrame.size.height > 20) {
-                if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
-                    CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
-                    CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, (mainScreenBounds.size.height - statusBarFrame.size.height)/2);
-                    [[self view] setBounds:newBounds];
-                    [[self view] setCenter:newCenter];
-                    [[self view] setNeedsLayout];
-                }
-            } else {
-                if (viewBounds.size.height != mainScreenBounds.size.height) {
-                    CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
-                    CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, mainScreenBounds.size.height/2);
-                    [[self view] setBounds:newBounds];
-                    [[self view] setCenter:newCenter];
-                    [[self view] setNeedsLayout];
-                }
+        //Need to do this to force navigation bar to draw correctly on iOS7
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
+        if (statusBarFrame.size.height > 20) {
+            if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
+                CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
+                CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, (mainScreenBounds.size.height - statusBarFrame.size.height)/2);
+                [[self view] setBounds:newBounds];
+                [[self view] setCenter:newCenter];
+                [[self view] setNeedsLayout];
             }
-            
         } else {
-            if (viewBounds.size.height != appFrame.size.height) {
-                [[self view] setFrame:appFrame];
+            if (viewBounds.size.height != mainScreenBounds.size.height) {
+                CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
+                CGPoint newCenter = CGPointMake(mainScreenBounds.size.width/2, mainScreenBounds.size.height/2);
+                [[self view] setBounds:newBounds];
+                [[self view] setCenter:newCenter];
                 [[self view] setNeedsLayout];
             }
         }
@@ -1137,11 +1154,30 @@
 
 -(void)incrementActiveAlertControllerCount
 {
-    ++activeAlertControllerCount;
+    if ([TiUtils isIOS8OrGreater]){
+        ++activeAlertControllerCount;
+    }
 }
 -(void)decrementActiveAlertControllerCount
 {
-    --activeAlertControllerCount;
+    if ([TiUtils isIOS8OrGreater]) {
+        --activeAlertControllerCount;
+        if (activeAlertControllerCount == 0) {
+            UIViewController* topVC = [self topPresentedController];
+            if (topVC == self) {
+                [self didCloseWindow:nil];
+            } else {
+                [self dismissKeyboard];
+                
+                if ([topVC respondsToSelector:@selector(proxy)]) {
+                    id theProxy = [(id)topVC proxy];
+                    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                        [(id<TiWindowProtocol>)theProxy gainFocus];
+                    }
+                }
+            }
+        }
+    }
 }
 
 -(NSUInteger)supportedOrientationsForAppDelegate;
@@ -1619,7 +1655,7 @@
 
 - (void) updateStatusBar
 {
-    if ([TiUtils isIOS7OrGreater] && viewControllerControlsStatusBar) {
+    if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
         [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];

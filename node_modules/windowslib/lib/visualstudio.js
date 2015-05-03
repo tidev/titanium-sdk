@@ -67,8 +67,11 @@ function detect(options, callback) {
 		async.each([
 			'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\VisualStudio', // there should not be anything here because VS is currently 32-bit and we'll find it next
 			'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\VisualStudio', // this is where VS should be found because it's 32-bit
-			'HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio' // should be the same as the one above, but just to be safe
-		], function (keyPath, next) {
+			'HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio', // should be the same as the one above, but just to be safe
+			'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\VSWinExpress', // there should not be anything here because VS is currently 32-bit and we'll find it next
+			'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\VSWinExpress', // this is where VS should be found because it's 32-bit
+			'HKEY_CURRENT_USER\\Software\\Microsoft\\VSWinExpress' // should be the same as the one above, but just to be safe
+			], function (keyPath, next) {
 			appc.subprocess.run('reg', ['query', keyPath], function (code, out, err) {
 				if (!code) {
 					out.trim().split(/\r\n|\n/).forEach(function (configKey) {
@@ -126,7 +129,7 @@ function detect(options, callback) {
 						});
 
 						// verify that this Visual Studio actually exists
-						if (info.path && fs.existsSync(info.path) && fs.existsSync(path.join(info.path, 'Common7', 'IDE', 'devenv.exe'))) {
+						if (info.path && fs.existsSync(info.path)) {
 							// get the vcvarsall script
 							var vcvarsall = path.join(info.path, 'VC', 'vcvarsall.bat');
 							if (fs.existsSync(vcvarsall)) {
@@ -261,7 +264,7 @@ function build(options, callback) {
 
 			var vsInfo = results.selectedVisualStudio;
 
-			if (!vsInfo) {
+			if (!vsInfo || !vsInfo.vcvarsall) {
 				var e = new Error(__('Unable to find a supported Visual Studio installation'));
 				emitter.emit('error', e);
 				return callback(e);

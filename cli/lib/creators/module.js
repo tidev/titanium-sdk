@@ -96,7 +96,12 @@ ModuleCreator.prototype.run = function run(callback) {
 			moduleIdAsIdentifier: this.id.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join(''),
 
 			// com/appcelerator/mymodule
-			moduleIdAsFolder: this.id.replace(/\./g, path.sep)
+			moduleIdAsFolder: this.id.replace(/\./g, path.sep),
+
+			mainEncryptedAsset: '',
+			allEncryptedAssets: '',
+			mainEncryptedAssetReturn: 'return nil;',
+			allEncryptedAssetsReturn: 'return nil;'
 		},
 		tasks = [
 			function (next) {

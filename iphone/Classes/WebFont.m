@@ -37,11 +37,8 @@
 
 -(BOOL)isValidTextStyle:(NSString*)theStyle
 {
-    if([TiUtils isIOS7OrGreater]){
-        return ([theStyle isEqualToString:UIFontTextStyleBody] || [theStyle isEqualToString:UIFontTextStyleCaption1] || [theStyle isEqualToString:UIFontTextStyleCaption2]
-                || [theStyle isEqualToString:UIFontTextStyleHeadline] || [theStyle isEqualToString:UIFontTextStyleSubheadline] || [theStyle isEqualToString:UIFontTextStyleFootnote]);
-    }
-    return NO;
+    return ([theStyle isEqualToString:UIFontTextStyleBody] || [theStyle isEqualToString:UIFontTextStyleCaption1] || [theStyle isEqualToString:UIFontTextStyleCaption2]
+            || [theStyle isEqualToString:UIFontTextStyleHeadline] || [theStyle isEqualToString:UIFontTextStyleSubheadline] || [theStyle isEqualToString:UIFontTextStyleFootnote]);
 }
 
 -(UIFont *) font

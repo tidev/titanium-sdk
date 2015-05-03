@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings("deprecation")
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
@@ -48,14 +49,6 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	ActionBar.Tab tab;
 
-	/**
-	 * The fragment that will provide the content view of the tab.
-	 * This fragment will be attached when the tab is selected and
-	 * detached when it is later unselected. This reference will be
-	 * initialized when the tab is first selected.
-	 */
-	TabFragment fragment;
-
 	public TiUIActionBarTab(TabProxy proxy, ActionBar.Tab tab) {
 		super(proxy);
 		this.tab = tab;
@@ -78,10 +71,6 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 		
 	}
 
-	public String getTabTag() {
-		return ((TabProxy)proxy).getTabTag();
-	}
-
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if (key.equals(TiC.PROPERTY_TITLE)) {
@@ -101,9 +90,14 @@ public class TiUIActionBarTab extends TiUIAbstractTab {
 	 * when the tab is first selected to create the fragment which
 	 * will display the tab's content view.
 	 */
-	void initializeFragment() {
-		fragment = new TabFragment();
+
+	public TabFragment createFragment() {
+		TabFragment fragment = new TabFragment();
 		fragment.setTab(this);
+		return fragment;
 	}
 
+	public void setTabOnFragment(TabFragment fragment) {
+		fragment.setTab(this);
+	}
 }

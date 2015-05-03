@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.util.SparseArray;
+import android.os.Bundle;
 
 /**
  * A registry for TiBaseActivity<->Window creation logic.
@@ -25,11 +26,11 @@ public class TiActivityWindows
 		return windowId;
 	}
 
-	public static void windowCreated(TiBaseActivity activity, int windowId)
+	public static void windowCreated(TiBaseActivity activity, int windowId, Bundle savedInstanceState)
 	{
 		TiActivityWindow window = windows.get(windowId);
 		if (window != null) {
-			window.windowCreated(activity);
+			window.windowCreated(activity, savedInstanceState);
 		}
 	}
 

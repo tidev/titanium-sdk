@@ -102,7 +102,7 @@ properties:
     summary: Left button in the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
 
@@ -130,7 +130,7 @@ properties:
     summary: Right button in the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -151,7 +151,7 @@ properties:
     summary: Title of the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
@@ -226,8 +226,8 @@ examples:
                     <ContentView>
                         <NavigationWindow>
                             <Window title='Kermit' backgroundColor='green'>
-                                <RightNavButton onClick="closePopover" title="Robin" />
-                                 <Label>It's not easy being green.</Label>
+                                <RightNavButton onClick="showAlert" title="Robin" />
+                                <Label>It's not easy being green.</Label>
                             </Window>
                         </NavigationWindow>
                     </ContentView>

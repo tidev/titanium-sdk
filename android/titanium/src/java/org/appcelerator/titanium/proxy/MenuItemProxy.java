@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Message;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 
 @Kroll.proxy

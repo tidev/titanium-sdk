@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
 #import "TiEvaluator.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
@@ -345,4 +344,5 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
 
 -(NSString*)apiName;
+
 @end

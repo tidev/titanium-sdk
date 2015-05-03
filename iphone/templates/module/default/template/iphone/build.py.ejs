@@ -9,7 +9,7 @@ from datetime import date
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
-required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
+required_module_keys = ['architectures', 'name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
 module_defaults = {
 	'description':'My module',
 	'author': 'Your Name',
@@ -117,6 +117,9 @@ def die(msg):
 def warn(msg):
 	print "[WARN] %s" % msg
 
+def error(msg):
+	print "[ERROR] %s" % msg
+
 def validate_license():
 	license_file = os.path.join(cwd,'LICENSE')
 	if not os.path.exists(license_file):
@@ -139,6 +142,7 @@ def validate_manifest():
 		manifest[key.strip()]=value.strip()
 	for key in required_module_keys:
 		if not manifest.has_key(key): die("missing required manifest key '%s'" % key)
+		if manifest[key].strip() == '': die("manifest key '%s' missing required value" % key)
 		if module_defaults.has_key(key):
 			defvalue = module_defaults[key]
 			curvalue = manifest[key]
@@ -186,6 +190,29 @@ def build_module(manifest,config):
 		libpaths+='%s ' % libfile
 
 	os.system("lipo %s -create -output build/lib%s.a" %(libpaths,moduleid))
+
+def verify_build_arch(manifest, config):
+	binaryname = 'lib%s.a' % manifest['moduleid']
+	binarypath = os.path.join('build', binaryname)
+	manifestarch = set(manifest['architectures'].split(' '))
+
+	output = subprocess.check_output('xcrun lipo -info %s' % binarypath, shell=True)
+
+	builtarch = set(output.split(':')[-1].strip().split(' '))
+
+	print 'Check build architectures\n'
+
+	if ('arm64' not in builtarch):
+		warn('built module is missing 64-bit support.')
+
+	if (manifestarch != builtarch):
+		warn('architectures in manifest: %s' % ', '.join(manifestarch))
+		warn('compiled binary architectures: %s' % ', '.join(builtarch))
+
+		print '\nMODULE BUILD FAILED'
+		error('there is discrepancy between the architectures specified in module manifest and compiled binary.')
+		error('Please update manifest to match module binary architectures.')
+		die('')
 
 def package_module(manifest,mf,config):
 	name = manifest['name'].lower()
@@ -242,6 +269,6 @@ if __name__ == '__main__':
 
 	compile_js(manifest,config)
 	build_module(manifest,config)
+	verify_build_arch(manifest, config)
 	package_module(manifest,mf,config)
 	sys.exit(0)
-

@@ -7,6 +7,7 @@
 #if defined(USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE) || defined(USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE)
 
 #import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
+#import "TiBase.h"
 
 @implementation TiUIiPhoneTableViewSeparatorStyleProxy
 

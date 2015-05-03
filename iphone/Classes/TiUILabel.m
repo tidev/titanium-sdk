@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,10 +11,10 @@
 #import "TiUtils.h"
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
-#endif
 
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
+#endif
 @implementation TiUILabel
 
 #pragma mark Internal
@@ -188,17 +188,9 @@
 -(void)ensureGestureListeners
 {
     if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
-        [[self gestureRecognizerForEvent:@"link"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"singletap"] setEnabled:YES];
     }
     [super ensureGestureListeners];
-}
-
-- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
-{
-    if ([event isEqualToString:@"link"]) {
-        return [super gestureRecognizerForEvent:@"longpress"];
-    }
-    return [super gestureRecognizerForEvent:event];
 }
 
 -(void)handleListenerRemovedWithEvent:(NSString *)event
@@ -206,9 +198,9 @@
 	ENSURE_UI_THREAD_1_ARG(event);
 	// unfortunately on a remove, we have to check all of them
 	// since we might be removing one but we still have others
-    if ([event isEqualToString:@"link"] || [event isEqualToString:@"longpress"]) {
-        BOOL enableListener = [self.proxy _hasListeners:@"longpress"] || [self.proxy _hasListeners:@"link"];
-        [[self gestureRecognizerForEvent:event] setEnabled:enableListener];
+    if ([event isEqualToString:@"link"] || [event isEqualToString:@"singletap"]) {
+        BOOL enableListener = [self.proxy _hasListeners:@"singletap"] || [(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO];
+        [[self gestureRecognizerForEvent:@"singletap"] setEnabled:enableListener];
     } else {
         [super handleListenerRemovedWithEvent:event];
     }
@@ -302,18 +294,29 @@
     return NO;
 }
 
--(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
+-(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
-    if ([recognizer state] == UIGestureRecognizerStateBegan) {
-        CGPoint p = [recognizer locationInView:self];
-        if ([self.proxy _hasListeners:@"longpress"]) {
-            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   NUMFLOAT(p.x), @"x",
-                                   NUMFLOAT(p.y), @"y",
-                                   nil];
-            [self.proxy fireEvent:@"longpress" withObject:event];
+    BOOL testLink = (label != nil) &&([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]);
+    CGPoint tapPoint = [recognizer locationInView:self];
+    NSDictionary *event = [TiUtils pointToDictionary:tapPoint];
+    
+    if ([recognizer numberOfTouchesRequired] == 2) {
+        [self.proxy fireEvent:@"twofingertap" withObject:event];
+    }
+    else if ([recognizer numberOfTapsRequired] == 2) {
+        //Because double-tap suppresses touchStart and double-click, we must do this:
+        if ([self.proxy _hasListeners:@"touchstart"])
+        {
+            [self.proxy fireEvent:@"touchstart" withObject:event propagate:YES];
         }
-        if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO] && (label != nil) && [TiUtils isIOS7OrGreater]) {
+        if ([self.proxy _hasListeners:@"dblclick"]) {
+            [self.proxy fireEvent:@"dblclick" withObject:event propagate:YES];
+        }
+        [self.proxy fireEvent:@"doubletap" withObject:event];
+    }
+    else {
+        [self.proxy fireEvent:@"singletap" withObject:event];
+        if (testLink) {
             NSMutableAttributedString* optimizedAttributedText = [label.attributedText mutableCopy];
             if (optimizedAttributedText != nil) {
                 // use label's font and lineBreakMode properties in case the attributedText does not contain such attributes
@@ -325,7 +328,7 @@
                         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
                         [paragraphStyle setLineBreakMode:label.lineBreakMode];
                         [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
-						RELEASE_TO_NIL(paragraphStyle);
+                        RELEASE_TO_NIL(paragraphStyle);
                     }
                 }];
                 
@@ -337,9 +340,9 @@
                     }
                     [optimizedAttributedText removeAttribute:(NSString*)kCTParagraphStyleAttributeName range:range];
                     [optimizedAttributedText addAttribute:(NSString*)kCTParagraphStyleAttributeName value:paragraphStyle range:range];
-					RELEASE_TO_NIL(paragraphStyle);
+                    RELEASE_TO_NIL(paragraphStyle);
                 }];
-                [self checkLinkAttributeForString:optimizedAttributedText atPoint:p];
+                [self checkLinkAttributeForString:optimizedAttributedText atPoint:tapPoint];
                 [optimizedAttributedText release];
             }
         }
@@ -452,8 +455,8 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
+#if defined (USE_TI_UIIOSATTRIBUTEDSTRING) || defined (USE_TI_UIATTRIBUTEDSTRING)
+    ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];
     [self padLabel];

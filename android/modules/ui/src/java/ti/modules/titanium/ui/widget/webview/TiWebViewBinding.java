@@ -86,16 +86,17 @@ public class TiWebViewBinding
 
 	private ApiBinding apiBinding;
 	private AppBinding appBinding;
+	private TiReturn tiReturn;
+	private WebView webView;
+	private boolean interfacesAdded = false;
 
 	public TiWebViewBinding(WebView webView)
 	{
 		codeSnippets = new Stack<String>();
-
+		this.webView = webView;
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
-		webView.addJavascriptInterface(appBinding, "TiApp");
-		webView.addJavascriptInterface(apiBinding, "TiAPI");
-		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
+		tiReturn = new TiReturn();
 	}
 
 	public TiWebViewBinding(TiContext tiContext, WebView webView)
@@ -103,12 +104,22 @@ public class TiWebViewBinding
 		this(webView);
 	}
 
+	public void addJavascriptInterfaces() 
+	{
+		if (webView != null && !interfacesAdded) {
+			webView.addJavascriptInterface(appBinding, "TiApp");
+			webView.addJavascriptInterface(apiBinding, "TiAPI");
+			webView.addJavascriptInterface(tiReturn, "_TiReturn");
+			interfacesAdded = true;
+		}
+	}
+
 	public void destroy()
 	{
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
 		appBinding.clearEventListeners();
-
+		webView = null;
 		returnSemaphore.release();
 		codeSnippets.clear();
 		destroyed = true;
@@ -145,7 +156,7 @@ public class TiWebViewBinding
 	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
-		if (!destroyed) {
+		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 				+ "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
@@ -168,7 +179,6 @@ public class TiWebViewBinding
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	private class TiReturn
 	{
 		@JavascriptInterface
@@ -289,7 +299,6 @@ public class TiWebViewBinding
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private class ApiBinding
 	{
 		private KrollLogging logging;

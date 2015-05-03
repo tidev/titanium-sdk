@@ -115,61 +115,63 @@ DEFINE_EXCEPTIONS
 
 -(void)timerFired:(id)arg
 {
-	if (stopped) {
-		return;
-	}
-	
-	// don't let the placeholder stomp on our new images
-	placeholderLoading = NO;
-	
-	NSInteger position = index % loadTotal;
-	NSInteger nextIndex = (reverse) ? --index : ++index;
-	
-	if (position<0)
-	{
-		position=loadTotal-1;
-		index=position-1;
-	}
-	UIView *view = [[container subviews] objectAtIndex:position];
-    
-	// see if we have an activity indicator... if we do, that means the image hasn't yet loaded
-	// and we want to start the spinner to let the user know that we're still loading. we 
-	// don't initially start the spinner when added since we don't want to prematurely show
-	// the spinner (usually for the first image) and then immediately remove it with a flash
-	UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-	if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
-	{
-		[(UIActivityIndicatorView*)spinner startAnimating];
-		[view bringSubviewToFront:spinner];
-	}
-	
-	// the container sits on top of the image in case the first frame (via setUrl) is first
-	[self bringSubviewToFront:container];
-	
-	view.hidden = NO;
-    
-	if (previous!=nil)
-	{
-		previous.hidden = YES;
-		RELEASE_TO_NIL(previous);
-	}
-	
-	previous = [view retain];
-    
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		NSDictionary *evt = [NSDictionary dictionaryWithObject:NUMINTEGER(position) forKey:@"index"];
-		[self.proxy fireEvent:@"change" withObject:evt];
-	}
-	
-	if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
-	{
-		iterations++;
-		if (iterations == repeatCount) {
+    if (stopped) {
+        return;
+    }
+
+    // don't let the placeholder stomp on our new images
+    placeholderLoading = NO;
+
+    NSInteger position = index % loadTotal;
+
+    if (position<0)
+    {
+        position=loadTotal-1;
+        index=position-1;
+    }
+    UIView *view = [[container subviews] objectAtIndex:position];
+
+    // see if we have an activity indicator... if we do, that means the image hasn't yet loaded
+    // and we want to start the spinner to let the user know that we're still loading. we 
+    // don't initially start the spinner when added since we don't want to prematurely show
+    // the spinner (usually for the first image) and then immediately remove it with a flash
+    UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+    if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
+    {
+        [(UIActivityIndicatorView*)spinner startAnimating];
+        [view bringSubviewToFront:spinner];
+    }
+
+    // the container sits on top of the image in case the first frame (via setUrl) is first
+    [self bringSubviewToFront:container];
+
+    if (previous!=nil)
+    {
+        previous.hidden = YES;
+        RELEASE_TO_NIL(previous);
+    }
+
+    previous = [view retain];
+    previous.hidden = NO;
+
+    if ([self.proxy _hasListeners:@"change"])
+    {
+        NSDictionary *evt = [NSDictionary dictionaryWithObject:NUMINTEGER(position) forKey:@"index"];
+        [self.proxy fireEvent:@"change" withObject:evt];
+    }
+
+    if (repeatCount > 0 && ((reverse==NO && position == (loadTotal-1)) || (reverse && position==0)))
+    {
+        iterations++;
+        if (iterations == repeatCount) {
             stopped = YES;
+            [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+            [self.proxy replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:NO];
+            [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
             [self stopTimerWithEvent:@"stop"];
-		}
-	}
+        }
+    }
+    index = (reverse? --index : ++index);
 }
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
@@ -582,49 +584,54 @@ DEFINE_EXCEPTIONS
 
 -(void)stop
 {
-	stopped = YES;
+    stopped = YES;
     [self stopTimerWithEvent:@"stop"];
-	ready = NO;
-	index = -1;
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+    ready = NO;
+    index = -1;
+    iterations = -1;
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
 }
 
 -(void)start
 {
-	stopped = NO;
+    stopped = NO;
+    BOOL paused = [TiUtils boolValue:[self.proxy valueForKey:@"paused"] def:NO];
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
-	
-	if (iterations<0)
-	{
-		iterations = 0;
-	}
-	
-	if (index<0)
-	{
-		if (reverse)
-		{
-			index = loadTotal-1;
-		}
-		else
-		{
-			index = 0;
-		}
-	}
-	
-	
-	// refuse to start animation if you don't have any images
-	if (loadTotal > 0)
-	{
-		ready = YES;
-		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
-		
-		if (timer==nil)
-		{
-			readyCount = 0;
-			ready = NO;
-			[self startTimerWithEvent:@"start"];
-		}
-	}
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"stopped" notification:NO];
+
+    if (iterations<0 || !paused)
+    {
+        iterations = 0;
+    }
+
+    if (index<0 || !paused)
+    {
+        if (reverse)
+        {
+            index = loadTotal-1;
+        }
+        else
+        {
+            index = 0;
+        }
+    }
+
+
+    // refuse to start animation if you don't have any images
+    if (loadTotal > 0)
+    {
+        ready = YES;
+        [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
+        
+        if (timer==nil)
+        {
+            readyCount = 0;
+            ready = NO;
+            [self startTimerWithEvent:@"start"];
+        }
+    }
 }
 
 -(void)pause

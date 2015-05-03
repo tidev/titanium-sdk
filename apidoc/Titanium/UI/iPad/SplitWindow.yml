@@ -1,5 +1,8 @@
 ---
 name: Titanium.UI.iPad.SplitWindow
+deprecated:
+    since: 3.6.0
+    notes: Use <Titanium.UI.iOS.SplitWindow> instead.
 summary: |
     A SplitWindow is a window that manages the presentation of two side-by-side view 
     controllers. 
@@ -118,7 +121,7 @@ examples:
                                 <ListItem title="Item 3"></ListItem>
                             </ListSection>
                         </ListView>
-                    </Window>
+                    </NavigationWindow>
 
                     <!-- Second window is the detailView -->
                     <Window>

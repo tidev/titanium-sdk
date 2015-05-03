@@ -7,6 +7,7 @@
 
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 #import "TiDOMPIProxy.h"
+#import "TiBase.h"
 // Corresponds to Interface ProcessingInstruction of DOM2 Spec.
 @implementation TiDOMPIProxy
 

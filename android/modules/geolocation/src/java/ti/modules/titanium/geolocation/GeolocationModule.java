@@ -27,6 +27,7 @@ import ti.modules.titanium.geolocation.android.AndroidModule;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 import ti.modules.titanium.geolocation.android.LocationRuleProxy;
+import android.app.Activity;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -151,6 +152,8 @@ public class GeolocationModule extends KrollModule
 	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
 	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
+	private static final double SIMPLE_LOCATION_GPS_MIN_AGE_RULE = 30000;
+
 
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
@@ -192,7 +195,7 @@ public class GeolocationModule extends KrollModule
 		simpleLocationProviders.put(PROVIDER_PASSIVE, new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE, SIMPLE_LOCATION_PASSIVE_TIME, this));
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, null, null);
+		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
 		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
@@ -895,6 +898,18 @@ public class GeolocationModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.Geolocation";
+	}
+	
+	@Override
+	public void onDestroy(Activity activity) {
+		//clean up event listeners
+		if (compassListenersRegistered) {
+			tiCompass.unregisterListener();
+			compassListenersRegistered = false;
+		}
+		disableLocationProviders();
+		super.onDestroy(activity);
+
 	}
 }
 

@@ -1,86 +1,18 @@
 ---
 name: Titanium.Android.NotificationManager
-summary: Module for managing status bar notifications.
+summary: Module for managing notifications.
 description: |
-    This module provides methods for sending and canceling status bar notifications,
+    This module provides methods for sending and canceling notifications,
     which are represented by the <Titanium.Android.Notification> object.
 
-    The `NotificationManager` module is a thin wrapper on the Android `NotificationManager`
-    class. The constants in this module are derived from the Android `Notification` class.
+    Further Reading:
 
-    See also:
-
-    *   [Android Notifications in the Titanium Mobile Guides](http://docs.appcelerator.com/titanium/2.0/#!/guide/Android_Notifications)
-
-    *   [Status Bar Notifications in the Android Developer Guide](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
-
-    *   [NotificationManager in the Android API Reference](http://developer.android.com/reference/android/app/NotificationManager.html) 
-
-    *   [Notification in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html) 
+      * [Android Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
+      * [Android Developer: Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
 
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
-
-examples: 
-  - title: Simple Notification Example
-    example: |
-        The following example shows how to create a notification that launches the
-        application when the user clicks on the notification.
-
-        The [Intent](Titanium.Android.Intent) object associated with the notification determines 
-        what happens when the user clicks on the notification. In this case, we simply launch the application.
-        The intent in this sample uses a className to identify the activity to launch. 
-        
-        A Titanium application's main activity generally has the class name:
-
-        <i>&lt;app_id&gt;.&lt;Appname&gt;</i><b>Activity</b> 
-        
-        where <i>&lt;app_id&gt;</i> is the application's app ID, and <i>&lt;Appname&gt;</i>
-        is the application's name, with the first letter capitalized and all other letters
-        lowercase.
-
-        For example, in this case the test application has the app ID
-        `com.appcelerator.notificationsample` and app name `NotificationSample`, so the 
-        activity class name is:
-
-            com.appcelerator.notificationsample.NotificationsampleActivity
-
-        You can also find the activity's class name by looking in the `build/android` folder of your 
-        Titanium project.
-
-        The notification icon must be specified as an Android resource ID. In this case,
-        the icon, `my_icon.png` would be placed in
-        `platforms/android/res/drawable/my_icon.png`.
-        See <Titanium.App.Android.R> for more information.
-
-        This example doesn't include a custom alert sound. For information on adding a
-        custom alert sound, see [Notification.sound](Titanium.Android.Notification.sound).
-                       
-            // Intent object to launch the application 
-            var intent = Ti.Android.createIntent({
-                flags : Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_NEW_TASK,
-                // Substitute the correct classname for your application
-                className : 'com.appcelerator.notificationsample.NotificationsampleActivity',
-            });
-            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-
-            // Create a PendingIntent to tie together the Activity and Intent
-            var pending = Titanium.Android.createPendingIntent({
-                intent: intent,
-                flags: Titanium.Android.FLAG_UPDATE_CURRENT
-            });
-
-            // Create the notification
-            var notification = Titanium.Android.createNotification({
-            	// icon is passed as an Android resource ID -- see Ti.App.Android.R.
-                icon: Ti.App.Android.R.drawable.my_icon,
-            	contentTitle: 'Something Happened',
-            	contentText : 'Click to return to the application.',
-            	contentIntent: pending
-            });
-            // Send the notification.
-            Titanium.Android.NotificationManager.notify(1, notification);
 
 methods:
   - name: cancel
@@ -111,100 +43,56 @@ methods:
 properties:
 
   - name: DEFAULT_ALL
-    summary: |
-        Use all default settings for a notification; see
-        [Notification.defaults](Titanium.Android.Notification.defaults).
-    description: |
-        See [Notification.DEFAULT_ALL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_ALL).
+    summary: Use <Titanium.Android.DEFAULT_ALL> instead.
     type: Number
     permission: read-only
 
   - name: DEFAULT_LIGHTS
-    summary: |
-        Use the default light settings for a notification; see
-        [Notification.defaults](Titanium.Android.Notification.defaults).
-    description: |
-        See [Notification.DEFAULT_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_LIGHTS).
+    summary: Use <Titanium.Android.DEFAULT_LIGHTS> instead.
     type: Number
     permission: read-only
 
   - name: DEFAULT_SOUND
-    summary: |
-        Use the default sound settings for a notification; see
-        [Notification.defaults](Titanium.Android.Notification.defaults).
-    description: |
-        See [Notification.DEFAULT_SOUND in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_SOUND).
+    summary: Use <Titanium.Android.DEFAULT_SOUND> instead.
     type: Number
     permission: read-only
 
   - name: DEFAULT_VIBRATE
-    summary: |
-        Use the default vibration settings for a notification; see
-        [Notification.defaults](Titanium.Android.Notification.defaults).
-    description: |
-        See [Notification.DEFAULT_VIBRATE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_VIBRATE).
+    summary: Use <Titanium.Android.DEFAULT_VIBRATE> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_AUTO_CANCEL
-    summary: Cancel the notification when it is clicked by the user.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_AUTO_CANCEL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_AUTO_CANCEL).
+    summary: Use <Titanium.Android.FLAG_AUTO_CANCEL> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_INSISTENT
-    summary: |
-        Repeat audio until the notification is cancelled or the notification window
-        is opened.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_INSISTENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_INSISTENT).
+    summary: Use <Titanium.Android.FLAG_INSISTENT> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_NO_CLEAR
-    summary: Do not cancel the notification when the user clicks the Clear All button.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_NO_CLEAR in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_NO_CLEAR).
+    summary: Use <Titanium.Android.FLAG_NO_CLEAR> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_ONGOING_EVENT
-    summary: Specifies that a notification is in reference to something that is ongoing, like a phone call.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_ONGOING_EVENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONGOING_EVENT).
+    summary: Use <Titanium.Android.FLAG_ONGOING_EVENT> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_ONLY_ALERT_ONCE
-    summary: |
-        Play an alert (sound, lights, and/or vibration) once each time the notification is sent, even 
-        if it has not been canceled before that.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_ONLY_ALERT_ONCE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONLY_ALERT_ONCE).
+    summary: Use <Titanium.Android.FLAG_ONLY_ALERT_ONCE> instead.
     type: Number
     permission: read-only
 
   - name: FLAG_SHOW_LIGHTS
-    summary: Use LED lights to alert the user to the notification.
-    description: |
-        Use with [Notification.flags](Titanium.Android.Notification.flags).
-
-        See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
+    summary: Use <Titanium.Android.FLAG_SHOW_LIGHTS> instead.
     type: Number
     permission: read-only
 
   - name: STREAM_DEFAULT
-    summary: Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the default stream type for notifications be used.
+    summary: Use <Titanium.Android.STREAM_DEFAULT> instead.
     type: Number
     permission: read-only

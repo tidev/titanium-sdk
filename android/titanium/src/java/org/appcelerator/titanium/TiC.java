@@ -116,17 +116,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DOUBLE_CLICK = "dblclick";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DOUBLE_CLICK = "dblclick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api
@@ -440,7 +445,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DRAGEND = "dragend";
+	public static final String EVENT_SCROLLSTART = "scrollstart";
 
 	/**
 	 * @module.api
@@ -517,6 +522,10 @@ public class TiC
 	 */
 	public static final String EVENT_SSL_ERROR = "sslerror";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_WEBVIEW_ON_LOAD_RESOURCE = "onLoadResource";
 
 	/**
 	 * @module.api
@@ -599,6 +608,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK = "smoothScrollOnTabClick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR = "activeTabBackgroundColor";
 
 	/**
@@ -635,6 +649,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ALTITUDE_ACCURACY = "altitudeAccuracy";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTES = "attributes";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_HINT_TEXT = "attributedHintText";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTE_RANGE = "range";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ATTRIBUTED_STRING = "attributedString";
 
 	/**
 	 * @module.api
@@ -710,6 +744,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
 
 	/**
 	 * @module.api
@@ -878,6 +922,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_CANCELABLE = "cancelable";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
+
 	/**
 	 * @module.api
 	 */
@@ -1081,6 +1130,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DIVIDER_HEIGHT = "dividerHeight";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMAIN = "domain";
 
 	/**
@@ -1117,6 +1171,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ENABLED = "enabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 
 	/**
 	 * @module.api
@@ -1250,6 +1309,11 @@ public class TiC
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
 	public static final String PROPERTY_FORWARD = "forward";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 
 	/**
 	 * @module.api
@@ -1290,6 +1354,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HAS_CHILD = "hasChild";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HAS_LINK = "hasLink";
 
 	/**
 	 * @module.api
@@ -1340,7 +1409,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+
 	/**
 	 * @module.api
 	 */
@@ -2546,7 +2620,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFIX = "prefix";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2581,8 +2655,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DEPARTMENT = "department";
-	
-	
+
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

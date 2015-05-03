@@ -6,9 +6,7 @@
  */
 #import "TiBase.h"
 #import "TiApp.h"
-#ifdef TI_DEBUGGER_PROFILER
-#import "TiDebugger.h"
-#endif
+
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
@@ -21,6 +19,10 @@
 #include <unistd.h>
 #include <sys/sysctl.h>
 
+#endif
+
+#ifndef USE_JSCORE_FRAMEWORK
+#import "TiDebugger.h"
 #endif
 
 static bool ApplicationBeingDebugged(void)
@@ -92,7 +94,7 @@ void TiLogMessage(NSString* str, ...) {
     
     NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
     if ([[TiApp app] debugMode]) {
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
         TiDebuggerLogMessage(OUT, message);
 #endif
     }

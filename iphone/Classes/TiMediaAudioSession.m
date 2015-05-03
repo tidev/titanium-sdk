@@ -64,11 +64,9 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
         case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
             [event setObject:@"no_route_for_category" forKey:@"reason"];
             break;
-        case 8://AVAudioSessionRouteChangeReasonRouteConfigurationChange:
-            if ([TiUtils isIOS7OrGreater]) {
-                [event setObject:@"route_config_change" forKey:@"reason"];
-                break;
-            }
+        case AVAudioSessionRouteChangeReasonRouteConfigurationChange:
+            [event setObject:@"route_config_change" forKey:@"reason"];
+            break;
         default:
             [event setObject:@"silence_change" forKey:@"reason"];
             break;

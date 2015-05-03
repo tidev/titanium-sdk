@@ -7,7 +7,7 @@ description: |
     audio or video.
 
     For examples of using the Media APIs, refer to the
-    [Working with Media APIs guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Working_with_Media_APIs)
+    [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -65,14 +65,7 @@ methods:
         type: MusicLibraryOptionsType
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
-    description: |
-        To use this method on Tizen, you must include the following privileges 
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-        * `http://tizen.org/privilege/filesystem.read`
-        
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
@@ -98,16 +91,9 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        To use this method on Tizen, you must include the following privileges 
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-        * `http://tizen.org/privilege/filesystem.read`
-        * `http://tizen.org/privilege/filesystem.write`
-
         On Android this method *only supports saving images* to the device gallery. 
         
-    platforms: [iphone, ipad, tizen, android]
+    platforms: [iphone, ipad, android]
     parameters:
       - name: media
         summary: Media to save to the camera roll or media gallery. 
@@ -148,18 +134,6 @@ methods:
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
 
-        #### BlackBerry Platform Notes
-
-        To use this method on BlackBerry, you must include the `access_shared` and `use_camera`
-        permissions in the `tiapp.xml` file of your Titanium application:
-
-            <blackberry>
-                <permissions>
-                    <permission>access_shared</permission>
-                    <permission>use_camera</permission>
-                </permissions>
-            </blackberry>
-        
         #### iOS Platform Notes
 
         To suppress the default controls, set `showControls` and `autohide` to `false`.
@@ -167,15 +141,7 @@ methods:
         If the `showControls` option is `false`, you must control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
-
-        #### Tizen Platform Notes
-        
-        To use this method on Tizen, you must include the following privilege
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-        
-    platforms: [iphone, ipad, android, tizen, blackberry]
+    platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
@@ -223,6 +189,20 @@ methods:
         android: 3.2.0
         iphone: 1.8.1
         ipad: 1.8.1
+  - name: requestCameraAccess
+    summary: Requests for camera access.
+    description: |
+       This method allows the app to request for camera access, before or without the user granting
+       it in <Titanium.Media.showCamera>. The request view will only show if user has not yet made 
+       a decision. If he has, the callback will return his earlier decision, and if any changes has
+       to be made, the user has to change it in the device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant camera access.
+        type: Callback<RequestCameraAccessResult>
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -233,11 +213,11 @@ methods:
       - name: callback
         summary: Function to call upon capture. 
         type: Callback<ScreenshotResult>
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android, Mobile Web and Tizen, a `pattern` argument can be provided to specify a
+        On Android and Mobile Web, a `pattern` argument can be provided to specify a
         vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is 
@@ -250,13 +230,13 @@ methods:
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
         
-        On Mobile Web and Tizen, calling `vibrate` without a `pattern` will stop the vibration.
+        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters: 
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [iphone, ipad, android, mobileweb]
 
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
@@ -719,11 +699,39 @@ properties:
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
+  - name: CAMERA_AUTHORIZATION_AUTHORIZED
+    summary: Constant specifying that app is authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_DENIED
+    summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_RESTRICTED
+    summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_NOT_DETERMINED
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -732,7 +740,7 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -882,12 +890,12 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording. 
     description: |
@@ -915,7 +923,7 @@ properties:
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
@@ -924,7 +932,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
     description: |
@@ -982,7 +990,7 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_CONTROL_VOLUME_ONLY
     deprecated:
         since: "1.8.0"
@@ -1010,22 +1018,22 @@ properties:
     summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
@@ -1050,12 +1058,12 @@ properties:
     summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
     type: Number
@@ -1070,17 +1078,17 @@ properties:
     summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
@@ -1098,7 +1106,7 @@ properties:
         is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_SCALING_MODE_FILL
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
     description: |
@@ -1110,7 +1118,7 @@ properties:
     summary: Video scaling is disabled.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
   - name: VIDEO_SOURCE_TYPE_FILE
     summary: Video source type is a file. 
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
@@ -1138,7 +1146,30 @@ properties:
     summary: Use the closest keyframe in the time.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_CLOSEST_SYNC
+    summary: Use the closest sync (or key) frame at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_NEXT_SYNC
+    summary: Use the sync (or key) frame located right after or at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
+  - name: VIDEO_TIME_OPTION_PREVIOUS_SYNC
+    summary: Use the sync (or key) frame located right before or at given the time.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since:
+        android: "3.6.0"
   - name: appMusicPlayer
     summary: An instance of <Titanium.Media.MusicPlayer> representing the app-specific music player.
     type: Titanium.Media.MusicPlayer
@@ -1235,8 +1266,17 @@ properties:
     summary: |
         `true` if the device has camera support.
     type: Boolean
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     permission: read-only
+  - name: cameraAuthorizationStatus
+    summary: |
+        Returns the authorization status for the camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1624,7 +1664,7 @@ properties:
 ---
 name: ScreenshotResult
 summary: The parameter passed to the <Titanium.Media.takeScreenshot> callback.
-platforms: [iphone, ipad, android, tizen]
+platforms: [iphone, ipad, android]
 properties:
   - name: media
     summary: The screenshot image.
@@ -1632,6 +1672,10 @@ properties:
     accessors: false
 ---
 name: MediaAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+---
+name: RequestCameraAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
 ---

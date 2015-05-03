@@ -1,9 +1,0 @@
-{
- "functions": [
-  "internalSetHeight", 
-  "internalSetWidth"
- ], 
- "properties": [
-  "_module"
- ]
-}

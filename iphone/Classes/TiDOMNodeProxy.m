@@ -114,18 +114,7 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)makeNodeListProxyFromArray:(NSArray*)nodes context:(id<TiEvaluator>)context
 {
-	NSMutableArray *proxyArray = nil;
-	if (nodes != nil) {
-		proxyArray = [NSMutableArray array];
-		for (GDataXMLNode* child in nodes) {
-			[proxyArray addObject:[self makeNode:child context:context]];
-		}
-	}
-	
-	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-	[proxy setNodes:proxyArray];
-	return proxy;
-	
+	return [[[TiDOMNodeListProxy alloc] _initWithPageContext:context nodes:nodes document:[self document]] autorelease];
 }
 
 +(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror

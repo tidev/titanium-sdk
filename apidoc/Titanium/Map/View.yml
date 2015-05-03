@@ -44,9 +44,9 @@ description: |
     In addition to annotations, iOS supports adding routes to a map view, using
     [addRoute](Titanium.Map.View.addRoute).
     
-    #### Mobile Web and Tizen Platform Notes
+    #### Mobile Web Platform Notes
     
-    For Mobile Web and Tizen, the default map provider is Google. Google Maps does not require you to obtain an API key,
+    For Mobile Web, the default map provider is Google. Google Maps does not require you to obtain an API key,
     however it is encouraged that you use an API key so that you can monitor your Maps API usage. You can sign
     up for the Maps API key on the Google Code web site:
     
@@ -63,7 +63,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     events: [ 'singletap', 'doubletap', 'dblclick', 'focus', 'longclick', 'pinch', 'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
-    properties: ['enabled']
 since: "0.8"
 deprecated:
     since: "3.2.0"
@@ -92,7 +91,7 @@ methods:
             Array of [Annotation](Titanium.Map.Annotation) objects, or an array of
             dictionaries describing of properties for the annotation.
         type: [Array<Titanium.Map.Annotation>, Array<Dictionary<Titanium.Map.Annotation>>]
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: addRoute
     summary: Adds a route to the map.
@@ -100,7 +99,7 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { android: "2.1.0" }
 
   - name: deselectAnnotation
@@ -111,11 +110,11 @@ methods:
       - name: annotation
         summary: Annotation to deselect, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String,Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: removeAllAnnotations
     summary: Removes all annotations from the map.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: removeAnnotation
     summary: Removes an existing annotation from the map.
@@ -133,7 +132,7 @@ methods:
       - name: annotations
         summary: Array of annotations to remove.
         type: [Array<String>, Array<Titanium.Map.Annotation>]
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: removeRoute
     summary: Remove a previously added route. 
@@ -141,7 +140,7 @@ methods:
       - name: route
         summary: Same route object passed to [addRoute](Titanium.Map.View.addRoute).
         type: MapRouteType
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { android: "2.1.0" }
 
   - name: selectAnnotation
@@ -165,7 +164,7 @@ methods:
         summary: |
             Dictionary specifying the location and the zoom level for the map.
         type: MapLocationType
-    exclude-platforms: [blackberry]
+
 
   - name: setMapType
     summary: Sets the type of map (satellite, hybrid, or standard).
@@ -175,7 +174,7 @@ methods:
             Map type constant, either <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or 
             <Titanium.Map.HYBRID_TYPE>.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: zoom
     summary: Zooms in or out of the map.
@@ -188,7 +187,7 @@ methods:
       - name: level
         summary: Relative zoom level (positive to zoom in, negative to zoom out).
         type: Number
-    exclude-platforms: [blackberry]
+
 
 events:
 
@@ -227,7 +226,7 @@ events:
       - name: index
         summary: the annotation index.
         type: Number
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: title
         summary: Title of the annotation.
@@ -236,12 +235,12 @@ events:
       - name: subtitle
         summary: Subtitle of the annotation.
         type: String
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
         
       - name: map
         summary: The map view instance.
         type: Titanium.Map.View
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: clicksource
         summary: Source of the click event, such as `pin`, or `leftButton`.
@@ -254,16 +253,16 @@ events:
       - name: latitude
         summary: Latitude of the clicked annotation.
         type: Number
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
     
       - name: longitude
         summary: Longitude of the clicked annotation.
         type: Number
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
 
   - name: complete
     summary: Fired when the map completes loading.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `true`.
@@ -298,7 +297,7 @@ events:
 
   - name: loading
     summary: Fired when the map begins loading.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
   
   - name: longpress
     since: { android: 3.1.0 }
@@ -366,7 +365,7 @@ events:
       - name: latitude
         summary: Latitude value for the center point of the map, in decimal degrees.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: regionchanged
     summary: |
@@ -396,7 +395,7 @@ properties:
   - name: animated
     summary: Indicates if changes to the mapping region should be animated.
     type: Boolean
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: annotations
     summary: An array of annotations to add to the map.
@@ -516,7 +515,7 @@ properties:
 ---
 name: MapRouteType
 summary: Simple object defining a map route.
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
 
   - name: name

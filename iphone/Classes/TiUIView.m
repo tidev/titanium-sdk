@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -246,17 +246,14 @@ DEFINE_EXCEPTIONS
 
 -(BOOL)proxyHasGestureListeners
 {
-    return [(TiViewProxy*)proxy _hasListeners:@"swipe"] ||
-            [(TiViewProxy*)proxy _hasListeners:@"pinch"] ||
-            [(TiViewProxy*)proxy _hasListeners:@"longpress"];
+    return [proxy _hasListeners:@"singletap"] ||
+            [proxy _hasListeners:@"doubletap"] ||
+            [proxy _hasListeners:@"twofingertap"]||
+            [proxy _hasListeners:@"swipe"] ||
+            [proxy _hasListeners:@"pinch"] ||
+            [proxy _hasListeners:@"longpress"];
 }
 
--(BOOL)proxyHasTapListener
-{
-	return [proxy _hasListeners:@"singletap"] ||
-			[proxy _hasListeners:@"doubletap"] ||
-			[proxy _hasListeners:@"twofingertap"];
-}
 
 -(BOOL)proxyHasTouchListener
 {
@@ -273,7 +270,6 @@ DEFINE_EXCEPTIONS
     BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
     handlesTouches = touchEventsSupported && (
                 [self proxyHasTouchListener]
-                || [self proxyHasTapListener]
                 || [self proxyHasGestureListeners]);
     [self ensureGestureListeners];
     // If a user has not explicitly set whether or not the view interacts, base it on whether or
@@ -466,10 +462,8 @@ DEFINE_EXCEPTIONS
 
 -(void)setTintColor_:(id)color
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        TiColor *ticolor = [TiUtils colorValue:color];
-        [self performSelector:@selector(setTintColor:) withObject:[ticolor _color]];
-    }
+    TiColor *ticolor = [TiUtils colorValue:color];
+    [self setTintColor:[ticolor _color]];
 }
 
 -(void)setBorderColor_:(id)color
@@ -1016,7 +1010,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Recognizers
 
--(UITapGestureRecognizer*)singleTapRecognizer;
+-(UITapGestureRecognizer*)singleTapRecognizer
 {
 	if (singleTapRecognizer == nil) {
 		singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
@@ -1030,7 +1024,7 @@ DEFINE_EXCEPTIONS
 	return singleTapRecognizer;
 }
 
--(UITapGestureRecognizer*)doubleTapRecognizer;
+-(UITapGestureRecognizer*)doubleTapRecognizer
 {
 	if (doubleTapRecognizer == nil) {
 		doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
@@ -1045,7 +1039,7 @@ DEFINE_EXCEPTIONS
 	return doubleTapRecognizer;
 }
 
--(UITapGestureRecognizer*)twoFingerTapRecognizer;
+-(UITapGestureRecognizer*)twoFingerTapRecognizer
 {
 	if (twoFingerTapRecognizer == nil) {
 		twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
@@ -1056,7 +1050,7 @@ DEFINE_EXCEPTIONS
 	return twoFingerTapRecognizer;
 }
 
--(UIPinchGestureRecognizer*)pinchRecognizer;
+-(UIPinchGestureRecognizer*)pinchRecognizer
 {
 	if (pinchRecognizer == nil) {
 		pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
@@ -1066,7 +1060,7 @@ DEFINE_EXCEPTIONS
 	return pinchRecognizer;
 }
 
--(UISwipeGestureRecognizer*)leftSwipeRecognizer;
+-(UISwipeGestureRecognizer*)leftSwipeRecognizer
 {
 	if (leftSwipeRecognizer == nil) {
 		leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1077,7 +1071,7 @@ DEFINE_EXCEPTIONS
 	return leftSwipeRecognizer;
 }
 
--(UISwipeGestureRecognizer*)rightSwipeRecognizer;
+-(UISwipeGestureRecognizer*)rightSwipeRecognizer
 {
 	if (rightSwipeRecognizer == nil) {
 		rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1087,7 +1081,7 @@ DEFINE_EXCEPTIONS
 	}
 	return rightSwipeRecognizer;
 }
--(UISwipeGestureRecognizer*)upSwipeRecognizer;
+-(UISwipeGestureRecognizer*)upSwipeRecognizer
 {
 	if (upSwipeRecognizer == nil) {
 		upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1097,7 +1091,7 @@ DEFINE_EXCEPTIONS
 	}
 	return upSwipeRecognizer;
 }
--(UISwipeGestureRecognizer*)downSwipeRecognizer;
+-(UISwipeGestureRecognizer*)downSwipeRecognizer
 {
 	if (downSwipeRecognizer == nil) {
 		downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1108,7 +1102,7 @@ DEFINE_EXCEPTIONS
 	return downSwipeRecognizer;
 }
 
--(UILongPressGestureRecognizer*)longPressRecognizer;
+-(UILongPressGestureRecognizer*)longPressRecognizer
 {
 	if (longPressRecognizer == nil) {
 		longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];

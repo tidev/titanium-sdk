@@ -74,6 +74,7 @@ public class TiUIDatePicker extends TiUIView
         	minDateCalendar.set(Calendar.MILLISECOND, 0);
 
         	this.minDate = minDateCalendar.getTime();
+        	picker.setMinDate(minDateCalendar.getTimeInMillis());
         }
         if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
         	setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
@@ -87,6 +88,7 @@ public class TiUIDatePicker extends TiUIView
         	maxDateCalendar.set(Calendar.MILLISECOND, 0);
 
         	this.maxDate = maxDateCalendar.getTime();
+        	picker.setMaxDate(maxDateCalendar.getTimeInMillis());
         }
         if (d.containsKey("minuteInterval")) {
             int mi = d.getInt("minuteInterval");

@@ -18,7 +18,7 @@ describe('visualstudio', function () {
 		should(windowslib.visualstudio).be.an.Object;
 	});
 
-	it('detect should find Visual Studio installations', function (done) {
+	(process.platform === 'win32' ? it : it.skip)('detect should find Visual Studio installations', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 

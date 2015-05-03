@@ -11,13 +11,13 @@ methods:
     summary: Gets the value of the [landscape](Titanium.Gesture.landscape) property.
     returns:
         type: Boolean
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: getPortrait
     summary: Gets the value of the [portrait](Titanium.Gesture.portrait) property.
     returns:
         type: Boolean
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: isLandscape
     summary: Returns whether current window is considered landscape by the device.
@@ -31,20 +31,6 @@ methods:
     returns:
         type: Boolean
 
-  - name: isFaceUp
-    summary: Returns whether current window is considered face up by the device.
-    description: Value returns `true` if in face up else `false`.
-    returns:
-        type: Boolean
-    platforms: [blackberry]
-
-  - name: isFaceDown
-    summary: Returns whether current window is considered face down by the device.
-    description: Value returns `true` if in face down else `false`.
-    returns:
-        type: Boolean
-    platforms: [blackberry]
-
 properties:
   - name: portrait
     summary: Indicates whether current window is considered portrait by the device.
@@ -55,7 +41,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
   - name: landscape
     summary: Indicates whether current window is considered landscape by the device.
@@ -66,7 +52,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
   - name: orientation
     summary: Orientation of the current window.  
@@ -84,10 +70,10 @@ properties:
         orientation. To determine the current screen orientation on iOS, use 
         <Titanium.UI.orientation>. 
         
-        On Android, Mobile Web and Tizen, returns the orientation of the current window, and never reports 
+        On Android and Mobile Web, returns the orientation of the current window, and never reports
         the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`). 
         
-        For Mobile Web and Tizen, the orientation reported by `Gesture.orientation` and 
+        For Mobile Web, the orientation reported by `Gesture.orientation` and
         [Window.orientation](Titanium.UI.Window.orientation) is always the same, and corresponds to 
         the orientation of the browser window. 
         
@@ -107,7 +93,7 @@ events:
         only likely to be an issue if you create a test case or test application that adds an 
         orientation change listener from `app.js` without opening a heavyweight window. 
         
-        Android, Mobile Web and Tizen do not report the "reverse" orientations,
+        Android and Mobile Web do not report the "reverse" orientations,
         `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`. These are reported as 
         `PORTRAIT` and `LANDSCAPE_LEFT`, respectively. 
     properties:
@@ -124,10 +110,10 @@ events:
         of shake events. 
         
         The `timestamp` property represents the interval between shake events. It is measured in 
-        milliseconds on Android, Mobile Web and Tizen, and in seconds on iOS. 
+        milliseconds on Android and Mobile Web, and in seconds on iOS.
         
-        Note that Mobile Web and Tizen detect shake gestures using the device accelerometer, if the device 
-        and browser support this. This event cannot be generated on Mobile Web and Tizen in the iOS simulator. 
+        Note that Mobile Web detect shake gestures using the device accelerometer, if the device
+        and browser support this. This event cannot be generated on Mobile Web in the iOS simulator.
         The simulator's **Shake Gesture** menu item generates a native shake event, but does not 
         generate accelerometer events to the browser.
     properties:

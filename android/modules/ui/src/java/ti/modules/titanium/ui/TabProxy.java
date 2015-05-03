@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -37,23 +35,15 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy window;
 	private boolean windowOpened = false;
 	private int windowId;
-	private String tabTag;
-	private static final String TAB_TAG_NAME = "tabTag";
-	private static final AtomicLong nextTabTagIndex = new AtomicLong();
 
 	public TabProxy()
 	{
 		super();
-		tabTag = TAB_TAG_NAME +  nextTabTagIndex.getAndIncrement();
 	}
 
 	public TabProxy(TiContext tiContext)
 	{
 		this();
-	}
-
-	public String getTabTag() {
-		return tabTag;
 	}
 
 	@Override

@@ -141,6 +141,18 @@
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy
 {
     tabGroup = proxy;
+    /*
+     TIMOB-18155. TabProxy now remembers itself instead of the TabGroup.
+     In the TabGroupProxy, when you remember a tab it gets written to the
+     property table with a key based on proxy hash. However when we change the
+     activeTab property of the TabGroup, it is possible for this property to be
+     deleted. So the JSObject is unprotected and can get Garbage Collected.
+     */
+    if (tabGroup) {
+        [self rememberSelf];
+    } else {
+        [self forgetSelf];
+    }
     if (controller != nil) {
         [TiUtils configureController:controller withObject:tabGroup];
     }
@@ -205,9 +217,8 @@
 		[self setBadge:[self valueForKey:@"badge"]];
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
-		if ([TiUtils isIOS7OrGreater]) {
-			[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-		}
+		[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+
 	}
 	return controller;
 }
@@ -563,9 +574,6 @@
 
 -(void)setIconIsMask:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     [self replaceValue:value forKey:@"iconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != iconOriginal) {
@@ -576,9 +584,6 @@
 
 -(void)setActiveIconIsMask:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     [self replaceValue:value forKey:@"activeIconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != activeIconOriginal) {

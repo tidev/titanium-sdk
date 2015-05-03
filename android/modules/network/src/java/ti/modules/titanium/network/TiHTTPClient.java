@@ -146,6 +146,7 @@ public class TiHTTPClient
 	private Credentials credentials;
 	private TiBlob responseData;
 	private OutputStream responseOut;
+	private StatusLine responseStatusLine;
 	private String charset;
 	private String contentType;
 	private long maxBufferSize;
@@ -270,12 +271,7 @@ public class TiHTTPClient
 					}
 				}
 
-				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 400) {
-					setResponseText(response.getEntity());
-					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-				}
-
+				responseStatusLine = response.getStatusLine();
 				entity = response.getEntity();
 				contentEncoding = response.getFirstHeader("Content-Encoding");
 				if (entity != null) {
@@ -403,7 +399,12 @@ public class TiHTTPClient
 
 			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 			callbackData.put("blob", blob);
-			callbackData.put("progress", ((double)totalSize)/((double)contentLength));
+			double progress = ((double)totalSize)/((double)contentLength);
+			// return progress as -1 if it is outside the valid range
+			if (progress > 1 || progress < 0) {
+				progress = NetworkModule.PROGRESS_UNKNOWN;
+			}
+			callbackData.put("progress", progress);
 
 			dispatchCallback("ondatastream", callbackData);
 		}
@@ -1129,7 +1130,11 @@ public class TiHTTPClient
 		} else if (!validating) {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 		} else {
-			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			try {
+				client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new TLSSNISocketFactory(tlsVersion), 443));
+			} catch (Exception e) {
+				Log.e(TAG, "Error creating TLSSNISocketFactory: " + e.getMessage());
+			}
 		}
 		
 		return client;
@@ -1345,6 +1350,11 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
+
+				if (responseStatusLine.getStatusCode() >= 400) {
+					throw new HttpResponseException(responseStatusLine.getStatusCode(), responseStatusLine.getReasonPhrase());
+				}
+
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
 				}
