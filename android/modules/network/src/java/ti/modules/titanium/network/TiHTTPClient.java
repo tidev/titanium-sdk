@@ -1130,7 +1130,11 @@ public class TiHTTPClient
 		} else if (!validating) {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 		} else {
-			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
+			try {
+				client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new TLSSNISocketFactory(tlsVersion), 443));
+			} catch (Exception e) {
+				Log.e(TAG, "Error creating TLSSNISocketFactory: " + e.getMessage());
+			}
 		}
 		
 		return client;
