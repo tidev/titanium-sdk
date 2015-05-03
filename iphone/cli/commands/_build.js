@@ -1975,7 +1975,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	}
 
 	// if the user has a Info.plist in their project directory, consider that a custom override
-  	var custom; 
+	var custom; 
 	if (fs.existsSync(src)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 
@@ -2070,12 +2070,12 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		plist.CFBundleVersion = String(+new Date);
 		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
-  	} else if (!(ios && ios.plist && ios.plist.CFBundleVersion) && !(custom && custom.CFBundleVersion)) {
+	} else if (!(ios && ios.plist && ios.plist.CFBundleVersion) && !(custom && custom.CFBundleVersion)) {
 		plist.CFBundleVersion = String(this.tiapp.version);
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to %s', plist.CFBundleVersion.cyan));
 	}
 
-  	if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
+	if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
 		try {
 			plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
 			this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
@@ -2099,7 +2099,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		}, this);
 	}
 
-  	if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
+	if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
 		var resourceDir = path.join(this.projectDir, 'Resources'),
 			iphoneDir = path.join(resourceDir, 'iphone'),
 			iosDir = path.join(resourceDir, 'ios');
@@ -2187,9 +2187,9 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 				}
 			}, this);
 		}, this);
-  	}
+	}
 
-  	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
+	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
 		var fontMap = {};
 
 		// scan for ttf and otf font files
