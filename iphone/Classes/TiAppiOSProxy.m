@@ -576,9 +576,9 @@
     ENSURE_ARG_COUNT(args, kArgCount);
     
     NSString *key = [TiUtils stringValue:[args objectAtIndex:kArgKey]];
-    NSDictionary *userInfo = [args objectAtIndex:kArgUserInfo];
+
     if([args count] > 1){
-        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:userInfo];
+        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:[args objectAtIndex:kArgUserInfo]];
     }else{
         [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:nil];
     }
