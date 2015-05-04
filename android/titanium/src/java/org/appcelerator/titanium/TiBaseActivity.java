@@ -42,6 +42,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -59,6 +60,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -964,81 +966,84 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				if (extraBundle != null) {
 					for (String key : extraBundle.keySet()) {
 						Object value = extraBundle.get(key);
+
+						// For EXTRA_STREAM types, copy the stream to a temp file.
 						if (key.equals(Intent.EXTRA_STREAM)) {
 							Uri uri = (Uri)value;
 							ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+							String contentType = intent.getType();
+							String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(contentType, "tmp");
 
-							// Get the content type, ignore anything that's not an image.
-							String contentType = contentResolver.getType(uri);
-							if (contentType == null) {
-								contentType = intent.getType();
-							}
-							if (contentType == null || !contentType.startsWith("image/")) {
-								extra.put(key, value.toString());
-								continue;
-							}
-
-							// Get the original filename.
-							String filename = Uri.parse(value.toString()).getLastPathSegment();
-							Cursor cursor = contentResolver.query(uri, null, null, null, null);
-							int index = 0;
-							if (cursor != null) {
-								cursor.moveToFirst();
-								index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-								if (index != -1) {
-									filename = Uri.parse(cursor.getString(index)).getLastPathSegment();
-								}
-								cursor.close();
-							}
-
-							// Copy the file to the application directory.
-							String baseFilename = null;
-							String extension = null;
-							index = filename.lastIndexOf(".");
-							if (index > 1) {
-								baseFilename = filename.substring(0, index);
-								extension = filename.substring(index);
-							} else {
-								baseFilename = filename;
-								extension = ".jpg";
-								filename = baseFilename + extension;
-							}
-							InputStream inputStream = null;
-							FileOutputStream imageOut = null;
+							InputStream input = null;
+							String filename = null;
+							FileOutputStream output = null;
+							String path = null;
+							Bitmap image = null;
 							try {
-								inputStream = contentResolver.openInputStream(uri);
-								File imageFile = new File(getApplicationContext().getCacheDir(), filename);
-								imageOut = new FileOutputStream(imageFile);
+								input = contentResolver.openInputStream(uri);
+
+								// Images can be passed with content type of 'image/*', in which case extension is incorrect.
+								boolean png = false;
+								if (contentType.startsWith("image/") && extension.equals("tmp")) {
+									try {
+										image = BitmapFactory.decodeStream(input);
+										if (image.hasAlpha()) {
+											png = true;
+											extension = "png";
+										} else {
+											extension = "jpg";
+										}
+									} catch (Throwable e) {
+										Log.e(TAG, "intercepted intent: error decoding input stream to bitmap: " + e.toString());
+										image = null;
+									}
+								}
+
+								// Copy the stream to a temporary file.
+								File tempFile = File.createTempFile("stream", "." + extension, getApplicationContext().getCacheDir());
+								path = tempFile.getPath();
+								filename = Uri.parse(path).getLastPathSegment();
+								output = new FileOutputStream(tempFile);
 								byte[] buffer = new byte[1024];
 								int bytesRead = 0;
-								while ((bytesRead = inputStream.read(buffer)) != -1) {
-									imageOut.write(buffer, 0, bytesRead);
+								if (image != null) {
+									if (png == true) {
+										image.compress(CompressFormat.PNG, 100, output);
+									} else {
+										image.compress(CompressFormat.JPEG, 100, output);
+									}
+								} else {
+									while ((bytesRead = input.read(buffer)) != -1) {
+										output.write(buffer, 0, bytesRead);
+									}
 								}
-								imageOut.flush();
-
-								// Add the blob to our result dict.
-								KrollDict blobDict = new KrollDict();
-								blobDict.put("originalPath", value.toString());
-								blobDict.put("contentType", contentType);
-								blobDict.put("filename", filename);
-								blobDict.put("path", imageFile.getPath());
-								extra.put(key, blobDict);
+								output.flush();
 							} catch (Throwable e) {
-								Log.e(TAG, "intercepted intent: Error copying intercepted intent image to application directory: " + e.toString());
+								Log.e(TAG, "intercepted intent: error copying stream to temp file: " + e.toString());
 								extra.put(key, value.toString());
+								continue;
 							} finally {
-								if (imageOut != null) {
-									try { imageOut.close(); } catch (IOException e) {};
+								if (output != null) {
+									try { output.close(); } catch (IOException e) {};
 								}
-								if (inputStream != null) {
-									try { inputStream.close(); } catch (IOException e) {};
+								if (input != null) {
+									try { input.close(); } catch (IOException e) {};
 								}
 							}
+
+							// Add the blob to our result dict.
+							KrollDict blobDict = new KrollDict();
+							blobDict.put("contentType", contentType);
+							blobDict.put("filename", filename);
+							blobDict.put("path", path);
+							extra.put(key, blobDict);
 						} else {
 							extra.put(key, value.toString());
 						}
 					}
 				}
+
+				// Fire the intent as an application event.
 				data.put("extra", extra);
 				data.put(TiC.PROPERTY_INTENT, ip);
 				tiApp.setRelaunchingFromRootIntent(true);
