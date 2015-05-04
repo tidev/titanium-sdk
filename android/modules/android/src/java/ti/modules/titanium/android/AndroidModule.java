@@ -35,6 +35,7 @@ import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.view.MenuItem;
 
+@SuppressWarnings("deprecation")
 @Kroll.module
 public class AndroidModule extends KrollModule
 {

@@ -29,6 +29,7 @@ import android.os.Message;
 import android.os.Bundle;
 import android.view.Window;
 
+@SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
 	TiC.PROPERTY_ANNOTATIONS,
 	TiC.PROPERTY_MAP_TYPE,

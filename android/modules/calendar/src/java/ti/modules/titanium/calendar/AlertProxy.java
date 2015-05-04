@@ -140,6 +140,7 @@ public class AlertProxy extends KrollProxy
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
+	@SuppressWarnings("deprecation")
 	protected void registerAlertIntent(TiContext context)
 	{
 		// Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));

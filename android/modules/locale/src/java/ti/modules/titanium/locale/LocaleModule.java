@@ -77,6 +77,7 @@ public class LocaleModule extends KrollModule
 		return TiPlatformHelper.getInstance().getCurrencySymbol(locale);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Kroll.method
 	public String formatTelephoneNumber(String telephoneNumber)
 	{

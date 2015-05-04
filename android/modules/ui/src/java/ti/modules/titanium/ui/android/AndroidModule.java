@@ -24,6 +24,7 @@ import android.text.util.Linkify;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 
+@SuppressWarnings("deprecation")
 @Kroll.module(parentModule=UIModule.class)
 @Kroll.dynamicApis(properties = {
 	"currentActivity"

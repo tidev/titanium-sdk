@@ -20,6 +20,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
+@SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED
 })

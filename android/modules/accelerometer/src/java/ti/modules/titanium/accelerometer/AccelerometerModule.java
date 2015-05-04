@@ -66,6 +66,7 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 	{
 	}
 
+	@SuppressWarnings("deprecation")
 	public void onSensorChanged(SensorEvent event)
 	{
 		if (event.timestamp - lastSensorEventTimestamp > 100) {
