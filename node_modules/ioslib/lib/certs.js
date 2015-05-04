@@ -18,7 +18,7 @@ const
 	appc = require('node-appc'),
 	async = require('async'),
 	env = require('./env'),
-	EventEmitter = require('events').EventEmitter,
+	magik = require('./utilities').magik,
 	__ = appc.i18n(__dirname).__;
 
 var cache = null,
@@ -45,171 +45,150 @@ exports.unwatch = unwatch;
  * @returns {EventEmitter}
  */
 function detect(options, callback) {
-	if (typeof options === 'function') {
-		callback = options;
-		options = {};
-	} else if (!options) {
-		options = {};
-	}
-	typeof callback === 'function' || (callback = function () {});
+	return magik(options, callback, function (emitter, options, callback) {
+		var validOnly = options.validOnly === undefined || options.validOnly === true;
 
-	var emitter = new EventEmitter,
-		validOnly = options.validOnly === undefined || options.validOnly === true;
-
-	if (process.platform !== 'darwin') {
-		process.nextTick(function () {
-			var err = new Error(__('Unsupported platform "%s"', process.platform));
-			emitter.emit('error', err);
-			callback(err);
-		});
-		return emitter;
-	}
-
-	if (cache && !options.bypassCache) {
-		process.nextTick(function () {
+		if (cache && !options.bypassCache) {
 			emitter.emit('detected', cache);
-			callback(null, cache);
-		});
-		return emitter;
-	}
+			return callback(null, cache);
+		}
 
-	function getCerts(cb) {
-		// detect the development environment
-		env.detect(options, function (err, env) {
-			var results = {
-				certs: {
-					keychains: {},
-					wwdr: false
-				},
-				issues: []
-			};
+		function getCerts(cb) {
+			// detect the development environment
+			env.detect(options, function (err, env) {
+				var results = {
+					certs: {
+						keychains: {},
+						wwdr: false
+					},
+					issues: []
+				};
 
-			// if we don't have the security executable, we cannot detect certs
-			if (!env.executables.security) {
-				return cb(null, results);
-			}
-
-			appc.subprocess.run(env.executables.security, 'list-keychains', function (code, out, err) {
-				if (code) {
-					return cb(results);
+				// if we don't have the security executable, we cannot detect certs
+				if (!env.executables.security) {
+					return cb(null, results);
 				}
 
-				function parseCerts(src, dest, name) {
-					var p = 0,
-						q = src.indexOf('-----END'),
-						pem, cert, validity, expired, invalid, commonName;
-
-					while (p !== -1 && q !== -1) {
-						pem = src.substring(p, q + 25);
-						cert = pem2cert(pem);
-						expired = cert.validity.notAfter < now,
-						invalid = expired || cert.validity.notBefore > now;
-						commonName = cert.subject.getField('CN').value;
-
-						if (!validOnly || !invalid) {
-							dest.push({
-								name: appc.encoding.decodeOctalUTF8(name ? commonName.substring(name.length) : commonName).trim(),
-								fullname: appc.encoding.decodeOctalUTF8(commonName).trim(),
-								pem: pem,
-								before: cert.validity.notBefore,
-								after: cert.validity.notAfter,
-								expired: expired,
-								invalid: invalid
-							});
-						}
-
-						p = src.indexOf('-----BEGIN', q + 25);
-						q = src.indexOf('-----END', p);
+				appc.subprocess.run(env.executables.security, 'list-keychains', function (code, out, err) {
+					if (code) {
+						return cb(results);
 					}
-				}
 
-				var now = new Date,
-					tasks = [];
+					function parseCerts(src, dest, name) {
+						var p = 0,
+							q = src.indexOf('-----END'),
+							pem, cert, validity, expired, invalid, commonName;
 
-				// parse out the keychains and add tasks to find certs for each keychain
-				out.split('\n').forEach(function (line) {
-					var m = line.match(/[^"]*"([^"]*)"/);
-					if (!m) return;
+						while (p !== -1 && q !== -1) {
+							pem = src.substring(p, q + 25);
+							cert = pem2cert(pem);
+							expired = cert.validity.notAfter < now,
+							invalid = expired || cert.validity.notBefore > now;
+							commonName = cert.subject.getField('CN').value;
 
-					var keychain = m[1].trim(),
-						dest = results.certs.keychains[keychain] = {
-							developer: [],
-							distribution: []
-						};
-
-					// find all the developer certificates in this keychain
-					tasks.push(function (next) {
-						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iPhone Developer:', '-a', '-p', keychain], function (code, out, err) {
-							if (!code) {
-								parseCerts(out, dest.developer, 'iPhone Developer:');
+							if (!validOnly || !invalid) {
+								dest.push({
+									name: appc.encoding.decodeOctalUTF8(name ? commonName.substring(name.length) : commonName).trim(),
+									fullname: appc.encoding.decodeOctalUTF8(commonName).trim(),
+									pem: pem,
+									before: cert.validity.notBefore,
+									after: cert.validity.notAfter,
+									expired: expired,
+									invalid: invalid
+								});
 							}
-							next();
+
+							p = src.indexOf('-----BEGIN', q + 25);
+							q = src.indexOf('-----END', p);
+						}
+					}
+
+					var now = new Date,
+						tasks = [];
+
+					// parse out the keychains and add tasks to find certs for each keychain
+					out.split('\n').forEach(function (line) {
+						var m = line.match(/[^"]*"([^"]*)"/);
+						if (!m) return;
+
+						var keychain = m[1].trim(),
+							dest = results.certs.keychains[keychain] = {
+								developer: [],
+								distribution: []
+							};
+
+						// find all the developer certificates in this keychain
+						tasks.push(function (next) {
+							appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iPhone Developer:', '-a', '-p', keychain], function (code, out, err) {
+								if (!code) {
+									parseCerts(out, dest.developer, 'iPhone Developer:');
+								}
+								next();
+							});
+						});
+
+						// find all the developer certificates in this keychain
+						tasks.push(function (next) {
+							appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Development:', '-a', '-p', keychain], function (code, out, err) {
+								if (!code) {
+									parseCerts(out, dest.developer, 'iOS Development:');
+								}
+								next();
+							});
+						});
+
+						// find all the distribution certificates in this keychain
+						tasks.push(function (next) {
+							appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iPhone Distribution:', '-a', '-p', keychain], function (code, out, err) {
+								if (!code) {
+									parseCerts(out, dest.distribution, 'iPhone Distribution:');
+								}
+								next();
+							});
+						});
+
+						// find all the distribution certificates in this keychain
+						tasks.push(function (next) {
+							appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Distribution:', '-a', '-p', keychain], function (code, out, err) {
+								if (!code) {
+									parseCerts(out, dest.distribution, 'iOS Distribution:');
+								}
+								next();
+							});
+						});
+
+						// find all the wwdr certificates in this keychain
+						tasks.push(function (next) {
+							// if we already found it, then skip the remaining keychains
+							if (results.certs.wwdr) return next();
+
+							appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'Apple Worldwide Developer Relations Certification Authority', '-a', '-p', keychain], function (code, out, err) {
+								if (!code) {
+									var tmp = [];
+									parseCerts(out, tmp);
+									results.certs.wwdr = tmp.length && tmp[0].invalid === false;
+								}
+								next();
+							});
 						});
 					});
 
-					// find all the developer certificates in this keychain
-					tasks.push(function (next) {
-						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Development:', '-a', '-p', keychain], function (code, out, err) {
-							if (!code) {
-								parseCerts(out, dest.developer, 'iOS Development:');
-							}
-							next();
-						});
+					// process all cert tasks
+					async.parallel(tasks, function () {
+						cb(results);
 					});
-
-					// find all the distribution certificates in this keychain
-					tasks.push(function (next) {
-						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iPhone Distribution:', '-a', '-p', keychain], function (code, out, err) {
-							if (!code) {
-								parseCerts(out, dest.distribution, 'iPhone Distribution:');
-							}
-							next();
-						});
-					});
-
-					// find all the distribution certificates in this keychain
-					tasks.push(function (next) {
-						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'iOS Distribution:', '-a', '-p', keychain], function (code, out, err) {
-							if (!code) {
-								parseCerts(out, dest.distribution, 'iOS Distribution:');
-							}
-							next();
-						});
-					});
-
-					// find all the wwdr certificates in this keychain
-					tasks.push(function (next) {
-						// if we already found it, then skip the remaining keychains
-						if (results.certs.wwdr) return next();
-
-						appc.subprocess.run(env.executables.security, ['find-certificate', '-c', 'Apple Worldwide Developer Relations Certification Authority', '-a', '-p', keychain], function (code, out, err) {
-							if (!code) {
-								var tmp = [];
-								parseCerts(out, tmp);
-								results.certs.wwdr = tmp.length && tmp[0].invalid === false;
-							}
-							next();
-						});
-					});
-				});
-
-				// process all cert tasks
-				async.parallel(tasks, function () {
-					cb(results);
 				});
 			});
+		}
+
+		// get all keychains and certs
+		getCerts(function (results) {
+			detectIssues(results);
+			cache = results;
+			emitter.emit('detected', results);
+			callback(null, results);
 		});
-	}
-
-	// get all keychains and certs
-	getCerts(function (results) {
-		detectIssues(results);
-		cache = results;
-		emitter.emit('detected', results);
-		callback(null, results);
 	});
-
-	return emitter;
 };
 
 function detectIssues(dest) {

@@ -35,7 +35,9 @@ describe('ioslib', function () {
 			should(results.issues).be.an.Array;
 			results.issues.forEach(function (issue) {
 				should(issue).be.an.Object;
-				should(issue).have.keys('id', 'type', 'message');
+				should(issue).have.property('id');
+				should(issue).have.property('type');
+				should(issue).have.property('message');
 				should(issue.id).be.a.String;
 				should(issue.type).be.a.String;
 				should(issue.type).match(/^info|warning|error$/);

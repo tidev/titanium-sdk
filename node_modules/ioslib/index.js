@@ -11,11 +11,11 @@
 
 const
 	async = require('async'),
-	EventEmitter = require('events').EventEmitter,
 
 	certs        = exports.certs        = require('./lib/certs'),
 	device       = exports.device       = require('./lib/device'),
 	env          = exports.env          = require('./lib/env'),
+	magik        = exports.magik        = require('./lib/utilities').magik,
 	provisioning = exports.provisioning = require('./lib/provisioning'),
 	simulator    = exports.simulator    = require('./lib/simulator'),
 	xcode        = exports.xcode        = require('./lib/xcode');
@@ -40,106 +40,84 @@ exports.findValidDeviceCertProfileCombos = findValidDeviceCertProfileCombos;
  * @param {Function} [callback(err, info)] - A function to call when all detection tasks have completed.
  */
 function detect(options, callback) {
-	if (typeof options === 'function') {
-		callback = options;
-		options = {};
-	} else if (!options) {
-		options = {};
-	}
-	typeof callback === 'function' || (callback = function () {});
-
-	var emitter = new EventEmitter;
-
-	if (process.platform !== 'darwin') {
-		process.nextTick(function () {
-			var err = new Error(__('Unsupported platform "%s"', process.platform));
-			emitter.emit('error', err);
-			callback(err);
-		});
-		return emitter;
-	}
-
-	if (cache && !options.bypassCache) {
-		process.nextTick(function () {
+	return magik(options, callback, function (emitter, options, callback) {
+		if (cache && !options.bypassCache) {
 			emitter.emit('detected', cache);
-			callback(null, cache);
-		});
-		return emitter;
-	}
+			return callback(null, cache);
+		}
 
-	var results = {
-		detectVersion: '3.0',
-		issues: []
-	};
+		var results = {
+			detectVersion: '3.0',
+			issues: []
+		};
 
-	function mix(src, dest) {
-		Object.keys(src).forEach(function (name) {
-			if (Array.isArray(src[name])) {
-				if (Array.isArray(dest[name])) {
-					dest[name] = dest[name].concat(src[name]);
+		function mix(src, dest) {
+			Object.keys(src).forEach(function (name) {
+				if (Array.isArray(src[name])) {
+					if (Array.isArray(dest[name])) {
+						dest[name] = dest[name].concat(src[name]);
+					} else {
+						dest[name] = src[name];
+					}
+				} else if (src[name] !== null && typeof src[name] === 'object') {
+					dest[name] || (dest[name] = {});
+					Object.keys(src[name]).forEach(function (key) {
+						dest[name][key] = src[name][key];
+					});
 				} else {
 					dest[name] = src[name];
 				}
-			} else if (src[name] !== null && typeof src[name] === 'object') {
-				dest[name] || (dest[name] = {});
-				Object.keys(src[name]).forEach(function (key) {
-					dest[name][key] = src[name][key];
+			});
+		}
+
+		async.parallel([
+			function certificates(done) {
+				certs.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
 				});
+			},
+			function devices(done) {
+				device.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			},
+			function environment(done) {
+				env.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			},
+			function provisioningProfiles(done) {
+				provisioning.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			},
+			function simulators(done) {
+				simulator.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			},
+			function xcodes(done) {
+				xcode.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			}
+		], function (err) {
+			if (err) {
+				emitter.emit('error', err);
+				return callback(err);
 			} else {
-				dest[name] = src[name];
+				cache = results;
+				emitter.emit('detected', results);
+				return callback(null, results);
 			}
 		});
-	}
-
-	async.parallel([
-		function certificates(done) {
-			certs.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		},
-		function devices(done) {
-			device.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		},
-		function environment(done) {
-			env.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		},
-		function provisioningProfiles(done) {
-			provisioning.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		},
-		function simulators(done) {
-			simulator.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		},
-		function xcodes(done) {
-			xcode.detect(options, function (err, result) {
-				err || mix(result, results);
-				done(err);
-			});
-		}
-	], function (err) {
-		if (err) {
-			emitter.emit('error', err);
-			callback(err);
-		} else {
-			cache = results;
-			emitter.emit('detected', results);
-			callback(null, results);
-		}
 	});
-
-	return emitter;
 };
 
 /**
