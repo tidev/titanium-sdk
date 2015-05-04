@@ -99,6 +99,7 @@ function iOSBuilder() {
 	];
 
 	this.tiSymbols = {};
+	this.useJSCore=false;
 
 	// populated when config() is called after iOS info has been detected
 	this.defaultIosVersion = null;
@@ -1403,6 +1404,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		},
 
 		'initBuildDir',
+		'updateXCConfig',
 		'createInfoPlist',
 		'createEntitlementsPlist',
 		'injectModulesIntoXcodeProject',
@@ -1537,6 +1539,17 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 
 	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
 	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
+
+	//This is default behavior for now. Move this to true in phase 2. 
+	//Remove this logic when we have debugging/profiling support with JSCore framework
+	//TIMOB-17892
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
+		this.useJSCore = true;
+	}
+
+	if (this.debugHost || this.profilerHost) {
+		this.useJSCore = false;
+	}
 
 	next();
 };
@@ -1905,6 +1918,24 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir(next) {
 	next();
 };
 
+iOSBuilder.prototype.updateXCConfig = function updateXCConfig(next) {
+	var configContents = [
+		'TI_VERSION=' + this.titaniumSdkVersion,
+		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+		'TI_APPID=' + this.tiapp.id,
+		'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
+		'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore'
+	];
+	if (this.useJSCore) {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)','#include "module"')
+	} else {
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)','#include "module"')
+	}
+	this.logger.info(__('Updating Xcode project configuration: %s', 'project.xcconfig'.cyan));
+	fs.writeFileSync(this.xcodeProjectConfigFile, configContents.join('\n') + '\n');
+	next();
+};
+
 iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	var src = this.projectDir + '/Info.plist',
 		dest = this.buildDir + '/Info.plist',
@@ -1944,10 +1975,11 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	}
 
 	// if the user has a Info.plist in their project directory, consider that a custom override
+	var custom; 
 	if (fs.existsSync(src)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 
-		var custom = new appc.plist().parse(fs.readFileSync(src).toString());
+		custom = new appc.plist().parse(fs.readFileSync(src).toString());
 		if (custom.CFBundleIdentifier !== this.tiapp.id) {
 			this.logger.info(__('Forcing rebuild: custom Info.plist CFBundleIdentifier not equal to tiapp.xml <id>'));
 			this.forceRebuild = true;
@@ -2038,43 +2070,46 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		plist.CFBundleVersion = String(+new Date);
 		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
-	} else {
+	} else if (!(ios && ios.plist && ios.plist.CFBundleVersion) && !(custom && custom.CFBundleVersion)) {
 		plist.CFBundleVersion = String(this.tiapp.version);
 		this.logger.debug(__('Setting Info.plist CFBundleVersion to %s', plist.CFBundleVersion.cyan));
 	}
 
-	try {
-		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
-		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
-	} catch (ex) {
-		plist.CFBundleShortVersionString = this.tiapp.version;
-		this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+	if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
+		try {
+			plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 0, 3);
+			this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+		} catch (ex) {
+			plist.CFBundleShortVersionString = this.tiapp.version;
+			this.logger.debug(__('Setting Info.plist CFBundleShortVersionString to %s', plist.CFBundleShortVersionString.cyan));
+		}
 	}
 
-	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
-	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
-		name = iconName + name;
-		if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
-			fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
-			fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
-			if (plist.CFBundleIconFiles.indexOf(name) === -1) {
-				plist.CFBundleIconFiles.push(name);
+	if (!(ios && ios.plist && ios.plist.CFBundleIconFiles) && !(custom && custom.CFBundleIconFiles)) {
+		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
+		['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
+			name = iconName + name;
+			if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
+				fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
+				fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
+				if (plist.CFBundleIconFiles.indexOf(name) === -1) {
+					plist.CFBundleIconFiles.push(name);
+				}
 			}
-		}
-	}, this);
+		}, this);
+	}
 
-	var resourceDir = path.join(this.projectDir, 'Resources'),
-		iphoneDir = path.join(resourceDir, 'iphone'),
-		iosDir = path.join(resourceDir, 'ios');
+	if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
+		var resourceDir = path.join(this.projectDir, 'Resources'),
+			iphoneDir = path.join(resourceDir, 'iphone'),
+			iosDir = path.join(resourceDir, 'ios');
 
-	var i18nSplashScreens = [];
+		var i18nSplashScreens = [];
 
-	ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
-		i18nSplashScreens.push(path.basename(splashImage));
-	});
+		ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
+			i18nSplashScreens.push(path.basename(splashImage));
+		});
 
-	// scan for launch images, unless the user is managing them
-	if (!Array.isArray(plist.UILaunchImages) && !Array.isArray(plist['UILaunchImages~ipad'])) {
 		[{
 			'orientation': 'Portrait',
 			'minimum-system-version': '8.0',
@@ -2154,26 +2189,28 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		}, this);
 	}
 
-	var fontMap = {};
+	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
+		var fontMap = {};
 
-	// scan for ttf and otf font files
-	(plist.UIAppFonts || []).forEach(function (f) {
-		fontMap[f] = 1;
-	});
-
-	(function scanFonts(dir, isRoot) {
-		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
-			var p = path.join(dir, file);
-			if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
-				scanFonts(p);
-			} else if (/\.(otf|ttf)$/i.test(file)) {
-				fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
-			}
+		// scan for ttf and otf font files
+		(plist.UIAppFonts || []).forEach(function (f) {
+			fontMap[f] = 1;
 		});
-	}(resourceDir, true));
 
-	var fonts = Object.keys(fontMap);
-	fonts.length && (plist.UIAppFonts = fonts);
+		(function scanFonts(dir, isRoot) {
+			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
+				var p = path.join(dir, file);
+				if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
+					scanFonts(p);
+				} else if (/\.(otf|ttf)$/i.test(file)) {
+					fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
+				}
+			});
+		}(resourceDir, true));
+
+		var fonts = Object.keys(fontMap);
+		fonts.length && (plist.UIAppFonts = fonts);
+	}
 
 	// write the Info.plist
 	fs.writeFile(dest, plist.toString('xml'), next);
@@ -2338,16 +2375,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	);
 
 	fs.writeFileSync(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'), proj);
-
-	this.logger.info(__('Writing Xcode project configuration: %s', 'project.xcconfig'.cyan));
-	fs.writeFileSync(this.xcodeProjectConfigFile, [
-		'TI_VERSION=' + this.titaniumSdkVersion,
-		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
-		'TI_APPID=' + this.tiapp.id,
-		'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd',
-		'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd',
-		'#include "module"'
-	].join('\n') + '\n');
 
 	this.logger.info(__('Writing Xcode module configuration: %s', 'module.xcconfig'.cyan));
 	fs.writeFileSync(path.join(this.buildDir, 'module.xcconfig'), '// this is a generated file - DO NOT EDIT\n\n');
@@ -2553,10 +2580,10 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 		}
 
 		projectContents.split('\n').forEach(function (line) {
-			line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-			line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
-			line.indexOf('/* libTiCore.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
-			line.indexOf('/* libTiCore.a */,') !== -1 && groupMarkers.push(line);
+			line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+			line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
+			line.indexOf('/* libtiverify.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
+			line.indexOf('/* libtiverify.a */,') !== -1 && groupMarkers.push(line);
 		});
 
 		fileMarkers.forEach(function (marker) {
@@ -2577,7 +2604,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				fileMarkers2FileRefs[m[1].trim()] = newUUID;
@@ -2590,8 +2617,8 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/lib\/libTiCore\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/lib\/libtiverify\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(/SOURCE_ROOT/g, '"<absolute>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -2602,7 +2629,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					end = begin + marker.length,
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2613,7 +2640,7 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, lib.libName)
+						.replace(/libtiverify\.a/g, lib.libName)
 						.replace(new RegExp(m[1].trim(), 'g'), fileMarkers2FileRefs[m[1].trim()]);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 			});
@@ -2673,8 +2700,8 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 			}
 
 			projectContents.split('\n').forEach(function (line) {
-				line.indexOf('/* libTiCore.a */;') !== -1 && fileMarkers.push(line);
-				line.indexOf('/* libTiCore.a */ =') !== -1 && refMarkers.push(line);
+				line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
+				line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
 			});
 
 			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
@@ -2707,7 +2734,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Resources')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
@@ -2720,7 +2747,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					newUUID = makeUUID(),
 					line = projectContents
 						.substring(begin, end)
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/in Frameworks/g, 'in Embed App Extensions')
 						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID)
@@ -2748,9 +2775,9 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 					line = projectContents
 						.substring(begin, end)
 						.replace(/archive.ar/g, '\"wrapper.app-extension\"')
-						.replace(/lib\/libTiCore\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
-						.replace(/name = libTiCore.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
-						.replace(/libTiCore\.a/g, ext.extensionName)
+						.replace(/lib\/libtiverify\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
+						.replace(/name = libtiverify.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
+						.replace(/libtiverify\.a/g, ext.extensionName)
 						.replace(/SOURCE_ROOT/g, '"<group>"')
 						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
@@ -3739,25 +3766,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
-	//This is default behavior for now. Move this to true in phase 2. 
-	//Remove this logic when we have debugging/profiling support with JSCore framework
-	//TIMOB-17892
-	var useJSCore = false;
-	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
-		useJSCore = true;
-	}
-
-	if (this.debugHost || this.profilerHost) {
-		useJSCore = false;
-	}
-
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h');
 
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		// BEGIN TIMOB-17892 changes
-		if (useJSCore) {
+		if (this.useJSCore) {
 			this.logger.debug(__('Using JavaScriptCore Framework'));
 			fs.writeFileSync(
 				dest,
@@ -3805,7 +3820,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		'#endif'
 	);
 	// BEGIN TIMOB-17892 changes
-	if (useJSCore) {
+	if (this.useJSCore) {
 		this.logger.debug(__('Using JavaScriptCore Framework'));
 		contents.push('#define USE_JSCORE_FRAMEWORK')
 	}

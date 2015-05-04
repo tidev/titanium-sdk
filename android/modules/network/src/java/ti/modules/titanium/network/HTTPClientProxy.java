@@ -14,14 +14,13 @@ import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.os.Build;
 import ti.modules.titanium.xml.DocumentProxy;
+import android.os.Build;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILE

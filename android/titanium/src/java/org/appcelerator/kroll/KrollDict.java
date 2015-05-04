@@ -36,7 +36,6 @@ public class KrollDict
 		this(INITIAL_SIZE);
 	}
 
-	@SuppressWarnings("unchecked")
 	public KrollDict(JSONObject object) throws JSONException {
 		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
 			String key = iter.next();

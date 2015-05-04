@@ -23,9 +23,7 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 
 public class TiSocketFactory extends SSLSocketFactory {
@@ -37,7 +35,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
 	private static final String TLS_VERSION_1_0_PROTOCOL = "TLSv1";
-	private String[] enabledProtocols;
+	protected String[] enabledProtocols;
 	
 	public TiSocketFactory(KeyManager[] keyManagers, TrustManager[] trustManagers, int protocol) throws NoSuchAlgorithmException, 
 	KeyManagementException, KeyStoreException, UnrecoverableKeyException
@@ -84,7 +82,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 	}
 	
 	@Override
-	public Socket createSocket (Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
@@ -96,7 +94,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 		return true;
 	}
 	
-	private SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
+	protected SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
 	{
 		String[] supportedProtocols = sslSocket.getSupportedProtocols();
 		List<String> supportedAndEnabledProtocols = new ArrayList<String>();
