@@ -759,8 +759,11 @@ properties:
     description: |
         This property informs the end user why location services are being requested by 
         the application. This property is **required** starting in iOS 4.0.
+        deprecated for >= iOS6, include the `NSLocationUsageDescription` key with your
+        description in tiapp.xml instead.
     platforms: [iphone, ipad]
     type: String
+    osver: {ios: {max: "5.0"}}
 
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
