@@ -116,17 +116,22 @@ public class TiRootActivity extends TiLaunchActivity
 
 		// Keep track of the current activity so we can bring it to front.
 		TiApplication tiApp = getTiApp();
-		Activity currentActivity = tiApp.getCurrentActivity();
+		Activity targetActivity = tiApp.getCurrentActivity();
 
 		super.onResume();
 
 		// Was the app re-launched from an external intent?
 		if (tiApp.isRelaunchingFromRootIntent()) {
-			// When this happens, we need to re-order the activity stack.
-			Intent bringToFront = new Intent(getApplicationContext(), currentActivity.getClass());
-			bringToFront.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			startActivity(bringToFront);
-			tiApp.setRelaunchingFromRootIntent(false);
+			// Make sure we pick an activity that's not the root/launch activity.
+			if (targetActivity instanceof TiLaunchActivity) {
+				targetActivity = tiApp.getFirstNonLaunchActivity();
+			}
+			if (targetActivity != null) {
+				Intent bringToFront = new Intent(getApplicationContext(), targetActivity.getClass());
+				bringToFront.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+				startActivity(bringToFront);
+				tiApp.setRelaunchingFromRootIntent(false);
+			}
 		}
 	}
 

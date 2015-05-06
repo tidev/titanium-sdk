@@ -293,6 +293,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	/**
+	 * @return first non-launch activity if it exists, otherwise returns null.
+	 */
+	public Activity getFirstNonLaunchActivity()
+	{
+		Activity currentActivity = null;
+		if (activityStack == null || activityStack.size() == 0) {
+			for (WeakReference<Activity> activityRef : activityStack) {
+				currentActivity = activityRef.get();
+				if (currentActivity == null || currentActivity.isFinishing() || (currentActivity instanceof TiLaunchActivity)) {
+					continue;
+				}
+				return currentActivity;
+			}
+		}
+                return null;
+	}
+
+	/**
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
 	public Activity getRootOrCurrentActivity()
