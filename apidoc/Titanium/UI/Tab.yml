@@ -251,6 +251,23 @@ properties:
     summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
 
+  - name: titleColor
+    summary: Defines the color of the title of tab when it's inactive. 
+    description: |
+        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+    type: String
+    since: "4.1.0"
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone,ipad]
+
+  - name: activeTitleColor
+    summary: Defines the color of the title of tab when it's active.
+    description: |
+        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+    type: String
+    since: "4.1.0"
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone,ipad]
 
   - name: touchEnabled
     platforms: [mobileweb]
