@@ -540,11 +540,11 @@
     ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
 
     TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
-    if (titleColor) {
+    if (titleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
     }
     TiColor *activeTitleColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
-    if (activeTitleColor) {
+    if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
     }
     [ourItem setBadgeValue:badgeValue];
