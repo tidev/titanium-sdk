@@ -613,6 +613,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
+-(void)hideKeyboard:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [[[TiApp app] topMostView] endEditing:YES];
+    }, NO);
+}
+
 -(void)setForceSplashAsSnapshot:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber)

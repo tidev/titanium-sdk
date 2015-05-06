@@ -35,6 +35,8 @@ import android.support.v4.view.accessibility.AccessibilityManagerCompat.Accessib
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.View;
+import android.app.Activity;
+import android.view.inputmethod.InputMethodManager;
 
 @Kroll.module
 public class AppModule extends KrollModule implements SensorEventListener
@@ -355,6 +357,23 @@ public class AppModule extends KrollModule implements SensorEventListener
 		data.put(TiC.EVENT_PROPERTY_STATE, proximityState);
 		fireEvent(TiC.EVENT_PROXIMITY, data);
 	}
+    
+    @Kroll.getProperty @Kroll.method
+    public boolean getKeyboardVisible()
+    {
+        return TiApplication.getInstance().getCurrentActivity().getCurrentFocus() != null ? true : false;
+    }
+    
+    @Kroll.method
+    public void hideKeyboard(){
+        Activity activity = TiApplication.getInstance().getCurrentActivity();
+        if (activity.getCurrentFocus() != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) activity
+            .getSystemService(activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(activity
+                                                       .getCurrentFocus().getWindowToken(), 0);
+        }
+    }
 
 	@Override
 	public String getApiName()
