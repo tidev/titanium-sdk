@@ -794,8 +794,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			}
 		}
 	}
-
-	result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+	//only add percentescape if there are spaces in relativestring
+	if ([[relativeString componentsSeparatedByString:@" "] count] -1 == 0) {
+		result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+	}
+	else {
+		result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+	}
     
     //TIMOB-18262
     if (result && ([[result scheme] isEqualToString:@"file"])){
