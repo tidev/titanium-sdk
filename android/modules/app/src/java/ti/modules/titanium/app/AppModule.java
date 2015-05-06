@@ -20,6 +20,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.TiFileProxy;
 
 import android.app.Application;
 import android.content.Intent;
@@ -357,6 +359,16 @@ public class AppModule extends KrollModule implements SensorEventListener
 		data.put(TiC.EVENT_PROPERTY_STATE, proximityState);
 		fireEvent(TiC.EVENT_PROXIMITY, data);
 	}
+    
+    @Kroll.method
+    public void registerFont(TiFileProxy fontFile, @Kroll.argument(optional=true) String fontFamily){
+        TiUIHelper.loadTypeface(fontFile, fontFamily);
+    }
+    
+    @Kroll.method
+    public void unregisterFont(TiFileProxy fontFile, @Kroll.argument(optional=true) String fontFamily){
+        TiUIHelper.unloadTypeface(fontFile, fontFamily);
+    }
     
     @Kroll.getProperty @Kroll.method
     public boolean getKeyboardVisible()

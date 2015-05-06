@@ -17,6 +17,7 @@
 
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
+#import <CoreText/CoreText.h>
 #import "TiLayoutQueue.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
@@ -606,6 +607,40 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(id)analytics
 {
 	return NUMBOOL(TI_APPLICATION_ANALYTICS);
+}
+
+-(void)registerFont:(id)value
+{
+    ENSURE_SINGLE_ARG(value, TiFile);
+    //NSLog(@"[INFO] Registering font %@", [value path]);
+    NSData *inData =  [[value blob] data];
+    CFErrorRef error;
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((CFDataRef)inData);
+    CGFontRef font = CGFontCreateWithDataProvider(provider);
+    if (! CTFontManagerRegisterGraphicsFont(font, &error)) {
+        CFStringRef errorDescription = CFErrorCopyDescription(error);
+        NSLog(@"[ERROR] Failed to load font: %@", errorDescription);
+        CFRelease(errorDescription);
+    }
+    CFRelease(font);
+    CFRelease(provider);
+}
+
+-(void)unregisterFont:(id)value
+{
+    ENSURE_SINGLE_ARG(value, TiFile);
+    //NSLog(@"[INFO] Unregistering font %@", [value path]);
+    NSData *inData =  [[value blob] data];
+    CFErrorRef error;
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((CFDataRef)inData);
+    CGFontRef font = CGFontCreateWithDataProvider(provider);
+    if (! CTFontManagerUnregisterGraphicsFont(font, &error)) {
+        CFStringRef errorDescription = CFErrorCopyDescription(error);
+        NSLog(@"[ERROR] Failed to unload font: %@", errorDescription);
+        CFRelease(errorDescription);
+    }
+    CFRelease(font);
+    CFRelease(provider);
 }
 
 -(NSNumber*)keyboardVisible

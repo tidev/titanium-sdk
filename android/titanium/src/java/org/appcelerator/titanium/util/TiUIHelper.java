@@ -41,6 +41,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.TiFileProxy;
 
 import android.app.Activity;
 import android.support.v7.app.AlertDialog;
@@ -430,6 +431,40 @@ public class TiUIHelper
 		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
+    
+    public static void loadTypeface(TiFileProxy fontFile, String fontFamily) {
+        if (fontFile.exists() == false) {
+            Log.e(TAG, "Unable to load font from file that not exists");
+            return;
+        }
+        if(fontFamily == null){
+            fontFamily = fontFile.getBaseFile().name();
+            int pos = fontFamily.lastIndexOf(".");
+            if (pos > 0) {
+                fontFamily = fontFamily.substring(0, pos);
+            }
+        }
+        Typeface tf = Typeface.createFromFile(fontFile.getBaseFile()
+                                              .getNativeFile());
+        synchronized (mCustomTypeFaces) {
+            mCustomTypeFaces.put(fontFamily, tf);
+        }
+    }
+    
+    public static void unloadTypeface(TiFileProxy fontFile, String fontFamily) {
+        if(fontFamily == null){
+            fontFamily = fontFile.getBaseFile().name();
+            int pos = fontFamily.lastIndexOf(".");
+            if (pos > 0) {
+                fontFamily = fontFamily.substring(0, pos);
+            }
+        }
+        synchronized (mCustomTypeFaces) {
+            if (mCustomTypeFaces.containsKey(fontFamily)) {
+                mCustomTypeFaces.remove(fontFamily);
+            }
+        }
+    }
 
 	public static String getDefaultFontSize(Context context) {
 		String size = "15.0px";
