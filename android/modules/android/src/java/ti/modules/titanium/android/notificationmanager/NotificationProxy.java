@@ -26,7 +26,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
-
+@SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_TEXT,
 	TiC.PROPERTY_CONTENT_TITLE

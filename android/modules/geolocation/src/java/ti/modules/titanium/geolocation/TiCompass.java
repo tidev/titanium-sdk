@@ -24,6 +24,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.os.SystemClock;
 
+@SuppressWarnings("deprecation")
 public class TiCompass
 	implements SensorEventListener
 {

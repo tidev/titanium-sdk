@@ -46,6 +46,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.URLUtil;
 
+@SuppressWarnings("deprecation")
 public class TiFileHelper implements Handler.Callback
 {
 	private static final String TAG = "TiFileHelper";

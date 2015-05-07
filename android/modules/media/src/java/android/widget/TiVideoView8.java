@@ -62,6 +62,7 @@ import android.widget.MediaController.MediaPlayerControl;
  * it can be used in any layout manager, and provides various display options
  * such as scaling and tinting.
  */
+@SuppressWarnings("deprecation")
 public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 {
 	private static final String TAG = "TiVideoView8";

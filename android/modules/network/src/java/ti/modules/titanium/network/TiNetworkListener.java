@@ -23,6 +23,7 @@ import android.os.Message;
  * state information, independent of network type (mobile, Wi-Fi, etc.).
  * {@hide}
  */
+@SuppressWarnings("deprecation")
 public class TiNetworkListener {
     private static final String TAG = "TiNetListener";
  

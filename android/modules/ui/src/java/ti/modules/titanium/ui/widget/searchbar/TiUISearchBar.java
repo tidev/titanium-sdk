@@ -28,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+@SuppressWarnings("deprecation")
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;

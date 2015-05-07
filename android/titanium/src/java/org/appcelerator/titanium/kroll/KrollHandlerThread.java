@@ -28,6 +28,7 @@ import android.os.Process;
  * 
  * Adopted from Android source and modified for integration w/ Rhino
  */
+@SuppressWarnings("deprecation")
 public class KrollHandlerThread extends Thread
 {
 	private int mPriority;

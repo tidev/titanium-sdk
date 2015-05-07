@@ -54,6 +54,7 @@ import android.webkit.URLUtil;
 /**
  * Helper class for loading, scaling, and caching images if necessary.
  */
+@SuppressWarnings("deprecation")
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
