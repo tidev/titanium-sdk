@@ -483,7 +483,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self removeAllImagesFromContainer];
 		
-		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
+		NSURL *url_ = [TiUtils toURL:[img path] proxy:self.proxy];
         
         // NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 

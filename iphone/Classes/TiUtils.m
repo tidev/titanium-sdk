@@ -773,34 +773,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		return [NSURL URLWithString:relativeString];
 	}
 
-	NSURL *result = nil;
-		
-	// don't bother if we don't at least have a path and it's not remote
-	//TODO: What is this mess? -BTH
-	if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
-	{
-		NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
-		if (range.location!=NSNotFound)
-		{
-			NSString *firstPortion = [relativeString substringToIndex:range.location];
-			NSString *pathPortion = [relativeString substringFromIndex:range.location];
-			CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-					(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-					kCFStringEncodingUTF8);
-			relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-			if(escapedPath != NULL)
-			{
-				CFRelease(escapedPath);
-			}
-		}
-	}
-	//only add percentescape if there are spaces in relativestring
-	if ([[relativeString componentsSeparatedByString:@" "] count] -1 == 0) {
-		result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-	}
-	else {
-		result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
-	}
+	NSURL *result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
     
     //TIMOB-18262
     if (result && ([[result scheme] isEqualToString:@"file"])){
