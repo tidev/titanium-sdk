@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
+	<classpathentry kind="lib" path="../../dist/android/kroll-apt.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/nineoldandroids-appc-2.4.0.jar" sourcepath="/NineOldAndroids/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/thirdparty.jar"/>
