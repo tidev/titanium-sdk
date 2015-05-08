@@ -88,14 +88,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static boolean USE_LEGACY_WINDOW = false;
 
 	private boolean restartPending = false;
-<<<<<<< HEAD
-<<<<<<< HEAD
 	private boolean relaunchingFromRootIntent = false;
-=======
-	private boolean relaunching = false;
->>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
-=======
->>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -768,8 +761,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return restartPending;
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	public boolean isRelaunchingFromRootIntent()
 	{
 		return relaunchingFromRootIntent;
@@ -778,20 +769,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void setRelaunchingFromRootIntent(boolean newValue)
 	{
 		relaunchingFromRootIntent = newValue;
-=======
-	public boolean isRelaunching()
-	{
-		return relaunching;
 	}
 
-	public void setRelaunching(boolean newValue)
-	{
-		relaunching = newValue;
->>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
-	}
-
-=======
->>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 	public TiTempFileHelper getTempFileHelper()
 	{
 		return tempFileHelper;

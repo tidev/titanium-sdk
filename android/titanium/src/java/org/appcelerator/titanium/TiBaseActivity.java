@@ -434,7 +434,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
@@ -945,8 +944,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@Override
 	protected void onNewIntent(Intent intent) 
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
 		// When running in singleInstance mode, we should intercept intents sent to the
 		// root activity.  We'll then copy this intent into a dict and fire an app event.
 		if (this instanceof TiLaunchActivity) {
@@ -1051,12 +1048,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				return;
 			}
 		}
-=======
-		Log.checkpoint(TAG, "TONO BAGGINS - Got to base activity onNewIntent");
->>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
 
-=======
->>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 		super.onNewIntent(intent);
 
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);

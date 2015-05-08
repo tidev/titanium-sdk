@@ -10,14 +10,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
-<<<<<<< HEAD
 import android.app.Activity;
-<<<<<<< HEAD
 import android.content.Intent;
-=======
->>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
-=======
->>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -125,9 +119,7 @@ public class TiRootActivity extends TiLaunchActivity
 		Activity targetActivity = tiApp.getCurrentActivity();
 
 		super.onResume();
-<<<<<<< HEAD
 
-<<<<<<< HEAD
 		// Was the app re-launched from an external intent?
 		if (tiApp.isRelaunchingFromRootIntent()) {
 			// Make sure we pick an activity that's not the root/launch activity.
@@ -141,13 +133,6 @@ public class TiRootActivity extends TiLaunchActivity
 				tiApp.setRelaunchingFromRootIntent(false);
 			}
 		}
-=======
-		// All done with the relaunch.
-		TiApplication tiApp = getTiApp();
-		tiApp.setRelaunching(false);
->>>>>>> Work in progress, trying to make the app not restart on every intent other than LAUNCHER.
-=======
->>>>>>> Revert "Work in progress, trying to make the app not restart on every intent other than LAUNCHER."
 	}
 
 	@Override
