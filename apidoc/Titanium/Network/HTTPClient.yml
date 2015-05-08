@@ -247,7 +247,8 @@ methods:
       - name: value
         summary: |
             Value to assign to the header. May be `null` to clear a default header value, such as
-            X-Requested-With.
+            X-Requested-With. To set multiple cookies, repeat this call with different values but
+            the same key 'Cookie', and they will be all included.
         type: String
 
   - name: setTimeout
