@@ -193,16 +193,19 @@ DEFINE_EXCEPTIONS
 
 -(void)startTimerWithEvent:(NSString *)eventName
 {
-	RELEASE_TO_NIL(timer);
-	if (stopped)
-	{
-		return;
-	}
-	timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain]; 
-	if ([self.proxy _hasListeners:eventName])
-	{
-		[self.proxy fireEvent:eventName withObject:nil];
-	}
+    RELEASE_TO_NIL(timer);
+    if (!stopped) {
+        if ([self.proxy _hasListeners:eventName]) {
+            [self.proxy fireEvent:eventName withObject:nil];
+        }
+
+        if ([eventName isEqualToString:@"start"] && previous == nil) {
+            //TIMOB-18830. Load the first image immediately
+            [self timerFired:nil];
+        }
+        
+        timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
+    }
 }
 
 -(void)stopTimerWithEvent:(NSString *)eventName
@@ -480,7 +483,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self removeAllImagesFromContainer];
 		
-		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
+		NSURL *url_ = [TiUtils toURL:[img path] proxy:self.proxy];
         
         // NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 

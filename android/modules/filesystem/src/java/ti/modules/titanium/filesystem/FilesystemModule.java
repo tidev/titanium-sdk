@@ -97,6 +97,7 @@ public class FilesystemModule extends KrollModule
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
+	@SuppressWarnings("deprecation")
 	@Kroll.getProperty @Kroll.method
 	public String getApplicationCacheDirectory()
 	{

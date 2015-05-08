@@ -21,7 +21,7 @@ public class AlarmReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 	    NotificationManager manger = (NotificationManager) context
-	            .getSystemService(context.NOTIFICATION_SERVICE);
+	            .getSystemService(Context.NOTIFICATION_SERVICE);
 
 		Intent mainIntent = new Intent("ti.intent.action.calendar.ALARM");
 

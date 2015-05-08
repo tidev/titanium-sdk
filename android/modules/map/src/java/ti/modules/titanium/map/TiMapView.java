@@ -56,6 +56,7 @@ interface TitaniumOverlayListener {
 	public void onTap(GeoPoint p, MapView mapView);
 }
 
+@SuppressWarnings("deprecation")
 public class TiMapView extends TiUIView
 	implements Handler.Callback, TitaniumOverlayListener
 {

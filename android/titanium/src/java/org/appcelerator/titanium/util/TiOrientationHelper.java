@@ -8,7 +8,7 @@ package org.appcelerator.titanium.util;
 
 import android.content.res.Configuration;
 
-
+@SuppressWarnings("deprecation")
 public class TiOrientationHelper
 {
 	// public member

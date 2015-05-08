@@ -35,6 +35,7 @@ import android.os.Message;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+@SuppressWarnings("deprecation")
 @Kroll.module
 public class NetworkModule extends KrollModule {
 

@@ -87,6 +87,7 @@ import android.widget.TextView;
 /**
  * A set of utility methods focused on UI and View operations.
  */
+@SuppressWarnings("deprecation")
 public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";

@@ -138,6 +138,8 @@ public class TiUISpinner extends TiUIPicker
 			propagateProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
 		}
 	}
+
+	@SuppressWarnings("deprecation")
 	@Override
 	public void add(TiUIView child)
 	{
