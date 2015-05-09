@@ -480,7 +480,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self removeAllImagesFromContainer];
 		
-		NSURL *url_ = [TiUtils toURL:[img path] proxy:self.proxy];
+		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
         
         // NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
@@ -495,7 +495,7 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([url_ isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[url_ path]];
+            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;
