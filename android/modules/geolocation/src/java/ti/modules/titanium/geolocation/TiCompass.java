@@ -41,7 +41,6 @@ public class TiCompass
 	private GeomagneticField geomagneticField;
 	private Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
-	private long lastDeclinationCheck;
 
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
@@ -53,7 +52,7 @@ public class TiCompass
 	public void registerListener()
 	{
 		updateDeclination();
-		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_FASTEST);
+		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	public void unregisterListener()
@@ -147,23 +146,18 @@ public class TiCompass
 	{
 		long currentTime = System.currentTimeMillis();
 
-		if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
-			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
-			if (provider != null) {
-				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
-				if (location != null) {
-					if (geomagneticFieldLocation == null || (location.getTime() > geomagneticFieldLocation.getTime())) {
-						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
-						geomagneticFieldLocation = location;
-					}
-				}
+		String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
+		if (provider != null) {
+			Location location = tiLocation.locationManager.getLastKnownLocation(provider);
+			if (location != null) {
+				geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
+				geomagneticFieldLocation = location;
 			}
 			if (geomagneticFieldLocation == null) {
 				Log.w(TAG, "No location fix available, can't determine compass trueHeading.");
 			} else if (currentTime - geomagneticFieldLocation.getTime() > STALE_LOCATION_THRESHOLD) {
 				Log.w(TAG, "Location fix is stale, compass trueHeading may be incorrect.");
 			}
-			lastDeclinationCheck = currentTime;
 		}
 	}
 
@@ -202,7 +196,7 @@ public class TiCompass
 			};
 
 			updateDeclination();
-			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_FASTEST);
+			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_GAME);
 		}
 	}
 }
