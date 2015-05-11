@@ -401,6 +401,18 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		
 		if (activityProxy == null) return;
 		
+		// set status bar color
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && window.hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			final String statusBarColor = TiConvert.toString(window.getProperty(TiC.PROPERTY_STATUS_BAR_COLOR));
+			runOnUiThread(new Runnable(){
+				public void run() {
+					getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+					getWindow().setStatusBarColor(TiConvert.toColor(statusBarColor));
+				}
+			});
+		}
+		
 		if (window.hasProperty(TiC.PROPERTY_BAR_COLOR)) {
 			final String barColor = TiConvert.toString(window.getProperty(TiC.PROPERTY_BAR_COLOR), "");
 			runOnUiThread(new Runnable(){
@@ -570,14 +582,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_TRANSLUCENT)) {
 			supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
 			supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
-		}
-		
-		//set status bar color
-		String color = getIntentString(TiC.PROPERTY_STATUS_BAR_COLOR, "");
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && color != "") {
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			getWindow().setStatusBarColor(TiConvert.toColor(color));	
 		}
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.

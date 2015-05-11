@@ -349,14 +349,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				intent.putExtra(TiC.PROPERTY_TRANSLUCENT, translucentActionBar);
 			}
 		}
-		
-		// Set the statusBarColor property
-		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
-			String statusBarColor = TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR));
-			if (statusBarColor != null) {
-				intent.putExtra(TiC.PROPERTY_STATUS_BAR_COLOR, statusBarColor);
-			}
-		}
 	}
 
 	@Override
