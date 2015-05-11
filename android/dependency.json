@@ -13,7 +13,6 @@
 		"filesystem":[],
 		"gesture":["ui"],
 		"geolocation":[],
-		"compass":[],
 		"locale":[],
 		"map":[],
 		"media":["filesystem"],
