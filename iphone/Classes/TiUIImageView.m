@@ -475,7 +475,7 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)loadUrl:(id)img
+-(void)loadUrl:(NSURL*)img
 {
 	[self cancelPendingImageLoads];
 	
@@ -483,8 +483,6 @@ DEFINE_EXCEPTIONS
 	{
 		[self removeAllImagesFromContainer];
 		
-		NSURL *url_ = [TiUtils toURL:[img path] proxy:self.proxy];
-        
         // NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
 									  TiDimensionCalculateValue(height,0.0));
@@ -497,8 +495,8 @@ DEFINE_EXCEPTIONS
         
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
-        if ([url_ isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[url_ path]];
+        if ([img isFileURL]) {
+            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;
@@ -513,19 +511,19 @@ DEFINE_EXCEPTIONS
         }
         
         
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:img];
 		if (image==nil)
 		{
             [self loadDefaultImage:imageSize];
 			placeholderLoading = YES;
-			[(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
+			[(TiUIImageViewProxy *)[self proxy] startImageLoad:img];
 			return;
 		}
         
 		if (image!=nil)
 		{
 			UIImage *imageToUse = [self rotatedImage:image];
-			[(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
+			[(TiUIImageViewProxy*)[self proxy] setImageURL:img];
             
 			autoWidth = imageToUse.size.width;
 			autoHeight = imageToUse.size.height;
@@ -679,10 +677,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	
-	BOOL replaceProperty = YES;
-	UIImage *image = nil;
-    NSURL* imageURL = nil;
-    image = [self convertToUIImage:arg];
+	UIImage *image = [self convertToUIImage:arg];
 	
 	if (image == nil) 
 	{
