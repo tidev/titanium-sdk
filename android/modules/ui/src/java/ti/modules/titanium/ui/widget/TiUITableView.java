@@ -204,7 +204,7 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAttribute(TiConvert.toString(d, TiC.PROPERTY_FILTER_ATTRIBUTE));
 		} else {
 			// Default to title to match iPhone default.
-			proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE, false);
+			proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 			tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
 		}
 

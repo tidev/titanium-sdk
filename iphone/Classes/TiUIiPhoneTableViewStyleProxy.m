@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UIIPHONETABLEVIEWSTYLE) || defined(USE_TI_UIIPHONELISTVIEWSTYLE)
-
+#import "TiBase.h"
 #import "TiUIiPhoneTableViewStyleProxy.h"
 
 @implementation TiUIiPhoneTableViewStyleProxy

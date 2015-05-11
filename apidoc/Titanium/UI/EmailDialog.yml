@@ -15,10 +15,6 @@ description: |
     register an e-mail account on the device in order to open the dialog.  The dialog will not
     open when there is not a registered e-mail account.
 
-    **BlackBerry Platform Notes**
-
-    On BlackBerry, the email dialog only opens on device.  It does not work on the simulator.
-
     **iOS Platform Notes**
 
     On iOS, you cannot test the e-mail dialog on the iOS 8.0 simulator or greater.  Test the email

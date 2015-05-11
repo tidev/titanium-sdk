@@ -7,7 +7,7 @@ description: |
     audio or video.
 
     For examples of using the Media APIs, refer to the
-    [Working with Media APIs guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Working_with_Media_APIs)
+    [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -189,6 +189,20 @@ methods:
         android: 3.2.0
         iphone: 1.8.1
         ipad: 1.8.1
+  - name: requestCameraAccess
+    summary: Requests for camera access.
+    description: |
+       This method allows the app to request for camera access, before or without the user granting
+       it in <Titanium.Media.showCamera>. The request view will only show if user has not yet made 
+       a decision. If he has, the callback will return his earlier decision, and if any changes has
+       to be made, the user has to change it in the device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant camera access.
+        type: Callback<RequestCameraAccessResult>
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -685,6 +699,34 @@ properties:
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
+  - name: CAMERA_AUTHORIZATION_AUTHORIZED
+    summary: Constant specifying that app is authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_DENIED
+    summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_RESTRICTED
+    summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: CAMERA_AUTHORIZATION_NOT_DETERMINED
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
@@ -1226,6 +1268,15 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, android]
     permission: read-only
+  - name: cameraAuthorizationStatus
+    summary: |
+        Returns the authorization status for the camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1621,6 +1672,10 @@ properties:
     accessors: false
 ---
 name: MediaAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+---
+name: RequestCameraAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
 ---

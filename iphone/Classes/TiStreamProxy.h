@@ -9,6 +9,7 @@
 #import "TiProxy.h"
 #import "Tibuffer.h"
 #import "KrollCallback.h"
+#import "TiBase.h"
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:
 // 1. Interprets read()/write() calls to the appropriate interal function

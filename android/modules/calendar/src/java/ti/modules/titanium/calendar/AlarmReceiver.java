@@ -14,13 +14,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+@SuppressWarnings("deprecation")
 public class AlarmReceiver extends BroadcastReceiver
 {
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
 	    NotificationManager manger = (NotificationManager) context
-	            .getSystemService(context.NOTIFICATION_SERVICE);
+	            .getSystemService(Context.NOTIFICATION_SERVICE);
 
 		Intent mainIntent = new Intent("ti.intent.action.calendar.ALARM");
 

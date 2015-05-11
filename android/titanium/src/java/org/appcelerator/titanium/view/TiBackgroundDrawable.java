@@ -141,6 +141,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		this.background = new PaintDrawable(backgroundColor);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void setBackgroundImage(Bitmap backgroundImage) {
 		releaseDelegate();
 		this.background = new BitmapDrawable(backgroundImage);

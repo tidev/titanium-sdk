@@ -116,17 +116,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DOUBLE_CLICK = "dblclick";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DOUBLE_CLICK = "dblclick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api
@@ -440,7 +445,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DRAGEND = "dragend";
+	public static final String EVENT_SCROLLSTART = "scrollstart";
 
 	/**
 	 * @module.api
@@ -1125,6 +1130,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DIVIDER_HEIGHT = "dividerHeight";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMAIN = "domain";
 
 	/**
@@ -1299,6 +1309,11 @@ public class TiC
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
 	public static final String PROPERTY_FORWARD = "forward";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 
 	/**
 	 * @module.api
@@ -1339,6 +1354,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HAS_CHILD = "hasChild";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HAS_LINK = "hasLink";
 
 	/**
 	 * @module.api
@@ -1389,7 +1409,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+
 	/**
 	 * @module.api
 	 */

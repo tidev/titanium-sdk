@@ -96,7 +96,8 @@ define(['Ti/_/declare', 'Ti/_/UI/FontWidget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/styl
 		properties: {
 			ellipsize: {
 				set: function(value) {
-					setStyle(this._textContainerDomNode,'textOverflow', !!value ? 'ellipsis' : 'clip');
+					setStyle(this._textContainerDomNode, 'textOverflow', !!value ? 'ellipsis' : 'clip');
+					setStyle(this._textContainerDomNode, 'overflow', !!value ? 'hidden' : 'visible');
 					return value;
 				},
 				value: true

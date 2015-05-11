@@ -87,6 +87,7 @@ import android.widget.TextView;
 /**
  * A set of utility methods focused on UI and View operations.
  */
+@SuppressWarnings("deprecation")
 public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
@@ -358,6 +359,20 @@ public class TiUIHelper
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
 
+	public static boolean isAndroidTypeface(String fontFamily)
+	{
+		if (fontFamily != null) {
+			if ("monospace".equals(fontFamily)) {
+				return true;
+			} else if ("serif".equals(fontFamily)) {
+				return true;
+			} else if ("sans-serif".equals(fontFamily)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static Typeface toTypeface(Context context, String fontFamily)
 	{
 		Typeface tf = Typeface.SANS_SERIF; // default
@@ -575,7 +590,7 @@ public class TiUIHelper
 		Drawable imageDrawable = null;
 		if (image != null) {
 			TiFileHelper tfh = TiFileHelper.getInstance();
-			imageDrawable = tfh.loadDrawable(image, false, true);
+			imageDrawable = tfh.loadDrawable(image, false, true, false);
 
 			if (tileImage) {
 				if (imageDrawable instanceof BitmapDrawable) {

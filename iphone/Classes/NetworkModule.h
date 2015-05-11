@@ -6,7 +6,6 @@
  */
 #ifdef USE_TI_NETWORK
 
-#import "TiBase.h"
 #import "TiModule.h"
 #import "KrollCallback.h"
 #import "Reachability.h"

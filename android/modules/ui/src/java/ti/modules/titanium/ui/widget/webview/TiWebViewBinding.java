@@ -179,7 +179,6 @@ public class TiWebViewBinding
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	private class TiReturn
 	{
 		@JavascriptInterface
@@ -300,7 +299,6 @@ public class TiWebViewBinding
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private class ApiBinding
 	{
 		private KrollLogging logging;

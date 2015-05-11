@@ -12,14 +12,17 @@
 #import "TiLocale.h"
 
 #include <pthread.h>
-#import "TiDebugger.h"
-#import "TiProfiler/TiProfiler.h"
 #import "TiExceptionHandler.h"
 
 #import "TiUIAlertDialogProxy.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
+#endif
+
+#ifndef USE_JSCORE_FRAMEWORK
+#import "TiDebugger.h"
+#import "TiProfiler/TiProfiler.h"
 #endif
 
 static unsigned short KrollContextIdCounter = 0;
@@ -324,6 +327,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	NSString* format = [KrollObject toID:ctx value:args[0]];
 #if TARGET_IPHONE_SIMULATOR
     // convert string references to objects
+    format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@_TIDELIMITER_"];
     format = [format stringByReplacingOccurrencesOfString:@"%2$s" withString:@"%2$@_TIDELIMITER_"];
@@ -349,6 +353,7 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
     NSArray* formatArray = [format componentsSeparatedByString:@"_TIDELIMITER_"];
     NSUInteger formatCount = [formatArray count];
     NSMutableString* result = [[NSMutableString alloc] init];
+    size_t lastArgIndex = 0;
     @try {
         for (size_t x=1; (x < argCount) && (x <= formatCount); x++)
         {
@@ -369,6 +374,11 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
                 bool theResult = TiValueToBoolean(jsContext,valueRef);
                 [result appendString:[NSString stringWithFormat:theFormat,theResult]];
             }
+            lastArgIndex = x;
+        }
+        if (lastArgIndex < formatCount) {
+            // Append any remaining format components
+            [result appendString:[[formatArray subarrayWithRange: NSMakeRange(lastArgIndex, formatCount-lastArgIndex)] componentsJoinedByString:@""]];
         }
         TiValueRef value = [KrollObject toValue:ctx value:result];
         [result release];
@@ -945,7 +955,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		if (debugger!=NULL)
 		{
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
+#ifndef USE_JSCORE_FRAMEWORK
 			TiDebuggerDestroy(self,globalRef,debugger);
+#endif
             debugger = NULL;
 		}
 		[condition signal];
@@ -1131,16 +1143,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(int)forceGarbageCollectNow
 {
-	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
+#ifdef USE_JSCORE_FRAMEWORK
+    gcrequest = NO;
+    loopCount = 0;
+#else
+    NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
 	NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested",self);
 #endif
+
 	pthread_mutex_lock(&KrollEntryLock);
 	TiGarbageCollect(context);
 	pthread_mutex_unlock(&KrollEntryLock);
 	gcrequest = NO;
 	loopCount = 0;
 	[garbagePool drain];
+#endif
 	return 0;
 }
 
@@ -1164,12 +1182,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
+#ifndef USE_JSCORE_FRAMEWORK
     if ([[self delegate] shouldDebugContext]) {
         debugger = TiDebuggerCreate(self,globalRef);
     }
     if ([[self delegate] shouldProfileContext]) {
         TiProfilerEnable(globalRef,context);
     }
+#endif
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
 	TiValueRef krollRef = [KrollObject toValue:self value:kroll];

@@ -903,14 +903,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 				}
 			};
 
-			// we need to map store-password to password for backwards compatibility
-			// because we needed to change it as to not conflict with the login
-			// password and be more descriptive compared to the --key-password
-			conf.options.password = appc.util.mix({
-				hidden: true
-			}, conf.options['store-password']);
-			delete conf.options.password.abbr;
-
 			callback(null, _t.conf = conf);
 		})(function (err, result) {
 			finished(result);
@@ -2687,7 +2679,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
 				opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
@@ -2710,7 +2702,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						return next();
 					}
 
-					if (process.platform != 'win32') {
+					if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
 						fatal(err);
 					}
 

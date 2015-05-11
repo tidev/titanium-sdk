@@ -7,14 +7,12 @@
 package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
-import android.os.Build;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_COLOR,

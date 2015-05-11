@@ -31,6 +31,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
+@SuppressWarnings("deprecation")
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback
 {
 	private static final String TAG = "TiBaseTableViewItem";

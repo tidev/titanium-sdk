@@ -13,7 +13,7 @@ var common = require('./common.js'),
  * @param {Object} className
  */
 function scanDescription (api, className) {
-	var regex = new RegExp('[\#+|\*+|On] ' + common.PRETTY_PLATFORM[doc.__platform], 'gm'),
+	var regex = new RegExp('[\\#+|\\*+|On] ' + common.PRETTY_PLATFORM[doc.__platform], 'gm'),
 		matches = [],
 		name = null;
 	if (common.assertObjectKey(api, 'description')) {

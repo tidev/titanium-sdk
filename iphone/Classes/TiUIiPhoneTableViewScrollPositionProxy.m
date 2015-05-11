@@ -7,6 +7,7 @@
 #if defined(USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIPHONELISTVIEWSCROLLPOSITION)
 
 #import "TiUIiPhoneTableViewScrollPositionProxy.h"
+#import "TiBase.h"
 
 @implementation TiUIiPhoneTableViewScrollPositionProxy
 

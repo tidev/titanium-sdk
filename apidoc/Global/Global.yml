@@ -135,7 +135,7 @@ methods:
           3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
-        [Using a Module](http://docs.appcelerator.com/titanium/latest/#!/guide/Using_a_Module).
+        [Using a Module](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
         

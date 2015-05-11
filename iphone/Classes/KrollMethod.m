@@ -7,7 +7,7 @@
 #import "KrollMethod.h"
 #import "KrollObject.h"
 #import "KrollContext.h"
-#import "TiBase.h"
+#import "TiToJS.h"
 
 #import "KrollBridge.h"
 

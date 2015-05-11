@@ -112,6 +112,7 @@ public class AndroidModule extends KrollModule
 	 * @param manualMode			<code>boolean</code> value to indicate whether 
 	 * 								the manual providers should be used
 	 */
+	@SuppressWarnings("deprecation")
 	@Kroll.setProperty
 	public void setManualMode(boolean manualMode)
 	{

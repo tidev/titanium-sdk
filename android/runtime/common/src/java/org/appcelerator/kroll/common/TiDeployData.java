@@ -8,14 +8,13 @@ package org.appcelerator.kroll.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 

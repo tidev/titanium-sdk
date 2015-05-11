@@ -8,11 +8,10 @@
 
 #import "TiBindingEvent.h"
 #include <libkern/OSAtomic.h>
-#include "JavaScriptCore/Ti.h"
+#include "TiToJS.h"
 #import "KrollObject.h"
 #import "TiBindingTiValue.h"
 #import "TiBindingRunLoop.h"
-#import "TiBase.h"
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
 

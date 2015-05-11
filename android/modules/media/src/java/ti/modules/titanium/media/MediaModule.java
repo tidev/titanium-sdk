@@ -54,6 +54,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
 
+@SuppressWarnings("deprecation")
 @Kroll.module @ContextSpecific
 public class MediaModule extends KrollModule
 	implements Handler.Callback

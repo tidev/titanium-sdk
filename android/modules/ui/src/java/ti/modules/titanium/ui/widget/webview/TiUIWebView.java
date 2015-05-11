@@ -45,6 +45,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+@SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
 {
 
@@ -124,7 +125,6 @@ public class TiUIWebView extends TiUIView
 			return (superHandled || handled || swipeHandled);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{

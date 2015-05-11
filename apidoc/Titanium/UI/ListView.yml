@@ -29,7 +29,7 @@ description: |
         </Alloy>        
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/ListViews).
+    [ListViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
 
     #### Creating a List
 
@@ -268,9 +268,9 @@ events:
         type: Boolean
 
   - name: marker
-    summary: Fired when the list view displays the reference item or an item beyond the reference item.
+    summary: Fired when the list view displays the reference item.
     description: |
-        This event is fired only once. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method.
+        This event is fired only once per reference item. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
         On iOS this method does not fire when list view is in search mode.
     platforms: [iphone, ipad, android]
     since: 3.2.0
@@ -278,6 +278,14 @@ events:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
 
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
@@ -397,6 +405,70 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: scrollstart
+    summary: Fires when the list view starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire when the user starts scrolling the list view. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the list view.
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
+    properties: 
+      - name: visibleItemCount
+        summary: The number of visible items in the list view when the event fires.
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
+        type: Object
+
+      - name: firstVisibleSection
+        summary: The first visible section in the list view when the event fires.
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: The index of the first visible section in the list view when the event fires.
+        type: Number
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: scrollend
+    summary: Fires when the list view ends scrolling. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire when the list view ends scrolling. Use the `firstVisibleSectionIndex` and 
+        the `firstVisibleItemIndex` to determine the position of the list view.
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
+    properties: 
+      - name: visibleItemCount
+        summary: The number of visible items in the list view when the event fires.
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible.
+        type: Object
+
+      - name: firstVisibleSection
+        summary: The first visible section in the list view when the event fires.
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: The index of the first visible section in the list view when the event fires.
+        type: Number
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
 properties:
 
   - name: allowsSelection
@@ -456,6 +528,15 @@ properties:
         Can be changed dynamically.
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
+
+  - name: dividerHeight
+    summary: height of the ListView divider.
+    description: |
+        Height of the ListView divider, in platform-specific units. If undefined, default native height will be used.
+        Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
+    type: [String, Number]
+    since: "4.1.0"
+    platforms: [android]
 
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
@@ -824,6 +905,7 @@ methods:
   - name: setMarker
     summary: Sets a reference item in the list view.
     description: |
+        This method replace previous reference items with the current one.
         See [marker](Titanium.UI.ListView.marker) event for details. 
     parameters:
       - name: markerProps
@@ -831,6 +913,17 @@ methods:
         type: ListViewMarkerProps
     platforms: [iphone, ipad, android]
     since: 3.2.0
+    
+  - name: addMarker
+    summary: Adds a reference item in the list view.
+    description: |
+        See [marker](Titanium.UI.ListView.marker) event for details. 
+    parameters:
+      - name: markerProps
+        summary: Dictionary to describe the reference item.
+        type: ListViewMarkerProps
+    platforms: [iphone, ipad, android]
+    since: 4.1.0
 
 examples:
   - title: List View Sections
@@ -1308,11 +1401,12 @@ properties:
 
 ---
 name: ListViewMarkerProps
-summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) method.
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
 description: |
-    Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) method. For example:
+    Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
 
         setMarker({sectionIndex:5, itemIndex:10});
+        addMarker({sectionIndex:7, itemIndex: 2});
 since: 3.2.0
 platforms: [iphone, ipad, android]
 

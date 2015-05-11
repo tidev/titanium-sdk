@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+@SuppressWarnings("deprecation")
 @Deprecated
 @Kroll.proxy(parentModule=CalendarModule.class)
 public class ReminderProxy extends KrollProxy {

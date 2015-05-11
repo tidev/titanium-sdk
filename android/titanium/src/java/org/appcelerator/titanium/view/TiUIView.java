@@ -73,6 +73,7 @@ import com.nineoldandroids.view.ViewHelper;
  * This class is for Titanium View implementations, that correspond with TiViewProxy. 
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
+@SuppressWarnings("deprecation")
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {

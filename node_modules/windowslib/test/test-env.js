@@ -16,7 +16,7 @@ describe('env', function () {
 		should(windowslib.env).be.an.Object;
 	});
 
-	it('detect should find dev environment dependencies', function (done) {
+	(process.platform === 'win32' ? it : it.skip)('detect should find dev environment dependencies', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
 

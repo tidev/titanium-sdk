@@ -128,6 +128,7 @@ public class GestureModule extends KrollModule
 	{
 	}
 
+	@SuppressWarnings("deprecation")
 	public void onSensorChanged(SensorEvent event)
 	{
 		long currentEventInShake = System.currentTimeMillis();

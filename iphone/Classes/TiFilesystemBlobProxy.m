@@ -7,6 +7,7 @@
 #import "TiFilesystemBlobProxy.h"
 
 #ifdef USE_TI_FILESYSTEM
+#import "TiBase.h"
 
 #import "TiUtils.h"
 #import "TiBlob.h"

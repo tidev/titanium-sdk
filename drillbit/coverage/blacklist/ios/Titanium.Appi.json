@@ -1,8 +1,0 @@
-{
- "functions": [
-  "createOS",
-  "createOSBackgroundService",
-  "createOSLocalNotification"
- ], 
- "properties": []
-}
