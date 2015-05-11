@@ -29,8 +29,8 @@ public class TiCompass
 	implements SensorEventListener
 {
 	private static final String TAG = "TiCompass";
-	private static final int DECLINATION_CHECK_INTERVAL = 5 * 1000;
-	private static final int STALE_LOCATION_THRESHOLD = 1 * 60 * 1000;
+	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
+	private static final int STALE_LOCATION_THRESHOLD = 10 * 60 * 1000;
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
@@ -53,7 +53,7 @@ public class TiCompass
 	public void registerListener()
 	{
 		updateDeclination();
-		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_FASTEST);
+		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
 	}
 
 	public void unregisterListener()
@@ -70,7 +70,7 @@ public class TiCompass
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
 			long eventTimestamp = event.timestamp / 1000000;
 			
-			if (eventTimestamp - lastEventInUpdate > 100) {
+			if (eventTimestamp - lastEventInUpdate > 250) {
 				long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 				
 				lastEventInUpdate = eventTimestamp;
@@ -202,7 +202,7 @@ public class TiCompass
 			};
 
 			updateDeclination();
-			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_FASTEST);
+			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 		}
 	}
 }
