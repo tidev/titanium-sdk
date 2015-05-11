@@ -115,9 +115,13 @@ static BOOL alertShowing = NO;
         
         cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
         destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
-
+        
         if (cancelIndex >= [buttonNames count]) {
             cancelIndex = -1;
+        }
+        
+        if (destructiveIndex >= [buttonNames count]) {
+            destructiveIndex = -1;
         }
         
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
@@ -130,12 +134,24 @@ static BOOL alertShowing = NO;
                                                                   message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                             preferredStyle:UIAlertControllerStyleAlert] retain];
             int curIndex = 0;
+            
             //Configure the Buttons
             for (id btn in buttonNames) {
                 NSString* btnName = [TiUtils stringValue:btn];
                 if (!IS_NULL_OR_NIL(btnName)) {
+                    
+                    UIAlertActionStyle alertActionStyle;
+                    
+                    if (curIndex == cancelIndex) {
+                        alertActionStyle = UIAlertActionStyleCancel;
+                    } else if (curIndex == destructiveIndex) {
+                        alertActionStyle = UIAlertActionStyleDestructive;
+                    } else {
+                        alertActionStyle  = UIAlertActionStyleDefault;
+                    }
+
                     UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
-                                                                        style:((curIndex == cancelIndex) ? UIAlertActionStyleCancel : (curIndex == destructiveIndex) ? UIAlertActionStyleDestructive :UIAlertActionStyleDefault)
+                                                                        style:alertActionStyle
                                                                       handler:^(UIAlertAction * action){
                                                                                 [self fireClickEventWithAction:action];
                                                                                 }];
