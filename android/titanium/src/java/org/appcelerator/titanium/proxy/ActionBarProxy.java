@@ -254,10 +254,10 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar == null) {
 			return null;
 		}
-		if(actionBar.getSubtitle() instanceof String){
-			return (String) actionBar.getSubtitle();
-		}else{
+		if(actionBar.getSubtitle() instanceof SpannableStringBuilder){
 			return ((SpannableStringBuilder) actionBar.getSubtitle()).toString();
+		}else{
+			return (String) actionBar.getSubtitle();
 		}
 	}
 	
@@ -268,10 +268,10 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar == null) {
 			return null;
 		}
-		if(actionBar.getTitle() instanceof String){
-			return (String) actionBar.getTitle();
-		}else{
+		if(actionBar.getTitle() instanceof SpannableStringBuilder){
 			return ((SpannableStringBuilder) actionBar.getTitle()).toString();
+		}else{
+			return (String) actionBar.getTitle();
 		}
 	}
 	
@@ -347,13 +347,13 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetTitle(String title)
 	{
 		if (actionBar != null) {
-			if(actionBar.getTitle() instanceof String){
-				actionBar.setTitle(title);
-			}else{
+			if(actionBar.getTitle() instanceof SpannableStringBuilder){
 				SpannableStringBuilder ssb = (SpannableStringBuilder) actionBar.getTitle();
 				ssb.clear();
 				ssb.append(title);
 				actionBar.setTitle(ssb);
+			}else{
+				actionBar.setTitle(title);
 			}
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
@@ -364,13 +364,13 @@ public class ActionBarProxy extends KrollProxy
 	{
 		if (actionBar != null) {
 			actionBar.setDisplayShowTitleEnabled(true);
-			if(actionBar.getSubtitle() instanceof String){
-				actionBar.setSubtitle(subTitle);
-			}else{
+			if(actionBar.getSubtitle() instanceof SpannableStringBuilder){
 				SpannableStringBuilder ssb = (SpannableStringBuilder) actionBar.getSubtitle();
 				ssb.clear();
 				ssb.append(subTitle);
 				actionBar.setSubtitle(ssb);
+			}else{
+				actionBar.setSubtitle(subTitle);
 			}
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
