@@ -76,8 +76,8 @@ public class TiCompass implements SensorEventListener
 	// Add a new event listener.
 	public void registerListener()
 	{
-		TiSensorHelper.registerListener(accelerometer, this, SensorManager.SENSOR_DELAY_UI);
-		TiSensorHelper.registerListener(magnetometer, this, SensorManager.SENSOR_DELAY_UI);
+		TiSensorHelper.registerListener(accelerometer, this, SensorManager.SENSOR_DELAY_GAME);
+		TiSensorHelper.registerListener(magnetometer, this, SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	// Remove an event listener.
@@ -268,7 +268,7 @@ public class TiCompass implements SensorEventListener
 		};
 
 		updateDeclination();
-		TiSensorHelper.registerListener(accelerometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
-                TiSensorHelper.registerListener(magnetometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+		TiSensorHelper.registerListener(accelerometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_GAME);
+                TiSensorHelper.registerListener(magnetometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_GAME);
 	}
 }
