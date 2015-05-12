@@ -329,6 +329,11 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 				KrollDict eventArgs = new KrollDict();
 				Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(_firstVisibleItem);
+
+				if (info == null) {
+					return;
+				}
+
 				int visibleItemCount = _visibleItemCount;
 				
 				int itemIndex = info.second.second;
