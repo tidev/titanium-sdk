@@ -186,7 +186,9 @@ properties:
         Note that this property is only available on iOS 8 or above. Setting to -1 disables this option.
     type: Number
     default: -1
-    
+    since: 3.5.0
+    osver: {ios: {min: "8.0"}}
+
   - name: message
     summary: Dialog message.
     type: String
