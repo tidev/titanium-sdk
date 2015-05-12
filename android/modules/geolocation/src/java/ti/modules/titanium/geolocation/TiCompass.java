@@ -25,9 +25,21 @@ import android.location.Location;
 import android.os.SystemClock;
 
 @SuppressWarnings("deprecation")
-public class TiCompass
-	implements SensorEventListener
+public class TiCompass implements SensorEventListener
 {
+	private SensorManager sensorManager;
+	private Sensor accelerometer;
+	private Sensor magnetometer;
+	private boolean hasCompass = true;
+	private float[] lastAccelerometer = new float[3];
+	private float[] lastMagnetometer = new float[3];
+	private boolean lastAccelerometerSet = false;
+	private boolean lastMagnetometerSet = false;
+	private float[] rotationMatrix = new float[9];
+	private float[] orientationMatrix = new float[3];
+	private float currentHeading = 0f;
+	private float previousHeading = 0f;
+
 	private static final String TAG = "TiCompass";
 	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
 	private static final int STALE_LOCATION_THRESHOLD = 10 * 60 * 1000;
@@ -36,61 +48,109 @@ public class TiCompass
 	private TiLocation tiLocation;
 	private Calendar baseTime = Calendar.getInstance();
 	private long sensorTimerStart = SystemClock.uptimeMillis();
-	private long lastEventInUpdate;
-	private float lastHeading = 0.0f;
 	private GeomagneticField geomagneticField;
 	private Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
-	private long lastDeclinationCheck;
+	private long lastDeclinationCheck = 0;
+	private long lastEventInUpdate = 0;
 
-
+	// Initialize the module.
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
 	{
 		this.geolocationModule = geolocationModule;
 		this.tiLocation = tiLocation;
+
+		// Get our sensors.
+		this.sensorManager = TiSensorHelper.getSensorManager();
+		this.accelerometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		this.magnetometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+		// Set our hasCompass flag.
+		if (this.accelerometer == null || this.magnetometer == null) {
+			this.hasCompass = false;
+		} else {
+			this.hasCompass = true;
+		}
 	}
 
+	// Add a new event listener.
 	public void registerListener()
 	{
-		updateDeclination();
-		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
+		TiSensorHelper.registerListener(accelerometer, this, SensorManager.SENSOR_DELAY_UI);
+		TiSensorHelper.registerListener(magnetometer, this, SensorManager.SENSOR_DELAY_UI);
 	}
 
+	// Remove an event listener.
 	public void unregisterListener()
 	{
-		TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+		TiSensorHelper.unregisterListener(accelerometer, this);
+		TiSensorHelper.unregisterListener(magnetometer, this);
 	}
 
+	// Accuracy changed, we don't really care tho.
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
 	}
 
-	public void onSensorChanged(SensorEvent event)
+	// Fire the event once we have both accelerometer and magnetometer values.
+	public void fireHeadingEvent(SensorEvent event, final KrollFunction listener)
 	{
-		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-			long eventTimestamp = event.timestamp / 1000000;
-			
-			if (eventTimestamp - lastEventInUpdate > 250) {
-				long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
-				
-				lastEventInUpdate = eventTimestamp;
+		long eventTimestamp = event.timestamp / 1000000;
+		if (listener == null && eventTimestamp - lastEventInUpdate > 250) {
+			// Get the new heading.
+			SensorManager.getRotationMatrix(rotationMatrix, null, lastAccelerometer, lastMagnetometer);
+			SensorManager.getOrientation(rotationMatrix, orientationMatrix);
+			float azimuthRadians = orientationMatrix[0];
+			float azimuthDegrees = (float)((Math.toDegrees(orientationMatrix[0]) + 360) % 360);
+			currentHeading = azimuthDegrees;
 
-				Object filter = geolocationModule.getProperty(TiC.PROPERTY_HEADING_FILTER);
-				if (filter != null) {
-					float headingFilter = TiConvert.toFloat(filter);
+			// And the event timestamp.
+			long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
+			lastEventInUpdate = eventTimestamp;
 
-					if (Math.abs(event.values[0] - lastHeading) < headingFilter) {
-						return;
-					}
-
-					lastHeading = event.values[0];
+			// Make sure enough of an orientation change has occurred.
+			Object filter = geolocationModule.getProperty(TiC.PROPERTY_HEADING_FILTER);
+			if (filter != null) {
+				float headingFilter = TiConvert.toFloat(filter);
+				if (listener != null && Math.abs(currentHeading - previousHeading) < headingFilter) {
+					return;
 				}
+				previousHeading = currentHeading;
+			}
 
+			// Fire the event.
+			if (listener != null) {
+				listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToHashMap(event, actualTimestamp) });
+			} else {
 				geolocationModule.fireEvent(TiC.EVENT_HEADING, eventToHashMap(event, actualTimestamp));
 			}
+
+			// Reset flags.
+			lastAccelerometerSet = false;
+			lastMagnetometerSet = false;
 		}
 	}
 
+	// Sensor events!
+	public void onSensorChanged(SensorEvent event)
+	{
+		// We need to get accelerometer AND magnetometer values before we can correctly set heading.
+		if (event.sensor == accelerometer) {
+			System.arraycopy(event.values, 0, lastAccelerometer, 0, event.values.length);
+			lastAccelerometerSet = true;
+		} else if (event.sensor == magnetometer) {
+			System.arraycopy(event.values, 0, lastMagnetometer, 0, event.values.length);
+			lastMagnetometerSet = true;
+		} else {
+			return;
+		}
+
+		if (lastAccelerometerSet && lastMagnetometerSet) {
+			fireHeadingEvent(event, null);
+		}
+	}
+
+	// Convert the event data into our object.
 	private Object eventToHashMap(SensorEvent event, long timestamp)
 	{
 		float x = event.values[0];
@@ -103,7 +163,7 @@ public class TiCompass
 		heading.put(TiC.PROPERTY_X, x);
 		heading.put(TiC.PROPERTY_Y, y);
 		heading.put(TiC.PROPERTY_Z, z);
-		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
+		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, currentHeading);
 		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
 
 		if (Log.isDebugModeEnabled()) {
@@ -127,8 +187,7 @@ public class TiCompass
 
 		updateDeclination();
 		if (geomagneticField != null) {
-			float trueHeading = (x + geomagneticField.getDeclination() + 360) % 360;
-
+			float trueHeading = (float)((currentHeading + geomagneticField.getDeclination() + 360) % 360);
 			heading.put(TiC.PROPERTY_TRUE_HEADING, trueHeading);
 		}
 
@@ -138,11 +197,12 @@ public class TiCompass
 		return data;
 	}
 
-    /*
-     * Check whether a fresher location is available and update the GeomagneticField 
-     * that we use for correcting the magnetic heading. If the location is stale,
-     * use it anyway but log a warning.
-     */
+    
+	/*
+	 * Check whether a fresher location is available and update the GeomagneticField 
+	 * that we use for correcting the magnetic heading. If the location is stale,
+	 * use it anyway but log a warning.
+	 */
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();
@@ -167,43 +227,48 @@ public class TiCompass
 		}
 	}
 
+	// Has a compass?
 	public boolean getHasCompass()
 	{
-		boolean compass = false;
-
-		SensorManager sensorManager = TiSensorHelper.getSensorManager();
-		if (sensorManager != null) {
-			compass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null;
-		} else {
-			compass = TiSensorHelper.hasDefaultSensor(geolocationModule.getActivity(), Sensor.TYPE_ORIENTATION);
-		}
-
-		return compass;
+		return this.hasCompass;
 	}
 
+	// Get the heading once.
 	public void getCurrentHeading(final KrollFunction listener)
 	{
-		if(listener != null) {
-			final SensorEventListener oneShotHeadingListener = new SensorEventListener()
-			{
-				public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-				}
-
-				public void onSensorChanged(SensorEvent event) {
-					if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-						long eventTimestamp = event.timestamp / 1000000;
-						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
-
-						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToHashMap(event, actualTimestamp) });
-						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
-					}
-				}
-			};
-
-			updateDeclination();
-			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+		if (listener == null) {
+			Log.w(TAG, "No heading listener specified.");
+			return;
 		}
+
+		final TiCompass oneShotHeadingListener = new TiCompass(this.geolocationModule, this.tiLocation)
+		{
+			public void onAccuracyChanged(Sensor sensor, int accuracy)
+			{
+				// No-op.
+			}
+
+			public void onSensorChanged(SensorEvent event) {
+				// We need to get accelerometer AND magnetometer values before we can correctly set heading.
+				if (event.sensor == accelerometer) {
+					System.arraycopy(event.values, 0, lastAccelerometer, 0, event.values.length);
+					lastAccelerometerSet = true;
+				} else if (event.sensor == magnetometer) {
+					System.arraycopy(event.values, 0, lastMagnetometer, 0, event.values.length);
+					lastMagnetometerSet = true;
+				} else {
+					return;
+				}
+				if (lastAccelerometerSet && lastMagnetometerSet) {
+					fireHeadingEvent(event, listener);
+					TiSensorHelper.unregisterListener(accelerometer, this);
+					TiSensorHelper.unregisterListener(magnetometer, this);
+				}
+			}
+		};
+
+		updateDeclination();
+		TiSensorHelper.registerListener(accelerometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+                TiSensorHelper.registerListener(magnetometer, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 	}
 }
-

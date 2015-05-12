@@ -55,11 +55,34 @@ public class TiSensorHelper
 		}
 	}
 
+	public static void registerListener(Sensor sensor, SensorEventListener listener, int rate)
+	{
+		SensorManager sensorManager = getSensorManager();
+
+		if (sensorManager == null) {
+			Log.w(TAG, "registerListener failed, no sensor manager found.", Log.DEBUG_MODE);
+			return;
+		}
+
+		Log.d(TAG, "Enabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
+		sensorManager.registerListener(listener, sensor, rate);
+	}
+
 	public static void unregisterListener(int[] types, SensorEventListener listener)
 	{
 		for (int type : types) {
 			unregisterListener(type, listener);
 		}
+	}
+
+	public static void unregisterListener(Sensor sensor, SensorEventListener listener)
+	{
+		SensorManager sensorManager = getSensorManager();
+		if (sensorManager == null) {
+			Log.w(TAG, "UnregisterListener failed, no sensor manager found.", Log.DEBUG_MODE);
+		}
+		Log.d(TAG, "Disabling Listener: " + sensor.getName(), Log.DEBUG_MODE);
+		sensorManager.unregisterListener(listener, sensor);
 	}
 
 	/**
