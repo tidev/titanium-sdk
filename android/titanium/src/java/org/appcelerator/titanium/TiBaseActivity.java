@@ -6,6 +6,11 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Stack;
@@ -17,6 +22,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
@@ -24,6 +30,8 @@ import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
+import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -34,6 +42,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -46,13 +55,20 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.ContentResolver;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -418,7 +434,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
@@ -929,6 +944,111 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@Override
 	protected void onNewIntent(Intent intent) 
 	{
+		// When running in singleInstance mode, we should intercept intents sent to the
+		// root activity.  We'll then copy this intent into a dict and fire an app event.
+		if (this instanceof TiLaunchActivity) {
+			Log.d(TAG, "root activity received intent: " + intent.toString());
+			TiApplication tiApp = getTiApp();
+			TiProperties systemProperties = tiApp.getAppProperties();
+			if (systemProperties.getBool("ti.android.root.interceptintent", false) == true) {
+				Log.d(TAG, "ti.android.root.interceptintent = true");
+
+				// Create an application event rather than continuing with this intent.
+				IntentProxy ip = new IntentProxy(intent);
+				KrollDict data = new KrollDict();
+				KrollDict extra = new KrollDict();
+
+				// Copy all of the extras.
+				Bundle extraBundle = intent.getExtras();
+				if (extraBundle != null) {
+					for (String key : extraBundle.keySet()) {
+						Object value = extraBundle.get(key);
+
+						// For EXTRA_STREAM types, copy the stream to a temp file.
+						if (key.equals(Intent.EXTRA_STREAM)) {
+							Uri uri = (Uri)value;
+							ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+							String contentType = intent.getType();
+							String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(contentType, "tmp");
+
+							InputStream input = null;
+							String filename = null;
+							FileOutputStream output = null;
+							String path = null;
+							Bitmap image = null;
+							try {
+								input = contentResolver.openInputStream(uri);
+
+								// Images can be passed with content type of 'image/*', in which case extension is incorrect.
+								boolean png = false;
+								if (contentType.startsWith("image/") && extension.equals("tmp")) {
+									try {
+										image = BitmapFactory.decodeStream(input);
+										if (image.hasAlpha()) {
+											png = true;
+											extension = "png";
+										} else {
+											extension = "jpg";
+										}
+									} catch (Throwable e) {
+										Log.e(TAG, "intercepted intent: error decoding input stream to bitmap: " + e.toString());
+										image = null;
+									}
+								}
+
+								// Copy the stream to a temporary file.
+								File tempFile = File.createTempFile("stream", "." + extension, getApplicationContext().getCacheDir());
+								path = tempFile.getPath();
+								filename = Uri.parse(path).getLastPathSegment();
+								output = new FileOutputStream(tempFile);
+								byte[] buffer = new byte[1024];
+								int bytesRead = 0;
+								if (image != null) {
+									if (png == true) {
+										image.compress(CompressFormat.PNG, 100, output);
+									} else {
+										image.compress(CompressFormat.JPEG, 100, output);
+									}
+								} else {
+									while ((bytesRead = input.read(buffer)) != -1) {
+										output.write(buffer, 0, bytesRead);
+									}
+								}
+								output.flush();
+							} catch (Throwable e) {
+								Log.e(TAG, "intercepted intent: error copying stream to temp file: " + e.toString());
+								extra.put(key, value.toString());
+								continue;
+							} finally {
+								if (output != null) {
+									try { output.close(); } catch (IOException e) {};
+								}
+								if (input != null) {
+									try { input.close(); } catch (IOException e) {};
+								}
+							}
+
+							// Add the blob to our result dict.
+							KrollDict blobDict = new KrollDict();
+							blobDict.put("contentType", contentType);
+							blobDict.put("filename", filename);
+							blobDict.put("path", path);
+							extra.put(key, blobDict);
+						} else {
+							extra.put(key, value.toString());
+						}
+					}
+				}
+
+				// Fire the intent as an application event.
+				data.put("extra", extra);
+				data.put(TiC.PROPERTY_INTENT, ip);
+				tiApp.setRelaunchingFromRootIntent(true);
+				tiApp.fireAppEvent("newintent", data);
+				return;
+			}
+		}
+
 		super.onNewIntent(intent);
 
 		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);

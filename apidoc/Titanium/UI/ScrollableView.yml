@@ -289,6 +289,13 @@ properties:
     default: false
     platforms: [iphone, ipad]
 
+  - name: offscreenPageLimit
+    summary: Sets the number of pages that will be retained to either side of the current page in
+        an idle state.
+    type: Number
+    default: 2
+    platforms: [android]
+
   - name: overScrollMode
     summary: Determines the behavior when the user overscolls the view.
     type: Number

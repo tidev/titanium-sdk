@@ -88,6 +88,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static boolean USE_LEGACY_WINDOW = false;
 
 	private boolean restartPending = false;
+	private boolean relaunchingFromRootIntent = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -289,6 +290,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		Log.d(TAG, "activity stack is empty, unable to get current activity", Log.DEBUG_MODE);
 		return null;
+	}
+
+	/**
+	 * @return first non-launch activity if it exists, otherwise returns null.
+	 */
+	public Activity getFirstNonLaunchActivity()
+	{
+		Activity currentActivity = null;
+		if (activityStack == null || activityStack.size() == 0) {
+			for (WeakReference<Activity> activityRef : activityStack) {
+				currentActivity = activityRef.get();
+				if (currentActivity == null || currentActivity.isFinishing() || (currentActivity instanceof TiLaunchActivity)) {
+					continue;
+				}
+				return currentActivity;
+			}
+		}
+                return null;
 	}
 
 	/**
@@ -740,6 +759,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isRestartPending()
 	{
 		return restartPending;
+	}
+
+	public boolean isRelaunchingFromRootIntent()
+	{
+		return relaunchingFromRootIntent;
+	}
+
+	public void setRelaunchingFromRootIntent(boolean newValue)
+	{
+		relaunchingFromRootIntent = newValue;
 	}
 
 	public TiTempFileHelper getTempFileHelper()

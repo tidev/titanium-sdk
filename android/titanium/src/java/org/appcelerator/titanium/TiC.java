@@ -1749,6 +1749,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_OFFSCREEN_PAGE_LIMIT = "offscreenPageLimit";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_OK = "ok";
 
 	/**
