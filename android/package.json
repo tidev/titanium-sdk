@@ -20,7 +20,7 @@
 	],
 	"minSDKVersion": "14",
 	"vendorDependencies": {
-		"android sdk": ">=14 <=22",
+		"android sdk": ">=21 <=22",
 		"android build tools": ">=17 <22.x",
 		"android platform tools": ">=17 <=22.x",
 		"android tools": "<=24.1.2",
