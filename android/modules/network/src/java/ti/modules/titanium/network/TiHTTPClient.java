@@ -791,8 +791,23 @@ public class TiHTTPClient
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState <= READY_STATE_OPENED) {
-			headers.put(header, value);
-
+			if (value == null) {
+				// If value is null, remove header
+				headers.remove(header);
+			} else {		
+				if (headers.containsKey(header)){
+					// Appends a value to a header
+					// If it is a cookie, use ';'. If not, use ','.
+					String seperator = ("Cookie".equalsIgnoreCase(header))? "; " : ", ";
+					StringBuffer val = new StringBuffer(headers.get(header));
+					val.append(seperator+value);
+					headers.put(header, val.toString());
+				} else {
+					// Set header for the first time
+					headers.put(header, value);
+				}
+			}
+			
 		} else {
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
 		}
