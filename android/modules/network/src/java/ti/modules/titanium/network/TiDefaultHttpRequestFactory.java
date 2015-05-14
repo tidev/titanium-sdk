@@ -28,11 +28,12 @@ public class TiDefaultHttpRequestFactory extends DefaultHttpRequestFactory {
 	public HttpRequest newHttpRequest(final RequestLine requestline)
 			throws MethodNotSupportedException {
 
-		String method = requestline.getMethod();
-
 		if (requestline == null) {
 			throw new IllegalArgumentException("Request line may not be null");
 		}
+		
+		String method = requestline.getMethod();
+
 
 		if (PATCH_METHOD.equalsIgnoreCase(method)){
 			return new BasicHttpEntityEnclosingRequest(requestline);
