@@ -297,6 +297,11 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
+    		if (d.containsKey("cacheSize")) {
+        		int cacheSize = TiConvert.toInt(d.get("cacheSize"));
+        		mPager.setOffscreenPageLimit(cacheSize);
+    		}
+    		
 		super.processProperties(d);
 
 	}

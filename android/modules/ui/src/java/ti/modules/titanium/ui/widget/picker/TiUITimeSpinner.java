@@ -216,7 +216,7 @@ public class TiUITimeSpinner extends TiUIView
 			} else {
 				// Reject it
 				Log.w(TAG, "Ignoring illegal minuteInterval value: " + interval);
-				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue, false);
+				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue);
 			}
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			setFontProperties();

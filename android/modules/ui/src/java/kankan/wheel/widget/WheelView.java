@@ -51,6 +51,7 @@ import android.view.View;
  * 
  * @author Yuri Kanivets
  */
+@SuppressWarnings("deprecation")
 public class WheelView extends View {
 	private static final int NOVAL = -1;
 

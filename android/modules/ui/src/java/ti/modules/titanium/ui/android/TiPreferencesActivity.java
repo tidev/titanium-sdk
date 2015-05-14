@@ -13,6 +13,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+@SuppressWarnings("deprecation")
 public class TiPreferencesActivity extends PreferenceActivity 
 {
 	private static final String TAG = "TiPreferencesActivity";

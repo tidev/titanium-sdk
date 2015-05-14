@@ -230,6 +230,7 @@ public class TiFile extends TiBaseFile
 		return file.length();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public double spaceAvailable()
 	{

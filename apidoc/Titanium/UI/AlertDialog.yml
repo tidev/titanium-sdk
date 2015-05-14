@@ -178,7 +178,17 @@ properties:
         On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
-    
+
+  - name: destructive
+    summary: Index to define the destructive button.
+    platforms: [iphone, ipad]
+    description: |
+        Note that this property is only available on iOS 8 or above. Setting to -1 disables this option.
+    type: Number
+    default: -1
+    since: 3.5.0
+    osver: {ios: {min: "8.0"}}
+
   - name: message
     summary: Dialog message.
     type: String
@@ -196,7 +206,7 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
         your dialog layout if more than two buttons used. All styles can handle up to two
         buttons comfortably, except for default style can handle up to six buttons when `title`
-        and `message` is empty or not given. Note that this property available on 
+        and `message` is empty or not given. Note that this property is only available on
         iOS SDK 5 or above. 
     type: Number
     default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>

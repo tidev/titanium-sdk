@@ -26,6 +26,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 
+@SuppressWarnings("deprecation")
 public class TiJSIntervalService extends TiJSService
 {
 	private static final String TAG = "TiJSIntervalService";
