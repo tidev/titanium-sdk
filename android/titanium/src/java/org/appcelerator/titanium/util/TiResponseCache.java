@@ -338,6 +338,11 @@ public class TiResponseCache extends ResponseCache
 			if (keyval.length < 2) {
 				continue;
 			}
+			// restore status line key that was stored in makeLowerCaseHeaders()
+			if ("Null".equals(keyval[0])) {
+				keyval[0] = null;
+			}
+
 			if (!headers.containsKey(keyval[0])) {
 				headers.put(keyval[0], new ArrayList<String>());
 			}
@@ -377,6 +382,9 @@ public class TiResponseCache extends ResponseCache
 		for (String key : origHeaders.keySet()) {
 			if (key != null) {
 				headers.put(key.toLowerCase(), origHeaders.get(key));
+			} else {
+				//status line has null key
+				headers.put("Null", origHeaders.get(key));
 			}
 		}
 		return headers;
