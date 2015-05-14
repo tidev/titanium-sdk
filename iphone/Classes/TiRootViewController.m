@@ -529,14 +529,14 @@
     
 	UIView * focusedToolbar = [self keyboardAccessoryViewForProxy:keyboardFocusedProxy withView:&scrolledView];
     
-    CGRect focusedToolbarBounds;
-    //special case for undocked split keyboard
-    if (CGRectEqualToRect(CGRectZero, endingFrame)) {
-        focusedToolbarBounds = CGRectMake(0, 0, targetedFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
-    }
-    else {
-        focusedToolbarBounds = CGRectMake(0, 0, endingFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
-    }
+    	CGRect focusedToolbarBounds;
+    	//special case for undocked split keyboard
+    	if (CGRectEqualToRect(CGRectZero, endingFrame)) {
+        	focusedToolbarBounds = CGRectMake(0, 0, targetedFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
+    	}
+    	else {
+        	focusedToolbarBounds = CGRectMake(0, 0, endingFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
+    	}
 	[focusedToolbar setBounds:focusedToolbarBounds];
     
     CGFloat keyboardHeight = endingFrame.origin.y;
