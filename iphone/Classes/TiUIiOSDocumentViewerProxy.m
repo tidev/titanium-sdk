@@ -51,7 +51,7 @@
 	TiViewProxy* view = [args objectForKey:@"view"];
 	if (view!=nil)
 	{
-		if ([view supportsNavBarPositioning])
+		if ([view supportsNavBarPositioning] && [view isUsingBarButtonItem])
 		{
 			UIBarButtonItem *item = [view barButtonItem];
 			[[self controller] presentOptionsMenuFromBarButtonItem:item animated:animated];
@@ -122,8 +122,7 @@
 
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
 {
-	UIViewController *ac = [[TiApp app] controller];
-	return ac;
+    return [[TiApp controller] topPresentedController];
 }
  
 /*
