@@ -2658,7 +2658,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 			// encrypt the javascript
 			var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-					this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+					this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan));
 					appc.subprocess.run(exe, args, opts, function (code, out, err) {
 						if (code) {
 							return done({
