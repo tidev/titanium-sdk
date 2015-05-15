@@ -191,7 +191,7 @@ methods:
     summary: Opens the request and prepares the connection.
     parameters:
       - name: method
-        summary: HTTP method for this request, such as 'GET' or 'POST'.
+        summary: HTTP method for this request, such as 'GET' or 'POST'. 'PATCH' is available on Android from SDK 4.1.0.
         type: String
 
       - name: url
@@ -326,7 +326,7 @@ properties:
     permission: read-only
 
   - name: connectionType
-    summary: Connection type, normally either `GET` or `POST`.
+    summary: Connection type, normally either `GET`, `POST` or `PATCH`.
     type: String
     permission: read-only
 
