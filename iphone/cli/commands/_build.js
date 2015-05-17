@@ -1540,7 +1540,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
 	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
 
-	//This is default behavior for now. Move this to true in phase 2. 
+	//This is default behavior for now. Move this to true in phase 2.
 	//Remove this logic when we have debugging/profiling support with JSCore framework
 	//TIMOB-17892
 	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
@@ -1975,7 +1975,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 	}
 
 	// if the user has a Info.plist in their project directory, consider that a custom override
-	var custom; 
+	var custom;
 	if (fs.existsSync(src)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 
@@ -3646,7 +3646,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 						var tries = 0,
 							completed = false;
 
-						this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+						this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
 						jsFilesToEncrypt.forEach(function (file) {
 							this.logger.debug(__('Preparing %s', file.cyan));
 						}, this);
@@ -3778,7 +3778,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 				dest,
 				fs.readFileSync(path.join(this.platformPath, 'Classes', 'defines.h')).toString() + '\n#define USE_JSCORE_FRAMEWORK'
 			);
-		} 
+		}
 		// END TIMOB-17892 changes
 		return finished();
 	}

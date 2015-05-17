@@ -295,7 +295,7 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 				jsFilesToEncrypt = opts.jsFiles,
 				placeHolderName = opts.placeHolder;
 
-			this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+			this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
 			jsFilesToEncrypt.forEach(function (file) {
 				this.logger.debug(__('Preparing %s', file.cyan));
 			}, this);
