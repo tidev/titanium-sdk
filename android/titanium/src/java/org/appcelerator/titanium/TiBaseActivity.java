@@ -695,7 +695,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		
 		// Override default Android behavior for "back" press
 		// if the top window has a callback to handle the event.
-		if (topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
+		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 			
