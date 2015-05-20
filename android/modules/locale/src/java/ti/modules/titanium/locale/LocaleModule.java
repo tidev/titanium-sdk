@@ -16,6 +16,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.telephony.PhoneNumberUtils;
 
 @Kroll.module
