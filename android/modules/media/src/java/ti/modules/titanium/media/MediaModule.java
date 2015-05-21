@@ -370,7 +370,7 @@ public class MediaModule extends KrollModule
 			} else {
 				try {
 					String mimetype = theBlob.getMimeType();
-					extension = TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
+					extension = '.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
 				} catch(Throwable t) {
 					extension = null;
 				}
