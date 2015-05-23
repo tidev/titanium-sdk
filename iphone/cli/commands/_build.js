@@ -109,6 +109,8 @@ function iOSBuilder() {
 
 	// cache of provisioning profiles
 	this.provisioningProfileLookup = {};
+
+	this.builtExtensions = [];
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -433,7 +435,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'watch-notification-payload': this.configOptionWatchNotificationPayload()
 					}
 				});
-			})(function (err, result) {
+			}.bind(this))(function (err, result) {
 				done(_t.conf = result);
 			});
 		}.bind(this)); // end of ioslib.detect()
@@ -581,7 +583,7 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 			if (cli.argv['build-only']) {
 				// not required if we're build only
 				return callback();
-			} else if (cli.argv['device-id'] === undefined && config.get('ios.autoSelectDevice', true)) {
+			} else if (cli.argv['device-id'] === undefined && _t.config.get('ios.autoSelectDevice', true)) {
 				// --device-id not specified and we're not prompting, so pick a device
 
 				if (cli.argv.target === 'device') {
@@ -650,7 +652,8 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
  * @returns {Object}
  */
 iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperName(order) {
-	var iosInfo = this.iosInfo,
+	var cli = this.cli,
+		iosInfo = this.iosInfo,
 		developerCertLookup = {};
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
@@ -739,7 +742,8 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
  * @returns {Object}
  */
 iOSBuilder.prototype.configOptionDistributionName = function configOptionDistributionName(order) {
-	var iosInfo = this.iosInfo,
+	var cli = this.cli,
+		iosInfo = this.iosInfo,
 		distributionCertLookup = {};
 
 	Object.keys(iosInfo.certs.keychains).forEach(function (keychain) {
@@ -1364,6 +1368,28 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}, this);
 	}
 
+	// if there are any extensions, validate them
+	if (this.tiapp.ios && this.tiapp.ios.extensions) {
+		this.tiapp.ios.extensions.forEach(function (ext) {
+			if (!ext.projectPath) {
+				logger.error(__('Extensions must have a "projectPath" attribute that points to a folder containing an Xcode project') + '\n');
+				process.exit(1);
+			}
+
+			ext.projectPath = appc.fs.resolvePath(ext.projectPath);
+
+			if (!fs.existsSync(ext.projectPath)) {
+				logger.error(__('Extension project path "%s" does not exist', ext.projectPath) + '\n');
+				process.exit(1);
+			}
+
+			if (!ext.target) {
+				logger.error(__('Extension with project path "%s" does not have a target as its value', ext.projectPath) + '\n');
+				process.exit(1);
+			}
+		}.bind(this));
+	}
+
 	// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
 	if (fs.existsSync(resourcesDir)) {
@@ -1643,14 +1669,12 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'updateXCConfig',
 		'createInfoPlist',
 		'createEntitlementsPlist',
-		'injectModulesIntoXcodeProject',
+		'invokeXcodeBuildOnExtensionDependencies', // this must be done before we inject the extensions into the Xcode project
+		'injectModulesAndExtensionsIntoXcodeProject',
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
 		'copyItunesArtwork',
 		'copyGraphics',
-		'validateExtentions',
-		'invokeXcodeBuildOnExtensionDependencies',
-		'injectExtensionsIntoXcodeProject',
 
 		function (next) {
 			// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
@@ -1755,8 +1779,9 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.forceCleanBuild = false;
 	this.forceRebuild = false;
 
-	this.buildAssetsDir    = path.join(this.buildDir, 'assets');
-	this.buildManifestFile = path.join(this.buildDir, 'build-manifest.json');
+	this.buildAssetsDir     = path.join(this.buildDir, 'assets');
+	this.buildManifestFile  = path.join(this.buildDir, 'build-manifest.json');
+	this.buildExtensionsDir = path.join(this.buildDir, 'extensions');
 
 	// make sure we have an icon
 	if (!this.tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) {
@@ -2786,21 +2811,17 @@ iOSBuilder.prototype.copyLocalizedSplashScreens = function copyLocalizedSplashSc
 	next();
 };
 
-iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoXcodeProject(next) {
-	if (!this.nativeLibModules.length) {
-		return next();
+iOSBuilder.prototype.injectModulesAndExtensionsIntoXcodeProject = function injectModulesAndExtensionsIntoXcodeProject(next) {
+	function makeUUID() {
+		return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
 	}
 
 	var projectFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
 		projectOrigContents = fs.readFileSync(projectFile).toString(),
-		projectContents = projectOrigContents;
-		targetLibs = [];
+		projectContents = projectOrigContents,
+		tabs = '\t\t\t\t'; // tabs aren't necessary, just makes it pretty
 
-	this.nativeLibModules.forEach(function (lib) {
-		projectContents.indexOf(lib.libName) === -1 && targetLibs.push(lib);
-	}, this);
-
-	if (targetLibs.length) {
+	if (this.nativeLibModules.length) {
 		// we have some libraries to add to the project file
 		this.logger.info(__('Injecting native libraries into Xcode project file'));
 
@@ -2810,10 +2831,6 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 			frameworkMarkers = [],
 			groupMarkers = [],
 			groupUUID;
-
-		function makeUUID() {
-			return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
-		}
 
 		projectContents.split('\n').forEach(function (line) {
 			line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
@@ -2830,7 +2847,11 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 			}
 		});
 
-		targetLibs.forEach(function (lib) {
+		this.nativeLibModules.forEach(function (lib) {
+			if (projectContents.indexOf(lib.libName) !== -1) {
+				return;
+			}
+
 			var newGroupUUID = makeUUID();
 
 			fileMarkers.forEach(function (marker) {
@@ -2892,37 +2913,18 @@ iOSBuilder.prototype.injectModulesIntoXcodeProject = function injectModulesIntoX
 				}
 			}('"\\"$(SRCROOT)/lib\\"",'));
 		}, this);
-
-		if (projectContents !== projectOrigContents) {
-			this.logger.debug(__('Writing %s', projectFile.cyan));
-			fs.writeFileSync(projectFile, projectContents);
-		}
 	}
 
-	next();
-};
-
-iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtensionsIntoXcodeProject(next) {
-	if (!this.builtExtensions.length) {
-		return next();
-	}
-
-	var projectFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
-		projectOrigContents = fs.readFileSync(projectFile).toString(),
-		projectContents = projectOrigContents;
-		targetExts = [],
-		tabs = '\t\t\t\t'; // Tabs aren't necessary, just makes it pretty
-
-	this.builtExtensions.forEach(function (ext) {
-		projectContents.indexOf(ext.extensionName) === -1 && targetExts.push(ext);
-	}, this);
-
-	if (targetExts.length) {
-		// we have some extensions to add to the project file
+	if (this.builtExtensions.length) {
 		this.logger.info(__('Injecting native extensions into Xcode project file'));
 
-		targetExts.forEach(function (ext) {
-			// Find locations
+		this.builtExtensions.forEach(function (ext) {
+			// if the Xcode project already has the extension, then bail
+			if (projectContents.indexOf(ext.extensionName) !== -1) {
+				return;
+			}
+
+			// find locations
 			var fileMarkers = [],
 				refMarkers = [],
 				groupMarkers = [],
@@ -2930,10 +2932,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 				groupUUID,
 				newGroupUUID = makeUUID(),
 				fileIndex = -1;
-
-			function makeUUID() {
-				return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
-			}
 
 			projectContents.split('\n').forEach(function (line) {
 				line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
@@ -2950,20 +2948,23 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 
 			fileMarkers.forEach(function (marker) {
 				var m = marker.match(/([0-9a-zA-Z]+) \/\*/);
-				if (m) {
-					!groupUUID && (m = marker.match(/fileRef \= ([0-9a-zA-Z]+) /)) && (groupUUID = m[1]);
+				if (m && !groupUUID) {
+					m = marker.match(/fileRef \= ([0-9a-zA-Z]+) /);
+					if (m) {
+						groupUUID = m[1];
+					}
 				}
 			});
 
-			// Inject files
+			// inject files
 			fileMarkers.forEach(function (marker) {
 				fileIndex++;
 				if (fileIndex >= copyFilesBuildPhaseMarkers.length) {
-					this.logger.error('Error injecting extension into Xcode project (BuildPhase markers not found or invalid)');
+					this.logger.error(__('Error injecting extension into Xcode project (BuildPhase markers not found or invalid)') + '\n');
 					process.exit(1);
 				}
 
-				// Add file references for the extension in Resources
+				// add file references for the extension in Resources
 				var begin = projectContents.indexOf(marker),
 					end = begin + marker.length,
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
@@ -2976,7 +2977,7 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
 				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
 
-				// Add file references for the extension in Embed App Extensions Build Phase
+				// add file references for the extension in Embed App Extensions Build Phase
 				var begin = projectContents.indexOf(marker),
 					end = begin + marker.length,
 					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
@@ -2992,7 +2993,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 
 				var buildMarker = copyFilesBuildPhaseMarkers[fileIndex];
 				addFileToBuildPhase(buildMarker, newUUID, 'Embed App Extensions');
-
 			}, this);
 
 			function addFileToBuildPhase(marker, uuid, inWhere) {
@@ -3027,7 +3027,6 @@ iOSBuilder.prototype.injectExtensionsIntoXcodeProject = function injectExtension
 						.replace(/children = \(/g, 'children = (\n' + tabs + newGroupUUID + ' /* ' + ext.extensionName + ' */,');
 				projectContents = projectContents.substring(0, begin) + line + '\n' + projectContents.substring(end + 1);
 			});
-
 		}, this);
 	}
 
@@ -3172,85 +3171,107 @@ iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
 	}.bind(this));
 };
 
-iOSBuilder.prototype.validateExtentions = function validateExtentions(next) {
-	this.extensionsToBuild = [];
-	this.builtExtensions = [];
-
-	if (this.tiapp.extensions) {
-		this.tiapp.extensions.forEach(function (ext) {
-			if (!ext.projectPath) {
-				this.logger.error(__('Extensions must have a "projectPath" attribute that points to a folder containing an Xcode project'));
-				process.exit(1);
-			}
-
-			if (!fs.existsSync(appc.fs.resolvePath(ext.projectPath))) {
-				this.logger.error(__('Extension projectPath %s location does not exist', ext.projectPath.cyan));
-				process.exit(1);
-			}
-
-			if (!ext.target) {
-				this.logger.error(__('Extension with projectPath %s does not have a target as its value', ext.projectPath.cyan));
-				process.exit(1);
-			}
-
-			this.extensionsToBuild.push(ext);
-		}.bind(this));
+iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXcodeBuildOnExtensionDependencies(finished) {
+	if (!this.tiapp.ios || !this.tiapp.ios.extensions || !this.tiapp.ios.extensions.length) {
+		return finished();
 	}
-	next();
-};
 
-iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXcodeBuildOnExtensionDependencies(next) {
-	if (!this.extensionsToBuild.length) {
-		return next();
-	}
+	this.logger.info(__('Copying extension files'));
+
+	fs.existsSync(this.buildExtensionsDir) || wrench.mkdirSyncRecursive(this.buildExtensionsDir);
+
+	var symlinkFiles = this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll,
+		_t = this;
+
+	this.tiapp.ios.extensions.forEach(function (extension) {
+		var dest = path.join(_t.buildExtensionsDir, path.basename(extension.projectPath));
+		(function walk(src, dest, ignore) {
+			fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
+			fs.readdirSync(src).forEach(function (name) {
+				if (ignore && ignore.test(name)) return;
+
+				var from = path.join(src, name),
+					to = path.join(dest, name);
+
+				if (!fs.existsSync(from)) return; // fail if broken link
+
+				if (fs.statSync(from).isDirectory()) {
+					walk(from, to);
+				} else {
+					if (name === 'Info.plist') {
+						fs.existsSync(to) && fs.unlinkSync(to);
+						var infoPlist = new appc.plist(from);
+						if (infoPlist.WKWatchKitApp) {
+							if (infoPlist.CFBundleIdentifier.indexOf(_t.tiapp.id) !== 0) {
+								// oh no!
+								_t.logger.error(__('WatchKit App bundle identifier is "%s", but must be prefixed with "%s"', infoPlist.CFBundleIdentifier, _t.tiapp.id) + '\n');
+								process.exit(1);
+							}
+
+							infoPlist.WKCompanionAppBundleIdentifier = _t.tiapp.id;
+
+							if (infoPlist.CFBundleShortVersionString !== _t.infoPlist.CFBundleShortVersionString) {
+								_t.logger.warn(__('WatchKit App\'s CFBundleShortVersionString "%s" does not match the app\'s CFBundleShortVersionString "%s".', infoPlist.CFBundleShortVersionString, _t.infoPlist.CFBundleShortVersionString));
+								_t.logger.warn(__('Setting the WatchKit App\'s CFBundleShortVersionString to "%s"', _t.infoPlist.CFBundleShortVersionString));
+								infoPlist.CFBundleShortVersionString = _t.infoPlist.CFBundleShortVersionString;
+							}
+
+							if (infoPlist.CFBundleVersion !== _t.infoPlist.CFBundleVersion) {
+								_t.logger.warn(__('WatchKit App\'s CFBundleVersion "%s" does not match the app\'s CFBundleVersion "%s".', infoPlist.CFBundleVersion, _t.infoPlist.CFBundleVersion));
+								_t.logger.warn(__('Setting the WatchKit App\'s CFBundleVersion to "%s"', _t.infoPlist.CFBundleVersion));
+								infoPlist.CFBundleVersion = _t.infoPlist.CFBundleVersion;
+							}
+						}
+						infoPlist.save(to);
+					} else if (symlinkFiles) {
+						fs.existsSync(to) && fs.unlinkSync(to);
+						_t.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
+						fs.symlinkSync(from, to);
+					} else {
+						_t.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+						fs.writeFileSync(to, fs.readFileSync(from));
+					}
+				}
+			});
+		}(extension.projectPath, dest, /^build$/));
+		extension.projectPath = dest;
+	});
+
 	this.logger.info(__('Invoking xcodebuild on extension dependencies'));
 
-	var projectsToBuild = this.extensionsToBuild,
-		buildIndex = 0;
-
-	var buildNextProject = function buildNextProject() {
-		if (projectsToBuild.length <= buildIndex) {
-			return next();
-		}
-
-		var tiProjectDir = process.cwd(),
-			proj = projectsToBuild[buildIndex++],
-			projectAbsolutePath = appc.fs.resolvePath(proj.projectPath),
-			xcodeBuildDirectory = path.join(projectAbsolutePath,'build');
-
-		process.chdir(projectAbsolutePath);
-
-		var xcodeArgs = [
-			'-target', proj.target,
-			'-configuration', this.xcodeTarget,
-			'-sdk', this.xcodeTargetOS,
-			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'ONLY_ACTIVE_ARCH=NO',
-			'DEAD_CODE_STRIPPING=YES'
-		],
-		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
-
+	async.eachSeries(this.tiapp.ios.extensions, function (extension, next) {
+		var gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
 		if (this.target === 'simulator') {
-			gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 			gccDefs.push('DEBUG=1');
 			gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 		}
 
-		if (/simulator|device|dist\-adhoc/.test(this.target)) {
-			this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
-		}
-
-		xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
+		var xcodeArgs = [
+			'-target', extension.target,
+			'-configuration', this.xcodeTarget,
+			'-sdk', this.xcodeTargetOS,
+			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
+			'ONLY_ACTIVE_ARCH=NO',
+			'DEAD_CODE_STRIPPING=YES',
+			'GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' ')
+		];
 
 		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 			xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
 			if (this.keychain) {
 				xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
 			}
+
+			// TODO: if watch
+			/*
+			xcodeArgs.push(
+				'PROVISIONING_PROFILE_APP=' + foo,
+				'PROVISIONING_PROFILE_EXTENSION=' + bar
+			);
+			*/
 		}
 
 		var keychains = this.iosInfo.certs.keychains;
-
 		if (this.target === 'device') {
 			Object.keys(keychains).some(function (keychain) {
 				return (keychains[keychain].developer || []).some(function (d) {
@@ -3260,9 +3281,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 					}
 				}, this);
 			}, this);
-		}
-
-		if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+		} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
 			Object.keys(keychains).some(function (keychain) {
 				return (keychains[keychain].developer || []).some(function (d) {
 					if (!d.invalid && d.name === this.certDistributionName) {
@@ -3273,8 +3292,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 			}, this);
 		}
 
-		var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
-
+		var hook = this.cli.createHook('build.ios.extension.xcodebuild', this, function (exe, args, opts, done) {
 			var p = spawn(exe, args, opts),
 				out = [],
 				err = [],
@@ -3344,42 +3362,34 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 					process.exit(1);
 				}
 
-				// end of the line
-				done(code);
+				done();
 			}.bind(this));
 		});
 
-		this.logger.info(__('Building target: %s at: %s', proj.target.cyan, process.cwd().cyan));
+		this.logger.info(__('Building target %s (%s)', extension.target.cyan, extension.projectPath.cyan));
 
-		xcodebuildHook(
+		hook(
 			this.xcodeEnv.executables.xcodebuild,
 			xcodeArgs,
 			{
-				cwd: proj.projec,
-				env: {
-					DEVELOPER_DIR: this.xcodeEnv.path,
-					TMPDIR: process.env.TMPDIR,
-					HOME: process.env.HOME,
-					PATH: process.env.PATH,
-					TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/',
-					TITANIUM_CLI_IMAGES_OPTIMIZED: this.target === 'simulator' ? '' : this.imagesOptimizedFile
-				}
+				cwd: extension.projectPath,
+				env: appc.util.mix({}, process.env, {
+					'DEVELOPER_DIR': this.xcodeEnv.path
+				})
 			},
-			function() {
-				var productPath = path.join(xcodeBuildDirectory, this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
-					productFileName = proj.target + '.appex';
+			function () {
+				var productPath = path.join(extension.projectPath, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
+					productFileName = extension.target + '.appex';
+
 				this.builtExtensions.push({
 					extensionName: productFileName,
 					extensionFile: path.join(productPath, productFileName)
 				});
 
-				process.chdir(tiProjectDir);
-				buildNextProject.call(this);
+				next();
 			}.bind(this)
 		);
-	};
-
-	buildNextProject.call(this);
+	}.bind(this), finished);
 };
 
 iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
