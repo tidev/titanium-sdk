@@ -234,9 +234,10 @@ examples:
             button.addEventListener('click', function(){
               var t1 = Ti.UI.create2DMatrix();
               t1 = t1.translate(0, 300);
-              var a1 = Ti.UI.createAnimation();
-              a1.transform = t1;
-              a1.duration = 800;
+              var a1 = Ti.UI.createAnimation({
+                  transform: t1,
+                  duration: 800
+              });
               label.animate(a1);
             });
             win.open();
