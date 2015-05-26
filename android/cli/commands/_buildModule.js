@@ -989,7 +989,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 
 	titaniumPrepHook(
 		path.join(this.platformPath, titaniumPrep),
-		args,
+		args.slice(0),
 		opts,
 		function (err) {
 			if (!err) {
