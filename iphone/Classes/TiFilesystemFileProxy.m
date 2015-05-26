@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -151,6 +151,37 @@ FILENOOP(setHidden:(id)x);
 	NSDictionary * resultDict = [fm attributesOfFileSystemForPath:path error:&error];
 	if (error!=nil) return NUMBOOL(NO);
 	return [resultDict objectForKey:NSFileSystemFreeSize];
+}
+
+-(id)getProtectionKey:(id)args
+{
+	NSError *error = nil;
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+	if (error!=nil) return NUMBOOL(NO);
+	NSString *obj = [resultDict objectForKey:NSFileProtectionKey];
+	if (obj != nil) {
+		if ([obj isEqualToString:NSFileProtectionNone]) {
+			return @"IOS_FILE_PROTECTION_NONE";
+		}
+		if ([obj isEqualToString:NSFileProtectionComplete]) {
+			return @"IOS_FILE_PROTECTION_COMPLETE";
+		}
+		if ([obj isEqualToString:NSFileProtectionCompleteUnlessOpen]) {
+			return @"IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN";
+		}
+		if ([obj isEqualToString:NSFileProtectionCompleteUntilFirstUserAuthentication]) {
+			return @"IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION";
+		}
+	}
+}
+
+-(id)setProtectionKey:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSString);
+	NSError *error = nil;
+	BOOL result = [fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
+	if (error!=nil) return NUMBOOL(NO);
+	return NUMBOOL(YES);
 }
 
 -(id)createDirectory:(id)args
