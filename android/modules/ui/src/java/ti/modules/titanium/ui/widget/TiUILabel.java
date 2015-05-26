@@ -172,9 +172,9 @@ public class TiUILabel extends TiUIView
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT), TextView.BufferType.SPANNABLE);
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
