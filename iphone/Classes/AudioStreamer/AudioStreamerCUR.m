@@ -336,9 +336,8 @@ static void ASReadStreamCallBackCUR
 			stopReason = AS_STOPPING_ERROR;
 			AudioQueueStop(audioQueue, true);
 		}
-
-		[self presentAlertWithTitle:NSLocalizedStringFromTable(@"File Error", @"Errors", nil)
-							message:NSLocalizedStringFromTable(@"Unable to configure network read stream.", @"Errors", nil)];
+		
+		[delegate errorReceived:self];
 	}
 }
 
@@ -527,8 +526,7 @@ static void ASReadStreamCallBackCUR
 										kCFStreamPropertyHTTPShouldAutoredirect,
 										kCFBooleanTrue) == false)
 			{
-				[self presentAlertWithTitle:NSLocalizedStringFromTable(@"File Error", @"Errors", nil)
-									message:NSLocalizedStringFromTable(@"Unable to configure network read stream.", @"Errors", nil)];
+				[self failWithErrorCode:AS_FILE_STREAM_GET_PROPERTY_FAILED];
 				return NO;
 			}
 			
@@ -576,8 +574,7 @@ static void ASReadStreamCallBackCUR
 		if (!CFReadStreamOpen(stream))
 		{
 			CFRelease(stream);
-			[self presentAlertWithTitle:NSLocalizedStringFromTable(@"File Error", @"Errors", nil)
-								message:NSLocalizedStringFromTable(@"Unable to configure network read stream.", @"Errors", nil)];
+			[self failWithErrorCode:AS_FILE_STREAM_OPEN_FAILED];
 			return NO;
 		}
 		
