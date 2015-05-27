@@ -1,5 +1,5 @@
 name: Modules.Cloud.Places
-summary: Provides methods for accessing Arrow DB places.
+summary: Provides methods for accessing ArrowDB places.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
