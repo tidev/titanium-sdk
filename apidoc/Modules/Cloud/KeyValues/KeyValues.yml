@@ -1,5 +1,5 @@
 name: Modules.Cloud.KeyValues
-summary: Provides methods for accessing Arrow DB Key-Values storage.
+summary: Provides methods for accessing ArrowDB Key-Values storage.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
