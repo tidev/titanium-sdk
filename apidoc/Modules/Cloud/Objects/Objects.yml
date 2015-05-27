@@ -1,5 +1,5 @@
 name: Modules.Cloud.Objects
-summary: Provides methods for accessing Arrow DB custom objects.
+summary: Provides methods for accessing ArrowDB custom objects.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
