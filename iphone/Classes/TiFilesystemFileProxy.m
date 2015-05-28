@@ -153,34 +153,26 @@ FILENOOP(setHidden:(id)x);
 	return [resultDict objectForKey:NSFileSystemFreeSize];
 }
 
--(id)getProtectionKey:(id)args
+-(NSString *)getProtectionKey:(id)args
 {
 	NSError *error = nil;
 	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
-	if (error!=nil) return NUMBOOL(NO);
-	NSString *obj = [resultDict objectForKey:NSFileProtectionKey];
-	if (obj != nil) {
-		if ([obj isEqualToString:NSFileProtectionNone]) {
-			return @"IOS_FILE_PROTECTION_NONE";
-		}
-		if ([obj isEqualToString:NSFileProtectionComplete]) {
-			return @"IOS_FILE_PROTECTION_COMPLETE";
-		}
-		if ([obj isEqualToString:NSFileProtectionCompleteUnlessOpen]) {
-			return @"IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN";
-		}
-		if ([obj isEqualToString:NSFileProtectionCompleteUntilFirstUserAuthentication]) {
-			return @"IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION";
-		}
+	if (error != nil) {
+		NSLog(@"[ERROR] Error getting protection key: %@", [TiUtils messageFromError:error]);
+		return nil;
 	}
+	return [resultDict objectForKey:NSFileProtectionKey];
 }
 
--(id)setProtectionKey:(id)args
+-(NSNumber *)setProtectionKey:(id)args
 {
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
 	BOOL result = [fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
-	if (error!=nil) return NUMBOOL(NO);
+	if (error != nil) {
+		NSLog(@"[ERROR] Error setting protection key: %@", [TiUtils messageFromError:error]);
+		return NUMBOOL(NO);
+	}
 	return NUMBOOL(YES);
 }
 
