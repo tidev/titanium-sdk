@@ -255,47 +255,6 @@ static void ASReadStreamCallBackCUR
 }
 
 //
-// presentAlertWithTitle:message:
-//
-// Common code for presenting error dialogs
-//
-// Parameters:
-//    title - title for the dialog
-//    message - main test for the dialog
-//
-- (void)presentAlertWithTitle:(NSString*)title message:(NSString*)message
-{
-#ifdef TARGET_OS_IPHONE
-	UIAlertView *alert = [
-		[[UIAlertView alloc]
-			initWithTitle:title
-			message:message
-			delegate:self
-			cancelButtonTitle:NSLocalizedString(@"OK", @"")
-			otherButtonTitles: nil]
-		autorelease];
-	[alert
-		performSelector:@selector(show)
-		onThread:[NSThread mainThread]
-		withObject:nil
-		waitUntilDone:NO];
-#else
-	NSAlert *alert =
-		[NSAlert
-			alertWithMessageText:title
-			defaultButton:NSLocalizedString(@"OK", @"")
-			alternateButton:nil
-			otherButton:nil
-			informativeTextWithFormat:message];
-	[alert
-		performSelector:@selector(runModal)
-		onThread:[NSThread mainThread]
-		withObject:nil
-		waitUntilDone:NO];
-#endif
-}
-
-//
 // failWithErrorCode:
 //
 // Sets the playback state to failed and logs the error.
