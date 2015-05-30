@@ -20,6 +20,7 @@
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
 #import "TiExceptionHandler.h"
+#import "TiResourceUtils.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -1351,6 +1352,28 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return CGRectMake(center.x - (anchorPoint.x * bounds.size.width),
 			center.y - (anchorPoint.y * bounds.size.height),
 			bounds.size.width, bounds.size.height);
+}
+
++(NSData *)loadCustomAppResource:(NSURL*)url
+{
+    if([TiResourceUtils useCustomResourceDirectory]){
+        DebugLog(@"Search in folder: %@", [TiResourceUtils getBasePath]);
+        NSString *urlstring = [[url standardizedURL] path];
+        NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+        NSRange range = [urlstring rangeOfString:resourceurl];
+        NSString *appurlstr = urlstring;
+        if (range.location!=NSNotFound)
+        {
+            appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+        }
+        NSString* filePath = [TiResourceUtils getPath:appurlstr];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath])
+        {
+            DebugLog(@"Loading from custom resource directory: %@", filePath);
+            return [NSData dataWithContentsOfFile:filePath];
+        }
+    }
+    return [self loadAppResource:url];
 }
 
 +(NSData *)loadAppResource:(NSURL*)url

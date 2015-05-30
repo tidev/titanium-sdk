@@ -890,7 +890,7 @@ loadNativeJS:
 	{
 		filepath = [fullPath stringByAppendingString:@".js"];
         NSURL* url_ = [NSURL URLWithString:filepath relativeToURL:[[self host] baseURL]];
-        data = [TiUtils loadAppResource:url_];
+        data = [TiUtils loadCustomAppResource:url_];
         
         if (data == nil) {
             data = [NSData dataWithContentsOfURL:url_];
