@@ -102,6 +102,7 @@ extern NSString * const ASStatusChangedNotification;
 
 @protocol AudioStreamerDelegate<NSObject>
 -(void)playbackStateChanged:(id)sender;
+-(void)errorReceived:(id)sender;
 @end
 
 
