@@ -884,10 +884,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
-            int index = [filteredTitles indexOfObject:title];
+            NSUInteger index = [filteredTitles indexOfObject:title];
 
             if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
-                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMINT(index), @"index", nil];
+                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
                 [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
             }
 
@@ -902,11 +902,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
-        int index = [sectionTitles indexOfObject:title];
+        NSUInteger index = [sectionTitles indexOfObject:title];
         int sectionIndex = [[sectionIndices objectAtIndex:index] intValue];
 
         if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
-            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMINT(index), @"index", nil];
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
             [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
         }
 
