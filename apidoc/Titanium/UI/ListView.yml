@@ -198,6 +198,22 @@ excludes:
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 events:
+  - name: indexclick
+    summary: Fired when the index bar is clicked by the user.
+    description: |
+        If the list view contains the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) array of indices the index bar will appear on the side.
+        This event will fire when this bar is clicked 
+    properties:
+      - name: title
+        summary: The title of the index clicked.
+        type: String
+
+      - name: index
+        summary: The index number clicked.
+        type: Number
+    platforms: [iphone, ipad]
+    since: "3.4.0"
+
   - name: itemclick
     summary: Fired when a list row is clicked by the user.
     description: |
@@ -901,6 +917,18 @@ methods:
         optional: true
     platforms: [iphone, ipad]
     since: 3.2.0
+
+  - name: setContentOffset
+    summary: Sets the value of the content offset of the list view without animation by default.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: contentOffset
+        summary: |
+            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
+            The `animated` property is optional and set to `false` by default. 
+        type: Dictionary
+    since: 3.4.0
 
   - name: setMarker
     summary: Sets a reference item in the list view.
