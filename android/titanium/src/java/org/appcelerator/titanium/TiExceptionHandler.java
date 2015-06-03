@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.util.LinkedList;
 
 import org.appcelerator.kroll.KrollApplication;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollExceptionHandler;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -75,6 +76,15 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			Log.w(TAG, "Activity is null or already finishing, skipping dialog.");
 			return;
 		}
+
+		KrollDict dict = new KrollDict();
+		dict.put("title", error.title);
+		dict.put("message", error.message);
+		dict.put("sourceName", error.sourceName);
+		dict.put("line", error.line);
+		dict.put("lineSource", error.lineSource);
+		dict.put("lineOffset", error.lineOffset);
+		TiApplication.getInstance().fireAppEvent("uncaughtException", dict);
 
 		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
 
