@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.telephony.TelephonyManager;
 
 @Kroll.module
 public class PlatformModule extends KrollModule
@@ -99,6 +100,11 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public double getAvailableMemory() {
 		return TiPlatformHelper.getInstance().getAvailableMemory();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getCarrier() {
+		return ((TelephonyManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE)).getNetworkOperatorName();
 	}
 
 	@Kroll.getProperty @Kroll.method

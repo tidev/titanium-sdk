@@ -911,6 +911,9 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		DD213F431B1F35AA00D7BFBD /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD213F421B1F35AA00D7BFBD /* CoreTelephony.framework */; };
+		DD213F441B1F370200D7BFBD /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD213F421B1F35AA00D7BFBD /* CoreTelephony.framework */; };
+		DD213F451B1F370A00D7BFBD /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD213F421B1F35AA00D7BFBD /* CoreTelephony.framework */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADCFB143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADCFC143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
@@ -1569,6 +1572,7 @@
 		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
+		DD213F421B1F35AA00D7BFBD /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1579,6 +1583,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84ED2CD01AEEC0C00049FB68 /* iAd.framework in Frameworks */,
+				DD213F431B1F35AA00D7BFBD /* CoreTelephony.framework in Frameworks */,
 				8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -1618,6 +1623,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84ED2CCF1AEEC0B30049FB68 /* iAd.framework in Frameworks */,
+				DD213F441B1F370200D7BFBD /* CoreTelephony.framework in Frameworks */,
 				8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -1656,6 +1662,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84ED2CCE1AEEC0A70049FB68 /* iAd.framework in Frameworks */,
+				DD213F451B1F370A00D7BFBD /* CoreTelephony.framework in Frameworks */,
 				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
@@ -2728,6 +2735,7 @@
 			isa = PBXGroup;
 			children = (
 				84ED2CCD1AEEC0A70049FB68 /* iAd.framework */,
+				DD213F421B1F35AA00D7BFBD /* CoreTelephony.framework */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
 				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,

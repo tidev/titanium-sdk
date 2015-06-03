@@ -1000,6 +1000,36 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TRACK_SHAPE = "trackShape";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRACK_TINT_COLOR_ON = "trackTintColorOn";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRACK_TINT_COLOR_OFF = "trackTintColorOff";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_THUMB_SHAPE = "thumbShape";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_THUMB_TINT_COLOR_ON = "thumbTintColorOn";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_THUMB_TINT_COLOR_OFF = "thumbTintColorOff";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_COMMENT = "comment";
 
 	/**

@@ -12,6 +12,7 @@
 @interface PlatformModule : TiModule 
 {
 	NSString *name;
+    NSString *carrier;
 	NSString *model;
 	NSString *version;
 	NSString *architecture;
@@ -26,6 +27,7 @@
 
 @property(readonly,nonatomic) NSString *id;
 @property(readonly,nonatomic) NSString *name;
+@property(readonly,nonatomic) NSString *carrier;
 @property(readonly,nonatomic) NSString *model;
 @property(readonly,nonatomic) NSString *version;
 @property(readonly,nonatomic) NSString *architecture;

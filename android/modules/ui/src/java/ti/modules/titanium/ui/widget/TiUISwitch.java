@@ -19,6 +19,10 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.widget.CheckBox;
@@ -55,7 +59,46 @@ public class TiUISwitch extends TiUIView
 
 		View nativeView = getNativeView();
 		if (nativeView != null) {
+			updateShape((CompoundButton)nativeView, d);
 			updateButton((CompoundButton)nativeView, d);
+		}
+	}
+
+	protected void updateShape(CompoundButton cb, KrollDict d)
+	{
+		if (cb instanceof SwitchCompat) {
+			try {
+				if(d.containsKey(TiC.PROPERTY_TRACK_SHAPE)){
+					StateListDrawable track = new StateListDrawable();
+					Drawable trDrawableOn = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0));
+					if(d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR_ON)){
+						trDrawableOn.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_ON), PorterDuff.Mode.SRC_ATOP);
+					}
+					track.addState(new int[]{android.R.attr.state_checked}, trDrawableOn);
+					Drawable trDrawableOff = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0));
+					if(d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR_OFF)){
+						trDrawableOff.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_OFF), PorterDuff.Mode.SRC_ATOP);
+					}
+					track.addState(new int[]{-android.R.attr.state_checked}, trDrawableOff);
+					((SwitchCompat) cb).setTrackDrawable(track);
+				}	
+				if(d.containsKey(TiC.PROPERTY_THUMB_SHAPE)){
+					StateListDrawable thumb = new StateListDrawable();
+					Drawable thDrawableOn = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)); 
+					if(d.containsKey(TiC.PROPERTY_THUMB_TINT_COLOR_ON)){
+						thDrawableOn.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_ON), PorterDuff.Mode.SRC_ATOP);
+					}
+					thumb.addState(new int[]{android.R.attr.state_checked}, thDrawableOn);
+					Drawable thDrawableOff = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)); 
+					if(d.containsKey(TiC.PROPERTY_THUMB_TINT_COLOR_OFF)){
+						thDrawableOff.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_OFF), PorterDuff.Mode.SRC_ATOP);
+					}
+					thumb.addState(new int[]{-android.R.attr.state_checked}, thDrawableOff);
+					((SwitchCompat) cb).setThumbDrawable(thumb);
+				}
+			} catch (Exception e) {
+				Log.w(TAG, "Cannot find the shape drawable");
+			}
 		}
 	}
 	
@@ -232,6 +275,7 @@ public class TiUISwitch extends TiUIView
 
 		if (button != null) {
 			setNativeView(button);
+			updateShape(button, proxy.getProperties());
 			updateButton(button, proxy.getProperties());
 			button.setOnCheckedChangeListener(this);
 		}

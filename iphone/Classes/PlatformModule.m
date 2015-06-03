@@ -17,13 +17,15 @@
 #import <sys/socket.h>
 #import <ifaddrs.h>
 #import <arpa/inet.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <CoreTelephony/CTCarrier.h>
 
 NSString* const WIFI_IFACE = @"en0";
 NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
+@synthesize name, carrier, model, version, architecture, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -52,6 +54,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			// iphone is a constant for Ti.Platform.osname
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
+        
+        //get carrier name
+        CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
+        carrier = [[netinfo subscriberCellularProvider] carrierName];
+        [netinfo release];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -109,6 +116,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 -(void)dealloc
 {
 	RELEASE_TO_NIL(name);
+    RELEASE_TO_NIL(carrier);
 	RELEASE_TO_NIL(model);
 	RELEASE_TO_NIL(version);
 	RELEASE_TO_NIL(architecture);
