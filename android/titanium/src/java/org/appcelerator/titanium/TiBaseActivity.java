@@ -41,7 +41,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -108,10 +109,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 	public class DialogWrapper {
 		boolean isPersistent;
-		AlertDialog dialog;
+		Dialog dialog;
+
 		WeakReference<TiBaseActivity> dialogActivity;
 		
-		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+		public DialogWrapper(Dialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
@@ -131,11 +133,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			dialogActivity = da;
 		}
 
-		public AlertDialog getDialog() {
+		public Dialog getDialog() {
 			return dialog;
 		}
 		
-		public void setDialog(AlertDialog d) {
+		public void setDialog(Dialog d) {
 			dialog = d;
 		}
 		
