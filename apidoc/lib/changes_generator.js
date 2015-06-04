@@ -25,7 +25,7 @@ function removeLinks (str) {
 	rv = rv.replace(/<([^>]+?)>/g, '$1');
 	rv = rv.replace(/\[([^\]]+?)\]\([^\)]+?\)/g, '$1');
 	rv = rv.replace(common.REGEXP_HREF_LINKS, '$2');
-	return rv;
+	return common.markdownToHTML(rv);
 }
 
 /**
@@ -43,6 +43,20 @@ function checkVersions(api, startVersion, endVersion, className) {
 		}
 	}
 	if (rv.platforms.length > 0) {
+		var pretty_platforms_string,
+			pretty_platforms = rv.platforms.map(function (item) {
+			return common.PRETTY_PLATFORM[item];
+		});
+		if (pretty_platforms.length > 1) {
+			pretty_platforms_string = pretty_platforms.slice(0, -1).join(', ') + ' and ' + pretty_platforms.pop();
+		} else {
+			pretty_platforms_string = pretty_platforms[0];
+		}
+		if (rv.platforms.length === api.platforms.length) {
+			api.summary += ' (New API, supported on ' + pretty_platforms_string + '.)';
+		} else {
+			api.summary += ' (Added support for ' + pretty_platforms_string + '.)';
+		}
 		rv.summary = removeLinks(api.summary);
 		rv.name = className ? className + '.' + api.name : api.name;
 	}
@@ -73,13 +87,15 @@ function checkVersions(api, startVersion, endVersion, className) {
 exports.exportData = function exportChanges (apis) {
 	var className = null,
 		cls = {},
-		rv = {},
+		rv = {
+			new: [],
+			deprecated: [],
+			removed: [],
+			noResults: true
+		},
 		startVersion = apis.__startVersion,
 		endVersion = apis.__endVersion || null,
 		changed = null;
-	rv.new = [];
-	rv.deprecated = [];
-	rv.removed = [];
 
 	common.log(common.LOG_INFO, 'Checking API versions...');
 
@@ -117,6 +133,9 @@ exports.exportData = function exportChanges (apis) {
 			});
 		}
 		cls = {};
+	}
+	if (rv.new.length || rv.deprecated.length || rv.removed.length) {
+		rv.noResults = false;
 	}
 	rv.new.sort(arraySort);
 	rv.deprecated.sort(arraySort);

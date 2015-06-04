@@ -895,6 +895,10 @@ formats.forEach(function (format) {
 			common.log('Generated output at %s', output);
 			break;
 		case 'changes' :
+			if (exportData.noResults) {
+				common.log('No API changes found.');
+				return;
+			}
 			output = pathMod.join(output, 'changes_' + exportData.startVersion.replace(/\./g, '_') + '.html');
 			templateStr = fs.readFileSync(pathMod.join(templatePath, 'changes.ejs'), 'utf8');
 			render = ejs.render(templateStr, {data: exportData, filename: true, assert: common.assertObjectKey});
