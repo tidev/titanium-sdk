@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -89,6 +89,10 @@
 {
 }
 
+-(void)errored:(id)sender
+{
+}
+
 -(void)registerForNotifications
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
@@ -97,6 +101,7 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 }
 
 -(void)startup
