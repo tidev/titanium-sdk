@@ -269,7 +269,7 @@ function processAPIMembers (apis, type, defaultVersions, addon) {
 				}
 			}
 			if (assert(api, 'returns')) {
-				if (Array.isArray(api.returns)) {
+				if (!Array.isArray(api.returns)) {
 					api.returns = [api.returns];
 				}
 				for (x = 0; x < api.returns.length; x++) {
