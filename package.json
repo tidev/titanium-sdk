@@ -18,7 +18,7 @@
 	},
 	"dependencies": {
 		"adm-zip": "~0.4.4",
-		"archiver": "~0.4.10",
+		"archiver": "~0.14.4",
 		"async": "~0.2.9",
 		"clean-css": "~1.1.1",
 		"colors": "~0.6.2",
