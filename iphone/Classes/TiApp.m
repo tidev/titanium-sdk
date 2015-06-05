@@ -67,10 +67,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize localNotification;
 @synthesize appBooted;
 
+#ifdef TI_USE_KROLL_THREAD
 +(void)initialize
 {
 	TiThreadInitalize();
 }
+#endif
 
 + (TiApp*)app
 {
@@ -755,6 +757,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark
 
+#ifdef TI_USE_KROLL_THREAD
 -(void)waitForKrollProcessing
 {
 	CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining]-1.0;
@@ -774,6 +777,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	TiThreadProcessPendingMainThreadBlocks(timeLeft, NO, nil);
 }
+#endif
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
@@ -804,8 +808,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
+#ifdef TI_USE_KROLL_THREAD
 	[self waitForKrollProcessing];
-
+#endif
 	RELEASE_TO_NIL(condition);
 	RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW 
@@ -842,7 +847,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
 #endif 
+#ifdef TI_USE_KROLL_THREAD
 	[self waitForKrollProcessing];
+#endif
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -888,7 +895,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
         // Do the work associated with the task.
 		[tiapp beginBackgrounding];
     });
+#ifdef TI_USE_KROLL_THREAD
 	[self waitForKrollProcessing];
+#endif
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application

@@ -23,8 +23,14 @@
 
 -(void) dealloc {
     if (controller != nil) {
+#ifdef TI_USE_KROLL_THREAD
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(controller);
+        }, YES);
+#endif
     }
     
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION

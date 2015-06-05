@@ -46,7 +46,16 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		NSDate *reftime = [NSDate date];
 		NSLog(@"[DEBUG] Invoking %@ with args: %@",o,args);
 #endif
-		id result = [o call:args];
+        
+#ifdef TI_USE_KROLL_THREAD
+        id result = [o call:args];
+#else
+        __block id result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [o call:args];
+        }, YES);
+
+#endif
 #if KMETHOD_DEBUG == 1
 		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
 		NSLog(@"[DEBUG] Invoked %@ with result: %@ [took: %f]",o,result,elapsed);

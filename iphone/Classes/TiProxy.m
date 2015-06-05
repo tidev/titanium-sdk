@@ -428,8 +428,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
+#ifdef TI_USE_KROLL_THREAD
 		TiThreadReleaseOnMainThread(modelDelegate, YES);
         modelDelegate = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(modelDelegate);
+        }, YES);
+#endif
     }
 	pageContext=nil;
 	pageKrollObject = nil;
@@ -957,20 +963,24 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		return;
 	}
-	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-	if (report || (code != 0))
-	{
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+        TiBindingEvent ourEvent;
+        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+        if (report || (code != 0))
+        {
+            TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil)
+        {
+            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    });
+#endif
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -981,18 +991,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-	if (report || (code != 0)) {
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TiBindingEvent ourEvent;
+        
+        ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+        if (report || (code != 0)) {
+            TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil)
+        {
+            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+    });
 }
 
 

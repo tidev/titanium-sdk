@@ -129,8 +129,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
+#ifdef TI_USE_KROLL_THREAD
 	TiThreadRemoveFromSuperviewOnMainThread(rowContainerView, NO);
 	TiThreadReleaseOnMainThread(rowContainerView, NO);
+#else
+    TiThreadPerformOnMainThread(^{
+        [rowContainerView removeFromSuperview];
+        RELEASE_TO_NIL(rowContainerView);
+    }, YES);
+#endif
 	rowContainerView = nil;
 	[callbackCell setProxy:nil];
 	callbackCell = nil;

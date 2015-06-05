@@ -206,7 +206,7 @@ NSString *JavascriptNameForClass(Class c)
 	}
 	return NSStringFromClass(c);
 }
-
+#ifdef TI_USE_KROLL_THREAD
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 {
 	if (releasedObject == nil) {
@@ -236,7 +236,7 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 		TiThreadPerformOnMainThread(^{[blockVar removeFromSuperview];}, waitForFinish);
 	}
 }
-
+#endif
 // NOTE: This method of batch-processing is actually fairly expensive
 // for us, and doesn't take full advantage of GCD scheduling (and requires
 // lots of mutexing). Unfortunately for now it seems to be necessary, as:
@@ -247,6 +247,7 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 // pulls from a private queue, for example) but in and of itself this could be
 // expensive (still have to semaphore the queue) and requires further research.
 
+#ifdef TI_USE_KROLL_THREAD
 NSMutableArray * TiThreadBlockQueue = nil;
 pthread_mutex_t TiThreadBlockMutex;
 pthread_cond_t TiThreadBlockCondition;
@@ -257,10 +258,14 @@ void TiThreadInitalize()
     pthread_cond_init(&TiThreadBlockCondition, NULL);
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
+#endif
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
+    
+#ifdef TI_USE_KROLL_THREAD
+
 	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
 
 	__block dispatch_semaphore_t waitSemaphore;
@@ -338,7 +343,21 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		[caughtException autorelease];
 		[caughtException raise];
 	}
+#else
+    if (waitForFinish) {
+        if (alreadyOnMainThread) {
+            mainBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), mainBlock);
+        }
+    } else {
+        dispatch_async(dispatch_get_main_queue(), mainBlock);
+    }
+#endif
 }
+
+
+#ifdef TI_USE_KROLL_THREAD
 //Initializing krollContextCounter to zero.
 int krollContextCounter = 0;
 
@@ -415,3 +434,4 @@ void decrementKrollCounter(){
         pthread_mutex_unlock(&TiThreadBlockMutex);
     }
 }
+#endif
