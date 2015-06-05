@@ -190,15 +190,11 @@ methods:
 
   - name: getProtectionKey
     summary: |
-        Returns the protection key value of this file object. Can be one of the following
-        constants:
-            Titanium.Filesystem.IOS_FILE_PROTECTION_NONE
-            Titanium.Filesystem.IOS_FILE_PROTECTION_COMPLETE
-            Titanium.Filesystem.IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN
-            Titanium.Filesystem.IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION
+        Returns the protection key value of this file object.
         Returns `null` if there's an error.
     returns:
         type: String
+        constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
     platforms: [iphone, ipad]
     since: "4.1.0"    
 
