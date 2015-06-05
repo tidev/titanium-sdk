@@ -1287,7 +1287,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MINIMUMFONTSIZE = "minimumFontSize";
+	
 	/**
 	 * @module.api
 	 */
