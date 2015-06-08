@@ -25,9 +25,9 @@ const
 	afs = appc.fs,
 	parallel = appc.async.parallel;
 
-ejs.filters.escapeQuotes = function escapeQuotes(s) {
+function escapeQuotes(s) {
 	return String(s).replace(/"/g, '\\"');
-};
+}
 
 function MobileWebBuilder() {
 	Builder.apply(this, arguments);
@@ -590,7 +590,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 	async.waterfall([
 		// 1) render the header
 		function (next) {
-			next(null, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString()) + '\n');
+			next(null, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString(), { escapeQuotes: escapeQuotes }) + '\n');
 		}.bind(this),
 
 		// 2) read in the config.js and fill in the template
@@ -628,7 +628,8 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 					hasAnalyticsUseXhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					hasShowErrors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					hasInstrumentation: !!tiapp.mobileweb.instrumentation,
-					hasAllowTouch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
+					hasAllowTouch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true,
+					escapeQuotes: escapeQuotes
 				},
 				next
 			);
@@ -801,7 +802,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 
 MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(next) {
 	var tiCSS = [
-		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString()), '\n'
+		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString(), { escapeQuotes: escapeQuotes }), '\n'
 	];
 
 	if (this.tiapp.mobileweb.splash.enabled) {
@@ -994,7 +995,8 @@ MobileWebBuilder.prototype.createIndexHtml = function createIndexHtml(next) {
 			tiCss: fs.readFileSync(path.join(this.buildDir, 'titanium.css')).toString(),
 			splashScreen: this.splashHtml,
 			tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString(),
-			prefetch: this.prefetch
+			prefetch: this.prefetch,
+			escapeQuotes: escapeQuotes
 		},
 		next
 	);

@@ -306,10 +306,14 @@ exports.run = function (logger, config, cli, finished) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta));
-				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-					logger.error(msg);
-				});
+				logger.error(__('An error occurred during build after %s', delta));
+				if (err instanceof appc.exception) {
+					err.dump(logger.error);
+				} else {
+					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+						logger.error(msg);
+					});
+				}
 				logger.log();
 				logger.log.end();
 				process.exit(1);

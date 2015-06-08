@@ -212,7 +212,8 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			logger.log(String(iosVer).grey);
 			logger.log(data.simulators[iosVer].map(function (sim) {
 				return '  ' + sim.name.cyan + (' (' + sim.type + ')').grey + '\n' + [
-					'  ' + rpad('  ' + __('UDID'))         + ' = ' + styleValue(sim.udid)
+					'  ' + rpad('  ' + __('UDID'))                + ' = ' + styleValue(sim.udid),
+					'  ' + rpad('  ' + __('Supports Watch Apps')) + ' = ' + styleValue(sim.supportsWatch ? __('yes') : __('no'))
 				].join('\n');
 			}).join('\n') + '\n');
 		});

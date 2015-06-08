@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -29,6 +29,7 @@ var appc = require('node-appc'),
 	util = require('util'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
+	xcodeProject = require('xcode').project,
 	__ = appc.i18n(__dirname).__,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
@@ -111,6 +112,8 @@ function iOSBuilder() {
 	this.provisioningProfileLookup = {};
 
 	this.builtExtensions = [];
+
+	this.hasWatchApp = false;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -383,6 +386,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								humanize.filesize(fs.statSync(path.join(_t.platformPath, 'libTiCore.a')).size, 1024, 1).toUpperCase().cyan)
 						},
 						'launch-watch-app': {
+							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
+						},
+						'launch-watch-app-only': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app instead of the main app', 'simulator'.cyan)
 						},
 						'retina': {
@@ -506,11 +512,17 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 				return callback();
 			}
 
-			var options = {};
+			var options = {},
+				maxName = 0;
 
 			// build a filtered list of simulators based on any legacy options/flags
 			if (Array.isArray(info.devices)) {
 				options = info.devices;
+				info.devices.forEach(function (d) {
+					if (d.name.length > maxName) {
+						maxName = d.name.length;
+					}
+				});
 			} else {
 				Object.keys(info.devices).forEach(function (sdk) {
 					if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
@@ -518,6 +530,9 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 							if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
 								options[sdk] || (options[sdk] = []);
 								options[sdk].push(sim);
+								if (sim.name.length > maxName) {
+									maxName = sim.name.length;
+								}
 							}
 						});
 					}
@@ -552,7 +567,7 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 				params.title = __('Which simulator do you want to launch your app in?');
 				params.promptLabel = __('Select an simulator by number or name');
 				params.formatters.option = function (opt, idx, num) {
-					return '  ' + num + opt.name.cyan;
+					return '  ' + num + appc.string.rpad(opt.name, maxName).cyan + '  ' + opt.udid.grey;
 				};
 			}
 
@@ -847,7 +862,7 @@ iOSBuilder.prototype.configOptionDeviceFamily = function configOptionDeviceFamil
  */
 iOSBuilder.prototype.configOptionExternalDisplayType = function configOptionExternalDisplayType() {
 	return {
-		desc: __('for %s builds, shows the simulator external display', 'simulator'.cyan),
+		desc: __('shows the simulator external display; only used when target is %s', 'simulator'.cyan),
 		hint: __('type'),
 		values: ['watch-regular', 'watch-compact']
 	};
@@ -929,7 +944,7 @@ iOSBuilder.prototype.configOptionKeychain = function configOptionKeychain() {
  */
 iOSBuilder.prototype.configOptionLaunchBundleId = function configOptionLaunchBundleId() {
 	return {
-		desc: __('for %s builds, after installing the app, launch an different app instead', 'simulator'.cyan),
+		desc: __('after installing the app, launch an different app instead; only used when target is %s', 'simulator'.cyan),
 		hint: __('id')
 	};
 };
@@ -1368,28 +1383,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}, this);
 	}
 
-	// if there are any extensions, validate them
-	if (this.tiapp.ios && this.tiapp.ios.extensions) {
-		this.tiapp.ios.extensions.forEach(function (ext) {
-			if (!ext.projectPath) {
-				logger.error(__('Extensions must have a "projectPath" attribute that points to a folder containing an Xcode project') + '\n');
-				process.exit(1);
-			}
-
-			ext.projectPath = appc.fs.resolvePath(ext.projectPath);
-
-			if (!fs.existsSync(ext.projectPath)) {
-				logger.error(__('Extension project path "%s" does not exist', ext.projectPath) + '\n');
-				process.exit(1);
-			}
-
-			if (!ext.target) {
-				logger.error(__('Extension with project path "%s" does not have a target as its value', ext.projectPath) + '\n');
-				process.exit(1);
-			}
-		}.bind(this));
-	}
-
 	// make sure the app doesn't have any blacklisted directories in the Resources directory and warn about graylisted names
 	var resourcesDir = path.join(cli.argv['project-dir'], 'Resources');
 	if (fs.existsSync(resourcesDir)) {
@@ -1569,47 +1562,146 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	}
 
 	return function (callback) {
-		this.validateTiModules(['ios', 'iphone'], this.deployType, function (err, modules) {
-			this.modules = modules.found;
+		// if there are any extensions, validate them
+		async.eachSeries(this.tiapp.ios && this.tiapp.ios.extensions, function (ext, next) {
+			if (!ext.projectPath) {
+				logger.error(__('iOS extensions must have a "projectPath" attribute that points to a folder containing an Xcode project') + '\n');
+				process.exit(1);
+			}
 
-			this.commonJsModules = [];
-			this.nativeLibModules = [];
+			// projectPath could be either the path to a project directory or the actual .xcodeproj
+			ext.projectPath = appc.fs.resolvePath(ext.projectPath);
 
-			var nativeHashes = [];
+			var xcodeprojRegExp = /\.xcodeproj$/;
 
-			modules.found.forEach(function (module) {
-				if (module.platform.indexOf('commonjs') !== -1) {
-					module.native = false;
+			if (!xcodeprojRegExp.test(ext.projectPath)) {
+				// maybe we're the parent dir?
+				ext.projectPath = path.join(ext.projectPath, path.basename(ext.projectPath) + '.xcodeproj');
+			}
 
-					module.libFile = path.join(module.modulePath, module.id + '.js');
-					if (!fs.existsSync(module.libFile)) {
-						this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-						process.exit(1);
-					}
+			var projectName = path.basename(ext.projectPath.replace(xcodeprojRegExp, ''));
 
-					this.commonJsModules.push(module);
-				} else {
-					module.native = true;
+			if (!fs.existsSync(ext.projectPath)) {
+				logger.error(__('iOS extension "%s" Xcode project not found: %s', projectName, ext.projectPath) + '\n');
+				process.exit(1);
+			}
 
-					module.libName = 'lib' + module.id.toLowerCase() + '.a',
-					module.libFile = path.join(module.modulePath, module.libName);
+			var projFile = path.join(ext.projectPath, 'project.pbxproj');
+			if (!fs.existsSync(projFile)) {
+				logger.error(__('iOS extension "%s" project missing Xcode project file: %s', projectName, projFile) + '\n');
+				process.exit(1);
+			}
 
-					if (!fs.existsSync(module.libFile)) {
-						this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-						process.exit(1);
-					}
+			if (!ext.target) {
+				logger.error(__('iOS extension "%s" missing name of target to build.', projectName));
+				logger.log();
+				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+				logger.log('    <ios>'.grey);
+				logger.log('        <extensions>'.grey);
+				logger.log('            <extension projectPath="/path/to/myextension.xcodeproj">'.grey + 'My Neato WatchKit Extension'.magenta + '</extension>'.grey);
+				logger.log('        </extensions>'.grey);
+				logger.log('    </ios>'.grey);
+				logger.log('</ti:app>'.grey);
+				logger.log();
+				process.exit(1);
+			}
 
-					nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
-					this.nativeLibModules.push(module);
+			var projectFile = xcodeProject(path.join(ext.projectPath, 'project.pbxproj'));
+			projectFile.parse(function (err) {
+				if (err) {
+					logger.error(__('iOS extension "%s" Xcode project cannot be parsed.', projectName));
+					logger.error(err)
+					logger.log();
+					process.exit(1);
 				}
 
-				// scan the module for any CLI hooks
-				cli.scanHooks(path.join(module.modulePath, 'hooks'));
-			}, this);
+				var targetName = ext.target.toLowerCase(),
+					xobjs = projectFile.hash.project.objects,
+					project = xobjs.PBXProject,
+					target = null,
+					swiftRegExp = /\.swift$/;
 
-			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+				Object.keys(project).some(function (id) {
+					if (!project[id] || typeof project[id] !== 'object') {
+						return false;
+					}
+					return project[id].targets.some(function (t) {
+						if (t.comment.toLowerCase() === targetName) {
+							// we have found our target!
+							var nativeTarget = target = xobjs.PBXNativeTarget[t.value],
+								cfg = xobjs.XCConfigurationList[nativeTarget.buildConfigurationList],
+								cfgid = cfg.buildConfigurations
+									.filter(function (c) { return c.comment === cfg.defaultConfigurationName; })
+									.map(function (c) { return c.value; })
+									.shift(),
+								buildSettings = xobjs.XCBuildConfiguration[cfgid].buildSettings,
+								sourcesBuildPhase = nativeTarget.buildPhases.filter(function (p) { return /^Sources$/i.test(p.comment); });
 
-			callback();
+							// check if this target contains any swift code
+							if (sourcesBuildPhase.length && (!buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT || /^NO$/i.test(buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT))) {
+								var files = xobjs.PBXSourcesBuildPhase[sourcesBuildPhase[0].value].files;
+								if (files.some(function (f) { return swiftRegExp.test(xobjs.PBXBuildFile[f.value].fileRef_comment); })) {
+									// oh no, error
+									logger.error(__('iOS extension "%s" target "%s" contains Swift code, but "Embedded Content Contains Swift Code" is not enabled.', projectName, ext.target) + '\n');
+									process.exit(1);
+								}
+							}
+
+							return true;
+						}
+					});
+				});
+
+				if (!target) {
+					logger.error(__('iOS extension "%s" does not contain a target named "%s".', projectName, ext.target) + '\n');
+					process.exit(1);
+				}
+
+				next();
+			});
+		}.bind(this), function (err) {
+			this.validateTiModules(['ios', 'iphone'], this.deployType, function (err, modules) {
+				this.modules = modules.found;
+
+				this.commonJsModules = [];
+				this.nativeLibModules = [];
+
+				var nativeHashes = [];
+
+				modules.found.forEach(function (module) {
+					if (module.platform.indexOf('commonjs') !== -1) {
+						module.native = false;
+
+						module.libFile = path.join(module.modulePath, module.id + '.js');
+						if (!fs.existsSync(module.libFile)) {
+							this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+							process.exit(1);
+						}
+
+						this.commonJsModules.push(module);
+					} else {
+						module.native = true;
+
+						module.libName = 'lib' + module.id.toLowerCase() + '.a',
+						module.libFile = path.join(module.modulePath, module.libName);
+
+						if (!fs.existsSync(module.libFile)) {
+							this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+							process.exit(1);
+						}
+
+						nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
+						this.nativeLibModules.push(module);
+					}
+
+					// scan the module for any CLI hooks
+					cli.scanHooks(path.join(module.modulePath, 'hooks'));
+				}, this);
+
+				this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+
+				callback();
+			}.bind(this));
 		}.bind(this));
 	}.bind(this);
 };
@@ -3184,7 +3276,12 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 		_t = this;
 
 	this.tiapp.ios.extensions.forEach(function (extension) {
-		var dest = path.join(_t.buildExtensionsDir, path.basename(extension.projectPath));
+		var parent = path.dirname(extension.projectPath),
+			dest = path.join(_t.buildExtensionsDir, path.basename(parent));
+
+		fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);
+		wrench.mkdirSyncRecursive(dest);
+
 		(function walk(src, dest, ignore) {
 			fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 			fs.readdirSync(src).forEach(function (name) {
@@ -3204,7 +3301,13 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 						if (infoPlist.WKWatchKitApp) {
 							if (infoPlist.CFBundleIdentifier.indexOf(_t.tiapp.id) !== 0) {
 								// oh no!
-								_t.logger.error(__('WatchKit App bundle identifier is "%s", but must be prefixed with "%s"', infoPlist.CFBundleIdentifier, _t.tiapp.id) + '\n');
+								_t.logger.error(__('WatchKit App bundle identifier is "%s", but must be prefixed with "%s".', infoPlist.CFBundleIdentifier, _t.tiapp.id) + '\n');
+								process.exit(1);
+							}
+
+							if (infoPlist.CFBundleIdentifier.toLowerCase() === _t.tiapp.id.toLowerCase()) {
+								// oh no!
+								_t.logger.error(__('WatchKit App bundle identifier must be different from the Titanium app\'s id "%s".', _t.tiapp.id) + '\n');
 								process.exit(1);
 							}
 
@@ -3221,6 +3324,8 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 								_t.logger.warn(__('Setting the WatchKit App\'s CFBundleVersion to "%s"', _t.infoPlist.CFBundleVersion));
 								infoPlist.CFBundleVersion = _t.infoPlist.CFBundleVersion;
 							}
+
+							_t.hasWatchApp = true;
 						}
 						infoPlist.save(to);
 					} else if (symlinkFiles) {
@@ -3233,8 +3338,9 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 					}
 				}
 			});
-		}(extension.projectPath, dest, /^build$/));
-		extension.projectPath = dest;
+		}(parent, dest, /^build$/));
+
+		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
 	});
 
 	this.logger.info(__('Invoking xcodebuild on extension dependencies'));
@@ -3366,19 +3472,19 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 			}.bind(this));
 		});
 
-		this.logger.info(__('Building target %s (%s)', extension.target.cyan, extension.projectPath.cyan));
+		this.logger.info(__('Building target %s: %s', extension.target.cyan, extension.projectPath.cyan));
 
 		hook(
 			this.xcodeEnv.executables.xcodebuild,
 			xcodeArgs,
 			{
-				cwd: extension.projectPath,
+				cwd: path.dirname(extension.projectPath),
 				env: appc.util.mix({}, process.env, {
 					'DEVELOPER_DIR': this.xcodeEnv.path
 				})
 			},
 			function () {
-				var productPath = path.join(extension.projectPath, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
+				var productPath = path.join(path.dirname(extension.projectPath), 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos')),
 					productFileName = extension.target + '.appex';
 
 				this.builtExtensions.push({

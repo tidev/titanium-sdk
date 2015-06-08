@@ -40,6 +40,9 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 				function (next) {
+					if (cli.argv['build-only']) {
+						return next();
+					}
 					ioslib.device.detect({ bypassCache: true }, function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {

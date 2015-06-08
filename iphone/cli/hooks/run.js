@@ -1,13 +1,15 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
 var appc = require('node-appc'),
 	ioslib = require('ioslib'),
-	__ = appc.i18n(__dirname).__;
+	i18n = appc.i18n(__dirname),
+	__ = i18n.__,
+	__n = i18n.__n;
 
 exports.cliVersion = '>=3.2';
 
@@ -40,12 +42,17 @@ exports.init = function (logger, config, cli) {
 			ioslib.simulator.launch(builder.deviceId, {
 				appName: builder.tiapp.name,
 				appPath: builder.xcodeAppDir,
+				externalDisplayType: cli.argv['external-display-type'],
 				focus: cli.argv['sim-focus'],
+				launchBundleId: cli.argv['launch-bundle-id'],
+				launchWatchApp: builder.hasWatchApp && builder.deviceInfo.supportsWatch && cli.argv['launch-watch-app'],
+				launchWatchAppOnly: builder.hasWatchApp && builder.deviceInfo.supportsWatch && cli.argv['launch-watch-app-only'],
 				logFilename: builder.tiapp.guid + '.log',
-				killIfRunning: true,
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion,
-				timeout: config.get('ios.simTimeout')
+				timeout: config.get('ios.simTimeout'),
+				watchLaunchMode: cli.argv['watch-launch-mode'],
+				watchNotificationPayload: cli.argv['watch-notification-payload']
 			}).on('log-file', function (line) {
 				if (!simStarted) {
 					finished && finished();
@@ -64,10 +71,23 @@ exports.init = function (logger, config, cli) {
 					logger[lastLogger](line);
 				}
 			}).on('log-debug', function (msg) {
-				logger.debug('[ioslib] '.magenta + msg.replace(/(?:(\[[^\]]+\]) )*/, function (m) { return m.magenta; }));
+				logger.trace(('[ioslib] ' + msg.replace('[DEBUG] ', '')).grey);
 			}).on('app-quit', function (code) {
 				endLog();
-				finished && finished(code && new appc.exception(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code)));
+				var ex;
+				if (code) {
+					if (code instanceof ioslib.simulator.SimulatorCrash) {
+						ex = new appc.exception(
+							__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length),
+							code.crashFiles.map(function (f) { return '  ' + f; }).concat(
+								__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length)
+							)
+						);
+					} else {
+						ex = new appc.exception(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
+					}
+				}
+				finished && finished(ex);
 				finished = null;
 			}).on('error', function (err) {
 				endLog();
