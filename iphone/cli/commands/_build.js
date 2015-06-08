@@ -3338,7 +3338,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 					}
 				}
 			});
-		}(parent, dest, /^build$/));
+		}(parent, dest, /^build$/i));
 
 		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
 	});
