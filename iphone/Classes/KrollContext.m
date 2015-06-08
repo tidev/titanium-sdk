@@ -827,15 +827,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		queue = [[NSMutableArray alloc] init];
 		lock = [[NSRecursiveLock alloc] init];
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
+        timerLock = [[NSRecursiveLock alloc] init];
+        NSString* timerName = [NSString stringWithFormat:@"%@ Timer Lock",[self threadName]];
+        [timerLock setName:timerName];
 #endif
-		timerLock = [[NSRecursiveLock alloc] init];
-        NSString* timerName;
-#ifdef TI_USE_KROLL_THREAD
-        timerName = [NSString stringWithFormat:@"%@ Timer Lock",[self threadName]];
-#else
-        timerName = @"Timer Lock";
-#endif
-		[timerLock setName:timerName];
 		stopped = YES;
 		KrollContextCount++;
         debugger = NULL;
@@ -864,7 +859,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	RELEASE_TO_NIL(queue);
 	RELEASE_TO_NIL(contextId);
 	RELEASE_TO_NIL(lock);
-#endif
 	if (timerLock!=nil)
 	{
 		[timerLock lock];
@@ -874,8 +868,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		}
 		[timerLock unlock];
 	}
+    RELEASE_TO_NIL(timerLock);
+#else
+    if (timers!=nil)
+    {
+        [timers removeAllObjects];
+    }
+#endif
 	RELEASE_TO_NIL(timers);
-	RELEASE_TO_NIL(timerLock);
 }
 
 #if CONTEXT_MEMORY_DEBUG==1
@@ -917,19 +917,25 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #endif
 -(void)registerTimer:(id)timer timerId:(double)timerId
 {
+#ifdef TI_USE_KROLL_THREAD
 	[timerLock lock];
+#endif
 	if (timers==nil)
 	{
 		timers = [[NSMutableDictionary alloc] init];
 	}
 	NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
 	[timers setObject:timer forKey:key];
+#ifdef TI_USE_KROLL_THREAD
 	[timerLock unlock];
+#endif
 }
 
 -(void)unregisterTimer:(double)timerId
 {
+#ifdef TI_USE_KROLL_THREAD
 	[timerLock lock];
+#endif
 	if (timers!=nil)
 	{
 		NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
@@ -946,7 +952,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			RELEASE_TO_NIL(timers);
 		}
 	}
+#ifdef TI_USE_KROLL_THREAD
 	[timerLock unlock];
+#endif
 }
 
 -(void)start
@@ -1506,8 +1514,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[delegate performSelector:@selector(willStopNewContext:) withObject:self];
 	}
-	
+#ifdef TI_USE_KROLL_THREAD
 	[timerLock lock];
+#endif
 	// stop any running timers
 	if (timers!=nil && [timers count]>0)
 	{
@@ -1518,8 +1527,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		}
 		[timers removeAllObjects];
 	}
-	[timerLock unlock]; 
-	
+#ifdef TI_USE_KROLL_THREAD
+	[timerLock unlock];
+#endif
 	[KrollCallback shutdownContext:self];
 	
 	// now we can notify listeners we're done

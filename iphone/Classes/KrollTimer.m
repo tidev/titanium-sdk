@@ -93,9 +93,11 @@
 	while(1)
 	{
 		// wait until we're signaled or we timeout
+        NSLog(@"locking....");
 		[condition lock];
 		[condition waitUntilDate:date];
 		[condition unlock];
+        NSLog(@"un-locking....");
 
 		// Always break if stopped; it means we were cancelled.  Even if started and then immediately
 		// stopped, this is the behavior we want.
@@ -107,9 +109,17 @@
 		[date release];
 		date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration/1000];
 
+#ifndef TI_USE_KROLL_THREAD
+        if (![NSThread isMainThread]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
+            });
+        } else
+#endif
+        {
 		// push the invocation to happen on the context thread
-		[kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
-
+            [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
+        }
 		[loopPool release];
 		[invokeCond lockWhenCondition:1];
 		[invokeCond unlockWithCondition:0];

@@ -39,10 +39,10 @@
 	BOOL suspended;
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
-	NSRecursiveLock *timerLock;
 	void *debugger;
     
 #ifdef TI_USE_KROLL_THREAD
+    NSRecursiveLock *timerLock;
 	NSString *contextId;
     NSRecursiveLock *lock;
     NSCondition *condition;
