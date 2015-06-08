@@ -15,4 +15,6 @@
 	#import "defines.h"
 #endif
 
+//#define TI_USE_KROLL_THREAD
+
 #include "ThirdpartyNS.h"

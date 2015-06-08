@@ -961,8 +961,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
     [NSThread detachNewThreadSelector:@selector(main) toTarget:self withObject:nil];
 #else
-    [self performSelector:@selector(main) withObject:nil];
-//    [self main];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self main];
+    });
 #endif
 }
 
@@ -1075,33 +1076,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	[condition unlock];
 #else
-    [obj retain];
-    @try
-    {
-#if CONTEXT_DEBUG == 1
-        NSLog(@"[DEBUG] CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
-#endif
-        if ([NSThread currentThread] != [NSThread mainThread]) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self invoke:obj];
-            });
-        } else {
-            [self invoke:obj];
-        }
-#if CONTEXT_DEBUG == 1
-        NSLog(@"[DEBUG] CONTEXT<%@>: after action event invoke: %@",self,entry);
-#endif
-    }
-    @catch (NSException * e)
-    {
-        // this should never happen as we raise a JS exception inside the
-        // method above but this is a guard anyway
-        DebugLog(@"[ERROR] Application raised an exception: %@",e);
-    }
-    @finally
-    {
-        [obj release];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self invoke:obj];
+    });
 #endif
 }
 
@@ -1140,8 +1117,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[invocation invoke:self];
 		return;
 	}
+    [self enqueue:invocation];
+#else
+    [self invoke:invocation];
 #endif
-	[self enqueue:invocation];
 }
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_
@@ -1153,8 +1132,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[invocation invoke:self];
 		return;
 	}
+    [self enqueue:invocation];
+#else
+    [self invoke:invocation];
 #endif
-	[self enqueue:invocation];
 }
 
 -(void)invokeBlockOnThread:(void (^)())block

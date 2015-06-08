@@ -287,8 +287,13 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		{
 			[o forgetObjectForTiString:prop context:jsContext];
 		}
+#ifdef TI_USE_KROLL_THREAD
 		[o setValue:v forKey:name];
-
+#else
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [o setValue:v forKey:name];
+        });
+#endif
 		return true;
 	}
 	@catch (NSException * ex) 
@@ -1181,12 +1186,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	}
 #ifndef TI_USE_KROLL_THREAD
     };
-    
-    if ([NSThread currentThread] == [NSThread mainThread]) {
-        mainBlock();
-    } else {
-        dispatch_async(dispatch_get_main_queue(), mainBlock);
-    }
+    dispatch_async(dispatch_get_main_queue(), mainBlock);
 #endif
 }
 
