@@ -3399,6 +3399,8 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 		}
 
 		var hook = this.cli.createHook('build.ios.extension.xcodebuild', this, function (exe, args, opts, done) {
+			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' "' + args.join('", "') + '"').cyan));
+
 			var p = spawn(exe, args, opts),
 				out = [],
 				err = [],
@@ -3558,6 +3560,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	}
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
+			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' "' + args.join('", "') + '"').cyan));
+
 			var p = spawn(exe, args, opts),
 				out = [],
 				err = [],
