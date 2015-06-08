@@ -1,5 +1,5 @@
 name: Modules.Cloud.Files
-summary: Provides methods for accessing Arrow DB files.
+summary: Provides methods for accessing ArrowDB files.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 

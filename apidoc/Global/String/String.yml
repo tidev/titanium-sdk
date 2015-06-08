@@ -60,7 +60,7 @@ methods:
         type: Date
         
       - name: format
-        summary: Date format to use. One of 'short', 'medium', or 'long'.
+        summary: Date format to use. One of 'short', 'medium', 'long' or 'full'.
         type: String
         optional: true
         default: 'short'

@@ -38,6 +38,7 @@ exports.bootstrap = function(Titanium) {
 	require("tab").bootstrap(Titanium);
 	require("listview").bootstrap(Titanium);
 	require("webview").bootstrap(Titanium);
+	require("view").bootstrap(Titanium);
 
 	Titanium.invocationAPIs.push({namespace: "UI", api: "createWindow"});
 	Titanium.invocationAPIs.push({namespace: "UI", api: "createTabGroup"});

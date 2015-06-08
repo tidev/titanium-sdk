@@ -1988,6 +1988,13 @@
 	}
 }
 
+-(void)setContentOffset_:(id)args withObject:(id)obj
+{
+    CGPoint offset = [TiUtils pointValue:args];
+    BOOL animated = [TiUtils boolValue: [obj objectForKey:@"animated"] def:NO];
+    [tableview setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -2265,6 +2272,11 @@ return result;	\
 	{
 		// get the section for the row index
 		int index = [[sectionIndexMap objectForKey:title] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys:title, @"title", NUMINT(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
 		return [self sectionIndexForIndex:index];
 	}
 	return 0;

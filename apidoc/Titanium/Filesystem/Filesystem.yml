@@ -125,6 +125,48 @@ properties:
     type: Number
     permission: read-only
 
+  - name: IOS_FILE_PROTECTION_NONE
+    summary: Constant used to set protection key to NSFileProtectionNone in file attributes.
+    description: |
+        File will have no special protection associated with it. Can be read from or written
+        to at any time.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
+  - name: IOS_FILE_PROTECTION_COMPLETE
+    summary: Constant used to set protection key to NSFileProtectionComplete in file attributes.
+    description: |
+        File is stored in an encrypted format on disk. Cannot be read from or written to while
+        the device is locked or booting.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
+  - name: IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN
+    summary: Constant used to set protection key to NSFileProtectionCompleteUnlessOpen in file attributes.
+    description: |
+        File is stored in an encrypted format on disk. Can be created while the device is locked, 
+        but once closed, cannot be opened again until the device is unlocked. If the file is opened when 
+        unlocked, you may continue to access the file normally, even if the user locks the device. 
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
+  - name: IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION
+    summary: Constant used to set protection key to NSFileProtectionCompleteUntilFirstUserAuthentication in file attributes.
+    description: |
+        File is stored in an encrypted format on disk. Cannot be accessed until after the device has booted.
+        After the user unlocks the device for the first time, your app can access the file and continue to 
+        access it even if the user subsequently locks the device.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
     description: |

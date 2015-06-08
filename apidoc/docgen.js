@@ -14,6 +14,7 @@ var common = require('./lib/common.js'),
 	yaml = require('js-yaml'),
 	exec = require('child_process').exec,
 	os = require('os'),
+	pathMod = require('path'),
 	assert = common.assertObjectKey,
 	basePaths = [],
 	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
@@ -268,7 +269,7 @@ function processAPIMembers (apis, type, defaultVersions, addon) {
 				}
 			}
 			if (assert(api, 'returns')) {
-				if (Array.isArray(api.returns)) {
+				if (!Array.isArray(api.returns)) {
 					api.returns = [api.returns];
 				}
 				for (x = 0; x < api.returns.length; x++) {
@@ -498,6 +499,9 @@ function cliUsage () {
 	common.log('\t--output, -o    \tDirectory to output the files.');
 	common.log('\t--platform, -p  \tPlatform to extract for addon format.');
 	common.log('\t--stdout        \tOutput processed YAML to stdout.');
+	common.log('\t--start         \tStart version for changes format (will use the version in the package.json if not defined).');
+	common.log('\t--end           \tEnd version for changes format (optional).');
+
 }
 
 /**
@@ -719,6 +723,34 @@ if ((argc = process.argv.length) > 2) {
 					process.exit(1);
 				}
 				break;
+			case '--start':
+				if (++x > argc) {
+					common.log(common.LOG_WARN, 'Specify a version.');
+					cliUsage();
+					process.exit(1);
+				}
+				processedData.__startVersion = process.argv[x];
+				try {
+					nodeappc.version.gt(0.0, processedData.__startVersion);
+				} catch (e) {
+					common.log(common.LOG_ERROR, 'Not a valid version: %s', processedData.__startVersion);
+					process.exit(1);
+				}
+				break;
+			case '--end':
+				if (++x > argc) {
+					common.log(common.LOG_WARN, 'Specify a version.');
+					cliUsage();
+					process.exit(1);
+				}
+				processedData.__endVersion = process.argv[x];
+				try {
+					nodeappc.version.gt(0.0, processedData.__endVersion);
+				} catch (e) {
+					common.log(common.LOG_ERROR, 'Not a valid version: %s', processedData.__endVersion);
+					process.exit(1);
+				}
+				break;
 			case '--colorize':
 			case '--exclude-external':
 			case '-e':
@@ -805,6 +837,21 @@ for (var key in doc) {
 }
 
 formats.forEach(function (format) {
+
+	// For changes format, make sure we have a start version and it's less than the end version if defined
+	if (format === 'changes') {
+		if (!processedData.__startVersion) {
+			processedData.__startVersion = JSON.parse(fs.readFileSync(pathMod.join(apidocPath, '..', 'package.json'), 'utf8')).version;
+		}
+		if (processedData.__endVersion) {
+			if (nodeappc.version.gt(processedData.__startVersion, processedData.__endVersion)) {
+				common.log(common.LOG_ERROR, 'Skipping changes format.  Start version (%s) is greater than end version (%s).',
+						processedData.__startVersion, processedData.__endVersion);
+				return;
+			}
+		}
+	}
+
 	// Export data
 	exporter = require('./lib/' + format + '_generator.js');
 	if (format === 'modulehtml') {
@@ -846,6 +893,15 @@ formats.forEach(function (format) {
 				});
 			});
 			common.log('Generated output at %s', output);
+			break;
+		case 'changes' :
+			if (exportData.noResults) {
+				common.log('No API changes found.');
+				return;
+			}
+			output = pathMod.join(output, 'changes_' + exportData.startVersion.replace(/\./g, '_') + '.html');
+			templateStr = fs.readFileSync(pathMod.join(templatePath, 'changes.ejs'), 'utf8');
+			render = ejs.render(templateStr, {data: exportData, filename: true, assert: common.assertObjectKey});
 			break;
 		case 'html' :
 		case 'modulehtml' :
@@ -914,6 +970,9 @@ formats.forEach(function (format) {
 			render = ejs.render(templateStr, {apis: exportData});
 			output = output + 'parity.html';
 			break;
+		case 'solr' :
+			render = JSON.stringify(exportData, null, '    ');
+			output = output + 'api_solr.json';
 	}
 
 	if (!~['addon'].indexOf(format)) {

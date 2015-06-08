@@ -282,6 +282,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
+-(void)setContentOffset_:(id)value withObject:(id)args
+{
+    CGPoint offset = [TiUtils pointValue:value];
+    BOOL animated = [TiUtils boolValue: [args valueForKey:@"animated"] def:NO];
+    [_tableView setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -837,8 +844,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (searchActive) {
             [self buildResultsForSearchText];
         }
-        [_tableView reloadSectionIndexTitles];
     }
+    [_tableView reloadSectionIndexTitles];
 }
 
 #pragma mark - SectionIndexTitle Support Datasource methods.
@@ -878,6 +885,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
             NSUInteger index = [filteredTitles indexOfObject:title];
+
+            if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+                [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+            }
+
             if (index > 0 && (index < [filteredIndices count]) ) {
                 return [[filteredIndices objectAtIndex:index] intValue];
             }
@@ -890,8 +903,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
         NSUInteger index = [sectionTitles indexOfObject:title];
+        int sectionIndex = [[sectionIndices objectAtIndex:index] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
+
         if (index > 0 && (index < [sectionIndices count]) ) {
-            return [[sectionIndices objectAtIndex:index] intValue];
+            return sectionIndex;
         }
         return 0;
     }

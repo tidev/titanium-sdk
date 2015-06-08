@@ -2669,7 +2669,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 			titaniumPrepHook(
 				path.join(this.platformPath, titaniumPrep),
-				args,
+				args.slice(0),
 				opts,
 				function (err) {
 					if (!err) {
@@ -3285,9 +3285,25 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	function replaceSpaces(s) {
 		return s.replace(/./g, '\\u0020');
 	}
+	
+	function resolveRegionName(locale) {
+		if (locale.match(/\w{2}(-|_)r?\w{2}/)) {
+			var parts = locale.split(/-|_/),
+			    lang = parts[0],
+			    region = parts[1],
+			    separator = '-';
+	
+			if (region.length == 2) {
+				separator = '-r';
+			}
+	
+			return lang + separator + region;
+		}
+		return locale;
+	}
 
 	Object.keys(data).forEach(function (locale) {
-		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
+		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + resolveRegionName(locale)), 'strings.xml'),
 			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
 			root = dom.documentElement,
 			appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
