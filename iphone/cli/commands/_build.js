@@ -1620,7 +1620,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					project = xobjs.PBXProject,
 					target = null,
 					swiftRegExp = /\.swift$/;
-
 				Object.keys(project).some(function (id) {
 					if (!project[id] || typeof project[id] !== 'object') {
 						return false;
@@ -1631,7 +1630,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							var nativeTarget = target = xobjs.PBXNativeTarget[t.value],
 								cfg = xobjs.XCConfigurationList[nativeTarget.buildConfigurationList],
 								cfgid = cfg.buildConfigurations
-									.filter(function (c) { return c.comment === cfg.defaultConfigurationName; })
+									.filter(function (c) { return c.comment.toLowerCase() === (cfg.defaultConfigurationName ? cfg.defaultConfigurationName.toLowerCase() : 'release'); })
 									.map(function (c) { return c.value; })
 									.shift(),
 								buildSettings = xobjs.XCBuildConfiguration[cfgid].buildSettings,
