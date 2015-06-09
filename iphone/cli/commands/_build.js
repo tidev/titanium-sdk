@@ -53,7 +53,8 @@ function iOSBuilder() {
 	this.deviceFamilies = {
 		iphone: '1',
 		ipad: '2',
-		universal: '1,2'
+		universal: '1,2',
+		watch: '4'
 	};
 
 	// populated the first time getDeviceFamily() is called
@@ -3355,13 +3356,14 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 			'-target', extension.target,
 			'-configuration', this.xcodeTarget,
 			'-sdk', this.xcodeTargetOS,
-			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
+			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies['watch'],
 			'ONLY_ACTIVE_ARCH=NO',
 			'DEAD_CODE_STRIPPING=YES',
 			'GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' ')
 		];
 
 		if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+			xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
 			xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
 			if (this.keychain) {
 				xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
@@ -3398,7 +3400,7 @@ iOSBuilder.prototype.invokeXcodeBuildOnExtensionDependencies = function invokeXc
 		}
 
 		var hook = this.cli.createHook('build.ios.extension.xcodebuild', this, function (exe, args, opts, done) {
-			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' "' + args.join('", "') + '"').cyan));
+			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
 
 			var p = spawn(exe, args, opts),
 				out = [],
@@ -3559,7 +3561,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	}
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
-			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' "' + args.join('", "') + '"').cyan));
+			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
 
 			var p = spawn(exe, args, opts),
 				out = [],
