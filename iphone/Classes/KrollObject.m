@@ -290,9 +290,10 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 #ifdef TI_USE_KROLL_THREAD
 		[o setValue:v forKey:name];
 #else
-        dispatch_async(dispatch_get_main_queue(), ^{
+        
+        TiThreadPerformOnMainThread(^{
             [o setValue:v forKey:name];
-        });
+        }, YES);
 #endif
 		return true;
 	}
