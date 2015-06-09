@@ -57,7 +57,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
         
         //get carrier name
         CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-        carrier = [[netinfo subscriberCellularProvider] carrierName];
+        carrier = [[[netinfo subscriberCellularProvider] carrierName] retain];
         [netinfo release];
 		
 		NSString *themodel = [theDevice model];
