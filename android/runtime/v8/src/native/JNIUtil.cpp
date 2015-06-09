@@ -105,6 +105,7 @@ jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
+jmethodID JNIUtil::krollAssetHelperReadCustomAssetMethod = NULL;
 jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
 jmethodID JNIUtil::krollRuntimeDispatchExceptionMethod = NULL;
@@ -366,6 +367,7 @@ void JNIUtil::initCache()
 
 	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
+	krollAssetHelperReadCustomAssetMethod = getMethodID(krollAssetHelperClass, "readCustomAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
 

@@ -23,15 +23,30 @@ public class KrollAssetHelper
 	private static WeakReference<AssetManager> manager;
 	private static String packageName, cacheDir;
 	private static AssetCrypt assetCrypt;
+	private static TiResourceUtils tiResourceUtils;
 
 	public interface AssetCrypt
 	{
 		String readAsset(String path);
 	}
+	
+	public interface TiResourceUtils
+	{
+		boolean useCustomResourceDirectory();
+		boolean useAssetDirectory();
+		boolean isExist(String path);
+		String getBasePath();
+		String getPath(String path);
+	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)
 	{
 		KrollAssetHelper.assetCrypt = assetCrypt;
+	}
+	
+	public static void setTiResourceUtils(TiResourceUtils tiResourceUtils)
+	{
+		KrollAssetHelper.tiResourceUtils = tiResourceUtils;
 	}
 
 	public static void init(Context context)
@@ -39,6 +54,22 @@ public class KrollAssetHelper
 		KrollAssetHelper.manager = new WeakReference<AssetManager>(context.getAssets());
 		KrollAssetHelper.packageName = context.getPackageName();
 		KrollAssetHelper.cacheDir = context.getCacheDir().getAbsolutePath();
+	}
+	
+	public static String readCustomAsset(String path)
+	{
+		String resourcePath = path.replace("Resources/", "");
+		
+		if(tiResourceUtils.useCustomResourceDirectory() && tiResourceUtils.isExist(resourcePath)){
+			Log.d(TAG, "Search in folder: "+tiResourceUtils.getBasePath());
+			String fullPath = tiResourceUtils.getPath(resourcePath);
+			if(tiResourceUtils.useAssetDirectory()){
+				return readAsset(fullPath);
+			}else{
+				return readFile(fullPath);
+			}
+		}
+		return readAsset(path);
 	}
 
 	public static String readAsset(String path)

@@ -27,11 +27,56 @@ void AssetsModule::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 
+	DEFINE_METHOD(target, "readCustomAsset", readCustomAsset);
 	DEFINE_METHOD(target, "readAsset", readAsset);
 	DEFINE_METHOD(target, "readFile", readFile);
 
 }
 
+Handle<Value> AssetsModule::readCustomAsset(const Arguments& args)
+{
+	if (args.Length() < 1) {
+		return JSException::Error("Missing required argument 'resourceName'.");
+	}
+	
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
+	}
+	
+	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
+	
+	jstring assetData = (jstring) env->CallStaticObjectMethod(
+		JNIUtil::krollAssetHelperClass,
+		JNIUtil::krollAssetHelperReadCustomAssetMethod,
+		resourceName);
+	
+	env->DeleteLocalRef(resourceName);
+	
+	if (env->ExceptionCheck()) {
+		LOGE(TAG, "Failed to load resource.");
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+		return JSException::Error("Failed to load resource, Java exception was thrown.");
+	}
+	
+	if (!assetData) {
+		return v8::Null();
+	}
+	
+	jint len = env->GetStringLength(assetData);
+	const jchar *assetChars = env->GetStringChars(assetData, NULL);
+	if (!assetChars) {
+		return v8::Null();
+	}
+	
+	Local<String> resourceData = String::New(assetChars, len);
+	env->ReleaseStringChars(assetData, assetChars);
+	env->DeleteLocalRef(assetData);
+	
+	return resourceData;
+}
+	
 Handle<Value> AssetsModule::readAsset(const Arguments& args)
 {
 	if (args.Length() < 1) {
