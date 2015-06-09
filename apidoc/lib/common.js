@@ -27,7 +27,7 @@ exports.DEFAULT_VERSIONS = {
 };
 exports.ADDON_VERSIONS = {
 	'blackberry' : '3.1.2',
-	'windowsphone' : '4.0.0'
+	'windowsphone' : '4.1.0'
 };
 exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
 exports.PRETTY_PLATFORM = {
