@@ -109,7 +109,7 @@ function install(udid, appPath, appId, options, callback) {
 			logOff,
 			trackOff = iosDevice.trackDevices(function (err, devices) {
 				if (!devices.some(function (device) { return device.udid === udid; })) {
-					trackOff();
+					trackOff && trackOff();
 					logOff && logOff();
 					if (state === RUNNING) {
 						emitter.emit('app-quit');
@@ -130,7 +130,7 @@ function install(udid, appPath, appId, options, callback) {
 						iosDevice.installApp(udid, appPath, function (err) {
 							if (err) {
 								emitter.emit('error', err);
-								trackOff();
+								trackOff && trackOff();
 								logOff && logOff();
 							} else {
 								emitter.emit('installed');
