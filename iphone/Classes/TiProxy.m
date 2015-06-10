@@ -796,8 +796,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 }
-
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source
+{
+    [self fireCallback:type withArg:argDict withSource:source withHandler:nil];
+}
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))block
 {
 	NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
 	if ([argDict isKindOfClass:[NSDictionary class]])
@@ -806,7 +809,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil)) {
-		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:block];
 		return;
 	}
 	
@@ -815,7 +818,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	for (KrollBridge * currentBridge in bridges)
 	{
 		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
-		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:nil];
 	}
 }
 

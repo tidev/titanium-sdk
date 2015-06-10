@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1134,7 +1134,11 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	TiStringRelease(nameRef);
 }
 
--(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(id)thisObject
+-(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject*)thisObject
+{
+    [self invokeCallbackForKey:key withObject:eventData thisObject:thisObject onDone:nil];
+}
+-(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject*)thisObject onDone:(void(^)(id result))block
 {
 
 	if (finalized)
@@ -1166,6 +1170,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
 	{
+        if (block != nil) block(nil);
 		return;
 	}
 	
@@ -1175,19 +1180,27 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	if ((jsCallback == NULL) || (TiValueGetType(jsContext,jsCallback) != kTITypeObject))
 	{
+        if (block != nil) block(nil);
 		return;
 	}
 
 	TiValueRef jsEventData = ConvertIdTiValue(context, eventData);
-	TiObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData,&exception);
+	TiValueRef result = TiObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData,&exception);
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 	}
+        if (block != nil) {
+            block(TiValueToId(context, result));
+        };
 #ifndef TI_USE_KROLL_THREAD
     };
-    dispatch_async(dispatch_get_main_queue(), mainBlock);
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), mainBlock);
+    } else {
+        mainBlock();
+    }
 #endif
 }
 
