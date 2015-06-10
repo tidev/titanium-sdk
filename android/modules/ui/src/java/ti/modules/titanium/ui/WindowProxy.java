@@ -429,17 +429,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				return true;
 			}
 			case MSG_SET_STATUS_BAR_COLOR: {
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-					return true;
-				}
-				Activity activity = getWindowActivity();
-				if (activity != null) {
-					Window win = activity.getWindow();
-					if (win != null) {
-						win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-						win.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-						win.setStatusBarColor(TiConvert.toColor((String)(msg.obj)));	
-					}
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					Activity activity = getWindowActivity();
+					if (activity != null) {
+						Window win = activity.getWindow();
+						if (win != null) {
+							win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+							win.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+							win.setStatusBarColor(TiConvert.toColor((String)(msg.obj)));	
+						}
+					}	
 				}
 				return true;
 			}
