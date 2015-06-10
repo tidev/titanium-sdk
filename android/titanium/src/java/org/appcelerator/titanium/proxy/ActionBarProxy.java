@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TypefaceSpan;
 
@@ -22,7 +23,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.graphics.drawable.ColorDrawable;
 
 import java.util.HashMap;
@@ -460,15 +463,18 @@ public class ActionBarProxy extends KrollProxy
 		}
 
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			Object font = d.get(TiC.PROPERTY_FONT);
-			String fontFamily;
-			if(font instanceof HashMap){
-				fontFamily = (String) ((HashMap) font).get(TiC.PROPERTY_FONTFAMILY);
-			}else{
-				fontFamily = (String) font;
+			HashMap<String, Object> font = (HashMap) d.get(TiC.PROPERTY_FONT);
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY)), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
-			ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), fontFamily), 0,
-					ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				ssb.setSpan(new AbsoluteSizeSpan((int) TiUIHelper.getRawSize(TiConvert.toString(font, TiC.PROPERTY_FONTSIZE), getActivity())),0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); ;
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				int typefaceStyle = TiUIHelper.toTypefaceStyle(TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT), TiConvert.toString(font, TiC.PROPERTY_FONTSTYLE));
+				ssb.setSpan(new StyleSpan(typefaceStyle), 0, ssb.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
 		}
 		
 		actionBar.setTitle(ssb);
@@ -509,15 +515,18 @@ public class ActionBarProxy extends KrollProxy
 		}
 
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			Object font = d.get(TiC.PROPERTY_FONT);
-			String fontFamily;
-			if(font instanceof HashMap){
-				fontFamily = (String) ((HashMap) font).get(TiC.PROPERTY_FONTFAMILY);
-			}else{
-				fontFamily = (String) font;
+			HashMap<String, Object> font = (HashMap) d.get(TiC.PROPERTY_FONT);
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY)), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
-			ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), fontFamily), 0,
-					ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				ssb.setSpan(new AbsoluteSizeSpan((int) TiUIHelper.getRawSize(TiConvert.toString(font, TiC.PROPERTY_FONTSIZE), getActivity())),0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); ;
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				int typefaceStyle = TiUIHelper.toTypefaceStyle(TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT), TiConvert.toString(font, TiC.PROPERTY_FONTSTYLE));
+				ssb.setSpan(new StyleSpan(typefaceStyle), 0, ssb.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
 		}
 		
 		actionBar.setSubtitle(ssb);

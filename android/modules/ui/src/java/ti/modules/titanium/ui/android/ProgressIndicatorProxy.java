@@ -19,6 +19,8 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_MESSAGE,
 	TiC.PROPERTY_MESSAGEID,
+	TiC.PROPERTY_FONT,
+	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_VALUE,
 	TiC.PROPERTY_LOCATION,
 	TiC.PROPERTY_TYPE,

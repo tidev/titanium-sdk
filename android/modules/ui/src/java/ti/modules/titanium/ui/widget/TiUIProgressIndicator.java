@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -17,6 +18,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TypefaceSpan;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -25,6 +28,11 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 
 public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
@@ -96,14 +104,14 @@ public class TiUIProgressIndicator extends TiUIView
 	{
 		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
-		if (key.equals(TiC.PROPERTY_MESSAGE)) {
+		if (key.equals(TiC.PROPERTY_MESSAGE) || key.equals(TiC.PROPERTY_COLOR) || key.equals(TiC.PROPERTY_FONT)) {
 			if (visible) {
 				if (progressDialog != null) {
-					progressDialog.setMessage((String) newValue);
+					progressDialog.setMessage(buildMessage());
 
 				} else {
 					Activity parent = (Activity) this.proxy.getActivity();
-					parent.setTitle((String) newValue);
+					parent.setTitle(buildMessage());
 				}
 			}
 
@@ -125,6 +133,32 @@ public class TiUIProgressIndicator extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+	
+	public SpannableStringBuilder buildMessage() {
+		KrollDict d = this.proxy.getProperties();
+		SpannableStringBuilder ssb = new SpannableStringBuilder(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			ssb.setSpan(
+					new ForegroundColorSpan(TiConvert.toColor((String) d
+							.get(TiC.PROPERTY_COLOR))), 0, ssb.length(),
+					Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		}
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			HashMap<String, Object> font = (HashMap) d.get(TiC.PROPERTY_FONT);
+			if (font.containsKey(TiC.PROPERTY_FONTFAMILY)) {
+				ssb.setSpan(new TypefaceSpan(TiApplication.getInstance(), TiConvert.toString(font, TiC.PROPERTY_FONTFAMILY)), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTSIZE)) {
+				ssb.setSpan(new AbsoluteSizeSpan((int) TiUIHelper.getRawSize(TiConvert.toString(font, TiC.PROPERTY_FONTSIZE), this.proxy.getActivity())),0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); ;
+			}
+			if (font.containsKey(TiC.PROPERTY_FONTWEIGHT)) {
+				int typefaceStyle = TiUIHelper.toTypefaceStyle(TiConvert.toString(font, TiC.PROPERTY_FONTWEIGHT), TiConvert.toString(font, TiC.PROPERTY_FONTSTYLE));
+				ssb.setSpan(new StyleSpan(typefaceStyle), 0, ssb.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		}
+		return ssb;
 	}
 
 	public void show(KrollDict options)
@@ -148,11 +182,6 @@ public class TiUIProgressIndicator extends TiUIView
 
 	protected void handleShow()
 	{
-		String message = "";
-		if (proxy.hasProperty(TiC.PROPERTY_MESSAGE)) {
-			message = (String) proxy.getProperty(TiC.PROPERTY_MESSAGE);
-		}
-
 		location = DIALOG;
 		if (proxy.hasProperty(TiC.PROPERTY_LOCATION)) {
 			location = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_LOCATION));
@@ -181,13 +210,13 @@ public class TiUIProgressIndicator extends TiUIView
 				parent.setProgressBarIndeterminate(true);
 				parent.setProgressBarIndeterminateVisibility(true);
 				statusBarTitle = parent.getTitle().toString();
-				parent.setTitle(message);
+				parent.setTitle(buildMessage());
 			} else if (type == DETERMINANT) {
 				parent.setProgressBarIndeterminate(false);
 				parent.setProgressBarIndeterminateVisibility(false);
 				parent.setProgressBarVisibility(true);
 				statusBarTitle = parent.getTitle().toString();
-				parent.setTitle(message);
+				parent.setTitle(buildMessage());
 			} else {
 				Log.w(TAG, "Unknown type: " + type);
 			}
@@ -207,7 +236,7 @@ public class TiUIProgressIndicator extends TiUIView
 				progressDialog.setOnCancelListener(this);
 			}
 
-			progressDialog.setMessage(message);
+			progressDialog.setMessage(buildMessage());
 			// setCanceledOnTouchOutside() overrides the value of setCancelable(), so order of execution matters.
 			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
