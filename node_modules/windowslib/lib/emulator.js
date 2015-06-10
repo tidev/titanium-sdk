@@ -121,7 +121,9 @@ function isRunning(udid, options, callback) {
 							}
 
 							appc.subprocess.run(options.powershell || 'powershell', [
-								'-command',
+								'-ExecutionPolicy',
+								'Bypass',
+								'-File',
 								script
 							], function (code, out, err) {
 								if (code) {
@@ -429,7 +431,9 @@ function stop(emuHandle, options, callback) {
 							setTimeout(function () {
 								// next get hyper-v to think the emulator is not running
 								appc.subprocess.run(options.powershell || 'powershell', [
-									'-command',
+									'-ExecutionPolicy',
+									'Bypass',
+									'-File',
 									psScript,
 									'"' + emuHandle.name + '"'
 								], function (code, out, err) {
