@@ -24,6 +24,7 @@ const
 	env          = exports.env          = require('./lib/env'),
 	windowsphone = exports.windowsphone = require('./lib/windowsphone'),
 	wptool       = exports.wptool       = require('./lib/wptool'),
+	winstore     = exports.winstore     = require('./lib/winstore'),
 	visualstudio = exports.visualstudio = require('./lib/visualstudio');
 
 var cache;
@@ -34,7 +35,6 @@ exports.install  = install;
 exports.LogRelay = require('./lib/logrelay');
 exports.process  = require('./lib/process');
 exports.version  = packageJson.version;
-exports.winstore = require('./lib/winstore');
 
 /**
  * Detects the entire Windows phone environment information.
@@ -83,7 +83,7 @@ function detect(options, callback) {
 			});
 		}
 
-		async.each([env, visualstudio, windowsphone, assemblies, device, emulator], function (lib, next) {
+		async.each([env, visualstudio, windowsphone, assemblies, device, winstore, emulator], function (lib, next) {
 			lib.detect(options, function (err, result) {
 				err || mix(result, results);
 				next(err);
@@ -99,7 +99,7 @@ function detect(options, callback) {
 			}
 		});
 	});
-};
+}
 
 /**
  * Installs the specified app to an Windows Phone emulator. If the emulator is not running, it will launch it.

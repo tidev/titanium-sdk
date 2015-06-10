@@ -83,7 +83,7 @@ function create(appid, certificateFile, options, callback) {
 				appc.subprocess.run(vsInfo.vcvarsall, [
 					'&&',
 					options.powershell || 'powershell',
-					'-command', psScript,
+					'-ExecutionPolicy', 'Bypass', '-File', psScript,
 					appid,
 					moment().add(2, 'years').format('L'),
 					'"' + certPath + '"'
