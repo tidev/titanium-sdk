@@ -19,9 +19,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
@@ -70,28 +68,28 @@ public class TiUISwitch extends TiUIView
 			try {
 				if(d.containsKey(TiC.PROPERTY_TRACK_SHAPE)){
 					StateListDrawable track = new StateListDrawable();
-					Drawable trDrawableOn = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0));
+					GradientDrawable trDrawableOn = (GradientDrawable) TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0)).mutate();
 					if(d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR_ON)){
-						trDrawableOn.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_ON), PorterDuff.Mode.SRC_ATOP);
+						trDrawableOn.setColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_ON));
 					}
 					track.addState(new int[]{android.R.attr.state_checked}, trDrawableOn);
-					Drawable trDrawableOff = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0));
+					GradientDrawable trDrawableOff = (GradientDrawable) TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_TRACK_SHAPE), 0)).mutate();
 					if(d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR_OFF)){
-						trDrawableOff.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_OFF), PorterDuff.Mode.SRC_ATOP);
+						trDrawableOff.setColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR_OFF));
 					}
 					track.addState(new int[]{-android.R.attr.state_checked}, trDrawableOff);
 					((SwitchCompat) cb).setTrackDrawable(track);
 				}	
 				if(d.containsKey(TiC.PROPERTY_THUMB_SHAPE)){
 					StateListDrawable thumb = new StateListDrawable();
-					Drawable thDrawableOn = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)); 
+					GradientDrawable thDrawableOn = (GradientDrawable) TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)).mutate(); 
 					if(d.containsKey(TiC.PROPERTY_THUMB_TINT_COLOR_ON)){
-						thDrawableOn.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_ON), PorterDuff.Mode.SRC_ATOP);
+						thDrawableOn.setColor(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_ON));
 					}
 					thumb.addState(new int[]{android.R.attr.state_checked}, thDrawableOn);
-					Drawable thDrawableOff = TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)); 
+					GradientDrawable thDrawableOff = (GradientDrawable) TiUIHelper.getResourceDrawable(TiConvert.toInt(d.get(TiC.PROPERTY_THUMB_SHAPE), 0)).mutate(); 
 					if(d.containsKey(TiC.PROPERTY_THUMB_TINT_COLOR_OFF)){
-						thDrawableOff.setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_OFF), PorterDuff.Mode.SRC_ATOP);
+						thDrawableOff.setColor(TiConvert.toColor(d, TiC.PROPERTY_THUMB_TINT_COLOR_OFF));
 					}
 					thumb.addState(new int[]{-android.R.attr.state_checked}, thDrawableOff);
 					((SwitchCompat) cb).setThumbDrawable(thumb);
