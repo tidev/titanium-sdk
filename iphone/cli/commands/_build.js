@@ -99,7 +99,8 @@ function iOSBuilder() {
 	];
 
 	this.tiSymbols = {};
-	this.useJSCore=false;
+	this.useJSCore = false;
+	this.runOnMainThread = false;
 
 	// populated when config() is called after iOS info has been detected
 	this.defaultIosVersion = null;
@@ -1546,6 +1547,10 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
 		this.useJSCore = true;
 	}
+
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['run-on-main-thread']) {
+		this.runOnMainThread = true;
+	} 
 
 	if (this.debugHost || this.profilerHost) {
 		this.useJSCore = false;
@@ -3771,15 +3776,27 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
+		var content = fs.readFileSync(path.join(this.platformPath, 'Classes', 'defines.h')).toString();
+		var write = false;
 		// BEGIN TIMOB-17892 changes
 		if (this.useJSCore) {
+			write = true;
 			this.logger.debug(__('Using JavaScriptCore Framework'));
-			fs.writeFileSync(
-				dest,
-				fs.readFileSync(path.join(this.platformPath, 'Classes', 'defines.h')).toString() + '\n#define USE_JSCORE_FRAMEWORK'
-			);
+			content += '\n#define USE_JSCORE_FRAMEWORK';
 		}
 		// END TIMOB-17892 changes
+
+		if (!this.runOnMainThread) {
+			this.logger.debug(__('Running Titanium on Kroll thread'));
+			content += '\n#define TI_USE_KROLL_THREAD';
+			write = true;
+		} else {
+			this.logger.debug(__('Running Titanium on main thread'));
+		}
+
+		if (write) {
+			fs.writeFileSync(dest, content);
+		}
 		return finished();
 	}
 
@@ -3825,6 +3842,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		contents.push('#define USE_JSCORE_FRAMEWORK')
 	}
 	// END TIMOB-17892 changes
+
+	if (!this.runOnMainThread) {
+		this.logger.debug(__('Running Titanium on Kroll thread'));
+		contents.push('#define TI_USE_KROLL_THREAD')
+	} else {
+		this.logger.debug(__('Running Titanium on main thread'));
+	}
 
 	contents = contents.join('\n');
 

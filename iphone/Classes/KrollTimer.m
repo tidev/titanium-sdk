@@ -93,11 +93,9 @@
 	while(1)
 	{
 		// wait until we're signaled or we timeout
-        NSLog(@"locking....");
 		[condition lock];
 		[condition waitUntilDate:date];
 		[condition unlock];
-        NSLog(@"un-locking....");
 
 		// Always break if stopped; it means we were cancelled.  Even if started and then immediately
 		// stopped, this is the behavior we want.
