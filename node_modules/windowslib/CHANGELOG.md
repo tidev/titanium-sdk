@@ -1,3 +1,8 @@
+0.1.13 (6/11/2015)
+-------------------
+  * Expand cert utility functionality
+  * Fix for winstore app install method
+
 0.1.12 (6/9/2015)
 -------------------
   * Fix [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) -  Windows: CLI builds hang on first try due to Powershell permission check in windowslib

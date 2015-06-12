@@ -72,13 +72,18 @@ function install(projectDir, options, callback) {
 				return callback(err);
 			}
 
-			appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-File', psScript + ' -Force'], function (code, out, err) {
+			appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-File', psScript, '-Force'], function (code, out, err) {
 				if (!code) {
 					emitter.emit('installed');
 					return callback();
 				}
 
-				if (out.indexOf('Please rerun the script without the -Force parameter') !== -1) {
+				// I'm seeing "Please run this script without the -Force parameter" for Win 8.1 store apps.
+				// This originally was "Please rerun the script without the -Force parameter" (for Win 8 hybrid apps?)
+				// It's a hack to check for the common substring. Hopefully use of the exact error codes works better first
+				// Error codes 9 and 14 mean rerun without -Force
+				if ((code && (code == 9 || code == 14)) ||
+					out.indexOf('script without the -Force parameter') !== -1) {
 					appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-File', psScript], function (code, out, err) {
 						if (err) {
 							emitter.emit('error', err);
