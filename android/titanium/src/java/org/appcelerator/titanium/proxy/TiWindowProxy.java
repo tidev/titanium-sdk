@@ -17,6 +17,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -234,9 +235,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		this.postOpenListener = listener;
 	}
 
-	public KrollDict handleToImage()
+	public TiBlob handleToImage()
 	{
-		return TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
+		KrollDict d = TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
+		return TiUIHelper.getImageFromDict(d);
 	}
 
 	/*
