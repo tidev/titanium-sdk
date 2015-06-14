@@ -192,7 +192,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 +(BOOL)isIOS9OrGreater
 {
-    return (NSClassFromString(@"UIStackView") !=nil );
+    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
 }
 
 +(BOOL)isIPad
