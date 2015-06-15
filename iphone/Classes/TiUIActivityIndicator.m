@@ -220,7 +220,7 @@
 
 }
 
--(void)setSpinnerColor_:(id)value
+-(void)setIndicatorColor_:(id)value
 {
     UIColor * newColor = [[TiUtils colorValue:value] _color];
     [spinnerColor release];
