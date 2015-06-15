@@ -389,9 +389,9 @@ events:
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
         `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event, and use the `bindId` to check which child control fired the event. 
+        the event.
 
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
     platforms: [iphone, ipad]
     since: 4.1.0
@@ -402,7 +402,7 @@ events:
         type: String
 
       - name: section
-        summary: List section from which the item is deleted.
+        summary: List section from which the event was generated.
         type: Titanium.UI.ListSection
 
       - name: sectionIndex
@@ -933,7 +933,7 @@ methods:
   - name: setMarker
     summary: Sets a reference item in the list view.
     description: |
-        This method replace previous reference items with the current one.
+        This method replaces previous reference items with the current one.
         See [marker](Titanium.UI.ListView.marker) event for details. 
     parameters:
       - name: markerProps
