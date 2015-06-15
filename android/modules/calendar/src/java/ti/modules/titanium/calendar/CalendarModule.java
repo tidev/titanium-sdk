@@ -9,11 +9,13 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import android.os.Build;
+import android.provider.CalendarContract.Calendars;
 
 @Kroll.module
 public class CalendarModule extends KrollModule
@@ -22,6 +24,16 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int STATUS_CONFIRMED = EventProxy.STATUS_CONFIRMED;
 	@Kroll.constant public static final int STATUS_CANCELED = EventProxy.STATUS_CANCELED;
 
+	@Kroll.constant public static final int ACCESS_NONE = Calendars.CAL_ACCESS_NONE;
+	@Kroll.constant public static final int ACCESS_FREEBUSY = Calendars.CAL_ACCESS_FREEBUSY;
+	@Kroll.constant public static final int ACCESS_READ = Calendars.CAL_ACCESS_READ;
+	@Kroll.constant public static final int ACCESS_RESPOND = Calendars.CAL_ACCESS_RESPOND;
+	@Kroll.constant public static final int ACCESS_OVERRIDE = Calendars.CAL_ACCESS_OVERRIDE;
+	@Kroll.constant public static final int ACCESS_CONTRIBUTOR = Calendars.CAL_ACCESS_CONTRIBUTOR;
+	@Kroll.constant public static final int ACCESS_EDITOR = Calendars.CAL_ACCESS_EDITOR;
+	@Kroll.constant public static final int ACCESS_OWNER = Calendars.CAL_ACCESS_OWNER;
+	@Kroll.constant public static final int ACCESS_ROOT = Calendars.CAL_ACCESS_ROOT;
+	
 	@Kroll.constant public static final int VISIBILITY_DEFAULT = EventProxy.VISIBILITY_DEFAULT;
 	@Kroll.constant public static final int VISIBILITY_CONFIDENTIAL = EventProxy.VISIBILITY_CONFIDENTIAL;
 	@Kroll.constant public static final int VISIBILITY_PRIVATE = EventProxy.VISIBILITY_PRIVATE;
@@ -85,6 +97,18 @@ public class CalendarModule extends KrollModule
 		} else {
 			return null;
 		}
+	}
+	
+	@Kroll.method
+	public CalendarProxy createCalendar(KrollDict data)
+	{
+		return CalendarProxy.createCalendar(data);
+	}
+	
+	@Kroll.method
+	public boolean deleteCalendar(int id, @Kroll.argument(optional=true) String accountName)
+	{
+		return CalendarProxy.deleteCalendar(id, accountName);
 	}
 
 	@Kroll.getProperty @Kroll.method

@@ -14,13 +14,20 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Calendars;
 import android.text.format.DateUtils;
 
 @Kroll.proxy(parentModule=CalendarModule.class)
@@ -175,6 +182,57 @@ public class CalendarProxy extends KrollProxy {
 		} else return null;
 	}
 
+	public static CalendarProxy createCalendar(KrollDict data)
+	{
+		if (!data.containsKey(TiC.PROPERTY_NAME)) {
+			Log.e("TiCalendar", "Required fields are missing");
+			return null;
+		}
+		
+		ContentValues values = new ContentValues();
+		String accountName = TiConvert.toString(data.get("accountName"), "Local Calendar");
+		values.put(Calendars.ACCOUNT_NAME, accountName);
+		values.put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+		values.put(Calendars.NAME, "local_" + TiConvert.toString(data, TiC.PROPERTY_NAME));
+		values.put(Calendars.CALENDAR_DISPLAY_NAME, TiConvert.toString(data, TiC.PROPERTY_NAME));
+		if(data.containsKey(TiC.PROPERTY_COLOR)){
+			values.put(Calendars.CALENDAR_COLOR, TiConvert.toColor(data.getString(TiC.PROPERTY_COLOR)));
+		}
+		values.put(Calendars.CALENDAR_ACCESS_LEVEL, TiConvert.toInt(data.get("accessLevel"), Calendars.CAL_ACCESS_OWNER));
+		values.put(Calendars.VISIBLE, TiConvert.toInt(data.get(TiC.PROPERTY_VISIBLE), 1));
+		values.put(Calendars.SYNC_EVENTS, TiConvert.toInt(data.get("syncEvents"), 1));
+		
+		Uri calendarUri = TiApplication.getInstance().getContentResolver().insert(CalendarContract.Calendars.CONTENT_URI.buildUpon()
+	        	.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, accountName)
+	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), values);
+		
+		if (calendarUri == null){
+			Log.e("TiCalendar", "unable to create calendar");
+			return null;
+		}
+		
+		Log.d("TiCalendar", "created calendar with uri: " + calendarUri);
+		
+		String calendarId = calendarUri.getLastPathSegment();
+		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars("Calendars._id = ?", new String[] { "" + calendarId });
+
+		if (calendars.size() > 0) {
+			return calendars.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	public static boolean deleteCalendar(int id, String accountName)
+	{
+		return TiApplication.getInstance().getContentResolver().delete(
+				ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI.buildUpon()
+	        	.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, accountName != null ? accountName : "Local Calendar")
+	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), id), null, null) == 1;
+	}
+	
 	@Kroll.method
 	public EventProxy createEvent(KrollDict data)
 	{
