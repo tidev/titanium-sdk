@@ -275,6 +275,33 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: supportedUserActivityTypes
+    summary: |
+        Provides an Array of the NSUserActivityTypes keys defined within your Titanium project.
+        (available on iOS 8 and later).
+    description: |        
+        Used to obtain a list of the NSUserActivityTypes keys defined in your Titanium project's tiapp.xml file. 
+        These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
+        NSUserActivityTypes must be defined at build time in your tiapp.xml file as shown below:
+
+		<ios>
+		    <plist>
+		        <dict>
+					<key>NSUserActivityTypes</key>
+					<array>
+						<string>com.setdirection.home</string>
+						<string>com.setdirection.shelf</string>
+						<string>com.setdirection.item</string>
+					</array>
+		        </dict>
+		    </plist>
+		</ios>
+
+    type: Array
+    permission: read-only
+    osver: {ios: {min: "8.0"}}
+    since: "4.1.0"
+
   - name: applicationOpenSettingsURL
     summary: Returns a URL to open the app's settings.
     description: |        

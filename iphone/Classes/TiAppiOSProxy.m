@@ -320,7 +320,7 @@
     }, NO);
 }
 
--(NSArray*)supportedUserActivityTypes:(id)unused
+-(NSArray*)supportedUserActivityTypes
 {    
     if (![TiUtils isIOS8OrGreater]) {
         return nil;
