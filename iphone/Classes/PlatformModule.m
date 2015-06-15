@@ -245,6 +245,16 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [TiUtils createUUID];
 }
 
+-(NSString*)dateFormat
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setLocale:[NSLocale currentLocale]];
+    [dateFormatter setDateStyle:NSDateFormatterShortStyle];
+    NSString *dateformat = [dateFormatter dateFormat];
+    [dateFormatter release];
+    return dateformat;
+}
+
 -(NSNumber*) is24HourTimeFormat: (id) unused
 {
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];

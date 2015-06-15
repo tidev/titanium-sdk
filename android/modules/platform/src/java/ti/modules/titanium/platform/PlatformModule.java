@@ -137,6 +137,16 @@ public class PlatformModule extends KrollModule
 	public String getNetmask() {
 		return TiPlatformHelper.getInstance().getNetmask();
 	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getDateFormat()
+	{
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			return ((java.text.SimpleDateFormat) android.text.format.DateFormat.getDateFormat(app.getApplicationContext())).toLocalizedPattern();
+		}
+		return "MM/dd/yyyy";
+	}
 
 	@Kroll.method
 	public boolean is24HourTimeFormat()
