@@ -238,18 +238,14 @@ public class CalendarProxy extends KrollProxy {
 		}
 	}
 	
-	public static boolean deleteCalendar(KrollDict data)
+    @Kroll.method
+	public boolean remove()
 	{
-		if (!data.containsKey("accountName") || !data.containsKey(TiC.PROPERTY_ID)) {
-			Log.e("TiCalendar", "Required fields are missing");
-			return false;
-		}
-		
 		return TiApplication.getInstance().getContentResolver().delete(
 				ContentUris.withAppendedId(Uri.parse(getBaseCalendarUri() + "/calendars").buildUpon()
 	        	.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, TiConvert.toString(data, "accountName"))
-	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), TiConvert.toInt(data, TiC.PROPERTY_ID)), null, null) == 1;
+	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, this.accountName)
+	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, this.accountType).build(), TiConvert.toInt(this.id)), null, null) == 1;
 	}
 	
 	@Kroll.method

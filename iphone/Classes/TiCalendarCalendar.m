@@ -94,6 +94,26 @@
 
 #pragma mark - Public API's
 
+-(NSNumber*)remove:(id)args
+{
+    EKEventStore* ourStore =  [self ourStore];
+    if (ourStore  == NULL) {
+        DebugLog(@"Could not instantiate an event of the event store.");
+        return nil;
+    }
+    __block NSError * error = nil;
+    __block BOOL result;
+    TiThreadPerformOnMainThread(^{
+        result = [ourStore removeCalendar:[self calendar] commit:YES error:&error];
+    }, YES);
+    if (result == NO || error != nil) {
+        [self throwException:[NSString stringWithFormat:@"Failed to remove calendar : %@",[TiUtils messageFromError:error]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    return NUMBOOL(result);
+}
+
 -(TiCalendarEvent*)createEvent:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);

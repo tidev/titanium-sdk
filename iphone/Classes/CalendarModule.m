@@ -181,6 +181,40 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     return calendar;
 }
 
+-(TiCalendarCalendar*)createCalendar:(id)args
+{
+    if (![NSThread isMainThread]) {
+        __block id result = nil;
+        TiThreadPerformOnMainThread(^{result = [[self createCalendar:args] retain];}, YES);
+        return [result autorelease];
+    }
+    
+    NSDictionary *props = [args objectAtIndex:0];
+    EKEventStore* ourStore = [self store];
+    if (ourStore  == NULL) {
+        DebugLog(@"Could not instantiate an event of the event store.");
+        return nil;
+    }
+    EKSource *localSource = nil;
+    for (EKSource *source in [ourStore sources])
+        if ([source sourceType] == EKSourceTypeLocal){
+            localSource = source;
+        break;
+    }
+    EKCalendar* calendar_ = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
+    if (calendar_ == NULL) {
+        return NULL;
+    }
+    calendar_.title = [props objectForKey:@"name"];
+    if([props objectForKey:@"color"])
+    {
+        calendar_.CGColor = [[[TiUtils colorValue:[props objectForKey:@"color"]] _color] CGColor];
+    }
+    calendar_.source = localSource;
+    [ourStore saveCalendar:calendar_ commit:YES error:nil];
+    TiCalendarCalendar* calendar = [[[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self] autorelease];
+    return calendar;
+}
 
 -(TiCalendarCalendar*)defaultCalendar
 {
