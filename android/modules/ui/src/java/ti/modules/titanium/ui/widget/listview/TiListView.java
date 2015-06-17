@@ -102,6 +102,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 	class ListViewWrapper extends FrameLayout {
 		private boolean viewFocused = false;
+		private boolean selectionSet = false;
 		public ListViewWrapper(Context context) {
 			super(context);
 		}
@@ -117,6 +118,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			if (listView == null || (Build.VERSION.SDK_INT >= 18 && listView != null && !changed && viewFocused)) {
 				viewFocused = false;
 				super.onLayout(changed, left, top, right, bottom);
+				return;
+			}
+			// Starting with API 21, setSelection() triggers another layout pass, so we need to end it here to prevent
+			// an infinite loop
+			if (Build.VERSION.SDK_INT >= 21 && selectionSet) {
+				selectionSet = false;
 				return;
 			}
 			OnFocusChangeListener focusListener = null;
@@ -163,7 +170,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					//Restore cursor position
 					if (cursorPosition != -1) {
 						((EditText)focusedView).setSelection(cursorPosition);
+						selectionSet = true;
 					}
+
 				}
 			}
 		}
