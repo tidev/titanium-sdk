@@ -529,7 +529,8 @@ function addOnMerge(baseObj, addObj) {
 							tempArray.push(addOnMerge(match[0], api));
 						} else {
 							if (~['properties', 'methods', 'events'].indexOf(key) &&
-								!(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0)) {
+								!(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0) &&
+									api.summary) {
 								common.log(common.LOG_INFO, 'Adding new API to %s array: %s', key, api.name);
 								tempArray.push(api);
 							} else {
