@@ -149,9 +149,9 @@ public class TiLocation implements Handler.Callback
 	public void doAnalytics(Location location)
 	{
 		long locationTime = location.getTime();
-        TiApplication application = TiApplication.getInstance();
+		TiApplication application = TiApplication.getInstance();
 		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
-			&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
+				&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
 			APSAnalytics.getInstance().sendAppGeoEvent(location);
 		}
 	}
