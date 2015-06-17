@@ -180,6 +180,11 @@ public class EventProxy extends KrollProxy {
 	{
 		return queryEvents(uri, query, queryArgs, orderBy);
 	}
+	
+	@Kroll.method
+	public boolean remove() {
+		return TiApplication.getInstance().getContentResolver().delete(Uri.parse("content://com.android.calendar/events"), "_id=" + this.getId() , null) == 1;
+	}
 
 	public static EventProxy createEvent(CalendarProxy calendar, KrollDict data)
 	{

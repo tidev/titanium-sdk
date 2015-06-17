@@ -33,11 +33,21 @@ import android.text.format.DateUtils;
 @Kroll.proxy(parentModule=CalendarModule.class)
 public class CalendarProxy extends KrollProxy {
 
-	protected String id, name;
+	public static final int ACCESS_NONE = Calendars.CAL_ACCESS_NONE;
+	public static final int ACCESS_FREEBUSY = Calendars.CAL_ACCESS_FREEBUSY;
+	public static final int ACCESS_READ = Calendars.CAL_ACCESS_READ;
+	public static final int ACCESS_RESPOND = Calendars.CAL_ACCESS_RESPOND;
+	public static final int ACCESS_OVERRIDE = Calendars.CAL_ACCESS_OVERRIDE;
+	public static final int ACCESS_CONTRIBUTOR = Calendars.CAL_ACCESS_CONTRIBUTOR;
+	public static final int ACCESS_EDITOR = Calendars.CAL_ACCESS_EDITOR;
+	public static final int ACCESS_OWNER = Calendars.CAL_ACCESS_OWNER;
+	public static final int ACCESS_ROOT = Calendars.CAL_ACCESS_ROOT;
+	
+	protected String id, name, accountName, accountType;
 	protected boolean selected, hidden;
 	private static final long MAX_DATE_RANGE = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
 
-	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
+	public CalendarProxy(String id, String name, boolean selected, boolean hidden, String accountName, String accountType)
 	{
 		super();
 
@@ -45,11 +55,13 @@ public class CalendarProxy extends KrollProxy {
 		this.name = name;
 		this.selected = selected;
 		this.hidden = hidden;
+		this.accountName = accountName;
+		this.accountType = accountType;
 	}
 
-	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden)
+	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden, String accountName, String accountType)
 	{
-		this(id, name, selected, hidden);
+		this(id, name, selected, hidden, accountName, accountType);
 	}
 
 	public static String getBaseCalendarUri()
@@ -69,7 +81,7 @@ public class CalendarProxy extends KrollProxy {
 		Cursor cursor = null;
 		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-				new String[] { "_id", "calendar_displayName", "visible"}, query, queryArgs, null);
+				new String[] { "_id", "calendar_displayName", "visible", "account_name", "account_type"}, query, queryArgs, null);
 		}
 		else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
@@ -89,11 +101,16 @@ public class CalendarProxy extends KrollProxy {
 				boolean selected = !cursor.getString(2).equals("0");
 				// For API level >= 11 (3.0), there is no column "hidden".
 				boolean hidden = false;
-				if (Build.VERSION.SDK_INT < 11) {
+				String accountName = "";
+				String accountType = "";
+				if (Build.VERSION.SDK_INT >= 14) {
+					accountName = cursor.getString(3);
+					accountType = cursor.getString(4);	
+				}else if (Build.VERSION.SDK_INT < 11) {
 					hidden = !cursor.getString(3).equals("0");
 				}
 
-				calendars.add(new CalendarProxy(id, name, selected, hidden));
+				calendars.add(new CalendarProxy(id, name, selected, hidden, accountName, accountType));
 			}
 		}
 
@@ -184,35 +201,32 @@ public class CalendarProxy extends KrollProxy {
 
 	public static CalendarProxy createCalendar(KrollDict data)
 	{
-		if (!data.containsKey(TiC.PROPERTY_NAME)) {
+		if (!data.containsKey("accountName") || !data.containsKey(TiC.PROPERTY_NAME)) {
 			Log.e("TiCalendar", "Required fields are missing");
 			return null;
 		}
-		
+
 		ContentValues values = new ContentValues();
-		String accountName = TiConvert.toString(data.get("accountName"), "Local Calendar");
-		values.put(Calendars.ACCOUNT_NAME, accountName);
+		values.put(Calendars.ACCOUNT_NAME, TiConvert.toString(data, "accountName"));
 		values.put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
-		values.put(Calendars.NAME, "local_" + TiConvert.toString(data, TiC.PROPERTY_NAME));
+		values.put(Calendars.NAME, TiConvert.toString(data, TiC.PROPERTY_NAME));
 		values.put(Calendars.CALENDAR_DISPLAY_NAME, TiConvert.toString(data, TiC.PROPERTY_NAME));
+		values.put(Calendars.CALENDAR_ACCESS_LEVEL, TiConvert.toInt(data.get("accessLevel"), ACCESS_OWNER));
+		values.put(Calendars.VISIBLE, TiConvert.toInt(data.get(TiC.PROPERTY_VISIBLE), 1));
+		values.put(Calendars.SYNC_EVENTS, TiConvert.toInt(data.get("syncEvents"), 1));
 		if(data.containsKey(TiC.PROPERTY_COLOR)){
 			values.put(Calendars.CALENDAR_COLOR, TiConvert.toColor(data.getString(TiC.PROPERTY_COLOR)));
 		}
-		values.put(Calendars.CALENDAR_ACCESS_LEVEL, TiConvert.toInt(data.get("accessLevel"), Calendars.CAL_ACCESS_OWNER));
-		values.put(Calendars.VISIBLE, TiConvert.toInt(data.get(TiC.PROPERTY_VISIBLE), 1));
-		values.put(Calendars.SYNC_EVENTS, TiConvert.toInt(data.get("syncEvents"), 1));
 		
-		Uri calendarUri = TiApplication.getInstance().getContentResolver().insert(CalendarContract.Calendars.CONTENT_URI.buildUpon()
+		Uri calendarUri = TiApplication.getInstance().getContentResolver().insert(Uri.parse(getBaseCalendarUri() + "/calendars").buildUpon()
 	        	.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, accountName)
+	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, TiConvert.toString(data, "accountName"))
 	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), values);
 		
 		if (calendarUri == null){
 			Log.e("TiCalendar", "unable to create calendar");
 			return null;
 		}
-		
-		Log.d("TiCalendar", "created calendar with uri: " + calendarUri);
 		
 		String calendarId = calendarUri.getLastPathSegment();
 		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars("Calendars._id = ?", new String[] { "" + calendarId });
@@ -224,13 +238,18 @@ public class CalendarProxy extends KrollProxy {
 		}
 	}
 	
-	public static boolean deleteCalendar(int id, String accountName)
+	public static boolean deleteCalendar(KrollDict data)
 	{
+		if (!data.containsKey("accountName") || !data.containsKey(TiC.PROPERTY_ID)) {
+			Log.e("TiCalendar", "Required fields are missing");
+			return false;
+		}
+		
 		return TiApplication.getInstance().getContentResolver().delete(
-				ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI.buildUpon()
+				ContentUris.withAppendedId(Uri.parse(getBaseCalendarUri() + "/calendars").buildUpon()
 	        	.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, accountName != null ? accountName : "Local Calendar")
-	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), id), null, null) == 1;
+	        	.appendQueryParameter(Calendars.ACCOUNT_NAME, TiConvert.toString(data, "accountName"))
+	        	.appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build(), TiConvert.toInt(data, TiC.PROPERTY_ID)), null, null) == 1;
 	}
 	
 	@Kroll.method
@@ -261,6 +280,18 @@ public class CalendarProxy extends KrollProxy {
 	public boolean getHidden()
 	{
 		return hidden;
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getAccountName()
+	{
+		return accountName;
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getAccountType()
+	{
+		return accountType;
 	}
 
 	@Override

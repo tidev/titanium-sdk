@@ -20,19 +20,19 @@ import android.provider.CalendarContract.Calendars;
 @Kroll.module
 public class CalendarModule extends KrollModule
 {
+	@Kroll.constant public static final int ACCESS_NONE = CalendarProxy.ACCESS_NONE;
+	@Kroll.constant public static final int ACCESS_FREEBUSY = CalendarProxy.ACCESS_FREEBUSY;
+	@Kroll.constant public static final int ACCESS_READ = CalendarProxy.ACCESS_READ;
+	@Kroll.constant public static final int ACCESS_RESPOND = CalendarProxy.ACCESS_RESPOND;
+	@Kroll.constant public static final int ACCESS_OVERRIDE = CalendarProxy.ACCESS_OVERRIDE;
+	@Kroll.constant public static final int ACCESS_CONTRIBUTOR = CalendarProxy.ACCESS_CONTRIBUTOR;
+	@Kroll.constant public static final int ACCESS_EDITOR = CalendarProxy.ACCESS_EDITOR;
+	@Kroll.constant public static final int ACCESS_OWNER = CalendarProxy.ACCESS_OWNER;
+	@Kroll.constant public static final int ACCESS_ROOT = CalendarProxy.ACCESS_ROOT;
+	
 	@Kroll.constant public static final int STATUS_TENTATIVE = EventProxy.STATUS_TENTATIVE;
 	@Kroll.constant public static final int STATUS_CONFIRMED = EventProxy.STATUS_CONFIRMED;
 	@Kroll.constant public static final int STATUS_CANCELED = EventProxy.STATUS_CANCELED;
-
-	@Kroll.constant public static final int ACCESS_NONE = Calendars.CAL_ACCESS_NONE;
-	@Kroll.constant public static final int ACCESS_FREEBUSY = Calendars.CAL_ACCESS_FREEBUSY;
-	@Kroll.constant public static final int ACCESS_READ = Calendars.CAL_ACCESS_READ;
-	@Kroll.constant public static final int ACCESS_RESPOND = Calendars.CAL_ACCESS_RESPOND;
-	@Kroll.constant public static final int ACCESS_OVERRIDE = Calendars.CAL_ACCESS_OVERRIDE;
-	@Kroll.constant public static final int ACCESS_CONTRIBUTOR = Calendars.CAL_ACCESS_CONTRIBUTOR;
-	@Kroll.constant public static final int ACCESS_EDITOR = Calendars.CAL_ACCESS_EDITOR;
-	@Kroll.constant public static final int ACCESS_OWNER = Calendars.CAL_ACCESS_OWNER;
-	@Kroll.constant public static final int ACCESS_ROOT = Calendars.CAL_ACCESS_ROOT;
 	
 	@Kroll.constant public static final int VISIBILITY_DEFAULT = EventProxy.VISIBILITY_DEFAULT;
 	@Kroll.constant public static final int VISIBILITY_CONFIDENTIAL = EventProxy.VISIBILITY_CONFIDENTIAL;
@@ -106,9 +106,9 @@ public class CalendarModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public boolean deleteCalendar(int id, @Kroll.argument(optional=true) String accountName)
+	public boolean deleteCalendar(KrollDict data)
 	{
-		return CalendarProxy.deleteCalendar(id, accountName);
+		return CalendarProxy.deleteCalendar(data);
 	}
 
 	@Kroll.getProperty @Kroll.method
