@@ -148,13 +148,13 @@ properties:
     summary: Makes the label be exactly this many lines tall.
     platforms: [android]
     type: Number
-    since: "3.5.0"
+    since: "4.1.0"
     
   - name: maxLines
     summary: Makes the label at most this many lines tall.
     platforms: [android]
     type: Number
-    since: "3.5.0"
+    since: "4.1.0"
     
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
