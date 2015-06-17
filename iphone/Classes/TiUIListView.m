@@ -2022,12 +2022,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (!CGRectContainsPoint([view bounds], point)) {
         return nil;
     }
-    for (int i = [view.subviews count]-1; i >=0; i--){
+    for (int i = (int)[view.subviews count]-1; i >=0; i--){
         UIView *subview = [view.subviews objectAtIndex:i];
         TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
         if (viewProxy != nil) {
             id bindId = [viewProxy valueForKey:@"bindId"];
-            if (bindId != nil && subview.userInteractionEnabled) {
+            if (bindId != nil) {
                 return viewProxy;
             }
         }
