@@ -1858,6 +1858,12 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     else if ([image isKindOfClass:[TiBlob class]]) {
         resultImage = [image image];
     }
+    if (resultImage == nil) {
+        if ([image isKindOfClass:[NSString class]]) {
+            NSURL* imageURL = [TiUtils toURL:image relativeToURL:nil];
+            resultImage = [[ImageLoader sharedLoader] loadRemote:imageURL];
+        }
+    }
     return resultImage;
 }
 
