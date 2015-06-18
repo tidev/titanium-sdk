@@ -460,6 +460,9 @@ function exportAPIs (api, type) {
 	if (type in api) {
 		for (x = 0; x < api[type].length; x++) {
 			member = api[type][x];
+			if (member.__hide) {
+				continue;
+			}
 
 			annotatedMember.name = member.name;
 			annotatedMember.deprecated = exportDeprecated(member);

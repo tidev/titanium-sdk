@@ -213,12 +213,21 @@ exports.exportData = function exportSOLR (apis) {
 		cls = apis[className];
 		rv.push(exportAPI(cls, 'class'));
 		cls.properties.forEach(function (property) {
+			if (property.__hide) {
+				return;
+			}
 			rv.push(exportAPI(property, 'property', className));
 		});
 		cls.methods.forEach(function (method) {
+			if (method.__hide) {
+				return;
+			}
 			rv.push(exportAPI(method, 'method', className));
 		});
 		cls.events.forEach(function (event) {
+			if (event.__hide) {
+				return;
+			}
 			rv.push(exportAPI(event, 'event', className));
 		});
 		cls = {};
