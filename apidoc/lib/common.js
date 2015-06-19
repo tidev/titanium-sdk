@@ -176,7 +176,8 @@ exports.parseYAML = function parseYAML(path) {
 								rv.data[doc.name] = doc;
 								rv.data[doc.name].__file = currentFile;
 							} else {
-								console.warn('WARNING: Duplicate key: %s', doc.name);
+								console.warn('WARNING: Duplicate key: %s, attempting to merge', doc.name);
+								nodeappc.util.mixObj(rv.data[doc.name], doc);
 							}
 						});
 					}
