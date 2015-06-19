@@ -207,6 +207,48 @@ methods:
         summary: Callback function to execute when a response is received.
         type: Callback<CloudResponse>
 
+  - name: createX509CertificatePinningSecurityManager
+    summary: creates a security manager to authenticate specified HTTPS URLs.
+    description: |
+            <p class="note">This feature requires a Team or Enterprise subscription!</p> 
+            <p class="note">This feature requires the https module!</p> 
+            Authenticates a set of HTTPS servers by pinning an HTTPS server's URL to its
+            public key contained in the certificate. 
+            The security manager will guarantee that all `HTTPClient` connections to this URL
+            are to a server that holds the private key corresponding to the public key embedded in the
+            certificate, therefore authenticating the server and preventing man-in-the-middle attacks.
+            By default, the base URL for each call in <Modules.Cloud> is the public URL (**api.cloud.appcelerator.com**).
+            So to use this feature by default, you will need to get api.cloud.appcelerator.der by simply executing these 
+            2 commands:
+
+            echo -n | openssl s_client -connect api.cloud.appcelerator.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > api.cloud.appcelerator.com.crt
+            openssl x509 -in api.cloud.appcelerator.com.crt -outform der -out api.cloud.appcelerator.com.der
+
+            For virtual private cloud (VPC) deployments, you can specify a different URL.
+            After generating the X509 certifcate file in der format, you have to place it in the Resources folder in your titanium project.
+            Before making any Cloud request, it is important to create security manager first, as shown:
+
+            Cloud.createX509CertificatePinningSecurityManager([
+                {
+                    url: "https://api.cloud.appcelerator.com",
+                    serverCertificate: "api.cloud.appcelerator.com.der"
+                }
+            ]);
+
+    parameters:
+      - name: params
+        summary: | 
+            Server URLs with the corresponding certificate to authenticate, specified as an
+            array of dictionaries that must contain the following keys:
+
+              * `url`: HTTPS URL pinned to the public key in the server certificate
+              * `serverCertificate`: X.509 certificate file in DER binary format
+
+        type: Array<Dictionary>
+    returns:
+        type: SecurityManagerProtocol
+    since: "4.1.0"
+
 properties:
   - name: debug
     summary: Indicates whether internal debug logging should be output to the console.
