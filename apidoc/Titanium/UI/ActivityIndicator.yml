@@ -7,8 +7,9 @@ description:  |
         <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_mobileweb.png" height="75" /></td>
+        <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     An activity indicator can be used to show the progress of an operation in the UI to let the 

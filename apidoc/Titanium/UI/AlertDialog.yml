@@ -9,8 +9,9 @@ description: |
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
     
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.

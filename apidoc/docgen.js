@@ -462,7 +462,7 @@ function processAPIs (api) {
 
 	if (assert(api, 'events')) {
 		api = hideAPIMembers(api, 'events');
-		api.events = processAPIMembers(api.events, 'events', api.since);
+		api.events = processAPIMembers(api.events, 'events', api.since, api.__addon);
 	}
 
 	if (assert(api, 'properties')) {
