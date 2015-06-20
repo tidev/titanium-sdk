@@ -9,6 +9,6 @@
 
 @interface AnalyticsModule : TiModule
 
-+ (BOOL)isEventFltered:(NSString*)eventName;
++ (BOOL)isEventFiltered:(NSString*)eventName;
 
 @end

@@ -94,7 +94,7 @@ static NSMutableArray* _filteredEvents;
     }
 }
 
-+ (BOOL)isEventFltered:(NSString*)eventName
++ (BOOL)isEventFiltered:(NSString*)eventName
 {
     if (_filteredEvents == nil) return NO;
     for (NSString* event in _filteredEvents) {

@@ -958,7 +958,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
 {
-    if ([AnalyticsModule isEventFltered:@"ti.geo"]) {
+    if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
         return;
     }
     static BOOL analyticsSend = NO;
