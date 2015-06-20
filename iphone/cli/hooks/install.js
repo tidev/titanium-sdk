@@ -189,6 +189,10 @@ exports.init = function (logger, config, cli) {
 							logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
 							next && next();
 							next = null;
+							if (runningCount <= 0) {
+								logger.log();
+								process.exit(0);
+							}
 						}
 					});
 				}, finished);

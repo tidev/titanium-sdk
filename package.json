@@ -62,5 +62,5 @@
 	"engines": {
 		"node": ">=0.10.13"
 	},
-	"license": "Apache Public License v2"
+	"license": "Apache-2.0"
 }

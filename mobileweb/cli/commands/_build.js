@@ -239,9 +239,6 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
 
-	this.ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs'));
-	this.ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
-
 	this.projectDependencies = [];
 	this.modulesToLoad = [];
 	this.tiModulesToLoad = [];
