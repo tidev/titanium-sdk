@@ -13,6 +13,7 @@
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
+#import "AnalyticsModule.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -955,7 +956,11 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #pragma mark Geolacation Analytics
 
--(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
+-(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
+{
+    if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
+        return;
+    }
     static BOOL analyticsSend = NO;
 	[lastLocationDict release];
 	lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
