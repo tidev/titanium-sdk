@@ -668,3 +668,4 @@ properties:
   - name: categories
     summary: Set of categories of user notification actions required by the applicaiton to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
+    
