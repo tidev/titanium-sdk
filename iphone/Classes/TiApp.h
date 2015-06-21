@@ -54,7 +54,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	id remoteNotificationDelegate;
 	NSDictionary* remoteNotification;
 	NSMutableDictionary* pendingCompletionHandlers;
-    NSMutableDictionary* pendingReplyHandlers;
     NSMutableDictionary* backgroundTransferCompletionHandlers;
     BOOL appBooted;
     
@@ -210,6 +209,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)stopBackgroundService:(TiProxy*)proxy;
 -(void)completionHandler:(id)key withResult:(int)result;
 -(void)completionHandlerForBackgroundTransfer:(id)key;
--(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo;
+
 @end
 
