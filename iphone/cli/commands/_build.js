@@ -1786,20 +1786,17 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			ti.validateAppJsExists(this.projectDir, this.logger, ['iphone', 'ios']);
 		},
 
-		function (next) {
-			parallel(this, [
-				'createXcodeProject',
-				'writeEntitlementsPlist',
-				'writeInfoPlist',
-				'writeMain',
-				'writeXcodeConfigFiles',
-				'copyTitaniumLibraries',
-				'copyTitaniumiOSFiles'
-			], next);
-		},
-
+		// xcode related tasks
+		'createXcodeProject',
+		'writeEntitlementsPlist',
+		'writeInfoPlist',
+		'writeMain',
+		'writeXcodeConfigFiles',
+		'copyTitaniumLibraries',
+		'copyTitaniumiOSFiles',
 		'copyExtensionFiles',
 
+		// titanium related tasks
 		// 'copyTitaniumFiles'
 
 /*
@@ -2238,11 +2235,11 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	this.logger.info(__('Creating Xcode project'));
 
-	var appName = this.tiapp.name,
+	var logger = this.logger,
+		appName = this.tiapp.name,
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
-		destFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
-		xcodeProject = xcode.project(destFile),
+		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
 		xobjs;
 
 	/*
@@ -2319,52 +2316,251 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		}
 	});
 
-	var pbxProject = xobjs.PBXProject[Object.keys(xobjs.PBXProject).filter(function (id) { return typeof xobjs.PBXProject[id] === 'object'; }).shift()];
+	var hasWatchApp = false,
+		projectUuid = xcodeProject.hash.project.rootObject,
+		pbxProject = xobjs.PBXProject[projectUuid],
+		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment === appName; })[0].value,
+		mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
+		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
+		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value];
 
 	// add extensions and their targets to the project
 	this.extensions.forEach(function (ext) {
-		var extProject = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync(),
+		var extProjectName = path.basename(ext.projectPath).replace(/\.xcodeproj$/, ''),
+			extBasePath = path.dirname(ext.projectPath),
+			extRelPath = 'extensions/' + path.basename(path.dirname(ext.projectPath)),
+			extProject = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync(),
 			extObjs = extProject.hash.project.objects;
 
-dump(extObjs);
+		// create a group in the Extensions group for all the extension's groups
+		var groupUuid = xcodeProject.generateUuid();
+		extensionsGroup.children.push({
+			value: groupUuid,
+			comment: extProjectName
+		});
+		xobjs.PBXGroup[groupUuid] = {
+			isa: 'PBXGroup',
+			children: [],
+			name: '"' + extProjectName + '"',
+			path: '"' + extRelPath + '"',
+			sourceTree: '"<group>"'
+		};
+		xobjs.PBXGroup[groupUuid + '_comment'] = extProjectName;
 
+		// loop through all of the extension's targets that we are going to inject
 		ext.targets.forEach(function (target) {
-			Object.keys(extObjs.PBXProject).some(function (projectUuid) {
-				var extPBXProject = extObjs.PBXProject[projectUuid];
-				if (typeof extPBXProject !== 'object') return;
+			var extPBXProject = extObjs.PBXProject[extProject.hash.project.rootObject];
 
-				return extPBXProject.targets.some(function (t) {
-					if (t.comment === target.name) {
-						pbxProject.targets.push(t);
-						dump(t.value);
+			// find the target
+			extPBXProject.targets.some(function (t) {
+				if (t.comment !== target.name) return;
 
-						if (extPBXProject.attributes && extPBXProject.attributes.TargetAttributes && extPBXProject.attributes.TargetAttributes[t.value]) {
-							pbxProject.attributes || (pbxProject.attributes = {});
-							pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-							pbxProject.attributes.TargetAttributes[t.value] = extPBXProject.attributes.TargetAttributes[t.value];
+				pbxProject.targets.push(t);
+				var targetUuid = t.value;
+
+				// add target attributes
+				if (extPBXProject.attributes && extPBXProject.attributes.TargetAttributes && extPBXProject.attributes.TargetAttributes[targetUuid]) {
+					pbxProject.attributes || (pbxProject.attributes = {});
+					pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
+					pbxProject.attributes.TargetAttributes[targetUuid] = extPBXProject.attributes.TargetAttributes[targetUuid];
+				}
+
+				// add the native target
+				xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
+				xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
+
+				productsGroup.children.push(xobjs.PBXNativeTarget[targetUuid].productReference);
+
+				// add the build phases
+				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
+					var type;
+
+					if (extObjs.PBXSourcesBuildPhase[phase.value]) {
+						type = 'PBXSourcesBuildPhase';
+					} else if (extObjs.PBXFrameworksBuildPhase[phase.value]) {
+						type = 'PBXFrameworksBuildPhase';
+					} else if (extObjs.PBXResourcesBuildPhase[phase.value]) {
+						type = 'PBXResourcesBuildPhase';
+					} else {
+						return;
+					}
+
+					xobjs[type] || (xobjs[type] = {});
+					xobjs[type][phase.value] = extObjs[type][phase.value];
+					xobjs[type][phase.value + '_comment'] = extObjs[type][phase.value + '_comment'];
+
+					// add files
+					xobjs[type][phase.value].files.forEach(function (file) {
+						xobjs.PBXBuildFile[file.value] = extObjs.PBXBuildFile[file.value];
+						xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
+					});
+				});
+
+				// add dependencies
+				xobjs.PBXNativeTarget[targetUuid].dependencies.forEach(function (dep) {
+					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
+					xobjs.PBXTargetDependency[dep.value] = extObjs.PBXTargetDependency[dep.value];
+					xobjs.PBXTargetDependency[dep.value + '_comment'] = extObjs.PBXTargetDependency[dep.value + '_comment'];
+
+					// add the target proxy
+					var proxyUuid = xobjs.PBXTargetDependency[dep.value].targetProxy;
+					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
+					xobjs.PBXContainerItemProxy[proxyUuid] = extObjs.PBXContainerItemProxy[proxyUuid];
+					xobjs.PBXContainerItemProxy[proxyUuid].containerPortal = projectUuid;
+					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = extObjs.PBXContainerItemProxy[proxyUuid + '_comment'];
+   				});
+
+				// add the product reference
+				var productUuid = xobjs.PBXNativeTarget[targetUuid].productReference;
+				xobjs.PBXFileReference[productUuid] = extObjs.PBXFileReference[productUuid];
+				xobjs.PBXFileReference[productUuid + '_comment'] = extObjs.PBXFileReference[productUuid + '_comment'];
+
+				var targetIsExtension = false;
+
+				// add the groups and files
+				extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
+					if (child.comment !== target.name) return;
+
+					xobjs.PBXGroup[groupUuid].children.push(child);
+
+					(function addGroup(uuid, basePath) {
+						xobjs.PBXGroup[uuid] = extObjs.PBXGroup[uuid];
+						xobjs.PBXGroup[uuid + '_comment'] = extObjs.PBXGroup[uuid + '_comment'];
+
+						xobjs.PBXGroup[uuid].children.forEach(function (child) {
+							if (extObjs.PBXGroup[child.value]) {
+								addGroup(child.value, xobjs.PBXGroup[uuid].path ? path.join(basePath, xobjs.PBXGroup[uuid].path.replace(/^"/, '').replace(/"$/, '')) : basePath);
+							} else if (extObjs.PBXFileReference[child.value]) {
+								xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
+								xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+
+								if (child.comment === 'Info.plist') {
+									var infoPlistFile = path.join(basePath, 'Info.plist');
+									if (!fs.existsSync(infoPlistFile)) {
+										logger.error(__('Unable to find iOS extension "%s" target "%s" Info.plist: %s', extProjectName, t.comment, infoPlistFile) + '\n');
+										process.exit(1);
+									}
+
+									var infoPlist = new appc.plist(infoPlistFile);
+									targetIsExtension = !!infoPlist.NSExtension;
+									hasWatchApp = !!infoPlist.WKWatchKitApp;
+								}
+							}
+						});
+					}(child.value, extBasePath));
+
+					return true;
+				});
+
+				// add the build configuration
+				var buildConfigurationListUuid = xobjs.PBXNativeTarget[targetUuid].buildConfigurationList;
+				xobjs.XCConfigurationList[buildConfigurationListUuid] = extObjs.XCConfigurationList[buildConfigurationListUuid];
+				xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment']
+
+				xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
+					xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
+					xobjs.XCBuildConfiguration[conf.value + '_comment'] = extObjs.XCBuildConfiguration[conf.value + '_comment'];
+
+					// update info.plist path
+					var buildSettings = xobjs.XCBuildConfiguration[conf.value].buildSettings;
+					if (buildSettings.INFOPLIST_FILE) {
+						buildSettings.INFOPLIST_FILE = '"' + extRelPath + '/' + buildSettings.INFOPLIST_FILE.replace(/^"/, '').replace(/"$/, '') + '"';
+					}
+					if (!buildSettings.CLANG_ENABLE_OBJC_ARC) {
+						// inherits from project
+						var confList = extObjs.XCConfigurationList[extPBXProject.buildConfigurationList],
+							confUuid = confList.buildConfigurations.filter(function (c) { return c.comment === confList.defaultConfigurationName || 'Release'; })[0].value;
+						if (extObjs.XCBuildConfiguration[confUuid].buildSettings.CLANG_ENABLE_OBJC_ARC === 'YES') {
+							buildSettings.CLANG_ENABLE_OBJC_ARC = 'YES';
 						}
-
-						return true;
 					}
 				});
 
-/*
-				extPBXProject.buildConfigurationList
-				extPBXProject.mainGroup
-				extPBXProject.productRefGroup
-*/
+				// determine if this target is an extension
+				if (targetIsExtension) {
+					// add this target as a dependency of the titanium app's project
+					var proxyUuid = xcodeProject.generateUuid();
+					xobjs.PBXContainerItemProxy[proxyUuid] = {
+						isa: 'PBXContainerItemProxy',
+						containerPortal: projectUuid,
+						containerPortal_comment: 'Project object',
+						proxyType: 1,
+						remoteGlobalIDString: targetUuid,
+						remoteInfo: '"' + t.comment + '"'
+					};
+					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
 
+					var depUuid = xcodeProject.generateUuid();
+					xobjs.PBXTargetDependency[depUuid] = {
+						isa: 'PBXTargetDependency',
+						target: targetUuid,
+						target_comment: t.comment,
+						targetProxy: proxyUuid,
+						targetProxy_comment: 'PBXContainerItemProxy'
+					};
+					xobjs.PBXTargetDependency[depUuid + '_comment'] = 'PBXTargetDependency';
 
+					xobjs.PBXNativeTarget[mainTargetUuid].dependencies.push({
+						value: depUuid,
+						comment: 'PBXTargetDependency'
+					});
+
+					// add the embed extension phase
+					var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
+						embedUuid = embedExtPhase && embedExtPhase.value;
+					if (!embedUuid) {
+						embedUuid = xcodeProject.generateUuid();
+						xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+							value: embedUuid,
+							comment: 'Embed App Extensions'
+						});
+						xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
+							isa: 'PBXCopyFilesBuildPhase',
+							buildActionMask: 2147483647,
+							dstPath: '""',
+							dstSubfolderSpec: 13, // type "plugin"
+							files: [],
+							name: '"Embed App Extensions"',
+							runOnlyForDeploymentPostprocessing: 0
+						};
+						xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
+					}
+
+					var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
+
+					// add the copy files build phase
+					var copyFilesUuid = xcodeProject.generateUuid();
+
+					xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
+						value: copyFilesUuid,
+						comment: productName + ' in Embed App Extensions'
+					});
+
+					xobjs.PBXBuildFile[copyFilesUuid] = {
+						isa: 'PBXBuildFile',
+						fileRef: productUuid,
+						fileRef_comment: productName,
+						settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
+					};
+					xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
+ 				}
+
+				return true;
 			});
 		});
-
-console.log('\n\n\n\n');
-dump(xobjs);
-
-process.exit(0);
 	});
 
+	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
+	if (hasWatchApp) {
+		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+			if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, '8.2.0')) {
+				buildSettings.IPHONEOS_DEPLOYMENT_TARGET = '8.2';
+			}
+		});
 
+		this.hasWatchApp = true;
+	}
 
 /*
 	if project does not exist or any source project changed
@@ -2393,7 +2589,7 @@ process.exit(0);
 
 	this.logger.debug(__('Writing %s', xcodeProject.filepath.cyan));
 	fs.existsSync(path.dirname(xcodeProject.filepath)) || wrench.mkdirSyncRecursive(path.dirname(xcodeProject.filepath));
-	fs.writeFileSync(xcodeProject.filepath, titaniumProject.writeSync());
+	fs.writeFileSync(xcodeProject.filepath, xcodeProject.writeSync());
 };
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
@@ -2808,6 +3004,49 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	}
 };
 
+iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
+	if (!this.extensions.length) return;
+
+	this.logger.info(__('Copying Extension files'));
+
+	this.extensions.forEach(function (extension) {
+		var src = path.dirname(extension.projectPath),
+			dest = path.join(this.buildDir, 'extensions', path.basename(src));
+		this.copyDirSync(src, dest, {
+			rootIgnoreDirs: /^build$/i,
+			ignoreDirs: this.ignoreDirs,
+			ignoreFiles: this.ignoreFiles,
+			callback: function (srcFile, destFile, srcStat) {
+				if (path.basename(srcFile) === 'Info.plist') {
+					// validate the info.plist
+					var infoPlist = new appc.plist(srcFile);
+					if (infoPlist.WKWatchKitApp) {
+						infoPlist.WKCompanionAppBundleIdentifier = this.tiapp.id;
+
+						if (infoPlist.CFBundleShortVersionString !== this.infoPlist.CFBundleShortVersionString) {
+							this.logger.warn(__('WatchKit App\'s CFBundleShortVersionString "%s" does not match the app\'s CFBundleShortVersionString "%s".', infoPlist.CFBundleShortVersionString, this.infoPlist.CFBundleShortVersionString));
+							this.logger.warn(__('Setting the WatchKit App\'s CFBundleShortVersionString to "%s"', this.infoPlist.CFBundleShortVersionString));
+							infoPlist.CFBundleShortVersionString = this.infoPlist.CFBundleShortVersionString;
+						}
+
+						if (infoPlist.CFBundleVersion !== this.infoPlist.CFBundleVersion) {
+							this.logger.warn(__('WatchKit App\'s CFBundleVersion "%s" does not match the app\'s CFBundleVersion "%s".', infoPlist.CFBundleVersion, this.infoPlist.CFBundleVersion));
+							this.logger.warn(__('Setting the WatchKit App\'s CFBundleVersion to "%s"', this.infoPlist.CFBundleVersion));
+							infoPlist.CFBundleVersion = this.infoPlist.CFBundleVersion;
+						}
+
+						this.logger.debug(__('Writing %s', destFile.cyan));
+						fs.writeFileSync(destFile, infoPlist.toString('xml'));
+
+						return null;
+					}
+				}
+			}.bind(this)
+		});
+		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
+	}, this);
+};
+
 iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	this.logger.info(__('Copying Titanium libraries'));
 
@@ -2839,7 +3078,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
-		appDefaultFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m'),
+		appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m'),
 		appModsFile = path.join(this.buildDir, 'Classes', 'ApplicationMods.m');
 
 	['Classes', 'headers'].forEach(function (dir) {
@@ -2847,7 +3086,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/,
 			callback: function (srcFile, destFile, srcStat) {
-				var rel = destFile.replace(dir, ''),
+				var rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
 					destExists = fs.existsSync(destFile),
 					contents = null,
 					hash = null;
@@ -2910,7 +3149,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 						size: srcStat.size
 					};
 
-					this.logger.info(__('Writing %s', destFile.cyan));
+					this.logger.debug(__('Writing %s', destFile.cyan));
 					fs.writeFileSync(destFile, contents);
 
 					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
@@ -2921,51 +3160,6 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	}, this);
 
 	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), path.join(this.buildDir, name + '_Prefix.pch'));
-};
-
-iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
-	if (!this.extensions.length) return;
-
-	this.logger.info(__('Copying Extension files'));
-
-	this.extensions.forEach(function (extension) {
-		var src = path.dirname(extension.projectPath),
-			dest = path.join(this.buildDir, 'extensions', path.dirname(src));
-		this.copyDirSync(src, dest, {
-			rootIgnoreDirs: /^build$/i,
-			ignoreDirs: this.ignoreDirs,
-			ignoreFiles: this.ignoreFiles,
-			callback: function (srcFile, destFile, srcStat) {
-				if (path.basename(srcFile) === 'Info.plist') {
-					// validate the info.plist
-					var infoPlist = new appc.plist(srcFile);
-					if (infoPlist.WKWatchKitApp) {
-						infoPlist.WKCompanionAppBundleIdentifier = this.tiapp.id;
-
-						if (infoPlist.CFBundleShortVersionString !== this.infoPlist.CFBundleShortVersionString) {
-							this.logger.warn(__('WatchKit App\'s CFBundleShortVersionString "%s" does not match the app\'s CFBundleShortVersionString "%s".', infoPlist.CFBundleShortVersionString, this.infoPlist.CFBundleShortVersionString));
-							this.logger.warn(__('Setting the WatchKit App\'s CFBundleShortVersionString to "%s"', this.infoPlist.CFBundleShortVersionString));
-							infoPlist.CFBundleShortVersionString = this.infoPlist.CFBundleShortVersionString;
-						}
-
-						if (infoPlist.CFBundleVersion !== this.infoPlist.CFBundleVersion) {
-							this.logger.warn(__('WatchKit App\'s CFBundleVersion "%s" does not match the app\'s CFBundleVersion "%s".', infoPlist.CFBundleVersion, this.infoPlist.CFBundleVersion));
-							this.logger.warn(__('Setting the WatchKit App\'s CFBundleVersion to "%s"', this.infoPlist.CFBundleVersion));
-							infoPlist.CFBundleVersion = this.infoPlist.CFBundleVersion;
-						}
-
-						this.hasWatchApp = true;
-
-						this.logger.debug(__('Writing %s', destFile.cyan));
-						fs.writeFileSync(destFile, infoPlist.toString('xml'));
-
-						return null;
-					}
-				}
-			}.bind(this)
-		});
-		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
-	}, this);
 };
 
 /*
