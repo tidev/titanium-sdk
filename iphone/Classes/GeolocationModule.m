@@ -317,7 +317,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 }
             }
         }
-
+        //This is set to NO by default for > iOS9.
+        if ([TiUtils isIOS9OrGreater]) {
+            NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+            if ([backgroundModes containsObject:@"location"]) {
+                locationManager.allowsBackgroundLocationUpdates = YES;
+            }
+        }
         locationManager.activityType = activityType;
         locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
             
