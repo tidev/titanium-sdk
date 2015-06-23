@@ -152,6 +152,38 @@ methods:
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
+  - name: sendWatchExtensionReply
+deprecated:
+    since: 4.2.0
+    notes: Use the <Titanium.App.iOS.WatchConnectivity> features instead.  
+    summary: |
+        Marks the end of an openParentApplication:reply execution by a WatchKit extension.
+        Available only on iOS 8.2 and later.
+    description: |
+        This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
+        information can be provided in the userInfo argument will be provided back to the WatchKit extension as part of the reply method.
+        If no userInfo is provide nil will be sent to the WatchKit extension to during the reply callback.
+
+        This method should be used as part of the `watchkitextensionrequest` event as shown below.
+        
+        Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
+            var replyContent = {foo:"bar"};
+            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
+        });
+
+    parameters:
+      - name: handlerId
+        summary: |
+            Unique string identifer for the event (`watchkitextensionrequest`)
+            that initiated from the WatchKit extension calling the openParentApplication:reply method.
+        type: String
+      - name: userInfo
+        summary: |
+            Custom data object which will be passed in the reply method to your WatchKit extension.
+        type: Dictionary        
+    osver: {ios: {min: "8.2"}}
+    since: "4.1.0"
+
 properties:
   - name: EVENT_ACCESSIBILITY_LAYOUT_CHANGED
     summary: Convenience constant for system event "accessibilitylayoutchanged".

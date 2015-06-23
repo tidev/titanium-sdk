@@ -627,6 +627,14 @@
     return nil;
 }
 
+#pragma mark Apple Watchkit handleWatchKitExtensionRequest reply
+
+-(void)sendWatchExtensionReply:(id)args
+{
+    DebugLog(@"[WARN] Deprecated; use Ti.App.iOS.WatchConnectivity functionality instead");
+}
+
+
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
 
