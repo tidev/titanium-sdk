@@ -9,8 +9,9 @@ description: |
         <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_wp.png" height="200" style="border: 1px solid black;" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 

@@ -1545,7 +1545,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LINES = "lines";
+	
 	/**
 	 * @module.api
 	 */
@@ -1647,7 +1652,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_LINES = "maxLines";
+	
 	/**
 	 * @module.api
 	 */

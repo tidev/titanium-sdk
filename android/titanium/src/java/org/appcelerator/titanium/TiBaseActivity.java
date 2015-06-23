@@ -41,22 +41,27 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -73,6 +78,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
+	private static OrientationEventListener orientationListener;
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -108,10 +114,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 	public class DialogWrapper {
 		boolean isPersistent;
-		AlertDialog dialog;
+		Dialog dialog;
+
 		WeakReference<TiBaseActivity> dialogActivity;
 		
-		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+		public DialogWrapper(Dialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
@@ -131,11 +138,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			dialogActivity = da;
 		}
 
-		public AlertDialog getDialog() {
+		public Dialog getDialog() {
 			return dialog;
 		}
 		
-		public void setDialog(AlertDialog d) {
+		public void setDialog(Dialog d) {
 			dialog = d;
 		}
 		
@@ -566,6 +573,27 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
 
+		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+			@Override
+			public void onOrientationChanged(int orientation) {
+				int rotation = getWindowManager().getDefaultDisplay().getRotation();
+				if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+						&& rotation != previousOrientation) {
+					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
+				} else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+						&& rotation != previousOrientation) {
+					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
+				}
+			}
+		};
+
+		if (orientationListener.canDetectOrientation() == true) {
+			orientationListener.enable();
+		} else {
+			Log.w(TAG, "Cannot detect orientation");
+			orientationListener.disable();
+		}
+
 		if (window != null) {
 			window.onWindowActivityCreated();
 		}
@@ -904,11 +932,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
 	}
 
-	public static void callOrientationChangedListener(Configuration newConfig) 
+	public static void callOrientationChangedListener(Activity activity)
 	{
-		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
-			previousOrientation = newConfig.orientation;
-			orientationChangedListener.onOrientationChanged (newConfig.orientation);
+		int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
+		if (orientationChangedListener != null && previousOrientation != currentOrientation) {
+			previousOrientation = currentOrientation;
+			orientationChangedListener.onOrientationChanged (currentOrientation);
 		}
 	}
 
@@ -922,8 +951,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
 		}
-
-		callOrientationChangedListener(newConfig);
 	}
 
 	@Override
@@ -1204,7 +1231,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 		// store current configuration orientation
 		// This fixed bug with double orientation chnage firing when activity starts in landscape 
-		previousOrientation = getResources().getConfiguration().orientation;
+		previousOrientation = getWindowManager().getDefaultDisplay().getRotation();
 	}
 
 	@Override
@@ -1342,6 +1369,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				}
 			}
 		}
+
+		orientationListener.disable();
 
 		super.onDestroy();
 

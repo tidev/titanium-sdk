@@ -9,8 +9,9 @@ description: |
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
     
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
@@ -62,8 +63,20 @@ description: |
     
     The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
     Android only, you can change the `message` property while the alert dialog is being displayed.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "0.8"
+excludes:
+    events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
   - name: click

@@ -74,6 +74,15 @@ methods:
         optional: true
         default: null
 
+  - name: filterEvents
+    summary: Sets a list of events that will not be sent to the analytics server.
+    parameters:
+      - name: events
+        summary: List of events to be filtered.
+        type: Array<String>
+    since: 4.1.0
+    platforms: [android, iphone, ipad]
+
   - name: navEvent
     summary: |
         Sends a navigation event for this application session. 

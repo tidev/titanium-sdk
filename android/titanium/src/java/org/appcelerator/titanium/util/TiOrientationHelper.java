@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import android.content.res.Configuration;
+import android.view.Surface;
 
 @SuppressWarnings("deprecation")
 public class TiOrientationHelper
@@ -19,18 +20,21 @@ public class TiOrientationHelper
 	public static final int ORIENTATION_LANDSCAPE_REVERSE = 4;
 	public static final int ORIENTATION_SQUARE = 5;
 
-	public static int convertConfigToTiOrientationMode (int configOrientationMode)
+	public static int convertRotationToTiOrientationMode (int rotation)
 	{
-		switch (configOrientationMode)
+		switch (rotation)
 		{
-			case Configuration.ORIENTATION_PORTRAIT:
+			case Surface.ROTATION_0:
 				return ORIENTATION_PORTRAIT;
 
-			case Configuration.ORIENTATION_LANDSCAPE:
+			case Surface.ROTATION_90:
 				return ORIENTATION_LANDSCAPE;
 
-			case Configuration.ORIENTATION_SQUARE:
-				return ORIENTATION_SQUARE;
+			case Surface.ROTATION_180:
+				return ORIENTATION_PORTRAIT_REVERSE;
+
+			case Surface.ROTATION_270:
+				return ORIENTATION_LANDSCAPE_REVERSE;
 
 			default:
 				return ORIENTATION_UNKNOWN;

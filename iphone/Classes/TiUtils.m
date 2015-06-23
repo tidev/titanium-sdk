@@ -190,6 +190,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
 }
 
++(BOOL)isIOS9OrGreater
+{
+    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;

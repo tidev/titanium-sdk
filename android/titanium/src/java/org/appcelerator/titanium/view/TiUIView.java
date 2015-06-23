@@ -1704,11 +1704,15 @@ public abstract class TiUIView
 			return;
 		}
 		if (!clickable) {
-			view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
+			// If view is AdapterView, setOnClickListener(null) will throw a RuntimeException: Don't call setOnClickListener for an AdapterView. You probably want setOnItemClickListener
+			// TIMOB-18951
+			if (! (view instanceof AdapterView) ) {
+				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
+			}
 			view.setClickable(false);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
-		} else if ( ! (view instanceof AdapterView) ){
+		} else if ( ! (view instanceof AdapterView) ) {
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);

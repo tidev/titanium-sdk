@@ -2019,26 +2019,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point)
 {
-	if (!CGRectContainsPoint([view bounds], point)) {
-		return nil;
-	}
-	for (UIView *subview in [view subviews]) {
-		TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
-		if (viewProxy != nil) {
-			id bindId = [viewProxy valueForKey:@"bindId"];
-			if (bindId != nil) {
-				return viewProxy;
-			}
-		}
-	}
-	if ([view isKindOfClass:[TiUIView class]]) {
-		TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-		id bindId = [viewProxy valueForKey:@"bindId"];
-		if (bindId != nil) {
-			return viewProxy;
-		}
-	}
-	return nil;
+    if (!CGRectContainsPoint([view bounds], point)) {
+        return nil;
+    }
+    for (int i = (int)[view.subviews count]-1; i >=0; i--){
+        UIView *subview = [view.subviews objectAtIndex:i];
+        TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
+        if (viewProxy != nil) {
+            id bindId = [viewProxy valueForKey:@"bindId"];
+            if (bindId != nil) {
+                return viewProxy;
+            }
+        }
+    }
+    if ([view isKindOfClass:[TiUIView class]]) {
+        TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
+        id bindId = [viewProxy valueForKey:@"bindId"];
+        if (bindId != nil) {
+            return viewProxy;
+        }
+    }
+    return nil;
 }
 
 #endif

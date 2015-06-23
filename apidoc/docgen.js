@@ -293,10 +293,18 @@ function processAPIMembers (apis, type, defaultVersions, addon) {
  * @param type {String} Type of API, one of 'events', 'methods' or 'properties'
  * @returns {Array<Object>} Processed APIs
  */
-function hideAPIMembers (apis, type) {
+function hideAPIMembers (apis, type, className) {
+	var index;
 	if (assert(apis, 'excludes') && assert(apis.excludes, type) && assert(apis, type)) {
 		apis[type].forEach(function (api) {
-			apis[type][apis[type].indexOf(api)].__hide = (~apis.excludes[type].indexOf(api.name)) ? true : false;
+			index = apis[type].indexOf(api);
+			if (apis[type][index].__hide) {
+				return;
+			}
+			apis[type][index].__hide = (~apis.excludes[type].indexOf(api.name)) ? true : false;
+			if (apis[type][index].__hide) {
+				apis[type][apis[type].indexOf(api)].__inherits = apis.name;
+			}
 		});
 	}
 	return apis;
@@ -326,7 +334,7 @@ function generateAccessors(apis, className) {
 				'since': api.since,
 				'returns': {'type': api.type, '__subtype': 'return'},
 				'__accessor': true,
-				'__hides' : api.__hides || false,
+				'__hide' : api.__hide || false,
 				'__inherits': api.__inherits || null,
 				'__subtype': 'method'
 			});
@@ -347,7 +355,7 @@ function generateAccessors(apis, className) {
 					'__subtype': 'parameter'
 				}],
 				'__accessor': true,
-				'__hides' : api.__hides || false,
+				'__hide' : api.__hide || false,
 				'__inherits': api.__inherits || null,
 				'__subtype': 'method'
 			});
@@ -454,7 +462,7 @@ function processAPIs (api) {
 
 	if (assert(api, 'events')) {
 		api = hideAPIMembers(api, 'events');
-		api.events = processAPIMembers(api.events, 'events', api.since);
+		api.events = processAPIMembers(api.events, 'events', api.since, api.__addon);
 	}
 
 	if (assert(api, 'properties')) {
@@ -529,7 +537,8 @@ function addOnMerge(baseObj, addObj) {
 							tempArray.push(addOnMerge(match[0], api));
 						} else {
 							if (~['properties', 'methods', 'events'].indexOf(key) &&
-								!(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0)) {
+								!(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0) &&
+									api.summary) {
 								common.log(common.LOG_INFO, 'Adding new API to %s array: %s', key, api.name);
 								tempArray.push(api);
 							} else {

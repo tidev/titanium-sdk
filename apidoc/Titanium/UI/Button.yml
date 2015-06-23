@@ -8,8 +8,9 @@ description: |
         <td><img src="images/button/button_android.png" height="50" /></td>
         <td><img src="images/button/button_ios.png" height="50" /></td>
         <td><img src="images/button/button_mobileweb.png" height="50" /></td>
+        <td><img src="images/button/button_wp.png" height="50" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A button displays its  selected state while it is being pressed. The focused state is
