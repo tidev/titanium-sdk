@@ -26,7 +26,7 @@
 	BOOL trackingHeading;
 	BOOL trackingLocation;
     BOOL trackSignificantLocationChange;
-    BOOL allowBackgroundLocationUpdates;
+    BOOL allowsBackgroundLocationUpdates;
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
     CLActivityType activityType;

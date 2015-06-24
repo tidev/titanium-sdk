@@ -792,6 +792,18 @@ properties:
     platforms: [iphone, ipad]
     since: "2.1.2"
 
+  - name: allowsBackgroundLocationUpdates
+    summary: |
+        Determines if the app can do background location updates.
+    description: |
+        When `UIBackgroundModes` include `location` in tiapp.xml, this property is 
+        set to `true` by default. Available in iOS 9.0 and later.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "4.3.0"
+
   - name: activityType
     summary: |
         The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
