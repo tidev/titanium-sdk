@@ -16,19 +16,20 @@
 @private
 	ABRecordRef record;
 	ABRecordID recordId;
-    CNContact *person;
+    CNContact* person;
 	ContactsModule* module;
-    NSString *identifier;
+    NSString* identifier;
 }
 
 @property(readonly,nonatomic) NSNumber* recordId;
 @property(readonly,nonatomic) ABRecordRef record;
-//@property(readonly,nonatomic) CNContact* person;
 @property(readonly,nonatomic) NSString* identifier;
 
 +(NSDictionary*)contactProperties;
 +(NSDictionary*)multiValueProperties;
 +(NSDictionary*)multiValueLabels;
++(NSDictionary*)iOS9ContactProperties;
++(NSDictionary*)iOS9ContactLabels;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNContact*)person_ module:(ContactsModule*)module_;

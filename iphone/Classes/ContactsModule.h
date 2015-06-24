@@ -25,10 +25,11 @@
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
-    CNContactStore *contactStore;
-    NSMutableArray *saveRequests;
-    CNContactPickerViewController *contactPicker;
-    
+	CNContactStore* contactStore;
+	NSMutableArray* saveRequests;
+	CNContactPickerViewController* contactPicker;
+	NSArray* contactKeysWithoutImage;
+	NSArray* contactKeysWithImage;
 }
 
 -(ABAddressBookRef)addressBook;

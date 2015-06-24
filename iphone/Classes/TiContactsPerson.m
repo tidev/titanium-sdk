@@ -15,6 +15,8 @@ static NSDictionary* contactProperties;
 static NSDictionary* multiValueProperties;
 static NSDictionary* multiValueTypes;
 static NSDictionary* multiValueLabels;
+static NSDictionary* iOS9contactProperties;
+static NSDictionary* iOS9contactLabels;
 
 @implementation TiContactsPerson
 
@@ -50,11 +52,11 @@ static NSDictionary* multiValueLabels;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNContact*)person_ module:(ContactsModule*)module_
 {
-    if (self = [super _initWithPageContext:context]) {
-        person = [person_ retain];
-        module = module_;
-    }
-    return self;
+	if (self = [super _initWithPageContext:context]) {
+		person = [person_ retain];
+		module = module_;
+	}
+	return self;
 }
 -(void)dealloc
 {
@@ -93,6 +95,35 @@ static NSDictionary* multiValueLabels;
 			 nil];
 	}
 	return contactProperties;
+}
+
++(NSDictionary*)iOS9ContactProperties
+{
+	if (iOS9contactProperties == nil) {
+		iOS9contactProperties =
+			[[NSDictionary alloc] initWithObjectsAndKeys:CNContactGivenNameKey, @"firstName",
+			 CNContactFamilyNameKey, @"lastName",
+			 CNContactMiddleNameKey, @"middleName",
+			 CNContactNamePrefixKey, @"prefix",
+			 CNContactNameSuffixKey, @"suffix",
+			 CNContactNicknameKey, @"nickname",
+			 CNContactPhoneticGivenNameKey, @"firstPhonetic",
+			 CNContactPhoneticFamilyNameKey, @"lastPhonetic",
+			 CNContactPhoneticMiddleNameKey, @"middlePhonetic",
+			 CNContactOrganizationNameKey, @"organization",
+			 CNContactJobTitleKey, @"jobTitle",
+			 CNContactDepartmentNameKey, @"department",
+			 CNContactNoteKey, @"note",
+			 CNContactBirthdayKey, @"birthday",
+			 CNContactTypeKey, @"kind",
+			 CNContactPostalAddressesKey, @"address",
+			 CNContactPhoneNumbersKey, @"phone",
+			 CNContactSocialProfilesKey, @"socialProfile",
+			 CNContactInstantMessageAddressesKey, @"instantMessage",
+			 CNContactDatesKey, @"date",
+			 CNContactUrlAddressesKey, @"url",
+			 nil];
+	}
 }
 
 +(NSDictionary*)multiValueProperties
@@ -177,6 +208,38 @@ static NSDictionary* multiValueLabels;
 	return multiValueLabels;
 }
 
++(NSDictionary*)iOS9ContactLabels
+{
+	if (iOS9contactLabels == nil) {
+		iOS9contactLabels =
+		[[NSDictionary alloc] initWithObjectsAndKeys:CNLabelHome, @"home",
+		 CNLabelWork, @"work",
+		 CNLabelOther, @"other",
+		 CNLabelPhoneNumberMobile, @"mobile",
+		 CNLabelPhoneNumberPager, @"pager",
+		 CNLabelPhoneNumberWorkFax, @"workFax",
+		 CNLabelPhoneNumberMain, @"main",
+		 CNLabelPhoneNumberiPhone, @"iPhone",
+		 CNLabelPhoneNumberHomeFax, @"homeFax",
+		 CNLabelContactRelationPartner, @"partner",
+		 CNLabelContactRelationFather, @"father",
+		 CNLabelContactRelationMother, @"mother",
+		 CNLabelContactRelationParent, @"parent",
+		 CNLabelContactRelationSister, @"sister",
+		 CNLabelContactRelationBrother, @"brother",
+		 CNLabelContactRelationChild, @"child",
+		 CNLabelContactRelationSpouse, @"spouse",
+		 CNLabelContactRelationManager, @"manager",
+		 CNLabelContactRelationAssistant, @"assistant",
+		 CNLabelDateAnniversary, @"anniversary",
+		 CNLabelURLAddressHomePage, @"homepage",
+		 //new labels introduced in iOS9
+		 CNLabelPhoneNumberOtherFax, @"otherFax",
+		 CNLabelEmailiCloud, @"iCloud",
+		 nil];
+	}
+}
+
 #pragma mark Multi-value property management
 
 -(NSDictionary*)dictionaryFromMultiValue:(ABMultiValueRef)multiValue defaultKey:(NSString*)defaultKey
@@ -247,6 +310,10 @@ static NSDictionary* multiValueLabels;
 
 -(NSNumber*)recordId
 {
+    if ([TiUtils isIOS9OrGreater]) {
+        DebugLog(@"[WARN] this property is removed for iOS9 and greater.");
+        return NULL;
+    }
 	return NUMINT(recordId);
 }
 //only for iOS9
@@ -266,37 +333,36 @@ static NSDictionary* multiValueLabels;
 		return [result autorelease];
 	}
 	
-    if ([TiUtils isIOS9OrGreater]) {
-        //composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
-        NSMutableString* compositeName = [[NSMutableString alloc] init];
-        if ([person.namePrefix length]) {
-            [compositeName appendFormat:@"%@ ", person.namePrefix];
-        }
-        if ([person.nameSuffix length]) {
-            [compositeName appendFormat:@"%@ ", person.nameSuffix];
-        }
-        if ([person.organizationName length]) {
-            [compositeName appendFormat:@"%@ ", person.organizationName];
-        }
-        if ([person.givenName length]) {
-            [compositeName appendFormat:@"%@ ", person.givenName];
-        }
-        if ([person.familyName length]) {
-            [compositeName appendFormat:@"%@ ", person.familyName];
-        }
-        if ([compositeName length]) {
-            //remove last space
-            NSRange range;
-            range.length = 1;
-            range.location = [compositeName length] - 1;
-            [compositeName deleteCharactersInRange:range];
-            NSString* nameStr = [NSString stringWithString:compositeName];
-            RELEASE_TO_NIL(compositeName)
-            return nameStr;
-        }
-        
-        return @"No name";
-    }
+	if ([TiUtils isIOS9OrGreater]) {
+		//composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
+		NSMutableString* compositeName = [[NSMutableString alloc] init];
+		if ([person.namePrefix length]) {
+			[compositeName appendFormat:@"%@ ", person.namePrefix];
+		}
+		if ([person.nameSuffix length]) {
+			[compositeName appendFormat:@"%@ ", person.nameSuffix];
+		}
+		if ([person.organizationName length]) {
+			[compositeName appendFormat:@"%@ ", person.organizationName];
+		}
+		if ([person.givenName length]) {
+			[compositeName appendFormat:@"%@ ", person.givenName];
+		}
+		if ([person.familyName length]) {
+			[compositeName appendFormat:@"%@ ", person.familyName];
+		}
+		if ([compositeName length]) {
+			//remove last space
+			NSRange range;
+			range.length = 1;
+			range.location = [compositeName length] - 1;
+			[compositeName deleteCharactersInRange:range];
+			NSString* nameStr = [NSString stringWithString:compositeName];
+			RELEASE_TO_NIL(compositeName)
+			return nameStr;
+		}
+		return @"No name";
+	}
 	CFStringRef name = ABRecordCopyCompositeName([self record]);
 	NSString* nameStr = @"No name";
 	if (name != NULL) {
@@ -309,6 +375,10 @@ static NSDictionary* multiValueLabels;
 
 -(void)setImage:(id)value
 {
+	if ([TiUtils isIOS9OrGreater]) {
+		DebugLog(@"[WARN] this method is removed for iOS9 and greater.");
+		return;
+	}
 	ENSURE_TYPE_OR_NIL(value,TiBlob);
 	ENSURE_UI_THREAD(setImage,value)
 	

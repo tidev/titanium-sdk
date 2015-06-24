@@ -30,7 +30,21 @@
 
 -(NSNumber*)recordId
 {
+	if ([TiUtils isIOS9OrGreater]) {
+		DebugLog(@"[WARN] this property is removed for iOS9 and greater.");
+		return NULL;
+	}
 	return NUMINT(recordId);
+}
+
+//only for iOS9
+-(NSString*)identifier
+{
+	if ([TiUtils isIOS9OrGreater]) {
+		return group.identifier;
+	}
+	DebugLog(@"[WARN] this property is only used for iOS9 and greater.");
+	return NULL;
 }
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_
@@ -38,6 +52,15 @@
 	if (self = [super _initWithPageContext:context]) {
 		recordId = id_;
 		record = NULL;
+		module = module_;
+	}
+	return self;
+}
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNGroup*)group_ module:(ContactsModule*)module_
+{
+	if (self = [super _initWithPageContext:context]) {
+		group = [group_ retain];
 		module = module_;
 	}
 	return self;
@@ -63,6 +86,12 @@
 		return [result autorelease];
 	}
 	
+	if ([TiUtils isIOS9OrGreater]) {
+		if ([group name]) {
+			return [group name];
+		}
+		return @"<unamed group>";
+	}
 	CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);
     NSString* name = @"<unnamed group>";
     if (nameRef != NULL) {
@@ -75,6 +104,10 @@
 
 -(void)setName:(id)arg
 {
+	if ([TiUtils isIOS9OrGreater]) {
+		DebugLog(@"[WARN] this method is removed for iOS9 and greater.");
+		return;
+	}
 	ENSURE_SINGLE_ARG(arg,NSString)
 	ENSURE_UI_THREAD(setName,arg)
 	
