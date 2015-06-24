@@ -274,6 +274,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// pauseLocationupdateAutomatically by default NO
 	pauseLocationUpdateAutomatically  = NO;
 
+    //Set the default based on if the user has defined a background location mode
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    allowBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+        
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -319,11 +323,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         }
         //This is set to NO by default for > iOS9.
         if ([TiUtils isIOS9OrGreater]) {
-            NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-            if ([backgroundModes containsObject:@"location"]) {
-                locationManager.allowsBackgroundLocationUpdates = YES;
-            }
+            locationManager.allowsBackgroundLocationUpdates = allowBackgroundLocationUpdates;
         }
+        
         locationManager.activityType = activityType;
         locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
             
@@ -652,6 +654,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		[locationManager setHeadingFilter:heading];
 	}
+}
+
+-(NSNumber*)allowBackgroundLocationUpdates
+{
+    return NUMBOOL(allowBackgroundLocationUpdates);
+}
+
+-(void)setAllowBackgroundLocationUpdates:(NSNumber *)value
+{
+    allowBackgroundLocationUpdates = [TiUtils boolValue:value];
 }
 
 -(NSNumber*)showCalibration
