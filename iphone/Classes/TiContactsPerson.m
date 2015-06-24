@@ -48,6 +48,14 @@ static NSDictionary* multiValueLabels;
 	return self;
 }
 
+-(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNContact*)person_ module:(ContactsModule*)module_
+{
+    if (self = [super _initWithPageContext:context]) {
+        person = [person_ retain];
+        module = module_;
+    }
+    return self;
+}
 -(void)dealloc
 {
 	[super dealloc];
@@ -241,7 +249,15 @@ static NSDictionary* multiValueLabels;
 {
 	return NUMINT(recordId);
 }
-
+//only for iOS9
+-(NSString*)identifier
+{
+    if ([TiUtils isIOS9OrGreater]) {
+        return person.identifier;
+    }
+    DebugLog(@"[WARN] this property is only used for iOS9 and greater.");
+    return NULL;
+}
 -(NSString*)fullName
 {
 	if (![NSThread isMainThread]) {
@@ -250,6 +266,37 @@ static NSDictionary* multiValueLabels;
 		return [result autorelease];
 	}
 	
+    if ([TiUtils isIOS9OrGreater]) {
+        //composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
+        NSMutableString* compositeName = [[NSMutableString alloc] init];
+        if ([person.namePrefix length]) {
+            [compositeName appendFormat:@"%@ ", person.namePrefix];
+        }
+        if ([person.nameSuffix length]) {
+            [compositeName appendFormat:@"%@ ", person.nameSuffix];
+        }
+        if ([person.organizationName length]) {
+            [compositeName appendFormat:@"%@ ", person.organizationName];
+        }
+        if ([person.givenName length]) {
+            [compositeName appendFormat:@"%@ ", person.givenName];
+        }
+        if ([person.familyName length]) {
+            [compositeName appendFormat:@"%@ ", person.familyName];
+        }
+        if ([compositeName length]) {
+            //remove last space
+            NSRange range;
+            range.length = 1;
+            range.location = [compositeName length] - 1;
+            [compositeName deleteCharactersInRange:range];
+            NSString* nameStr = [NSString stringWithString:compositeName];
+            RELEASE_TO_NIL(compositeName)
+            return nameStr;
+        }
+        
+        return @"No name";
+    }
 	CFStringRef name = ABRecordCopyCompositeName([self record]);
 	NSString* nameStr = @"No name";
 	if (name != NULL) {
