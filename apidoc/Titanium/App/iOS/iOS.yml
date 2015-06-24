@@ -300,7 +300,7 @@ properties:
     type: Array<string>
     permission: read-only
     osver: {ios: {min: "8.0"}}
-    since: "4.2.0"
+    since: "4.3.0"
 
   - name: applicationOpenSettingsURL
     summary: Returns a URL to open the app's settings.
