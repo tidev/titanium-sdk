@@ -1,66 +1,67 @@
 {
-	"name": "titanium-mobile",
-	"description": "Appcelerator Titanium Mobile",
-	"version": "4.2.0",
-	"keywords": [
-		"appcelerator",
-		"titanium",
-		"mobile",
-		"android",
-		"mobileweb",
-		"iphone",
-		"ipad",
-		"ios"
-	],
-	"author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
-	"scripts": {
-		"test": "grunt"
-	},
-	"dependencies": {
-		"adm-zip": "~0.4.7",
-		"archiver": "~0.14.4",
-		"async": "~1.2.1",
-		"clean-css": "~3.3.3",
-		"colors": "~1.1.2",
-		"css-parse": "~2.0.0",
-		"ejs": "~2.3.1",
-		"fields": "~0.1.24",
-		"humanize": "~0.0.9",
-		"ioslib": "0.3.0-beta2",
-		"moment": "~2.10.3",
-		"node-appc": "0.2.26",
-		"node-uuid": "~1.4.3",
-		"request": "~2.58.0",
-		"sprintf": "~0.1.5",
-		"temp": "~0.8.3",
-		"uglify-js": "~2.4.23",
-		"windowslib": "0.1.13",
-		"wrench": "~1.5.8",
-		"xcode": "~0.7.0",
-		"xmldom": "~0.1.19"
-	},
-	"devDependencies": {
-	    "grunt-cli": "*",
-	    "grunt-contrib-clean": "^0.6.0",
-	    "grunt-clang-format": "*",
-	    "grunt-appc-js": "*",
-	    "grunt-mocha-test": "^0.12.7",
-		"mocha": "*",
-		"optimist": "~0.6.1",
-		"should": "~7.0.1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/appcelerator/titanium_mobile.git"
-	},
-	"vendorDependencies": {
-		"visual studio": ">=10 <=12",
-		"windows phone sdk": "8.x",
-		"msbuild": ">=4.0",
-		"node": ">=0.10.0 <=0.12.x"
-	},
-	"engines": {
-		"node": ">=0.10.13"
-	},
-	"license": "Apache-2.0"
+  "name": "titanium-mobile",
+  "description": "Appcelerator Titanium Mobile",
+  "version": "4.2.0",
+  "keywords": [
+    "appcelerator",
+    "titanium",
+    "mobile",
+    "android",
+    "mobileweb",
+    "iphone",
+    "ipad",
+    "ios"
+  ],
+  "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
+  "scripts": {
+    "test": "grunt"
+  },
+  "dependencies": {
+    "adm-zip": "~0.4.7",
+    "archiver": "~0.14.4",
+    "async": "~1.2.1",
+    "buffer-equal": "0.0.1",
+    "clean-css": "~3.3.4",
+    "colors": "~1.1.2",
+    "css-parse": "~2.0.0",
+    "ejs": "~2.3.1",
+    "fields": "~0.1.24",
+    "humanize": "~0.0.9",
+    "ioslib": "0.3.0-beta2",
+    "moment": "~2.10.3",
+    "node-appc": "0.2.26",
+    "node-uuid": "~1.4.3",
+    "request": "~2.58.0",
+    "sprintf": "~0.1.5",
+    "temp": "~0.8.3",
+    "uglify-js": "~2.4.23",
+    "windowslib": "0.1.13",
+    "wrench": "~1.5.8",
+    "xcode": "~0.7.0",
+    "xmldom": "~0.1.19"
+  },
+  "devDependencies": {
+    "grunt-cli": "*",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-clang-format": "*",
+    "grunt-appc-js": "*",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "*",
+    "optimist": "~0.6.1",
+    "should": "~7.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/appcelerator/titanium_mobile.git"
+  },
+  "vendorDependencies": {
+    "visual studio": ">=10 <=12",
+    "windows phone sdk": "8.x",
+    "msbuild": ">=4.0",
+    "node": ">=0.10.0 <=0.12.x"
+  },
+  "engines": {
+    "node": ">=0.10.13"
+  },
+  "license": "Apache-2.0"
 }

@@ -109,7 +109,7 @@ function iOSBuilder() {
 	this.tiSymbols = {};
 
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
-	this.useJSCore=false;
+	this.useJSCore = false;
 
 	// populated when config() is called after iOS info has been detected
 	this.defaultIosVersion = null;
@@ -1797,11 +1797,14 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'copyExtensionFiles',
 
 		// titanium related tasks
-		// 'copyTitaniumFiles'
+		'copyAppIcons',
+		'copyItunesArtwork',
+		'copyLocalizedLaunchScreens',
+		'copyTitaniumFiles',
+		'writeDebugProfilePlists',
+		'writeI18NFiles',
 
 /*
-		'copyItunesArtwork',
-		'copyGraphics',
 
 		function (next) {
 			// this is a hack... for non-deployment builds we need to force xcode so that the pre-compile phase
@@ -1811,7 +1814,20 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 				this.forceRebuild = true;
 			}
 
-			this.xcodePrecompilePhase(function () {
+
+	series(this, [
+		'processTiSymbols',
+		'compileJSSFiles',
+		'copyLocalizedLaunchScreens',
+		function (next) {
+			// if not production and running from Xcode
+			if (this.deployType !== 'production') {
+				var appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m');
+				fs.writeFileSync(appDefaultsFile, fs.readFileSync(appDefaultsFile).toString().replace(/return \[NSDictionary dictionaryWithObjectsAndKeys\:\[TiUtils stringValue\:@".+"\], @"application-launch-url", nil];/, 'return nil;'));
+			}
+			next();
+		}
+	], function () {
 				if (this.forceRebuild || !fs.existsSync(this.xcodeAppDir)) {
 					// we're not being called from Xcode, so we can call the pre-compile phase now
 					// and save us several seconds
@@ -1830,6 +1846,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'writeBuildManifest',
 
 		function (next) {
+
+dump(this.buildDirFiles);
+
 			if (!this.buildOnly && this.target === 'simulator') {
 				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
 				this.logger.info(__('Finished building the application in %s', delta.cyan));
@@ -2019,6 +2038,7 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 	// now that we've read the build manifest, delete it so if this build
 	// becomes incomplete, the next build will be a full rebuild
 	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+	delete this.buildDirFiles[this.buildManifestFile];
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
@@ -2032,8 +2052,8 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
-		// check if the build manifest file exists
-		if (!fs.existsSync(this.buildManifestFile)) {
+		// check if the build manifest file was read
+		if (!Object.keys(this.previousBuildManifest).length) {
 			this.logger.info(__('Forcing clean build: %s does not exist', cyan(this.buildManifestFile)));
 			return true;
 		}
@@ -2232,7 +2252,7 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	}
 };
 
-iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
+iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
 	var logger = this.logger,
@@ -2261,6 +2281,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	xobjs = xcodeProject.hash.project.objects;
 
 	// delete the pre-compile build phases since we don't need it
+	this.logger.trace(__('Removing pre-compile phase'));
 	Object.keys(xobjs.PBXShellScriptBuildPhase).forEach(function (buildPhaseUuid) {
 		if (xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] && typeof xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] === 'object' && /^"?Pre-Compile"?$/i.test(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid].name)) {
 			Object.keys(xobjs.PBXNativeTarget).forEach(function (key) {
@@ -2276,6 +2297,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	});
 
 	// add the post-compile phase
+	this.logger.trace(__('Adding post-compile phase'));
 	var postCompilePhaseUuid = xcodeProject.generateUuid();
 	xobjs.PBXShellScriptBuildPhase[postCompilePhaseUuid] = {
 		isa: 'PBXShellScriptBuildPhase',
@@ -2322,242 +2344,300 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment === appName; })[0].value,
 		mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
 		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
-		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value];
+		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
+		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
+		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value];
+
+	// add the native libraries to the project
+	if (this.nativeLibModules.length) {
+		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
+		this.nativeLibModules.forEach(function (lib) {
+			var fileRefUuid = xcodeProject.generateUuid(),
+				buildFileUuid = xcodeProject.generateUuid();
+
+			// add the file reference
+			xobjs.PBXFileReference[fileRefUuid] = {
+				isa: 'PBXFileReference',
+				lastKnownFileType: 'archive.ar',
+				name: lib.libName,
+				path: '"' + lib.libFile + '"',
+				sourceTree: '"<absolute>"'
+			};
+			xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
+
+			// add the library to the Frameworks group
+			frameworksGroup.children.push({
+				value: fileRefUuid,
+				comment: lib.libName
+			});
+
+			// add the build file
+			xobjs.PBXBuildFile[buildFileUuid] = {
+				isa: 'PBXBuildFile',
+				fileRef: fileRefUuid,
+				fileRef_comment: lib.libName
+			};
+			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+			// add the library to the frameworks build phase
+			frameworksBuildPhase.files.push({
+				value: buildFileUuid,
+				comment: lib.libName + ' in Frameworks'
+			});
+
+			// add the library to the search paths
+			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+			});
+		});
+	} else {
+		this.logger.trace(__('No native module libraries to add'));
+	}
 
 	// add extensions and their targets to the project
-	this.extensions.forEach(function (ext) {
-		var extProjectName = path.basename(ext.projectPath).replace(/\.xcodeproj$/, ''),
-			extBasePath = path.dirname(ext.projectPath),
-			extRelPath = 'extensions/' + path.basename(path.dirname(ext.projectPath)),
-			extProject = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync(),
-			extObjs = extProject.hash.project.objects;
+	if (this.extensions.length) {
+		this.logger.trace(__n('Adding %%d iOS extension', 'Adding %%d iOS extensions', this.extensions.length === 1 ? 1 : 2, this.extensions.length));
+		this.extensions.forEach(function (ext) {
+			var extProjectName = path.basename(ext.projectPath).replace(/\.xcodeproj$/, ''),
+				extBasePath = path.dirname(ext.projectPath),
+				extRelPath = 'extensions/' + path.basename(path.dirname(ext.projectPath)),
+				extProject = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync(),
+				extObjs = extProject.hash.project.objects;
 
-		// create a group in the Extensions group for all the extension's groups
-		var groupUuid = xcodeProject.generateUuid();
-		extensionsGroup.children.push({
-			value: groupUuid,
-			comment: extProjectName
-		});
-		xobjs.PBXGroup[groupUuid] = {
-			isa: 'PBXGroup',
-			children: [],
-			name: '"' + extProjectName + '"',
-			path: '"' + extRelPath + '"',
-			sourceTree: '"<group>"'
-		};
-		xobjs.PBXGroup[groupUuid + '_comment'] = extProjectName;
+			// create a group in the Extensions group for all the extension's groups
+			var groupUuid = xcodeProject.generateUuid();
+			extensionsGroup.children.push({
+				value: groupUuid,
+				comment: extProjectName
+			});
+			xobjs.PBXGroup[groupUuid] = {
+				isa: 'PBXGroup',
+				children: [],
+				name: '"' + extProjectName + '"',
+				path: '"' + extRelPath + '"',
+				sourceTree: '"<group>"'
+			};
+			xobjs.PBXGroup[groupUuid + '_comment'] = extProjectName;
 
-		// loop through all of the extension's targets that we are going to inject
-		ext.targets.forEach(function (target) {
-			var extPBXProject = extObjs.PBXProject[extProject.hash.project.rootObject];
+			// loop through all of the extension's targets that we are going to inject
+			ext.targets.forEach(function (target) {
+				var extPBXProject = extObjs.PBXProject[extProject.hash.project.rootObject];
 
-			// find the target
-			extPBXProject.targets.some(function (t) {
-				if (t.comment !== target.name) return;
+				// find the target
+				extPBXProject.targets.some(function (t) {
+					if (t.comment !== target.name) return;
 
-				pbxProject.targets.push(t);
-				var targetUuid = t.value;
+					pbxProject.targets.push(t);
+					var targetUuid = t.value;
 
-				// add target attributes
-				if (extPBXProject.attributes && extPBXProject.attributes.TargetAttributes && extPBXProject.attributes.TargetAttributes[targetUuid]) {
-					pbxProject.attributes || (pbxProject.attributes = {});
-					pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-					pbxProject.attributes.TargetAttributes[targetUuid] = extPBXProject.attributes.TargetAttributes[targetUuid];
-				}
-
-				// add the native target
-				xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
-				xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
-
-				productsGroup.children.push(xobjs.PBXNativeTarget[targetUuid].productReference);
-
-				// add the build phases
-				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
-					var type;
-
-					if (extObjs.PBXSourcesBuildPhase[phase.value]) {
-						type = 'PBXSourcesBuildPhase';
-					} else if (extObjs.PBXFrameworksBuildPhase[phase.value]) {
-						type = 'PBXFrameworksBuildPhase';
-					} else if (extObjs.PBXResourcesBuildPhase[phase.value]) {
-						type = 'PBXResourcesBuildPhase';
-					} else {
-						return;
+					// add target attributes
+					if (extPBXProject.attributes && extPBXProject.attributes.TargetAttributes && extPBXProject.attributes.TargetAttributes[targetUuid]) {
+						pbxProject.attributes || (pbxProject.attributes = {});
+						pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
+						pbxProject.attributes.TargetAttributes[targetUuid] = extPBXProject.attributes.TargetAttributes[targetUuid];
 					}
 
-					xobjs[type] || (xobjs[type] = {});
-					xobjs[type][phase.value] = extObjs[type][phase.value];
-					xobjs[type][phase.value + '_comment'] = extObjs[type][phase.value + '_comment'];
+					// add the native target
+					xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
+					xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
 
-					// add files
-					xobjs[type][phase.value].files.forEach(function (file) {
-						xobjs.PBXBuildFile[file.value] = extObjs.PBXBuildFile[file.value];
-						xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
-					});
-				});
+					productsGroup.children.push(xobjs.PBXNativeTarget[targetUuid].productReference);
 
-				// add dependencies
-				xobjs.PBXNativeTarget[targetUuid].dependencies.forEach(function (dep) {
-					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
-					xobjs.PBXTargetDependency[dep.value] = extObjs.PBXTargetDependency[dep.value];
-					xobjs.PBXTargetDependency[dep.value + '_comment'] = extObjs.PBXTargetDependency[dep.value + '_comment'];
+					// add the build phases
+					xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
+						var type;
 
-					// add the target proxy
-					var proxyUuid = xobjs.PBXTargetDependency[dep.value].targetProxy;
-					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
-					xobjs.PBXContainerItemProxy[proxyUuid] = extObjs.PBXContainerItemProxy[proxyUuid];
-					xobjs.PBXContainerItemProxy[proxyUuid].containerPortal = projectUuid;
-					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = extObjs.PBXContainerItemProxy[proxyUuid + '_comment'];
-   				});
+						if (extObjs.PBXSourcesBuildPhase[phase.value]) {
+							type = 'PBXSourcesBuildPhase';
+						} else if (extObjs.PBXFrameworksBuildPhase[phase.value]) {
+							type = 'PBXFrameworksBuildPhase';
+						} else if (extObjs.PBXResourcesBuildPhase[phase.value]) {
+							type = 'PBXResourcesBuildPhase';
+						} else {
+							return;
+						}
 
-				// add the product reference
-				var productUuid = xobjs.PBXNativeTarget[targetUuid].productReference;
-				xobjs.PBXFileReference[productUuid] = extObjs.PBXFileReference[productUuid];
-				xobjs.PBXFileReference[productUuid + '_comment'] = extObjs.PBXFileReference[productUuid + '_comment'];
+						xobjs[type] || (xobjs[type] = {});
+						xobjs[type][phase.value] = extObjs[type][phase.value];
+						xobjs[type][phase.value + '_comment'] = extObjs[type][phase.value + '_comment'];
 
-				var targetIsExtension = false;
-
-				// add the groups and files
-				extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
-					if (child.comment !== target.name) return;
-
-					xobjs.PBXGroup[groupUuid].children.push(child);
-
-					(function addGroup(uuid, basePath) {
-						xobjs.PBXGroup[uuid] = extObjs.PBXGroup[uuid];
-						xobjs.PBXGroup[uuid + '_comment'] = extObjs.PBXGroup[uuid + '_comment'];
-
-						xobjs.PBXGroup[uuid].children.forEach(function (child) {
-							if (extObjs.PBXGroup[child.value]) {
-								addGroup(child.value, xobjs.PBXGroup[uuid].path ? path.join(basePath, xobjs.PBXGroup[uuid].path.replace(/^"/, '').replace(/"$/, '')) : basePath);
-							} else if (extObjs.PBXFileReference[child.value]) {
-								xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
-								xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
-
-								if (child.comment === 'Info.plist') {
-									var infoPlistFile = path.join(basePath, 'Info.plist');
-									if (!fs.existsSync(infoPlistFile)) {
-										logger.error(__('Unable to find iOS extension "%s" target "%s" Info.plist: %s', extProjectName, t.comment, infoPlistFile) + '\n');
-										process.exit(1);
-									}
-
-									var infoPlist = new appc.plist(infoPlistFile);
-									targetIsExtension = !!infoPlist.NSExtension;
-									hasWatchApp = !!infoPlist.WKWatchKitApp;
-								}
-							}
+						// add files
+						xobjs[type][phase.value].files.forEach(function (file) {
+							xobjs.PBXBuildFile[file.value] = extObjs.PBXBuildFile[file.value];
+							xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
 						});
-					}(child.value, extBasePath));
+					});
+
+					// add dependencies
+					xobjs.PBXNativeTarget[targetUuid].dependencies.forEach(function (dep) {
+						xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
+						xobjs.PBXTargetDependency[dep.value] = extObjs.PBXTargetDependency[dep.value];
+						xobjs.PBXTargetDependency[dep.value + '_comment'] = extObjs.PBXTargetDependency[dep.value + '_comment'];
+
+						// add the target proxy
+						var proxyUuid = xobjs.PBXTargetDependency[dep.value].targetProxy;
+						xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
+						xobjs.PBXContainerItemProxy[proxyUuid] = extObjs.PBXContainerItemProxy[proxyUuid];
+						xobjs.PBXContainerItemProxy[proxyUuid].containerPortal = projectUuid;
+						xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = extObjs.PBXContainerItemProxy[proxyUuid + '_comment'];
+	   				});
+
+					// add the product reference
+					var productUuid = xobjs.PBXNativeTarget[targetUuid].productReference;
+					xobjs.PBXFileReference[productUuid] = extObjs.PBXFileReference[productUuid];
+					xobjs.PBXFileReference[productUuid + '_comment'] = extObjs.PBXFileReference[productUuid + '_comment'];
+
+					var targetIsExtension = false;
+
+					// add the groups and files
+					extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
+						if (child.comment !== target.name) return;
+
+						xobjs.PBXGroup[groupUuid].children.push(child);
+
+						(function addGroup(uuid, basePath) {
+							xobjs.PBXGroup[uuid] = extObjs.PBXGroup[uuid];
+							xobjs.PBXGroup[uuid + '_comment'] = extObjs.PBXGroup[uuid + '_comment'];
+
+							xobjs.PBXGroup[uuid].children.forEach(function (child) {
+								if (extObjs.PBXGroup[child.value]) {
+									addGroup(child.value, xobjs.PBXGroup[uuid].path ? path.join(basePath, xobjs.PBXGroup[uuid].path.replace(/^"/, '').replace(/"$/, '')) : basePath);
+								} else if (extObjs.PBXFileReference[child.value]) {
+									xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
+									xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+
+									if (child.comment === 'Info.plist') {
+										var infoPlistFile = path.join(basePath, 'Info.plist');
+										if (!fs.existsSync(infoPlistFile)) {
+											logger.error(__('Unable to find iOS extension "%s" target "%s" Info.plist: %s', extProjectName, t.comment, infoPlistFile) + '\n');
+											process.exit(1);
+										}
+
+										var infoPlist = new appc.plist(infoPlistFile);
+										targetIsExtension = !!infoPlist.NSExtension;
+										hasWatchApp = !!infoPlist.WKWatchKitApp;
+									}
+								}
+							});
+						}(child.value, extBasePath));
+
+						return true;
+					});
+
+					// add the build configuration
+					var buildConfigurationListUuid = xobjs.PBXNativeTarget[targetUuid].buildConfigurationList;
+					xobjs.XCConfigurationList[buildConfigurationListUuid] = extObjs.XCConfigurationList[buildConfigurationListUuid];
+					xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment']
+
+					xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
+						xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
+						xobjs.XCBuildConfiguration[conf.value + '_comment'] = extObjs.XCBuildConfiguration[conf.value + '_comment'];
+
+						// update info.plist path
+						var buildSettings = xobjs.XCBuildConfiguration[conf.value].buildSettings;
+						if (buildSettings.INFOPLIST_FILE) {
+							buildSettings.INFOPLIST_FILE = '"' + extRelPath + '/' + buildSettings.INFOPLIST_FILE.replace(/^"/, '').replace(/"$/, '') + '"';
+						}
+						if (!buildSettings.CLANG_ENABLE_OBJC_ARC) {
+							// inherits from project
+							var confList = extObjs.XCConfigurationList[extPBXProject.buildConfigurationList],
+								confUuid = confList.buildConfigurations.filter(function (c) { return c.comment === confList.defaultConfigurationName || 'Release'; })[0].value;
+							if (extObjs.XCBuildConfiguration[confUuid].buildSettings.CLANG_ENABLE_OBJC_ARC === 'YES') {
+								buildSettings.CLANG_ENABLE_OBJC_ARC = 'YES';
+							}
+						}
+					});
+
+					// determine if this target is an extension
+					if (targetIsExtension) {
+						// add this target as a dependency of the titanium app's project
+						var proxyUuid = xcodeProject.generateUuid();
+						xobjs.PBXContainerItemProxy[proxyUuid] = {
+							isa: 'PBXContainerItemProxy',
+							containerPortal: projectUuid,
+							containerPortal_comment: 'Project object',
+							proxyType: 1,
+							remoteGlobalIDString: targetUuid,
+							remoteInfo: '"' + t.comment + '"'
+						};
+						xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
+
+						var depUuid = xcodeProject.generateUuid();
+						xobjs.PBXTargetDependency[depUuid] = {
+							isa: 'PBXTargetDependency',
+							target: targetUuid,
+							target_comment: t.comment,
+							targetProxy: proxyUuid,
+							targetProxy_comment: 'PBXContainerItemProxy'
+						};
+						xobjs.PBXTargetDependency[depUuid + '_comment'] = 'PBXTargetDependency';
+
+						xobjs.PBXNativeTarget[mainTargetUuid].dependencies.push({
+							value: depUuid,
+							comment: 'PBXTargetDependency'
+						});
+
+						// add the embed extension phase
+						var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
+							embedUuid = embedExtPhase && embedExtPhase.value;
+						if (!embedUuid) {
+							embedUuid = xcodeProject.generateUuid();
+							xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+								value: embedUuid,
+								comment: 'Embed App Extensions'
+							});
+							xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
+								isa: 'PBXCopyFilesBuildPhase',
+								buildActionMask: 2147483647,
+								dstPath: '""',
+								dstSubfolderSpec: 13, // type "plugin"
+								files: [],
+								name: '"Embed App Extensions"',
+								runOnlyForDeploymentPostprocessing: 0
+							};
+							xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
+						}
+
+						var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
+
+						// add the copy files build phase
+						var copyFilesUuid = xcodeProject.generateUuid();
+
+						xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
+							value: copyFilesUuid,
+							comment: productName + ' in Embed App Extensions'
+						});
+
+						xobjs.PBXBuildFile[copyFilesUuid] = {
+							isa: 'PBXBuildFile',
+							fileRef: productUuid,
+							fileRef_comment: productName,
+							settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
+						};
+						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
+	 				}
 
 					return true;
 				});
-
-				// add the build configuration
-				var buildConfigurationListUuid = xobjs.PBXNativeTarget[targetUuid].buildConfigurationList;
-				xobjs.XCConfigurationList[buildConfigurationListUuid] = extObjs.XCConfigurationList[buildConfigurationListUuid];
-				xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment']
-
-				xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
-					xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
-					xobjs.XCBuildConfiguration[conf.value + '_comment'] = extObjs.XCBuildConfiguration[conf.value + '_comment'];
-
-					// update info.plist path
-					var buildSettings = xobjs.XCBuildConfiguration[conf.value].buildSettings;
-					if (buildSettings.INFOPLIST_FILE) {
-						buildSettings.INFOPLIST_FILE = '"' + extRelPath + '/' + buildSettings.INFOPLIST_FILE.replace(/^"/, '').replace(/"$/, '') + '"';
-					}
-					if (!buildSettings.CLANG_ENABLE_OBJC_ARC) {
-						// inherits from project
-						var confList = extObjs.XCConfigurationList[extPBXProject.buildConfigurationList],
-							confUuid = confList.buildConfigurations.filter(function (c) { return c.comment === confList.defaultConfigurationName || 'Release'; })[0].value;
-						if (extObjs.XCBuildConfiguration[confUuid].buildSettings.CLANG_ENABLE_OBJC_ARC === 'YES') {
-							buildSettings.CLANG_ENABLE_OBJC_ARC = 'YES';
-						}
-					}
-				});
-
-				// determine if this target is an extension
-				if (targetIsExtension) {
-					// add this target as a dependency of the titanium app's project
-					var proxyUuid = xcodeProject.generateUuid();
-					xobjs.PBXContainerItemProxy[proxyUuid] = {
-						isa: 'PBXContainerItemProxy',
-						containerPortal: projectUuid,
-						containerPortal_comment: 'Project object',
-						proxyType: 1,
-						remoteGlobalIDString: targetUuid,
-						remoteInfo: '"' + t.comment + '"'
-					};
-					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
-
-					var depUuid = xcodeProject.generateUuid();
-					xobjs.PBXTargetDependency[depUuid] = {
-						isa: 'PBXTargetDependency',
-						target: targetUuid,
-						target_comment: t.comment,
-						targetProxy: proxyUuid,
-						targetProxy_comment: 'PBXContainerItemProxy'
-					};
-					xobjs.PBXTargetDependency[depUuid + '_comment'] = 'PBXTargetDependency';
-
-					xobjs.PBXNativeTarget[mainTargetUuid].dependencies.push({
-						value: depUuid,
-						comment: 'PBXTargetDependency'
-					});
-
-					// add the embed extension phase
-					var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
-						embedUuid = embedExtPhase && embedExtPhase.value;
-					if (!embedUuid) {
-						embedUuid = xcodeProject.generateUuid();
-						xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
-							value: embedUuid,
-							comment: 'Embed App Extensions'
-						});
-						xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
-							isa: 'PBXCopyFilesBuildPhase',
-							buildActionMask: 2147483647,
-							dstPath: '""',
-							dstSubfolderSpec: 13, // type "plugin"
-							files: [],
-							name: '"Embed App Extensions"',
-							runOnlyForDeploymentPostprocessing: 0
-						};
-						xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
-					}
-
-					var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
-
-					// add the copy files build phase
-					var copyFilesUuid = xcodeProject.generateUuid();
-
-					xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
-						value: copyFilesUuid,
-						comment: productName + ' in Embed App Extensions'
-					});
-
-					xobjs.PBXBuildFile[copyFilesUuid] = {
-						isa: 'PBXBuildFile',
-						fileRef: productUuid,
-						fileRef_comment: productName,
-						settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
-					};
-					xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
- 				}
-
-				return true;
 			});
 		});
-	});
+	} else {
+		this.logger.trace(__('No extensions to add'));
+	}
 
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 	if (hasWatchApp) {
+		var once = 0;
+
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 			if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, '8.2.0')) {
+				once++ === 0 && this.logger.warn(__('WatchKit App detected, changing minimum iOS deployment target from %s to %s', buildSettings.IPHONEOS_DEPLOYMENT_TARGET, '8.2'));
 				buildSettings.IPHONEOS_DEPLOYMENT_TARGET = '8.2';
 			}
-		});
+		}, this);
 
 		this.hasWatchApp = true;
 	}
@@ -2586,10 +2666,15 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	};
 */
 
+	var hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
+		this.logger.debug(__('Writing %s', xcodeProject.filepath.cyan));
+		fs.existsSync(path.dirname(xcodeProject.filepath)) || wrench.mkdirSyncRecursive(path.dirname(xcodeProject.filepath));
+		fs.writeFileSync(xcodeProject.filepath, xcodeProject.writeSync());
+		delete this.buildDirFiles[xcodeProject.filepath];
+		done();
+	});
 
-	this.logger.debug(__('Writing %s', xcodeProject.filepath.cyan));
-	fs.existsSync(path.dirname(xcodeProject.filepath)) || wrench.mkdirSyncRecursive(path.dirname(xcodeProject.filepath));
-	fs.writeFileSync(xcodeProject.filepath, xcodeProject.writeSync());
+	hook(xcodeProject, next);
 };
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
@@ -2597,11 +2682,12 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 
 	// allow the project to have its own custom entitlements
 	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
-		outputFile = path.join(this.buildDir, 'Entitlements.plist');
+		dest = path.join(this.buildDir, 'Entitlements.plist');
 
 	if (fs.existsSync(entitlementsFile)) {
-		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan, outputFile));
-		this.copyFileSync(entitlementsFile, outputFile);
+		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan, dest));
+		this.copyFileSync(entitlementsFile, dest);
+		delete this.buildDirFiles[dest];
 		return;
 	}
 
@@ -2633,8 +2719,18 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 		plist['keychain-access-groups'] = [ plist['application-identifier'] ];
 	}
 
-	this.logger.debug(__('Writing %s', outputFile.cyan));
-	fs.writeFileSync(outputFile, plist.toString('xml'));
+	var contents = plist.toString('xml');
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'Entitlements.plist'));
+			this.forceRebuild = true;
+		}
+		this.logger.debug(__('Writing %s', dest.cyan));
+		fs.writeFileSync(dest, contents);
+	} else {
+		this.logger.debug(__('No change, skipping %s', dest.cyan));
+	}
+	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
@@ -2903,12 +2999,24 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	fonts.length && (plist.UIAppFonts = fonts);
 
 	// write the Info.plist
-	var dest = path.join(this.buildDir, 'Info.plist');
-	this.logger.debug(__('Writing %s', dest.cyan));
-	fs.writeFileSync(dest, plist.toString('xml'));
+	var dest = path.join(this.buildDir, 'Info.plist'),
+		contents = plist.toString('xml');
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s changed since last build', 'Info.plist'));
+			this.forceRebuild = true;
+		}
+		this.logger.debug(__('Writing %s', dest.cyan));
+		fs.writeFileSync(dest, contents);
+	} else {
+		this.logger.debug(__('No change, skipping %s', dest.cyan));
+	}
+	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.writeMain = function writeMain() {
+	this.logger.info(__('Creating main.m'));
+
 	var consts = {
 			'__PROJECT_NAME__':     this.tiapp.name,
 			'__PROJECT_ID__':       this.tiapp.id,
@@ -2929,44 +3037,56 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			var s = consts.hasOwnProperty(key) ? consts[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 		}),
-		dest = path.join(this.buildDir, 'main.m'),
-		exists = fs.existsSync(dest);
+		dest = path.join(this.buildDir, 'main.m');
 
-	if (!exists || contents !== fs.readFileSync(dest).toString()) {
-		if (exists && !this.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: main.m has changed since last build'));
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'main.m'));
+			this.forceRebuild = true;
 		}
-		this.forceRebuild = true;
-
 		this.logger.debug(__('Writing %s', dest.cyan));
 		fs.writeFileSync(dest, contents);
+	} else {
+		this.logger.debug(__('No change, skipping %s', dest.cyan));
 	}
+	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	this.logger.info(__('Creating Xcode config files'));
 
 	// write the project.xcconfig
-	this.logger.debug(__('Writing %s', this.xcodeProjectConfigFile.cyan));
-	fs.writeFileSync(this.xcodeProjectConfigFile, [
-		'TI_VERSION=' + this.titaniumSdkVersion,
-		'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
-		'TI_APPID=' + this.tiapp.id,
-		'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
-		'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore',
-		'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
-		'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
-		'#include "module"'
-	].join('\n') + '\n');
+	var dest = this.xcodeProjectConfigFile,
+		contents = [
+			'TI_VERSION=' + this.titaniumSdkVersion,
+			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+			'TI_APPID=' + this.tiapp.id,
+			'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
+			'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore',
+			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
+			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
+			'#include "module"'
+		].join('\n') + '\n';
+
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', path.basename(this.xcodeProjectConfigFile)));
+			this.forceRebuild = true;
+		}
+		this.logger.debug(__('Writing %s', this.xcodeProjectConfigFile.cyan));
+		fs.writeFileSync(dest, contents);
+	} else {
+		this.logger.debug(__('No change, skipping %s', this.xcodeProjectConfigFile.cyan));
+	}
+	delete this.buildDirFiles[dest];
 
 	// write the module.xcconfig
-	var dest = path.join(this.buildDir, 'module.xcconfig'),
-		exists = fs.existsSync(dest),
-		variables = {},
-		contents = [
-			'// this is a generated file - DO NOT EDIT',
-			''
-		];
+	var variables = {};
+	dest = path.join(this.buildDir, 'module.xcconfig'),
+	contents = [
+		'// this is a generated file - DO NOT EDIT',
+		''
+	];
 
 	this.modules.forEach(function (m) {
 		var moduleId = m.manifest.moduleid.toLowerCase(),
@@ -2993,15 +3113,17 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	});
 	contents = contents.join('\n');
 
-	if (!exists || contents !== fs.readFileSync(dest).toString()) {
-		if (exists && !this.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: main.m has changed since last build'));
+	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!this.forceRebuild) {
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'module.xcconfig'));
+			this.forceRebuild = true;
 		}
-		this.forceRebuild = true;
-
 		this.logger.debug(__('Writing %s', dest.cyan));
 		fs.writeFileSync(dest, contents);
+	} else {
+		this.logger.debug(__('No change, skipping %s', dest.cyan));
 	}
+	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
@@ -3017,6 +3139,8 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: this.ignoreFiles,
 			callback: function (srcFile, destFile, srcStat) {
+				delete this.buildDirFiles[destFile];
+
 				if (path.basename(srcFile) === 'Info.plist') {
 					// validate the info.plist
 					var infoPlist = new appc.plist(srcFile);
@@ -3053,16 +3177,23 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	var libDir = path.join(this.buildDir, 'lib');
 	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
 
-	this.copyFileSync(path.join(this.platformPath, 'libTiCore.a'),          path.join(libDir, 'libTiCore.a'), this.forceCopyAll);
-	this.copyFileSync(path.join(this.platformPath, 'libtiverify.a'),        path.join(libDir, 'libtiverify.a'));
-	this.copyFileSync(path.join(this.platformPath, 'libti_ios_debugger.a'), path.join(libDir, 'libti_ios_debugger.a'));
-	this.copyFileSync(path.join(this.platformPath, 'libti_ios_profiler.a'), path.join(libDir, 'libti_ios_profiler.a'));
+	['libTiCore.a', 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a'].forEach(function (filename) {
+		var src = path.join(this.platformPath, filename),
+			dest = path.join(libDir, filename);
+
+		delete this.buildDirFiles[dest];
+
+		if (!this.copyFileSync(src, dest, filename === 'libTiCore.a' && this.forceCopyAll)) {
+			this.logger.debug(__('No change, skipping %s', dest.cyan));
+		}
+	}, this);
 };
 
 iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	this.logger.info(__('Copying Titanium iOS files'));
 
-	var name = this.tiapp.name.replace(/-/g, '_').replace(/\W/g, ''),
+	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
+		name = this.tiapp.name.replace(/-/g, '_').replace(/\W/g, ''),
 		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
 		copyFileRegExps = [
 			// note: order of regexps matters
@@ -3078,8 +3209,17 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
-		appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m'),
-		appModsFile = path.join(this.buildDir, 'Classes', 'ApplicationMods.m');
+		appFiles = {};
+
+	appFiles['ApplicationDefaults.m'] = {
+		props:      this.tiapp.properties || {},
+		deployType: this.deployType,
+		launchUrl:  this.launchUrl
+	};
+
+	appFiles['ApplicationMods.m'] = {
+		modules: this.modules
+	};
 
 	['Classes', 'headers'].forEach(function (dir) {
 		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
@@ -3087,68 +3227,57 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			ignoreFiles: /^(bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/,
 			callback: function (srcFile, destFile, srcStat) {
 				var rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
+					filename = path.basename(srcFile),
 					destExists = fs.existsSync(destFile),
-					contents = null,
-					hash = null;
+					existingContent = destExists && fs.readFileSync(destFile),
+					contents = fs.readFileSync(srcFile),
+					srcHash = this.hash(contents),
+					changed = false;
 
-				// ApplicationDefaults.m
-				if (destFile === appDefaultsFile) {
-					contents = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationDefaults.m')).toString(), {
-						props:      this.tiapp.properties || {},
-						deployType: this.deployType,
-						launchUrl:  this.launchUrl
-					});
-					hash = this.hash(contents);
+				delete this.buildDirFiles[destFile];
 
-					if (destExists && fs.readFileSync(destFile).toString() !== contents) {
+				this.currentBuildManifest.files[rel] = {
+					hash: srcHash,
+					mtime: srcStat.mtime,
+					size: srcStat.size
+				};
+
+				if (appFiles[filename]) {
+					contents = ejs.render(contents.toString(), appFiles[filename]);
+					if (!destExists || contents !== existingContent.toString()) {
 						if (!this.forceRebuild) {
-							this.logger.info(__('Forcing rebuild: ApplicationDefaults.m has changed since last build'));
+							this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
+							this.forceRebuild = true;
 						}
-						this.forceRebuild = true;
+						this.logger.debug(__('Writing %s', destFile.cyan));
+						fs.writeFileSync(destFile, contents);
+					}
+					return null;
+				}
+
+				if (extRegExp.test(srcFile) && srcFile.indexOf('TiCore') === -1) {
+					// look up the file to see if the original source changed
+					var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
+					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcStat.mtime && prev.hash === srcHash) {
+						// the original hasn't changed, so let's assume that there's nothing to do
+						return null;
 					}
 
-				// ApplicationMods.m
-				} else if (this.modules.length && destFile === appModsFile) {
-					contents = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationMods.m')).toString(), {
-						modules: this.modules
-					});
-					hash = this.hash(contents);
-
-					if (destExists && fs.readFileSync(destFile).toString() !== contents) {
-						if (!this.forceRebuild) {
-							this.logger.info(__('Forcing rebuild: ApplicationMods.m has changed since last build'));
-						}
-						this.forceRebuild = true;
-					}
-
-				// test to make sure the file is not a binary file extension before we do string operations on it
-				} else if (extRegExp.test(srcFile) && srcFile.indexOf('TiCore') === -1) {
-					contents = fs.readFileSync(srcFile).toString();
-					hash = this.hash(contents);
-
-					if (destExists) {
-						// look up the file to see if the original source changed
-						var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-						if (prev && prev.size === srcStat.size && prev.mtime === srcStat.mtime && prev.hash === hash) {
-							// the original hasn't changed, so let's assume that there's nothing to do
-							return null;
-						}
-
-						fs.unlinkSync(destFile);
-					}
-
+					contents = contents.toString();
 					for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
 						contents = contents.replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
 					}
+
+					changed = contents !== existingContent.toString();
+				} else {
+					changed = Buffer.compare(contents, existingContent) === 0;
 				}
 
-				if (contents) {
-					this.currentBuildManifest.files[rel] = {
-						hash: hash,
-						mtime: srcStat.mtime,
-						size: srcStat.size
-					};
-
+				if (!destExists || changed) {
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
+						this.forceRebuild = true;
+					}
 					this.logger.debug(__('Writing %s', destFile.cyan));
 					fs.writeFileSync(destFile, contents);
 
@@ -3159,391 +3288,162 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		});
 	}, this);
 
-	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), path.join(this.buildDir, name + '_Prefix.pch'));
+	var pchFile = path.join(this.buildDir, name + '_Prefix.pch');
+	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), pchFile);
+	delete this.buildDirFiles[pchFile];
 };
 
-/*
-	copy titanium files
+iOSBuilder.prototype.copyAppIcons = function copyAppIcons() {
+	var paths = [
+			path.join(this.projectDir, 'Resources', 'iphone', this.tiapp.icon),
+			path.join(this.projectDir, 'Resources', 'ios', this.tiapp.icon),
+			path.join(this.platformPath, 'resources', this.tiapp.icon)
+		],
+		src;
 
-	// recreate the build directory (<project dir>/build/[iphone|ios]/assets)
-	fs.existsSync(this.buildAssetsDir) && wrench.rmdirSyncRecursive(this.buildAssetsDir);
-	wrench.mkdirSyncRecursive(this.buildAssetsDir);
-*/
+	while (src = paths.shift()) {
+		if (fs.existsSync(src)) {
+			var dest = path.join(this.xcodeAppDir, this.tiapp.icon);
+			this.copyFileSync(src, dest);
+			delete this.buildDirFiles[dest];
+			break;
+		}
+	}
+};
 
-iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
+iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork() {
 	// note: iTunesArtwork is a png image WITHOUT the file extension and the
 	// purpose of this function is to copy it from the root of the project.
 	// The preferred location of this file is <project-dir>/Resources/iphone
 	// or <project-dir>/platform/iphone.
-/*
-
-
-
-
-FIX THIS SHIT
-
-
-
 	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 		this.logger.info(__('Copying iTunes artwork'));
-		fs.readdirSync(this.projectDir).forEach(function (file) {
-			var src = path.join(this.projectDir, file),
-				m = file.match(/^iTunesArtwork(@2x)?$/i);
-			if (m && fs.statSync(src).isFile()) {
-				appc.fs.copyFileSync(src, path.join(this.xcodeAppDir, 'iTunesArtwork' + (m[1] ? m[1].toLowerCase() : '')), {
-					logger: this.logger.debug
-				});
-			}
-		}, this);
+
+		var artwork = path.join(this.projectdir, 'iTunesArtwork');
+		fs.existsSync(artwork) && this.copyFileSync(artwork, path.join(this.xcodeAppDir, 'iTunesArtwork'));
+		delete this.buildDirFiles[artwork];
+
+		artwork = path.join(this.projectdir, 'iTunesArtwork@2x');
+		fs.existsSync(artwork) && this.copyFileSync(artwork, path.join(this.xcodeAppDir, 'iTunesArtwork@2x'));
+		delete this.buildDirFiles[artwork];
 	}
-*/
-	next();
 };
 
-iOSBuilder.prototype.copyGraphics = function copyGraphics(next) {
-	var paths = [
-			path.join(this.projectDir, 'Resources', 'iphone'),
-			path.join(this.projectDir, 'Resources', 'ios'),
-			path.join(this.platformPath, 'resources')
-		],
-		len = paths.length,
-		i, src;
-
-	for (i = 0; i < len; i++) {
-		if (fs.existsSync(src = path.join(paths[i], this.tiapp.icon))) {
-/*
-
-
-
-FIX THIS SHIT
-
-
-
-			appc.fs.copyFileSync(src, this.xcodeAppDir, {
-				logger: this.logger.debug
-			});
-*/
-			break;
-		}
-	}
-
-	next();
-};
-
-iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
-	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
-		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
-		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
-	})(this.currentBuildManifest, next);
-};
-
-iOSBuilder.prototype.compileI18NFiles = function compileI18NFiles(next) {
-	var data = ti.i18n.load(this.projectDir, this.logger);
-
-	parallel(this,
-		Object.keys(data).map(function (lang) {
-			return function (done) {
-				var contents = [
-						'/**',
-						' * Appcelerator Titanium',
-						' * this is a generated file - DO NOT EDIT',
-						' */',
-						''
-					],
-					dir = path.join(this.xcodeAppDir, lang + '.lproj'),
-					tasks = [];
-
-				wrench.mkdirSyncRecursive(dir);
-
-				function add(obj, filename, map) {
-					obj && tasks.push(function (next) {
-						var dest = path.join(dir, filename);
-						fs.writeFileSync(dest, contents.concat(Object.keys(obj).map(function (name) {
-							return '"' + (map && map[name] || name).replace(/\\"/g, '"').replace(/"/g, '\\"') +
-								'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\"/g, '"').replace(/"/g, '\\"') + '";';
-						})).join('\n'));
-						if (this.compileI18N) {
-							appc.subprocess.run('/usr/bin/plutil', ['-convert', 'binary1', dest], function (code, out, err) {
-								next();
-							});
-						} else {
-							next();
-						}
-					});
-				}
-
-				add(data[lang].app, 'InfoPlist.strings', { appname: 'CFBundleDisplayName' });
-				add(data[lang].strings, 'Localizable.strings');
-
-				parallel(this, tasks, done);
-			};
-		}, this),
-		next
-	);
-};
-
-iOSBuilder.prototype.copyLocalizedLaunchScreens = function copyLocalizedLaunchScreens(next) {
+iOSBuilder.prototype.copyLocalizedLaunchScreens = function copyLocalizedLaunchScreens() {
 	ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (launchImage) {
-		var token = launchImage.split('/'),
-			file = token.pop(),
-			lang = token.pop(),
-			lprojDir = path.join(this.xcodeAppDir, lang + '.lproj'),
-			globalFile = path.join(this.xcodeAppDir, file);
-
-		// this would never need to run. But just to be safe
-		if (!fs.existsSync(lprojDir)) {
-			this.logger.debug(__('Creating lproj folder %s', lprojDir.cyan));
-			wrench.mkdirSyncRecursive(lprojDir);
-		}
+		var parts = launchImage.split('/'),
+			file = parts.pop(),
+			lang = parts.pop(),
+			dest = path.join(this.xcodeAppDir, lang + '.lproj', file),
+			defaultLaunchScreenFile = path.join(this.xcodeAppDir, file);
 
 		// check for it in the root of the xcode build folder
-		if (fs.existsSync(globalFile)) {
-			this.logger.debug(__('Removing File %s, as it is being localized', globalFile.cyan));
-			fs.unlinkSync(globalFile);
+		if (fs.existsSync(defaultLaunchScreenFile)) {
+			this.logger.debug(__('Removing %s, as it is being localized', defaultLaunchScreenFile.cyan));
+			fs.unlinkSync(defaultLaunchScreenFile);
 		}
 
-/*
-
-
-FIX THIS SHIT
-
-
-
-		appc.fs.copyFileSync(launchImage, lprojDir, {
-			logger: this.logger.debug
-		});
-*/
+		this.copyFileSync(launchImage, dest);
+		delete this.buildDirFiles[dest];
 	}, this);
+};
+
+iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
+	// TODO!
 	next();
 };
 
-iOSBuilder.prototype.injectModulesAndExtensionsIntoXcodeProject = function injectModulesAndExtensionsIntoXcodeProject(next) {
-	function makeUUID() {
-		return uuid.v4().toUpperCase().replace(/-/g, '').substring(0, 24);
-	}
+iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
+	function processPlist(filename, host) {
+		var src = path.join(this.templatesDir, filename),
+			dest = path.join(this.xcodeAppDir, filename),
+			exists = fs.existsSync(dest);
 
-	var projectFile = path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'),
-		projectOrigContents = fs.readFileSync(projectFile).toString(),
-		projectContents = projectOrigContents,
-		tabs = '\t\t\t\t'; // tabs aren't necessary, just makes it pretty
+		if (host) {
+			var parts = host.split(':'),
+				contents = ejs.render(fs.readFileSync(src).toString(), {
+					host: parts.length > 0 ? parts[0] : '',
+					port: parts.length > 1 ? parts[1] : '',
+					airkey: parts.length > 2 ? parts[2] : '',
+					hosts: parts.length > 3 ? parts[3] : ''
+				});
 
-	if (this.nativeLibModules.length) {
-		// we have some libraries to add to the project file
-		this.logger.info(__('Injecting native libraries into Xcode project file'));
-
-		var fileMarkers = [],
-			fileMarkers2FileRefs = {},
-			refMarkers = [],
-			frameworkMarkers = [],
-			groupMarkers = [],
-			groupUUID;
-
-		projectContents.split('\n').forEach(function (line) {
-			line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
-			line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
-			line.indexOf('/* libtiverify.a in Frameworks */,') !== -1 && frameworkMarkers.push(line);
-			line.indexOf('/* libtiverify.a */,') !== -1 && groupMarkers.push(line);
-		});
-
-		fileMarkers.forEach(function (marker) {
-			var m = marker.match(/([0-9a-zA-Z]+) \/\*/);
-			if (m) {
-				fileMarkers2FileRefs[m[1].trim()] = makeUUID();
-				!groupUUID && (m = marker.match(/fileRef \= ([0-9a-zA-Z]+) /)) && (groupUUID = m[1]);
-			}
-		});
-
-		this.nativeLibModules.forEach(function (lib) {
-			if (projectContents.indexOf(lib.libName) !== -1) {
-				return;
-			}
-
-			var newGroupUUID = makeUUID();
-
-			fileMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					newUUID = makeUUID(),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/libtiverify\.a/g, lib.libName)
-						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
-						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
-				fileMarkers2FileRefs[m[1].trim()] = newUUID;
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-			});
-
-			refMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/lib\/libtiverify\.a/g, '"' + lib.libFile.replace(/"/g, '\\"') + '"')
-						.replace(/libtiverify\.a/g, lib.libName)
-						.replace(/SOURCE_ROOT/g, '"<absolute>"')
-						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-			});
-
-			groupMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					line = projectContents
-						.substring(begin, end)
-						.replace(/libtiverify\.a/g, lib.libName)
-						.replace(new RegExp(groupUUID, 'g'), newGroupUUID);
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-			});
-
-			frameworkMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/libtiverify\.a/g, lib.libName)
-						.replace(new RegExp(m[1].trim(), 'g'), fileMarkers2FileRefs[m[1].trim()]);
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-			});
-
-			(function (libPath) {
-				var begin = projectContents.indexOf(libPath),
-					end, line;
-				while (begin !== -1) {
-					end = begin + libPath.length;
-					line = projectContents.substring(begin, end).replace(libPath, '"\\"' + path.dirname(lib.libFile) + '\\"",');
-					projectContents = projectContents.substring(0, end) + '\n                                        ' +  line + '\n' + projectContents.substring(end + 1);
-					begin = projectContents.indexOf(libPath, end + line.length);
+			if (!exists || contents !== fs.readFileSync(dest).toString()) {
+				if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
+					this.forceRebuild = true;
 				}
-			}('"\\"$(SRCROOT)/lib\\"",'));
-		}, this);
+
+				fs.writeFileSync(dest, contents);
+			}
+		} else if (exists) {
+			fs.unlinkSync(dest);
+		}
+
+		delete this.buildDirFiles[dest];
 	}
 
-	if (this.builtExtensions.length) {
-		this.logger.info(__('Injecting native extensions into Xcode project file'));
+	processPlist.call(this, 'debugger.plist', this.debugHost);
+	processPlist.call(this, 'profiler.plist', this.profilerHost);
+};
 
-		this.builtExtensions.forEach(function (ext) {
-			// if the Xcode project already has the extension, then bail
-			if (projectContents.indexOf(ext.extensionName) !== -1) {
-				return;
-			}
+iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles(next) {
+	var data = ti.i18n.load(this.projectDir, this.logger);
 
-			// find locations
-			var fileMarkers = [],
-				refMarkers = [],
-				groupMarkers = [],
-				copyFilesBuildPhaseMarkers = [],
-				groupUUID,
-				newGroupUUID = makeUUID(),
-				fileIndex = -1;
+	async.eachSeries(Object.keys(data), function (lang, next) {
+		var header = '/**\n' +
+			           ' * Appcelerator Titanium\n' +
+			           ' * this is a generated file - DO NOT EDIT\n' +
+			           ' */\n\n',
+			dir = path.join(this.xcodeAppDir, lang + '.lproj');
 
-			projectContents.split('\n').forEach(function (line) {
-				line.indexOf('/* libtiverify.a */;') !== -1 && fileMarkers.push(line);
-				line.indexOf('/* libtiverify.a */ =') !== -1 && refMarkers.push(line);
-			});
+		fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-			var groupMatch = projectContents.match(/\* Extensions \*\/ = {[^}]*};/);
-			groupMatch && groupMarkers.push(groupMatch[0]);
+		function add(obj, filename, map, cb) {
+			if (obj) {
+				var dest = path.join(dir, filename),
+					exists = fs.existsSync(dest),
+					contents = header + Object.keys(obj).map(function (name) {
+						return '"' + (map && map[name] || name).replace(/\\"/g, '"').replace(/"/g, '\\"') +
+							'" = "' + (''+obj[name]).replace(/%s/g, '%@').replace(/\\"/g, '"').replace(/"/g, '\\"') + '";';
+					}).join('\n');
 
-			var copyFilesBuildPhaseMatch = projectContents.match(/\/\* Embed App Extensions \*\/ = {\s+isa = PBXCopyFilesBuildPhase;[^}]*};/g);
-			copyFilesBuildPhaseMatch && copyFilesBuildPhaseMatch.forEach(function(match) {
-				copyFilesBuildPhaseMarkers.push(match);
-			});
+				if (!exists || contents !== fs.readFileSync(dest).toString()) {
+					if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target) && exists) {
+						this.logger.info(__('Forcing rebuild: %s changed since last build', lang + '/' + filename));
+						this.forceRebuild = true;
+					}
 
-			fileMarkers.forEach(function (marker) {
-				var m = marker.match(/([0-9a-zA-Z]+) \/\*/);
-				if (m && !groupUUID) {
-					m = marker.match(/fileRef \= ([0-9a-zA-Z]+) /);
-					if (m) {
-						groupUUID = m[1];
+					this.logger.debug(__('Writing %s', dest.cyan));
+					fs.writeFileSync(dest, contents);
+
+					if (this.compileI18N) {
+						return appc.subprocess.run('/usr/bin/plutil', ['-convert', 'binary1', dest], cb);
 					}
 				}
-			});
 
-			// inject files
-			fileMarkers.forEach(function (marker) {
-				fileIndex++;
-				if (fileIndex >= copyFilesBuildPhaseMarkers.length) {
-					this.logger.error(__('Error injecting extension into Xcode project (BuildPhase markers not found or invalid)') + '\n');
-					process.exit(1);
-				}
-
-				// add file references for the extension in Resources
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					newUUID = makeUUID(),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/libtiverify\.a/g, ext.extensionName)
-						.replace(/in Frameworks/g, 'in Resources')
-						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
-						.replace(new RegExp(m[1].trim(), 'g'), newUUID);
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-
-				// add file references for the extension in Embed App Extensions Build Phase
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					newUUID = makeUUID(),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/libtiverify\.a/g, ext.extensionName)
-						.replace(/in Frameworks/g, 'in Embed App Extensions')
-						.replace(new RegExp(groupUUID, 'g'), newGroupUUID)
-						.replace(new RegExp(m[1].trim(), 'g'), newUUID)
-						.replace(new RegExp(ext.extensionName + ' \\*/;', 'g'), ext.extensionName + ' */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };');
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
-
-				var buildMarker = copyFilesBuildPhaseMarkers[fileIndex];
-				addFileToBuildPhase(buildMarker, newUUID, 'Embed App Extensions');
-			}, this);
-
-			function addFileToBuildPhase(marker, uuid, inWhere) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					line = projectContents
-						.substring(begin, end)
-						.replace(/files = \(/g, 'files = (\n' + tabs + uuid + ' /* ' + ext.extensionName + ' in ' + inWhere + ' */,');
-				projectContents = projectContents.substring(0, begin) + line + '\n' + projectContents.substring(end + 1);
+				delete this.buildDirFiles[dest];
 			}
+			cb();
+		}
 
-			refMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					m = marker.match(/([0-9a-zA-Z]+) \/\*/),
-					line = projectContents
-						.substring(begin, end)
-						.replace(/archive.ar/g, '\"wrapper.app-extension\"')
-						.replace(/lib\/libtiverify\.a/g, '"' + ext.extensionFile.replace(/"/g, '\\"') + '"')
-						.replace(/name = libtiverify.a/g, 'name = "' + ext.extensionName+ '"') // File names with spaces need quotes
-						.replace(/libtiverify\.a/g, ext.extensionName)
-						.replace(/SOURCE_ROOT/g, '"<group>"')
-						.replace(new RegExp(m[1].trim(), 'g'), newGroupUUID);
-				projectContents = projectContents.substring(0, end) + '\n' + line + '\n' + projectContents.substring(end + 1);
+		// process the app.xml strings
+		add.call(this, data[lang].app, 'InfoPlist.strings', { appname: 'CFBundleDisplayName' }, function () {
+			// process the strings.xml file
+			add.call(this, data[lang].strings, 'Localizable.strings', null, function () {
+				next();
 			});
-
-			groupMarkers.forEach(function (marker) {
-				var begin = projectContents.indexOf(marker),
-					end = begin + marker.length,
-					line = projectContents
-						.substring(begin, end)
-						.replace(/children = \(/g, 'children = (\n' + tabs + newGroupUUID + ' /* ' + ext.extensionName + ' */,');
-				projectContents = projectContents.substring(0, begin) + line + '\n' + projectContents.substring(end + 1);
-			});
-		}, this);
-	}
-
-	if (projectContents !== projectOrigContents) {
-		this.logger.debug(__('Writing %s', projectFile.cyan));
-		fs.writeFileSync(projectFile, projectContents);
-	}
-
-	next();
+		}.bind(this));
+	}.bind(this), next);
 };
+
+
+
+
+
+
+
+
 
 iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
 	ti.jss.load(path.join(this.projectDir, 'Resources'), this.deviceFamilyNames[this.deviceFamily], this.logger, function (results) {
@@ -3714,48 +3614,6 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		},
 		next
 	);
-};
-
-iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finished) {
-	this.logger.info(__('Initiating Xcode pre-compile phase'));
-
-	series(this, [
-		'copyResources',
-		'processTiSymbols',
-		'writeDebugProfilePlists',
-		'compileJSSFiles',
-		'compileI18NFiles',
-		'copyLocalizedLaunchScreens',
-		function (next) {
-			// if not production and running from Xcode
-			if (this.deployType !== 'production') {
-				var appDefaultsFile = path.join(this.buildDir, 'Classes', 'ApplicationDefaults.m');
-				fs.writeFileSync(appDefaultsFile, fs.readFileSync(appDefaultsFile).toString().replace(/return \[NSDictionary dictionaryWithObjectsAndKeys\:\[TiUtils stringValue\:@".+"\], @"application-launch-url", nil];/, 'return nil;'));
-			}
-			next();
-		}
-	], function () {
-		finished();
-	});
-};
-
-iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(next) {
-	function processPlist(filename, host) {
-		var dest = path.join(this.xcodeAppDir, filename),
-			parts = (host || '').split(':');
-
-		fs.writeFileSync(dest, ejs.render(fs.readFileSync(path.join(this.templatesDir, filename)).toString(), {
-			host: parts.length > 0 ? parts[0] : '',
-			port: parts.length > 1 ? parts[1] : '',
-			airkey: parts.length > 2 ? parts[2] : '',
-			hosts: parts.length > 3 ? parts[3] : ''
-		}));
-	}
-
-	processPlist.call(this, 'debugger.plist', this.debugHost);
-	processPlist.call(this, 'profiler.plist', this.profilerHost);
-
-	next();
 };
 
 iOSBuilder.prototype.copyResources = function copyResources(finished) {
@@ -4059,78 +3917,76 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				return finished();
 			}
 
-			this.cli.fireHook('build.ios.prerouting', this, function (err) {
-				var titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
-						var tries = 0,
-							completed = false;
+			var titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
+				var tries = 0,
+					completed = false;
 
-						this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
-						jsFilesToEncrypt.forEach(function (file) {
-							this.logger.debug(__('Preparing %s', file.cyan));
-						}, this);
+				this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
+				jsFilesToEncrypt.forEach(function (file) {
+					this.logger.debug(__('Preparing %s', file.cyan));
+				}, this);
 
-						async.whilst(
-							function () {
-								if (tries > 3) {
-									// we failed 3 times, so just give up
-									this.logger.error(__('titanium_prep failed to complete successfully'));
-									this.logger.error(__('Try cleaning this project and build again') + '\n');
-									process.exit(1);
-								}
-								return !completed;
-							},
-							function (cb) {
-								var child = spawn(exe, args, opts),
-									out = '';
+				async.whilst(
+					function () {
+						if (tries > 3) {
+							// we failed 3 times, so just give up
+							this.logger.error(__('titanium_prep failed to complete successfully'));
+							this.logger.error(__('Try cleaning this project and build again') + '\n');
+							process.exit(1);
+						}
+						return !completed;
+					},
+					function (cb) {
+						var child = spawn(exe, args, opts),
+							out = '';
 
-								child.stdin.write(jsFilesToEncrypt.join('\n'));
-								child.stdin.end();
+						child.stdin.write(jsFilesToEncrypt.join('\n'));
+						child.stdin.end();
 
-								child.stdout.on('data', function (data) {
-									out += data.toString();
-								});
+						child.stdout.on('data', function (data) {
+							out += data.toString();
+						});
 
-								child.on('close', function (code) {
-									if (code) {
-										this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
-										process.exit(1);
-									}
+						child.on('close', function (code) {
+							if (code) {
+								this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
+								process.exit(1);
+							}
 
-									if (out.indexOf('initWithObjectsAndKeys') !== -1) {
-										// success!
-										var file = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m');
-										this.logger.debug(__('Writing application routing source file: %s', file.cyan));
-										fs.writeFileSync(
-											file,
-											ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
-												bytes: out
-											})
-										);
+							if (out.indexOf('initWithObjectsAndKeys') !== -1) {
+								// success!
+								var file = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m');
+								this.logger.debug(__('Writing application routing source file: %s', file.cyan));
+								fs.writeFileSync(
+									file,
+									ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
+										bytes: out
+									})
+								);
 
-										// since we just modified the ApplicationRouting.m, we need to force xcodebuild
-										this.forceRebuild = true;
+								// since we just modified the ApplicationRouting.m, we need to force xcodebuild
+								this.forceRebuild = true;
 
-										completed = true;
-									} else {
-										// failure, maybe it was a fluke, try again
-										this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
-										tries++;
-									}
+								completed = true;
+							} else {
+								// failure, maybe it was a fluke, try again
+								this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
+								tries++;
+							}
 
-									cb();
-								}.bind(this));
-							}.bind(this),
-							done
-						);
-					});
-
-				titaniumPrepHook(
-					path.join(this.platformPath, 'titanium_prep'),
-					[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
-					{},
-					finished
+							cb();
+						}.bind(this));
+					}.bind(this),
+					done
 				);
-			}.bind(this));
+			});
+
+			titaniumPrepHook(
+				path.join(this.platformPath, 'titanium_prep'),
+				[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
+				{},
+				finished
+			);
 		});
 	});
 };
@@ -4187,18 +4043,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 			this.copyDirSync(src, path.join(this.xcodeAppDir, 'modules', ns, 'images'));
 		}
 	}, this);
-
-	//This is default behavior for now. Move this to true in phase 2.
-	//Remove this logic when we have debugging/profiling support with JSCore framework
-	//TIMOB-17892
-	var useJSCore = false;
-	if (this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework']){
-		useJSCore = true;
-	}
-
-	if (this.debugHost || this.profilerHost) {
-		useJSCore = false;
-	}
 
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h');
 
@@ -4297,6 +4141,14 @@ iOSBuilder.prototype.optimizeImages = function optimizeImages(next) {
 		appc.fs.touch(this.imagesOptimizedFile);
 		next();
 	}
+};
+
+iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
+	this.cli.createHook('build.ios.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
+	})(this.currentBuildManifest, next);
 };
 
 // create the builder instance and expose the public api

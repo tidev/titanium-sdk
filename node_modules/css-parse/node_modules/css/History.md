@@ -1,4 +1,4 @@
-2.2.0 / 2014-02-18
+2.2.0 / 2015-02-18
 ====
 
  * add `parsingErrors` to list errors when parsing with `silent: true`
