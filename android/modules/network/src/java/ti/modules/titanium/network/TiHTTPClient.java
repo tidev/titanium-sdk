@@ -405,7 +405,7 @@ public class TiHTTPClient
 			}
 			callbackData.put("progress", progress);
 
-			dispatchCallback("ondatastream", callbackData);
+			dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
 		}
 
 		private void finishedReceivingEntityData(long contentLength) throws IOException
@@ -571,12 +571,12 @@ public class TiHTTPClient
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
 		data.put("readyState", Integer.valueOf(readyState));
-		dispatchCallback("onreadystatechange", data);
+		dispatchCallback(TiC.PROPERTY_ONREADYSTATECHANGE, data);
 
 		if (readyState == READY_STATE_DONE) {
 			KrollDict data1 = new KrollDict();
 			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback("onload", data1);
+			dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
 		}
 	}
 
@@ -1319,7 +1319,7 @@ public class TiHTTPClient
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
 								data.put("progress", ((double)progress)/totalLength);
-								dispatchCallback("onsendstream", data);
+								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
 							}
 						});
 						e.setEntity(progressEntity);
@@ -1394,7 +1394,7 @@ public class TiHTTPClient
 
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
-				dispatchCallback("onerror", data);
+				dispatchCallback(TiC.PROPERTY_ONERROR, data);
 			} finally {
 				deleteTmpFiles();
 
