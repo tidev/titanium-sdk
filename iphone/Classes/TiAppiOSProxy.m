@@ -320,6 +320,18 @@
     }, NO);
 }
 
+-(NSArray*)supportedUserActivityTypes
+{    
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
+    NSArray *supportedActivityTypes = [[NSBundle mainBundle]
+                                       objectForInfoDictionaryKey:@"NSUserActivityTypes"];
+    
+    return supportedActivityTypes;
+}
+
 -(NSDictionary*)currentUserNotificationSettings
 {
     if (![TiUtils isIOS8OrGreater]) {
