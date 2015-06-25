@@ -1815,21 +1815,46 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONDATASTREAM = "ondatastream";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONERROR = "onerror";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONLOAD = "onload";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONREADYSTATECHANGE = "onreadystatechange";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_RECEIVED = "onReceived";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONSENDSTREAM = "onsendstream";
 
 	/**
 	 * @module.api

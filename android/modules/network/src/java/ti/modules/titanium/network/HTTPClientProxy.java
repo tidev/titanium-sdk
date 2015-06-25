@@ -23,7 +23,12 @@ import ti.modules.titanium.xml.DocumentProxy;
 import android.os.Build;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
-	TiC.PROPERTY_FILE
+	TiC.PROPERTY_FILE,
+	TiC.PROPERTY_ONSENDSTREAM,
+	TiC.PROPERTY_ONLOAD,
+	TiC.PROPERTY_ONERROR,
+	TiC.PROPERTY_ONREADYSTATECHANGE,
+	TiC.PROPERTY_ONDATASTREAM
 })
 public class HTTPClientProxy extends KrollProxy
 {
