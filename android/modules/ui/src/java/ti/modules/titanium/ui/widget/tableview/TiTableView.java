@@ -571,6 +571,17 @@ public class TiTableView extends FrameLayout
 			});
 		}
 	}
+	
+	public void setFilterText(String text) {
+		filterText = text;
+		if (adapter != null) {
+			proxy.getActivity().runOnUiThread(new Runnable() {
+				public void run() {
+					dataSetChanged();
+				}
+			});
+		}
+	}
 
 	public void setFilterAttribute(String filterAttribute) {
 		this.filterAttribute = filterAttribute;

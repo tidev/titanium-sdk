@@ -125,6 +125,10 @@ public class TiUITableView extends TiUIView
 
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_FILTER_TEXT)) {
+			tableView.setFilterText(TiConvert.toString(d, TiC.PROPERTY_FILTER_TEXT));
+		}
+		
 		ListView list = getListView();
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
@@ -278,6 +282,10 @@ public class TiUITableView extends TiUIView
 				tableView.setOnItemLongClickListener(null);
 			}
 
+		}
+		
+		if (key.equals(TiC.PROPERTY_FILTER_TEXT)) {
+			tableView.setFilterText(TiConvert.toString(newValue));
 		}
 
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
