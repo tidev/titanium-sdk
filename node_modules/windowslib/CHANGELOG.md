@@ -1,3 +1,7 @@
+0.1.14 (6/25/2015)
+-------------------
+  * More changes related to fixing [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) -  Windows: CLI builds hang on first try due to Powershell permission check in windowslib
+
 0.1.13 (6/11/2015)
 -------------------
   * Expand cert utility functionality
