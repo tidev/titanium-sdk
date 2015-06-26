@@ -92,12 +92,21 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 			NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
 			[nc addObserver:self selector:@selector(contactStoreDidChange:) name:CNContactStoreDidChangeNotification object:nil];
         }
-        saveRequests = [[NSMutableArray alloc] init];
     }
-    
     return contactStore;
-
 }
+
+/*-(CNSaveRequest*)saveRequest
+{
+	if (![NSThread isMainThread]) {
+		return NULL;
+	}
+	if (saveRequest == NULL) {
+		saveRequest = [[CNSaveRequest alloc] init];
+	}
+	return saveRequest;
+}*/
+
 -(void)releaseAddressBook
 {
 	TiThreadPerformOnMainThread(^{
@@ -131,7 +140,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		[self releaseAddressBook];
 	}
 	RELEASE_TO_NIL(contactStore)
-	RELEASE_TO_NIL(saveRequests)
+	RELEASE_TO_NIL(saveRequest)
 	RELEASE_TO_NIL(contactPicker)
 	RELEASE_TO_NIL(contactKeysWithoutImage)
 	RELEASE_TO_NIL(contactKeysWithImage)
@@ -262,6 +271,24 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(void)save:(id)unused
 {
 	ENSURE_UI_THREAD(save, unused)
+	if ([TiUtils isIOS9OrGreater]) {
+		CNContactStore *ourContactStore = [self contactStore];
+		if (ourContactStore == NULL) {
+			return;
+		}
+		NSError *error;
+		if (saveRequest == nil) {
+			DebugLog(@"nothing to save");
+			return;
+		}
+		if (![ourContactStore executeSaveRequest:saveRequest error:&error]) {
+			[self throwException:[NSString stringWithFormat:@"Unable to save contact store: %@",[TiUtils messageFromError:error]]
+					   subreason:nil
+						location:CODELOCATION];
+		};
+		RELEASE_TO_NIL(saveRequest)
+		return;
+	}
 	CFErrorRef error;
 	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
@@ -549,7 +576,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         NSError *error = nil;
 		NSMutableArray *peopleRefs = nil;
         peopleRefs = [[NSMutableArray alloc] init];
-        CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:contactKeysWithoutImage];
+		//this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
+        CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:contactKeysWithImage];
         BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
             TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:contact module:self] autorelease];
             [peopleRefs addObject:person];
@@ -560,7 +588,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
             return people;
         }
         else {
-            DebugLog(@"%@", error.description);
+            DebugLog(@"%@", [TiUtils messageFromError:error]);
             return nil;
         }
     }
@@ -688,7 +716,12 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(removePerson,arg)
-	
+	if([TiUtils isIOS9OrGreater]) {
+		TiContactsPerson *person = arg;
+		RELEASE_TO_NIL(saveRequest)
+		saveRequest = [person getSaveRequestForDeletion];
+		return;
+	}
 	[self removeRecord:[arg record]];
 }
 
@@ -911,7 +944,83 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 
 - (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperty:(nonnull CNContactProperty *)contactProperty
 {
-    
+	if (selectedPropertyCallback) {
+		TiContactsPerson *personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:contactProperty.contact module:self] autorelease];
+
+		id value = contactProperty.value;
+		id result = [NSNull null];
+		NSString *property = [[TiContactsPerson iOS9propertyKeys] objectForKey:contactProperty.key];
+		NSString *label = [[TiContactsPerson iOS9multiValueLabels] valueForKey:contactProperty.label];
+		
+		if ([value isKindOfClass:[NSString class]]) {
+			result = value;
+		}
+		if ([value isKindOfClass:[NSDateComponents class]]) {
+			//this part of the code is supposed to work for birthday and alternateBirthday
+			//but iOS9 Beta is giving a null value for these properties in `value`, so only
+			//processing `anniversary` and `other` here.
+//			if ([contactProperty.key isEqualToString:CNContactNonGregorianBirthdayKey]) {
+//				NSDateComponents *dateComps = (NSDateComponents*)value;
+//				result = [NSDictionary dictionaryWithObjectsAndKeys: dateComps.calendar.calendarIdentifier,@"calendarIdentifier",NUMLONG(dateComps.era),@"era",NUMLONG(dateComps.year),@"year",NUMLONG(dateComps.month),@"month",NUMLONG(dateComps.day),@"day",NUMBOOL(dateComps.isLeapMonth),@"isLeapMonth", nil];
+//			}
+//			else {
+			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:value];
+			result = [TiUtils UTCDateForDate:date];
+//			}
+		}
+		if ([value isKindOfClass:[CNPostalAddress class]]) {
+			CNPostalAddress *address = value;
+			NSDictionary *addressDict = [[NSDictionary alloc] initWithObjectsAndKeys:address.street,@"Street",
+										 address.city,@"City",
+										 address.state,@"State",
+										 address.postalCode,@"PostalCode",
+										 address.country,@"Country",
+										 address.ISOCountryCode,@"CountryCode", nil];
+			result = addressDict;
+		}
+		if ([value isKindOfClass:[CNSocialProfile class]]) {
+			CNSocialProfile *profile = value;
+			NSDictionary *profileDict = [[NSDictionary alloc] initWithObjectsAndKeys:profile.service,@"service",
+										 profile.urlString,@"url",
+										 profile.userIdentifier,@"userIdentifier",
+										 profile.username,@"username", nil];
+			result = profileDict;
+		}
+		if ([value isKindOfClass:[CNContactRelation class]]) {
+			CNContactRelation *relation = value;
+			result = relation.name;
+		}
+		if ([value isKindOfClass:[CNInstantMessageAddress class]]) {
+			CNInstantMessageAddress *im = value;
+			NSDictionary *imDict = [[NSDictionary alloc] initWithObjectsAndKeys:im.service,@"service",
+									im.username,@"username", nil];
+			result = imDict;
+		}
+		if ([value isKindOfClass:[CNPhoneNumber class]]) {
+			CNPhoneNumber *phoneNumber = value;
+			result = phoneNumber.stringValue;
+		}
+
+		//unfortunately, iOS9 Beta doesn't valuate birthdays. Watch this in case of changes.
+		if ([contactProperty.key isEqualToString:@"birthdays"]) {
+			if ([contactProperty.identifier isEqualToString:@"gregorian"]) {
+				property = @"birthday";
+				result = [personObject valueForUndefinedKey:property];				
+			}
+			else {
+				property = @"alternateBirthday";
+				//label = contactProperty.identifier?
+				result = [personObject valueForUndefinedKey:property];
+			}
+		}
+		
+		NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject, @"person", property , @"property", result, @"value", label, @"label", nil];
+		[self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
+		[[TiApp app] hideModalController:contactPicker animated:animated];
+		return NO;
+	}
+	return YES;
+
 }
 /*
 - (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContacts:(nonnull NSArray<CNContact *> *)contacts

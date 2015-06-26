@@ -218,6 +218,12 @@
 					location:CODELOCATION];
 	}
 }
-
+//For iOS9 deleting contact
+-(CNSaveRequest*)getSaveRequestForDeletion
+{
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	[saveRequest deleteGroup:(CNMutableGroup*)group];
+	return saveRequest;
+}
 @end
 #endif

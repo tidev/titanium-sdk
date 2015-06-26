@@ -26,10 +26,10 @@
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
 	CNContactStore* contactStore;
-	NSMutableArray* saveRequests;
 	CNContactPickerViewController* contactPicker;
 	NSArray* contactKeysWithoutImage;
 	NSArray* contactKeysWithImage;
+	CNSaveRequest* saveRequest;
 }
 
 -(ABAddressBookRef)addressBook;

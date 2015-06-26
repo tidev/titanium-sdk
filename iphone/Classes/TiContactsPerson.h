@@ -19,21 +19,25 @@
     CNContact* person;
 	ContactsModule* module;
     NSString* identifier;
+	NSDictionary* iOS9contactProperties;
+//	NSDictionary* iOS9multiValueLabels;
 }
 
 @property(readonly,nonatomic) NSNumber* recordId;
 @property(readonly,nonatomic) ABRecordRef record;
 @property(readonly,nonatomic) NSString* identifier;
+//@property(readonly,nonatomic) NSDictionary* iOS9contactProperties;
 
 +(NSDictionary*)contactProperties;
 +(NSDictionary*)multiValueProperties;
 +(NSDictionary*)multiValueLabels;
-+(NSDictionary*)iOS9ContactProperties;
-+(NSDictionary*)iOS9ContactLabels;
++(NSDictionary*)iOS9multiValueLabels;
++(NSDictionary*)iOS9propertyKeys;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNContact*)person_ module:(ContactsModule*)module_;
-
+-(id)valueForUndefinedKey:(NSString *)key;
+-(CNSaveRequest*)getSaveRequestForDeletion;
 -(NSString*)fullName;
 
 @end
