@@ -277,10 +277,29 @@
 
 -(id)valueForUndefinedKey:(NSString *)key
 {
-    if ([key isEqualToString:@"id"]) {
-        return calendarId;
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self valueForUndefinedKey:key] retain];}, YES);
+        return [result autorelease];
     }
-    else {
+    
+    EKCalendar* currCalendar = [self calendar];
+    
+    if (currCalendar == NULL) {
+        if ([key isEqualToString:@"id"]) {
+            return calendarId;
+        }else{
+            [self throwException:@"Cannot access calendar"
+                   subreason:nil
+                    location:CODELOCATION];
+        
+            return nil;
+        }
+    }
+    
+    if ([key isEqualToString:@"id"]) {
+        return [currCalendar calendarIdentifier];
+    } else {
         [super valueForUndefinedKey:key];
     }
 }
