@@ -913,6 +913,45 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 }
 
+#pragma mark Handoff Delegates
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
+{
+    
+    NSMutableDictionary *dict = [NSMutableDictionary
+                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
+                                 nil];
+    
+    if([userActivity title] !=nil)
+    {
+        [dict setObject:[userActivity title] forKey:@"title"];
+    }
+    
+    if([userActivity webpageURL] !=nil)
+    {
+        [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+    
+    if([userActivity userInfo] !=nil)
+    {
+        [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+    
+    if (appBooted)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:KTiHandOff object:self userInfo:dict];
+    }
+    else
+    {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:KTiHandOff object:self userInfo:dict];
+        });
+    }
+    
+    return YES;
+}
+
 #pragma mark Push Notification Delegates
 
 #ifdef USE_TI_NETWORKREGISTERFORPUSHNOTIFICATIONS

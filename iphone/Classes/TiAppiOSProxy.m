@@ -86,6 +86,9 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveWatchExtensionRequestNotification:) name:KTiWatchKitExtensionRequest object:nil];
         }
+        if ((count == 1) && [type isEqual:@"handoff"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHandOffNotification:) name:KTiHandOff object:nil];
+        }
     }
 
 }
@@ -133,6 +136,9 @@
         }
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiWatchKitExtensionRequest object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"handoff"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiHandOff object:nil];
         }
     }
 }
@@ -498,6 +504,12 @@
 		}
 		
 	}
+}
+
+-(void)didReceiveHandOffNotification:(NSNotification*)notif
+{
+    NSDictionary *notification = [notif userInfo];
+    [self fireEvent:@"handoff" withObject:notification];
 }
 
 -(void)didReceiveLocalNotification:(NSNotification*)note
