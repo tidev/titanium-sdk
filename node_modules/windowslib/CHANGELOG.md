@@ -1,6 +1,11 @@
+0.1.15 (6/29/2015)
+-------------------
+  * Fix for [TIMOB-19090](https://jira.appcelerator.org/browse/TIMOB-19090) - Windows: Building for ws-local fails with powershell error 'Read-Host : Windows PowerShell is in NonInteractive mode'
+  * Install of winstore app script requires not using the -NoInteractive flag to powershell.
+
 0.1.14 (6/25/2015)
 -------------------
-  * More changes related to fixing [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) -  Windows: CLI builds hang on first try due to Powershell permission check in windowslib
+  * More changes related to fixing [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) - Windows: CLI builds hang on first try due to Powershell permission check in windowslib
 
 0.1.13 (6/11/2015)
 -------------------
@@ -9,7 +14,7 @@
 
 0.1.12 (6/9/2015)
 -------------------
-  * Fix [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) -  Windows: CLI builds hang on first try due to Powershell permission check in windowslib
+  * Fix [TIMOB-18958](https://jira.appcelerator.org/browse/TIMOB-18958) - Windows: CLI builds hang on first try due to Powershell permission check in windowslib
   * Expand Win Store Tooling Detection
 
 0.1.11 (4/16/2015)
