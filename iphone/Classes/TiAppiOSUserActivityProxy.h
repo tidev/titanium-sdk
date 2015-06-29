@@ -13,7 +13,7 @@
     BOOL _isValid;
     BOOL _supported;
 }
-
+-(id)initWithOptions:(NSDictionary*)props;
 @property(nonatomic,retain) NSUserActivity *userActivity;
 
 @end

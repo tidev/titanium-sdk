@@ -19,15 +19,16 @@
     return @"Ti.App.iOS.UserActivity";
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
+-(id)initWithOptions:(NSDictionary*)props
 {
-    _supported = [self determineMinRequirements:properties];
-    if(_supported)
-    {
-        [self buildInitialActivity:properties];
+    if (self = [super init]) {
+        _supported = [self determineMinRequirements:props];
+        if(_supported)
+        {
+            [self buildInitialActivity:props];
+        }
     }
-    
-    [super _initWithProperties:properties];
+    return self;
 }
 
 -(void)dealloc
