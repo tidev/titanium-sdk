@@ -72,7 +72,7 @@ function install(projectDir, options, callback) {
 				return callback(err);
 			}
 
-			appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-NoLogo', '-NonInteractive', '-NoProfile', '-File', psScript, '-Force'], function (code, out, err) {
+			appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-NoLogo', '-NoProfile', '-File', psScript, '-Force'], function (code, out, err) {
 				if (!code) {
 					emitter.emit('installed');
 					return callback();
@@ -84,7 +84,7 @@ function install(projectDir, options, callback) {
 				// Error codes 9 and 14 mean rerun without -Force
 				if ((code && (code == 9 || code == 14)) ||
 					out.indexOf('script without the -Force parameter') !== -1) {
-					appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-NoLogo', '-NonInteractive', '-NoProfile', '-File', psScript], function (code, out, err) {
+					appc.subprocess.run(options.powershell || 'powershell', ['-ExecutionPolicy', 'Bypass', '-NoLogo', '-NoProfile', '-File', psScript], function (code, out, err) {
 						if (err) {
 							emitter.emit('error', err);
 							callback(err);
