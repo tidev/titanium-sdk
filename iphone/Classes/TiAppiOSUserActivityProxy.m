@@ -129,6 +129,16 @@
             [_userActivity setExpirationDate:[TiUtils dateForUTCDate:
                                               [TiUtils stringValue:@"expirationDate" properties:props]]];
         }
+        
+        if([props objectForKey:@"keyWords"])
+        {
+            [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keyWords"]]];
+        }
+        
+        if([props objectForKey:@"requiredUserInfoKeys"])
+        {
+            [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
+        }
     }
     
     _userActivity.delegate = self;
@@ -377,6 +387,48 @@
     }
     
     [_userActivity setExpirationDate:[TiUtils dateForUTCDate:UTCDateFormat]];
+}
+
+-(NSArray*)requiredUserInfoKeys
+{
+    if(![TiUtils isIOS9OrGreater])
+    {
+        return;
+    }
+    NSArray *r = [[_userActivity requiredUserInfoKeys] allObjects];
+    return r;
+}
+
+-(void)setRequiredUserInfoKeys:(id)keys
+{
+    ENSURE_TYPE(keys, NSArray);
+    ENSURE_UI_THREAD(setRequiredUserInfoKeys,keys);
+    if(![TiUtils isIOS9OrGreater])
+    {
+        return;
+    }
+    [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:keys]];
+}
+
+-(NSArray*)keyWords
+{
+    if(![TiUtils isIOS9OrGreater])
+    {
+        return;
+    }
+    NSArray *r = [[_userActivity keywords] allObjects];
+    return r;
+}
+
+-(void)setKeywords:(id)keys
+{
+    ENSURE_TYPE(keys, NSArray);
+    ENSURE_UI_THREAD(setKeywords,keys);
+    if(![TiUtils isIOS9OrGreater])
+    {
+        return;
+    }
+    [_userActivity setKeywords:[NSSet setWithArray:keys]];
 }
 
 -(void)resignCurrent:(id)unused
