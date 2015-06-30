@@ -27,13 +27,11 @@
 	KrollCallback* selectedPropertyCallback;
 	CNContactStore* contactStore;
 	CNContactPickerViewController* contactPicker;
-	NSArray* contactKeysWithoutImage;
-	NSArray* contactKeysWithImage;
 	CNSaveRequest* saveRequest;
 }
 
 -(ABAddressBookRef)addressBook;
-
+-(CNContactStore*)contactStore;
 -(void)save:(id)unusued;
 -(void)revert:(id)unused;
 -(void)showContacts:(id)args;
@@ -42,8 +40,8 @@
 -(NSArray*)getAllPeople:(id)unused;
 -(TiContactsPerson*)createPerson:(id)arg;
 -(void)removePerson:(id)arg;
-
-
++(NSArray*)contactKeysWithImage;
++(NSArray*)contactKeysWithoutImage;
 
 @property (nonatomic,readonly) NSNumber* contactsAuthorization;
 -(void) requestAuthorization:(id)args;
