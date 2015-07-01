@@ -9,11 +9,11 @@ package ti.modules.titanium.ui.widget.webview;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.media.TiVideoActivity;
-import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -45,7 +45,7 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageFinished(WebView view, String url)
 	{
 		super.onPageFinished(view, url);
-		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		TiViewProxy proxy = webView.getProxy();
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
