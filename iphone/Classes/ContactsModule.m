@@ -98,17 +98,6 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     return contactStore;
 }
 
-/*-(CNSaveRequest*)saveRequest
-{
-	if (![NSThread isMainThread]) {
-		return NULL;
-	}
-	if (saveRequest == NULL) {
-		saveRequest = [[CNSaveRequest alloc] init];
-	}
-	return saveRequest;
-}*/
-
 -(void)releaseAddressBook
 {
 	TiThreadPerformOnMainThread(^{
@@ -362,15 +351,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         ENSURE_TYPE_OR_NIL(fields, NSArray)
         
         if (fields != nil) {
- /*           NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
+            NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
             for (id field in fields) {
                 id property = nil;
-                if ((property = [[TiContactsPerson contactProperties] objectForKey:field]) ||
-                    (property = [[TiContactsPerson multiValueProperties] objectForKey:field]))  {
+				if (property = [[[TiContactsPerson iOS9propertyKeys] allKeysForObject:field] objectAtIndex:0]) {
                     [pickerFields addObject:property];
                 }
             }
-            [picker setDisplayedProperties:pickerFields];*/
+            [contactPicker setDisplayedPropertyKeys:pickerFields];
         }
         
         [[TiApp app] showModalController:contactPicker animated:animated];
@@ -796,7 +784,6 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		RELEASE_TO_NIL(tempGroup);
 		[newGroup setValuesForKeysWithDictionary:arg];
 		saveRequest = [newGroup getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
-		[self save:nil];
 		return newGroup;
 	}
 	
@@ -1079,7 +1066,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 			}
 			else {
 				property = @"alternateBirthday";
-				//label = contactProperty.identifier?
 				result = [personObject valueForUndefinedKey:property];
 			}
 		}

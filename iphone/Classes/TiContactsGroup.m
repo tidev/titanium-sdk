@@ -203,6 +203,7 @@
 		CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
 		fetchRequest.predicate = [CNContact predicateForContactsInGroupWithIdentifier:[group identifier]];
 		fetchRequest.sortOrder = sortOrder;
+		fetchRequest.mutableObjects = YES;
 		BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
 			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:module] autorelease];
 			[peopleRefs addObject:person];
@@ -218,24 +219,6 @@
 			RELEASE_TO_NIL(peopleRefs)
 			return nil;
 		}
-
-/*		CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
-		fetchRequest.sortOrder = sortOrder;
-		NSPredicate *predicate = [CNContact predicateForContactsInGroupWithIdentifier:[group identifier]];
-		NSArray *people = [ourContactStore unifiedContactsMatchingPredicate:predicate keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
-		if (error) {
-			DebugLog(@"%@", [TiUtils messageFromError:error]);
-			return nil;
-		}
-//		NSComparator comparator = [CNContact comparatorForNameSortOrder:sortOrder];
-//		NSArray *sortedPeople = [people sortedArrayUsingComparator:comparator];
-		NSMutableArray *peopleRefs = nil;
-		peopleRefs = [NSMutableArray arrayWithCapacity:[people count]];
-		for (CNMutableContact* contact in people) {
-			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:contact module:module] autorelease];
-			[peopleRefs addObject:person];
-		};
-		return peopleRefs;*/
 	}
 
 	int sortType = [value intValue];
