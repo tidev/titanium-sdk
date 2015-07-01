@@ -153,6 +153,9 @@ methods:
     since: "3.2.0"
 
   - name: sendWatchExtensionReply
+    deprecated:
+        since: "4.3.0"
+        notes: | Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
     summary: |
         Marks the end of an openParentApplication:reply execution by a WatchKit extension.
         Available only on iOS 8.2 and later.
@@ -640,6 +643,9 @@ events:
     since: "3.4.0"
 
   - name: watchkitextensionrequest
+    deprecated:
+        since: "4.3.0"
+        notes: | Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
         Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
