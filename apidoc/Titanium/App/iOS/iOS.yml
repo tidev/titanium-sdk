@@ -153,6 +153,9 @@ methods:
     since: "3.2.0"
 
   - name: sendWatchExtensionReply
+deprecated:
+    since: 4.2.0
+    notes: Use the <Titanium.App.iOS.WatchConnectivity> features instead.  
     summary: |
         Marks the end of an openParentApplication:reply execution by a WatchKit extension.
         Available only on iOS 8.2 and later.
@@ -639,37 +642,6 @@ events:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
-  - name: watchkitextensionrequest
-    summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
-    description: |
-        Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
-        method your Titanium application will be opened in the background and provides your Titanium app the information from the extension. When this
-        event is fired you must provide a reply by calling the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method with
-        the `handlerID` parameter from this event.
-
-        The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
-        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
-        must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
-
-        Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
-            var replyContent = {foo:"bar"};
-            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
-        });
-
-    properties:
-      - name: handlerId
-        summary: |
-            Unique string identifer for the `watchkitextensionrequest` event. This identifier should be passed an argument
-            to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
-        type: String
-      - name: userInfo
-        summary: |
-            The payload passed to the openParentApplication:reply method from the WatchKit extension.
-        type: Dictionary
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "8.2"}}
-    since: '4.1.0'
-
 ---
 name: NotificationParams
 summary: |
@@ -755,3 +727,4 @@ properties:
   - name: categories
     summary: Set of categories of user notification actions required by the applicaiton to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
+    

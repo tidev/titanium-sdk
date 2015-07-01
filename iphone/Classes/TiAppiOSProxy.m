@@ -82,10 +82,6 @@
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
              (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
         }
-        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:KTiWatchKitExtensionRequest object:nil];
-        }
     }
 
 }
@@ -130,9 +126,6 @@
     if ([TiUtils isIOS8OrGreater]){
         if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
-        }
-        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiWatchKitExtensionRequest object:nil];
         }
     }
 }
@@ -563,38 +556,6 @@
          withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
 }
 
-#pragma mark Apple Watchkit notifications
-
--(void)didReceiveWatchExtensionRequestNotification:(NSNotification*)notif
-{
-    [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
-}
-
-#pragma mark Apple Watchkit handleWatchKitExtensionRequest reply
-
--(void)sendWatchExtensionReply:(id)args
-{
-    if(![TiUtils isIOS8OrGreater]) {
-        return;
-    }
-    
-    enum Args {
-        kArgKey = 0,
-        kArgCount,
-        kArgUserInfo = kArgCount
-    };
-    
-    ENSURE_TYPE(args,NSArray);
-    ENSURE_ARG_COUNT(args, kArgCount);
-    
-    NSString *key = [TiUtils stringValue:[args objectAtIndex:kArgKey]];
-
-    if([args count] > 1){
-        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:[args objectAtIndex:kArgUserInfo]];
-    }else{
-        [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:nil];
-    }
-}
 
 -(void)setMinimumBackgroundFetchInterval:(id)value
 {
@@ -677,6 +638,14 @@
     }
     return nil;
 }
+
+#pragma mark Apple Watchkit handleWatchKitExtensionRequest reply
+
+-(void)sendWatchExtensionReply:(id)args
+{
+    DebugLog(@"[WARN] Deprecated; use Ti.App.iOS.WatchConnectivity functionality instead");
+}
+
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged");
