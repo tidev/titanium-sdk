@@ -875,6 +875,22 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
 
+		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
+			if (nativeView != null) {
+				ViewCompat.setElevation(nativeView, TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_TRANSLATION_X)) {
+			if (nativeView != null) {
+				ViewCompat.setTranslationX(nativeView, TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_TRANSLATION_Y)) {
+			if (nativeView != null) {
+				ViewCompat.setTranslationY(nativeView, TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_TRANSLATION_Z)) {
+			if (nativeView != null) {
+				ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(newValue));
+			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -961,6 +977,22 @@ public abstract class TiUIView
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
 				|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityProperties();
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull){
+			ViewCompat.setElevation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_TRANSLATION_X) && !nativeViewNull){
+			ViewCompat.setTranslationX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_X));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_TRANSLATION_Y) && !nativeViewNull){
+			ViewCompat.setTranslationY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Y));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_TRANSLATION_Z) && !nativeViewNull){
+			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
 		}
 	}
 

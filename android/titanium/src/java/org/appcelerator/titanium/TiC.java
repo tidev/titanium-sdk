@@ -1155,6 +1155,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ELEVATION = "elevation";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
 	
 	/**
@@ -2466,6 +2471,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_X = "translationX";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Y = "translationY";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
 
 	/**
 	 * @module.api
