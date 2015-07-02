@@ -497,7 +497,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		if (d.containsKey(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
 			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_SEPARATOR_HEIGHT), -1);
 			int height = dHeight.getAsPixels(listView);
-			if (height > 0) {
+			if (height >= 0) {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}
@@ -713,7 +713,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
 			TiDimension dHeight = TiConvert.toTiDimension(newValue, -1);
 			int height = dHeight.getAsPixels(listView);
-			if (height > 0) {
+			if (height >= 0) {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}
