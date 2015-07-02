@@ -9,8 +9,15 @@
 #import "APSAnalytics/APSAnalytics.h"
 #import "SBJSON.h"
 extern BOOL const TI_APPLICATION_ANALYTICS;
+static NSMutableArray* _filteredEvents;
+
 @implementation AnalyticsModule
 
+- (void)dealloc
+{
+    RELEASE_TO_NIL(_filteredEvents);
+    [super dealloc];
+}
 -(NSString*)apiName
 {
     return @"Ti.Analytics";
@@ -70,4 +77,31 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[[APSAnalytics sharedInstance] sendAppFeatureEvent:event payload:data];
 }
 
+-(void)filterEvents:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSArray);
+    if (_filteredEvents == nil) {
+        _filteredEvents = [[NSMutableArray array] retain];
+    } else {
+        [_filteredEvents removeAllObjects];
+    }
+    
+    for (id event in args) {
+        ENSURE_STRING(event);
+        if (![_filteredEvents containsObject:event]) {
+            [_filteredEvents addObject:event];
+        }
+    }
+}
+
++ (BOOL)isEventFiltered:(NSString*)eventName
+{
+    if (_filteredEvents == nil) return NO;
+    for (NSString* event in _filteredEvents) {
+        if ([event isEqualToString:eventName]) {
+            return YES;
+        }
+    }
+    return NO;
+}
 @end

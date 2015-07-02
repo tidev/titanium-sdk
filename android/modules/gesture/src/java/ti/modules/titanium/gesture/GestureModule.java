@@ -73,10 +73,10 @@ public class GestureModule extends KrollModule
 				TiBaseActivity.registerOrientationListener (new TiBaseActivity.OrientationChangedListener()
 				{
 					@Override
-					public void onOrientationChanged (int configOrientationMode)
+					public void onOrientationChanged (int rotation)
 					{
 						KrollDict data = new KrollDict();
-						data.put("orientation", TiOrientationHelper.convertConfigToTiOrientationMode (configOrientationMode));
+						data.put("orientation", TiOrientationHelper.convertRotationToTiOrientationMode(rotation));
 						fireEvent(EVENT_ORIENTATION_CHANGE, data);
 					}
 				});
@@ -188,7 +188,7 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation()
 	{
-		return TiOrientationHelper.convertConfigToTiOrientationMode(TiApplication.getInstance().getResources().getConfiguration().orientation);
+		return TiOrientationHelper.convertRotationToTiOrientationMode(TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay().getRotation());
 	}
 
 	@Override

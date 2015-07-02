@@ -1111,6 +1111,42 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  
+  - name: TEXT_ELLIPSIZE_TRUNCATE_START
+    summary: Add ellipses at the beginning of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "4.1.0"
+  
+  - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
+    summary: Add ellipses in the middle of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "4.1.0"
+  
+  - name: TEXT_ELLIPSIZE_TRUNCATE_END
+    summary: Add ellipses at the end of the label if the text is too large to fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "4.1.0"
+    
+  - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
+    summary: Turns on a marquee effect of the label if the text is too large to fit. (This requires <Titanium.UI.Label.focusable> to be true)
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "4.1.0"
     
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.

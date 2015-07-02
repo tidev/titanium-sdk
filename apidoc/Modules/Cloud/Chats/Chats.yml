@@ -1,5 +1,5 @@
 name: Modules.Cloud.Chats
-summary: Provides methods for accessing Arrow DB chat messages.
+summary: Provides methods for accessing ArrowDB chat messages.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 

@@ -278,6 +278,8 @@ public class TitaniumModule extends KrollModule
 
 			} else if (format.equals("long")) {
 				style = DateFormat.LONG;
+			} else if (format.equals("full")) {
+				style = DateFormat.FULL;
 			}
 		}
 

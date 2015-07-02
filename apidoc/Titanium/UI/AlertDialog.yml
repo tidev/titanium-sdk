@@ -9,8 +9,9 @@ description: |
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
+        <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
     
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
@@ -62,8 +63,20 @@ description: |
     
     The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
     Android only, you can change the `message` property while the alert dialog is being displayed.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "0.8"
+excludes:
+    events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
   - name: click
@@ -178,7 +191,17 @@ properties:
         On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
-    
+
+  - name: destructive
+    summary: Index to define the destructive button.
+    platforms: [iphone, ipad]
+    description: |
+        Note that this property is only available on iOS 8 or above. Setting to -1 disables this option.
+    type: Number
+    default: -1
+    since: 3.5.0
+    osver: {ios: {min: "8.0"}}
+
   - name: message
     summary: Dialog message.
     type: String
@@ -196,7 +219,7 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
         your dialog layout if more than two buttons used. All styles can handle up to two
         buttons comfortably, except for default style can handle up to six buttons when `title`
-        and `message` is empty or not given. Note that this property available on 
+        and `message` is empty or not given. Note that this property is only available on
         iOS SDK 5 or above. 
     type: Number
     default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>

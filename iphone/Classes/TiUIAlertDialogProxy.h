@@ -12,6 +12,7 @@
     UIAlertController* alertController;
     BOOL persistentFlag;
     int cancelIndex;
+    int destructiveIndex;
     int style;
 }
 

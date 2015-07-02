@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,10 @@
 @property(nonatomic,readonly) NSNumber *MODE_WRITE;
 @property(nonatomic,readonly) NSNumber *MODE_READ;
 
-
+@property(nonatomic,readonly) NSString *IOS_FILE_PROTECTION_NONE;
+@property(nonatomic,readonly) NSString *IOS_FILE_PROTECTION_COMPLETE;
+@property(nonatomic,readonly) NSString *IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN;
+@property(nonatomic,readonly) NSString *IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION;
 @end
 
 #endif

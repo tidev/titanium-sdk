@@ -34,7 +34,7 @@ describe('windowsphone', function () {
 				should(results.windowsphone).be.an.Object;
 				Object.keys(results.windowsphone).forEach(function (ver) {
 					should(results.windowsphone[ver]).be.an.Object;
-					should(results.windowsphone[ver]).have.keys('version', 'registryKey', 'supported', 'path', 'deployCmd', 'selected');
+					should(results.windowsphone[ver]).have.keys('version', 'registryKey', 'supported', 'path', 'deployCmd', 'selected', 'xapSignTool');
 
 					should(results.windowsphone[ver].version).be.a.String;
 					should(results.windowsphone[ver].version).not.equal('');

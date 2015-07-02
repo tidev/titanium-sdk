@@ -944,7 +944,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 
 	// Packing compiled JavaScript files
 	var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-			this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
 
 				if (code) {
@@ -989,7 +989,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 
 	titaniumPrepHook(
 		path.join(this.platformPath, titaniumPrep),
-		args,
+		args.slice(0),
 		opts,
 		function (err) {
 			if (!err) {

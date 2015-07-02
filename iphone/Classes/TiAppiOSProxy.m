@@ -320,6 +320,18 @@
     }, NO);
 }
 
+-(NSArray*)supportedUserActivityTypes
+{    
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
+    NSArray *supportedActivityTypes = [[NSBundle mainBundle]
+                                       objectForInfoDictionaryKey:@"NSUserActivityTypes"];
+    
+    return supportedActivityTypes;
+}
+
 -(NSDictionary*)currentUserNotificationSettings
 {
     if (![TiUtils isIOS8OrGreater]) {
@@ -555,6 +567,9 @@
 
 -(void)didReceiveWatchExtensionRequestNotification:(NSNotification*)notif
 {
+    if ([TiUtils isIOS9OrGreater]) {
+        DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
+    }
     [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
 }
 
@@ -562,6 +577,9 @@
 
 -(void)sendWatchExtensionReply:(id)args
 {
+    if ([TiUtils isIOS9OrGreater]) {
+        DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
+    }
     if(![TiUtils isIOS8OrGreater]) {
         return;
     }

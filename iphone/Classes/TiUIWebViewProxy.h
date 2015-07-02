@@ -13,6 +13,7 @@
 @private
 	NSString *pageToken;
     NSString *evalResult;
+	NSArray *webKeySequence;
     BOOL inKJSThread;
 }
 -(void)setPageToken:(NSString*)pageToken;

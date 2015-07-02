@@ -7,8 +7,9 @@ description: |
       <tr>
         <td><img src="images/emaildialog/emaildialog_android.png" height="150" style="border: 1px solid black;"/></td>
         <td><img src="images/emaildialog/emaildialog_ios.png" height="150" style="border: 1px solid black;"/></td>
+        <td><img src="images/emaildialog/emaildialog_wp.png" height="150" style="border: 1px solid black;"/></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to
@@ -27,9 +28,20 @@ description: |
     The `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are
     appended together and formatted into a `mailto:` URL. This URL typically has a limit of 
     approximately 2000 characters.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+excludes:
+    events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 methods:
   - name: addAttachment

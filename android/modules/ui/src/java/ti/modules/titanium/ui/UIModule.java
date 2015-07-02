@@ -124,6 +124,11 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
+	
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_START = 0;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MIDDLE = 1;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_END = 2;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MARQUEE = 3;
 
 	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
 	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;

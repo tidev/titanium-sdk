@@ -1,11 +1,11 @@
 name: Modules.Cloud.SocialIntegrations
-summary: Provides methods for access Arrow DB social integrations.
+summary: Provides methods for access ArrowDB social integrations.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
 methods:
   - name: externalAccountLink
-    summary: Associate an external account with an existing Arrow DB user account.
+    summary: Associate an external account with an existing ArrowDB user account.
     description: |
         Requires user login. 
         
@@ -23,7 +23,7 @@ methods:
         type: Callback<CloudSocialIntegrationsResponse>
   
   - name: externalAccountLogin
-    summary: Login to Arrow DB using an external account such as Facebook, Twitter,LinkedIn, etc.
+    summary: Login to ArrowDB using an external account such as Facebook, Twitter, LinkedIn, etc.
     description: |
         See [Social Integration: Login with external account](http://docs.appcelerator.com/arrowdb/latest/#!/api/SocialIntegrations-method-external_account_link)
         for the request parameters supported by this method.
@@ -39,7 +39,7 @@ methods:
         type: Callback<CloudSocialIntegrationsResponse>
   
   - name: externalAccountUnlink
-    summary: Disassociate an external account from a Arrow DB user account.
+    summary: Disassociate an external account from a ArrowDB user account.
     description: |
         Requires user login. 
         

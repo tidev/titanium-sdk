@@ -1,5 +1,5 @@
 name: Modules.Cloud.Reviews
-summary: Provides methods for accessing Arrow DB reviews.
+summary: Provides methods for accessing ArrowDB reviews.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 

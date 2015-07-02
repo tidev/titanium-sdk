@@ -190,6 +190,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
 }
 
++(BOOL)isIOS9OrGreater
+{
+    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -795,10 +800,14 @@ If the new path starts with / and the base url is app://..., we have to massage 
         }
         result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
     } else {
-        result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+        //only add percentescape if there are spaces in relativestring
+        if ([[relativeString componentsSeparatedByString:@" "] count] -1 == 0) {
+            result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+        }
+        else {
+            result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+        }
     }
-    
-    
     //TIMOB-18262
     if (result && ([[result scheme] isEqualToString:@"file"])){
         BOOL isDir = NO;

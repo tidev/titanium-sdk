@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.os.Build;
@@ -43,7 +44,7 @@ public class TiUILabel extends TiUIView
 
 	private int defaultColor;
 	private boolean wordWrap = true;
-	private boolean ellipsize;
+	private TruncateAt ellipsize;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
@@ -59,7 +60,7 @@ public class TiUILabel extends TiUIView
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
 				// Only allow label to exceed the size of parent when it's size behavior with both wordwrap and ellipsize disabled
-				if (!wordWrap && !ellipsize && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
+				if (!wordWrap && ellipsize != null && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 						MeasureSpec.UNSPECIFIED);
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
@@ -171,13 +172,19 @@ public class TiUILabel extends TiUIView
 				tv.setText(Html.fromHtml(html));
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT), TextView.BufferType.SPANNABLE);
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+		}
+		if (d.containsKey(TiC.PROPERTY_LINES)) {
+			tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
+		}
+		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
+			tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -200,12 +207,32 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
-			ellipsize = TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE, false);
-			if (ellipsize) {
-				tv.setEllipsize(TruncateAt.END);
-			} else {
-				tv.setEllipsize(null);
+			
+			Object value = d.get(TiC.PROPERTY_ELLIPSIZE);
+			
+			if (value instanceof Boolean){
+				ellipsize = (Boolean) value ? TruncateAt.END : null;
 			}
+			
+			if (value instanceof Integer){
+				switch((Integer)value){
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
+						ellipsize = TruncateAt.START; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE: 
+						ellipsize = TruncateAt.MIDDLE; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_END: 
+						ellipsize = TruncateAt.END; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MARQUEE: 
+						// marquee effect only works in single line mode
+						tv.setSingleLine(true);
+						tv.setSelected(true);
+						ellipsize = TruncateAt.MARQUEE; break;
+					default:
+						ellipsize = null;
+				}
+			}
+			
+			tv.setEllipsize(ellipsize);
 		}
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
@@ -277,12 +304,27 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
-			ellipsize = TiConvert.toBoolean(newValue, false);
-			if (ellipsize) {
-				tv.setEllipsize(TruncateAt.END);
-			} else {
-				tv.setEllipsize(null);
+			if (newValue instanceof Boolean){
+				ellipsize = (Boolean) newValue ? TruncateAt.END : null;
 			}
+			if (newValue instanceof Integer){
+				switch((Integer)newValue){
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
+						ellipsize = TruncateAt.START; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE: 
+						ellipsize = TruncateAt.MIDDLE; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_END: 
+						ellipsize = TruncateAt.END; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MARQUEE: 
+						// marquee effect only works in single line mode
+						tv.setSingleLine(true);
+						tv.setSelected(true);
+						ellipsize = TruncateAt.MARQUEE; break;
+					default:
+						ellipsize = null;
+				}
+			}
+			tv.setEllipsize(ellipsize);
 		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(newValue, true);
 			tv.setSingleLine(!wordWrap);
@@ -301,6 +343,10 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_LINES)) {
+			tv.setLines(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
+			tv.setMaxLines(TiConvert.toInt(newValue));	
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
 			if (spannableText != null) {
