@@ -546,7 +546,7 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
-  - name: dividerHeight
+  - name: separatorHeight
     summary: height of the ListView divider.
     description: |
         Height of the ListView divider, in platform-specific units. If undefined, default native height will be used.
