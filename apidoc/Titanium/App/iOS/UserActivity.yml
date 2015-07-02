@@ -1,11 +1,11 @@
 ---
 name: Titanium.App.iOS.UserActivity
 description: |
-    The UserActivity module is used to enable device Handoff and to create User Activites for the CoreSpotLight feature first 
-    introducted in iOS9.  UserActivity requires the activityType to be specified at creation time.  Additional properties can be
+    The UserActivity module is used to enable device Handoff and to create User Activites first introduced in iOS8 and the CoreSpotLight feature 
+    introduced in iOS9.  UserActivity requires the activityType to be specified at creation time.  Additional properties can be
     created either at creation or set individually after creation.
 
-    Handoff will not work in the simulator.  You must build and run on a compatibile device.
+    Handoff will not work in the simulator.  You must build and run on a compatible device.
 
     Handoff functionality depends on few things:
         * You must be logged in to the same iCloud account on each device you wish to use Handoff.
@@ -17,7 +17,7 @@ description: |
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "4.3.0"
-createable: false
+createable: true
 properties:
   - name: activityType
     summary: The activityType the user activity was created with.

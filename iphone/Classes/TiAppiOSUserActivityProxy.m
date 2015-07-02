@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,8 +23,7 @@
 {
     if (self = [super init]) {
         _supported = [self determineMinRequirements:props];
-        if(_supported)
-        {
+        if(_supported){
             [self buildInitialActivity:props];
         }
     }
@@ -33,8 +32,7 @@
 
 -(void)dealloc
 {
-    if(_supported)
-    {
+    if(_supported){
         [self clean];
     }
     [super dealloc];
@@ -53,26 +51,19 @@
 -(BOOL) determineMinRequirements:(NSDictionary *)props
 {
     _isValid = NO;
-    if([TiUtils isIOS8OrGreater])
-    {
-        if([props objectForKey:@"activityType"])
-        {
+    if([TiUtils isIOS8OrGreater]){
+        if([props objectForKey:@"activityType"]){
             NSArray *supportedActivityTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSUserActivityTypes"];
             
-            if(![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]])
-            {
-                NSLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
+            if(![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]]){
+                DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
                 return NO;
-            }
-            else
-            {
+            }else{
                 _isValid = YES;
                 return YES;
             }
-        }
-        else
-        {
-            NSLog(@"[ERROR] activityType property is required on creation");
+        }else{
+            DebugLog(@"[ERROR] activityType property is required on creation");
             return NO;
         }
     }
@@ -87,56 +78,45 @@
     
     [self instanceMake:activityType];
     
-    if([props objectForKey:@"title"])
-    {
+    if([props objectForKey:@"title"]){
         [_userActivity setTitle:[TiUtils stringValue:@"title" properties:props]];
     }
     
-    if([props objectForKey:@"userInfo"])
-    {
+    if([props objectForKey:@"userInfo"]){
         [_userActivity addUserInfoEntriesFromDictionary:[props objectForKey:@"userInfo"]];
     }
     
-    if([props objectForKey:@"webpageURL"])
-    {
+    if([props objectForKey:@"webpageURL"]){
         [_userActivity setWebpageURL:[NSURL URLWithString:[[TiUtils stringValue:@"webpageURL" properties:props] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
     }
 
-    if([props objectForKey:@"needsSave"])
-    {
+    if([props objectForKey:@"needsSave"]){
         [_userActivity setNeedsSave:[TiUtils boolValue:@"needsSave" properties:props]];
     }
     
-    if([TiUtils isIOS9OrGreater])
-    {
-        if([props objectForKey:@"eligibleForPublicIndexing"])
-        {
+    if([TiUtils isIOS9OrGreater]){
+        if([props objectForKey:@"eligibleForPublicIndexing"]){
             [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
         }
         
-        if([props objectForKey:@"eligibleForSearch"])
-        {
+        if([props objectForKey:@"eligibleForSearch"]){
             [_userActivity setEligibleForSearch:[TiUtils boolValue:@"eligibleForSearch" properties:props]];
         }
         
-        if([props objectForKey:@"eligibleForHandoff"])
-        {
+        if([props objectForKey:@"eligibleForHandoff"]){
             [_userActivity setEligibleForHandoff:[TiUtils boolValue:@"eligibleForHandoff" properties:props]];
         }
         
-        if([props objectForKey:@"expirationDate"])
-        {
+        if([props objectForKey:@"expirationDate"]){
             [_userActivity setExpirationDate:[TiUtils dateForUTCDate:
                                               [TiUtils stringValue:@"expirationDate" properties:props]]];
         }
         
-        if([props objectForKey:@"keyWords"])
-        {
+        if([props objectForKey:@"keyWords"]){
             [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keyWords"]]];
         }
         
-        if([props objectForKey:@"requiredUserInfoKeys"])
-        {
+        if([props objectForKey:@"requiredUserInfoKeys"]){
             [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
         }
     }
@@ -169,8 +149,7 @@
 
 -(void)clean
 {
-    if(_userActivity !=nil)
-    {
+    if(_userActivity !=nil){
         _userActivity.delegate = nil;
         RELEASE_TO_NIL(_userActivity);
     }
@@ -178,8 +157,7 @@
 
 -(void)instanceMake:(NSString*)activityType
 {
-    if(_userActivity !=nil)
-    {
+    if(_userActivity !=nil){
         [_userActivity invalidate];
     }
     
@@ -207,8 +185,7 @@
  */
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
-    if([self _hasListeners:@"useractivitywillsave"])
-    {
+    if([self _hasListeners:@"useractivitywillsave"]){
         [self fireEvent:@"useractivitywillsave" withObject:[self copyActivity]];
     }
 }
@@ -217,8 +194,7 @@
  */
 - (void)userActivityWasContinued:(NSUserActivity *)userActivity
 {
-    if([self _hasListeners:@"useractivitywascontinued"])
-    {
+    if([self _hasListeners:@"useractivitywascontinued"]){
         [self fireEvent:@"useractivitywascontinued" withObject:[self copyActivity]];
     }
 }
@@ -230,19 +206,17 @@
     return [_userActivity activityType];
 }
 
--(void)setActivityType:(NSString*)value
+-(void)setActivityType:(id)value
 {
+    ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setActivityType,value);
-    ENSURE_TYPE(value, NSString);
     
-    if(![self activityTypeValid:value])
-    {
-        NSLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
+    if(![self activityTypeValid:value]){
+        DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
         return;
     }
     
-    if(_userActivity.activityType != value)
-    {
+    if(_userActivity.activityType != value){
         [self instanceMake:value];
 
     }
@@ -253,9 +227,11 @@
     return [_userActivity title];
 }
 
--(void)setTitle:(NSString*)value
+-(void)setTitle:(id)value
 {
+    ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setTitle,value);
+    
     [_userActivity setTitle:value];
 }
 
@@ -264,9 +240,11 @@
     return [_userActivity userInfo];
 }
 
--(void)setUserInfo:(NSDictionary*)info
+-(void)setUserInfo:(id)info
 {
+    ENSURE_SINGLE_ARG(info,NSDictionary);
     ENSURE_UI_THREAD(setUserInfo,info);
+    
     [_userActivity setUserInfo:info];
 }
 
@@ -275,10 +253,10 @@
     return [[_userActivity webpageURL] absoluteString];
 }
 
--(void)setWebpageURL:(NSString*)value
+-(void)setWebpageURL:(id)value
 {
+    ENSURE_SINGLE_ARG(value, NSString);
     ENSURE_UI_THREAD(setWebpageURL,value);
-    ENSURE_TYPE(value, NSString);
 
     [_userActivity setWebpageURL:
      [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
@@ -289,9 +267,11 @@
     return NUMBOOL([_userActivity needsSave]);
 }
 
--(void)setNeedsSave:(NSNumber*)value
+-(void)setNeedsSave:(id)value
 {
+    ENSURE_SINGLE_ARG(value, NSString);
     ENSURE_UI_THREAD(setNeedsSave,value);
+    
     [_userActivity setNeedsSave:[TiUtils boolValue:value]];
 }
 
@@ -311,19 +291,18 @@
 
 -(NSNumber*)eligibleForPublicIndexing
 {
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return NUMBOOL(NO);
     }
  
     return NUMBOOL(_userActivity.eligibleForPublicIndexing);
 }
 
--(void)setEligibleForPublicIndexing:(NSNumber*)value
+-(void)setEligibleForPublicIndexing:(id)value
 {
+    ENSURE_SINGLE_ARG(value, NSNumber);
     ENSURE_UI_THREAD(setEligibleForPublicIndexing,value);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:value]];
@@ -331,19 +310,18 @@
 
 -(NSNumber*)eligibleForSearch
 {
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return NUMBOOL(NO);
     }
     
     return NUMBOOL(_userActivity.eligibleForSearch);
 }
 
--(void)setEligibleForSearch:(NSNumber*)value
+-(void)setEligibleForSearch:(id)value
 {
+    ENSURE_SINGLE_ARG(value, NSNumber);
     ENSURE_UI_THREAD(setEligibleForSearch,value);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity setEligibleForSearch:[TiUtils boolValue:value]];
@@ -351,18 +329,17 @@
 
 -(NSNumber*)eligibleForHandoff
 {
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return NUMBOOL(NO);
     }
     return NUMBOOL(_userActivity.eligibleForHandoff);
 }
 
--(void)setEligibleForHandoff:(NSNumber*)value
+-(void)setEligibleForHandoff:(id)value
 {
+    ENSURE_SINGLE_ARG(value, NSNumber);
     ENSURE_UI_THREAD(setEligibleForHandoff,value);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity setEligibleForHandoff:[TiUtils boolValue:value]];
@@ -370,19 +347,18 @@
 
 -(NSString*)expirationDate
 {
-    if(![TiUtils isIOS9OrGreater] || _userActivity.expirationDate == nil)
-    {
+    if(![TiUtils isIOS9OrGreater] || _userActivity.expirationDate == nil){
         return nil;
     }
     
     return [TiUtils UTCDateForDate:_userActivity.expirationDate];
 }
 
--(void)setExpirationDate:(NSString*)UTCDateFormat
+-(void)setExpirationDate:(id)UTCDateFormat
 {
+    ENSURE_SINGLE_ARG(UTCDateFormat, NSString);
     ENSURE_UI_THREAD(setExpirationDate,UTCDateFormat);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     
@@ -391,8 +367,7 @@
 
 -(NSArray*)requiredUserInfoKeys
 {
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     NSArray *r = [[_userActivity requiredUserInfoKeys] allObjects];
@@ -401,10 +376,9 @@
 
 -(void)setRequiredUserInfoKeys:(id)keys
 {
-    ENSURE_TYPE(keys, NSArray);
+    ENSURE_SINGLE_ARG(keys, NSArray);
     ENSURE_UI_THREAD(setRequiredUserInfoKeys,keys);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:keys]];
@@ -412,8 +386,7 @@
 
 -(NSArray*)keyWords
 {
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     NSArray *r = [[_userActivity keywords] allObjects];
@@ -422,10 +395,9 @@
 
 -(void)setKeywords:(id)keys
 {
-    ENSURE_TYPE(keys, NSArray);
+    ENSURE_SINGLE_ARG(keys, NSArray);
     ENSURE_UI_THREAD(setKeywords,keys);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity setKeywords:[NSSet setWithArray:keys]];
@@ -434,8 +406,7 @@
 -(void)resignCurrent:(id)unused
 {
     ENSURE_UI_THREAD(resignCurrent,unused);
-    if(![TiUtils isIOS9OrGreater])
-    {
+    if(![TiUtils isIOS9OrGreater]){
         return;
     }
     [_userActivity resignCurrent];
