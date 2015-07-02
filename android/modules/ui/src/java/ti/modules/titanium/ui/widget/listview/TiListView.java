@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -494,8 +494,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		}
 
-		if (d.containsKey(TiC.PROPERTY_DIVIDER_HEIGHT)) {
-			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_DIVIDER_HEIGHT), -1);
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
+			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_SEPARATOR_HEIGHT), -1);
 			int height = dHeight.getAsPixels(listView);
 			if (height > 0) {
 				dividerHeight = height;
@@ -710,7 +710,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			String color = TiConvert.toString(newValue);
 			setSeparatorColor(color);
-		} else if (key.equals(TiC.PROPERTY_DIVIDER_HEIGHT)) {
+		} else if (key.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
 			TiDimension dHeight = TiConvert.toTiDimension(newValue, -1);
 			int height = dHeight.getAsPixels(listView);
 			if (height > 0) {
