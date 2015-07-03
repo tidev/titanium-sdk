@@ -940,13 +940,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_ARRAY(value);
     NSArray* propArray = (NSArray*)value;
     NSMutableArray* returnArray = nil;
+    
     for (id prop in propArray) {
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
         int actionStyle = [TiUtils intValue:@"style" properties:prop];
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+    
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
             NSString* eventName = @"rowAction";
+            
             if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
                 TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
                 NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
@@ -967,6 +970,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [theItem release];
                 [theSection release];
             }
+            
+            // Hide editActions after selection
+            [[self tableView] setEditing:NO];
 
         }];
         if (theColor != nil) {
