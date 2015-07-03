@@ -84,10 +84,10 @@
         }
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:KTiWatchKitExtensionRequest object:nil];
+                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:kTiWatchKitExtensionRequest object:nil];
         }
         if ((count == 1) && [type isEqual:@"handoff"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHandOffNotification:) name:KTiHandOff object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHandOffNotification:) name:kTiHandOff object:nil];
         }
     }
 
@@ -135,10 +135,10 @@
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
         }
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiWatchKitExtensionRequest object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
         }
         if ((count == 1) && [type isEqual:@"handoff"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiHandOff object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiHandOff object:nil];
         }
     }
 }
