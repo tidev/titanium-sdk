@@ -15,7 +15,7 @@
 #import "TiAppiOSNotificationActionProxy.h"
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
-
+#import "TiAppiOSUserActivityProxy.h"
 
 @implementation TiAppiOSProxy
 
@@ -138,6 +138,17 @@
 }
 
 #pragma mark Public
+
+-(id)createUserActivity:(id)args
+{
+    NSString* activityType;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(activityType, args, @"activityType", NSString);
+    
+    TiAppiOSUserActivityProxy *userActivityProxy = [[[TiAppiOSUserActivityProxy alloc] initWithOptions:args] autorelease];
+    
+    return userActivityProxy;
+}
 
 -(id)createUserDefaults:(id)args
 {
