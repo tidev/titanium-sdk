@@ -676,6 +676,42 @@ events:
     osver: {ios: {min: "8.2"}}
     since: '4.1.0'
 
+  - name: handoff
+    summary: Fired when iOS Handoff calls continueUserActivity. Available only on iOS 8.2 and later.
+    description: |
+        Add this event if your Titanium application if you are responding to an iOS Handoff continueUserActivity request. When the user taps on the handoff icon
+        your Titanium application will be opened in the background and provides your Titanium app the information from the NSUserActivity. When this
+        event is fired you should implement logic within your application to allow the user to pick-up from where they left off on their other device.
+
+        Ti.App.iOS.addEventListener("handoff",function(e){
+            console.log("activityType: " + e.activityType);
+        });
+
+    properties:
+      - name: activityType
+        summary: |
+            Unique string identifer for handoff user activity. This identifier must be defined in your tiapp.xml file.
+        type: String
+      - name: title
+        summary: |
+            The optional title provided to the handoff user activity.
+        type: String
+        optional: true
+      - name: webpageURL
+        summary: |
+            The optional webpageURL provided to the handoff user activity.
+        type: String
+        optional: true
+      - name: userInfo
+        summary: |
+            The optional userInfo provided to the handoff user activity.  The userInfo is a custom dictionary and can contain any information needed 
+            to create your handoff session.
+        type: Dictionary
+        optional: true        
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.2"}}
+    since: '4.3.0'
+
 ---
 name: NotificationParams
 summary: |
