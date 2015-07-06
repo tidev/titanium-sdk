@@ -176,7 +176,7 @@ properties:
     summary: |
         Determines whether to automatically correct text entered into this text field.
     description: |
-        Set to `true` to enable automatic spelling correction.
+        Set to `true` to enable automatic spelling correction. On iOS 9+, this can be used to disable QuickType suggestions.
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
