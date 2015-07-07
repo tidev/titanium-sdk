@@ -88,7 +88,7 @@ function detect(options, callback) {
 					}
 
 					appc.subprocess.run(options.powershell || 'powershell', [
-						'-ExecutionPolicy', 'Bypass', '-File', psScript
+						'-ExecutionPolicy', 'Bypass', '-NoLogo', '-NonInteractive', '-NoProfile', '-File', psScript
 					], function (code, out, err) {
 						if (!code && /success/i.test(out.trim().split('\n').shift())) {
 							results.powershell.enabled = true;
