@@ -1,10 +1,21 @@
 {
     function merge(hash, secondHash) {
         secondHash = secondHash[0]
-        for(var i in secondHash)
-            hash[i] = secondHash[i]
+        for(var i in secondHash) {
+       		hash[i] = merge_obj(hash[i], secondHash[i]);
+        }
 
         return hash;
+    }
+    
+    function merge_obj(obj, secondObj) {
+    	if (!obj)
+    		return secondObj;
+
+        for(var i in secondObj)
+            obj[i] = merge_obj(obj[i], secondObj[i]);
+
+        return obj;
     }
 }
 
@@ -155,16 +166,19 @@ ArrayEntry
   = SimpleArrayEntry / CommentedArrayEntry
 
 SimpleArrayEntry
-  = val:Value "," { return val }
+  = val:Value EndArrayEntry { return val }
 
 CommentedArrayEntry
-  = val:Value _ comment:InlineComment ","
+  = val:Value _ comment:InlineComment EndArrayEntry
     {
         var result = Object.create(null);
         result.value = val.trim();
         result.comment = comment.trim();
         return result;
     }
+
+EndArrayEntry
+  = "," / _ &")"
 
 /*
  *  Identifiers and Values

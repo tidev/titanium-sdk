@@ -398,6 +398,37 @@ pbxProject.prototype.removeFromPbxFrameworksBuildPhase = function (file) {
     }
 }
 
+pbxProject.prototype.addBuildPhase = function (filePathsArray, isa, comment) {
+    var section = this.hash.project.objects[isa],
+        buildPhaseUuid = this.generateUuid(),
+        commentKey = f("%s_comment", buildPhaseUuid),
+        buildPhase = {
+            isa: isa,
+            buildActionMask: 2147483647,
+            files: [],
+            runOnlyForDeploymentPostprocessing: 0
+        };
+
+    for (var index = 0; index < filePathsArray.length; index++) {
+        var filePath = filePathsArray[index],
+            file = new pbxFile(filePath);
+
+        file.uuid = this.generateUuid();
+        file.fileRef = this.generateUuid();
+        this.addToPbxFileReferenceSection(file);    // PBXFileReference
+        this.addToPbxBuildFileSection(file);        // PBXBuildFile
+        buildPhase.files.push(pbxBuildPhaseObj(file));
+    }
+    
+    if (section) {
+        section[buildPhaseUuid] = buildPhase;
+        section[commentKey] = comment;
+    }
+    
+    buildPhase.uuid = buildPhaseUuid;
+    return buildPhase;
+}
+
 // helper access functions
 pbxProject.prototype.pbxBuildFileSection = function () {
     return this.hash.project.objects['PBXBuildFile'];
@@ -471,18 +502,16 @@ pbxProject.prototype.buildPhase = function (group,target) {
 pbxProject.prototype.buildPhaseObject = function (name, group,target) {
     var section = this.hash.project.objects[name],
         obj, sectionKey, key;
-
     var buildPhase = this.buildPhase(group,target);
 
     for (key in section) {
-       
+
         // only look for comments
         if (!COMMENT_KEY.test(key)) continue;
   
         // select the proper buildPhase
         if (buildPhase && buildPhase!=key)
             continue;
-        
         if (section[key] == group) {
             sectionKey = key.split(COMMENT_KEY)[0];  
             return section[sectionKey];
