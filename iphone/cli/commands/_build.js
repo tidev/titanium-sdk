@@ -15,7 +15,7 @@ var appc = require('node-appc'),
 	async = require('async'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
+	CleanCSS = require('clean-css'),
 	cyan = require('colors').cyan,
 	ejs = require('ejs'),
 	fields = require('fields'),
@@ -141,6 +141,13 @@ function iOSBuilder() {
 
 	// when true, calls xcodebuild
 	this.forceRebuild = false;
+
+	// a list of relative paths to js files that need to be encrypted
+	// note: the filename will have all periods replaced with underscores
+	this.jsFilesToEncrypt = [];
+
+	// set to true if any js files changed so that we can trigger encryption to run
+	this.jsFilesChanged = false;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -1305,6 +1312,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		case 'production':
 			this.minifyJS = true;
 			this.encryptJS = true;
+			this.minifyCSS = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
 			this.includeAllTiModules = false;
@@ -1313,6 +1321,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		case 'test':
 			this.minifyJS = true;
 			this.encryptJS = true;
+			this.minifyCSS = true;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.includeAllTiModules = false;
@@ -1322,6 +1331,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		default:
 			this.minifyJS = false;
 			this.encryptJS = false;
+			this.minifyCSS = false;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.includeAllTiModules = true;
@@ -1795,17 +1805,16 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'compileJSSFiles',
 		'copyAppIcons',
 		'copyItunesArtwork',
-		'copyLocalizedLaunchScreens',
 		'copyTitaniumFiles',
+		'copyLocalizedLaunchScreens',
+		'encryptJSFiles',
 		'writeDebugProfilePlists',
 		'writeI18NFiles',
 		'processTiSymbols',
 		'removeFiles',
 
 		function (next) {
-			console.log('Minify JS: ' + this.minifyJS);
-			console.log('Encrypt JS: ' + this.encryptJS);
-			console.log('Run Xcode: ' + this.forceRebuild);
+			console.log('\nRun Xcode: ' + this.forceRebuild + '\n');
 			if (!this.forceRebuild && this.deployType !== 'development') {
 				console.log('Normally we would force xcode to run here because ApplicationRouting.m was probably modified');
 			}
@@ -3420,6 +3429,249 @@ iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork() {
 	}
 };
 
+iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
+	this.logger.info(__('Analyzing Resources directory'));
+
+	var iconFilename = this.tiapp.icon || 'appicon.png',
+		icon = iconFilename.match(/^(.*)\.(.+)$/),
+
+		ignoreDirs = this.ignoreDirs,
+		ignoreFiles = this.ignoreFiles,
+		ignorePlatformDirs = new RegExp('^(' + ti.platforms.filter(function (p) { return p !== 'iphone' && p !== 'ios'; }).concat(['iphone', 'ios', 'blackberry', iconFilename]).join('|') + ')$'),
+
+		unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
+		extRegExp = /\.(\w+)$/,
+
+		resourcesToCopy = {},
+		jsFiles = {},
+		cssFiles = {},
+		htmlJsFiles = {},
+
+		copyDirOpts = {
+			beforeCopy: function (srcFile, destFile, srcStat) {
+				delete this.buildDirFiles[destFile];
+			}.bind(this)
+		};
+
+	function walk(src, dest, ignore, origSrc) {
+		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
+			var from = path.join(src, name),
+				relPath = from.replace((origSrc || src) + '/', ''),
+				srcStat = fs.statSync(from),
+				isDir = srcStat.isDirectory();
+
+			if ((!ignore || !ignore.test(name)) && (!ignoreDirs || !isDir || !ignoreDirs.test(name)) && (!ignoreFiles || isDir || !ignoreFiles.test(name)) && fs.existsSync(from)) {
+				var to = path.join(dest, name);
+
+				if (srcStat.isDirectory()) {
+					return walk(from, to, null, origSrc || src);
+				}
+
+				var ext = name.match(extRegExp),
+					info = {
+						src: from,
+						dest: to,
+						srcStat: srcStat
+					};
+
+				switch (ext && ext[1]) {
+					case 'js':
+						jsFiles[relPath] = info;
+						break;
+
+					case 'jss':
+						// ignore, these are taken care of by compileJSSFiles()
+						break;
+
+					case 'css':
+						cssFiles[relPath] = info;
+						break;
+
+					case 'html':
+						jsanalyze.analyzeHtmlFile(from, relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
+							htmlJsFiles[file] = 1;
+						});
+						// fall through to default case
+
+					default:
+						resourcesToCopy[relPath] = info;
+				}
+			}
+		});
+	}
+
+	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, ignorePlatformDirs);
+	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, new RegExp('^' + iconFilename + '$'));
+	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir, new RegExp('^' + iconFilename + '$'));
+
+	// don't process JS files referenced from HTML files
+	Object.keys(htmlJsFiles).forEach(function (file) {
+		resourcesToCopy[file] = jsFiles[file];
+		delete jsFiles[file];
+	});
+
+	// if device family is 'iphone', then don't copy the iPad launch images
+	if (this.deviceFamily === 'iphone') {
+		Object.keys(resourcesToCopy).forEach(function (file) {
+			var rel = file.replace(this.xcodeAppDir + '/', '');
+			if (this.ipadLaunchImages.indexOf(rel) !== -1) {
+				delete resourcesToCopy[file];
+			}
+		}, this);
+	}
+
+	// detect ambiguous modules
+	this.commonJsModules.forEach(function (module) {
+		var filename = path.basename(module.libFile),
+			file = path.join(this.xcodeAppDir, filename);
+		if (jsFiles[file]) {
+			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
+			this.logger.error(__('Please rename the file, then rebuild') + '\n');
+			process.exit(1);
+		}
+	}, this);
+
+	series(this, [
+		function copyResources() {
+			this.logger.debug(__('Copying resources'));
+			Object.keys(resourcesToCopy).forEach(function (file) {
+				var info = resourcesToCopy[file],
+					srcStat = fs.statSync(info.src),
+					prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+					destExists = fs.existsSync(info.dest),
+					destStat = destExists && fs.statSync(info.dest),
+					unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file)),
+					needsCopy = unsymlinkable && (!destExists || !prev || prev.size !== srcStat.size || prev.mtime !== JSON.parse(JSON.stringify(srcStat.mtime)) || prev.hash !== this.hash(fs.readFileSync(info.src))),
+					contents = fs.readFileSync(info.src);
+
+				if (!needsCopy && (unsymlinkable || !this.copyFileSync(info.src, info.dest, { contents: contents, forceCopy: needsCopy }))) {
+					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+				} else if (needsCopy && !this.copyFileSync(info.src, info.dest, { contents: contents, forceCopy: needsCopy })) {
+					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+				}
+
+				this.currentBuildManifest.files[file] = {
+					hash: this.hash(contents),
+					mtime: srcStat.mtime,
+					size: srcStat.size
+				};
+
+				delete this.buildDirFiles[info.dest];
+			}, this);
+		},
+
+		function copyCSSFiles() {
+			this.logger.debug(__('Copying CSS files'));
+			Object.keys(cssFiles).forEach(function (file) {
+				var info = cssFiles[file];
+				if (this.minifyCSS) {
+					this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
+					fs.writeFileSync(info.dest, new CleanCSS().minify(fs.readFileSync(info.src).toString()).styles);
+				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
+					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+				}
+				delete this.buildDirFiles[info.dest];
+			}, this);
+		},
+
+		function copyCommonJSFiles() {
+			this.logger.debug(__('Copying CommonJS files'));
+			this.commonJsModules.forEach(function (module) {
+				var dest = path.join(this.xcodeAppDir, path.basename(module.libFile));
+				if (!this.copyFileSync(module.libFile, dest)) {
+					this.logger.trace(__('No change, skipping %s', dest.cyan));
+				}
+				delete this.buildDirFiles[module.libFile];
+			}, this);
+		},
+
+		function copyPlatformFiles() {
+			this.logger.debug(__('Copying platform files'));
+			this.copyDirSync(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, copyDirOpts);
+			this.copyDirSync(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, copyDirOpts);
+		},
+
+		function copyModuleFiles() {
+			this.logger.debug(__('Copying module files'));
+			this.modules.forEach(function (module) {
+				this.copyDirSync(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase()), copyDirOpts);
+				this.copyDirSync(path.join(module.modulePath, 'platform', 'iphone'), this.xcodeAppDir, copyDirOpts);
+				this.copyDirSync(path.join(module.modulePath, 'platform', 'ios'), this.xcodeAppDir, copyDirOpts);
+			}, this);
+		},
+
+		function processJSFiles(next) {
+			this.logger.info(__('Processing JavaScript files'));
+
+			async.eachSeries(Object.keys(jsFiles), function (file, next) {
+				var info = jsFiles[file];
+
+				if (this.encryptJS) {
+					file = file.replace(/\./g, '_');
+					info.dest = path.join(this.buildAssetsDir, file);
+					this.jsFilesToEncrypt.push(file);
+				}
+
+				this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+					try {
+						// parse the AST
+						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+					} catch (ex) {
+						ex.message.split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
+
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					this.tiSymbols[info.dest] = r.symbols;
+
+					var dir = path.dirname(to);
+					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+					delete this.buildDirFiles[to];
+
+					if (this.minifyJS) {
+						this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+							if (!fs.existsSync(to) || r.contents !== fs.readFileSync(to).toString()) {
+								this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+								fs.writeFileSync(to, r.contents);
+								this.jsFilesChanged = true;
+							} else {
+								this.logger.trace(__('No change, skipping %s', to.cyan));
+							}
+							cb2();
+						})(r, from, to, cb);
+					} else {
+						this.copyFileSync(from, to);
+						cb();
+					}
+				})(info.src, info.dest, next);
+			}.bind(this), next);
+		},
+
+		function writeAppProps() {
+			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
+				props = {};
+
+			this.encryptJS && this.jsFilesToEncrypt.push('_app_props__json');
+
+			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
+				props[prop] = this.tiapp.properties[prop].value;
+			}, this);
+
+			var contents = JSON.stringify(props);
+			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
+				this.logger.debug(__('Writing %s', appPropsFile.cyan));
+				fs.writeFileSync(appPropsFile, contents);
+			} else {
+				this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
+			}
+
+			delete this.buildDirFiles[appPropsFile];
+		}
+	], next);
+};
+
 iOSBuilder.prototype.copyLocalizedLaunchScreens = function copyLocalizedLaunchScreens() {
 	this.logger.info(__('Copying localized launch screens'));
 
@@ -3446,6 +3698,8 @@ iOSBuilder.prototype.copyLocalizedLaunchScreens = function copyLocalizedLaunchSc
 				fs.unlinkSync(defaultLaunchScreenFile);
 			}
 
+			// TODO: we should only copy the image if we need to
+
 			if (!this.copyFileSync(launchImage, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
@@ -3457,458 +3711,107 @@ iOSBuilder.prototype.copyLocalizedLaunchScreens = function copyLocalizedLaunchSc
 	}
 };
 
-iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
-	this.logger.info(__('Copying Titanium files'));
-
-	var ignoreDirs = this.ignoreDirs,
-		ignoreFiles = this.ignoreFiles,
-		nonIosPlatforms = ti.platforms.filter(function (p) { return p !== 'iphone' && p !== 'ios'; }).concat('blackberry'),
-		ignorePlatformDirs = new RegExp('^(' + nonIosPlatforms.join('|') + ')$'),
-
-		extRegExp = /\.(\w+)$/,
-
-		filesToCopy = {},
-		jsFiles = {},
-		cssFiles = {},
-		htmlJsFiles = {};
-
-	(function walk(dir, dest, isRoot) {
-		fs.readdirSync(dir).forEach(function (name) {
-			var src = path.join(dir, name);
-			if ((!isRoot || !ignorePlatformDirs.test(name)) && (!ignoreDirs || !ignoreDirs.test(name)) && fs.existsSync(src)) {
-				var srcStat = fs.statSync(src);
-
-				if (name !== 'iphone' && name !== 'ios') {
-					dest = path.join(dest, name);
-				}
-
-				if (srcStat.isDirectory()) {
-					// if the iphone/ios dir, we need to fix the destination
-					return walk(src, dest);
-				}
-
-				var ext = name.match(extRegExp);
-				ext = ext && ext[1];
-
-				switch (ext) {
-					case 'js':
-						jsFiles[src] = {
-							src: src,
-							dest: dest,
-							srcStat: srcStat
-						};
-						break;
-
-					case 'jss':
-						// ignore, these will be compiled later by compileJSSFiles()
-						break;
-
-					case 'css':
-						cssFiles[src] = {
-							src: src,
-							dest: dest,
-							srcStat: srcStat
-						};
-						break;
-
-					case 'html':
-						// find all js files referenced in this html file
-/*
-						var relPath = dest.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
-						relPath.pop(); // remove the filename
-						relPath = relPath.join('/');
-						jsanalyze.analyzeHtmlFile(src, relPath).forEach(function (file) {
-							htmlJsFiles[file] = 1;
-						});
-*/
-
-					default:
-						// copy the file
-				}
-			}
-		});
-	}(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, true));
-
-	dump(filesToCopy);
-	dump(jsFiles);
-	dump(cssFiles);
-
-	next();
-};
-
-iOSBuilder.prototype.copyResources = function copyResources(finished) {
-	var ignoreDirs = this.ignoreDirs,
-		ignoreFiles = this.ignoreFiles,
-		extRegExp = /\.(\w+)$/,
-		icon = (this.tiapp.icon || 'appicon.png').match(/^(.*)\.(.+)$/),
-		unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
-		jsFiles = {},
-		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
-		htmlJsFiles = this.htmlJsFiles = {},
-		symlinkFiles = this.target === 'simulator' && this.config.get('ios.symlinkResources', true) && !this.forceCopy && !this.forceCopyAll,
-		_t = this;
-
-	function copyDir(opts, callback) {
-		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
-			opts.origSrc = opts.src;
-			opts.origDest = opts.dest;
-			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
-		} else {
-			callback();
-		}
+iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
+	if (!this.jsFilesToEncrypt.length) {
+		// nothing to encrypt, continue
+		return next();
 	}
 
-	function copyFile(from, to, next) {
-		var d = path.dirname(to);
-		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
-		if (symlinkFiles && !unsymlinkableFileRegExp.test(path.basename(to))) {
-			fs.existsSync(to) && fs.unlinkSync(to);
-			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.symlink(from, to, next);
-			} else {
-				fs.symlinkSync(from, to);
-			}
-		} else {
-			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.readFile(from, function (err, data) {
-					if (err) throw err;
-					fs.writeFile(to, data, next);
-				});
-			} else {
-				fs.writeFileSync(to, fs.readFileSync(from));
-			}
-		}
+	var routingFile = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'),
+		destExists = fs.existsSync(routingFile),
+		destStat = destExists && fs.statSync(routingFile),
+		existingContent = destExists && fs.readFileSync(routingFile).toString(),
+		prev = this.previousBuildManifest.files && this.previousBuildManifest.files['Classes/ApplicationRouting.m'];
+
+	if (!this.jsFilesChanged && destExists && prev && prev.size === destStat.size && prev.mtime === JSON.parse(JSON.stringify(destStat.mtime)) && prev.hash === this.hash(existingContent)) {
+		this.logger.info(__('No JavaScript file changes, skipping titanium_prep'));
+		this.currentBuildManifest.files['Classes/ApplicationRouting.m'] = prev;
+		return next();
 	}
 
-	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
-		var files;
-		if (fs.statSync(src).isDirectory()) {
-			files = fs.readdirSync(src);
-		} else {
-			// we have a file, so fake a directory listing
-			files = [ path.basename(src) ];
-			src = path.dirname(src);
-		}
+	var titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
+		var tries = 0,
+			completed = false;
+
+		this.logger.info('Encrypting JavaScript files');
+		this.jsFilesToEncrypt.forEach(function (file) {
+			this.logger.debug(__('Preparing %s', file.cyan));
+		}, this);
 
 		async.whilst(
 			function () {
-				return files.length;
-			},
-
-			function (next) {
-				var filename = files.shift(),
-					from = path.join(src, filename),
-					to = path.join(dest, filename);
-
-				// check that the file actually exists and isn't a broken symlink
-				if (!fs.existsSync(from)) return next();
-
-				var isDir = fs.statSync(from).isDirectory();
-
-				// check if we are ignoring this file
-				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) !== -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-					_t.logger.debug(__('Ignoring %s', from.cyan));
-					return next();
-				}
-
-				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(_t, from, path.join(dest, filename), null, opts, next);
-
-				// we have a file, now we need to see what sort of file
-
-				// if the destination directory does not exists, create it
-				fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
-
-				var ext = filename.match(extRegExp),
-					relPath = to.replace(opts.origDest, '').replace(/^\//, '');
-
-				switch (ext && ext[1]) {
-					case 'css':
-						// if we encounter a css file, check if we should minify it
-						if (_t.minifyCSS) {
-							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-							fs.readFile(from, function (err, data) {
-								if (err) throw err;
-								fs.writeFile(to, cleanCSS.process(data.toString()), next);
-							});
-						} else {
-							copyFile.call(_t, from, to, next);
-						}
-						break;
-
-					case 'html':
-						// find all js files referenced in this html file
-						var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
-						relPath.pop(); // remove the filename
-						relPath = relPath.join('/');
-						jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
-							htmlJsFiles[file] = 1;
-						});
-
-						_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
-							copyFile.call(_t, from, to, cb);
-						})(from, to, next);
-						break;
-
-					case 'js':
-						// track each js file so we can copy/minify later
-
-						// we use the destination file name minus the path to the assets dir as the id
-						// which will eliminate dupes
-						var id = to.replace(opts.origDest, '').replace(/^\//, '');
-						if (!jsFiles[relPath] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, relPath)) {
-							jsFiles[relPath] = from;
-						}
-
-						next();
-						break;
-
-					case 'jss':
-						// ignore, these will be compiled later by compileJSS()
-						next();
-						break;
-
-					default:
-						// if the device family is iphone, then don't copy iPad specific images
-						if (_t.deviceFamily !== 'iphone' || _t.ipadLaunchImages.indexOf(relPath) === -1) {
-							// normal file, just copy it into the build/iphone/bin/assets directory
-							_t.cli.createHook('build.ios.copyResource', _t, function (from, to, cb) {
-								copyFile.call(_t, from, to, cb);
-							})(from, to, next);
-						} else {
-							next();
-						}
-				}
-			},
-
-			done
-		);
-	}
-
-	var tasks = [
-		// first task is to copy all files in the Resources directory, but ignore
-		// any directory that is the name of a known platform
-		function (cb) {
-			copyDir.call(this, {
-				src: path.join(this.projectDir, 'Resources'),
-				dest: this.xcodeAppDir,
-				ignoreRootDirs: ti.availablePlatformsNames
-			}, cb);
-		},
-
-		// next copy all files from the iOS specific Resources directory
-		function (cb) {
-			copyDir.call(this, {
-				src: path.join(this.projectDir, 'Resources', 'iphone'),
-				dest: this.xcodeAppDir
-			}, cb);
-		},
-
-		function (cb) {
-			copyDir.call(this, {
-				src: path.join(this.projectDir, 'Resources', 'ios'),
-				dest: this.xcodeAppDir
-			}, cb);
-		}
-	];
-
-	// copy all commonjs modules
-	this.commonJsModules.forEach(function (module) {
-		// copy the main module
-		tasks.push(function (cb) {
-			copyDir.call(this, {
-				src: module.libFile,
-				dest: this.xcodeAppDir,
-				onJsConflict: function (src, dest, id) {
-					this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
-					this.logger.error(__('Please rename the file, then rebuild') + '\n');
-					process.exit(1);
-				}.bind(this)
-			}, cb);
-		});
-	});
-
-	// copy all module assets
-	this.modules.forEach(function (module) {
-		// copy the assets
-		tasks.push(function (cb) {
-			copyDir.call(this, {
-				src: path.join(module.modulePath, 'assets'),
-				dest: path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase())
-			}, cb);
-		});
-	});
-
-	var platformPaths = [
-		path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'iphone'),
-		path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'ios')
-	];
-	// WARNING! This is pretty dangerous, but yes, we're intentionally copying
-	// every file from platform/iphone|ios and all modules into the build dir
-	this.modules.forEach(function (module) {
-		platformPaths.push(
-			path.join(module.modulePath, 'platform', 'iphone'),
-			path.join(module.modulePath, 'platform', 'ios')
-		);
-	});
-	platformPaths.forEach(function (dir) {
-		if (fs.existsSync(dir)) {
-			tasks.push(function (cb) {
-				copyDir.call(this, {
-					src: dir,
-					dest: this.xcodeAppDir
-				}, cb);
-			});
-		}
-	}, this);
-
-	series(this, tasks, function (err, results) {
-		// copy js files into assets directory and minify if needed
-		this.logger.info(__('Processing JavaScript files'));
-
-		series(this, Object.keys(jsFiles).map(function (id) {
-			return function (done) {
-				var from = jsFiles[id],
-					to = path.join(this.xcodeAppDir, id);
-
-				if (htmlJsFiles[id]) {
-					// this js file is referenced from an html file, so don't minify or encrypt
-					return copyFile.call(this, from, to, done);
-				}
-
-				// we have a js file that may be minified or encrypted
-				id = id.replace(/\./g, '_');
-
-				// if we're encrypting the JavaScript, copy the files to the assets dir
-				// for processing later
-				if (this.encryptJS) {
-					to = path.join(this.buildAssetsDir, id);
-					jsFilesToEncrypt.push(id);
-				}
-
-				try {
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						// parse the AST
-						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
-
-						var dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-						if (this.minifyJS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, r.contents, cb);
-						}
-					})(from, to, done);
-				} catch (ex) {
-					ex.message.split('\n').forEach(this.logger.error);
-					this.logger.log();
+				if (!completed && tries > 3) {
+					// we failed 3 times, so just give up
+					this.logger.error(__('titanium_prep failed to complete successfully'));
+					this.logger.error(__('Try cleaning this project and build again') + '\n');
 					process.exit(1);
 				}
-			};
-		}), function () {
-			// write the properties file
-			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
-				props = {};
-			this.tiapp.properties && Object.keys(this.tiapp.properties).forEach(function (prop) {
-				props[prop] = this.tiapp.properties[prop].value;
-			}, this);
-			fs.writeFileSync(
-				appPropsFile,
-				JSON.stringify(props)
-			);
-			this.encryptJS && jsFilesToEncrypt.push('_app_props__json');
+				return !completed;
+			},
+			function (cb) {
+				this.logger.debug(__('Running %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan));
 
-			if (!jsFilesToEncrypt.length) {
-				// nothing to encrypt, continue
-				return finished();
-			}
+				var child = spawn(exe, args, opts),
+					out = '';
 
-			var titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
-				var tries = 0,
-					completed = false;
+				child.stdin.write(this.jsFilesToEncrypt.join('\n'));
+				child.stdin.end();
 
-				this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
-				jsFilesToEncrypt.forEach(function (file) {
-					this.logger.debug(__('Preparing %s', file.cyan));
-				}, this);
+				child.stdout.on('data', function (data) {
+					out += data.toString();
+				});
 
-				async.whilst(
-					function () {
-						if (tries > 3) {
-							// we failed 3 times, so just give up
-							this.logger.error(__('titanium_prep failed to complete successfully'));
-							this.logger.error(__('Try cleaning this project and build again') + '\n');
-							process.exit(1);
-						}
-						return !completed;
-					},
-					function (cb) {
-						var child = spawn(exe, args, opts),
-							out = '';
+				child.on('close', function (code) {
+					if (code) {
+						this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
+						process.exit(1);
+					}
 
-						child.stdin.write(jsFilesToEncrypt.join('\n'));
-						child.stdin.end();
+					if (out.indexOf('initWithObjectsAndKeys') !== -1) {
+						// success!
+						var contents = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), { bytes: out });
 
-						child.stdout.on('data', function (data) {
-							out += data.toString();
-						});
-
-						child.on('close', function (code) {
-							if (code) {
-								this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
-								process.exit(1);
-							}
-
-							if (out.indexOf('initWithObjectsAndKeys') !== -1) {
-								// success!
-								var file = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m');
-								this.logger.debug(__('Writing application routing source file: %s', file.cyan));
-								fs.writeFileSync(
-									file,
-									ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
-										bytes: out
-									})
-								);
-
+						if (!destExists || contents !== existingContent) {
+							if (!this.forceRebuild) {
 								// since we just modified the ApplicationRouting.m, we need to force xcodebuild
 								this.forceRebuild = true;
-
-								completed = true;
-							} else {
-								// failure, maybe it was a fluke, try again
-								this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
-								tries++;
+								this.logger.info(__('Forcing rebuild: %s changed since last build', routingFile.replace(this.buildDir + '/', '').cyan));
 							}
 
-							cb();
-						}.bind(this));
-					}.bind(this),
-					done
-				);
-			});
+							this.logger.debug(__('Writing application routing source file: %s', routingFile.cyan));
+							fs.writeFileSync(routingFile, contents);
 
-			titaniumPrepHook(
-				path.join(this.platformPath, 'titanium_prep'),
-				[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
-				{},
-				finished
-			);
-		});
+							var stat = fs.statSync(routingFile);
+							this.currentBuildManifest.files['Classes/ApplicationRouting.m'] = {
+								hash: this.hash(contents),
+								mtime: stat.mtime,
+								size: stat.size
+							};
+						} else {
+							this.logger.trace(__('No change, skipping %s', routingFile.cyan));
+						}
+
+						delete this.buildDirFiles[routingFile];
+						completed = true;
+					} else {
+						// failure, maybe it was a fluke, try again
+						this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
+						tries++;
+					}
+
+					cb();
+				}.bind(this));
+			}.bind(this),
+			done
+		);
 	});
+
+	titaniumPrepHook(
+		path.join(this.platformPath, 'titanium_prep'),
+		[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
+		{},
+		next
+	);
 };
 
 iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
