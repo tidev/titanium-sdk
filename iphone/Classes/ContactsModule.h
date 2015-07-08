@@ -10,13 +10,11 @@
 
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
-#import <Contacts/Contacts.h>
-#import <ContactsUI/ContactsUI.h>
 
 #import "KrollCallback.h"
 #import "TiContactsPerson.h"
 
-@interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate,CNContactViewControllerDelegate> {
+@interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate> {
 @private
 	ABAddressBookRef addressBook;
 	ABPeoplePickerNavigationController* picker;
@@ -25,13 +23,10 @@
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
-	CNContactStore* contactStore;
-	CNContactPickerViewController* contactPicker;
-	CNSaveRequest* saveRequest;
 }
 
 -(ABAddressBookRef)addressBook;
--(CNContactStore*)contactStore;
+
 -(void)save:(id)unusued;
 -(void)revert:(id)unused;
 -(void)showContacts:(id)args;
@@ -40,8 +35,8 @@
 -(NSArray*)getAllPeople:(id)unused;
 -(TiContactsPerson*)createPerson:(id)arg;
 -(void)removePerson:(id)arg;
-+(NSArray*)contactKeysWithImage;
-+(NSArray*)contactKeysWithoutImage;
+
+
 
 @property (nonatomic,readonly) NSNumber* contactsAuthorization;
 -(void) requestAuthorization:(id)args;
