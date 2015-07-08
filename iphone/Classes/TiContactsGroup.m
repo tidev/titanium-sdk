@@ -38,6 +38,7 @@
 }
 
 //only for iOS9
+#if IS_IOS_9
 -(NSString*)identifier
 {
 	if ([TiUtils isIOS9OrGreater]) {
@@ -46,7 +47,7 @@
 	DebugLog(@"[WARN] this property is only used for iOS9 and greater.");
 	return NULL;
 }
-
+#endif
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
@@ -56,7 +57,7 @@
 	}
 	return self;
 }
-
+#if IS_IOS_9
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup*)group_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
@@ -65,7 +66,7 @@
 	}
 	return self;
 }
-
+#endif
 -(void)dealloc
 {
 	[super dealloc];
@@ -85,14 +86,15 @@
 		TiThreadPerformOnMainThread(^{result = [[self name] retain];}, YES);
 		return [result autorelease];
 	}
-	
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		if ([group name]) {
 			return [group name];
 		}
 		return @"<unamed group>";
 	}
-	CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);
+#endif
+    CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);
     NSString* name = @"<unnamed group>";
     if (nameRef != NULL) {
         name = [NSString stringWithString:(NSString*)nameRef];
@@ -106,11 +108,13 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSString)
 	ENSURE_UI_THREAD(setName,arg)
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		group.name = arg;
 		return;
 	}
-	CFErrorRef error;
+#endif
+    CFErrorRef error;
 	if(!ABRecordSetValue([self record], kABGroupNameProperty, (CFStringRef)arg, &error)) {
 		CFStringRef reason = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)reason];
@@ -128,6 +132,7 @@
 		TiThreadPerformOnMainThread(^{result = [[self members:unused] retain];}, YES);
 		return [result autorelease];
 	}
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -152,7 +157,7 @@
 			return nil;
 		}
 	}
-	
+#endif
 	CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembers([self record]);
 	if (arrayRef == NULL) {
 		return nil;
@@ -178,6 +183,7 @@
 		TiThreadPerformOnMainThread(^{result = [[self sortedMembers:value] retain];}, YES);
 		return [result autorelease];
 	}
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -221,7 +227,7 @@
 			return nil;
 		}
 	}
-
+#endif
 	int sortType = [value intValue];
 	switch(sortType) {
 		case kABPersonSortByFirstName:
@@ -254,6 +260,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(add,arg);
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
@@ -274,7 +281,8 @@
 		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
-	CFErrorRef error;
+#endif
+    CFErrorRef error;
 	if (!ABGroupAddMember([self record], [arg record], &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
@@ -290,6 +298,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(remove,arg);
+#if IS_IOS_9
 	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
@@ -310,6 +319,7 @@
 		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
+#endif
 	CFErrorRef error;
 	if (!ABGroupRemoveMember([self record], [arg record], &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
@@ -321,6 +331,7 @@
 					location:CODELOCATION];
 	}
 }
+#if IS_IOS_9
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
@@ -334,5 +345,6 @@
 	[saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
+#endif
 @end
 #endif
