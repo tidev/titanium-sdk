@@ -281,7 +281,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		if (ourContactStore == NULL) {
 			return;
 		}
-		NSError *error;
+		NSError *error = nil;
 		if (saveRequest == nil) {
 			DebugLog(@"Nothing to save");
 			return;

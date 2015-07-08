@@ -188,6 +188,7 @@
 		switch(sortType) {
 			case kABPersonSortByFirstName:
 				sortOrder = CNContactSortOrderGivenName;
+                break;
 			case kABPersonSortByLastName:
 				sortOrder = CNContactSortOrderFamilyName;
 				break;
