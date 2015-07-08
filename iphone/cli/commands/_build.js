@@ -4082,6 +4082,8 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
 		contents;
 
+	delete this.buildDirFiles[dest];
+
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
@@ -4091,7 +4093,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			contents = fs.readFileSync(definesFile).toString() + '\n#define USE_JSCORE_FRAMEWORK';
 		} else {
 			// just symlink the file
-			this.copyFileSync(definesFile, path.join(this.buildDir, 'Classes', 'defines.h'));
+			this.copyFileSync(definesFile, dest);
 			return;
 		}
 	} else {
@@ -4143,8 +4145,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
-
-	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
