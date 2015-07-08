@@ -9,14 +9,18 @@
 #ifdef USE_TI_CONTACTS
 
 #import <AddressBook/AddressBook.h>
+#if IS_IOS_9
 #import <Contacts/Contacts.h>
+#endif
 @class ContactsModule;
 
 @interface TiContactsPerson : TiProxy {
 @private
 	ABRecordRef record;
 	ABRecordID recordId;
+#if IS_IOS_9
     CNMutableContact* person;
+#endif
 	ContactsModule* module;
     NSString* identifier;
 	NSDictionary* iOS9contactProperties;
@@ -24,23 +28,25 @@
 
 @property(readonly,nonatomic) NSNumber* recordId;
 @property(readonly,nonatomic) ABRecordRef record;
-@property(readonly,nonatomic) NSString* identifier;
 
 +(NSDictionary*)contactProperties;
 +(NSDictionary*)multiValueProperties;
 +(NSDictionary*)multiValueLabels;
-+(NSDictionary*)iOS9multiValueLabels;
-+(NSDictionary*)iOS9propertyKeys;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
+#if IS_IOS_9
+@property(readonly,nonatomic) NSString* identifier;
++(NSDictionary*)iOS9multiValueLabels;
++(NSDictionary*)iOS9propertyKeys;
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_;
--(id)valueForUndefinedKey:(NSString *)key;
 -(CNSaveRequest*)getSaveRequestForDeletion;
 -(CNSaveRequest*)getSaveRequestForAddition:(NSString*)containerIdentifier;
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group;
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group;
--(NSString*)fullName;
 -(void)updateiOS9ContactProperties;
+#endif
+-(id)valueForUndefinedKey:(NSString *)key;
+-(NSString*)fullName;
 @end
 
 #endif
