@@ -46,14 +46,6 @@ properties:
     type: String
     
   - name: recordId
-    summary: Record identifier of the group. Single value. Deprecated for >= iOS9.
+    summary: Record identifier of the group. Single value.
     type: Number
     platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}}
-
-  - name: identifier
-    summary: Identifier of the group.
-    type: String
-    platforms: [iphone, ipad]
-    permission: read-only
-    osver: {ios: {min: "9.0"}}
