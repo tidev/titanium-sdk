@@ -219,7 +219,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         }
         TiThreadPerformOnMainThread(^(){
             CNContactStore *ourContactStore = [self contactStore];
-            [ourContactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(bool granted, NSError *error) {
+            [ourContactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError *error) {
                 NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                 KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                 [[callback context] enqueue:invocationEvent];
