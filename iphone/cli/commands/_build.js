@@ -4190,20 +4190,26 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			var p = spawn(exe, args, opts),
 				out = [],
 				err = [],
-				stopOutputting = false;
+				stopOutputting = false,
+				buffer = '';
+
+			function printLine(line) {
+				if (line.length) {
+					out.push(line);
+					if (line.indexOf('Failed to minify') !== -1) {
+						stopOutputting = true;
+					}
+					if (!stopOutputting) {
+						this.logger.trace(line);
+					}
+				}
+			}
 
 			p.stdout.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					if (line.length) {
-						out.push(line);
-						if (line.indexOf('Failed to minify') !== -1) {
-							stopOutputting = true;
-						}
-						if (!stopOutputting) {
-							this.logger.trace(line);
-						}
-					}
-				}, this);
+				buffer += data.toString();
+				var lines = buffer.split('\n');
+				buffer = lines.pop();
+				lines.forEach(printLine.bind(this));
 			}.bind(this));
 
 			p.stderr.on('data', function (data) {
@@ -4215,6 +4221,10 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			}.bind(this));
 
 			p.on('close', function (code, signal) {
+				if (buffer.length) {
+					buffer.split('\n').forEach(printLine.bind(this));
+				}
+
 				if (code) {
 					// first see if we errored due to a dependency issue
 					if (err.join('\n').indexOf('Check dependencies') !== -1) {
