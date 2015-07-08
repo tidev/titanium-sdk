@@ -148,6 +148,9 @@ function iOSBuilder() {
 
 	// set to true if any js files changed so that we can trigger encryption to run
 	this.jsFilesChanged = false;
+
+	// an array of products (Xcode targets) being built
+	this.products = [];
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -1800,6 +1803,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'copyTitaniumLibraries',
 		'copyTitaniumiOSFiles',
 		'copyExtensionFiles',
+		'cleanXcodeDerivedData',
 
 		// titanium related tasks
 		'compileJSSFiles',
@@ -1814,9 +1818,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'removeFiles',
 
 		function (next) {
-			console.log('\nRun Xcode: ' + this.forceRebuild + '\n');
 			if (!this.forceRebuild && this.deployType !== 'development') {
-				console.log('Normally we would force xcode to run here because ApplicationRouting.m was probably modified');
+				// normally we would force xcode to run here because ApplicationRouting.m was probably modified
+				// but we're cool now and we don't have to force it, right?
 			}
 
 			parallel(this, [
@@ -2223,11 +2227,13 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	this.logger.info(__('Initializing the build directory'));
 
-	if (this.forceCleanBuild && fs.existsSync(this.buildDir)) {
+	var buildDirExists = fs.existsSync(this.buildDir);
+
+	if (this.forceCleanBuild && buildDirExists) {
 		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
 		wrench.rmdirSyncRecursive(this.buildDir);
 		wrench.mkdirSyncRecursive(this.buildDir);
-	} else if (!fs.existsSync(this.buildDir)) {
+	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
 		wrench.mkdirSyncRecursive(this.buildDir);
 	}
@@ -2304,8 +2310,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		runOnlyForDeploymentPostprocessing: 0,
 		shellPath: '/bin/sh',
 		shellScript: '"' + [
-			'echo \\"Xcode Post-Compile Phase: Touching important files\\"',
-			'touch -c Classes/ApplicationRouting.h Classes/ApplicationRouting.m Classes/ApplicationDefaults.m Classes/ApplicationMods.m Classes/defines.h',
 			'if [ \\"x$TITANIUM_CLI_IMAGES_OPTIMIZED\\" != \\"x\\" ]; then',
 			'    if [ -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]; then',
 			'        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"',
@@ -2341,7 +2345,61 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
 		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
 		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
-		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value];
+		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value],
+		keychains = this.iosInfo.certs.keychains,
+		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ],
+		buildSettings = {
+			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
+			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
+			DEAD_CODE_STRIPPING: 'YES'
+		};
+
+	if (this.target === 'simulator') {
+		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
+		gccDefs.push('DEBUG=1');
+		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
+	}
+
+	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios && this.tiapp.ios.enablecoverage) {
+		gccDefs.push('KROLL_COVERAGE=1');
+	}
+
+	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
+
+	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+		buildSettings.PROVISIONING_PROFILE = '"' + this.provisioningProfileUUID + '"';
+		buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
+		if (this.keychain) {
+			buildSettings.OTHER_CODE_SIGN_FLAGS = '--keychain ' + this.keychain;
+		}
+	}
+
+	if (this.target === 'device') {
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].developer || []).some(function (d) {
+				if (!d.invalid && d.name === this.certDeveloperName) {
+					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
+					return true;
+				}
+			}, this);
+		}, this);
+	}
+
+	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].developer || []).some(function (d) {
+				if (!d.invalid && d.name === this.certDistributionName) {
+					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
+					return true;
+				}
+			}, this);
+		}, this);
+	}
+
+	// set the identity and provisioning profile for the app
+	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+	});
 
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
@@ -2438,7 +2496,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
 					xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
 
-					productsGroup.children.push(xobjs.PBXNativeTarget[targetUuid].productReference);
+					productsGroup.children.push({
+						value: xobjs.PBXNativeTarget[targetUuid].productReference,
+						comment: xobjs.PBXNativeTarget[targetUuid].productReference_comment
+					});
 
 					// add the build phases
 					xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
@@ -2531,19 +2592,37 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.XCBuildConfiguration[conf.value + '_comment'] = extObjs.XCBuildConfiguration[conf.value + '_comment'];
 
 						// update info.plist path
-						var buildSettings = xobjs.XCBuildConfiguration[conf.value].buildSettings;
-						if (buildSettings.INFOPLIST_FILE) {
-							buildSettings.INFOPLIST_FILE = '"' + extRelPath + '/' + buildSettings.INFOPLIST_FILE.replace(/^"/, '').replace(/"$/, '') + '"';
+						var extBuildSettings = xobjs.XCBuildConfiguration[conf.value].buildSettings;
+
+						if (extBuildSettings.INFOPLIST_FILE) {
+							extBuildSettings.INFOPLIST_FILE = '"' + extRelPath + '/' + extBuildSettings.INFOPLIST_FILE.replace(/^"/, '').replace(/"$/, '') + '"';
 						}
-						if (!buildSettings.CLANG_ENABLE_OBJC_ARC) {
+
+						if (!extBuildSettings.CLANG_ENABLE_OBJC_ARC) {
 							// inherits from project
 							var confList = extObjs.XCConfigurationList[extPBXProject.buildConfigurationList],
 								confUuid = confList.buildConfigurations.filter(function (c) { return c.comment === confList.defaultConfigurationName || 'Release'; })[0].value;
 							if (extObjs.XCBuildConfiguration[confUuid].buildSettings.CLANG_ENABLE_OBJC_ARC === 'YES') {
-								buildSettings.CLANG_ENABLE_OBJC_ARC = 'YES';
+								extBuildSettings.CLANG_ENABLE_OBJC_ARC = 'YES';
 							}
 						}
-					});
+
+						if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+							extBuildSettings.PROVISIONING_PROFILE = '"' + target.ppUUIDs[this.target] + '"';
+							extBuildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
+							if (this.keychain) {
+								extBuildSettings.OTHER_CODE_SIGN_FLAGS = '--keychain ' + this.keychain;
+							}
+						}
+
+						if (buildSettings.CODE_SIGN_IDENTITY) {
+							extBuildSettings.CODE_SIGN_IDENTITY = buildSettings.CODE_SIGN_IDENTITY;
+						}
+
+						if (extBuildSettings.CODE_SIGN_ENTITLEMENTS) {
+							extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + extRelPath + '/' + extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '') + '"';
+						}
+					}, this);
 
 					// determine if this target is an extension
 					if (targetIsExtension) {
@@ -2615,9 +2694,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	 				}
 
 					return true;
-				});
-			});
-		});
+				}, this);
+			}, this);
+		}, this);
 	} else {
 		this.logger.trace(__('No extensions to add'));
 	}
@@ -2636,6 +2715,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 		this.hasWatchApp = true;
 	}
+
+	// get the product names
+	this.products = productsGroup.children.map(function (product) {
+		return product.comment;
+	});
 
 	var hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
 		var contents = xcodeProject.writeSync(),
@@ -3111,6 +3195,133 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	delete this.buildDirFiles[dest];
 };
 
+iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
+	this.logger.info(__('Copying Titanium libraries'));
+
+	var libDir = path.join(this.buildDir, 'lib');
+	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
+
+	['libTiCore.a', 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a'].forEach(function (filename) {
+		var src = path.join(this.platformPath, filename),
+			dest = path.join(libDir, filename);
+
+		delete this.buildDirFiles[dest];
+
+		if (!this.copyFileSync(src, dest, { forceCopy: filename === 'libTiCore.a' && this.forceCopyAll })) {
+			this.logger.trace(__('No change, skipping %s', dest.cyan));
+		}
+	}, this);
+};
+
+iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
+	this.logger.info(__('Copying Titanium iOS files'));
+
+	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
+		name = this.tiapp.name.replace(/-/g, '_').replace(/\W/g, ''),
+		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
+		copyFileRegExps = [
+			// note: order of regexps matters
+			[/TitaniumViewController/g, namespace + '$ViewController'],
+			[/TitaniumModule/g, namespace + '$Module'],
+			[/Titanium|Appcelerator/g, namespace],
+			[/titanium/g, '_' + namespace.toLowerCase()],
+			[/(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase()],
+			[new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile'],
+			[new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc.'],
+			[/(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n']
+		],
+		extRegExp = /\.(c|cpp|h|m|mm)$/,
+
+		// files to watch for while copying
+		appFiles = {};
+
+	appFiles['ApplicationDefaults.m'] = {
+		props:      this.tiapp.properties || {},
+		deployType: this.deployType,
+		launchUrl:  this.launchUrl
+	};
+
+	appFiles['ApplicationMods.m'] = {
+		modules: this.modules
+	};
+
+	['Classes', 'headers'].forEach(function (dir) {
+		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
+			ignoreDirs: this.ignoreDirs,
+			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/,
+			beforeCopy: function (srcFile, destFile, srcStat) {
+				var rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
+					filename = path.basename(srcFile),
+					destExists = fs.existsSync(destFile),
+					existingContent = destExists && fs.readFileSync(destFile),
+					contents = fs.readFileSync(srcFile),
+					srcHash = this.hash(contents),
+					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+					changed = false;
+
+				delete this.buildDirFiles[destFile];
+
+				this.currentBuildManifest.files[rel] = {
+					hash: srcHash,
+					mtime: srcMtime,
+					size: srcStat.size
+				};
+
+				if (appFiles[filename]) {
+					contents = ejs.render(contents.toString(), appFiles[filename]);
+					if (!destExists || contents !== existingContent.toString()) {
+						if (!this.forceRebuild) {
+							this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
+							this.forceRebuild = true;
+						}
+						this.logger.debug(__('Writing %s', destFile.cyan));
+						fs.writeFileSync(destFile, contents);
+					}
+					return null;
+				}
+
+				if (extRegExp.test(srcFile) && srcFile.indexOf('TiCore') === -1) {
+					// look up the file to see if the original source changed
+					var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
+					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash) {
+						// the original hasn't changed, so let's assume that there's nothing to do
+						return null;
+					}
+
+					contents = contents.toString();
+					for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
+						contents = contents.replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
+					}
+
+					changed = contents !== existingContent.toString();
+				} else {
+					changed = !bufferEqual(contents, existingContent);
+				}
+
+				if (!destExists || changed) {
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
+						this.forceRebuild = true;
+					}
+					this.logger.debug(__('Writing %s', destFile.cyan));
+					fs.writeFileSync(destFile, contents);
+
+					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
+				}
+			}.bind(this),
+			afterCopy: function (srcFile, destFile, srcStat, result) {
+				if (!result) {
+					this.logger.trace(__('No change, skipping %s', destFile.cyan));
+				}
+			}.bind(this)
+		});
+	}, this);
+
+	var pchFile = path.join(this.buildDir, name + '_Prefix.pch');
+	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), pchFile);
+	delete this.buildDirFiles[pchFile];
+};
+
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 	if (!this.extensions.length) return;
 
@@ -3201,136 +3412,43 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 	}, this);
 };
 
-iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
-	this.logger.info(__('Copying Titanium libraries'));
+iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next) {
+	if (!this.forceCleanBuild) {
+		return next();
+	}
 
-	var libDir = path.join(this.buildDir, 'lib');
-	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
+	var exe = this.xcodeEnv.executables.xcodebuild,
+		args = ['clean'];
 
-	['libTiCore.a', 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a'].forEach(function (filename) {
-		var src = path.join(this.platformPath, filename),
-			dest = path.join(libDir, filename);
+	this.logger.info(__('Cleaning Xcode derived data'));
+	this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.join(' ')).cyan));
 
-		delete this.buildDirFiles[dest];
-
-		if (!this.copyFileSync(src, dest, { forceCopy: filename === 'libTiCore.a' && this.forceCopyAll })) {
-			this.logger.trace(__('No change, skipping %s', dest.cyan));
+	var child = spawn(exe, args, {
+		cwd: this.buildDir,
+		env: {
+			DEVELOPER_DIR: this.xcodeEnv.path,
+			TMPDIR: process.env.TMPDIR,
+			HOME: process.env.HOME,
+			PATH: process.env.PATH
 		}
-	}, this);
-};
+	});
 
-iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
-	this.logger.info(__('Copying Titanium iOS files'));
+	function display(data) {
+		data.toString().split('\n').forEach(function (line) {
+			line = line.trim();
+			line && this.logger.trace(line);
+		}, this);
+	}
 
-	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/-/g, '_').replace(/\W/g, ''),
-		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
-		copyFileRegExps = [
-			// note: order of regexps matters
-			[/TitaniumViewController/g, namespace + '$ViewController'],
-			[/TitaniumModule/g, namespace + '$Module'],
-			[/Titanium|Appcelerator/g, namespace],
-			[/titanium/g, '_' + namespace.toLowerCase()],
-			[/(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase()],
-			[new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile'],
-			[new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc.'],
-			[/(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n']
-		],
-		extRegExp = /\.(c|cpp|h|m|mm)$/,
+	child.stdout.on('data', display.bind(this));
+	child.stderr.on('data', display.bind(this));
 
-		// files to watch for while copying
-		appFiles = {};
-
-	appFiles['ApplicationDefaults.m'] = {
-		props:      this.tiapp.properties || {},
-		deployType: this.deployType,
-		launchUrl:  this.launchUrl
-	};
-
-	appFiles['ApplicationMods.m'] = {
-		modules: this.modules
-	};
-
-	['Classes', 'headers'].forEach(function (dir) {
-		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
-			ignoreDirs: this.ignoreDirs,
-			ignoreFiles: /^(bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/,
-			beforeCopy: function (srcFile, destFile, srcStat) {
-				var rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-					filename = path.basename(srcFile),
-					destExists = fs.existsSync(destFile),
-					existingContent = destExists && fs.readFileSync(destFile),
-					contents = fs.readFileSync(srcFile),
-					srcHash = this.hash(contents),
-					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
-					changed = false;
-
-				delete this.buildDirFiles[destFile];
-
-				this.currentBuildManifest.files[rel] = {
-					hash: srcHash,
-					mtime: srcMtime,
-					size: srcStat.size
-				};
-
-				if (appFiles[filename]) {
-					contents = ejs.render(contents.toString(), appFiles[filename]);
-					if (!destExists || contents !== existingContent.toString()) {
-						if (!this.forceRebuild) {
-							this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
-							this.forceRebuild = true;
-						}
-						this.logger.debug(__('Writing %s', destFile.cyan));
-						fs.writeFileSync(destFile, contents);
-					}
-					return null;
-				}
-
-				if (filename === 'defines.h') {
-					if (this.useJSCore) {
-						contents += '\n#define USE_JSCORE_FRAMEWORK';
-					}
-					changed = contents !== existingContent.toString();
-				} else if (extRegExp.test(srcFile) && srcFile.indexOf('TiCore') === -1) {
-					// look up the file to see if the original source changed
-					var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash) {
-						// the original hasn't changed, so let's assume that there's nothing to do
-						return null;
-					}
-
-					contents = contents.toString();
-					for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
-						contents = contents.replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
-					}
-
-					changed = contents !== existingContent.toString();
-				} else {
-					changed = !bufferEqual(contents, existingContent);
-				}
-
-				if (!destExists || changed) {
-					if (!this.forceRebuild) {
-						this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
-						this.forceRebuild = true;
-					}
-					this.logger.debug(__('Writing %s', destFile.cyan));
-					fs.writeFileSync(destFile, contents);
-
-					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
-				}
-			}.bind(this),
-			afterCopy: function (srcFile, destFile, srcStat, result) {
-				if (!result) {
-					this.logger.trace(__('No change, skipping %s', destFile.cyan));
-				}
-			}.bind(this)
-		});
-	}, this);
-
-	var pchFile = path.join(this.buildDir, name + '_Prefix.pch');
-	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), pchFile);
-	delete this.buildDirFiles[pchFile];
+	child.on('close', function (code) {
+		if (!code && !fs.existsSync(this.xcodeAppDir)) {
+			wrench.mkdirSyncRecursive(this.xcodeAppDir);
+		}
+		next(code);
+	}.bind(this));
 };
 
 iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
@@ -3953,18 +4071,31 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	Object.keys(namespaces).forEach(function (ns) {
 		var src = path.join(this.platformPath, 'modules', ns, 'images');
 		if (fs.existsSync(src)) {
-//			this.copyDirSync(src, path.join(this.xcodeAppDir, 'modules', ns, 'images'));  // FIX THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			this.copyDirSync(src, path.join(this.xcodeAppDir, 'modules', ns, 'images'), {
+				beforeCopy: function (srcFile, destFile, srcStat) {
+					delete this.buildDirFiles[destFile];
+				}.bind(this)
+			});
 		}
 	}, this);
+
+	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
+		contents;
 
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
-		return;
-	}
+		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
-	// build the defines.h file
-	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
+		if (this.useJSCore) {
+			contents = fs.readFileSync(definesFile).toString() + '\n#define USE_JSCORE_FRAMEWORK';
+		} else {
+			// just symlink the file
+			this.copyFileSync(definesFile, path.join(this.buildDir, 'Classes', 'defines.h'));
+			return;
+		}
+	} else {
+		// build the defines.h file
 		contents = [
 			'// Warning: this is generated file. Do not modify!',
 			'',
@@ -3973,33 +4104,34 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			return '#define USE_TI_' + s;
 		}));
 
-	var infoPlist = this.infoPlist;
-	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
-		contents.push('#define USE_TI_SILENTPUSH');
-	}
-	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
-		contents.push('#define USE_TI_FETCH');
-	}
+		var infoPlist = this.infoPlist;
+		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
+			contents.push('#define USE_TI_SILENTPUSH');
+		}
+		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
+			contents.push('#define USE_TI_FETCH');
+		}
 
-	contents.push(
-		'#ifdef USE_TI_UILISTVIEW',
-		'#define USE_TI_UILABEL',
-		'#define USE_TI_UIBUTTON',
-		'#define USE_TI_UIIMAGEVIEW',
-		'#define USE_TI_UIPROGRESSBAR',
-		'#define USE_TI_UIACTIVITYINDICATOR',
-		'#define USE_TI_UISWITCH',
-		'#define USE_TI_UISLIDER',
-		'#define USE_TI_UITEXTFIELD',
-		'#define USE_TI_UITEXTAREA',
-		'#endif'
-	);
+		contents.push(
+			'#ifdef USE_TI_UILISTVIEW',
+			'#define USE_TI_UILABEL',
+			'#define USE_TI_UIBUTTON',
+			'#define USE_TI_UIIMAGEVIEW',
+			'#define USE_TI_UIPROGRESSBAR',
+			'#define USE_TI_UIACTIVITYINDICATOR',
+			'#define USE_TI_UISWITCH',
+			'#define USE_TI_UISLIDER',
+			'#define USE_TI_UITEXTFIELD',
+			'#define USE_TI_UITEXTAREA',
+			'#endif'
+		);
 
-	if (this.useJSCore) {
-		contents.push('#define USE_JSCORE_FRAMEWORK')
+		if (this.useJSCore) {
+			contents.push('#define USE_JSCORE_FRAMEWORK')
+		}
+
+		contents = contents.join('\n');
 	}
-
-	contents = contents.join('\n');
 
 	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
 		if (!this.forceRebuild) {
@@ -4011,9 +4143,26 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
+
+	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
+	// unmark the generated files from the build dir files
+	function unmarkBuildDirFiles(dir) {
+		dir += '/';
+		Object.keys(this.buildDirFiles).forEach(function (file) {
+			if (file.indexOf(dir) === 0) {
+				delete this.buildDirFiles[file];
+			}
+		}, this);
+	}
+	unmarkBuildDirFiles.call(this, path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
+	this.products.forEach(function (product) {
+		unmarkBuildDirFiles.call(this, path.join(this.iosBuildDir, product));
+		unmarkBuildDirFiles.call(this, path.join(this.iosBuildDir, product + '.dSYM'));
+	}, this);
+
 	this.logger.info(__('Removing files'));
 
 	Object.keys(this.buildDirFiles).forEach(function (file) {
@@ -4034,63 +4183,6 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	}
 
 	this.logger.info(__('Invoking xcodebuild'));
-	next();
-
-/*
-	var xcodeArgs = [
-			'-target', this.tiapp.name + this.xcodeTargetSuffixes[this.deviceFamily],
-			'-configuration', this.xcodeTarget,
-			'-sdk', this.xcodeTargetOS,
-			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
-			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'ONLY_ACTIVE_ARCH=NO',
-			'DEAD_CODE_STRIPPING=YES'
-		],
-		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
-
-	if (this.target === 'simulator') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
-		gccDefs.push('DEBUG=1');
-		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
-	}
-
-	if (/simulator|device|dist\-adhoc/.test(this.target)) {
-		this.tiapp.ios && this.tiapp.ios.enablecoverage && gccDefs.push('KROLL_COVERAGE=1');
-	}
-
-	xcodeArgs.push('GCC_PREPROCESSOR_DEFINITIONS=' + gccDefs.join(' '));
-
-	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-		xcodeArgs.push('PROVISIONING_PROFILE=' + this.provisioningProfileUUID);
-		xcodeArgs.push('DEPLOYMENT_POSTPROCESSING=YES');
-		if (this.keychain) {
-			xcodeArgs.push('OTHER_CODE_SIGN_FLAGS=--keychain ' + this.keychain);
-		}
-	}
-
-	var keychains = this.iosInfo.certs.keychains;
-
-	if (this.target === 'device') {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDeveloperName) {
-					xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
-					return true;
-				}
-			}, this);
-		}, this);
-	}
-
-	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDistributionName) {
-					xcodeArgs.push('CODE_SIGN_IDENTITY=' + d.fullname);
-					return true;
-				}
-			}, this);
-		}, this);
-	}
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
 			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
@@ -4171,7 +4263,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 
 	xcodebuildHook(
 		this.xcodeEnv.executables.xcodebuild,
-		xcodeArgs,
+		[
+			'build',
+			'-target', this.tiapp.name,
+			'-configuration', this.xcodeTarget,
+			'-sdk', this.xcodeTargetOS
+		],
 		{
 			cwd: this.buildDir,
 			env: {
@@ -4185,7 +4282,6 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		},
 		next
 	);
-*/
 };
 
 iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
