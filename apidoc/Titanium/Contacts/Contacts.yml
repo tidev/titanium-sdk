@@ -85,7 +85,7 @@ methods:
         type: Number
     
   - name: getGroupByID
-    summary: Gets the group with the specified identifier.
+    summary: Gets the group with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getGroupByIdentifier> instead.
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad]
@@ -93,6 +93,19 @@ methods:
       - name: id
         summary: Group identifier.
         type: Number
+    osver: {ios: {max: "8.0"}}
+
+  - name: getGroupByIdentifier
+    summary: Gets the group with the specified identifier. 
+    returns:
+        type: Titanium.Contacts.Group
+    platforms: [iphone, ipad]
+    parameters:
+      - name: id
+        summary: Group identifier.
+        type: String
+    since: "4.3.0"
+    osver: {ios: {min: "9.0"}}
     
   - name: getPeopleWithName
     summary: |
@@ -107,6 +120,16 @@ methods:
         type: String
         
   - name: getPersonByID
+    summary: Gets the person with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getPersonByIdentifier> instead.
+    returns:
+        type: Titanium.Contacts.Person
+    parameters:
+      - name: id
+        summary: Contact identifier.
+        type: Number
+    osver: {ios: {max: "8.0"}}
+        
+  - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
     returns:
         type: Titanium.Contacts.Person
@@ -114,7 +137,9 @@ methods:
       - name: id
         summary: Contact identifier.
         type: Number
-        
+    since: "4.3.0"      
+    osver: {ios: {min: "9.0"}}
+
   - name: removeGroup
     summary: Removes a group from the address book.
     description: |
@@ -147,8 +172,10 @@ methods:
         type: Titanium.Contacts.Person
         
   - name: revert
-    summary: Reverts all changes made by the previous save to the address book.
+    summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
+
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
