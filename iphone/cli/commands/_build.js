@@ -2246,18 +2246,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	var logger = this.logger,
 		appName = this.tiapp.name,
+		scrubbedAppName = appName.replace(/-/g, '_').replace(/\W/g, ''),
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
 		xobjs,
-		uuidIndex = 1;
-
-	/*
-	namespace = (function (name) {
-				name = name.replace(/-/g, '_').replace(/\W/g, '')
-				return /^[0-9]/.test(name) ? 'k' + name : name;
-			}(this.tiapp.name)),
-	*/
+		uuidIndex = 1,
+		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
 
 	// normally we would want truly unique ids, but we want predictability so that we
 	// can detect when the project has changed and if we need to rebuild the app
@@ -2270,16 +2265,96 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 	}
 
-	// turns out it's way faster to do string replacement before parsing
-	xcodeProject.hash = xcodeParser.parse(
-		fs.readFileSync(srcFile)
-			.toString()
-			.replace(/Titanium\.plist/g, 'Info.plist')
-			.replace(/Titanium_Prefix\.pch/g, appName.replace(/-/g, '_').replace(/\W/g, '') + '_Prefix.pch')
-			.replace(/\.\.\/(Classes|Resources|headers|lib)/g, '$1')
-			.replace(/Titanium/g, appName)
-	);
+	xcodeProject.hash = xcodeParser.parse(fs.readFileSync(srcFile).toString());
 	xobjs = xcodeProject.hash.project.objects;
+
+	// we need to replace all instances of "Titanium" with the app name
+	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
+		var obj = xobjs.PBXFileReference[id];
+		if (obj && typeof obj === 'object') {
+			if (obj.path === 'Titanium_Prefix.pch') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = scrubbedAppName + '_Prefix.pch';
+			} else if (obj.path === 'Titanium.plist') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = 'Info.plist';
+			} else if (obj.path === 'Titanium.app') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '"';
+			} else if (relPathRegExp.test(obj.path)) {
+				obj.path = obj.path.replace(relPathRegExp, '$1');
+			}
+		}
+	});
+
+	Object.keys(xobjs.PBXGroup).forEach(function (id) {
+		var obj = xobjs.PBXGroup[id];
+		if (obj && typeof obj === 'object') {
+			if (obj.children) {
+				obj.children.forEach(function (child) {
+					if (child.comment === 'Titanium_Prefix.pch') {
+						child.comment = scrubbedAppName + '_Prefix.pch';
+					} else if (child.comment === 'Titanium.plist') {
+						child.comment = 'Info.plist';
+					} else if (child.comment === 'Titanium.app') {
+						child.comment = '"' + appName + '.app"';
+					}
+				});
+			}
+			if (obj.path && relPathRegExp.test(obj.path)) {
+				obj.path = obj.path.replace(relPathRegExp, '$1');
+			}
+		}
+	});
+
+	Object.keys(xobjs.PBXNativeTarget).forEach(function (id) {
+		var obj = xobjs.PBXNativeTarget[id];
+		if (obj && typeof obj === 'object') {
+			Object.keys(obj).forEach(function (key) {
+				if (obj[key] && typeof obj[key] === 'string' && obj[key].indexOf('Titanium') !== -1) {
+					obj[key] = xobjs.PBXNativeTarget[id + '_comment'] = '"' + obj[key].replace(/Titanium/g, appName).replace(/^"/, '').replace(/"$/, '') + '"';
+				}
+			});
+		}
+	});
+
+	Object.keys(xobjs.PBXProject).forEach(function (id) {
+		var obj = xobjs.PBXProject[id];
+		if (obj && typeof obj === 'object') {
+			obj.buildConfigurationList_comment = '"' + obj.buildConfigurationList_comment.replace(/Titanium/g, appName).replace(/^"/, '').replace(/"$/, '') + '"';
+			obj.targets.forEach(function (item) {
+				item.comment = '"' + item.comment.replace(/Titanium/g, appName).replace(/^"/, '').replace(/"$/, '') + '"';
+			});
+		}
+	});
+
+	Object.keys(xobjs.XCBuildConfiguration).forEach(function (id) {
+		var obj = xobjs.XCBuildConfiguration[id];
+		if (obj && typeof obj === 'object' && obj.buildSettings) {
+			if (obj.buildSettings.GCC_PREFIX_HEADER === 'Titanium_Prefix.pch') {
+				obj.buildSettings.GCC_PREFIX_HEADER = scrubbedAppName + '_Prefix.pch';
+			}
+			if (obj.buildSettings.INFOPLIST_FILE === 'Titanium.plist') {
+				obj.buildSettings.INFOPLIST_FILE = 'Info.plist';
+			}
+			if (obj.buildSettings.PRODUCT_NAME === 'Titanium') {
+				obj.buildSettings.PRODUCT_NAME = '"' + appName + '"';
+			}
+			if (Array.isArray(obj.buildSettings.LIBRARY_SEARCH_PATHS)) {
+				obj.buildSettings.LIBRARY_SEARCH_PATHS.forEach(function (item, i, arr) {
+					arr[i] = item.replace(relPathRegExp, '$1');
+				});
+			}
+			if (Array.isArray(obj.buildSettings.HEADER_SEARCH_PATHS)) {
+				obj.buildSettings.HEADER_SEARCH_PATHS.forEach(function (item, i, arr) {
+					arr[i] = item.replace(relPathRegExp, '$1');
+				});
+			}
+		}
+	});
+
+	Object.keys(xobjs.XCConfigurationList).forEach(function (id) {
+		if (xobjs.XCConfigurationList[id] && typeof xobjs.XCConfigurationList[id] === 'string') {
+			xobjs.XCConfigurationList[id] = xobjs.XCConfigurationList[id].replace(/Titanium/g, appName);
+		}
+	});
 
 	// delete the pre-compile build phases since we don't need it
 	this.logger.trace(__('Removing pre-compile phase'));
@@ -2340,7 +2415,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	var hasWatchApp = false,
 		projectUuid = xcodeProject.hash.project.rootObject,
 		pbxProject = xobjs.PBXProject[projectUuid],
-		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment === appName; })[0].value,
+		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
 		mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
 		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
 		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
@@ -3641,10 +3716,18 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 	}
 
 	// detect ambiguous modules
+	this.modules.forEach(function (module) {
+		var filename = module.id + '.js';
+		if (jsFiles[filename]) {
+			this.logger.error(__('There is a project resource "%s" that conflicts with a native iOS module', filename));
+			this.logger.error(__('Please rename the file, then rebuild') + '\n');
+			process.exit(1);
+		}
+	}, this);
+
 	this.commonJsModules.forEach(function (module) {
-		var filename = path.basename(module.libFile),
-			file = path.join(this.xcodeAppDir, filename);
-		if (jsFiles[file]) {
+		var filename = path.basename(module.libFile);
+		if (jsFiles[filename]) {
 			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
 			this.logger.error(__('Please rename the file, then rebuild') + '\n');
 			process.exit(1);
@@ -3725,7 +3808,6 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				var info = jsFiles[file];
-
 				if (this.encryptJS) {
 					file = file.replace(/\./g, '_');
 					info.dest = path.join(this.buildAssetsDir, file);
@@ -3762,7 +3844,9 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 							cb2();
 						})(r, from, to, cb);
 					} else {
-						this.copyFileSync(from, to);
+						if (!this.copyFileSync(from, to)) {
+							this.logger.trace(__('No change, skipping %s', to.cyan));
+						}
 						cb();
 					}
 				})(info.src, info.dest, next);
@@ -4095,7 +4179,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			contents = fs.readFileSync(definesFile).toString() + '\n#define USE_JSCORE_FRAMEWORK';
 		} else {
 			// just symlink the file
-			this.copyFileSync(definesFile, dest);
+			if (!this.copyFileSync(definesFile, dest)) {
+				this.logger.trace(__('No change, skipping %s', dest.cyan));
+			}
 			return;
 		}
 	} else {
@@ -4164,6 +4250,11 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		unmarkBuildDirFiles.call(this, path.join(this.iosBuildDir, product));
 		unmarkBuildDirFiles.call(this, path.join(this.iosBuildDir, product + '.dSYM'));
 	}, this);
+
+	// mark a few files that would be generated by xcodebuild
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, this.tiapp.name)];
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'Info.plist')];
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'PkgInfo')];
 
 	this.logger.info(__('Removing files'));
 

@@ -82,7 +82,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 						order: 150,
 						prompt: function (callback) {
 							var defaultValue = undefined,
-								name = cli.argv.name.replace(/[ -]/g, '_').replace(/[^a-zA-Z0-9_]/g, '').replace(/_+/g, '_');
+								name = cli.argv.name.replace(/[^a-zA-Z0-9]/g, '');
 							if (idPrefix) {
 								defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || (cli.argv.type == 'app' && cli.argv.platforms.indexOf('android') == -1) ? '' : 'my') + name;
 							}
