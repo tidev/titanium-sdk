@@ -324,7 +324,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         }
         //This is set to NO by default for > iOS9.
         if ([TiUtils isIOS9OrGreater]) {
-#if IS_IOS_9
+#if IS_XCODE_7
             locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 #endif
         }
