@@ -6,6 +6,7 @@
 		<item name="android:windowActionBar">false</item>
 		<!-- AppCompat Compatibility -->
 		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
 	</style>
 	
 	<style name="Theme.AppCompat.NoTitleBar.Fullscreen">
