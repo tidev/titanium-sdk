@@ -5,9 +5,7 @@ node_modules
 npm-debug.log
 test/TestApp/build
 test/TestApp/TestApp.xcodeproj/xcuserdata
-test/TestApp/TestApp.xcodeproj/project.xcworkspace/xcuserdata
-test/TestApp/TestApp.xcodeproj/project.xcworkspace/xcshareddata
+test/TestApp/TestApp.xcodeproj/project.xcworkspace
 test/TestWatchApp/build
 test/TestWatchApp/TestApp.xcodeproj/xcuserdata
-test/TestWatchApp/TestApp.xcodeproj/project.xcworkspace/xcuserdata
-test/TestWatchApp/TestApp.xcodeproj/project.xcworkspace/xcshareddata
+test/TestWatchApp/TestApp.xcodeproj/project.xcworkspace

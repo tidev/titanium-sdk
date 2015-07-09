@@ -27,7 +27,7 @@
     "ejs": "~2.3.2",
     "fields": "~0.1.24",
     "humanize": "~0.0.9",
-    "ioslib": "0.3.0-beta2",
+    "ioslib": "0.3.0",
     "moment": "~2.10.3",
     "node-appc": "0.2.26",
     "node-uuid": "~1.4.3",
