@@ -10,14 +10,14 @@
 
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
-#if IS_IOS_9
+#if IS_XCODE_7
 #import <Contacts/Contacts.h>
 #import <ContactsUI/ContactsUI.h>
 #endif
 #import "KrollCallback.h"
 #import "TiContactsPerson.h"
 
-#if IS_IOS_9
+#if IS_XCODE_7
 @interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate,CNContactViewControllerDelegate> {
 #else
 @interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate> {
@@ -30,7 +30,7 @@
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
-#if IS_IOS_9
+#if IS_XCODE_7
 	CNContactStore* contactStore;
 	CNContactPickerViewController* contactPicker;
 	CNSaveRequest* saveRequest;
@@ -38,7 +38,7 @@
 }
 
 -(ABAddressBookRef)addressBook;
-#if IS_IOS_9
+#if IS_XCODE_7
 -(CNContactStore*)contactStore;
 +(NSArray*)contactKeysWithImage;
 +(NSArray*)contactKeysWithoutImage;

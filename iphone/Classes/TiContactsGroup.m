@@ -38,7 +38,7 @@
 }
 
 //only for iOS9
-#if IS_IOS_9
+#if IS_XCODE_7
 -(NSString*)identifier
 {
 	if ([TiUtils isIOS9OrGreater]) {
@@ -57,7 +57,7 @@
 	}
 	return self;
 }
-#if IS_IOS_9
+#if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup*)group_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
@@ -86,7 +86,7 @@
 		TiThreadPerformOnMainThread(^{result = [[self name] retain];}, YES);
 		return [result autorelease];
 	}
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		if ([group name]) {
 			return [group name];
@@ -108,7 +108,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSString)
 	ENSURE_UI_THREAD(setName,arg)
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		group.name = arg;
 		return;
@@ -132,7 +132,7 @@
 		TiThreadPerformOnMainThread(^{result = [[self members:unused] retain];}, YES);
 		return [result autorelease];
 	}
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -183,7 +183,7 @@
 		TiThreadPerformOnMainThread(^{result = [[self sortedMembers:value] retain];}, YES);
 		return [result autorelease];
 	}
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -260,7 +260,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(add,arg);
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
@@ -298,7 +298,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(remove,arg);
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
@@ -331,7 +331,7 @@
 					location:CODELOCATION];
 	}
 }
-#if IS_IOS_9
+#if IS_XCODE_7
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {

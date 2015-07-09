@@ -93,7 +93,7 @@
     if([props objectForKey:@"needsSave"]){
         [_userActivity setNeedsSave:[TiUtils boolValue:@"needsSave" properties:props]];
     }
-#if IS_IOS_9
+#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater]){
         if([props objectForKey:@"eligibleForPublicIndexing"]){
             [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
@@ -288,7 +288,7 @@
 }
 
 #pragma mark iOS 9 UserActivity Methods
-#if IS_IOS_9
+#if IS_XCODE_7
 -(NSNumber*)eligibleForPublicIndexing
 {
     if(![TiUtils isIOS9OrGreater]){
