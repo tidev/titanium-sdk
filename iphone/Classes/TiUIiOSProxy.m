@@ -69,6 +69,9 @@
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSONDEMANDRESOURCESMANAGER
+#import "TiUIiOSOnDemandResourcesManagerProxy.h"
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -298,6 +301,14 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#ifdef USE_TI_UIIOSONDEMANDRESOURCESMANAGER
+-(id)createOnDemandResourcesManager:(id)args
+{
+    return [[[TiUIiOSOnDemandResourcesManagerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args
 {

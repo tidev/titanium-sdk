@@ -132,6 +132,9 @@
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
 #endif
+#ifdef USE_TI_UIIOSONDEMANDRESOURCESMANAGER
+-(id)createOnDemandResourcesManager:(id)args;
+#endif
 #endif
 @end
 
