@@ -300,6 +300,10 @@
 
 -(void)setShowUndoRedoActions_:(id)value
 {
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+    
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     
     if([TiUtils boolValue:value] == YES) {
