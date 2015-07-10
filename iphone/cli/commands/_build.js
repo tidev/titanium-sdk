@@ -1927,10 +1927,12 @@ iOSBuilder.prototype.updateXCConfig = function updateXCConfig(next) {
 		'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore'
 	];
 	if (this.useJSCore) {
-		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)','#include "module"')
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)');
 	} else {
-		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)','#include "module"')
+		configContents.push('OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)','OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)');
 	}
+	configContents.push('OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -framework Contacts -framework ContactsUI','OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -framework Contacts -framework ContactsUI');
+	configContents.push('#include "module"');
 	this.logger.info(__('Updating Xcode project configuration: %s', 'project.xcconfig'.cyan));
 	fs.writeFileSync(this.xcodeProjectConfigFile, configContents.join('\n') + '\n');
 	next();

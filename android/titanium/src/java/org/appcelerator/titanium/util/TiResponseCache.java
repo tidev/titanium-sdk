@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
+import android.os.Build;
+
 public class TiResponseCache extends ResponseCache
 {
 	private static final String TAG = "TiResponseCache";
@@ -49,6 +52,9 @@ public class TiResponseCache extends ResponseCache
 	private static final int CLEANUP_DELAY = 60000;
 	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<String, ArrayList<CompleteListener>>();
 	private static long maxCacheSize = 0;
+
+	// List of Video Media Formats from http://developer.android.com/guide/appendix/media-formats.html
+	private static final List<String> videoFormats = new ArrayList<String>(Arrays.asList("mkv","webm","3gp","mp4","ts"));
 
 	private static ScheduledExecutorService cleanupExecutor = null;
 	
@@ -306,6 +312,15 @@ public class TiResponseCache extends ResponseCache
 			Map<String, List<String>> rqstHeaders) throws IOException 
 	{
 		if (uri == null || cacheDir == null) return null;
+
+		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
+		// and HttpResponseCache is used instead of TiResponseCache.
+		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
+		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
+		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+			return null;
+		}
 		
 		// Get our key, which is a hash of the URI
 		String hash = DigestUtils.shaHex(uri.toString());
@@ -394,6 +409,15 @@ public class TiResponseCache extends ResponseCache
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
 		if (cacheDir == null) return null;
+
+		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
+		// and HttpResponseCache is used instead of TiResponseCache.
+		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
+		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
+		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+			return null;
+		}
 		
 		// Make sure the cacheDir exists, in case user clears cache while app is running
 		if (!cacheDir.exists()) {

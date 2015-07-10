@@ -9,13 +9,16 @@
 #ifdef USE_TI_CONTACTS
 #import <AddressBook/AddressBook.h>
 #import "ContactsModule.h"
+#if IS_XCODE_7
 #import <Contacts/Contacts.h>
-
+#endif
 @interface TiContactsGroup : TiProxy {
 	ABRecordRef record;
 	ABRecordID recordId;
+#if IS_XCODE_7
 	CNMutableGroup* group;
-	ContactsModule* module;
+#endif
+    ContactsModule* module;
 	NSString* identifier;
 }
 
@@ -23,8 +26,10 @@
 @property(readonly,nonatomic) ABRecordRef record;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
+#if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup*)group_ module:(ContactsModule*)module_;
 -(CNSaveRequest*)getSaveRequestForDeletion;
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier;
+#endif
 @end
 #endif

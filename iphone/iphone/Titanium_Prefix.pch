@@ -16,3 +16,11 @@
 #endif
 
 #include "ThirdpartyNS.h"
+#import <AvailabilityInternal.h>
+
+#ifdef __IPHONE_9_0
+#define IS_XCODE_7 true
+#else
+#define IS_XCODE_7 false
+#endif
+
