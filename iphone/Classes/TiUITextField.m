@@ -19,13 +19,15 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, leadingBarButtonGroups, trailingBarButtonGroups;
 
 -(void)configure
 {
 	// defaults
 	leftMode = UITextFieldViewModeAlways;
 	rightMode = UITextFieldViewModeAlways;
+    leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+    trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
 	leftButtonPadding = 0;
 	rightButtonPadding = 0;
 	paddingLeft = 0;
@@ -295,6 +297,19 @@
 
 
 #pragma mark Public APIs
+
+-(void)setShowUndoRedoActions_:(id)value
+{
+    TiTextField* tv = (TiTextField*)[self textWidgetView];
+    
+    if([TiUtils boolValue:value] == YES) {
+        tv.inputAssistantItem.leadingBarButtonGroups = [tv leadingBarButtonGroups];
+        tv.inputAssistantItem.trailingBarButtonGroups = [tv trailingBarButtonGroups];
+    } else {
+        tv.inputAssistantItem.leadingBarButtonGroups = @[];
+        tv.inputAssistantItem.trailingBarButtonGroups = @[];
+    }
+}
 
 -(void)setPaddingLeft_:(id)value
 {
