@@ -23,6 +23,7 @@
 @end
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
+static void NotifyRootDidDequeueRecursive(NSArray *children);
 
 @implementation TiUIListView {
     UITableView *_tableView;
@@ -1381,6 +1382,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
+
+    NotifyRootDidDequeueRecursive(cell.proxy.children);
+
     return cell;
 }
 
@@ -2046,6 +2050,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     return nil;
+}
+
+static void NotifyRootDidDequeueRecursive(NSArray *children)
+{
+    [children enumerateObjectsUsingBlock:^(TiViewProxy *child, NSUInteger idx, BOOL *stop) {
+        if([child respondsToSelector:@selector(rootDidDequeue)]) {
+            [child performSelector:@selector(rootDidDequeue)];
+        }
+
+        NotifyRootDidDequeueRecursive(child.children);
+    }];
 }
 
 #endif
