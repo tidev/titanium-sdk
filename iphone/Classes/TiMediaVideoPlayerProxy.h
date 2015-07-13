@@ -13,7 +13,7 @@
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
 @protected
-	MPMoviePlayerController *movie;
+	AVPlayerViewController *movie;
 	NSRecursiveLock* playerLock;
 	BOOL playing;
 @private
