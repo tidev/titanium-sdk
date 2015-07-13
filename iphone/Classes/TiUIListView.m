@@ -1758,6 +1758,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if(!decelerate) {
+        [[ImageLoader sharedLoader] resume];
         [self fireScrollEnd:(UITableView *)scrollView];
     }
     if (![self.proxy _hasListeners:@"pullend"]) {
