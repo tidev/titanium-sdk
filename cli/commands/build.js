@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -34,7 +34,7 @@ fields.setup({
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
-exports.extendedDesc = 'Builds an existing app or module project.';
+exports.extendedDesc = __('Builds an existing app or module project.');
 
 exports.config = function (logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });

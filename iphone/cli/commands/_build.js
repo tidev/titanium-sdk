@@ -3784,7 +3784,7 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 				if (!this.copyFileSync(module.libFile, dest)) {
 					this.logger.trace(__('No change, skipping %s', dest.cyan));
 				}
-				delete this.buildDirFiles[module.libFile];
+				delete this.buildDirFiles[dest];
 			}, this);
 		},
 
