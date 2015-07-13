@@ -26,14 +26,18 @@
 	// defaults
 	leftMode = UITextFieldViewModeAlways;
 	rightMode = UITextFieldViewModeAlways;
-    leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-    trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
 	leftButtonPadding = 0;
 	rightButtonPadding = 0;
 	paddingLeft = 0;
 	paddingRight = 0;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
-	[super setRightViewMode:UITextFieldViewModeAlways];	
+	[super setRightViewMode:UITextFieldViewModeAlways];
+    
+    // iOS9 QuickType (undo/redo)
+    if([TiUtils isIOS9OrGreater] == YES) {
+        leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+    }
 }
 
 -(void)dealloc
