@@ -88,8 +88,7 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 		ejsRegExp = /\.ejs$/,
 		nameRegExp = /\{\{(\w+?)\}\}/g,
 		ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')),
-		files = ;
+		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
 
 	async.eachSeries(fs.readdirSync(srcDir), function (filename, next) {
 		var src = path.join(srcDir, filename);

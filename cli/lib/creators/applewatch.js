@@ -11,7 +11,6 @@
  */
 
 var appc = require('node-appc'),
-	async = require('async'),
 	Creator = require('../creator'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -20,7 +19,7 @@ var appc = require('node-appc'),
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
-	uuid = require('node-uuid'),
+	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -217,26 +216,27 @@ AppleWatchCreator.prototype.run = function run(callback) {
 		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
 		this.copyDir(path.join(templateDir, 'template'), dest, function () {
+			/*
+			<extensions>
+				<extension projectPath="extensions/foo/foo.xcodeproj">
+					<target name="WatchKit Catalog WatchKit Extension">
+						<provisioning-profiles>
+							<device/>
+							<dist-appstore/>
+							<dist-adhoc/>
+						</provisioning-profiles>
+					</target>
 
-		<extensions>
-			<extension projectPath="../WatchKitCatalogUsingWatchKitInterfaceElements/WatchKit Catalog.xcodeproj">
-				<target name="WatchKit Catalog WatchKit Extension">
-					<provisioning-profiles>
-						<device>96033cd6-04ae-4846-9e0d-97f074f9cbd7</device>
-						<dist-appstore/>
-						<dist-adhoc/>
-					</provisioning-profiles>
-				</target>
-
-				<target name="WatchKit Catalog WatchKit App">
-					<provisioning-profiles>
-						<device>4683554c-9369-41d7-8935-82c9e89cb8cd</device>
-						<dist-appstore/>
-						<dist-adhoc/>
-					</provisioning-profiles>
-				</target>
-			</extension>
-		</extensions>
+					<target name="WatchKit Catalog WatchKit App">
+						<provisioning-profiles>
+							<device/>
+							<dist-appstore/>
+							<dist-adhoc/>
+						</provisioning-profiles>
+					</target>
+				</extension>
+			</extensions>
+			*/
 
 			callback();
 		}, {
@@ -248,7 +248,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			watchkitAppId: watchkitAppId,
 			author: this.tiapp.publisher || '',
 			date: moment().format('l'),
-			copyright: this.tiapp.copyright ? (this.tiapp.copyright + (this.tiapp.copyright.test(/\.$/) ? '' : '.')) : ('Copyright © ' + (new Date).getFullYear() + '.')
+			copyright: this.tiapp.copyright ? (this.tiapp.copyright + (/\.$/.test(this.tiapp.copyright) ? '' : '.')) : ('Copyright © ' + (new Date).getFullYear() + '.')
 		});
 	}.bind(this));
 };
