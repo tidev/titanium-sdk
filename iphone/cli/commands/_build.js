@@ -1598,6 +1598,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			}
 
 			// projectPath could be either the path to a project directory or the actual .xcodeproj
+			ext.origProjectPath = ext.projectPath;
 			ext.projectPath = appc.fs.resolvePath(ext.projectPath);
 
 			var xcodeprojRegExp = /\.xcodeproj$/;
@@ -1701,7 +1702,22 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				// check that all target provisioning profile uuids are valid
 				ext.targets.forEach(function (target) {
 					if (!target.ppUUIDs || !target.ppUUIDs[cli.argv.target]) {
-						logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', target.name) + '\n');
+						logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', target.name));
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log('        <extensions>'.grey);
+						logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
+						logger.log(('                <target name="' + target.name + '">').grey);
+						logger.log('                    <provisioning-profiles>'.grey);
+						logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
+						logger.log('                    </provisioning-profiles>'.grey);
+						logger.log('                </target>'.grey);
+						logger.log('            </extension>'.grey);
+						logger.log('        </extensions>'.grey);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
 						process.exit(1);
 					}
 				});
@@ -2642,7 +2658,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 									if (child.comment === 'Info.plist') {
 										var infoPlistFile = path.join(basePath, 'Info.plist');
 										if (!fs.existsSync(infoPlistFile)) {
-											logger.error(__('Unable to find iOS extension "%s" target "%s" Info.plist: %s', extProjectName, t.comment, infoPlistFile) + '\n');
+											logger.error(__('Unable to find "%s" iOS extension\'s "%s" target\'s Info.plist: %s', extProjectName, t.comment, infoPlistFile) + '\n');
 											process.exit(1);
 										}
 

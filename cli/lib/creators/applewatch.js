@@ -12,6 +12,7 @@
 
 var appc = require('node-appc'),
 	Creator = require('../creator'),
+	DOMParser = require('xmldom').DOMParser,
 	fields = require('fields'),
 	fs = require('fs'),
 	moment = require('moment'),
@@ -201,9 +202,9 @@ AppleWatchCreator.prototype.run = function run(callback) {
 	var projectDir = this.cli.argv['project-dir'],
 		extName = this.cli.argv.name,
 		dest = path.join(projectDir, 'extensions', extName),
-		watchkitExtName = extName + 'WatchApp Extension',
+		watchkitExtName = extName + ' WatchApp Extension',
 		watchkitExtId = this.tiapp.id + '.watchkitextension',
-		watchkitAppName = extName + 'WatchApp',
+		watchkitAppName = extName + ' WatchApp',
 		watchkitAppId = this.tiapp.id + '.watchkitapp';
 
 	// download/install the project template
@@ -216,27 +217,101 @@ AppleWatchCreator.prototype.run = function run(callback) {
 		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
 		this.copyDir(path.join(templateDir, 'template'), dest, function () {
-			/*
-			<extensions>
-				<extension projectPath="extensions/foo/foo.xcodeproj">
-					<target name="WatchKit Catalog WatchKit Extension">
-						<provisioning-profiles>
-							<device/>
-							<dist-appstore/>
-							<dist-adhoc/>
-						</provisioning-profiles>
-					</target>
+			// add the extension to the tiapp.xml
+			var tiappFile = path.join(projectDir, 'tiapp.xml'),
+				projectPath = 'extensions/' + extName + '/' + extName + '.xcodeproj',
+				dom = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(tiappFile).toString(), 'text/xml')),
+				doc = dom.documentElement,
+				useSpaces,
+				iosNode,
+				extensionsNode,
+				extensionNode,
+				child;
 
-					<target name="WatchKit Catalog WatchKit App">
-						<provisioning-profiles>
-							<device/>
-							<dist-appstore/>
-							<dist-adhoc/>
-						</provisioning-profiles>
-					</target>
-				</extension>
-			</extensions>
-			*/
+			function whitespace(indent) {
+				return dom.createTextNode('\r\n' + new Array(indent+1).join(useSpaces ? '  ' : '\t'));
+			}
+
+			// check if we should use spaces or tabs
+			for (child = doc.firstChild; child; child = child.nextSibling) {
+				if (child.nodeType === 3) {
+					useSpaces = child.data.indexOf('\t') === -1;
+					break;
+				}
+			}
+
+			// find or create the <ios> node
+			for (child = doc.firstChild; child; child = child.nextSibling) {
+				if (child.nodeType === 1 && child.tagName === 'ios') {
+					iosNode = child;
+					break;
+				}
+			}
+			if (!iosNode) {
+				iosNode = dom.createElement('ios');
+				doc.appendChild(iosNode);
+			}
+
+			// find or create the <extensions> node
+			for (child = iosNode.firstChild; child; child = child.nextSibling) {
+				if (child.nodeType === 1 && child.tagName === 'extensions') {
+					extensionsNode = child;
+					break;
+				}
+			}
+			if (extensionsNode) {
+				// remove existing conflicting extension
+				for (child = extensionsNode.firstChild; child; child = child.nextSibling) {
+					if (child.nodeType === 1 && child.tagName === 'extension' && child.getAttribute('projectPath') === projectPath) {
+						if (child.previousSibling.nodeType === 3) {
+							extensionsNode.removeChild(child.previousSibling);
+						}
+						extensionsNode.removeChild(child);
+					}
+				}
+				if (extensionsNode.lastChild.nodeType === 3) {
+					extensionsNode.removeChild(extensionsNode.lastChild);
+				}
+				if (extensionsNode.childNodes.length) {
+					extensionsNode.appendChild(whitespace(3));
+				}
+			} else {
+				extensionsNode = dom.createElement('extensions');
+				extensionsNode.appendChild(whitespace(3));
+				iosNode.insertBefore(whitespace(2), iosNode.lastChild);
+				iosNode.insertBefore(extensionsNode, iosNode.lastChild);
+			}
+
+			// create the <extension> node
+			extensionNode = dom.createElement('extension');
+			extensionNode.setAttribute('projectPath', projectPath);
+			extensionsNode.appendChild(extensionNode);
+			extensionsNode.appendChild(whitespace(2));
+
+			// create the <target> nodes
+			function createTargetNode(name) {
+				var target = dom.createElement('target'),
+					pp = dom.createElement('provisioning-profiles');
+				extensionNode.appendChild(whitespace(4));
+				extensionNode.appendChild(target);
+				target.setAttribute('name', name);
+				target.appendChild(whitespace(5));
+				target.appendChild(pp);
+				target.appendChild(whitespace(4));
+				pp.appendChild(whitespace(6));
+				pp.appendChild(dom.createElement('device'));
+				pp.appendChild(whitespace(6));
+				pp.appendChild(dom.createElement('dist-appstore'));
+				pp.appendChild(whitespace(6));
+				pp.appendChild(dom.createElement('dist-adhoc'));
+				pp.appendChild(whitespace(5));
+			}
+			createTargetNode(watchkitExtName);
+			createTargetNode(watchkitAppName);
+
+			extensionNode.appendChild(whitespace(3));
+
+			fs.writeFileSync(tiappFile, '<?xml version="1.0" encoding="UTF-8"?>\r\n' + dom.documentElement.toString());
 
 			callback();
 		}, {
