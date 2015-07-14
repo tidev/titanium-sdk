@@ -111,7 +111,7 @@ methods:
 events:
   - name: useractivitywillsave
     summary: |
-    	The user activity will be saved (to be continued or persisted). The receiver should update the activity with current activity state.
+        The user activity will be saved (to be continued or persisted). The receiver should update the activity with current activity state.
     properties:
       - name: activityType
         summary: the activityType of the User Activity triggering the event
@@ -134,7 +134,7 @@ events:
         platforms: [iphone, ipad]   
   - name: useractivitywascontinued
     summary: |
-    	The user activity was continued on another device.
+        The user activity was continued on another device.
     properties:
       - name: activityType
         summary: the activityType of the User Activity triggering the event
@@ -166,18 +166,19 @@ examples:
         to ensure the activity created is supported on your device.
         
         #### app.js
-			var activity =  Ti.App.iOS.createUserActivity({
-				activityType:'com.setdirection.home',
-				title:'activity 1',
-				userInfo:{
-					msg:"hello world"
-				}
-			});
-			
-			if(!activity.supported){
-				alert('activity not supported');
-				return;
-			}
-			activity.becomeCurrent();
+
+            var activity =  Ti.App.iOS.createUserActivity({
+            activityType:'com.setdirection.home',
+                title:'activity 1',
+                userInfo:{
+                    msg:"hello world"
+                }
+            });
+
+            if(!activity.supported){
+                alert('activity not supported');
+                return;
+            }
+            activity.becomeCurrent();
             
 

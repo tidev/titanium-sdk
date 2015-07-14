@@ -205,15 +205,15 @@ function exportDescription (api) {
 function exportReturnTypes (api) {
 	var rv = [];
 	if (assert(api, 'returns')) {
-		if (!Array.isArray(api.returns.type)) {
-			api.returns.type = [api.returns.type];
+		if (!Array.isArray(api.returns)) {
+			api.returns = [api.returns];
 		}
-		api.returns.type.forEach(function (ret) {
+		api.returns.forEach(function (ret) {
 			var x = {};
-			if (assert(api.returns, 'summary')) {
-				x.summary = api.returns.summary;
+			if (assert(ret, 'summary')) {
+				x.summary = ret.summary;
 			}
-			x.type = ret;
+			x.type = ret.type;
 			rv.push(x);
 		});
 	} else {
