@@ -23,7 +23,7 @@
  * 
  */
 /**
- * bluebird build version 2.9.32
+ * bluebird build version 2.9.33
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, cancel, using, filter, any, each, timers
 */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Promise=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
@@ -849,7 +849,8 @@ var captureStackTrace = (function stackDetection() {
     catch(e) {
         hasStackAfterThrow = ("stack" in e);
     }
-    if (!("stack" in err) && hasStackAfterThrow) {
+    if (!("stack" in err) && hasStackAfterThrow &&
+        typeof Error.stackTraceLimit === "number") {
         stackFramePattern = v8stackFramePattern;
         formatStack = v8stackFormatter;
         return function captureStackTrace(o) {
@@ -3200,8 +3201,17 @@ var canEvaluate = util.canEvaluate;
 var TypeError = _dereq_("./errors").TypeError;
 var defaultSuffix = "Async";
 var defaultPromisified = {__isPromisified__: true};
-var noCopyPropsPattern =
-    /^(?:length|name|arguments|caller|callee|prototype|__isPromisified__)$/;
+var noCopyProps = [
+    "arity",    "length",
+    "name",
+    "arguments",
+    "caller",
+    "callee",
+    "prototype",
+    "__isPromisified__"
+];
+var noCopyPropsPattern = new RegExp("^(?:" + noCopyProps.join("|") + ")$");
+
 var defaultFilter = function(name) {
     return util.isIdentifier(name) &&
         name.charAt(0) !== "_" &&
@@ -3250,7 +3260,6 @@ function promisifiableMethods(obj, suffix, suffixRegexp, filter) {
         var passesDefaultFilter = filter === defaultFilter
             ? true : defaultFilter(key, value, obj);
         if (typeof value === "function" &&
-            !util.isNativeFunctionMethod(value) &&
             !isPromisified(value) &&
             !hasPromisified(obj, key, suffix) &&
             filter(key, value, obj, passesDefaultFilter)) {
@@ -4529,7 +4538,9 @@ var errorObj = {e: {}};
 var tryCatchTarget;
 function tryCatcher() {
     try {
-        return tryCatchTarget.apply(this, arguments);
+        var target = tryCatchTarget;
+        tryCatchTarget = null;
+        return target.apply(this, arguments);
     } catch (e) {
         errorObj.e = e;
         return errorObj;
@@ -4590,6 +4601,7 @@ function withAppended(target, appendee) {
 function getDataPropertyOrDefault(obj, key, defaultValue) {
     if (es5.isES5) {
         var desc = Object.getOwnPropertyDescriptor(obj, key);
+
         if (desc != null) {
             return desc.get == null && desc.set == null
                     ? desc.value
@@ -4617,13 +4629,27 @@ function thrower(r) {
 }
 
 var inheritedDataKeys = (function() {
+    var excludedPrototypes = [
+        Array.prototype,
+        Object.prototype,
+        Function.prototype
+    ];
+
+    var isExcludedProto = function(val) {
+        for (var i = 0; i < excludedPrototypes.length; ++i) {
+            if (excludedPrototypes[i] === val) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     if (es5.isES5) {
-        var oProto = Object.prototype;
         var getKeys = Object.getOwnPropertyNames;
         return function(obj) {
             var ret = [];
             var visitedKeys = Object.create(null);
-            while (obj != null && obj !== oProto) {
+            while (obj != null && !isExcludedProto(obj)) {
                 var keys;
                 try {
                     keys = getKeys(obj);
@@ -4644,11 +4670,23 @@ var inheritedDataKeys = (function() {
             return ret;
         };
     } else {
+        var hasProp = {}.hasOwnProperty;
         return function(obj) {
+            if (isExcludedProto(obj)) return [];
             var ret = [];
+
             /*jshint forin:false */
-            for (var key in obj) {
-                ret.push(key);
+            enumeration: for (var key in obj) {
+                if (hasProp.call(obj, key)) {
+                    ret.push(key);
+                } else {
+                    for (var i = 0; i < excludedPrototypes.length; ++i) {
+                        if (hasProp.call(excludedPrototypes[i], key)) {
+                            continue enumeration;
+                        }
+                    }
+                    ret.push(key);
+                }
             }
             return ret;
         };
@@ -4661,10 +4699,15 @@ function isClass(fn) {
     try {
         if (typeof fn === "function") {
             var keys = es5.names(fn.prototype);
-            if (((es5.isES5 && keys.length > 1) ||
-                (keys.length > 0 &&
-                !(keys.length === 1 && keys[0] === "constructor"))) ||
-                thisAssignmentPattern.test(fn + "")) {
+
+            var hasMethods = es5.isES5 && keys.length > 1;
+            var hasMethodsOtherThanConstructor = keys.length > 0 &&
+                !(keys.length === 1 && keys[0] === "constructor");
+            var hasThisAssignmentAndStaticMethods =
+                thisAssignmentPattern.test(fn + "") && es5.names(fn).length > 0;
+
+            if (hasMethods || hasMethodsOtherThanConstructor ||
+                hasThisAssignmentAndStaticMethods) {
                 return true;
             }
         }
@@ -4746,16 +4789,11 @@ function copyDescriptors(from, to, filter) {
     for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
         if (filter(key)) {
-            es5.defineProperty(to, key, es5.getDescriptor(from, key));
+            try {
+                es5.defineProperty(to, key, es5.getDescriptor(from, key));
+            } catch (ignore) {}
         }
     }
-}
-
-function isNativeFunctionMethod(fn) {
-    return fn === fn.call ||
-           fn === fn.toString ||
-           fn === fn.bind ||
-           fn === fn.apply;
 }
 
 var ret = {
@@ -4787,8 +4825,7 @@ var ret = {
     hasDevTools: typeof chrome !== "undefined" && chrome &&
                  typeof chrome.loadTimes === "function",
     isNode: typeof process !== "undefined" &&
-        classString(process).toLowerCase() === "[object process]",
-    isNativeFunctionMethod: isNativeFunctionMethod
+        classString(process).toLowerCase() === "[object process]"
 };
 ret.isRecentNode = ret.isNode && (function() {
     var version = process.versions.node.split(".").map(Number);
