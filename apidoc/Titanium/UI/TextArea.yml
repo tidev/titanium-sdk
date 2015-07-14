@@ -306,7 +306,15 @@ properties:
     default: true
     platforms: [iphone,ipad]
     since: 2.1.2
-    
+
+  - name: showUndoRedoActions
+    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    type: Boolean
+    default: true
+    platforms: [ipad]
+    osver: {ios: {min: "9.0"}}
+    since: 4.3.0
+
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
