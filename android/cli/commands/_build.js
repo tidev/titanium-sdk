@@ -1188,6 +1188,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
+
+		if (this.targetSDK < this.minTargetApiLevel) {
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 	}
 
 	// check that we have this target sdk installed
@@ -3318,18 +3323,18 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	function replaceSpaces(s) {
 		return s.replace(/./g, '\\u0020');
 	}
-	
+
 	function resolveRegionName(locale) {
 		if (locale.match(/\w{2}(-|_)r?\w{2}/)) {
 			var parts = locale.split(/-|_/),
 			    lang = parts[0],
 			    region = parts[1],
 			    separator = '-';
-	
+
 			if (region.length == 2) {
 				separator = '-r';
 			}
-	
+
 			return lang + separator + region;
 		}
 		return locale;
