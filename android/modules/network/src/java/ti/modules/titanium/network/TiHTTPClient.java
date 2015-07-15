@@ -102,6 +102,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.json.JSONObject;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -1024,6 +1025,13 @@ public class TiHTTPClient
 				parts.put(name, body);
 				return (int)tmpFile.length();
 
+			} else if (value instanceof HashMap) {
+				// If value is a HashMap, it is actually a JSON
+				JSONObject jsonObject = TiConvert.toJSON((HashMap<String, Object>) value);
+				TiJsonBody jsonBody = new TiJsonBody(jsonObject, null);
+				parts.put(name, jsonBody);
+				return (int) jsonBody.getContentLength();
+
 			} else {
 				if (value != null) {
 					Log.e(TAG, name + " is a " + value.getClass().getSimpleName());
@@ -1179,7 +1187,7 @@ public class TiHTTPClient
 							value = ((TiFileProxy) value).getBaseFile();
 						}
 
-						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
 							needMultipart = true;
 							break;
 						}
@@ -1195,7 +1203,7 @@ public class TiHTTPClient
 							value = ((TiFileProxy) value).getBaseFile();
 						}
 
-						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 
 						} else {
