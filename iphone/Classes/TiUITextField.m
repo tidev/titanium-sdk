@@ -492,6 +492,11 @@
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+    //sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
+    if (range.length + range.location > [[tf text] length]) {
+        return NO;
+    }
+    
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
