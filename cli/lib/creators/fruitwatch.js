@@ -1,6 +1,6 @@
 /**
  * @overview
- * Logic for creating new Apple Watch apps.
+ * Logic for creating new Apple® Watch™ apps.
  *
  * @copyright
  * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
@@ -24,15 +24,15 @@ var appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__;
 
 /**
- * Creates Apple Watch projects.
+ * Creates Apple® Watch™ projects.
  *
- * @module lib/creators/applewatch
+ * @module lib/creators/fruitwatch
  */
 
-module.exports = AppleWatchCreator;
+module.exports = FruitWatchCreator;
 
 /**
- * Constructs the Apple Watch creator.
+ * Constructs the Apple® Watch™ app creator.
  * @class
  * @classdesc Creates a module project.
  * @constructor
@@ -40,20 +40,20 @@ module.exports = AppleWatchCreator;
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
  */
-function AppleWatchCreator(logger, config, cli) {
+function FruitWatchCreator(logger, config, cli) {
 	Creator.apply(this, arguments);
 
-	this.title = __('Apple Watch App');
+	this.title = __('Apple® Watch™ App');
 	this.titleOrder = 3;
-	this.type = 'applewatch';
+	this.type = 'fruitwatch';
 }
 
-util.inherits(AppleWatchCreator, Creator);
+util.inherits(FruitWatchCreator, Creator);
 
 /**
- * Initializes the Apple Watch app creator.
+ * Initializes the Apple® Watch™ app creator.
  */
-AppleWatchCreator.prototype.init = function init() {
+FruitWatchCreator.prototype.init = function init() {
 	if (process.platform !== 'darwin') {
 		throw new Error(__('Platform "%s" is not supported', process.platform));
 	}
@@ -62,7 +62,7 @@ AppleWatchCreator.prototype.init = function init() {
 		options: {
 			'name':        this.configOptionAppName(140),
 			'project-dir': this.configOptionProjectDir(150),
-			'template':    this.configOptionTemplate(160)
+			'template':    this.configOptionTemplate(160, 'watchos1')
 		}
 	};
 };
@@ -74,14 +74,14 @@ AppleWatchCreator.prototype.init = function init() {
  *
  * @returns {Object}
  */
-AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
+FruitWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
 	var cli = this.cli,
 		config = this.config,
 		logger = this.logger;
 
 	function validate(value, callback) {
 		if (!value) {
-			logger.error(__('Please specify a Apple Watch app name') + '\n');
+			logger.error(__('Please specify an app name') + '\n');
 			return callback(true);
 		}
 		callback(null, value);
@@ -89,11 +89,11 @@ AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(o
 
 	return {
 		abbr: 'n',
-		desc: __('the name of the Apple Watch app'),
+		desc: __('the name of the watch app'),
 		order: order,
 		prompt: function (callback) {
 			callback(fields.text({
-				promptLabel: __('Apple Watch app name'),
+				promptLabel: __('Watch app name'),
 				validate: validate
 			}));
 		},
@@ -109,7 +109,7 @@ AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(o
  *
  * @returns {Object}
  */
-AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjectDir(order) {
+FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjectDir(order) {
 	var cli = this.cli,
 		config = this.config,
 		logger = this.logger;
@@ -138,7 +138,7 @@ AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 
 		var dest = path.join(projectDir, 'extensions', cli.argv.name);
 		if (!cli.argv.force && fs.existsSync(dest)) {
-			logger.error(__('Apple Watch app already exists: %s', dest));
+			logger.error(__('Watch app already exists: %s', dest));
 			logger.error(__('Either change the Watch App\'s name or re-run this command with the --force flag.') + '\n');
 			process.exit(1);
 		}
@@ -196,7 +196,7 @@ AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
  *
  * @param {Function} callback - A function to call after the project has been created
  */
-AppleWatchCreator.prototype.run = function run(callback) {
+FruitWatchCreator.prototype.run = function run(callback) {
 	Creator.prototype.run.apply(this, arguments);
 
 	var projectDir = this.cli.argv['project-dir'],

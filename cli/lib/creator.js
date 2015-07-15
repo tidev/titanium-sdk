@@ -364,10 +364,10 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
  *
  * @returns {Object}
  */
-Creator.prototype.configOptionTemplate = function configOptionTemplate(order) {
+Creator.prototype.configOptionTemplate = function configOptionTemplate(order, defaultValue) {
 	return {
 		desc: __('the name of the project template, path to template dir, path to zip file, or url to zip file'),
-		default: 'default',
+		default: defaultValue || 'default',
 		order: order,
 		required: true
 	};
