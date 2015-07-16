@@ -58,47 +58,12 @@ FruitWatchCreator.prototype.init = function init() {
 		throw new Error(__('Platform "%s" is not supported', process.platform));
 	}
 
-	return {
+	return this.conf = {
 		options: {
+			'project-dir': this.configOptionProjectDir(130),
 			'name':        this.configOptionAppName(140),
-			'project-dir': this.configOptionProjectDir(150),
 			'template':    this.configOptionTemplate(160, 'watchos1')
 		}
-	};
-};
-
-/**
- * Defines the --name option.
- *
- * @param {Integer} order - The order to apply to this option.
- *
- * @returns {Object}
- */
-FruitWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
-	var cli = this.cli,
-		config = this.config,
-		logger = this.logger;
-
-	function validate(value, callback) {
-		if (!value) {
-			logger.error(__('Please specify an app name') + '\n');
-			return callback(true);
-		}
-		callback(null, value);
-	}
-
-	return {
-		abbr: 'n',
-		desc: __('the name of the watch app'),
-		order: order,
-		prompt: function (callback) {
-			callback(fields.text({
-				promptLabel: __('Watch app name'),
-				validate: validate
-			}));
-		},
-		required: true,
-		validate: validate
 	};
 };
 
@@ -136,13 +101,6 @@ FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 			file = path.join(dir, 'tiapp.xml');
 		}
 
-		var dest = path.join(projectDir, 'extensions', cli.argv.name);
-		if (!cli.argv.force && fs.existsSync(dest)) {
-			logger.error(__('Watch app already exists: %s', dest));
-			logger.error(__('Either change the Watch App\'s name or re-run this command with the --force flag.') + '\n');
-			process.exit(1);
-		}
-
 		callback(null, dir);
 	}
 
@@ -171,6 +129,9 @@ FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 			// make sure the tiapp.xml is sane
 			ti.validateTiappXml(this.logger, this.config, this.tiapp);
 
+			// set the --name default to the app's name
+			this.conf.options.name.default = appc.string.capitalize(this.tiapp.name);
+
 			return projectDir;
 		}.bind(this),
 		desc: __('the directory containing the project'),
@@ -192,6 +153,51 @@ FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 };
 
 /**
+ * Defines the --name option.
+ *
+ * @param {Integer} order - The order to apply to this option.
+ *
+ * @returns {Object}
+ */
+FruitWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
+	var cli = this.cli,
+		config = this.config,
+		logger = this.logger;
+
+	function validate(name, callback) {
+		if (!name) {
+			logger.error(__('Please specify an app name') + '\n');
+			return callback(true);
+		}
+
+		var dest = path.join(cli.argv['project-dir'], 'extensions', name);
+		if (!cli.argv.force && fs.existsSync(dest)) {
+			logger.error(__('Watch app already exists: %s', dest));
+			return callback(true);
+		}
+
+		callback(null, name);
+	}
+
+	var conf = {
+		abbr: 'n',
+		desc: __('the name of the watch app'),
+		order: order,
+		prompt: function (callback) {
+			callback(fields.text({
+				promptLabel: __('Watch app name'),
+				default: conf.default,
+				validate: validate
+			}));
+		},
+		required: true,
+		validate: validate
+	};
+
+	return conf;
+};
+
+/**
  * Creates the project directory and copies the project files.
  *
  * @param {Function} callback - A function to call after the project has been created
@@ -199,19 +205,19 @@ FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 FruitWatchCreator.prototype.run = function run(callback) {
 	Creator.prototype.run.apply(this, arguments);
 
-	var projectDir = this.cli.argv['project-dir'],
-		extName = this.cli.argv.name,
-		dest = path.join(projectDir, 'extensions', extName),
-		watchkitExtName = extName + ' WatchApp Extension',
-		watchkitExtId = this.tiapp.id + '.watchkitextension',
-		watchkitAppName = extName + ' WatchApp',
-		watchkitAppId = this.tiapp.id + '.watchkitapp';
-
 	// download/install the project template
 	this.processTemplate(function (err, templateDir) {
 		if (err) {
 			return callback(err);
 		}
+
+		var projectDir = this.cli.argv['project-dir'],
+			extName = this.cli.argv.name,
+			dest = path.join(projectDir, 'extensions', extName),
+			watchkitExtName = extName + (this.cli.argv.template === 'watchos1' ? ' WatchKit Extension' : ' WatchApp Extension'),
+			watchkitAppName = extName + (this.cli.argv.template === 'watchos1' ? ' WatchKit App' : ' WatchApp'),
+			watchkitExtId = this.tiapp.id + '.watchkitextension',
+			watchkitAppId = this.tiapp.id + '.watchkitapp';
 
 		this.cli.argv.force && fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);
 		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
@@ -272,9 +278,7 @@ FruitWatchCreator.prototype.run = function run(callback) {
 				if (extensionsNode.lastChild.nodeType === 3) {
 					extensionsNode.removeChild(extensionsNode.lastChild);
 				}
-				if (extensionsNode.childNodes.length) {
-					extensionsNode.appendChild(whitespace(3));
-				}
+				extensionsNode.appendChild(whitespace(3));
 			} else {
 				extensionsNode = dom.createElement('extensions');
 				extensionsNode.appendChild(whitespace(3));

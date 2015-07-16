@@ -2428,7 +2428,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 	});
 
-	var hasWatchApp = false,
+	var hasWatchAppV1 = false,
+		hasWatchAppV2orNewer = false,
 		projectUuid = xcodeProject.hash.project.rootObject,
 		pbxProject = xobjs.PBXProject[projectUuid],
 		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
@@ -2543,15 +2544,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	// add extensions and their targets to the project
 	if (this.extensions.length) {
 		this.logger.trace(__n('Adding %%d iOS extension', 'Adding %%d iOS extensions', this.extensions.length === 1 ? 1 : 2, this.extensions.length));
+
 		this.extensions.forEach(function (ext) {
 			var extProjectName = path.basename(ext.projectPath).replace(/\.xcodeproj$/, ''),
 				extBasePath = path.dirname(ext.projectPath),
 				extRelPath = 'extensions/' + path.basename(path.dirname(ext.projectPath)),
 				extProject = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync(),
-				extObjs = extProject.hash.project.objects;
-
-				var extPBXProject = extObjs.PBXProject[extProject.hash.project.rootObject];
-
+				extObjs = extProject.hash.project.objects,
+				extPBXProject = extObjs.PBXProject[extProject.hash.project.rootObject];
 
 			// create a group in the Extensions group for all the extension's groups
 			var groupUuid = generateUuid();
@@ -2592,6 +2592,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
 				xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
 
+				var productType = xobjs.PBXNativeTarget[targetUuid].productType;
 
 				// add the target product to the products group
 				productsGroup.children.push({
@@ -2623,7 +2624,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
 					});
 				});
-//xobjs.PBXNativeTarget[targetUuid].productType === 'com.apple.product-type.application.watchapp'
+
 				// add dependencies
 				xobjs.PBXNativeTarget[targetUuid].dependencies.forEach(function (dep) {
 					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
@@ -2670,9 +2671,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 										logger.error(__('Unable to find "%s" iOS extension\'s "%s" target\'s Info.plist: %s', extProjectName, target.name, infoPlistFile) + '\n');
 										process.exit(1);
 									}
-
-									var infoPlist = new appc.plist(infoPlistFile);
-									hasWatchApp = !!infoPlist.WKWatchKitApp;
 								}
 							}
 						});
@@ -2722,76 +2720,98 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + extRelPath + '/' + extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '') + '"';
 					}
 				}, this);
-/*
-				// add this target as a dependency of the titanium app's project
-				var proxyUuid = generateUuid();
-				xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
-				xobjs.PBXContainerItemProxy[proxyUuid] = {
-					isa: 'PBXContainerItemProxy',
-					containerPortal: projectUuid,
-					containerPortal_comment: 'Project object',
-					proxyType: 1,
-					remoteGlobalIDString: targetUuid,
-					remoteInfo: '"' + extTarget.comment + '"'
-				};
-				xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
 
-				var depUuid = generateUuid();
-				xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
-				xobjs.PBXTargetDependency[depUuid] = {
-					isa: 'PBXTargetDependency',
-					target: targetUuid,
-					target_comment: extTarget.comment,
-					targetProxy: proxyUuid,
-					targetProxy_comment: 'PBXContainerItemProxy'
-				};
-				xobjs.PBXTargetDependency[depUuid + '_comment'] = 'PBXTargetDependency';
+				// is this target an non-watch extension or a watchos v2 app?
+				var containsExtension = productType.indexOf('extension') !== -1,
+					containsWatchApp = productType.indexOf('watchapp') !== -1,
+					containsWatchKit = productType.indexOf('watchkit') !== -1,
 
-				xobjs.PBXNativeTarget[mainTargetUuid].dependencies.push({
-					value: depUuid,
-					comment: 'PBXTargetDependency'
-				});
+					isExtension = containsExtension && (!containsWatchKit || productType === 'com.apple.product-type.watchkit-extension'),
+					isWatchAppV1 = productType === 'com.apple.product-type.application.watchapp',
+					isWatchAppV2orNewer = containsWatchApp && !isWatchAppV1;
 
-				// add the embed extension phase
-				var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
-					embedUuid = embedExtPhase && embedExtPhase.value;
-				if (!embedUuid) {
-					embedUuid = generateUuid();
-					xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
-						value: embedUuid,
-						comment: 'Embed App Extensions'
-					});
-					xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
-						isa: 'PBXCopyFilesBuildPhase',
-						buildActionMask: 2147483647,
-						dstPath: '""',
-						dstSubfolderSpec: 13, // type "plugin"
-						files: [],
-						name: '"Embed App Extensions"',
-						runOnlyForDeploymentPostprocessing: 0
-					};
-					xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
+				if (isWatchAppV1) {
+					hasWatchAppV1 = true;
+				}
+				if (isWatchAppV2orNewer) {
+					hasWatchAppV2orNewer = true;
 				}
 
-				var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
+				if (isExtension || isWatchAppV2orNewer) {
+					// add this target as a dependency of the titanium app's project
+					var proxyUuid = generateUuid();
+					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
+					xobjs.PBXContainerItemProxy[proxyUuid] = {
+						isa: 'PBXContainerItemProxy',
+						containerPortal: projectUuid,
+						containerPortal_comment: 'Project object',
+						proxyType: 1,
+						remoteGlobalIDString: targetUuid,
+						remoteInfo: '"' + extTarget.comment + '"'
+					};
+					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
 
-				// add the copy files build phase
-				var copyFilesUuid = generateUuid();
+					var depUuid = generateUuid();
+					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
+					xobjs.PBXTargetDependency[depUuid] = {
+						isa: 'PBXTargetDependency',
+						target: targetUuid,
+						target_comment: extTarget.comment,
+						targetProxy: proxyUuid,
+						targetProxy_comment: 'PBXContainerItemProxy'
+					};
+					xobjs.PBXTargetDependency[depUuid + '_comment'] = 'PBXTargetDependency';
 
-				xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
-					value: copyFilesUuid,
-					comment: productName + ' in Embed App Extensions'
-				});
+					xobjs.PBXNativeTarget[mainTargetUuid].dependencies.push({
+						value: depUuid,
+						comment: 'PBXTargetDependency'
+					});
 
-				xobjs.PBXBuildFile[copyFilesUuid] = {
-					isa: 'PBXBuildFile',
-					fileRef: productUuid,
-					fileRef_comment: productName,
-					settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
-				};
-				xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
-*/
-				return true;
+					if (productType === 'com.apple.product-type.watchkit-extension') {
+						// add the embed extension phase
+						var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
+							embedUuid = embedExtPhase && embedExtPhase.value;
+						if (!embedUuid) {
+							embedUuid = generateUuid();
+							xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+								value: embedUuid,
+								comment: 'Embed App Extensions'
+							});
+							xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
+								isa: 'PBXCopyFilesBuildPhase',
+								buildActionMask: 2147483647,
+								dstPath: '""',
+								dstSubfolderSpec: 13, // type "plugin"
+								files: [],
+								name: '"Embed App Extensions"',
+								runOnlyForDeploymentPostprocessing: 0
+							};
+							xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
+						}
+
+						var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
+
+						// add the copy files build phase
+						var copyFilesUuid = generateUuid();
+
+						xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
+							value: copyFilesUuid,
+							comment: productName + ' in Embed App Extensions'
+						});
+
+						xobjs.PBXBuildFile[copyFilesUuid] = {
+							isa: 'PBXBuildFile',
+							fileRef: productUuid,
+							fileRef_comment: productName,
+							settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
+						};
+						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
+					}
+
+					if (hasWatchAppV2orNewer) {
+						// TODO: wire up the phase for watchkit 2 apps
+					}
+				}
 			}, this);
 		}, this);
 	} else {
@@ -2799,7 +2819,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
-	if (hasWatchApp) {
+	if (hasWatchAppV1 || hasWatchAppV2orNewer) {
 		var once = 0;
 
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
