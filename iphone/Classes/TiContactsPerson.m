@@ -49,7 +49,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return self;
 }
-#if IS_IOS_9
+#if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
@@ -71,7 +71,7 @@ static NSDictionary* iOS9propertyKeys;
     return @"Ti.Contacts.Person";
 }
 
-#if IS_IOS_9
+#if IS_XCODE_7
 -(NSDictionary*)getiOS9ContactProperties: (CNMutableContact*) contact
 {
 	if (contact == nil) {
@@ -133,7 +133,7 @@ static NSDictionary* iOS9propertyKeys;
 	return contactProperties;
 }
 
-#if IS_IOS_9
+#if IS_XCODE_7
 +(NSDictionary*)iOS9propertyKeys
 {
 	if (iOS9propertyKeys == nil) {
@@ -249,7 +249,7 @@ static NSDictionary* iOS9propertyKeys;
 	return multiValueLabels;
 }
 
-#if IS_IOS_9
+#if IS_XCODE_7
 +(NSDictionary*)iOS9multiValueLabels
 {
 	if (iOS9multiValueLabels == nil) {
@@ -351,7 +351,7 @@ static NSDictionary* iOS9propertyKeys;
 	
 	return dict;
 }
-#if IS_IOS_9
+#if IS_XCODE_7
 -(NSDictionary*)dictionaryFromiOS9MultiValueArray:(NSArray *)property
 {
 	NSMutableDictionary *multiValueDict = [[NSMutableDictionary alloc] initWithCapacity:[property count]];
@@ -444,7 +444,7 @@ static NSDictionary* iOS9propertyKeys;
     }
 	return NUMINT(recordId);
 }
-#if IS_IOS_9
+#if IS_XCODE_7
 //only for iOS9
 -(NSString*)identifier
 {
@@ -463,7 +463,7 @@ static NSDictionary* iOS9propertyKeys;
 		return [result autorelease];
 	}
 	
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		//composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
 		NSMutableString* compositeName = [[NSMutableString alloc] init];
@@ -547,7 +547,7 @@ static NSDictionary* iOS9propertyKeys;
 		TiThreadPerformOnMainThread(^{result = [[self image] retain];}, YES);
 		return [result autorelease];
 	}
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		if (person.imageDataAvailable == YES) {
 			TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
@@ -573,7 +573,7 @@ static NSDictionary* iOS9propertyKeys;
 -(void)setBirthday:(NSString*)date
 {
 	ENSURE_UI_THREAD(setBirthday, date)
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		NSDate *saveDate = [TiUtils dateForUTCDate:date];
 		unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
@@ -593,7 +593,7 @@ static NSDictionary* iOS9propertyKeys;
 		return [result autorelease];
 	}
 	id property = nil;
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		//birthday property managed seperately
 		if ([key isEqualToString:@"birthday"]) {
@@ -680,7 +680,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 
 	id property = nil;
-#if IS_IOS_9
+#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		NSArray *allKeys = [[TiContactsPerson iOS9propertyKeys] allKeysForObject:key];
 		//key is undefined
@@ -904,7 +904,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 }
 
-#if IS_IOS_9
+#if IS_XCODE_7
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {

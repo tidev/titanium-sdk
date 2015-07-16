@@ -1149,6 +1149,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
+
+		if (this.targetSDK < this.minTargetApiLevel) {
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 	}
 
 	// check that we have this target sdk installed
@@ -2040,6 +2045,13 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: tiapp.xml fullscreen changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.fullscreen));
 		this.logger.info('  ' + __('Now: %s', this.tiapp.fullscreen));
+		return true;
+	}
+
+	if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
 		return true;
 	}
 
@@ -4188,6 +4200,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
+		navbarHidden: this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,
