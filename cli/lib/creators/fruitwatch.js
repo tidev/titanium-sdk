@@ -214,9 +214,10 @@ FruitWatchCreator.prototype.run = function run(callback) {
 		var projectDir = this.cli.argv['project-dir'],
 			extName = this.cli.argv.name,
 			dest = path.join(projectDir, 'extensions', extName),
-			watchkitExtName = extName + (this.cli.argv.template === 'watchos1' ? ' WatchKit Extension' : ' WatchApp Extension'),
-			watchkitAppName = extName + (this.cli.argv.template === 'watchos1' ? ' WatchKit App' : ' WatchApp'),
-			watchkitExtId = this.tiapp.id + '.watchkitextension',
+			isWatchOSv1 = this.cli.argv.template === 'watchos1',
+			watchkitExtName = extName + (isWatchOSv1 ? ' WatchKit Extension' : ' WatchApp Extension'),
+			watchkitAppName = extName + (isWatchOSv1 ? ' WatchKit App' : ' WatchApp'),
+			watchkitExtId = this.tiapp.id + (isWatchOSv1 ? '' : '.watchkitapp') + '.watchkitextension',
 			watchkitAppId = this.tiapp.id + '.watchkitapp';
 
 		this.cli.argv.force && fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);

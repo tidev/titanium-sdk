@@ -18,6 +18,7 @@ var appc = require('node-appc'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
+	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -91,7 +92,7 @@ ModuleCreator.prototype.run = function run(callback) {
 
 	var platforms = ti.scrubPlatforms(this.cli.argv.platforms),
 		projectName = this.cli.argv.name,
-		projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], this.projectName),
+		projectDir = this.projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], projectName),
 		id = this.cli.argv.id;
 
 	fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
@@ -167,7 +168,7 @@ ModuleCreator.prototype.run = function run(callback) {
 					}
 
 					// only copy platform specific files if we're copying from a built-in template
-					if (isBuiltinTemplate) {
+					if (usingBuiltinTemplate) {
 						this.cli.createHook('create.copyFiles.platform.' + platform, this, function (vars, done) {
 							this.logger.info(__('Copying %s platform resources', platform.cyan));
 							this.copyDir(path.join(platformTemplateDir, 'template'), projectDir, function () {

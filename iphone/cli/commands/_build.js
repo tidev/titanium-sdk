@@ -1634,6 +1634,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 			ext.targets.forEach(function (target) { missingTargets[target.name] = 1; }),
 
+			// find our targets
 			Object.keys(project).some(function (id) {
 				if (!project[id] || typeof project[id] !== 'object') {
 					return false;
@@ -1666,6 +1667,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				});
 			});
 
+			// check if we're missing any targets
 			missingTargets = Object.keys(missingTargets);
 			if (missingTargets.length) {
 				logger.error(__n('iOS extension "%%s" does not contain a target named "%%s".', 'iOS extension "%%s" does not contain the following targets: "%%s".', missingTargets.length, projectName, missingTargets.join(', ')) + '\n');
@@ -2443,7 +2445,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
-			DEAD_CODE_STRIPPING: 'YES'
+			DEAD_CODE_STRIPPING: 'YES',
+			SDKROOT: this.xcodeTargetOS
 		};
 
 	if (this.target === 'simulator') {
@@ -2610,6 +2613,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						type = 'PBXFrameworksBuildPhase';
 					} else if (extObjs.PBXResourcesBuildPhase[phase.value]) {
 						type = 'PBXResourcesBuildPhase';
+					} else if (extObjs.PBXCopyFilesBuildPhase[phase.value]) {
+						type = 'PBXCopyFilesBuildPhase';
 					} else {
 						return;
 					}
@@ -2726,7 +2731,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					containsWatchApp = productType.indexOf('watchapp') !== -1,
 					containsWatchKit = productType.indexOf('watchkit') !== -1,
 
-					isExtension = containsExtension && (!containsWatchKit || productType === 'com.apple.product-type.watchkit-extension'),
+					isWatchAppV1Extension = productType === 'com.apple.product-type.watchkit-extension',
+					isExtension = containsExtension && (!containsWatchKit || isWatchAppV1Extension),
 					isWatchAppV1 = productType === 'com.apple.product-type.application.watchapp',
 					isWatchAppV2orNewer = containsWatchApp && !isWatchAppV1;
 
@@ -2767,26 +2773,27 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						comment: 'PBXTargetDependency'
 					});
 
-					if (productType === 'com.apple.product-type.watchkit-extension') {
-						// add the embed extension phase
-						var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === 'Embed App Extensions'; }).shift(),
-							embedUuid = embedExtPhase && embedExtPhase.value;
+					function addEmbedBuildPhase(name, dstPath) {
+						embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === name; }).shift();
+						embedUuid = embedExtPhase && embedExtPhase.value;
+
 						if (!embedUuid) {
 							embedUuid = generateUuid();
 							xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
 								value: embedUuid,
-								comment: 'Embed App Extensions'
+								comment: name
 							});
+							xobjs.PBXCopyFilesBuildPhase || (xobjs.PBXCopyFilesBuildPhase = {});
 							xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
 								isa: 'PBXCopyFilesBuildPhase',
 								buildActionMask: 2147483647,
-								dstPath: '""',
+								dstPath: '"' + (dstPath || '') + '"',
 								dstSubfolderSpec: 13, // type "plugin"
 								files: [],
-								name: '"Embed App Extensions"',
+								name: '"' + name + '"',
 								runOnlyForDeploymentPostprocessing: 0
 							};
-							xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = 'Embed App Extensions';
+							xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = name;
 						}
 
 						var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
@@ -2796,7 +2803,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 						xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
 							value: copyFilesUuid,
-							comment: productName + ' in Embed App Extensions'
+							comment: productName + ' in ' + name
 						});
 
 						xobjs.PBXBuildFile[copyFilesUuid] = {
@@ -2805,11 +2812,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							fileRef_comment: productName,
 							settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy' ] }
 						};
-						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in Embed App Extensions';
+						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (hasWatchAppV2orNewer) {
-						// TODO: wire up the phase for watchkit 2 apps
+					if (isWatchAppV1Extension) {
+						addEmbedBuildPhase('Embed App Extensions');
+					} else if (isWatchAppV2orNewer) {
+						addEmbedBuildPhase('Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch');
 					}
 				}
 			}, this);
@@ -2820,13 +2829,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 	if (hasWatchAppV1 || hasWatchAppV2orNewer) {
-		var once = 0;
+		var once = 0,
+			iosDeploymentTarget = hasWatchAppV1 ? '8.2' : '9.0';
 
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, '8.2.0')) {
-				once++ === 0 && this.logger.warn(__('WatchKit App detected, changing minimum iOS deployment target from %s to %s', buildSettings.IPHONEOS_DEPLOYMENT_TARGET, '8.2'));
-				buildSettings.IPHONEOS_DEPLOYMENT_TARGET = '8.2';
+			if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, iosDeploymentTarget)) {
+				once++ === 0 && this.logger.warn(__('WatchKit App detected, changing minimum iOS deployment target from %s to %s', buildSettings.IPHONEOS_DEPLOYMENT_TARGET, iosDeploymentTarget));
+				buildSettings.IPHONEOS_DEPLOYMENT_TARGET = iosDeploymentTarget;
 			}
 		}, this);
 
@@ -4411,8 +4421,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		[
 			'build',
 			'-target', this.tiapp.name,
-			'-configuration', this.xcodeTarget,
-			'-sdk', this.xcodeTargetOS
+			'-configuration', this.xcodeTarget
 		],
 		{
 			cwd: this.buildDir,
