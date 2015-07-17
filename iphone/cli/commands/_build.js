@@ -4446,8 +4446,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 
 	this.logger.info(__('Optimizing .plist and .png files'));
 
-	var pngcrush = path.join(this.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'pngcrush'),
-		plistRegExp = /\.plist$/,
+	var plistRegExp = /\.plist$/,
 		pngRegExp = /\.png$/,
 		plists = [],
 		pngs = [],
@@ -4501,7 +4500,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 			async.each(pngs, function (file, cb) {
 				var output = file + '.tmp';
 				this.logger.debug(__('Optimizing %s', file.cyan));
-				appc.subprocess.run(pngcrush, ['-q', '-iphone', '-f', 0, file, output], function (code, out, err) {
+				appc.subprocess.run(this.xcodeEnv.executables.pngcrush, ['-q', '-iphone', '-f', 0, file, output], function (code, out, err) {
 					if (code) {
 						this.logger.error(__('Failed to optimize %s (code %s)', file, code));
 					} else {

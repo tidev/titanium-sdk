@@ -34,6 +34,7 @@ exports.detect = function (types, config, next) {
 		// xcode
 		searchPath: config.get('paths.xcode'),
 		minIosVersion: iosPackageJson.minIosVersion,
+		minWatchosVersion: iosPackageJson.minWatchosVersion,
 		supportedVersions: iosPackageJson.vendorDependencies.xcode
 	}, function (err, results) {
 		results.devices.unshift({
@@ -109,13 +110,20 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	if (Object.keys(data.xcode).length) {
 		Object.keys(data.xcode).sort().reverse().forEach(function (ver) {
 			var x = data.xcode[ver];
-			logger.log(
-				'  ' + (x.version + ' (build ' + x.build + ')' + (x.selected ? ' - Xcode default' : '')).cyan + '\n' +
-				'  ' + rpad('  ' + __('Install Location'))                  + ' = ' + styleValue(x.path) + '\n' +
-				'  ' + rpad('  ' + __('iOS SDKs'))                          + ' = ' + styleValue(x.sdks.length ? x.sdks.join(', ') : 'none') + '\n' +
-				'  ' + rpad('  ' + __('iOS Simulators'))                    + ' = ' + styleValue(x.sims.length ? x.sims.join(', ') : 'none') + '\n' +
-				'  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no')
-			);
+			logger.log('  ' + (x.version + ' (build ' + x.build + ')' + (x.selected ? ' - Xcode default' : '')).cyan);
+			logger.log('  ' + rpad('  ' + __('Install Location'))                  + ' = ' + styleValue(x.path));
+			logger.log('  ' + rpad('  ' + __('iOS SDKs'))                          + ' = ' + styleValue(x.sdks.length ? x.sdks.join(', ') : 'none'));
+			logger.log('  ' + rpad('  ' + __('iOS Simulators'))                    + ' = ' + styleValue(x.sims.length ? x.sims.join(', ') : 'none'));
+
+			if (x.watchos) {
+				logger.log('  ' + rpad('  ' + __('Watch SDKs'))                    + ' = ' + styleValue(x.watchos.sdks.length ? x.watchos.sdks.join(', ') : 'none'));
+				logger.log('  ' + rpad('  ' + __('Watch Simulators'))              + ' = ' + styleValue(x.watchos.sims.length ? x.watchos.sims.join(', ') : 'none'));
+			} else {
+				logger.log('  ' + rpad('  ' + __('Watch SDKs'))                    + ' = ' + styleValue(__('not supported')));
+				logger.log('  ' + rpad('  ' + __('Watch Simulators'))              + ' = ' + styleValue(__('not supported')));
+			}
+
+			logger.log('  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no'));
 		});
 		logger.log();
 	} else {
