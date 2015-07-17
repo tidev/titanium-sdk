@@ -40,7 +40,6 @@ exports.init = function (logger, config, cli) {
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.deviceId, {
-				appName: builder.tiapp.name,
 				appPath: builder.xcodeAppDir,
 				externalDisplayType: cli.argv['external-display-type'],
 				focus: cli.argv['sim-focus'],
@@ -50,7 +49,6 @@ exports.init = function (logger, config, cli) {
 				logFilename: builder.tiapp.guid + '.log',
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion,
-				timeout: config.get('ios.simTimeout'),
 				watchLaunchMode: cli.argv['watch-launch-mode'],
 				watchNotificationPayload: cli.argv['watch-notification-payload']
 			}).on('log-file', function (line) {
