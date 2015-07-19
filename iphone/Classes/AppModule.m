@@ -128,10 +128,6 @@ extern NSString * const TI_APPLICATION_GUID;
 		id type = [args objectAtIndex:0];
 		id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
 		
-#ifdef DEBUG
-		NSLog(@"[DEBUG] fire app event: %@",type);
-#endif
-		
 		NSArray *array = [appListeners objectForKey:type];
 		
 		if (array!=nil && [array count] > 0)
