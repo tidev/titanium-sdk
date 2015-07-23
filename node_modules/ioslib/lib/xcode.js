@@ -18,12 +18,15 @@ const
 	appc = require('node-appc'),
 	async = require('async'),
 	env = require('./env'),
+	hash = require('./utilities').hash,
 	magik = require('./utilities').magik,
 	fs = require('fs'),
 	path = require('path'),
 	__ = appc.i18n(__dirname).__;
 
-var cache;
+var cache,
+	detecting = {},
+	waiting = [];
 
 /**
  * Detects Xcode installations.
@@ -32,6 +35,7 @@ var cache;
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects all Xcode installations.
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
+ * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
  * @param {String} [options.supportedVersions] - A string with a version number or range to check if an Xcode install is supported.
  * @param {Function} [callback(err, results)] - A function to call with the Xcode information.
  *
@@ -41,10 +45,26 @@ var cache;
  * @returns {EventEmitter}
  */
 exports.detect = function detect(options, callback) {
-	return magik(options, callback, function (emitter, options, callback) {
+	var hopt = hash(JSON.stringify(options));
+	if (detecting[hopt]) {
+		waiting.push(callback);
+		return detecting[hopt];
+	}
+
+	return detecting[hopt] = magik(options, callback, function (emitter, options, callback) {
+		waiting.push(callback);
+
+		function fireCallbacks(err, result) {
+			delete detecting[hopt];
+			var w;
+			while (w = waiting.shift()) {
+				w(err, result);
+			}
+		}
+
 		if (cache && !options.bypassCache) {
 			emitter.emit('detected', cache);
-			return callback(null, cache);
+			return fireCallbacks(null, cache);
 		}
 
 		var searchPaths = {
@@ -89,8 +109,7 @@ exports.detect = function detect(options, callback) {
 			}
 		], function () {
 			// scan all searchPaths for Xcode installs
-			var xcodes = [],
-				sdkRegExp = /^iPhone(OS|Simulator)(.+)\.sdk$/;
+			var xcodes = [];
 
 			// scan search paths for Xcodes
 			Object.keys(searchPaths).forEach(function (p) {
@@ -116,14 +135,14 @@ exports.detect = function detect(options, callback) {
 				}
 			});
 
-			function findIosSdks(dir) {
+			function findSDKs(dir, nameRegExp, minVersion) {
 				var vers = [];
 				fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 					var file = path.join(dir, name);
 					if (!fs.existsSync(file) || !fs.statSync(file).isDirectory()) return;
-					var m = name.match(sdkRegExp);
-					if (m && (!options.minIosVersion || appc.version.gte(m[2], options.minIosVersion))) {
-						var ver = m[2];
+					var m = name.match(nameRegExp);
+					if (m && (!minVersion || appc.version.gte(m[1], minVersion))) {
+						var ver = m[1];
 						file = path.join(file, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
 						if (fs.existsSync(file)) {
 							var p = new appc.plist(file);
@@ -137,10 +156,11 @@ exports.detect = function detect(options, callback) {
 				return vers.sort().reverse();
 			}
 
-			function findIosSimSdks(dir, xcodeVer) {
-				var vers = findIosSdks(dir),
+			function findIosSims(dir, xcodeVer) {
+				var vers = findSDKs(dir, /^iPhoneSimulator(.+)\.sdk$/),
 					simRuntimesDir = '/Library/Developer/CoreSimulator/Profiles/Runtimes';
 
+				// starting in Xcode 6.2, the simulators
 				if (fs.existsSync(simRuntimesDir) && appc.version.gte(xcodeVer, '6.2')) {
 					fs.readdirSync(simRuntimesDir).forEach(function (name) {
 						var file = path.join(simRuntimesDir, name);
@@ -172,6 +192,19 @@ exports.detect = function detect(options, callback) {
 					f;
 
 				if (!results.xcode[ver] || selected || dir <= results.xcode[ver].path) {
+					var watchos = null;
+					if (appc.version.gte(p.CFBundleShortVersionString, '7.0')) {
+						watchos = {
+							sdks: findSDKs(path.join(dir, 'Platforms', 'WatchOS.platform', 'Developer', 'SDKs'), /^WatchOS(.+)\.sdk$/, options.minWatchosVersion),
+							sims: findSDKs(path.join(dir, 'Platforms', 'WatchSimulator.platform', 'Developer', 'SDKs'), /^WatchSimulator(.+)\.sdk$/, options.minWatchosVersion)
+						};
+					} else if (appc.version.gte(p.CFBundleShortVersionString, '6.2')) {
+						watchos = {
+							sdks: ['1.0'],
+							sims: ['1.0']
+						};
+					}
+
 					results.xcode[ver] = {
 						xcodeapp: dir.replace(/\/Contents\/Developer\/?$/, ''),
 						path: dir,
@@ -179,17 +212,35 @@ exports.detect = function detect(options, callback) {
 						version: p.CFBundleShortVersionString,
 						build: p.ProductBuildVersion,
 						supported: supported,
-						sdks: findIosSdks(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs')),
-						sims: findIosSimSdks(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs')),
+						sdks: findSDKs(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs'), /^iPhoneOS(.+)\.sdk$/, options.minIosVersion),
+						sims: findIosSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), p.CFBundleShortVersionString),
+						watchos: watchos,
 						executables: {
-							xcodebuild: fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,
-							clang:      fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang')) ? f : null,
-							clang_xx:   fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang++')) ? f : null,
-							libtool:    fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'libtool')) ? f : null,
-							lipo:       fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'lipo')) ? f : null,
-							otool:      fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'otool')) ? f : null
+							xcodebuild:     fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,
+							clang:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang')) ? f : null,
+							clang_xx:       fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang++')) ? f : null,
+							libtool:        fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'libtool')) ? f : null,
+							lipo:           fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'lipo')) ? f : null,
+							otool:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'otool')) ? f : null,
+							pngcrush:       fs.existsSync(f = path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'pngcrush')) ? f : null,
+							simulator:      null,
+							watchsimulator: null,
+							simctl:         fs.existsSync(f = path.join(dir, 'usr', 'bin', 'simctl')) ? f : null
 						}
 					};
+
+					['Simulator', 'iOS Simulator'].some(function (name) {
+						var p = path.join(dir, 'Applications', name + '.app', 'Contents', 'MacOS', name);
+						if (fs.existsSync(p)) {
+							results.xcode[ver].executables.simulator = p;
+							return true;
+						}
+					});
+
+					var watchsim = path.join(dir, 'Applications', 'Simulator (Watch).app', 'Contents', 'MacOS', 'Simulator (Watch)');
+					if (fs.existsSync(watchsim)) {
+						results.xcode[ver].executables.watchsimulator = watchsim;
+					}
 
 					selected && (results.selectedXcode = results.xcode[ver]);
 
@@ -269,7 +320,7 @@ exports.detect = function detect(options, callback) {
 
 			cache = results;
 			emitter.emit('detected', results);
-			return callback(null, results);
+			return fireCallbacks(null, results);
 		});
 	});
 };

@@ -84,12 +84,13 @@ function iOSBuilder() {
 
 	this.blacklistDirectories = [
 		'contents',
-		'resources'
+		'resources',
+		'plugins',
+		'watch'
 	];
 
 	this.graylistDirectories = [
-		'frameworks',
-		'plugins'
+		'frameworks'
 	];
 
 	this.ipadLaunchImages = [
@@ -203,68 +204,24 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
 
-		// check if they specified the legacy settings: --sim-version, --sim-type, --retina, --tall, --sim-64bit
-		if (this.config.get('ios.autoSelectDevice', true) && (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit'])) {
-			// try to find the closest matching simulator
-			var version = argv['sim-version'] || argv['ios-version'] || this.defaultIosVersion,
-				sims = this.iosInfo.simulators,
-				candidates = {};
-
-			// find all candidate simulators
-			Object.keys(sims).forEach(function (ver) {
-				if (!argv['sim-version'] || ver === argv['sim-version']) {
-					sims[ver].forEach(function (sim) {
-						if ((!argv['sim-type'] || sim.type === argv['sim-type']) && (!argv.retina || sim.retina) && (!argv.tall || sim.tall) && (!argv['sim-64bit'] || sim['64bit'])) {
-							candidates[ver] || (candidates[ver] = []);
-							candidates[ver].push(sim);
-						}
-					});
-				}
-			});
-
-			// sort the candidates by iOS version, but put the preferred iOS version first
-			// then find the preferred simulator, if any
-			var simVers = Object.keys(candidates).sort(function (a, b) { return a === version ? -1 : 1; }),
-				first, firstRetina;
-
-			for (var i = 0, l = simVers.length; i < l; i++) {
-				var simVer = simVers[i];
-				for (var j = 0, k = candidates[simVer].length; j < k; j++) {
-					if (!first) {
-						first = candidates[simVer][j];
-					}
-					if (!firstRetina && candidates[simVer][j].retina) {
-						firstRetina = candidates[simVer][j];
-					}
-					if (candidates[simVer][j].tall) {
-						deviceInfo.preferred = candidates[simVer][j];
-						i = l;
-						break;
-					}
-				}
-			}
-
-			if (!deviceInfo.preferred) {
-				deviceInfo.preferred = firstRetina || first;
-			}
-		}
-
 		// build the list of simulators
-		Object.keys(this.iosInfo.simulators).sort().reverse().forEach(function (ver) {
+		Object.keys(this.iosInfo.ios).sort().reverse().forEach(function (ver) {
 			deviceInfo.devices[ver] || (deviceInfo.devices[ver] = []);
-			this.iosInfo.simulators[ver].forEach(function (sim) {
+			this.iosInfo.ios[ver].forEach(function (sim) {
 				sim.name.length > deviceInfo.maxName && (deviceInfo.maxName = sim.name.length);
 				deviceInfo.devices[ver].push({
 					udid: sim.udid,
 					name: sim.name,
 					deviceClass: sim.type,
-					productVersion: ver,
-					retina: sim.retina,
-					tall: sim.tall,
-					'64bit': sim['64bit']
+					productVersion: ver
 				});
 				deviceInfo.udids[sim.udid] = sim;
-			});
+
+				// see if we should prefer this simulator
+				if (this.config.get('ios.autoSelectDevice', true) && argv['ios-version'] && !argv['device-id']) {
+					deviceInfo.preferred = deviceInfo.devices[argv['ios-version']] && deviceInfo.devices[argv['ios-version']][0];
+				}
+			}, this);
 		}, this);
 	}
 
@@ -278,11 +235,6 @@ iOSBuilder.prototype.getDeviceFamily = function getDeviceFamily() {
 
 	var deviceFamily = this.cli.argv['device-family'],
 		deploymentTargets = this.cli.tiapp && this.cli.tiapp['deployment-targets'];
-
-	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
-		// device family was not specified at the command line, but we did get it via an environment variable!
-		deviceFamily = process.env.TARGETED_DEVICE_FAMILY === '1' ? 'iphone' : process.env.TARGETED_DEVICE_FAMILY === '2' ? 'ipad' : 'universal';
-	}
 
 	if (!deviceFamily && deploymentTargets) {
 		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
@@ -386,28 +338,14 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			if (!defaultIosVersion) {
 				Object.keys(iosInfo.xcode).filter(function (ver) {
 					return iosInfo.xcode[ver].supported;
-				}).sort().reverse().forEach(function (ver) {
-					if (!defaultIosVersion && iosInfo.xcode[ver].sdks.length) {
+				}).sort().reverse().some(function (ver) {
+					if (iosInfo.xcode[ver].sdks.length) {
 						defaultIosVersion = iosInfo.xcode[ver].sdks[0];
+						return true;
 					}
 				});
 			}
 			this.defaultIosVersion = defaultIosVersion;
-
-			var sdkRoot = process.env.SDKROOT || process.env.SDK_DIR;
-			if (sdkRoot) {
-				var m = sdkRoot.match(/\/iphone(?:os|simulator)(\d.\d).sdk/i);
-				if (m) {
-					defaultIosVersion = m[1];
-					var file = path.join(sdkRoot, 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
-					if (fs.existsSync(file)) {
-						var p = new appc.plist(file);
-						if (p.ProductVersion) {
-							defaultIosVersion = this.defaultIosVersion = p.ProductVersion;
-						}
-					}
-				}
-			}
 
 			cli.createHook('build.ios.config', function (callback) {
 				callback(null, {
@@ -425,18 +363,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'launch-watch-app-only': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app instead of the main app', 'simulator'.cyan)
 						},
-						'retina': {
-							desc: __('use the retina version of the iOS Simulator')
-						},
-						'sim-64bit': {
-							desc: __('use the 64-bit version of the iOS Simulator')
-						},
 						'sim-focus': {
 							default: true,
 							desc: __('focus the iOS Simulator')
-						},
-						'tall': {
-							desc: __('in combination with %s flag, start the tall version of the retina device', '--retina'.cyan)
 						},
 						'xcode': {
 							// DEPRECATED
@@ -464,7 +393,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120),
-						'external-display-type':      this.configOptionExternalDisplayType(),
 						'ios-version':                this.configOptioniOSVersion(130),
 						'keychain':                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -477,11 +405,11 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'profiler-host': {
 							hidden: true
 						},
-						'sim-type':                   this.configOptionSimType(150),
-						'sim-version':                this.configOptionSimVersion(160),
-						'target':                     this.configOptionTarget(110),
-						'watch-launch-mode':          this.configOptionWatchLaunchMode(),
-						'watch-notification-payload': this.configOptionWatchNotificationPayload()
+						'target':                     this.configOptionTarget(110)
+/*
+						'watch-app-name':             this.configOptionWatchApp(212),
+						'watch-device-id':            this.configOptionDeviceID(215)
+*/
 					}
 				});
 			}.bind(this))(function (err, result) {
@@ -573,17 +501,13 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 				});
 			} else {
 				Object.keys(info.devices).forEach(function (sdk) {
-					if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
-						info.devices[sdk].forEach(function (sim) {
-							if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
-								options[sdk] || (options[sdk] = []);
-								options[sdk].push(sim);
-								if (sim.name.length > maxName) {
-									maxName = sim.name.length;
-								}
-							}
-						});
-					}
+					info.devices[sdk].forEach(function (sim) {
+						options[sdk] || (options[sdk] = []);
+						options[sdk].push(sim);
+						if (sim.name.length > maxName) {
+							maxName = sim.name.length;
+						}
+					});
 				});
 			}
 
@@ -648,7 +572,9 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 			if (cli.argv['build-only']) {
 				// not required if we're build only
 				return callback();
-			} else if (cli.argv['device-id'] === undefined && _t.config.get('ios.autoSelectDevice', true)) {
+			}
+
+			if (cli.argv['device-id'] === undefined && _t.config.get('ios.autoSelectDevice', true)) {
 				// --device-id not specified and we're not prompting, so pick a device
 
 				if (cli.argv.target === 'device') {
@@ -662,18 +588,11 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 
 				var info = _t.getDeviceInfo();
 
-				if (info.preferred) {
-					// we have a preferred sim based on the legacy cli args and environment
-					cli.argv['device-id'] = info.preferred.udid;
-					return callback();
-				}
-
-				var simVer = cli.argv['sim-version'] || cli.argv['ios-version'],
+				var simVer = cli.argv['ios-version'],
 					simVers = Object.keys(info.devices).filter(function (ver) {
 						return !simVer || ver === simVer;
 					}),
-					deviceFamily = _t.getDeviceFamily(),
-					first, firstRetina;
+					deviceFamily = _t.getDeviceFamily();
 
 				// try to find us a tall simulator like an iPhone 4 inch
 				for (var i = 0, l = simVers.length; i < l; i++) {
@@ -683,23 +602,11 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 						if (deviceFamily === 'ipad' && sim.deviceClass !== deviceFamily) {
 							continue;
 						}
-						if (!first) {
-							// just in case we don't find a tall or retina sim, then we'll just use this sim
-							first = sim.udid;
-						}
-						if (!firstRetina && sim.retina) {
-							// just in case we don't find a tall sim, then we'll just use this retina sim
-							firstRetina = sim.udid;
-						}
-						if (sim.type === 'iphone' && sim.tall) {
-							// this is the one we really are hoping to find
-							cli.argv['device-id'] = sim.udid;
-							return callback();
-						}
+						cli.argv['device-id'] = sim.udid;
+						break;
 					}
 				}
 
-				cli.argv['device-id'] = firstRetina || first;
 				return callback();
 			}
 
@@ -731,7 +638,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 
 	return {
 		abbr: 'V',
-		default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer(?:\: )?/, '') || this.config.get('ios.developerName'),
+		default: this.config.get('ios.developerName'),
 		desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 		hint: 'name',
 		order: order,
@@ -821,7 +728,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 
 	return {
 		abbr: 'R',
-		default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution(?:\: )?/, '') || this.config.get('ios.distributionName'),
+		default: this.config.get('ios.distributionName'),
 		desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 		hint: 'name',
 		order: order,
@@ -902,19 +809,6 @@ iOSBuilder.prototype.configOptionDeviceFamily = function configOptionDeviceFamil
 		desc: __('the device family to build for'),
 		order: order,
 		values: Object.keys(this.deviceFamilies)
-	};
-};
-
-/**
- * Defines the --external-display-type option.
- *
- * @returns {Object}
- */
-iOSBuilder.prototype.configOptionExternalDisplayType = function configOptionExternalDisplayType() {
-	return {
-		desc: __('shows the simulator external display; only used when target is %s', 'simulator'.cyan),
-		hint: __('type'),
-		values: ['watch-regular', 'watch-compact']
 	};
 };
 
@@ -1048,7 +942,6 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 	return {
 		abbr: 'P',
-		default: process.env.PROVISIONING_PROFILE,
 		desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 		hint: 'uuid',
 		order: order,
@@ -1165,40 +1058,6 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 };
 
 /**
- * Defines the --sim-type option.
- *
- * @param {Integer} order - The order to apply to this option.
- *
- * @returns {Object}
- */
-iOSBuilder.prototype.configOptionSimType = function configOptionSimType(order) {
-	return {
-		abbr: 'Y',
-		desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
-		hint: 'type',
-		order: order,
-		values: Object.keys(this.simTypes)
-	};
-};
-
-/**
- * Defines the --sim-version option.
- *
- * @param {Integer} order - The order to apply to this option.
- *
- * @returns {Object}
- */
-iOSBuilder.prototype.configOptionSimVersion = function configOptionSimVersion(order) {
-	return {
-		abbr: 'S',
-		desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
-		hint: 'version',
-		order: order,
-		values: this.iosSimVersions
-	};
-};
-
-/**
  * Defines the --target option.
  *
  * @param {Integer} order - The order to apply to this option.
@@ -1255,42 +1114,11 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					});
 			}
 		},
-		default: process.env.CURRENT_ARCH && process.env.CURRENT_ARCH !== 'i386' ? 'device' : 'simulator',
+		default: 'simulator',
 		desc: __('the target to build for'),
 		order: 110,
 		required: true,
 		values: this.targets
-	};
-};
-
-/**
- * Defines the --watch-launch-mode option.
- *
- * @returns {Object}
- */
-iOSBuilder.prototype.configOptionWatchLaunchMode = function configOptionWatchLaunchMode() {
-	return {
-		desc: __('iOS Simulator type; only used when target is %s', 'simulator'.cyan),
-		hint: 'mode',
-		values: ['default', 'glance', 'notification']
-	};
-};
-
-/**
- * Defines the --watch-notification-payload option.
- *
- * @returns {Object}
- */
-iOSBuilder.prototype.configOptionWatchNotificationPayload = function configOptionWatchNotificationPayload() {
-	return {
-		desc: __('iOS Simulator version; only used when target is %s', 'simulator'.cyan),
-		hint: 'file',
-		validate: function (value, callback) {
-			if (value && !fs.existsSync(value)) {
-				return callback(new Error(__('Watch notification payload file "%s" does not exist', value)));
-			}
-			callback(value);
-		}
 	};
 };
 
@@ -1499,56 +1327,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 	// device family may have been modified, so set it back in the args
 	cli.argv['device-family'] = deviceFamily;
-
-	// check that the sim version exists
-	if (cli.argv.target === 'simulator' && this.xcodeEnv.sims.indexOf(cli.argv['sim-version']) === -1) {
-		// the preferred Xcode install we selected doesn't have this simulator, search the all again
-		this.xcodeEnv = null;
-		var selectedSim = this.getDeviceInfo().udids[cli.argv['device-id']];
-
-		// check if we have a selected simulator; we won't if running with --build-only
-		if (selectedSim) {
-			// check the device family
-			if (deviceFamily === 'ipad' && deviceFamily !== selectedSim.type) {
-				logger.error(__('Unable to build an %s app for an %s simulator', this.simTypes[deviceFamily] || deviceFamily, this.simTypes[selectedSim.type]) + '\n');
-				logger.log(__('Please specify "%s" to launch a compatible iOS Simulator.', ('--sim-type ' + deviceFamily).cyan));
-				logger.log();
-				process.exit(1);
-			}
-		}
-
-		Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-			if (this.iosInfo.xcode[ver].supported
-				&& !this.xcodeEnv
-				&& this.iosInfo.xcode[ver].sdks.some(function (sdk) { return version.eq(sdk, cli.argv['ios-version']); })
-				&& (!selectedSim || this.iosInfo.xcode[ver].sims.some(function (sim) { return version.eq(sim, selectedSim.ios); }))
-			) {
-				this.xcodeEnv = this.iosInfo.xcode[ver];
-			}
-		}, this);
-
-		if (!this.xcodeEnv) {
-			// this should never happen
-			if (selectedSim) {
-				logger.error(__('Unable to find any Xcode installs that have iOS SDK %s and iOS Simulator %s', cli.argv['ios-version'], selectedSim.ios) + '\n');
-			} else {
-				logger.error(__('Unable to find any Xcode installs that have iOS SDK %s', cli.argv['ios-version']) + '\n');
-			}
-			logger.log(__('Available iOS SDKs and iOS Simulators:'));
-			Object.keys(this.iosInfo.xcode).forEach(function (ver) {
-				if (this.iosInfo.xcode[ver].supported) {
-					this.iosInfo.xcode[ver].sdks.forEach(function (sdk) {
-						logger.log('\n  ' + __('iOS %s:', sdk));
-						this.iosInfo.xcode[ver].sims.forEach(function (sim) {
-							logger.log('    ' + ('--ios-version ' + sdk + ' --sim-version ' + sim).cyan);
-						});
-					}, this);
-				}
-			}, this);
-			logger.log();
-			process.exit(1);
-		}
-	}
 
 	if (cli.argv.target !== 'dist-appstore') {
 		var tool = [];
@@ -1949,7 +1727,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.keychain      = argv['keychain'];
 	this.deviceId      = argv['device-id'];
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
-	this.xcodeTarget   = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
+	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
 	this.xcodeTargetOS = (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
@@ -1983,8 +1761,8 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 		if (this.target === 'simulator') {
 			this.logger.info(__('Building for iOS Simulator: %s', cyan(this.deviceInfo.name)));
 			this.logger.debug(__('UDID: %s', cyan(this.deviceId)));
-			this.logger.debug(__('Simulator type: %s', cyan(this.deviceInfo.type)));
-			this.logger.debug(__('Simulator version: %s', cyan(this.deviceInfo.ios)));
+			this.logger.debug(__('Simulator type: %s', cyan(this.deviceInfo.family)));
+			this.logger.debug(__('Simulator version: %s', cyan(this.deviceInfo.version)));
 		} else if (this.target === 'device') {
 			this.logger.info(__('Building for iOS device: %s', cyan(this.deviceId)));
 		}

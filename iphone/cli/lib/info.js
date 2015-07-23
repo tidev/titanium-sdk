@@ -215,13 +215,27 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	printProfiles(data.provisioning.adhoc);
 
 	logger.log(styleHeading(__('iOS Simulators')));
-	if (data.simulators && Object.keys(data.simulators).length) {
-		Object.keys(data.simulators).sort().reverse().forEach(function (iosVer) {
-			logger.log(String(iosVer).grey);
-			logger.log(data.simulators[iosVer].map(function (sim) {
-				return '  ' + sim.name.cyan + (' (' + sim.type + ')').grey + '\n' + [
+	if (data.ios && Object.keys(data.ios).length) {
+		Object.keys(data.ios).sort().forEach(function (ver) {
+			logger.log(String(ver).grey);
+			logger.log(data.ios[ver].map(function (sim) {
+				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
 					'  ' + rpad('  ' + __('UDID'))                + ' = ' + styleValue(sim.udid),
-					'  ' + rpad('  ' + __('Supports Watch Apps')) + ' = ' + styleValue(sim.supportsWatch ? __('yes') : __('no'))
+					'  ' + rpad('  ' + __('Supports Watch Apps')) + ' = ' + styleValue(Object.keys(sim.supportsWatch).filter(function (x) { return sim.supportsWatch[x]; }).length ? __('yes') : __('no'))
+				].join('\n');
+			}).join('\n') + '\n');
+		});
+	} else {
+		logger.log('  ' + __('None').grey + '\n');
+	}
+
+	logger.log(styleHeading(__('WatchOS Simulators')));
+	if (data.watchos && Object.keys(data.watchos).length) {
+		Object.keys(data.watchos).sort().forEach(function (ver) {
+			logger.log(String(ver).grey);
+			logger.log(data.watchos[ver].map(function (sim) {
+				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
+					'  ' + rpad('  ' + __('UDID')) + ' = ' + styleValue(sim.udid)
 				].join('\n');
 			}).join('\n') + '\n');
 		});

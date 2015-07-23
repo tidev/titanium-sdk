@@ -41,16 +41,14 @@ exports.init = function (logger, config, cli) {
 
 			ioslib.simulator.launch(builder.deviceId, {
 				appPath: builder.xcodeAppDir,
-				externalDisplayType: cli.argv['external-display-type'],
 				focus: cli.argv['sim-focus'],
+				killIfRunning: false,
 				launchBundleId: cli.argv['launch-bundle-id'],
-				launchWatchApp: builder.hasWatchApp && builder.deviceInfo.supportsWatch && cli.argv['launch-watch-app'],
-				launchWatchAppOnly: builder.hasWatchApp && builder.deviceInfo.supportsWatch && cli.argv['launch-watch-app-only'],
+				launchWatchApp: builder.hasWatchApp && cli.argv['launch-watch-app'],
+				launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
 				logFilename: builder.tiapp.guid + '.log',
-				simType: builder.iosSimType,
-				simVersion: builder.iosSimVersion,
-				watchLaunchMode: cli.argv['watch-launch-mode'],
-				watchNotificationPayload: cli.argv['watch-notification-payload']
+				watchUDID: cli.argv['watch-device-id'],
+				watchAppName: cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				if (!simStarted) {
 					finished && finished();

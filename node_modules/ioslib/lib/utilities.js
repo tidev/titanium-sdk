@@ -13,11 +13,12 @@
 
 const
     appc = require('node-appc'),
+    crypto = require('crypto'),
     EventEmitter = require('events').EventEmitter,
     __ = appc.i18n(__dirname).__;
 
 /**
- * Creates an event emitter, validates that the platform is Windows,
+ * Creates an event emitter, validates that the platform is OS X,
  * normalizes the 'options' and 'callback' arguments, and passes all
  * these goodies to the 'body' function. It's magik!
  *
@@ -49,4 +50,15 @@ exports.magik = function magik(options, callback, body) {
     });
 
     return emitter;
+};
+
+/**
+ * MD5 hashes the specified string.
+ *
+ * @param {String|Buffer} str - The string to hash.
+ *
+ * @returns {String} The MD5 hash.
+ */
+exports.hash = function hash(str) {
+	return crypto.createHash('md5').update(str || '').digest('hex');
 };

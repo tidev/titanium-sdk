@@ -28,7 +28,8 @@ describe('ioslib', function () {
 			}
 
 			should(results).be.an.Object;
-			should(results).have.keys('detectVersion', 'issues', 'devices', 'provisioning', 'executables', 'selectedXcode', 'xcode', 'certs', 'simulators', 'crashDir');
+			should(results).have.keys('detectVersion', 'issues', 'devices', 'provisioning', 'executables', 'selectedXcode',
+				'xcode', 'certs', 'deviceTypes', 'runtimes', 'ios', 'watchos', 'devicePairs', 'crashDir');
 
 			should(results.detectVersion).be.a.String;
 
@@ -151,7 +152,7 @@ describe('ioslib', function () {
 			checkProfiles(results.provisioning.adhoc);
 
 			should(results.executables).be.an.Object;
-			should(results.executables).have.keys('xcodeSelect', 'security', 'ios-sim');
+			should(results.executables).have.keys('xcodeSelect', 'security');
 
 			should(results.executables.xcodeSelect).be.a.String;
 			should(results.executables.xcodeSelect).not.equal('');
@@ -159,12 +160,9 @@ describe('ioslib', function () {
 			should(results.executables.security).be.a.String;
 			should(results.executables.security).not.equal('');
 
-			should(results.executables['ios-sim']).be.a.String;
-			should(results.executables['ios-sim']).not.equal('');
-
 			function checkXcode(xcode) {
 				should(xcode).be.an.Object;
-				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'executables');
+				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'watchos', 'executables');
 
 				should(xcode.xcodeapp).be.a.String;
 				should(xcode.xcodeapp).not.equal('');
@@ -198,38 +196,17 @@ describe('ioslib', function () {
 					should(s).not.equal('');
 				});
 
+				var keys = ['xcodebuild', 'clang', 'clang_xx', 'libtool', 'lipo', 'otool', 'pngcrush', 'simulator', 'watchsimulator', 'simctl'];
 				should(xcode.executables).be.an.Object;
-				should(xcode.executables).have.keys('xcodebuild', 'clang', 'clang_xx', 'libtool', 'lipo', 'otool');
-
-				should(xcode.executables.xcodebuild).be.a.String;
-				should(xcode.executables.xcodebuild).not.equal('');
-				should(fs.existsSync(xcode.executables.xcodebuild)).be.true;
-				should(fs.statSync(xcode.executables.xcodebuild).isDirectory()).be.false;
-
-				should(xcode.executables.clang).be.a.String;
-				should(xcode.executables.clang).not.equal('');
-				should(fs.existsSync(xcode.executables.clang)).be.true;
-				should(fs.statSync(xcode.executables.clang).isDirectory()).be.false;
-
-				should(xcode.executables.clang_xx).be.a.String;
-				should(xcode.executables.clang_xx).not.equal('');
-				should(fs.existsSync(xcode.executables.clang_xx)).be.true;
-				should(fs.statSync(xcode.executables.clang_xx).isDirectory()).be.false;
-
-				should(xcode.executables.libtool).be.a.String;
-				should(xcode.executables.libtool).not.equal('');
-				should(fs.existsSync(xcode.executables.libtool)).be.true;
-				should(fs.statSync(xcode.executables.libtool).isDirectory()).be.false;
-
-				should(xcode.executables.lipo).be.a.String;
-				should(xcode.executables.lipo).not.equal('');
-				should(fs.existsSync(xcode.executables.lipo)).be.true;
-				should(fs.statSync(xcode.executables.lipo).isDirectory()).be.false;
-
-				should(xcode.executables.otool).be.a.String;
-				should(xcode.executables.otool).not.equal('');
-				should(fs.existsSync(xcode.executables.otool)).be.true;
-				should(fs.statSync(xcode.executables.otool).isDirectory()).be.false;
+				keys.forEach(function (key) {
+					should(xcode.executables).have.property(key);
+					if (xcode.executables[key] !== null) {
+						should(xcode.executables[key]).be.a.String;
+						should(xcode.executables[key]).not.equal('');
+						should(fs.existsSync(xcode.executables[key])).be.true;
+						should(fs.statSync(xcode.executables[key]).isDirectory()).be.false;
+					}
+				});
 			}
 
 			should(results.selectedXcode).be.an.Object;
@@ -277,7 +254,7 @@ describe('ioslib', function () {
 
 	(process.env.TRAVIS ? it.skip : it)('should find a device/cert/profile combination', function (done) {
 		this.timeout(10000);
-		this.slow(5000);
+		this.slow(10000);
 
 		ioslib.findValidDeviceCertProfileCombos({
 			appId: 'com.appcelerator.TestApp'
