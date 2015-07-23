@@ -4270,7 +4270,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 		},
 
 		function (next) {
-			if (!fs.existsSync(pngcrush)) {
+			if (!fs.existsSync(this.xcodeEnv.executables.pngcrush)) {
 				this.logger.warn(__('Unable to find pngcrush in Xcode directory, skipping image optimization'));
 				return next();
 			}
