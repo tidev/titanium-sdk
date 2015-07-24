@@ -587,7 +587,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 {
 	pthread_rwlock_rdlock(&dynpropsLock);
 	// Make sure the keys are in the same order as they were added in the JS
-	id<NSFastEnumeration> keys = dynpropnames;
+	id<NSFastEnumeration> keys = [[dynpropnames copy] autorelease];
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	return keys;
