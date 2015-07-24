@@ -1602,7 +1602,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'cleanXcodeDerivedData',
 
 		// titanium related tasks
-		'compileJSSFiles',
 		'copyAppIcons',
 		'copyItunesArtwork',
 		'copyTitaniumFiles',
@@ -3358,40 +3357,6 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}.bind(this));
 };
 
-iOSBuilder.prototype.compileJSSFiles = function compileJSSFiles(next) {
-	this.logger.info(__('Compiling JSS files'));
-
-	ti.jss.load(path.join(this.projectDir, 'Resources'), this.deviceFamilyNames[this.deviceFamily], this.logger, function (results) {
-		var dest = path.join(this.xcodeAppDir, 'stylesheet.plist'),
-			plist = new appc.plist(),
-			contents;
-
-		appc.util.mix(plist, results);
-		contents = plist.toString('xml');
-
-		this.currentBuildManifest.files['stylesheet.plist'] = {
-			hash: this.hash(contents),
-			mtime: 0,
-			size: contents.length
-		};
-
-		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
-			if (!this.forceRebuild &&  /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-				this.logger.info(__('Forcing rebuild: %s has changed since last build', 'stylesheet.plist'));
-				this.forceRebuild = true;
-			}
-			this.logger.debug(__('Writing %s', dest.cyan));
-			fs.writeFileSync(dest, contents);
-		} else {
-			this.logger.trace(__('No change, skipping %s', dest.cyan));
-		}
-
-		delete this.buildDirFiles[dest];
-
-		next();
-	}.bind(this));
-};
-
 iOSBuilder.prototype.copyAppIcons = function copyAppIcons() {
 	this.logger.info(__('Copying app icons'));
 
@@ -3502,10 +3467,6 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 				switch (ext && ext[1]) {
 					case 'js':
 						jsFiles[relPath] = info;
-						break;
-
-					case 'jss':
-						// ignore, these are taken care of by compileJSSFiles()
 						break;
 
 					case 'css':

@@ -1634,7 +1634,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
-		'compileJSS',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -1848,9 +1847,6 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 		});
 		return hashes;
 	}
-
-	// jss files
-	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
 
 	next();
 };
@@ -2087,13 +2083,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: Android services in tiapp.xml SDK changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.servicesHash));
 		this.logger.info('  ' + __('Now: %s', this.servicesHash));
-		return true;
-	}
-
-	if (this.jssFilesHash != manifest.jssFilesHash) {
-		this.logger.info(__('Forcing rebuild: One or more JSS files changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.jssFilesHash));
-		this.logger.info('  ' + __('Now: %s', this.jssFilesHash));
 		return true;
 	}
 
@@ -2391,11 +2380,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							jsFiles[id] = from;
 						}
 
-						next();
-						break;
-
-					case 'jss':
-						// ignore, these will be compiled later by compileJSS()
 						next();
 						break;
 
@@ -3066,22 +3050,6 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	}, this);
 
 	next();
-};
-
-AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
-	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
-		fs.writeFile(
-			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
-			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
-				appid: this.appid,
-				classes: appc.util.mix({}, results.classes, results.tags),
-				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
-				ids: results.ids,
-				idsDensity: results.ids_density
-			}),
-			callback
-		);
-	}.bind(this));
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
@@ -4209,7 +4177,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		propertiesHash: this.propertiesHash,
 		activitiesHash: this.activitiesHash,
 		servicesHash: this.servicesHash,
-		jssFilesHash: this.jssFilesHash,
 		jarLibHash: this.jarLibHash
 	}, callback);
 };
