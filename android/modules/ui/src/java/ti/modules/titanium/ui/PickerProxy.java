@@ -46,7 +46,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	"locale", "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT
+	"locale", TiC.PROPERTY_SELECTION_OPENS, "visibleItems", "value", TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
@@ -461,7 +461,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			return;
 		}
 		((TiUIPicker)peekView()).selectRow(column, row, animated);
-		((TiUIPicker)peekView()).openPicker();
+		if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), true)) {
+			((TiUIPicker)peekView()).openPicker();
+		}
 	}
 
 	public int getColumnCount()

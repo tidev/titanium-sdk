@@ -2181,6 +2181,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SELECTION_OPENS = "selectionOpens";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 
 	/**
