@@ -43,7 +43,7 @@ public class NotificationProxy extends KrollProxy
 	public NotificationProxy() 
 	{
 		super();
-		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppCurrentActivity())
+		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getInstance().getApplicationContext())
         .setSmallIcon(android.R.drawable.stat_sys_warning)
         .setWhen(System.currentTimeMillis());
 		
