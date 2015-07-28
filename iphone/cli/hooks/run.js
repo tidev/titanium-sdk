@@ -42,7 +42,7 @@ exports.init = function (logger, config, cli) {
 			ioslib.simulator.launch(builder.deviceId, {
 				appPath: builder.xcodeAppDir,
 				focus: cli.argv['sim-focus'],
-				killIfRunning: false,
+				killIfRunning: false, // it will only kill the simulator if the device udid is different
 				launchBundleId: cli.argv['launch-bundle-id'],
 				launchWatchApp: builder.hasWatchApp && cli.argv['launch-watch-app'],
 				launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
