@@ -14,7 +14,7 @@
 const
 	appc = require('node-appc'),
 	async = require('async'),
-	EventEmitter = require('events').EventEmitter,
+	magik = require('./utilities').magik,
 	__ = appc.i18n(__dirname).__;
 
 var cache = null;
@@ -46,78 +46,56 @@ var cache = null;
  * @returns {EventEmitter}
  */
 exports.detect = function detect(options, callback) {
-	if (typeof options === 'function') {
-		callback = options;
-		options = {};
-	} else if (!options) {
-		options = {};
-	}
-	typeof callback === 'function' || (callback = function () {});
-
-	var emitter = new EventEmitter;
-
-	if (process.platform !== 'darwin') {
-		process.nextTick(function () {
-			var err = new Error(__('Unsupported platform "%s"', process.platform));
-			emitter.emit('error', err);
-			callback(err);
-		});
-		return emitter;
-	}
-
-	if (cache && !options.bypassCache) {
-		process.nextTick(function () {
-			callback(null, cache);
-		});
-		return emitter;
-	}
-
-	var results = {
-		executables: {
-			xcodeSelect: null,
-			security: null
-		},
-		issues: []
-	};
-
-	async.parallel({
-		security: function (next) {
-			appc.subprocess.findExecutable([options.security, '/usr/bin/security', 'security'], function (err, result) {
-				if (err) {
-					results.issues.push({
-						id: 'IOS_SECURITY_EXECUTABLE_NOT_FOUND',
-						type: 'error',
-						message: __("Unable to find the 'security' executable") + '\n'
-							+ __('Please verify your system path.') + '\n'
-							+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
-					});
-				} else {
-					results.executables.security = result;
-				}
-				next();
-			});
-		},
-
-		xcodeSelect: function (next) {
-			appc.subprocess.findExecutable([options.xcodeSelect, '/usr/bin/xcode-select', 'xcode-select'], function (err, result) {
-				if (err) {
-					results.issues.push({
-						id: 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND',
-						type: 'error',
-						message: __("Unable to find the 'xcode-select' executable") + '\n'
-							+ __('Perhaps Xcode is not installed, your Xcode installation is corrupt, or your system path is incomplete.')
-					});
-				} else {
-					results.executables.xcodeSelect = result;
-				}
-				next();
-			});
+	return magik(options, callback, function (emitter, options, callback) {
+		if (cache && !options.bypassCache) {
+			return callback(null, cache);
 		}
-	}, function () {
-		cache = results;
-		emitter.emit('detected', results);
-		callback(null, results);
-	});
 
-	return emitter;
+		var results = {
+			executables: {
+				xcodeSelect: null,
+				security: null
+			},
+			issues: []
+		};
+
+		async.parallel({
+			security: function (next) {
+				appc.subprocess.findExecutable([options.security, '/usr/bin/security', 'security'], function (err, result) {
+					if (err) {
+						results.issues.push({
+							id: 'IOS_SECURITY_EXECUTABLE_NOT_FOUND',
+							type: 'error',
+							message: __("Unable to find the 'security' executable") + '\n'
+								+ __('Please verify your system path.') + '\n'
+								+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
+						});
+					} else {
+						results.executables.security = result;
+					}
+					next();
+				});
+			},
+
+			xcodeSelect: function (next) {
+				appc.subprocess.findExecutable([options.xcodeSelect, '/usr/bin/xcode-select', 'xcode-select'], function (err, result) {
+					if (err) {
+						results.issues.push({
+							id: 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND',
+							type: 'error',
+							message: __("Unable to find the 'xcode-select' executable") + '\n'
+								+ __('Perhaps Xcode is not installed, your Xcode installation is corrupt, or your system path is incomplete.')
+						});
+					} else {
+						results.executables.xcodeSelect = result;
+					}
+					next();
+				});
+			}
+		}, function () {
+			cache = results;
+			emitter.emit('detected', results);
+			callback(null, results);
+		});
+	});
 };

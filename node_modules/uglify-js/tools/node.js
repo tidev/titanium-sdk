@@ -1,11 +1,11 @@
 var path = require("path");
 var fs = require("fs");
 var vm = require("vm");
-var sys = require("util");
 
 var UglifyJS = vm.createContext({
-    sys           : sys,
     console       : console,
+    process       : process,
+    Buffer        : Buffer,
     MOZ_SourceMap : require("source-map")
 });
 
@@ -17,7 +17,7 @@ function load_global(file) {
     } catch(ex) {
         // XXX: in case of a syntax error, the message is kinda
         // useless. (no location information).
-        sys.debug("ERROR in file: " + file + " / " + ex);
+        console.log("ERROR in file: " + file + " / " + ex);
         process.exit(1);
     }
 };
@@ -31,15 +31,16 @@ var FILES = exports.FILES = [
     "../lib/output.js",
     "../lib/compress.js",
     "../lib/sourcemap.js",
-    "../lib/mozilla-ast.js"
+    "../lib/mozilla-ast.js",
+    "../lib/propmangle.js"
 ].map(function(file){
-    return path.join(path.dirname(fs.realpathSync(__filename)), file);
+    return fs.realpathSync(path.join(path.dirname(__filename), file));
 });
 
 FILES.forEach(load_global);
 
 UglifyJS.AST_Node.warn_function = function(txt) {
-    sys.error("WARN: " + txt);
+    console.error("WARN: %s", txt);
 };
 
 // XXX: perhaps we shouldn't export everything but heck, I'm lazy.
@@ -95,8 +96,8 @@ exports.minify = function(files, options) {
 
     // 3. mangle
     if (options.mangle) {
-        toplevel.figure_out_scope();
-        toplevel.compute_char_frequency();
+        toplevel.figure_out_scope(options.mangle);
+        toplevel.compute_char_frequency(options.mangle);
         toplevel.mangle_names(options.mangle);
     }
 
@@ -131,9 +132,14 @@ exports.minify = function(files, options) {
         stream += "\n//# sourceMappingURL=" + options.outSourceMap;
     }
 
+    var source_map = output.source_map;
+    if (source_map) {
+        source_map = source_map + "";
+    }
+
     return {
         code : stream + "",
-        map  : output.source_map + ""
+        map  : source_map
     };
 };
 
@@ -184,4 +190,64 @@ exports.describe_ast = function() {
     };
     doitem(UglifyJS.AST_Node);
     return out + "";
+};
+
+function readReservedFile(filename, reserved) {
+    if (!reserved) {
+        reserved = { vars: [], props: [] };
+    }
+    var data = fs.readFileSync(filename, "utf8");
+    data = JSON.parse(data);
+    if (data.vars) {
+        data.vars.forEach(function(name){
+            UglifyJS.push_uniq(reserved.vars, name);
+        });
+    }
+    if (data.props) {
+        data.props.forEach(function(name){
+            UglifyJS.push_uniq(reserved.props, name);
+        });
+    }
+    return reserved;
+}
+
+exports.readReservedFile = readReservedFile;
+
+exports.readDefaultReservedFile = function(reserved) {
+    return readReservedFile(path.join(__dirname, "domprops.json"), reserved);
+};
+
+exports.readNameCache = function(filename, key) {
+    var cache = null;
+    if (filename) {
+        try {
+            var cache = fs.readFileSync(filename, "utf8");
+            cache = JSON.parse(cache)[key];
+            if (!cache) throw "init";
+            cache.props = UglifyJS.Dictionary.fromObject(cache.props);
+        } catch(ex) {
+            cache = {
+                cname: -1,
+                props: new UglifyJS.Dictionary()
+            };
+        }
+    }
+    return cache;
+};
+
+exports.writeNameCache = function(filename, key, cache) {
+    if (filename) {
+        var data;
+        try {
+            data = fs.readFileSync(filename, "utf8");
+            data = JSON.parse(data);
+        } catch(ex) {
+            data = {};
+        }
+        data[key] = {
+            cname: cache.cname,
+            props: cache.props.toObject()
+        };
+        fs.writeFileSync(filename, JSON.stringify(data, null, 2), "utf8");
+    }
 };

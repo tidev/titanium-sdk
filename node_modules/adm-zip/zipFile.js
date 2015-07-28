@@ -53,7 +53,7 @@ module.exports = function(/*String|Buffer*/input, /*Number*/inputType) {
     function readMainHeader() {
         var i = inBuffer.length - Utils.Constants.ENDHDR, // END header size
             n = Math.max(0, i - 0xFFFF), // 0xFFFF is the max zip file comment length
-            endOffset = 0; // Start offset of the END header
+            endOffset = -1; // Start offset of the END header
 
         for (i; i >= n; i--) {
             if (inBuffer[i] != 0x50) continue; // quick check that the byte is 'P'
@@ -62,7 +62,7 @@ module.exports = function(/*String|Buffer*/input, /*Number*/inputType) {
                 break;
             }
         }
-        if (!endOffset)
+        if (!~endOffset)
             throw Utils.Errors.INVALID_FORMAT;
 
         mainHeader.loadFromBinary(inBuffer.slice(endOffset, endOffset + Utils.Constants.ENDHDR));
