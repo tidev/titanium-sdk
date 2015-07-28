@@ -21,7 +21,7 @@ function checkSims(sims) {
 	should(sims).be.an.Array;
 	sims.forEach(function (sim) {
 		should(sim).be.an.Object;
-		should(sim).have.keys('udid', 'name', 'version', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsWatch', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'dataDir');
+		should(sim).have.keys('udid', 'name', 'version', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsXcode', 'supportsWatch', 'runtime', 'runtimeName', 'systemLog', 'dataDir');
 
 		['udid', 'name', 'version', 'state', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'dataDir'].forEach(function (key) {
 			if (sim[key] !== null) {
@@ -156,62 +156,35 @@ describe('simulator', function () {
 			}
 
 			should(results).be.an.Object;
-			should(results).have.keys('deviceTypes', 'runtimes', 'ios', 'watchos', 'devicePairs', 'crashDir', 'issues');
+			should(results).have.keys('simulators', 'issues');
 
-			should(results.deviceTypes).be.an.Object;
-			Object.keys(results.deviceTypes).forEach(function (name) {
-				should(results.deviceTypes[name]).be.an.Object;
-				should(results.deviceTypes[name]).have.keys('name', 'model', 'supportsWatch', 'xcode');
-				should(results.deviceTypes[name].name).be.a.String;
-				should(results.deviceTypes[name].name).not.equal('');
-				should(results.deviceTypes[name].model).be.a.String;
-				should(results.deviceTypes[name].model).not.equal('');
-				should(results.deviceTypes[name].supportsWatch).be.a.Object;
-				Object.keys(results.deviceTypes[name].supportsWatch).forEach(function (ver) {
-					should(results.deviceTypes[name].supportsWatch[ver]).be.a.Boolean;
-				});
-				should(results.deviceTypes[name].xcode).be.a.String;
-				should(results.deviceTypes[name].xcode).not.equal('');
+			should(results.simulators).be.an.Object;
+			should(results.simulators).have.keys('ios', 'watchos', 'devicePairs', 'crashDir');
+
+			should(results.simulators.ios).be.an.Object;
+			Object.keys(results.simulators.ios).forEach(function (ver) {
+				checkSims(results.simulators.ios[ver]);
 			});
 
-			should(results.runtimes).be.an.Object;
-			Object.keys(results.runtimes).forEach(function (name) {
-				should(results.runtimes[name]).be.an.Object;
-				should(results.runtimes[name]).have.keys('name', 'version', 'xcode');
-				should(results.runtimes[name].name).be.a.String;
-				should(results.runtimes[name].name).not.equal('');
-				should(results.runtimes[name].version).be.a.String;
-				should(results.runtimes[name].version).not.equal('');
-				if (results.runtimes[name].xcode !== null) {
-					should(results.runtimes[name].xcode).be.a.String;
-					should(results.runtimes[name].xcode).not.equal('');
-				}
+			should(results.simulators.watchos).be.an.Object;
+			Object.keys(results.simulators.watchos).forEach(function (ver) {
+				checkSims(results.simulators.watchos[ver]);
 			});
 
-			should(results.ios).be.an.Object;
-			Object.keys(results.ios).forEach(function (ver) {
-				checkSims(results.ios[ver]);
+			should(results.simulators.devicePairs).be.an.Object;
+			Object.keys(results.simulators.devicePairs).forEach(function (udid) {
+				should(results.simulators.devicePairs[udid]).be.an.Object;
+				should(results.simulators.devicePairs[udid]).have.keys('phone', 'watch');
+				should(results.simulators.devicePairs[udid].phone).be.a.String;
+				should(results.simulators.devicePairs[udid].phone).not.equal('');
+				should(results.simulators.devicePairs[udid].watch).be.a.String;
+				should(results.simulators.devicePairs[udid].watch).not.equal('');
 			});
 
-			should(results.watchos).be.an.Object;
-			Object.keys(results.watchos).forEach(function (ver) {
-				checkSims(results.watchos[ver]);
-			});
-
-			should(results.devicePairs).be.an.Object;
-			Object.keys(results.devicePairs).forEach(function (udid) {
-				should(results.devicePairs[udid]).be.an.Object;
-				should(results.devicePairs[udid]).have.keys('phone', 'watch');
-				should(results.devicePairs[udid].phone).be.a.String;
-				should(results.devicePairs[udid].phone).not.equal('');
-				should(results.devicePairs[udid].watch).be.a.String;
-				should(results.devicePairs[udid].watch).not.equal('');
-			});
-
-			should(results.crashDir).be.a.String;
-			should(results.crashDir).not.equal('');
-			if (fs.existsSync(results.crashDir)) {
-				should(fs.statSync(results.crashDir).isDirectory()).be.true;
+			should(results.simulators.crashDir).be.a.String;
+			should(results.simulators.crashDir).not.equal('');
+			if (fs.existsSync(results.simulators.crashDir)) {
+				should(fs.statSync(results.simulators.crashDir).isDirectory()).be.true;
 			}
 
 			should(results.issues).be.an.Array;
@@ -232,7 +205,7 @@ describe('simulator', function () {
 		this.timeout(60000);
 		this.slow(60000);
 
-		ioslib.simulator.launch(null, null, function (err, simHandle, watchSimHandle) {
+		ioslib.simulator.launch('79D1EC85-352F-4D63-B92F-C397345934A6', null, function (err, simHandle, watchSimHandle) {
 			simHandlesToWipe.push(simHandle, watchSimHandle);
 
 			if (err) {
@@ -250,6 +223,8 @@ describe('simulator', function () {
 					done();
 				});
 			});
+		//}).on('log-debug', function (line, simHandle) {
+		//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
 		});
 	});
 

@@ -15,7 +15,7 @@ const
 
 function checkXcode(xcode) {
 	should(xcode).be.an.Object;
-	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'watchos', 'executables');
+	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'executables');
 
 	should(xcode.xcodeapp).be.a.String;
 	should(xcode.xcodeapp).not.equal('');
@@ -47,6 +47,27 @@ function checkXcode(xcode) {
 	xcode.sims.forEach(function (s) {
 		should(s).be.a.String;
 		should(s).not.equal('');
+	});
+
+	should(xcode.simDeviceTypes).be.an.Object;
+	Object.keys(xcode.simDeviceTypes).forEach(function (name) {
+		should(xcode.simDeviceTypes[name]).be.an.Object;
+		should(xcode.simDeviceTypes[name]).have.keys('name', 'model', 'supportsWatch');
+		should(xcode.simDeviceTypes[name].name).be.a.String;
+		should(xcode.simDeviceTypes[name].name).not.equal('');
+		should(xcode.simDeviceTypes[name].model).be.a.String;
+		should(xcode.simDeviceTypes[name].model).not.equal('');
+		should(xcode.simDeviceTypes[name].supportsWatch).be.a.Boolean;
+	});
+
+	should(xcode.simRuntimes).be.an.Object;
+	Object.keys(xcode.simRuntimes).forEach(function (name) {
+		should(xcode.simRuntimes[name]).be.an.Object;
+		should(xcode.simRuntimes[name]).have.keys('name', 'version');
+		should(xcode.simRuntimes[name].name).be.a.String;
+		should(xcode.simRuntimes[name].name).not.equal('');
+		should(xcode.simRuntimes[name].version).be.a.String;
+		should(xcode.simRuntimes[name].version).not.equal('');
 	});
 
 	if (xcode.watchos !== null) {
