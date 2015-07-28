@@ -215,10 +215,10 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	printProfiles(data.provisioning.adhoc);
 
 	logger.log(styleHeading(__('iOS Simulators')));
-	if (data.ios && Object.keys(data.ios).length) {
-		Object.keys(data.ios).sort().forEach(function (ver) {
+	if (data.simulators.ios && Object.keys(data.simulators.ios).length) {
+		Object.keys(data.simulators.ios).sort().forEach(function (ver) {
 			logger.log(String(ver).grey);
-			logger.log(data.ios[ver].map(function (sim) {
+			logger.log(data.simulators.ios[ver].map(function (sim) {
 				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
 					'  ' + rpad('  ' + __('UDID'))                + ' = ' + styleValue(sim.udid),
 					'  ' + rpad('  ' + __('Supports Watch Apps')) + ' = ' + styleValue(Object.keys(sim.supportsWatch).filter(function (x) { return sim.supportsWatch[x]; }).length ? __('yes') : __('no'))
@@ -230,10 +230,10 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('WatchOS Simulators')));
-	if (data.watchos && Object.keys(data.watchos).length) {
-		Object.keys(data.watchos).sort().forEach(function (ver) {
+	if (data.simulators.watchos && Object.keys(data.simulators.watchos).length) {
+		Object.keys(data.simulators.watchos).sort().forEach(function (ver) {
 			logger.log(String(ver).grey);
-			logger.log(data.watchos[ver].map(function (sim) {
+			logger.log(data.simulators.watchos[ver].map(function (sim) {
 				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
 					'  ' + rpad('  ' + __('UDID')) + ' = ' + styleValue(sim.udid)
 				].join('\n');

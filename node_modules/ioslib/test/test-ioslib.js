@@ -29,7 +29,7 @@ describe('ioslib', function () {
 
 			should(results).be.an.Object;
 			should(results).have.keys('detectVersion', 'issues', 'devices', 'provisioning', 'executables', 'selectedXcode',
-				'xcode', 'certs', 'deviceTypes', 'runtimes', 'ios', 'watchos', 'devicePairs', 'crashDir');
+				'xcode', 'certs', 'simulators');
 
 			should(results.detectVersion).be.a.String;
 
@@ -162,7 +162,7 @@ describe('ioslib', function () {
 
 			function checkXcode(xcode) {
 				should(xcode).be.an.Object;
-				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'watchos', 'executables');
+				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'executables');
 
 				should(xcode.xcodeapp).be.a.String;
 				should(xcode.xcodeapp).not.equal('');

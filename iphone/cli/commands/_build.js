@@ -205,9 +205,9 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		deviceInfo.devices = {};
 
 		// build the list of simulators
-		Object.keys(this.iosInfo.ios).sort().reverse().forEach(function (ver) {
+		Object.keys(this.iosInfo.simulators.ios).sort().reverse().forEach(function (ver) {
 			deviceInfo.devices[ver] || (deviceInfo.devices[ver] = []);
-			this.iosInfo.ios[ver].forEach(function (sim) {
+			this.iosInfo.simulators.ios[ver].forEach(function (sim) {
 				sim.name.length > deviceInfo.maxName && (deviceInfo.maxName = sim.name.length);
 				deviceInfo.devices[ver].push({
 					udid: sim.udid,
@@ -1365,7 +1365,22 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	}
 
 	// since things are looking good, determine if files should be symlinked on copy
+	// note that iOS 9 simulator does not support symlinked files :(
 	this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
+	// we should have a device-id by now
+	if (cli.argv.target === 'simulator' && this.symlinkFilesOnCopy && cli.argv['device-id']) {
+		Object.keys(this.iosInfo.simulators.ios).some(function (sdk) {
+			return this.iosInfo.simulators.ios[sdk].some(function (sim) {
+				if (sim.udid === cli.argv['device-id']) {
+					if (appc.version.gte(sim.version, '9.0')) {
+						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', sim.version));
+						this.symlinkFilesOnCopy = false;
+					}
+					return true;
+				}
+			}, this);
+		}, this);
+	}
 
 	return function (callback) {
 		// if there are any extensions, validate them

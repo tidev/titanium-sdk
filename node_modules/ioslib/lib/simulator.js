@@ -14,12 +14,12 @@
 const
 	appc = require('node-appc'),
 	async = require('async'),
-	bplist = require('bplist-parser'),
 	events = require('events'),
 	magik = require('./utilities').magik,
 	fs = require('fs'),
 	mkdirp = require('mkdirp'),
 	path = require('path'),
+	readPlist = require('./utilities').readPlist,
 	spawn = require('child_process').spawn,
 	Tail = require('always-tail'),
 	util = require('util'),
@@ -65,21 +65,14 @@ const deviceStateNames = exports.deviceStateNames = {
 	4: 'Shutting Down'
 };
 
-function readPlist(file) {
-	try {
-		if (fs.existsSync(file)) {
-			var buffer = fs.readFileSync(file),
-				header = buffer.slice(0, 'bplist'.length).toString('utf8');
-			if (header === 'bplist') {
-				return bplist.parseBuffer(buffer)[0];
-			} else {
-				return (new appc.plist()).parse(buffer.toString());
-			}
-		}
-	} catch (ex) {}
-	return null;
-}
-
+/**
+ * Helper function for comparing two simulators based on the model name.
+ *
+ * @param {Object} a - A simulator handle.
+ * @param {Object} b - Another simulator handle.
+ *
+ * @returns {Number} - Returns -1 if a < b, 1 if a > b, and 0 if they are equal.
+ */
 function compareSims(a, b) {
 	return a.model < b.model ? -1 : a.model > b.model ? 1 : 0;
 }
@@ -104,7 +97,7 @@ function detect(options, callback) {
 			return callback(null, dupe);
 		}
 
-		function fakeWatchSim(name, udid, model, xcode) {
+		function fakeWatchSim(name, udid, model, xcodes) {
 			return {
 				udid: udid,
 				name: name,
@@ -114,22 +107,22 @@ function detect(options, callback) {
 				deviceDir: null,
 				model: model,
 				family: 'watch',
+				supportsXcode: xcodes,
 				supportsWatch: {},
 				runtime: null,
 				runtimeName: 'watchOS 1.0',
-				xcode: xcode,
 				systemLog: null,
 				dataDir: null
 			};
 		}
 
 		var results = {
-			deviceTypes: {},
-			runtimes: {},
-			ios: {},
-			watchos: {},
-			devicePairs: {},
-			crashDir: appc.fs.resolvePath('~/Library/Logs/DiagnosticReports'),
+			simulators: {
+				ios: {},
+				watchos: {},
+				devicePairs: {},
+				crashDir: appc.fs.resolvePath('~/Library/Logs/DiagnosticReports'),
+			},
 			issues: []
 		};
 
@@ -137,24 +130,6 @@ function detect(options, callback) {
 			if (err) {
 				emitter.emit('error', err);
 				return callback(err);
-			}
-
-			function findRuntimes(dir, xcode) {
-				fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
-					var plist = readPlist(path.join(dir, name, 'Contents', 'Info.plist'));
-					if (plist && !results.runtimes[plist.CFBundleIdentifier]) {
-						var runtime = results.runtimes[plist.CFBundleIdentifier] = {
-							name: plist.CFBundleName,
-							version: null,
-							xcode: xcode || null
-						};
-
-						plist = readPlist(path.join(dir, name, 'Contents', 'Resources', 'profile.plist'));
-						if (plist) {
-							runtime.version = plist.defaultVersionString;
-						}
-					}
-				});
 			}
 
 			var xcodeIds = Object
@@ -166,60 +141,29 @@ function detect(options, callback) {
 			xcodeIds.some(function (id) {
 				var xc = xcodeInfo.xcode[id];
 				if (appc.version.satisfies(xc.version, '>=6.2 <7.0')) {
-					results.watchos['1.0'] = [
-						fakeWatchSim('Apple Watch - 38mm', '58045222-F0C1-41F7-A4BD-E2EDCFBCF5B9', 'Watch0,1', id),
-						fakeWatchSim('Apple Watch - 42mm', 'D5C1DA2F-7A74-49C8-809A-906E554021B0', 'Watch0,2', id)
+					var xcodes = {};
+					xcodeIds.forEach(function (id) {
+						if (appc.version.gte(xcodeInfo.xcode[id].version, '6.2')) {
+							xcodes[id] = true;
+						}
+					});
+					results.simulators.watchos['1.0'] = [
+						fakeWatchSim('Apple Watch - 38mm', '58045222-F0C1-41F7-A4BD-E2EDCFBCF5B9', 'Watch0,1', xcodes),
+						fakeWatchSim('Apple Watch - 42mm', 'D5C1DA2F-7A74-49C8-809A-906E554021B0', 'Watch0,2', xcodes)
 					];
 					return true;
 				}
 			});
 
-			// find the runtimes and device types for all Xcodes
-			async.eachSeries(xcodeIds, function (id, next) {
-				var xc = xcodeInfo.xcode[id];
-
-				['iPhoneSimulator.platform', 'WatchSimulator.platform'].forEach(function (platform) {
-					// read in the device types
-					var deviceTypesDir = path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'DeviceTypes');
-					fs.existsSync(deviceTypesDir) && fs.readdirSync(deviceTypesDir).forEach(function (name) {
-						var plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Info.plist')),
-							devId = plist && plist.CFBundleIdentifier;
-						if (plist && !results.deviceTypes[devId]) {
-							var deviceType = results.deviceTypes[devId] = {
-								name: plist.CFBundleName,
-								model: 'unknown',
-								supportsWatch: {},
-								xcode: id
-							};
-
-							plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'profile.plist'));
-							if (plist) {
-								deviceType.model = plist.modelIdentifier;
-							}
-						}
-
-						plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'capabilities.plist'));
-						if (plist) {
-							results.deviceTypes[devId].supportsWatch[id] = !!plist.capabilities['watch-companion'];
-						}
-					});
-
-					// read in the runtimes
-					findRuntimes(path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'Runtimes'), id);
-				});
-
-				next();
-			}, function () {
-				// find all global runtimes
-				findRuntimes('/Library/Developer/CoreSimulator/Profiles/Runtimes');
-
-				// read the devices
-				var coreSimDir = appc.fs.resolvePath('~/Library/Developer/CoreSimulator/Devices');
-				fs.existsSync(coreSimDir) && fs.readdirSync(coreSimDir).forEach(function (name) {
-					var plist = readPlist(path.join(coreSimDir, name, 'device.plist'));
-					if (plist) {
-						var deviceType = results.deviceTypes[plist.deviceType],
-							runtime = results.runtimes[plist.runtime];
+			// read the devices
+			var coreSimDir = appc.fs.resolvePath('~/Library/Developer/CoreSimulator/Devices');
+			fs.existsSync(coreSimDir) && fs.readdirSync(coreSimDir).forEach(function (name) {
+				var plist = readPlist(path.join(coreSimDir, name, 'device.plist'));
+				if (plist) {
+					xcodeIds.forEach(function (id) {
+						var xc = xcodeInfo.xcode[id],
+							deviceType = xc.simDeviceTypes[plist.deviceType],
+							runtime = xc.simRuntimes[plist.runtime];
 
 						if (!deviceType || !runtime) {
 							// wrong xcode, skip
@@ -227,12 +171,19 @@ function detect(options, callback) {
 						}
 
 						var family = deviceType.model.replace(/[\W0-9]/g, '').toLowerCase(),
-							sdkType = family === 'iphone' || family === 'ipad' ? 'ios' : 'watchos';
+							type = family === 'iphone' || family === 'ipad' ? 'ios' : 'watchos',
+							sim;
 
-						results[sdkType][runtime.version] || (results[sdkType][runtime.version] = []);
+						results.simulators[type][runtime.version] || (results.simulators[type][runtime.version] = []);
+						results.simulators[type][runtime.version].some(function (s) {
+							if (s.udid === plist.UDID) {
+								sim = s;
+								return true;
+							}
+						});
 
-						if (!results[sdkType][runtime.version].some(function (s) { return s.udid === plist.UDID; })) {
-							var sim = {
+						if (!sim) {
+							results.simulators[type][runtime.version].push(sim = {
 								udid:          plist.UDID,
 								name:          plist.name,
 								version:       runtime.version,
@@ -242,61 +193,47 @@ function detect(options, callback) {
 								deviceDir:     path.join(coreSimDir, name),
 								model:         deviceType.model,
 								family:        family,
+								supportsXcode: {},
 								supportsWatch: {},
 
 								runtime:       plist.runtime,
 								runtimeName:   runtime.name,
 
-								xcode:         deviceType.xcode,
-
 								systemLog:     appc.fs.resolvePath('~/Library/Logs/CoreSimulator/' + name + '/system.log'),
 								dataDir:       path.join(coreSimDir, name, 'data')
-							};
-
-							results[sdkType][runtime.version].push(sim);
-
-							Object.keys(deviceType.supportsWatch).forEach(function (xcodeId) {
-								var xc = xcodeInfo.xcode[xcodeId];
-								if (xc.sims.indexOf(runtime.version) !== -1) {
-									sim.supportsWatch[xcodeId] = false;
-									if (deviceType.supportsWatch[xcodeId]) {
-										if (appc.version.gte(xc.version, '7.0') && appc.version.gte(runtime.version, '9.0')) {
-											sim.supportsWatch[xcodeId] = true;
-										} else if (appc.version.satisfies(xc.version, '6.x') && appc.version.satisfies(runtime.version, '>=8.2 <9.0')) {
-											sim.supportsWatch[xcodeId] = true;
-										}
-									}
-								}
 							});
 						}
-					}
-				});
 
-				// sort the simulators
-				['ios', 'watchos'].forEach(function (type) {
-					Object.keys(results[type]).forEach(function (ver) {
-						results[type][ver].sort(compareSims);
-					});
-				});
-
-				// load the device pairs
-				var deviceSetPlist = readPlist(path.join(coreSimDir, 'device_set.plist'));
-				if (deviceSetPlist && deviceSetPlist.DevicePairs) {
-					Object.keys(deviceSetPlist.DevicePairs).forEach(function (udid) {
-						results.devicePairs[udid] = {
-							phone: deviceSetPlist.DevicePairs[udid].companion,
-							watch: deviceSetPlist.DevicePairs[udid].gizmo
-						};
+						sim.supportsXcode[id] = true;
+						sim.supportsWatch[id] = deviceType.supportsWatch;
 					});
 				}
-
-				// the cache must be a clean copy that we'll clone for subsequent detect() calls
-				// because we can't allow the cache to be modified by reference
-				cache = JSON.parse(JSON.stringify(results));
-
-				emitter.emit('detected', results);
-				callback(null, results);
 			});
+
+			// sort the simulators
+			['ios', 'watchos'].forEach(function (type) {
+				Object.keys(results.simulators[type]).forEach(function (ver) {
+					results.simulators[type][ver].sort(compareSims);
+				});
+			});
+
+			// load the device pairs
+			var deviceSetPlist = readPlist(path.join(coreSimDir, 'device_set.plist'));
+			if (deviceSetPlist && deviceSetPlist.DevicePairs) {
+				Object.keys(deviceSetPlist.DevicePairs).forEach(function (udid) {
+					results.simulators.devicePairs[udid] = {
+						phone: deviceSetPlist.DevicePairs[udid].companion,
+						watch: deviceSetPlist.DevicePairs[udid].gizmo
+					};
+				});
+			}
+
+			// the cache must be a clean copy that we'll clone for subsequent detect() calls
+			// because we can't allow the cache to be modified by reference
+			cache = JSON.parse(JSON.stringify(results));
+
+			emitter.emit('detected', results);
+			callback(null, results);
 		});
 	});
 };
@@ -355,7 +292,7 @@ function launch(udid, options, callback) {
 			}
 
 			// detect the simulators
-			detect(options, function (err, simulators) {
+			detect(options, function (err, simInfo) {
 				if (err) {
 					emitter.emit('error', err);
 					return callback(err);
@@ -449,26 +386,25 @@ function launch(udid, options, callback) {
 
 				if (udid) {
 					// validate the udid
-					var vers = Object.keys(simulators.ios);
+					emitter.emit('log-debug', __('Validating iOS Simulator UDID %s', udid));
+					var vers = Object.keys(simInfo.simulators.ios);
 					for (var i = 0, l = vers.length; !simHandle && i < l; i++) {
-						var sims = simulators.ios[vers[i]];
+						var sims = simInfo.simulators.ios[vers[i]];
 						for (var j = 0, k = sims.length; j < k; j++) {
 							if (sims[j].udid === udid) {
+								emitter.emit('log-debug', __('Found iOS Simulator UDID %s', udid));
 								simHandle = sims[j];
 								break;
 							}
 						}
 					}
 
-					// choose which Xcode we want to use
-					selectedXcode = xcodeInfo.xcode[simHandle.xcode];
-
 					if (!simHandle) {
 						err = new Error(__('Unable to find an iOS Simulator with the UDID "%s".', udid));
 					} else if (watchAppId) {
 						if (options.watchUDID) {
-							Object.keys(simulators.watchos).some(function (ver) {
-								return simulators.watchos[ver].some(function (sim) {
+							Object.keys(simInfo.simulators.watchos).some(function (ver) {
+								return simInfo.simulators.watchos[ver].some(function (sim) {
 									if (sim.udid === options.watchUDID) {
 										watchSimHandle = sim;
 										return true;
@@ -491,8 +427,8 @@ function launch(udid, options, callback) {
 
 								// make sure it has a watch simulator that supports the watch app version
 								selectedXcode.watchos.sims.some(function (ver) {
-									if (appc.version.gte(ver, watchMinOSVersion) && simulators.watchos[ver]) {
-										watchSimHandle = simulators.watchos[ver].sort(compareSims).reverse()[0];
+									if (appc.version.gte(ver, watchMinOSVersion) && simInfo.simulators.watchos[ver]) {
+										watchSimHandle = simInfo.simulators.watchos[ver].sort(compareSims).reverse()[0];
 										return true;
 									}
 								});
@@ -503,8 +439,18 @@ function launch(udid, options, callback) {
 								err = new Error(__('Selected iOS Simulator with the UDID "%s" does not support watch apps.', udid));
 							}
 						}
+					} else {
+						// no watch sim, just an ios sim
+						Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
+							if (simHandle.supportsXcode[id]) {
+								selectedXcode = xcodeInfo.xcode[id];
+								return true;
+							}
+						});
 					}
 				} else {
+					emitter.emit('log-debug', __('No iOS Simulator UDID specified, searching for best match'));
+
 					// pick one
 					var xcodeIds = Object
 						.keys(xcodeInfo.xcode)
@@ -512,8 +458,8 @@ function launch(udid, options, callback) {
 						.sort(function (a, b) { return !xcodeInfo.xcode[a].selected || a > b; });
 
 					if (watchAppId && options.watchUDID) {
-						Object.keys(simulators.watchos).some(function (ver) {
-							return simulators.watchos[ver].some(function (sim) {
+						Object.keys(simInfo.simulators.watchos).some(function (ver) {
+							return simInfo.simulators.watchos[ver].some(function (sim) {
 								if (sim.udid === options.watchUDID) {
 									watchSimHandle = sim;
 									return true;
@@ -527,6 +473,8 @@ function launch(udid, options, callback) {
 						}
 					}
 
+					emitter.emit('log-debug', __('Scanning Xcodes: %s', xcodeIds.join(' ')));
+
 					// loop through xcodes
 					for (var i = 0; !simHandle && i < xcodeIds.length; i++) {
 						var xc = xcodeInfo.xcode[xcodeIds[i]],
@@ -535,14 +483,20 @@ function launch(udid, options, callback) {
 						// loop through each xcode simulators
 						for (var j = 0; !simHandle && j < simVers.length; j++) {
 							if (!options.simVersion || simVers[j] === options.simVersion) {
-								var sims = simulators.ios[simVers[j]].sort(compareSims).reverse();
+								var sims = simInfo.simulators.ios[simVers[j]].sort(compareSims).reverse();
 
 								// loop through each simulator
 								for (var k = 0; !simHandle && k < sims.length; k++) {
 									if (!options.simType || sims[k].family === options.simType) {
 										if (!options.appPath || !watchAppId) {
+											emitter.emit('log-debug', __('No app being installed, so picking first simulator'));
 											simHandle = sims[k];
-											selectedXcode = xcodeInfo.xcode[simHandle.xcode];
+											Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
+												if (simHandle.supportsXcode[id]) {
+													selectedXcode = xcodeInfo.xcode[id];
+													return true;
+												}
+											});
 
 										// if we're installing a watch extension, make sure we pick a simulator that supports the watch
 										} else if (watchAppId) {
@@ -552,10 +506,10 @@ function launch(udid, options, callback) {
 											} else if (!watchSimHandle && sims[k].supportsWatch[xcodeIds[i]]) {
 												// make sure this version of Xcode has a watch simulator that supports the watch app version
 												xc.watchos.sims.some(function (ver) {
-													if (appc.version.gte(ver, watchMinOSVersion) && simulators.watchos[ver]) {
+													if (appc.version.gte(ver, watchMinOSVersion) && simInfo.simulators.watchos[ver]) {
 														simHandle = sims[k];
 														selectedXcode = xcodeInfo.xcode[xcodeIds[i]];
-														watchSimHandle = simulators.watchos[ver].sort(compareSims).reverse()[0];
+														watchSimHandle = simInfo.simulators.watchos[ver].sort(compareSims).reverse()[0];
 														return true;
 													}
 												});
@@ -577,6 +531,11 @@ function launch(udid, options, callback) {
 					} else if (watchAppId && !watchSimHandle) {
 						err = new Error(__('Unable to find a watchOS Simulator that supports watchOS %s', watchMinOSVersion));
 					}
+
+					emitter.emit('log-debug', __('Autoselected simulator: %s', simHandle.name));
+					emitter.emit('log-debug', __('  UDID  = %s', simHandle.udid));
+					emitter.emit('log-debug', __('  iOS   = %s', simHandle.version));
+					emitter.emit('log-debug', __('  Xcode = %s', selectedXcode.version));
 				}
 
 				if (err) {
@@ -631,8 +590,8 @@ function launch(udid, options, callback) {
 				}
 
 				function getCrashes() {
-					if (fs.existsSync(simulators.crashDir)) {
-						return fs.readdirSync(simulators.crashDir).filter(function (n) { return crashFileRegExp.test(n); });
+					if (fs.existsSync(simInfo.simulators.crashDir)) {
+						return fs.readdirSync(simInfo.simulators.crashDir).filter(function (n) { return crashFileRegExp.test(n); });
 					}
 					return [];
 				}
@@ -644,7 +603,7 @@ function launch(udid, options, callback) {
 								return existingCrashes.indexOf(file) === -1;
 							})
 							.map(function (file) {
-								return path.join(simulators.crashDir, file);
+								return path.join(simInfo.simulators.crashDir, file);
 							})
 							.sort();
 
@@ -768,7 +727,7 @@ function launch(udid, options, callback) {
 							// not running, start the simulator
 							emitter.emit('log-debug', __('Running: %s', simHandle.simulator + ' -CurrentDeviceUDID ' + simHandle.udid));
 
-							var child = spawn(simHandle.simulator, ['-CurrentDeviceUDID', simHandle.udid], { stdio: 'ignore' });
+							var child = spawn(simHandle.simulator, ['-CurrentDeviceUDID', simHandle.udid], { detached: true, stdio: 'ignore' });
 							child.on('close', function (code, signal) {
 								emitter.emit('log-debug', __('%s Simulator has exited with code %s', simHandle.name, code));
 								simHandle.systemLogTail && simHandle.systemLogTail.unwatch();
@@ -837,15 +796,15 @@ function launch(udid, options, callback) {
 						}
 
 						// we need to pair, check if we're already paired
-						if (Object.keys(simulators.devicePairs).some(function (udid) { var dp = simulators.devicePairs[udid]; return dp.phone === simHandle.udid && dp.watch === watchSimHandle.udid; })) {
+						if (Object.keys(simInfo.simulators.devicePairs).some(function (udid) { var dp = simInfo.simulators.devicePairs[udid]; return dp.phone === simHandle.udid && dp.watch === watchSimHandle.udid; })) {
 							// already paired!
 							emitter.emit('log-debug', __('iOS and watchOS simulators already paired'));
 							return next();
 						}
 
 						// check if we need to unpair
-						async.eachSeries(Object.keys(simulators.devicePairs), function (udid, next) {
-							var dp = simulators.devicePairs[udid];
+						async.eachSeries(Object.keys(simInfo.simulators.devicePairs), function (udid, next) {
+							var dp = simInfo.simulators.devicePairs[udid];
 							if (dp.phone === simHandle.udid || dp.watch === watchSimHandle.udid) {
 								emitter.emit('log-debug', __('Unpairing iOS and watchOS simulator pair: %s', udid));
 								var args = ['unpair', udid];
