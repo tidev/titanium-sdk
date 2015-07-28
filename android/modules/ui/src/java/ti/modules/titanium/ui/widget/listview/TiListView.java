@@ -650,11 +650,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 
 	private void reFilter(String searchText) {
+		int numResults = 0;
 		if (searchText != null) {
 			for (int i = 0; i < sections.size(); ++i) {
 				ListSectionProxy section = sections.get(i);
-				section.applyFilter(searchText);
+				numResults += section.applyFilter(searchText);
 			}
+		}
+		if (numResults == 0) {
+			fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
