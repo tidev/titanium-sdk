@@ -85,6 +85,11 @@ exports.init = function (logger, config, cli) {
 				}
 				finished && finished(ex);
 				finished = null;
+			}).on('exit', function () {
+				// no need to stick around, exit
+				endLog();
+				finished && finished();
+				finished = null;
 			}).on('error', function (err) {
 				endLog();
 				logger.error(err);

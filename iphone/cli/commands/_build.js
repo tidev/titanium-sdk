@@ -1727,7 +1727,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.deviceId      = argv['device-id'];
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
 	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
-	this.xcodeTargetOS = (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
+	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir            = path.join(this.iosBuildDir, this.tiapp.name + '.app');
@@ -2031,6 +2031,7 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	} else if (!buildDirExists) {
 		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
 		wrench.mkdirSyncRecursive(this.buildDir);
+		this.forceCleanBuild = true;
 	}
 
 	fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
@@ -2372,7 +2373,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.PBXNativeTarget[targetUuid] = extObjs.PBXNativeTarget[targetUuid];
 				xobjs.PBXNativeTarget[targetUuid + '_comment'] = extObjs.PBXNativeTarget[targetUuid + '_comment'];
 
-				var productType = xobjs.PBXNativeTarget[targetUuid].productType;
+				var productType = xobjs.PBXNativeTarget[targetUuid].productType.replace(/^"/, '').replace(/"$/, '');
 
 				// add the target product to the products group
 				productsGroup.children.push({
@@ -2606,8 +2607,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 	if (hasWatchAppV1 || hasWatchAppV2orNewer) {
+		// TODO: Make sure the version of Xcode can support this version of watch app
+
 		var once = 0,
-			iosDeploymentTarget = hasWatchAppV1 ? '8.2' : '9.0';
+			iosDeploymentTarget = hasWatchAppV2orNewer ? '9.0' : '8.2';
 
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -4160,7 +4163,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		[
 			'build',
 			'-target', this.tiapp.name,
-			'-configuration', this.xcodeTarget
+			'-configuration', this.xcodeTarget,
+			'-sdk', this.xcodeTargetOS
 		],
 		{
 			cwd: this.buildDir,

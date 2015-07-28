@@ -318,7 +318,7 @@ exports.run = function (logger, config, cli, finished) {
 				logger.log.end();
 				process.exit(1);
 			} else {
-				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+//				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
 				logger.log.end();
 			}
 
