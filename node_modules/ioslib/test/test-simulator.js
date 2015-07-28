@@ -11,6 +11,7 @@
 
 const
 	appc = require('node-appc'),
+	async = require('async'),
 	exec = require('child_process').exec,
 	fs = require('fs'),
 	ioslib = require('..'),
@@ -20,9 +21,9 @@ function checkSims(sims) {
 	should(sims).be.an.Array;
 	sims.forEach(function (sim) {
 		should(sim).be.an.Object;
-		should(sim).have.keys('udid', 'name', 'version', 'state', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsWatch', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'logPaths');
+		should(sim).have.keys('udid', 'name', 'version', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsWatch', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'dataDir');
 
-		['udid', 'name', 'version', 'state', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'runtime', 'runtimeName', 'xcode', 'systemLog'].forEach(function (key) {
+		['udid', 'name', 'version', 'state', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'dataDir'].forEach(function (key) {
 			if (sim[key] !== null) {
 				should(sim[key]).be.a.String;
 				should(sim[key]).not.equal('');
@@ -33,14 +34,6 @@ function checkSims(sims) {
 			should(sim.supportsWatch).be.an.Object;
 			Object.keys(sim.supportsWatch).forEach(function (xcodeId) {
 				should(sim.supportsWatch[xcodeId]).be.a.Boolean;
-			});
-		}
-
-		if (sim.logPaths !== null) {
-			should(sim.logPaths).be.an.Array;
-			sim.logPaths.forEach(function (p) {
-				should(p).be.a.String;
-				should(p).not.equal('');
 			});
 		}
 	});
@@ -128,6 +121,27 @@ function timochaLogWatcher(emitter, callback) {
 }
 
 describe('simulator', function () {
+	var simHandlesToWipe = [];
+
+	afterEach(function (done) {
+		this.timeout(60000);
+		this.slow(60000);
+		async.eachSeries(simHandlesToWipe, function (simHandle, next) {
+			if (simHandle && simHandle.simctl) {
+				appc.subprocess.run(simHandle.simctl, ['erase', simHandle.udid], function () {
+					next();
+				});
+			} else {
+				next();
+			}
+		}, function () {
+			simHandlesToWipe = [];
+			setTimeout(function () {
+				done();
+			}, 1000);
+		});
+	});
+
 	it('namespace should be an object', function () {
 		should(ioslib.simulator).be.an.Object;
 	});
@@ -218,7 +232,9 @@ describe('simulator', function () {
 		this.timeout(60000);
 		this.slow(60000);
 
-		ioslib.simulator.launch(null, null, function (err, simHandle) {
+		ioslib.simulator.launch(null, null, function (err, simHandle, watchSimHandle) {
+			simHandlesToWipe.push(simHandle, watchSimHandle);
+
 			if (err) {
 				return done(err);
 			}
@@ -261,8 +277,9 @@ describe('simulator', function () {
 				counter++;
 			//}).on('log-debug', function (line, simHandle) {
 			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
-			}).on('launched', function (simHandle) {
+			}).on('launched', function (simHandle, watchSimHandle) {
 				launched = true;
+				simHandlesToWipe.push(simHandle, watchSimHandle);
 			}).on('error', function (err) {
 				done(err);
 			}).on('app-started', function (simHandle) {
@@ -306,6 +323,8 @@ describe('simulator', function () {
 				stop();
 			//}).on('log-debug', function (line, simHandle) {
 			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+			}).on('launched', function (simHandle, watchSimHandle) {
+				simHandlesToWipe.push(simHandle, watchSimHandle);
 			}).on('error', function (err) {
 				done(err);
 			});
@@ -348,6 +367,8 @@ describe('simulator', function () {
 				stop();
 			//}).on('log-debug', function (line, simHandle) {
 			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+			}).on('launched', function (simHandle, watchSimHandle) {
+				simHandlesToWipe.push(simHandle, watchSimHandle);
 			}).on('error', function (err) {
 				done(err);
 			});
@@ -379,6 +400,8 @@ describe('simulator', function () {
 				simHandle = handle;
 			//}).on('log-debug', function (line, simHandle) {
 			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+			}).on('launched', function (simHandle, watchSimHandle) {
+				simHandlesToWipe.push(simHandle, watchSimHandle);
 			}).on('error', function (err) {
 				done(err);
 			}).on('app-quit', function (crash) {
@@ -422,8 +445,12 @@ describe('simulator', function () {
 				hide: true
 			}).on('app-started', function (handle) {
 				simHandle = handle;
+			}).on('launched', function (simHandle, watchSimHandle) {
+				simHandlesToWipe.push(simHandle, watchSimHandle);
 			//}).on('log-debug', function (line, simHandle) {
 			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+			//}).on('log-raw', function (line, simHandle) {
+			//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[RAW]', line);
 			}).on('error', function (err) {
 				done(err);
 			}).on('app-quit', function (crash) {
@@ -468,13 +495,18 @@ describe('simulator', function () {
 				}
 
 				var udid = simulators.ios[ver][simulators.ios[ver].length - 1].udid;
+				udid = null; // just a test so that it picks one
 
-				ioslib.simulator.launch(null, {
+				ioslib.simulator.launch(udid, {
 					appPath: appPath,
 					hide: true,
+					//watchUDID: '58045222-F0C1-41F7-A4BD-E2EDCFBCF5B9', // 38mm WatchOS 1
+					//watchUDID: '35597169-FF72-4634-86DD-E490CE84A310', // 38mm WatchOS 2 (this id is machine dependent)
 					launchWatchApp: true
 				//}).on('log-debug', function (line, simHandle) {
 				//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+				}).on('launched', function (simHandle, watchSimHandle) {
+					simHandlesToWipe.push(simHandle, watchSimHandle);
 				}).on('app-started', function (simHandle, watchSimHandle) {
 					ioslib.simulator.stop(simHandle, function () {
 						if (watchSimHandle) {
@@ -516,6 +548,8 @@ describe('simulator', function () {
 					launchWatchApp: true
 				//}).on('log-debug', function (line, simHandle) {
 				//	console.log((simHandle ? '[' + simHandle.family.toUpperCase() + '] ' : '') + '[DEBUG]', line);
+				}).on('launched', function (simHandle, watchSimHandle) {
+					simHandlesToWipe.push(simHandle, watchSimHandle);
 				}).on('app-started', function (simHandle, watchSimHandle) {
 					ioslib.simulator.stop(simHandle, function () {
 						if (watchSimHandle) {

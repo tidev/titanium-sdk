@@ -449,7 +449,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 		}
 
 		// check if the project already exists
-		if (cli.argv.name && !cli.argv.force) {
+		if (cli.argv.name && !cli.argv.force && workspaceDir) {
 			var projectDir = path.join(workspaceDir, cli.argv.name);
 			if (fs.existsSync(projectDir)) {
 				logger.error(__('Project already exists: %s', projectDir));
