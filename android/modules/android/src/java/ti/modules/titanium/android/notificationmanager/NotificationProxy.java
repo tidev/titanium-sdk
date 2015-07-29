@@ -22,6 +22,8 @@ import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
 import ti.modules.titanium.android.RemoteViewsProxy;
 import android.app.Notification;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -67,6 +69,9 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_ICON)) {
 			setIcon(d.get(TiC.PROPERTY_ICON));
+		}
+		if (d.containsKey(TiC.PROPERTY_LARGE_ICON)) {
+			setLargeIcon(d.get(TiC.PROPERTY_LARGE_ICON));
 		}
 		if (d.containsKey(TiC.PROPERTY_TICKER_TEXT)) {
 			setTickerText(TiConvert.toString(d, TiC.PROPERTY_TICKER_TEXT));
@@ -145,6 +150,25 @@ public class NotificationProxy extends KrollProxy
 			notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
 		}
 		setProperty(TiC.PROPERTY_ICON, icon);
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setLargeIcon(Object icon)
+	{
+		if(icon instanceof Number) {
+			Bitmap largeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), ((Number)icon).intValue());
+			notificationBuilder.setLargeIcon(largeIcon);   
+		}else{
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			Bitmap largeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), TiUIHelper.getResourceId(iconFullUrl));
+			notificationBuilder.setLargeIcon(largeIcon);    
+		}
+		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
 	
 	@Kroll.method @Kroll.setProperty

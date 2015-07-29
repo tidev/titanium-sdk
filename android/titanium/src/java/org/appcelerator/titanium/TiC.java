@@ -1529,6 +1529,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LARGE_ICON = "largeIcon";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LASTNAME = "lastName";
 
 	/**
