@@ -598,7 +598,6 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 							if (deviceFamily === 'ipad' && sim.deviceClass !== deviceFamily) {
 								return false;
 							}
-							dump(sim);
 							cli.argv['device-id'] = sim.udid;
 							return true;
 						});
