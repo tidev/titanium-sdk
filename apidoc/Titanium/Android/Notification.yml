@@ -210,6 +210,35 @@ properties:
         Android resources by ID.
     type: [Number,String]
 
+  - name: largeIcon
+    summary:
+        Add a large icon to the notification (and the ticker on some devices)
+        specified as an Android resource ID, or a local URL to a density-specific image.
+    description: |
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_large_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_large_icon.png
+            Resources/android/images/res-mdpi/my_large_icon.png
+
+        To access this large icon, you'd use the URL '/images/my_large_icon.png'.
+
+        To access the same large icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_large_icon.png
+
+        This large icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_large_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing
+        Android resources by ID.
+    type: [Number,String]
+    since: "4.2.0"
+
   - name: ledARGB
     summary: The color for the LED to blink.
     type: Number
