@@ -2238,6 +2238,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
+			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: this.xcodeTargetOS
 		};
