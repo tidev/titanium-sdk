@@ -220,6 +220,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_NO_RESULTS = "noresults";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_OPEN = "open";
 
 	/**
