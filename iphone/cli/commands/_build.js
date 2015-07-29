@@ -212,7 +212,8 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 				deviceInfo.devices[ver].push({
 					udid: sim.udid,
 					name: sim.name,
-					deviceClass: sim.type,
+					deviceClass: sim.family,
+					model: sim.model,
 					productVersion: ver
 				});
 				deviceInfo.udids[sim.udid] = sim;
@@ -586,26 +587,23 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 					return callback(true);
 				}
 
-				var info = _t.getDeviceInfo();
-
-				var simVer = cli.argv['ios-version'],
-					simVers = Object.keys(info.devices).filter(function (ver) {
-						return !simVer || ver === simVer;
-					}),
+				var info = _t.getDeviceInfo(),
+					simVer = cli.argv['ios-version'],
 					deviceFamily = _t.getDeviceFamily();
 
-				// try to find us a tall simulator like an iPhone 4 inch
-				for (var i = 0, l = simVers.length; i < l; i++) {
-					var ver = simVers[i];
-					for (var j = 0, k = info.devices[ver].length; j < k; j++) {
-						var sim = info.devices[ver][j];
-						if (deviceFamily === 'ipad' && sim.deviceClass !== deviceFamily) {
-							continue;
-						}
-						cli.argv['device-id'] = sim.udid;
-						break;
+				// try to find us the best simulator for the specified --ios-version (or latest ios sdk)
+				Object.keys(info.devices).sort().reverse().some(function (ver) {
+					if (!simVer || ver === simVer) {
+						return info.devices[ver].sort(function (a, b) { return a.model < b.model ? -1 : a.model > b.model ? 1 : 0; }).reverse().some(function (sim) {
+							if (deviceFamily === 'ipad' && sim.deviceClass !== deviceFamily) {
+								return false;
+							}
+							dump(sim);
+							cli.argv['device-id'] = sim.udid;
+							return true;
+						});
 					}
-				}
+				});
 
 				return callback();
 			}
