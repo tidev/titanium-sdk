@@ -323,22 +323,12 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setMediaControlStyle:(NSNumber *)value
 {
-	if (movie != nil) {
-		TiThreadPerformOnMainThread(^{
-			[movie setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
-		}, NO);
-	} else {
-		[loadProperties setValue:value forKey:@"mediaControlStyle"];
-	}
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.2.0",@"4.4.0",@"Media.VideoPlayer.scaleMode");
 }
 
 -(NSNumber*)mediaControlStyle
 {
-    if (movie != nil) {
-        return NUMINT([movie controlStyle]);
-    } else {
-        RETURN_FROM_LOAD_PROPERTIES(@"mediaControlStyle",NUMINT(MPMovieControlStyleDefault));
-    }
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.2.0",@"4.4.0",@"Media.VideoPlayer.scaleMode");
 }
 
 -(void)setMedia:(id)media_
@@ -386,7 +376,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
         if (movie != nil) {
-            [movie setContentURL:url];
+            [movie.player seekToTime:kCMTimeZero];
         } else {
             [self ensurePlayer];
         }
@@ -477,7 +467,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-	TiThreadPerformOnMainThread(^{[movie cancelAllThumbnailImageRequests];}, NO);
+	TiThreadPerformOnMainThread(^{[movie.player cancelAllThumbnailImageRequests];}, NO);
 }
 
 -(void)requestThumbnailImagesAtTimes:(id)args
@@ -515,12 +505,8 @@ NSArray* moviePlayerKeys = nil;
 	backgroundColor = [[TiUtils colorValue:color] retain];
 	
 	if (movie != nil) {
-		UIView *background = [movie backgroundView];
-		if (background!=nil)
-		{
-			TiThreadPerformOnMainThread(^{[background setBackgroundColor:[backgroundColor _color]];}, NO);
-			return;
-		}
+        TiThreadPerformOnMainThread(^{[movie.view setBackgroundColor:[backgroundColor _color]];}, NO);
+		return;
 	}
 	else {
 		[loadProperties setValue:color forKey:@"backgroundColor"];
@@ -529,8 +515,8 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)playableDuration
 {
-	if (movie != nil) {
-		return NUMDOUBLE(1000.0f * [movie playableDuration]);
+	if (movie != nil && [movie.player.currentItem.asset isPlayable] == YES) {
+        return NUMINT(CMTimeGetSeconds(movie.player.currentItem.asset.duration));
 	}
 	else {
 		return NUMINT(0);
@@ -540,17 +526,17 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)duration
 {
 	if (movie != nil) {
-		return NUMDOUBLE(1000.0f * [movie duration]);
+        return NUMFLOAT(CMTimeGetSeconds(movie.player.currentItem.asset.duration));
 	}
 	else {
-		return NUMINT(0);
+		return NUMFLOAT(0);
 	}
 }
 
 -(NSNumber*)currentPlaybackTime
 {
 	if (movie != nil) {
-		return NUMDOUBLE(1000.0f * [movie currentPlaybackTime]);
+		return NUMFLOAT(CMTimeGetSeconds(movie.player.currentItem.currentTime));
 	}
 	else {
 		RETURN_FROM_LOAD_PROPERTIES(@"currentPlaybackTime", NUMINT(0));
@@ -560,8 +546,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)setCurrentPlaybackTime:(id)time
 {
 	if (movie != nil) {
-		movie.currentPlaybackTime = [TiUtils doubleValue:time] / 1000.0f;
-	} 
+        [movie.player.currentItem seekToTime: CMTimeMake([TiUtils doubleValue:time], 1000)];
+	}
 	else {
 		[loadProperties setValue:time forKey:@"currentPlaybackTime"];
 	}
@@ -570,7 +556,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)endPlaybackTime
 {
 	if (movie != nil) {
-        NSTimeInterval n = [movie endPlaybackTime];
+        NSTimeInterval n = [movie.player endPlaybackTime];
         if (n == -1) {
             n = NAN;
         }
@@ -692,7 +678,9 @@ NSArray* moviePlayerKeys = nil;
 		return dictionary;
 	}
 	else {
-		return [NSDictionary dictionaryWithObjectsAndKeys:NUMDOUBLE(0),@"width",NUMDOUBLE(0),@"height",nil];
+		return [NSDictionary dictionaryWithObjectsAndKeys:
+                                NUMDOUBLE(0),@"width",
+                                NUMDOUBLE(0),@"height",nil];
 	}
 }
 

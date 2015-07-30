@@ -7,6 +7,7 @@
 #ifdef USE_TI_MEDIA
 
 #import <MediaPlayer/MediaPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 #import "TiViewProxy.h"
 #import "TiColor.h"
 #import "TiFile.h"
@@ -14,6 +15,7 @@
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
 @protected
 	AVPlayerViewController *movie;
+    AVPlayerItem *item;
 	NSRecursiveLock* playerLock;
 	BOOL playing;
 @private

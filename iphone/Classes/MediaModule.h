@@ -176,9 +176,18 @@
 
 
 // NOTE: these are introduced in 3.2
+/* REMOVED since iOS9
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_NONE;			// No controls
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_EMBEDDED;		// Controls for an embedded view
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_FULLSCREEN;	// Controls for fullscreen playback
+*/
+
+// New constants
+@property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_KEY;
+@property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_FIT;
+@property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_RESIZE;
+@property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_RESIZE_ASPECT;
+@property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_NONE;
 @property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_VIDEO;
