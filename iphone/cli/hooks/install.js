@@ -40,6 +40,9 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 				function (next) {
+					if (cli.argv['build-only']) {
+						return next();
+					}
 					ioslib.device.detect({ bypassCache: true }, function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {
@@ -174,7 +177,9 @@ exports.init = function (logger, config, cli) {
 						err = err.message || err;
 						logger.error(err);
 						if (err.indexOf('0xe8008017') !== -1) {
-							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.'));
+						} else if (err.indexOf('0xe8008016') !== -1) {
+							logger.error(__('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.'));
 						}
 						next && next(err);
 						next = null;
@@ -184,6 +189,10 @@ exports.init = function (logger, config, cli) {
 							logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
 							next && next();
 							next = null;
+							if (runningCount <= 0) {
+								logger.log();
+								process.exit(0);
+							}
 						}
 					});
 				}, finished);

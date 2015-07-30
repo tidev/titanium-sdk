@@ -155,7 +155,8 @@ methods:
   - name: sendWatchExtensionReply
     deprecated:
         since: "4.3.0"
-        notes: | Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
+        notes: |
+            Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS 9 and later.
     summary: |
         Marks the end of an openParentApplication:reply execution by a WatchKit extension.
         Available only on iOS 8.2 and later.
@@ -287,20 +288,20 @@ properties:
         These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
         NSUserActivityTypes must be defined at build time in your tiapp.xml file as shown below:
 
-			<ios>
-			    <plist>
-			        <dict>
-					  <key>NSUserActivityTypes</key>
-					  <array>
-						  <string>com.setdirection.home</string>
-						  <string>com.setdirection.shelf</string>
-						  <string>com.setdirection.item</string>
-					  </array>
-			        </dict>
-			    </plist>
-			</ios>
+            <ios>
+              <plist>
+              <dict>
+                <key>NSUserActivityTypes</key>
+                  <array>
+                    <string>com.setdirection.home</string>
+                    <string>com.setdirection.shelf</string>
+                    <string>com.setdirection.item</string>
+                  </array>
+                </dict>
+                </plist>
+              </ios>
 
-    type: Array<string>
+    type: Array<String>
     permission: read-only
     osver: {ios: {min: "8.0"}}
     since: "4.3.0"
@@ -645,7 +646,8 @@ events:
   - name: watchkitextensionrequest
     deprecated:
         since: "4.3.0"
-        notes: | Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
+        notes: |
+            Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
         Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
@@ -696,18 +698,15 @@ events:
         summary: |
             The optional title provided to the handoff user activity.
         type: String
-        optional: true
       - name: webpageURL
         summary: |
             The optional webpageURL provided to the handoff user activity.
         type: String
-        optional: true
       - name: userInfo
         summary: |
             The optional userInfo provided to the handoff user activity.  The userInfo is a custom dictionary and can contain any information needed 
             to create your handoff session.
         type: Dictionary
-        optional: true        
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.2"}}
     since: '4.3.0'

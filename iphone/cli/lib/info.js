@@ -34,6 +34,7 @@ exports.detect = function (types, config, next) {
 		// xcode
 		searchPath: config.get('paths.xcode'),
 		minIosVersion: iosPackageJson.minIosVersion,
+		minWatchosVersion: iosPackageJson.minWatchosVersion,
 		supportedVersions: iosPackageJson.vendorDependencies.xcode
 	}, function (err, results) {
 		results.devices.unshift({
@@ -109,13 +110,20 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	if (Object.keys(data.xcode).length) {
 		Object.keys(data.xcode).sort().reverse().forEach(function (ver) {
 			var x = data.xcode[ver];
-			logger.log(
-				'  ' + (x.version + ' (build ' + x.build + ')' + (x.selected ? ' - Xcode default' : '')).cyan + '\n' +
-				'  ' + rpad('  ' + __('Install Location'))                  + ' = ' + styleValue(x.path) + '\n' +
-				'  ' + rpad('  ' + __('iOS SDKs'))                          + ' = ' + styleValue(x.sdks.length ? x.sdks.join(', ') : 'none') + '\n' +
-				'  ' + rpad('  ' + __('iOS Simulators'))                    + ' = ' + styleValue(x.sims.length ? x.sims.join(', ') : 'none') + '\n' +
-				'  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no')
-			);
+			logger.log('  ' + (x.version + ' (build ' + x.build + ')' + (x.selected ? ' - Xcode default' : '')).cyan);
+			logger.log('  ' + rpad('  ' + __('Install Location'))                  + ' = ' + styleValue(x.path));
+			logger.log('  ' + rpad('  ' + __('iOS SDKs'))                          + ' = ' + styleValue(x.sdks.length ? x.sdks.join(', ') : 'none'));
+			logger.log('  ' + rpad('  ' + __('iOS Simulators'))                    + ' = ' + styleValue(x.sims.length ? x.sims.join(', ') : 'none'));
+
+			if (x.watchos) {
+				logger.log('  ' + rpad('  ' + __('Watch SDKs'))                    + ' = ' + styleValue(x.watchos.sdks.length ? x.watchos.sdks.join(', ') : 'none'));
+				logger.log('  ' + rpad('  ' + __('Watch Simulators'))              + ' = ' + styleValue(x.watchos.sims.length ? x.watchos.sims.join(', ') : 'none'));
+			} else {
+				logger.log('  ' + rpad('  ' + __('Watch SDKs'))                    + ' = ' + styleValue(__('not supported')));
+				logger.log('  ' + rpad('  ' + __('Watch Simulators'))              + ' = ' + styleValue(__('not supported')));
+			}
+
+			logger.log('  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no'));
 		});
 		logger.log();
 	} else {
@@ -207,12 +215,27 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	printProfiles(data.provisioning.adhoc);
 
 	logger.log(styleHeading(__('iOS Simulators')));
-	if (data.simulators && Object.keys(data.simulators).length) {
-		Object.keys(data.simulators).sort().reverse().forEach(function (iosVer) {
-			logger.log(String(iosVer).grey);
-			logger.log(data.simulators[iosVer].map(function (sim) {
-				return '  ' + sim.name.cyan + (' (' + sim.type + ')').grey + '\n' + [
-					'  ' + rpad('  ' + __('UDID'))         + ' = ' + styleValue(sim.udid)
+	if (data.simulators.ios && Object.keys(data.simulators.ios).length) {
+		Object.keys(data.simulators.ios).sort().forEach(function (ver) {
+			logger.log(String(ver).grey);
+			logger.log(data.simulators.ios[ver].map(function (sim) {
+				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
+					'  ' + rpad('  ' + __('UDID'))                + ' = ' + styleValue(sim.udid),
+					'  ' + rpad('  ' + __('Supports Watch Apps')) + ' = ' + styleValue(Object.keys(sim.supportsWatch).filter(function (x) { return sim.supportsWatch[x]; }).length ? __('yes') : __('no'))
+				].join('\n');
+			}).join('\n') + '\n');
+		});
+	} else {
+		logger.log('  ' + __('None').grey + '\n');
+	}
+
+	logger.log(styleHeading(__('WatchOS Simulators')));
+	if (data.simulators.watchos && Object.keys(data.simulators.watchos).length) {
+		Object.keys(data.simulators.watchos).sort().forEach(function (ver) {
+			logger.log(String(ver).grey);
+			logger.log(data.simulators.watchos[ver].map(function (sim) {
+				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [
+					'  ' + rpad('  ' + __('UDID')) + ' = ' + styleValue(sim.udid)
 				].join('\n');
 			}).join('\n') + '\n');
 		});

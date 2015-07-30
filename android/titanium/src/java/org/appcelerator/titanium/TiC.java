@@ -220,6 +220,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_NO_RESULTS = "noresults";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_OPEN = "open";
 
 	/**
@@ -1520,6 +1525,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KIND = "kind";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LARGE_ICON = "largeIcon";
 
 	/**
 	 * @module.api

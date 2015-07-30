@@ -84,12 +84,12 @@ properties:
     since: 3.6.0
 
   - name: created
-    summary: Date and time that the person record was created. Single value. Deprecated for >=iOS9.
+    summary: Date and time that the person record was created. Single value. Deprecated since iOS 9.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}
+    osver: {ios: {max: "8.0"}}
     
   - name: date
     summary: Dates associated with the person. Multi-value.
@@ -145,7 +145,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     permission: read-only
-    osver: {ios: {min: "9.0"}
+    osver: {ios: {min: "9.0"}}
 
   - name: image
     summary: Image for the person. Single value. Read-only for >= iOS9
@@ -219,12 +219,12 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: modified
-    summary: Date and time that the person record was last modified. Single value. Deprecated for >= iOS9.
+    summary: Date and time that the person record was last modified. Single value. Deprecated since iOS 9.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}
+    osver: {ios: {max: "8.0"}}
     
   - name: nickname
     summary: Nickname of the person. Single value.
@@ -258,10 +258,10 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: recordId
-    summary: Record identifier of the person. Single value. Deprecated for >= iOS9.
+    summary: Record identifier of the person. Single value. Deprecated since iOS 9.
     type: Number
     platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}
+    osver: {ios: {max: "8.0"}}
     
   - name: relatedNames
     summary: Names of people to which the person is related. Multi-value.

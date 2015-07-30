@@ -356,8 +356,11 @@ events:
 
         While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
         Developers can listen to this event and perform appropriate actions when the search result set is empty.
-    platforms: [iphone, ipad]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: 4.2.0
+        iphone: 3.3.0
+        ipad: 3.3.0
     properties:
       - name: bubbles
         summary: false. This event does not bubble.

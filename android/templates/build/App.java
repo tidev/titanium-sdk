@@ -47,7 +47,6 @@ public final class <%= classname %>Application extends TiApplication
 
 		KrollRuntime.init(this, runtime);
 
-		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 
 <% appModules.forEach(function (module) { %>

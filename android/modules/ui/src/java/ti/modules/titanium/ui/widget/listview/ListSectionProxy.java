@@ -941,7 +941,7 @@ public class ListSectionProxy extends ViewProxy{
 		return false;
 	}
 
-	public void applyFilter(String searchText) {
+	public int applyFilter(String searchText) {
 		//Clear previous result
 		filterIndices.clear();
 		boolean caseInsensitive = getListView().getCaseInsensitive();
@@ -958,6 +958,7 @@ public class ListSectionProxy extends ViewProxy{
 				filterIndices.add(i);
 			}
 		}
+		return filterIndices.size();
 	}
 	
 	public void release() {

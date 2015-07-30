@@ -14,7 +14,7 @@ exports.cliVersion = '>=3.2.1';
 exports.init = function (logger, config, cli) {
 
 	var cmds,
-		archs,
+		archs = ['armv7', 'arm64', 'x86_64', 'i386'],
 		libfile;
 
 	/**
@@ -31,15 +31,14 @@ exports.init = function (logger, config, cli) {
 			var hlmodules = [],
 				nhlmodules = [],
 				hash = require('crypto').createHash('sha1');
-			
+
 			cmds = [];
-			archs = data.architectures.split(' ');
 
 			for (var c=0;c<data.nativeLibModules.length;c++) {
 				var m = data.nativeLibModules[c];
 				if (m.native && m.manifest.hyperloop=='true') {
 					hlmodules.push(m);
-					// we hash each module entry so that if any of the 
+					// we hash each module entry so that if any of the
 					// modules change (add/remove,etc) we will rebuild
 					// this merged file again
 					hash.update(JSON.stringify(m));
@@ -59,15 +58,15 @@ exports.init = function (logger, config, cli) {
 					libname = 'lib'+libid+'.a';
 
 				libfile = path.join(data.iosBuildDir,libname);
-				
+
 				// push our fake merged library
 				nhlmodules.push({
 					libName: libname,
 					libFile: libfile,
 				});
 				data.nativeLibModules = nhlmodules;
-			}	
-			next();		
+			}
+			next();
 		}
 	});
 
@@ -87,9 +86,9 @@ exports.init = function (logger, config, cli) {
 				});
 
 				if (fs.existsSync(libfile) && !data.ctx.forceRebuild) {
-					return next();	
+					return next();
 				}
-				
+
 				var savedir = process.cwd(),
 					index = 0,
 					bldcmd = '/usr/bin/lipo ';
