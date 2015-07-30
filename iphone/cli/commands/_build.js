@@ -3190,6 +3190,8 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				};
 
 				if (appFiles[filename]) {
+					//For appc, this need to be copied from templatesDir
+					contents = fs.readFileSync(path.join(this.templatesDir, filename));
 					contents = ejs.render(contents.toString(), appFiles[filename]);
 					if (!destExists || contents !== existingContent.toString()) {
 						if (!this.forceRebuild) {
@@ -3588,7 +3590,7 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 			this.logger.debug(__('Copying CommonJS files'));
 			this.commonJsModules.forEach(function (module) {
 				var dest = path.join(this.xcodeAppDir, path.basename(module.libFile));
-				if (!this.copyFileSync(module.libFile, dest)) {
+				if (!this.copyFileSync(module.libFile, dest, {isCommonJSModule: true})) {
 					this.logger.trace(__('No change, skipping %s', dest.cyan));
 				}
 				delete this.buildDirFiles[dest];
