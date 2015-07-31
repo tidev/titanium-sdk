@@ -174,14 +174,16 @@ exports.init = function (logger, config, cli) {
 						runningCount--;
 						quit();
 					}).on('error', function (err) {
-						err = err.message || err;
-						logger.error(err);
+						err = err.message || err.toString();
+						var details;
 						if (err.indexOf('0xe8008017') !== -1) {
-							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.'));
+							details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
+						} else if (err.indexOf('0xe800007f') !== -1) {
+							details = __('Try reconnecting your device and try again.');
 						} else if (err.indexOf('0xe8008016') !== -1) {
-							logger.error(__('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.'));
+							details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
 						}
-						next && next(err);
+						next && next(new appc.exception(err, details));
 						next = null;
 					}).on('disconnect', function () {
 						if (!running) {

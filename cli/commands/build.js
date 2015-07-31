@@ -318,7 +318,11 @@ exports.run = function (logger, config, cli, finished) {
 				logger.log.end();
 				process.exit(1);
 			} else {
-//				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				// eventually all platforms will just show how long the build took since they
+				// are responsible for showing the own logging.
+				if (platform !== 'iphone') {
+					logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				}
 				logger.log.end();
 			}
 

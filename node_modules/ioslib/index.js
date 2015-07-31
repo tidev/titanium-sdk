@@ -18,6 +18,7 @@ const
 	magik        = exports.magik        = require('./lib/utilities').magik,
 	provisioning = exports.provisioning = require('./lib/provisioning'),
 	simulator    = exports.simulator    = require('./lib/simulator'),
+	utilities    = exports.utilities    = require('./lib/utilities'),
 	xcode        = exports.xcode        = require('./lib/xcode');
 
 var cache;

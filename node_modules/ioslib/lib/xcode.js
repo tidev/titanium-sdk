@@ -198,7 +198,9 @@ exports.detect = function detect(options, callback) {
 									ver = p.ProductVersion;
 								}
 							}
-							vers.push(ver);
+							if (vers.indexOf(ver) === -1) {
+								vers.push(ver);
+							}
 						}
 					});
 				}
