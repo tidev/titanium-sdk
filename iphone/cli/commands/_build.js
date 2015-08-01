@@ -1664,7 +1664,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					iosVersion:             this.iosSdkVersion,
 					simType:                deviceFamily === 'ipad' ? 'ipad' : 'iphone',
 					simVersion:             this.iosSdkVersion,
-					watchAppBeingInstalled: cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only'],
+					watchAppBeingInstalled: this.hasWatchAppV1 || this.hasWatchAppV2orNewer,
 					watchHandleOrUDID:      cli.argv['watch-device-id'],
 					watchMinOSVersion:      this.watchMinOSVersion,
 					logger: function (msg) {
