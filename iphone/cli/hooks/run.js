@@ -47,7 +47,7 @@ exports.init = function (logger, config, cli) {
 				launchWatchApp: builder.hasWatchApp && cli.argv['launch-watch-app'],
 				launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
 				logFilename: builder.tiapp.guid + '.log',
-				watchUDID: builder.watchSimHandle,
+				watchHandleOrUDID: builder.watchSimHandle,
 				watchAppName: cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				if (!simStarted) {

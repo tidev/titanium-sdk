@@ -1101,7 +1101,8 @@ iOSBuilder.prototype.configOptionWatchAppName = function configOptionWatchAppNam
  */
 iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDeviceId(order) {
 	var cli = this.cli,
-		watchSims = this.iosInfo.simulators.watchos;
+		watchSims = this.iosInfo.simulators.watchos,
+		xcodes = this.iosInfo.xcode;
 
 	return {
 		desc: __('the watch simulator UDID to launch when building an app with a watch app; only used when target is %s', 'simulator'.cyan),
@@ -1113,14 +1114,24 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 
 			var options = {},
 				maxName = 0,
-				maxDesc = 0;
+				maxDesc = 0,
+				iosSdkVersion = cli.argv['ios-version'];
 
 			Object.keys(watchSims).forEach(function (sdk) {
 				watchSims[sdk].forEach(function (sim) {
-					options[sdk] || (options[sdk] = []);
-					options[sdk].push(sim);
-					if (sim.name.length > maxName) {
-						maxName = sim.name.length;
+					// check iOS SDK compatibility
+					if (!iosSdkVersion ||
+							Object.keys(sim.supportsXcode).some(function (xcodeId) {
+								if (sim.supportsXcode[xcodeId] && xcodes[xcodeId].sdks.indexOf(iosSdkVersion) !== -1) {
+									return true;
+								}
+							})
+					) {
+						options[sdk] || (options[sdk] = []);
+						options[sdk].push(sim);
+						if (sim.name.length > maxName) {
+							maxName = sim.name.length;
+						}
 					}
 				});
 			});
@@ -1149,11 +1160,15 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 			callback(fields.select(params));
 		},
 		validate: function (value, callback) {
-			callback(cli.argv.target === 'simulator' && (!value || value === true || !Object.keys(watchSims).some(function (ver) {
-				return watchSims[ver].some(function (sim) {
-					return sim.udid === value;
-				});
-			})), value);
+			if (cli.argv.target === 'simulator') {
+				if (!value || value === true) {
+					callback(true);
+				} else if (!Object.keys(watchSims).some(function (ver) { return watchSims[ver].some(function (sim) { return sim.udid === value; }); })) {
+					callback(new Error(__('Invalid Watch Simulator UDID "%s"', value)));
+				}
+			} else {
+				callback(null, value);
+			}
 		}
 	};
 };
@@ -1800,6 +1815,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			cli.emit('build.pre.construct', this, next);
 		},
 
+		// initialization
 		'doAnalytics',
 		'initialize',
 		'loginfo',
@@ -1820,6 +1836,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 
 		// xcode related tasks
 		'createXcodeProject',
+		'writeDebugProfilePlists',
 		'writeEntitlementsPlist',
 		'writeInfoPlist',
 		'writeMain',
@@ -1833,24 +1850,17 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'copyItunesArtwork',
 		'copyTitaniumFiles',
 		'encryptJSFiles',
-		'writeDebugProfilePlists',
 		'writeI18NFiles',
 		'processTiSymbols',
-		'optimizeFiles',
+
+		// cleanup and optimization
 		'removeFiles',
+		'optimizeFiles',
 
-/*
-		function () {
-			if (!this.forceRebuild && this.target !== 'simulator') {
-				this.logger.info(__('Forcing rebuild: App needs to be code signed'));
-				this.forceRebuild = true;
-				var codeSigDir = path.join(this.xcodeAppDir, '_CodeSignature');
-				fs.existsSync(codeSigDir) && wrench.rmdirSyncRecursive(codeSigDir);
-			}
-		},
-*/
-
+		// build baby, build
 		'invokeXcodeBuild',
+
+		// finalize
 		'writeBuildManifest',
 
 		function (next) {
@@ -1868,7 +1878,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 	], finished);
 };
 
-iOSBuilder.prototype.doAnalytics = function doAnalytics(next) {
+iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 	var cli = this.cli,
 		eventName = cli.argv['device-family'] + '.' + cli.argv.target;
 
@@ -1896,8 +1906,6 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics(next) {
 		copyright: cli.tiapp.copyright,
 		date: (new Date()).toDateString()
 	});
-
-	next();
 };
 
 iOSBuilder.prototype.initialize = function initialize() {
@@ -1974,7 +1982,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	delete this.buildDirFiles[this.imagesOptimizedFile];
 };
 
-iOSBuilder.prototype.loginfo = function loginfo(next) {
+iOSBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', cyan(this.platformPath)));
 	this.logger.info(__('Deploy type: %s', cyan(this.deployType)));
 	this.logger.info(__('Building for target: %s', cyan(this.target)));
@@ -2033,8 +2041,6 @@ iOSBuilder.prototype.loginfo = function loginfo(next) {
 	} else {
 		this.logger.info(__('Set to copy files instead of symlinking'));
 	}
-
-	next();
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
@@ -2858,6 +2864,55 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	hook(xcodeProject, next);
+};
+
+iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
+	this.logger.info(__('Creating debugger and profiler plists'));
+
+	function processPlist(filename, host) {
+		var src = path.join(this.templatesDir, filename),
+			dest = path.join(this.xcodeAppDir, filename),
+			exists = fs.existsSync(dest);
+
+		if (host) {
+			var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[filename],
+				parts = host.split(':'),
+				contents = ejs.render(fs.readFileSync(src).toString(), {
+					host: parts.length > 0 ? parts[0] : '',
+					port: parts.length > 1 ? parts[1] : '',
+					airkey: parts.length > 2 ? parts[2] : '',
+					hosts: parts.length > 3 ? parts[3] : ''
+				}),
+				hash = this.hash(contents);
+
+			this.currentBuildManifest.files[filename] = {
+				hash:  hash,
+				mtime: 0,
+				size:  contents.length
+			};
+
+			if (!exists || !prev || prev.size !== contents.length || prev.hash !== hash) {
+				if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
+					this.forceRebuild = true;
+				}
+				this.logger.debug(__('Writing %s', dest.cyan));
+				fs.writeFileSync(dest, contents);
+			} else {
+				this.logger.trace(__('No change, skipping %s', dest.cyan));
+			}
+		} else if (exists) {
+			this.logger.debug(__('Removing %s', dest.cyan));
+			fs.unlinkSync(dest);
+		} else {
+			this.logger.debug(__('Skipping %s', dest.cyan));
+		}
+
+		delete this.buildDirFiles[dest];
+	}
+
+	processPlist.call(this, 'debugger.plist', this.debugHost);
+	processPlist.call(this, 'profiler.plist', this.profilerHost);
 };
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
@@ -3979,55 +4034,6 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 	);
 };
 
-iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
-	this.logger.info(__('Creating debugger and profiler plists'));
-
-	function processPlist(filename, host) {
-		var src = path.join(this.templatesDir, filename),
-			dest = path.join(this.xcodeAppDir, filename),
-			exists = fs.existsSync(dest);
-
-		if (host) {
-			var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[filename],
-				parts = host.split(':'),
-				contents = ejs.render(fs.readFileSync(src).toString(), {
-					host: parts.length > 0 ? parts[0] : '',
-					port: parts.length > 1 ? parts[1] : '',
-					airkey: parts.length > 2 ? parts[2] : '',
-					hosts: parts.length > 3 ? parts[3] : ''
-				}),
-				hash = this.hash(contents);
-
-			this.currentBuildManifest.files[filename] = {
-				hash:  hash,
-				mtime: 0,
-				size:  contents.length
-			};
-
-			if (!exists || !prev || prev.size !== contents.length || prev.hash !== hash) {
-				if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
-					this.forceRebuild = true;
-				}
-				this.logger.debug(__('Writing %s', dest.cyan));
-				fs.writeFileSync(dest, contents);
-			} else {
-				this.logger.trace(__('No change, skipping %s', dest.cyan));
-			}
-		} else if (exists) {
-			this.logger.debug(__('Removing %s', dest.cyan));
-			fs.unlinkSync(dest);
-		} else {
-			this.logger.debug(__('Skipping %s', dest.cyan));
-		}
-
-		delete this.buildDirFiles[dest];
-	}
-
-	processPlist.call(this, 'debugger.plist', this.debugHost);
-	processPlist.call(this, 'profiler.plist', this.profilerHost);
-};
-
 iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 	this.logger.info(__('Writing i18n files'));
 
@@ -4227,6 +4233,38 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	}
 };
 
+iOSBuilder.prototype.removeFiles = function removeFiles(next) {
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
+	this.products.forEach(function (product) {
+		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product));
+		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product + '.dSYM'));
+	}, this);
+	this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, '_CodeSignature'));
+
+	// mark a few files that would be generated by xcodebuild
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, this.tiapp.name)];
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'Info.plist')];
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'PkgInfo')];
+	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'embedded.mobileprovision')];
+
+	this.logger.info(__('Removing files'));
+
+	var hook = this.cli.createHook('build.ios.removeFiles', this, function (done) {
+		Object.keys(this.buildDirFiles).forEach(function (file) {
+			try {
+				this.logger.debug(__('Removing %s', file.cyan));
+				fs.unlinkSync(file);
+			} catch (ex) {}
+		}, this);
+		done();
+	});
+
+	hook(function () {
+		this.logger.debug(__('Removing empty directories'));
+		appc.subprocess.run('find', ['.', '-type', 'd', '-empty', '-delete'], { cwd: this.xcodeAppDir }, next);
+	}.bind(this));
+};
+
 iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	// if we're doing a simulator build, return now since we don't care about optimizing images
 	if (this.target === 'simulator') {
@@ -4307,33 +4345,6 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 		appc.fs.touch(this.imagesOptimizedFile);
 		next();
 	});
-};
-
-iOSBuilder.prototype.removeFiles = function removeFiles(next) {
-	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
-	this.products.forEach(function (product) {
-		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product));
-		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product + '.dSYM'));
-	}, this);
-	this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, '_CodeSignature'));
-
-	// mark a few files that would be generated by xcodebuild
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, this.tiapp.name)];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'Info.plist')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'PkgInfo')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'embedded.mobileprovision')];
-
-	this.logger.info(__('Removing files'));
-
-	Object.keys(this.buildDirFiles).forEach(function (file) {
-		try {
-			this.logger.debug(__('Removing %s', file.cyan));
-			fs.unlinkSync(file);
-		} catch (ex) {}
-	}, this);
-
-	this.logger.debug(__('Removing empty directories'));
-	appc.subprocess.run('find', ['.', '-type', 'd', '-empty', '-delete'], { cwd: this.xcodeAppDir }, next);
 };
 
 iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
@@ -4431,14 +4442,20 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			}.bind(this));
 		});
 
+	var args = [
+		'build',
+		'-target', this.tiapp.name,
+		'-configuration', this.xcodeTarget,
+		'-scheme', this.tiapp.name
+	];
+
+	if (this.simHandle) {
+		args.push('-destination', "platform='iOS Simulator',OS=" + appc.version.format(this.simHandle.version, 2, 2) + ",name='" + this.simHandle.deviceName + "'");
+	}
+
 	xcodebuildHook(
 		this.xcodeEnv.executables.xcodebuild,
-		[
-			'build',
-			'-target', this.tiapp.name,
-			'-configuration', this.xcodeTarget,
-			'-sdk', this.xcodeTargetOS
-		],
+		args,
 		{
 			cwd: this.buildDir,
 			env: {
