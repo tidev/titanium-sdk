@@ -1836,7 +1836,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 
 		// xcode related tasks
 		'createXcodeProject',
-		'writeDebugProfilePlists',
 		'writeEntitlementsPlist',
 		'writeInfoPlist',
 		'writeMain',
@@ -1847,6 +1846,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'cleanXcodeDerivedData',
 
 		// titanium related tasks
+		'writeDebugProfilePlists',
 		'copyItunesArtwork',
 		'copyTitaniumFiles',
 		'encryptJSFiles',
@@ -1976,10 +1976,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 		}, this)) {
 		this.tiapp.icon = 'appicon.png';
 	}
-
-	this.imagesOptimizedFile = path.join(this.buildDir, 'images_optimized');
-	fs.existsSync(this.imagesOptimizedFile) && fs.unlinkSync(this.imagesOptimizedFile);
-	delete this.buildDirFiles[this.imagesOptimizedFile];
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2406,46 +2402,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 	});
 
-	// add the post-compile phase
-	this.logger.trace(__('Adding post-compile phase'));
-	var postCompilePhaseUuid = generateUuid();
-	xobjs.PBXShellScriptBuildPhase[postCompilePhaseUuid] = {
-		isa: 'PBXShellScriptBuildPhase',
-		buildActionMask: 2147483647,
-		files: [],
-		inputPaths: [],
-		name: '"Post-Compile"',
-		outputPaths: [],
-		runOnlyForDeploymentPostprocessing: 0,
-		shellPath: '/bin/sh',
-		shellScript: '"' + [
-			'if [ \\"x$TITANIUM_CLI_IMAGES_OPTIMIZED\\" != \\"x\\" ]; then',
-			'    if [ -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]; then',
-			'        echo \\"Xcode Post-Compile Phase: Image optimization finished before xcodebuild finished, continuing\\"',
-			'    else',
-			'        echo \\"Xcode Post-Compile Phase: Waiting for image optimization to complete\\"',
-			'        echo \\"Xcode Post-Compile Phase: $TITANIUM_CLI_IMAGES_OPTIMIZED\\"',
-			'        while [ ! -f \\"$TITANIUM_CLI_IMAGES_OPTIMIZED\\" ]',
-			'        do',
-			'            sleep 1',
-			'        done',
-			'        echo \\"Xcode Post-Compile Phase: Image optimization complete, continuing\\"',
-			'    fi',
-			'fi'
-		].join('\\n') + '"'
-	};
-	xobjs.PBXShellScriptBuildPhase[postCompilePhaseUuid + '_comment'] = 'Post-Compile';
-
-	Object.keys(xobjs.PBXNativeTarget).some(function (targetUuid) {
-		if (xobjs.PBXNativeTarget[targetUuid].name === appName) {
-			xobjs.PBXNativeTarget[targetUuid].buildPhases.push({
-				value: postCompilePhaseUuid,
-				comment: 'Post-Compile'
-			});
-			return true;
-		}
-	});
-
 	var projectUuid = xcodeProject.hash.project.rootObject,
 		pbxProject = xobjs.PBXProject[projectUuid],
 		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
@@ -2461,7 +2417,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
-			SDKROOT: this.xcodeTargetOS
+			SDKROOT: 'iphoneos'
 		};
 
 	if (this.target === 'simulator') {
@@ -2765,7 +2721,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						comment: 'PBXTargetDependency'
 					});
 
-					function addEmbedBuildPhase(name, dstPath) {
+					function addEmbedBuildPhase(name, dstPath, dstSubfolderSpec) {
 						embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === name; }).shift();
 						embedUuid = embedExtPhase && embedExtPhase.value;
 
@@ -2780,7 +2736,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								isa: 'PBXCopyFilesBuildPhase',
 								buildActionMask: 2147483647,
 								dstPath: '"' + (dstPath || '') + '"',
-								dstSubfolderSpec: 13, // type "plugin"
+								dstSubfolderSpec: dstSubfolderSpec,
 								files: [],
 								name: '"' + name + '"',
 								runOnlyForDeploymentPostprocessing: 0
@@ -2808,9 +2764,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 
 					if (targetInfo.isWatchAppV1Extension) {
-						addEmbedBuildPhase('Embed App Extensions');
+						addEmbedBuildPhase('Embed App Extensions', null, 13 /* type "plugin" */);
 					} else if (targetInfo.isWatchAppV2orNewer) {
-						addEmbedBuildPhase('Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch');
+						addEmbedBuildPhase('Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
 					}
 				}
 			}, this);
@@ -2864,55 +2820,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	hook(xcodeProject, next);
-};
-
-iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
-	this.logger.info(__('Creating debugger and profiler plists'));
-
-	function processPlist(filename, host) {
-		var src = path.join(this.templatesDir, filename),
-			dest = path.join(this.xcodeAppDir, filename),
-			exists = fs.existsSync(dest);
-
-		if (host) {
-			var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[filename],
-				parts = host.split(':'),
-				contents = ejs.render(fs.readFileSync(src).toString(), {
-					host: parts.length > 0 ? parts[0] : '',
-					port: parts.length > 1 ? parts[1] : '',
-					airkey: parts.length > 2 ? parts[2] : '',
-					hosts: parts.length > 3 ? parts[3] : ''
-				}),
-				hash = this.hash(contents);
-
-			this.currentBuildManifest.files[filename] = {
-				hash:  hash,
-				mtime: 0,
-				size:  contents.length
-			};
-
-			if (!exists || !prev || prev.size !== contents.length || prev.hash !== hash) {
-				if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
-					this.forceRebuild = true;
-				}
-				this.logger.debug(__('Writing %s', dest.cyan));
-				fs.writeFileSync(dest, contents);
-			} else {
-				this.logger.trace(__('No change, skipping %s', dest.cyan));
-			}
-		} else if (exists) {
-			this.logger.debug(__('Removing %s', dest.cyan));
-			fs.unlinkSync(dest);
-		} else {
-			this.logger.debug(__('Skipping %s', dest.cyan));
-		}
-
-		delete this.buildDirFiles[dest];
-	}
-
-	processPlist.call(this, 'debugger.plist', this.debugHost);
-	processPlist.call(this, 'profiler.plist', this.profilerHost);
 };
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
@@ -3499,9 +3406,43 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		});
 	}, this);
 
-	var pchFile = path.join(this.buildDir, name + '_Prefix.pch');
-	this.copyFileSync(path.join(this.platformPath, this.platformName, 'Titanium_Prefix.pch'), pchFile);
-	delete this.buildDirFiles[pchFile];
+	function copyAndReplaceFile(src) {
+		var srcStat = fs.statSync(src),
+			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
+			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
+			relPath = path.dirname(src).replace(this.platformPath + '/iphone', '').replace(/Titanium/g, name),
+			destFilename = path.basename(src).replace('Titanium', name),
+			dest = path.join(this.buildDir, relPath, destFilename),
+			destDir = path.dirname(dest),
+			destExists = fs.existsSync(dest),
+			destStat = destExists && fs.statSync(dest),
+			contents = null,
+			hash = null,
+			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== (hash = this.hash(contents = fs.readFileSync(src)));
+
+		if (fileChanged) {
+			if (contents === null) {
+				contents = fs.readFileSync(src);
+			}
+			this.logger.debug(__('Writing %s', dest.cyan));
+			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+			fs.writeFileSync(dest, contents.toString().replace(/Titanium/g, name));
+		} else {
+			this.logger.trace(__('No change, skipping %s', dest.cyan));
+		}
+
+		this.currentBuildManifest.files[rel] = {
+			hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
+			mtime: contents === null && prev ? prev.mtime : srcMtime,
+			size:  contents === null && prev ? prev.size  : srcStat.size
+		};
+
+		delete this.buildDirFiles[dest];
+	}
+
+	copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'Titanium_Prefix.pch'));
+	copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'));
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
@@ -3631,6 +3572,55 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 		}
 		next(code);
 	}.bind(this));
+};
+
+iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
+	this.logger.info(__('Creating debugger and profiler plists'));
+
+	function processPlist(filename, host) {
+		var src = path.join(this.templatesDir, filename),
+			dest = path.join(this.xcodeAppDir, filename),
+			exists = fs.existsSync(dest);
+
+		if (host) {
+			var prev = this.previousBuildManifest.files && this.previousBuildManifest.files[filename],
+				parts = host.split(':'),
+				contents = ejs.render(fs.readFileSync(src).toString(), {
+					host: parts.length > 0 ? parts[0] : '',
+					port: parts.length > 1 ? parts[1] : '',
+					airkey: parts.length > 2 ? parts[2] : '',
+					hosts: parts.length > 3 ? parts[3] : ''
+				}),
+				hash = this.hash(contents);
+
+			this.currentBuildManifest.files[filename] = {
+				hash:  hash,
+				mtime: 0,
+				size:  contents.length
+			};
+
+			if (!exists || !prev || prev.size !== contents.length || prev.hash !== hash) {
+				if (!this.forceRebuild && /device|dist\-appstore|dist\-adhoc/.test(this.target)) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
+					this.forceRebuild = true;
+				}
+				this.logger.debug(__('Writing %s', dest.cyan));
+				fs.writeFileSync(dest, contents);
+			} else {
+				this.logger.trace(__('No change, skipping %s', dest.cyan));
+			}
+		} else if (exists) {
+			this.logger.debug(__('Removing %s', dest.cyan));
+			fs.unlinkSync(dest);
+		} else {
+			this.logger.debug(__('Skipping %s', dest.cyan));
+		}
+
+		delete this.buildDirFiles[dest];
+	}
+
+	processPlist.call(this, 'debugger.plist', this.debugHost);
+	processPlist.call(this, 'profiler.plist', this.profilerHost);
 };
 
 iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork() {
@@ -4340,11 +4330,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				}.bind(this));
 			}.bind(this), next);
 		}
-	], function (err) {
-		this.logger.debug(__('Image optimization complete'));
-		appc.fs.touch(this.imagesOptimizedFile);
-		next();
-	});
+	], next);
 };
 
 iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
@@ -4362,7 +4348,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				out = [],
 				err = [],
 				stopOutputting = false,
-				buffer = '';
+				buffer = '',
+				clangCompileMFileRegExp = / \-c ((?:.+)\.m) /,
+				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs) /;
 
 			function printLine(line) {
 				if (line.length) {
@@ -4371,7 +4359,26 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 						stopOutputting = true;
 					}
 					if (!stopOutputting) {
-						this.logger.trace(line);
+						if (taskRegExp.test(line)) {
+							// add a blank line between tasks to make things easier to read
+							this.logger.trace();
+							this.logger.trace(line.cyan);
+						} else if (line.indexOf('=== BUILD TARGET ') !== -1) {
+							// build target
+							this.logger.trace();
+							this.logger.trace(line.magenta);
+						} else if (/^\s+export /.test(line)) {
+							// environment variable
+							this.logger.trace(line.grey);
+						} else if (line.indexOf('/usr/bin/clang') !== -1) {
+							// highlight the source file being compiled
+							this.logger.trace(line.replace(clangCompileMFileRegExp, ' -c ' + '$1'.green + ' '));
+						} else if (line === '** BUILD SUCCEEDED **') {
+							this.logger.trace();
+							this.logger.trace(line.green);
+						} else {
+							this.logger.trace(line);
+						}
 					}
 				}
 			}
@@ -4450,7 +4457,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (this.simHandle) {
-		args.push('-destination', "platform='iOS Simulator',OS=" + appc.version.format(this.simHandle.version, 2, 2) + ",name='" + this.simHandle.deviceName + "'");
+		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('CONFIGURATION_BUILD_DIR=build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)');
 	}
 
 	xcodebuildHook(
@@ -4463,8 +4471,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				TMPDIR: process.env.TMPDIR,
 				HOME: process.env.HOME,
 				PATH: process.env.PATH,
-				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/',
-				TITANIUM_CLI_IMAGES_OPTIMIZED: this.target === 'simulator' ? '' : this.imagesOptimizedFile
+				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
 			}
 		},
 		next

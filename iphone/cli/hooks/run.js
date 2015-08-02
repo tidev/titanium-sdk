@@ -92,7 +92,7 @@ exports.init = function (logger, config, cli) {
 				finished = null;
 			}).on('error', function (err) {
 				endLog();
-				logger.error(err);
+				logger.error(err.message || err.toString());
 				logger.log();
 				process.exit(0);
 			});
