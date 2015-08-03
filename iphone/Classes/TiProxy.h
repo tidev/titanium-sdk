@@ -10,6 +10,10 @@
 #import "TiBindingRunLoop.h"
 #import <pthread.h>
 
+#ifndef TI_BASE_H
+#import "TiBase.h"
+#endif
+
 @class KrollBridge;
 @class KrollObject;
 
