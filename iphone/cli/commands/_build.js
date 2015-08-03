@@ -976,9 +976,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				promptLabel: __('Select a provisioning profile UUID by number or name'),
 				formatters: {
 					option: function (opt, idx, num) {
-						var expires = moment(opt.expirationDate),
-							day = expires.format('D'),
-							hour = expires.format('h');
+						var expires = opt.expirationDate && moment(opt.expirationDate),
+							day = expires && expires.format('D'),
+							hour = expires && expires.format('h');
 						return '  ' + num + String(opt.uuid).cyan + ' '
 							+ appc.string.rpad(opt.label, maxAppId + 1)
 							+ (opt.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
@@ -1433,32 +1433,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 						// we have found our target!
 
-						if (cli.argv.target !== 'simulator') {
-							// check that all target provisioning profile uuids are valid
-							if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
-								logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
-								logger.log();
-								logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-								logger.log('    <ios>'.grey);
-								logger.log('        <extensions>'.grey);
-								logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
-								logger.log(('                <target name="' + targetName + '">').grey);
-								logger.log('                    <provisioning-profiles>'.grey);
-								logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
-								logger.log('                    </provisioning-profiles>'.grey);
-								logger.log('                </target>'.grey);
-								logger.log('            </extension>'.grey);
-								logger.log('        </extensions>'.grey);
-								logger.log('    </ios>'.grey);
-								logger.log('</ti:app>'.grey);
-								logger.log();
-								process.exit(1);
-							}
-						}
-
-						// we don't need the tiapp target lookup anymore
-						delete tiappTargets[targetName];
-
 						var nativeTarget = ext.objs.PBXNativeTarget[t.value],
 
 							cfg = ext.objs.XCConfigurationList[nativeTarget.buildConfigurationList],
@@ -1551,6 +1525,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 											process.exit(1);
 										}
 
+										ext.targetInfo.id = plist.CFBundleIdentifier;
+
 										return true;
 									}
 								});
@@ -1558,6 +1534,92 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 							return true;
 						});
+
+						if (cli.argv.target !== 'simulator') {
+							// check that all target provisioning profile uuids are valid
+							if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
+								logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+								logger.log();
+								logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+								logger.log('    <ios>'.grey);
+								logger.log('        <extensions>'.grey);
+								logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
+								logger.log(('                <target name="' + targetName + '">').grey);
+								logger.log('                    <provisioning-profiles>'.grey);
+								logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
+								logger.log('                    </provisioning-profiles>'.grey);
+								logger.log('                </target>'.grey);
+								logger.log('            </extension>'.grey);
+								logger.log('        </extensions>'.grey);
+								logger.log('    </ios>'.grey);
+								logger.log('</ti:app>'.grey);
+								logger.log();
+								process.exit(1);
+							}
+
+							// check that the PP UUID is correct
+							var ppuuid = tiappTargets[targetName].ppUUIDs[cli.argv.target],
+								pps = [],
+								pp;
+
+							function getPPbyUUID() {
+								return pps
+									.filter(function (p) {
+										if (!p.expired && p.uuid === ppuuid) {
+											return true;
+										}
+									})
+									.shift();
+							}
+
+							if (cli.argv.target === 'device') {
+								pps = this.iosInfo.provisioning.development;
+								pp = getPPbyUUID();
+							} else if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
+								pps = [].concat(this.iosInfo.provisioning.distribution, this.iosInfo.provisioning.adhoc);
+								pp = getPPbyUUID();
+							}
+
+							if (!pp) {
+								logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
+								logger.error(__('Unable to find a valid provisioning profile matching the UUID "%s".', ppuuid) + '\n');
+								process.exit(1);
+							}
+
+							if (ext.targetInfo.id && !(new RegExp('^' + pp.appId.replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id)) {
+								logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
+								logger.error(__('The provisioning profile "%s" is tied to the application identifier "%s", however the extension\'s identifier is "%s".', ppuuid, pp.appId, ext.targetInfo.id));
+								logger.log();
+
+								var matches = pps.filter(function (p) { return !p.expired && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
+								if (matches.length) {
+									logger.log(__('Did you mean?'));
+									var max = 0;
+									matches.forEach(function (m) {
+										if (m.appId.length > max) {
+											max = m.appId.length;
+										}
+									});
+									matches.forEach(function (m) {
+										var expires = m.expirationDate && moment(m.expirationDate),
+											day = expires && expires.format('D'),
+											hour = expires && expires.format('h');
+										logger.log('  ' + String(m.uuid).cyan + ' '
+											+ appc.string.rpad(m.appId, max + 1)
+											+ (m.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
+											+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
+											+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
+											+ ')').grey : ''));
+									});
+									logger.log();
+								}
+
+								process.exit(1);
+							}
+						}
+
+						// we don't need the tiapp target lookup anymore
+						delete tiappTargets[targetName];
 					}, this);
 
 					// check if we're missing any targets
@@ -1594,27 +1656,31 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
 					// we'll let ioslib suggest an iOS version
 				} else { // device, dist-appstore, dist-adhoc
-					// pick the latest ios sdk
-					if (this.iosInfo.selectedXcode && this.iosInfo.selectedXcode.supported && this.iosInfo.selectedXcode.sdks.length) {
-						var sdks = this.iosInfo.selectedXcode.sdks.sort();
-						this.iosSdkVersion = sdks[sdks.length - 1];
-						this.xcodeEnv = this.iosInfo.selectedXcode;
-					} else {
-						// start scanning Xcodes until we find any iOS SDK
-						Object.keys(this.iosInfo.xcode).sort().reverse().some(function (ver) {
-							if (this.iosInfo.xcode[ver].supported && this.iosInfo.xcode[ver].sdks.length) {
-								var sdks = this.iosInfo.xcode[ver].sdks.sort();
-								this.iosSdkVersion = sdks[sdks.length - 1];
-								this.xcodeEnv = this.iosInfo.xcode[ver];
-								return true;
-							}
+					var minVer = this.minSupportedIosSdk;
+					if (this.hasWatchAppV2orNewer && appc.version.lt(minVer, '9.0')) {
+						minVer = '9.0';
+					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
+						minVer = '8.4';
+					}
+
+					var xcodeInfo = this.iosInfo.xcode;
+					Object.keys(xcodeInfo)
+						.filter(function (id) { return xcodeInfo[id].supported; })
+						.sort(function (a, b) { return !xcodeInfo[a].selected || a > b; })
+						.some(function (id) {
+							return xcodeInfo[id].sdks.sort().reverse().some(function (ver) {
+								if (appc.version.gte(ver, minVer)) {
+									this.iosSdkVersion = ver;
+									this.xcodeEnv = xcodeInfo[id];
+									return true;
+								}
+							}, this);
 						}, this);
 
-						if (!this.iosSdkVersion) {
-							logger.error(__('Unable to find any Xcode installations with a supported iOS SDK.'));
-							logger.error(__('Please install the latest Xcode and point xcode-select to it.') + '\n');
-							process.exit(1);
-						}
+					if (!this.iosSdkVersion) {
+						logger.error(__('Unable to find any Xcode installations with a supported iOS SDK.'));
+						logger.error(__('Please install the latest Xcode and point xcode-select to it.') + '\n');
+						process.exit(1);
 					}
 				}
 			},
@@ -4350,7 +4416,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				stopOutputting = false,
 				buffer = '',
 				clangCompileMFileRegExp = / \-c ((?:.+)\.m) /,
-				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs) /;
+				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs|Strip|CodeSign|Validate) /;
 
 			function printLine(line) {
 				if (line.length) {
