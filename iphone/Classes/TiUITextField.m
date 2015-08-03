@@ -19,7 +19,7 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, leadingBarButtonGroups, trailingBarButtonGroups;
 
 -(void)configure
 {
@@ -31,7 +31,13 @@
 	paddingLeft = 0;
 	paddingRight = 0;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
-	[super setRightViewMode:UITextFieldViewModeAlways];	
+	[super setRightViewMode:UITextFieldViewModeAlways];
+    
+    // iOS9 QuickType (undo/redo)
+    if([TiUtils isIOS9OrGreater] == YES) {
+        leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+    }
 }
 
 -(void)dealloc
@@ -295,6 +301,23 @@
 
 
 #pragma mark Public APIs
+
+-(void)setShowUndoRedoActions_:(id)value
+{
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+    
+    TiTextField* tv = (TiTextField*)[self textWidgetView];
+    
+    if([TiUtils boolValue:value] == YES) {
+        tv.inputAssistantItem.leadingBarButtonGroups = [tv leadingBarButtonGroups];
+        tv.inputAssistantItem.trailingBarButtonGroups = [tv trailingBarButtonGroups];
+    } else {
+        tv.inputAssistantItem.leadingBarButtonGroups = @[];
+        tv.inputAssistantItem.trailingBarButtonGroups = @[];
+    }
+}
 
 -(void)setPaddingLeft_:(id)value
 {
