@@ -35,8 +35,10 @@
     
     // iOS9 QuickType (undo/redo)
     if([TiUtils isIOS9OrGreater] == YES) {
+#if IS_XCODE_7
         leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
         trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+#endif
     }
 }
 
@@ -307,9 +309,8 @@
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
-    
+#if IS_XCODE_7
     TiTextField* tv = (TiTextField*)[self textWidgetView];
-    
     if([TiUtils boolValue:value] == YES) {
         tv.inputAssistantItem.leadingBarButtonGroups = [tv leadingBarButtonGroups];
         tv.inputAssistantItem.trailingBarButtonGroups = [tv trailingBarButtonGroups];
@@ -317,6 +318,7 @@
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];
     }
+#endif
 }
 
 -(void)setPaddingLeft_:(id)value
