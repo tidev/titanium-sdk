@@ -30,6 +30,8 @@
 #define appleUndocumentedTextToneIdentifier -2
 #define appleUndocumentedTextVibrationIdentifier -102
 
+static NSArray* contactKeysWithImage;
+static NSArray* contactKeysWithoutImage;
 @implementation ContactsModule
 
 void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRef info,void *context)
@@ -38,6 +40,13 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     ContactsModule* theModule = (ContactsModule*) context;
     theModule->reloadAddressBook = YES;
     [theModule fireEvent:@"reload" withObject:nil];
+}
+
+-(void) contactStoreDidChange: (NSNotification*) notification
+{
+	if([self _hasListeners:@"reload"]) {
+		[self fireEvent:@"reload" withObject:nil];
+	}
 }
 
 // We'll force the address book to only be accessed on the main thread, for consistency.  Otherwise
@@ -64,7 +73,31 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	}
 	return addressBook;
 }
-
+#if IS_XCODE_7
+-(CNContactStore*)contactStore
+{
+    if (![NSThread isMainThread]) {
+        return NULL;
+    }
+    
+    if (reloadAddressBook && (contactStore != NULL) ) {
+        RELEASE_TO_NIL(contactStore);
+        contactStore = NULL;
+    }
+    reloadAddressBook = NO;
+    
+    if (contactStore == NULL) {
+        contactStore = [[CNContactStore alloc] init];
+        if (contactStore == NULL) {
+            DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
+        } else {
+			NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+			[nc addObserver:self selector:@selector(contactStoreDidChange:) name:CNContactStoreDidChangeNotification object:nil];
+        }
+    }
+    return contactStore;
+}
+#endif
 -(void)releaseAddressBook
 {
 	TiThreadPerformOnMainThread(^{
@@ -76,8 +109,35 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(void)startup
 {
 	[super startup];
+    if ([TiUtils isIOS9OrGreater]) {
+#if IS_XCODE_7
+        contactStore = NULL;
+#endif
+		return;
+    }
 	addressBook = NULL;
 }
+
+#if IS_XCODE_7
+//used for fetch predicates.
++(NSArray*)contactKeysWithImage
+{
+	if (contactKeysWithImage == nil) {
+		contactKeysWithImage = [[NSArray alloc] initWithObjects:CNContactNamePrefixKey, CNContactGivenNameKey,CNContactMiddleNameKey, CNContactFamilyNameKey, CNContactPreviousFamilyNameKey, CNContactNameSuffixKey, CNContactNicknameKey, CNContactPhoneticGivenNameKey, CNContactPhoneticGivenNameKey, CNContactPhoneticMiddleNameKey, CNContactPhoneticFamilyNameKey, CNContactOrganizationNameKey, CNContactDepartmentNameKey, CNContactJobTitleKey, CNContactBirthdayKey, CNContactNonGregorianBirthdayKey, CNContactNoteKey, CNContactTypeKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey
+							   , CNContactPostalAddressesKey, CNContactDatesKey, CNContactUrlAddressesKey, CNContactRelationsKey, CNContactSocialProfilesKey, CNContactInstantMessageAddressesKey, CNContactImageDataKey, CNContactImageDataAvailableKey, CNContactThumbnailImageDataKey, nil];
+	}
+	return contactKeysWithImage;
+}
+//reserved for future use
++(NSArray*)contactKeysWithoutImage
+{
+	if (contactKeysWithoutImage == nil) {
+		contactKeysWithoutImage = [[NSArray alloc] initWithObjects:CNContactNamePrefixKey, CNContactGivenNameKey,CNContactMiddleNameKey, CNContactFamilyNameKey, CNContactPreviousFamilyNameKey, CNContactNameSuffixKey, CNContactNicknameKey, CNContactPhoneticGivenNameKey, CNContactPhoneticGivenNameKey, CNContactPhoneticMiddleNameKey, CNContactPhoneticFamilyNameKey, CNContactOrganizationNameKey, CNContactDepartmentNameKey, CNContactJobTitleKey, CNContactBirthdayKey, CNContactNonGregorianBirthdayKey, CNContactNoteKey, CNContactTypeKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey
+								   , CNContactPostalAddressesKey, CNContactDatesKey, CNContactUrlAddressesKey, CNContactRelationsKey, CNContactSocialProfilesKey, CNContactInstantMessageAddressesKey, nil];
+	}
+	return contactKeysWithoutImage;
+}
+#endif
 
 -(void)dealloc
 {
@@ -88,7 +148,15 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	if (addressBook != NULL) {
 		[self releaseAddressBook];
 	}
-	[super dealloc];
+    RELEASE_TO_NIL(contactKeysWithoutImage)
+	RELEASE_TO_NIL(contactKeysWithImage)
+#if IS_XCODE_7
+	RELEASE_TO_NIL(contactStore)
+	RELEASE_TO_NIL(saveRequest)
+	RELEASE_TO_NIL(contactPicker)
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CNContactStoreDidChangeNotification object:nil];
+#endif
+    [super dealloc];
 }
 
 -(NSString*)apiName
@@ -121,7 +189,46 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     NSString * error = nil;
     int code = 0;
     BOOL doPrompt = NO;
-	
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        CNAuthorizationStatus permissions = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+        switch (permissions) {
+            case CNAuthorizationStatusNotDetermined:
+                doPrompt = YES;
+                break;
+            case CNAuthorizationStatusAuthorized:
+                break;
+            case CNAuthorizationStatusDenied:
+                code = CNAuthorizationStatusDenied;
+                error = @"The user has denied access to the address book";
+                break;
+            case CNAuthorizationStatusRestricted:
+                code = CNAuthorizationStatusRestricted;
+                error = @"The user is unable to allow access to the address book";
+                break;
+            default:
+                break;
+        }
+        if (!doPrompt) {
+            NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:error];
+            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+            
+            [callback call:invocationArray thisObject:self];
+            [invocationArray release];
+            return;
+        }
+        TiThreadPerformOnMainThread(^(){
+            CNContactStore *ourContactStore = [self contactStore];
+            [ourContactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError *error) {
+                NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
+                [[callback context] enqueue:invocationEvent];
+                RELEASE_TO_NIL(invocationEvent);
+            }];
+        }, NO);
+        return;
+    }
+#endif
     ABAuthorizationStatus permissions = ABAddressBookGetAuthorizationStatus();
     switch (permissions) {
         case kABAuthorizationStatusNotDetermined:
@@ -165,6 +272,12 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(NSNumber*) contactsAuthorization
 {
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        CNAuthorizationStatus result = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+        return [NSNumber numberWithInt:result];
+    }
+#endif
 	ABAuthorizationStatus result = ABAddressBookGetAuthorizationStatus();
 	return [NSNumber numberWithLong:result];
 }
@@ -172,7 +285,27 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(void)save:(id)unused
 {
 	ENSURE_UI_THREAD(save, unused)
-	CFErrorRef error;
+#if IS_XCODE_7
+	if ([TiUtils isIOS9OrGreater]) {
+		CNContactStore *ourContactStore = [self contactStore];
+		if (ourContactStore == NULL) {
+			return;
+		}
+		NSError *error = nil;
+		if (saveRequest == nil) {
+			DebugLog(@"Nothing to save");
+			return;
+		}
+		if (![ourContactStore executeSaveRequest:saveRequest error:&error]) {
+			[self throwException:[NSString stringWithFormat:@"Unable to save contact store: %@",[TiUtils messageFromError:error]]
+					   subreason:nil
+						location:CODELOCATION];
+		};
+		RELEASE_TO_NIL(saveRequest)
+		return;
+	}
+#endif
+    CFErrorRef error;
 	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		return;
@@ -207,11 +340,44 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	RELEASE_TO_NIL(selectedPersonCallback)
 	RELEASE_TO_NIL(selectedPropertyCallback)
 	RELEASE_TO_NIL(picker)
-	
+#if IS_XCODE_7
+    RELEASE_TO_NIL(contactPicker)
+#endif
 	cancelCallback = [[args objectForKey:@"cancel"] retain];
 	selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
 	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
-    
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        contactPicker = [[CNContactPickerViewController alloc] init];
+        [contactPicker setDelegate:self];
+        if (selectedPropertyCallback == nil) {
+            contactPicker.predicateForSelectionOfProperty = [NSPredicate predicateWithValue:NO];
+        }
+        
+        if (selectedPersonCallback == nil) {
+            contactPicker.predicateForSelectionOfContact = [NSPredicate predicateWithValue:NO];
+        }
+        animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+        
+        NSArray* fields = [args objectForKey:@"fields"];
+        ENSURE_TYPE_OR_NIL(fields, NSArray)
+        
+        if (fields != nil) {
+            NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
+            for (id field in fields) {
+                id property = nil;
+				if (property = [[[TiContactsPerson iOS9propertyKeys] allKeysForObject:field] objectAtIndex:0]) {
+                    [pickerFields addObject:property];
+                }
+            }
+            [contactPicker setDisplayedPropertyKeys:pickerFields];
+        }
+        
+        [[TiApp app] showModalController:contactPicker animated:animated];
+        return;
+        
+    }
+#endif
 	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
 	
@@ -248,6 +414,10 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 // OK to do outside main thread
 -(TiContactsPerson*)getPersonByID:(id)arg
 {
+	if ([TiUtils isIOS9OrGreater]) {
+		DebugLog(@"This method is removed for iOS9 and greater.");
+		return nil;
+	}
 	ENSURE_SINGLE_ARG(arg, NSObject)
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
@@ -272,6 +442,10 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(TiContactsGroup*)getGroupByID:(id)arg
 {
+	if ([TiUtils isIOS9OrGreater]) {
+		DebugLog(@"This method is removed for iOS9 and greater.");
+		return nil;
+	}
 	ENSURE_SINGLE_ARG(arg, NSObject)
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
@@ -295,6 +469,62 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	
 }
 
+//New in iOS9
+#if IS_XCODE_7
+-(TiContactsPerson*)getPersonByIdentifier:(id)arg
+{
+	if (![TiUtils isIOS9OrGreater]) {
+		DebugLog(@"This method is only for iOS9 and greater.");
+		return nil;
+	}
+	if (![NSThread isMainThread]) {
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self getPersonByIdentifier:arg] retain];}, YES);
+		return [result autorelease];
+	}
+	ENSURE_SINGLE_ARG(arg, NSString)
+	CNContactStore *ourContactStore = [self contactStore];
+	if (ourContactStore == NULL) {
+		return nil;
+	}
+	NSError *error = nil;
+	CNContact *contact = nil;
+	contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+	if (error) {
+		return nil;
+	}
+	return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact *)contact module:self] autorelease];
+}
+
+//New in iOS9
+-(TiContactsGroup*)getGroupByIdentifier:(id)arg
+{
+	if (![TiUtils isIOS9OrGreater]) {
+		DebugLog(@"This method is only for iOS9 and greater.");
+		return nil;
+	}
+	if (![NSThread isMainThread]) {
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self getGroupByIdentifier:arg] retain];}, YES);
+		return [result autorelease];
+	}
+	ENSURE_SINGLE_ARG(arg, NSString)
+	CNContactStore *ourContactStore = [self contactStore];
+	if (ourContactStore == NULL) {
+		return nil;
+	}
+	NSError *error = nil;
+	NSArray *groups = nil;
+	groups = [ourContactStore groupsMatchingPredicate:[CNGroup predicateForGroupsWithIdentifiers:@[arg]] error:&error];
+	if (!groups) {
+		return nil;
+	}
+	if ([groups count] == 0) {
+		return nil;
+	}
+	return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] contactGroup:[groups objectAtIndex:0] module:self] autorelease];
+}
+#endif
 -(NSArray*)getPeopleWithName:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg, NSString)
@@ -304,7 +534,33 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self getPeopleWithName:arg] retain];}, YES);
 		return [result autorelease];
 	}
-	ABAddressBookRef ourAddressBook = [self addressBook];
+	
+#if IS_XCODE_7
+	if ([TiUtils isIOS9OrGreater]) {
+		CNContactStore *ourContactStore = [self contactStore];
+		if (ourContactStore == NULL) {
+			return nil;
+		}
+		NSError *error = nil;
+		NSArray *contacts = nil;
+		//returns empty array or nil if there's an error
+		contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:[ContactsModule contactKeysWithImage] error:&error];
+		if (!contacts) {
+			return nil;
+		}
+		if ([contacts count] == 0) {
+			return @[];
+		}
+		NSMutableArray* people = [NSMutableArray arrayWithCapacity:[contacts count]];
+		for (CNContact *personRef in contacts) {
+			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact *)personRef module:self] autorelease];
+			[people addObject:person];
+		}
+		return people;
+
+	}
+#endif
+    ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		return nil;
 	}
@@ -332,25 +588,54 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self getAllPeople:unused] retain];}, YES);
 		return [result autorelease];
 	}
-	ABAddressBookRef ourAddressBook = [self addressBook];
-	if (ourAddressBook == NULL) {
-		return nil;
-	}
-	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople(ourAddressBook);
-	if (peopleRefs == NULL) {
-		return nil;
-	}
-	CFIndex count = CFArrayGetCount(peopleRefs);
-	NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
-	for (CFIndex i=0; i < count; i++) {
-		ABRecordRef ref = CFArrayGetValueAtIndex(peopleRefs, i);
-		ABRecordID id_ = ABRecordGetRecordID(ref);
-		TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
-		[people addObject:person];
-	}	
-	CFRelease(peopleRefs);
-	
-	return people;
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        CNContactStore *ourContactStore = [self contactStore];
+        if (ourContactStore == NULL) {
+            return nil;
+        }
+        NSError *error = nil;
+		NSMutableArray *peopleRefs = nil;
+        peopleRefs = [[NSMutableArray alloc] init];
+		//this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
+        CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
+        BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
+            TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:self] autorelease];
+            [peopleRefs addObject:person];
+        }];
+		RELEASE_TO_NIL(fetchRequest)
+        if (success) {
+            NSArray *people = [NSArray arrayWithArray:peopleRefs];
+            RELEASE_TO_NIL(peopleRefs)
+            return people;
+        }
+        else {
+            DebugLog(@"%@", [TiUtils messageFromError:error]);
+            RELEASE_TO_NIL(peopleRefs)
+            return nil;
+        }
+    }
+#endif
+    ABAddressBookRef ourAddressBook = [self addressBook];
+    if (ourAddressBook == NULL) {
+        return nil;
+    }
+    CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople(ourAddressBook);
+    if (peopleRefs == NULL) {
+        return nil;
+    }
+    CFIndex count = CFArrayGetCount(peopleRefs);
+    NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
+    for (CFIndex i=0; i < count; i++) {
+        ABRecordRef ref = CFArrayGetValueAtIndex(peopleRefs, i);
+        ABRecordID id_ = ABRecordGetRecordID(ref);
+        TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+        [people addObject:person];
+    }	
+    CFRelease(peopleRefs);
+    return people;
+    
+
 }
 
 -(NSArray*)getAllGroups:(id)unused
@@ -360,6 +645,26 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self getAllGroups:unused] retain];}, YES);
 		return [result autorelease];
 	}
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        CNContactStore *ourContactStore = [self contactStore];
+        if (ourContactStore == NULL) {
+            return nil;
+        }
+        NSError *error = nil;
+		NSArray *groupRefs = nil;
+        groupRefs = [ourContactStore groupsMatchingPredicate:nil error:&error];
+        if (groupRefs == nil) {
+            return nil;
+        }
+        NSMutableArray* groups = [NSMutableArray arrayWithCapacity:[groupRefs count]];
+        for (CNMutableGroup *thisGroup in groupRefs) {
+            TiContactsGroup* group = [[[TiContactsGroup	alloc] _initWithPageContext:[self executionContext] contactGroup:thisGroup module:self] autorelease];
+            [groups addObject:group];
+        }
+        return groups;
+    }
+#endif
 	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		return nil;
@@ -390,7 +695,33 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self createPerson:arg] retain];}, YES);
 		return [result autorelease];
 	}
-	ABAddressBookRef ourAddressBook = [self addressBook];
+#if IS_XCODE_7
+	if ([TiUtils isIOS9OrGreater]) {
+		CNContactStore *ourContactStore = [self contactStore];
+		if (ourContactStore == NULL) {
+			[self throwException:@"Cannot access address book"
+					   subreason:nil
+						location:CODELOCATION];
+			return nil;
+		}
+		if (saveRequest != nil) {
+			[self throwException:@"Cannot create a new entry with unsaved changes"
+					   subreason:nil
+						location:CODELOCATION];
+			return nil;
+		}
+		NSError *error = nil;
+		CNMutableContact *newContact = [[CNMutableContact alloc] init];
+		TiContactsPerson* newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:newContact module:self] autorelease];
+		RELEASE_TO_NIL(newContact);
+		[newPerson setValuesForKeysWithDictionary:arg];
+		[newPerson updateiOS9ContactProperties];
+		saveRequest = [newPerson getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
+		[self save:nil];
+		return newPerson;
+	}
+#endif
+    ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		[self throwException:@"Cannot access address book"
 				   subreason:nil
@@ -435,7 +766,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(removePerson,arg)
-	
+#if IS_XCODE_7
+	if([TiUtils isIOS9OrGreater]) {
+		TiContactsPerson *person = arg;
+		RELEASE_TO_NIL(saveRequest)
+		saveRequest = [person getSaveRequestForDeletion];
+		return;
+	}
+#endif
 	[self removeRecord:[arg record]];
 }
 
@@ -448,7 +786,30 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self createGroup:arg] retain];}, YES);
 		return [result autorelease];
 	}
-	
+#if IS_XCODE_7
+	if ([TiUtils isIOS9OrGreater]) {
+		CNContactStore *ourContactStore = [self contactStore];
+		if (ourContactStore == NULL) {
+			[self throwException:@"Cannot access address book"
+					   subreason:nil
+						location:CODELOCATION];
+			return nil;
+		}
+		if (saveRequest != nil) {
+			[self throwException:@"Cannot create a new entry with unsaved changes"
+					   subreason:nil
+						location:CODELOCATION];
+			return nil;
+		}
+		NSError *error = nil;
+		CNMutableGroup *tempGroup = [[CNMutableGroup alloc] init];
+		TiContactsGroup* newGroup = [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] contactGroup:tempGroup module:self] autorelease];
+		RELEASE_TO_NIL(tempGroup);
+		[newGroup setValuesForKeysWithDictionary:arg];
+		saveRequest = [newGroup getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
+		return newGroup;
+	}
+#endif
 	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		[self throwException:@"Cannot access address book"
@@ -492,7 +853,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
 	ENSURE_UI_THREAD(removeGroup,arg)
-	
+#if IS_XCODE_7
+	if([TiUtils isIOS9OrGreater]) {
+		TiContactsGroup *group = arg;
+		RELEASE_TO_NIL(saveRequest)
+		saveRequest = [group getSaveRequestForDeletion];
+		return;
+	}
+#endif
 	[self removeRecord:[arg record]];
 }
 
@@ -638,7 +1006,123 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 {
     [self peoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person property:property identifier:identifier];
 }
+#if IS_XCODE_7
+//iOS9 delegates
+- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContact:(nonnull CNContact *)contact
+{
+	if (selectedPersonCallback) {
+		TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:self] autorelease];
+		[self _fireEventToListener:@"selectedPerson"
+						withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"]
+						  listener:selectedPersonCallback
+						thisObject:nil];
+		[[TiApp app] hideModalController:contactPicker animated:animated];
+	}
+}
+/*
+- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperties:(nonnull NSArray<CNContactProperty *> *)contactProperties
+{
+    
+}*/
 
+- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperty:(nonnull CNContactProperty *)contactProperty
+{
+	if (selectedPropertyCallback) {
+		TiContactsPerson *personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contactProperty.contact module:self] autorelease];
+
+		id value = contactProperty.value;
+		id result = [NSNull null];
+		NSString *property = [[TiContactsPerson iOS9propertyKeys] objectForKey:contactProperty.key];
+		NSString *label = [[TiContactsPerson iOS9multiValueLabels] valueForKey:contactProperty.label];
+		
+		if ([value isKindOfClass:[NSString class]]) {
+			result = value;
+		}
+		if ([value isKindOfClass:[NSDateComponents class]]) {
+			//this part of the code is supposed to work for birthday and alternateBirthday
+			//but iOS9 Beta is giving a null value for these properties in `value`, so only
+			//processing `anniversary` and `other` here.
+//			if ([contactProperty.key isEqualToString:CNContactNonGregorianBirthdayKey]) {
+//				NSDateComponents *dateComps = (NSDateComponents*)value;
+//				result = [NSDictionary dictionaryWithObjectsAndKeys: dateComps.calendar.calendarIdentifier,@"calendarIdentifier",NUMLONG(dateComps.era),@"era",NUMLONG(dateComps.year),@"year",NUMLONG(dateComps.month),@"month",NUMLONG(dateComps.day),@"day",NUMBOOL(dateComps.isLeapMonth),@"isLeapMonth", nil];
+//			}
+//			else {
+			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:value];
+			result = [TiUtils UTCDateForDate:date];
+//			}
+		}
+		if ([value isKindOfClass:[CNPostalAddress class]]) {
+			CNPostalAddress *address = value;
+			NSDictionary *addressDict = [[NSDictionary alloc] initWithObjectsAndKeys:address.street,@"Street",
+										 address.city,@"City",
+										 address.state,@"State",
+										 address.postalCode,@"PostalCode",
+										 address.country,@"Country",
+										 address.ISOCountryCode,@"CountryCode", nil];
+			result = addressDict;
+		}
+		if ([value isKindOfClass:[CNSocialProfile class]]) {
+			CNSocialProfile *profile = value;
+			NSDictionary *profileDict = [[NSDictionary alloc] initWithObjectsAndKeys:profile.service,@"service",
+										 profile.urlString,@"url",
+										 profile.userIdentifier,@"userIdentifier",
+										 profile.username,@"username", nil];
+			result = profileDict;
+		}
+		if ([value isKindOfClass:[CNContactRelation class]]) {
+			CNContactRelation *relation = value;
+			result = relation.name;
+		}
+		if ([value isKindOfClass:[CNInstantMessageAddress class]]) {
+			CNInstantMessageAddress *im = value;
+			NSDictionary *imDict = [[NSDictionary alloc] initWithObjectsAndKeys:im.service,@"service",
+									im.username,@"username", nil];
+			result = imDict;
+		}
+		if ([value isKindOfClass:[CNPhoneNumber class]]) {
+			CNPhoneNumber *phoneNumber = value;
+			result = phoneNumber.stringValue;
+		}
+
+		//unfortunately, iOS9 Beta doesn't valuate birthdays. Watch this in case of changes.
+		if ([contactProperty.key isEqualToString:@"birthdays"]) {
+			if ([contactProperty.identifier isEqualToString:@"gregorian"]) {
+				property = @"birthday";
+				result = [personObject valueForUndefinedKey:property];				
+			}
+			else {
+				property = @"alternateBirthday";
+				result = [personObject valueForUndefinedKey:property];
+			}
+		}
+		
+		NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject, @"person", property , @"property", result, @"value", label, @"label", nil];
+		[self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
+		[[TiApp app] hideModalController:contactPicker animated:animated];
+		return NO;
+	}
+	return YES;
+
+}
+/*
+- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContacts:(nonnull NSArray<CNContact *> *)contacts
+{
+    
+}*/
+
+- (void)contactPickerDidCancel:(nonnull CNContactPickerViewController *)picker
+{
+	[[TiApp app] hideModalController:contactPicker animated:animated];
+	if (cancelCallback) {
+		[self _fireEventToListener:@"cancel" withObject:nil listener:cancelCallback thisObject:nil];
+	}
+}
+
+- (void)contactViewController:(nonnull CNContactViewController *)viewController didCompleteWithContact:(nullable CNContact *)contact
+{
+    
+}
+#endif
 @end
 
 #endif

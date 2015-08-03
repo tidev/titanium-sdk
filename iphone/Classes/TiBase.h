@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -574,6 +574,7 @@ extern NSString * const kTiSuspendNotification;
 extern NSString * const kTiPausedNotification;
 extern NSString * const kTiResumeNotification;
 extern NSString * const kTiResumedNotification;
+extern NSString * const kTiErrorNotification;
 extern NSString * const kTiAnalyticsNotification;
 extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
@@ -592,7 +593,8 @@ extern NSString * const kTiURLSessionCompleted;
 extern NSString * const kTiURLSessionEventsCompleted;
 extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
-extern NSString * const KTiWatchKitExtensionRequest;
+extern NSString * const kTiWatchKitExtensionRequest;
+extern NSString * const kTiHandOff;
     
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;

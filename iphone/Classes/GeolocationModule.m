@@ -13,6 +13,7 @@
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
+#import "AnalyticsModule.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -274,6 +275,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// pauseLocationupdateAutomatically by default NO
 	pauseLocationUpdateAutomatically  = NO;
 
+	//Set the default based on if the user has defined a background location mode
+	NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+	allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -316,6 +321,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                     [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
                 }
             }
+        }
+        //This is set to NO by default for > iOS9.
+        if ([TiUtils isIOS9OrGreater]) {
+#if IS_XCODE_7
+            locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+#endif
         }
 
         locationManager.activityType = activityType;
@@ -648,6 +659,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
+-(NSNumber*)allowsBackgroundLocationUpdates
+{
+	return NUMBOOL(allowsBackgroundLocationUpdates);
+}
+
+-(void)setAllowsBackgroundLocationUpdates:(NSNumber *)value
+{
+	allowsBackgroundLocationUpdates = [TiUtils boolValue:value];
+}
+
 -(NSNumber*)showCalibration
 {
 	return NUMBOOL(calibration);
@@ -955,7 +976,11 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #pragma mark Geolacation Analytics
 
--(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
+-(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
+{
+    if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
+        return;
+    }
     static BOOL analyticsSend = NO;
 	[lastLocationDict release];
 	lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];

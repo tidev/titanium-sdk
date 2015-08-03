@@ -8,8 +8,9 @@ description: |
       <tr>
         <td><img src="images/listview/listview_android.png" height="200" style="border: 1px solid black;"/></td>
         <td><img src="images/listview/listview_ios.png" height="200" style="border: 1px solid black;"/></td>
+        <td><img src="images/listview/listview_wp.png" height="200" style="border: 1px solid black;"/></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
@@ -198,6 +199,22 @@ excludes:
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 events:
+  - name: indexclick
+    summary: Fired when the index bar is clicked by the user.
+    description: |
+        If the list view contains the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) array of indices the index bar will appear on the side.
+        This event will fire when this bar is clicked 
+    properties:
+      - name: title
+        summary: The title of the index clicked.
+        type: String
+
+      - name: index
+        summary: The index number clicked.
+        type: Number
+    platforms: [iphone, ipad]
+    since: "3.4.0"
+
   - name: itemclick
     summary: Fired when a list row is clicked by the user.
     description: |
@@ -339,8 +356,11 @@ events:
 
         While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
         Developers can listen to this event and perform appropriate actions when the search result set is empty.
-    platforms: [iphone, ipad]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: 4.2.0
+        iphone: 3.3.0
+        ipad: 3.3.0
     properties:
       - name: bubbles
         summary: false. This event does not bubble.
@@ -373,9 +393,9 @@ events:
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
         `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event, and use the `bindId` to check which child control fired the event. 
+        the event.
 
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
     platforms: [iphone, ipad]
     since: 4.1.0
@@ -386,7 +406,7 @@ events:
         type: String
 
       - name: section
-        summary: List section from which the item is deleted.
+        summary: List section from which the event was generated.
         type: Titanium.UI.ListSection
 
       - name: sectionIndex
@@ -529,10 +549,10 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
-  - name: dividerHeight
-    summary: height of the ListView divider.
+  - name: separatorHeight
+    summary: height of the ListView separator.
     description: |
-        Height of the ListView divider, in platform-specific units. If undefined, default native height will be used.
+        Height of the ListView separator, in platform-specific units. If undefined, default native height will be used.
         Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
     type: [String, Number]
     since: "4.1.0"
@@ -902,10 +922,22 @@ methods:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: setContentOffset
+    summary: Sets the value of the content offset of the list view without animation by default.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: contentOffset
+        summary: |
+            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
+            The `animated` property is optional and set to `false` by default. 
+        type: Dictionary
+    since: 3.4.0
+
   - name: setMarker
     summary: Sets a reference item in the list view.
     description: |
-        This method replace previous reference items with the current one.
+        This method replaces previous reference items with the current one.
         See [marker](Titanium.UI.ListView.marker) event for details. 
     parameters:
       - name: markerProps

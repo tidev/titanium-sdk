@@ -499,6 +499,10 @@ static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef 
 		{
 			style = NSDateFormatterLongStyle;
 		}
+		else if ([s isEqualToString:@"full"])
+		{
+			style = NSDateFormatterFullStyle;
+		}
 	}
 	
 	@try 

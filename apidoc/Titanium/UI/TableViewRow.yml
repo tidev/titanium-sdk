@@ -424,7 +424,7 @@ examples:
               
               var disabledWrapperView = Ti.UI.createView({
                 backgroundColor:'#A2E0FF',
-                objName: 'disabledWarpperView',
+                objName: 'disabledWrapperView',
                 touchEnabled: false,
                 width: 300, height: '80%'
               });

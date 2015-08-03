@@ -220,6 +220,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_NO_RESULTS = "noresults";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_OPEN = "open";
 
 	/**
@@ -1130,11 +1135,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_DIVIDER_HEIGHT = "dividerHeight";
-	
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_DOMAIN = "domain";
 
 	/**
@@ -1152,6 +1152,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_EDITABLE = "editable";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ELEVATION = "elevation";
+	
 	/**
 	 * @module.api
 	 */
@@ -1524,6 +1529,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LARGE_ICON = "largeIcon";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LASTNAME = "lastName";
 
 	/**
@@ -1545,7 +1555,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LINES = "lines";
+	
 	/**
 	 * @module.api
 	 */
@@ -1647,7 +1662,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_LINES = "maxLines";
+	
 	/**
 	 * @module.api
 	 */
@@ -1805,21 +1825,46 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONDATASTREAM = "ondatastream";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONERROR = "onerror";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONLOAD = "onload";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONREADYSTATECHANGE = "onreadystatechange";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_RECEIVED = "onReceived";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONSENDSTREAM = "onsendstream";
 
 	/**
 	 * @module.api
@@ -2151,6 +2196,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SEPARATOR_HEIGHT = "separatorHeight";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHADOW_COLOR = "shadowColor";
 
 	/**
@@ -2431,6 +2481,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_X = "translationX";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Y = "translationY";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
 
 	/**
 	 * @module.api

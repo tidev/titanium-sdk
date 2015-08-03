@@ -1078,6 +1078,15 @@ properties:
     permission: read-only
     since: "2.1.0"
 
+  - name: TABLEVIEW_INDEX_SEARCH
+    summary: String that represents the magnifying glass on the table view index bar
+    description: |
+        Will cause a magnifying glass icon to be displayed at that location in the index.
+        This should generally only be used as the first title in the index.
+    type: String
+    permission: read-only
+    since: "3.4.0"
+
 methods:
   - name: createTransitionAnimation
     summary: |

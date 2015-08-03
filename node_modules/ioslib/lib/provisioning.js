@@ -16,7 +16,7 @@
 const
 	appc = require('node-appc'),
 	certs = require('./certs'),
-	EventEmitter = require('events').EventEmitter,
+	magik = require('./utilities').magik,
 	fs = require('fs'),
 	path = require('path'),
 	__ = appc.i18n(__dirname).__,
@@ -59,213 +59,189 @@ exports.unwatch = unwatch;
  * @returns {EventEmitter}
  */
 function detect(options, callback) {
-	if (typeof options === 'function') {
-		callback = options;
-		options = {};
-	} else if (!options) {
-		options = {};
-	}
-	typeof callback === 'function' || (callback = function () {});
-
-	var emitter = new EventEmitter;
-
-	if (process.platform !== 'darwin') {
-		process.nextTick(function () {
-			var err = new Error(__('Unsupported platform "%s"', process.platform));
-			emitter.emit('error', err);
-			callback(err);
-		});
-		return emitter;
-	}
-
-	var files = {},
-		validOnly = options.validOnly === undefined || options.validOnly === true,
-		profileDir = appc.fs.resolvePath(options.profileDir || defaultProfileDir),
-		results = {
-			provisioning: {
-				profileDir: profileDir,
-				development: [],
-				adhoc: [],
-				distribution: [],
+	return magik(options, callback, function (emitter, options, callback) {
+		var files = {},
+			validOnly = options.validOnly === undefined || options.validOnly === true,
+			profileDir = appc.fs.resolvePath(options.profileDir || defaultProfileDir),
+			results = {
+				provisioning: {
+					profileDir: profileDir,
+					development: [],
+					adhoc: [],
+					distribution: [],
+				},
+				issues: []
 			},
-			issues: []
-		},
-		valid = {
-			development: 0,
-			adhoc: 0,
-			distribution: 0
-		},
-		ppRegExp = /.+\.mobileprovision$/;
+			valid = {
+				development: 0,
+				adhoc: 0,
+				distribution: 0
+			},
+			ppRegExp = /.+\.mobileprovision$/;
 
-	if (options.watch) {
-		var throttleTimer = null;
+		if (options.watch) {
+			var throttleTimer = null;
 
-		if (!watchers[profileDir]) {
-			watchers[profileDir] = {
-				handle: fs.watch(profileDir, { persistent: false }, function (event, filename) {
-					if (!ppRegExp.test(filename)) {
-						// if it's not a provisioning profile, we don't care about it
-						return;
-					}
+			if (!watchers[profileDir]) {
+				watchers[profileDir] = {
+					handle: fs.watch(profileDir, { persistent: false }, function (event, filename) {
+						if (!ppRegExp.test(filename)) {
+							// if it's not a provisioning profile, we don't care about it
+							return;
+						}
 
-					var file = path.join(profileDir, filename);
+						var file = path.join(profileDir, filename);
 
-					if (event === 'rename') {
-						if (files[file]) {
-							if (fs.existsSync(file)) {
-								// change, reload the provisioning profile
-								parseProfile(file);
+						if (event === 'rename') {
+							if (files[file]) {
+								if (fs.existsSync(file)) {
+									// change, reload the provisioning profile
+									parseProfile(file);
+								} else {
+									// delete
+									removeProfile(file);
+								}
 							} else {
-								// delete
-								removeProfile(file);
+								// add
+								parseProfile(file);
 							}
-						} else {
-							// add
+						} else if (event === 'change') {
+							// updated
 							parseProfile(file);
 						}
-					} else if (event === 'change') {
-						// updated
-						parseProfile(file);
-					}
 
-					clearTimeout(throttleTimer);
+						clearTimeout(throttleTimer);
 
-					throttleTimer = setTimeout(function () {
-						detectIssues();
-						emitter.emit('detected', results);
-					}, 250);
-				}),
-				count: 0
-			};
+						throttleTimer = setTimeout(function () {
+							detectIssues();
+							emitter.emit('detected', results);
+						}, 250);
+					}),
+					count: 0
+				};
+			}
+
+			watchers[profileDir].count++;
 		}
 
-		watchers[profileDir].count++;
-	}
-
-	if (cache && !options.bypassCache) {
-		process.nextTick(function () {
+		if (cache && !options.bypassCache) {
 			emitter.emit('detected', cache);
-			callback(null, cache);
-		});
-		return emitter;
-	}
-
-	function detectIssues() {
-		results.issues = [];
-
-		if (!results.provisioning.development.length || !valid.development) {
-			results.issues.push({
-				id: 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES',
-				type: 'warning',
-				message: __('Unable to find any valid iOS development provisioning profiles.') + '\n' +
-					__('This will prevent you from building apps for testing on iOS devices.')
-			});
+			return callback(null, cache);
 		}
 
-		if (!results.provisioning.adhoc.length || !valid.adhoc) {
-			results.issues.push({
-				id: 'IOS_NO_VALID_ADHOC_PROVISIONING_PROFILES',
-				type: 'warning',
-				message: __('Unable to find any valid iOS adhoc provisioning profiles.') + '\n' +
-					__('This will prevent you from packaging apps for adhoc distribution.')
-			});
-		}
+		function detectIssues() {
+			results.issues = [];
 
-		if (!results.provisioning.distribution.length || !valid.distribution) {
-			results.issues.push({
-				id: 'IOS_NO_VALID_DISTRIBUTION_PROVISIONING_PROFILES',
-				type: 'warning',
-				message: __('Unable to find any valid iOS distribution provisioning profiles.') + '\n' +
-					__('This will prevent you from packaging apps for AppStore distribution.')
-			});
-		}
-	}
+			if (!results.provisioning.development.length || !valid.development) {
+				results.issues.push({
+					id: 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES',
+					type: 'warning',
+					message: __('Unable to find any valid iOS development provisioning profiles.') + '\n' +
+						__('This will prevent you from building apps for testing on iOS devices.')
+				});
+			}
 
-	function removeProfile(file) {
-		var r = results[files[file]],
-			i = 0,
-			l = r.length;
-		for (; i < l; i++) {
-			if (r[i].file === file) {
-				r.splice(i, 1);
-				break;
+			if (!results.provisioning.adhoc.length || !valid.adhoc) {
+				results.issues.push({
+					id: 'IOS_NO_VALID_ADHOC_PROVISIONING_PROFILES',
+					type: 'warning',
+					message: __('Unable to find any valid iOS adhoc provisioning profiles.') + '\n' +
+						__('This will prevent you from packaging apps for adhoc distribution.')
+				});
+			}
+
+			if (!results.provisioning.distribution.length || !valid.distribution) {
+				results.issues.push({
+					id: 'IOS_NO_VALID_DISTRIBUTION_PROVISIONING_PROFILES',
+					type: 'warning',
+					message: __('Unable to find any valid iOS distribution provisioning profiles.') + '\n' +
+						__('This will prevent you from packaging apps for AppStore distribution.')
+				});
 			}
 		}
-		delete files[file];
-	}
 
-	function parseProfile(file) {
-		if (!fs.existsSync(file)) {
-			return;
-		}
-
-		var contents = fs.readFileSync(file).toString(),
-			i = contents.indexOf('<?xml'),
-			j = i === -1 ? i : contents.lastIndexOf('</plist>');
-
-		if (j === -1) return;
-
-		var plist = new appc.plist().parse(contents.substring(i, j + 8)),
-			dest = 'development',
-			appPrefix = (plist.ApplicationIdentifierPrefix || []).shift(),
-			entitlements = plist.Entitlements || {},
-			expired = false;
-
-		if (!plist.ProvisionedDevices || !plist.ProvisionedDevices.length) {
-			dest = 'distribution';
-		} else if (new Buffer(plist.DeveloperCertificates[0].value, 'base64').toString().indexOf('Distribution:') != -1) {
-			dest = 'adhoc';
-		}
-
-		try {
-			if (plist.ExpirationDate) {
-				expired = new Date(plist.ExpirationDate) < new Date;
+		function removeProfile(file) {
+			var r = results[files[file]],
+				i = 0,
+				l = r.length;
+			for (; i < l; i++) {
+				if (r[i].file === file) {
+					r.splice(i, 1);
+					break;
+				}
 			}
-		} catch (e) {}
-
-		if (!expired) {
-			valid[dest]++;
+			delete files[file];
 		}
 
-		// store which bucket the provisioning profile is in
-		files[file] && removeProfile(file);
-		files[file] = dest;
+		function parseProfile(file) {
+			if (!fs.existsSync(file)) {
+				return;
+			}
 
-		if (!validOnly || !expired) {
-			results.provisioning[dest].push({
-				file: file,
-				uuid: plist.UUID,
-				name: plist.Name,
-				appPrefix: appPrefix,
-				creationDate: plist.CreationDate,
-				expirationDate: plist.ExpirationDate,
-				expired: expired,
-				certs: Array.isArray(plist.DeveloperCertificates)
-					? plist.DeveloperCertificates.map(function (cert) { return cert.value; })
-					: null,
-				devices: plist.ProvisionedDevices || null,
-				team: plist.TeamIdentifier || null,
-				appId: (entitlements['application-identifier'] || '').replace(appPrefix + '.', ''),
-				getTaskAllow: !!entitlements['get-task-allow'],
-				apsEnvironment: entitlements['aps-environment'] || ''
+			var contents = fs.readFileSync(file).toString(),
+				i = contents.indexOf('<?xml'),
+				j = i === -1 ? i : contents.lastIndexOf('</plist>');
+
+			if (j === -1) return;
+
+			var plist = new appc.plist().parse(contents.substring(i, j + 8)),
+				dest = 'development',
+				appPrefix = (plist.ApplicationIdentifierPrefix || []).shift(),
+				entitlements = plist.Entitlements || {},
+				expired = false;
+
+			if (!plist.ProvisionedDevices || !plist.ProvisionedDevices.length) {
+				dest = 'distribution';
+			} else if (new Buffer(plist.DeveloperCertificates[0].value, 'base64').toString().indexOf('Distribution:') != -1) {
+				dest = 'adhoc';
+			}
+
+			try {
+				if (plist.ExpirationDate) {
+					expired = new Date(plist.ExpirationDate) < new Date;
+				}
+			} catch (e) {}
+
+			if (!expired) {
+				valid[dest]++;
+			}
+
+			// store which bucket the provisioning profile is in
+			files[file] && removeProfile(file);
+			files[file] = dest;
+
+			if (!validOnly || !expired) {
+				results.provisioning[dest].push({
+					file: file,
+					uuid: plist.UUID,
+					name: plist.Name,
+					appPrefix: appPrefix,
+					creationDate: plist.CreationDate,
+					expirationDate: plist.ExpirationDate,
+					expired: expired,
+					certs: Array.isArray(plist.DeveloperCertificates)
+						? plist.DeveloperCertificates.map(function (cert) { return cert.value; })
+						: null,
+					devices: plist.ProvisionedDevices || null,
+					team: plist.TeamIdentifier || null,
+					appId: (entitlements['application-identifier'] || '').replace(appPrefix + '.', ''),
+					getTaskAllow: !!entitlements['get-task-allow'],
+					apsEnvironment: entitlements['aps-environment'] || ''
+				});
+			}
+		}
+
+		fs.exists(profileDir, function (exists) {
+			exists && fs.readdirSync(profileDir).forEach(function (name) {
+				ppRegExp.test(name) && parseProfile(path.join(profileDir, name));
 			});
-		}
-	}
 
-	fs.exists(profileDir, function (exists) {
-		exists && fs.readdirSync(profileDir).forEach(function (name) {
-			ppRegExp.test(name) && parseProfile(path.join(profileDir, name));
-		});
-
-		process.nextTick(function () {
 			detectIssues();
 			cache = results;
 			emitter.emit('detected', results);
-			callback(null, results);
+			return callback(null, results);
 		});
 	});
-
-	return emitter;
 };
 
 /**
@@ -295,7 +271,7 @@ function find(options, callback) {
 		validOnly: options.validOnly === undefined || options.validOnly === true
 	}, function (err, results) {
 		if (err) {
-			callback(err);
+			return callback(err);
 		} else {
 			var profiles = [];
 
@@ -332,7 +308,7 @@ function find(options, callback) {
 			check(results.provisioning.distribution);
 			check(results.provisioning.adhoc);
 
-			callback(null, profiles);
+			return callback(null, profiles);
 		}
 	});
 };

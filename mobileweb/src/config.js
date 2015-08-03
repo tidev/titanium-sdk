@@ -1,16 +1,16 @@
 var require = {
 	app: {
 		analytics: <%- appAnalytics %>,
-		copyright: "<%-: appCopyright | escapeQuotes %>",
+		copyright: "<%- escapeQuotes(appCopyright) %>",
 		deployType: "<%- deployType %>",
-		description: "<%-: appDescription | escapeQuotes %>",
-		guid: "<%-: appGuid | escapeQuotes %>",
-		id: "<%-: appId | escapeQuotes %>",
-		name: "<%-: appName | escapeQuotes %>",
+		description: "<%- escapeQuotes(appDescription) %>",
+		guid: "<%- escapeQuotes(appGuid) %>",
+		id: "<%- escapeQuotes(appId) %>",
+		name: "<%- escapeQuotes(appName) %>",
 		names: <%- appNames %>,
-		publisher: "<%-: appPublisher | escapeQuotes %>",
-		url: "<%-: appUrl | escapeQuotes %>",
-		version: "<%-: appVersion | escapeQuotes %>"
+		publisher: "<%- escapeQuotes(appPublisher) %>",
+		url: "<%- escapeQuotes(appUrl) %>",
+		version: "<%- escapeQuotes(appVersion) %>"
 	},
 	has: {
 		"native-localstorage": function (g) {
@@ -32,22 +32,22 @@ var require = {
 	locales: <%- locales %>,
 	packages: <%- packages %>,
 	project: {
-		id: "<%-: projectId | escapeQuotes %>",
-		name: "<%-: projectName | escapeQuotes %>"
+		id: "<%- escapeQuotes(projectId) %>",
+		name: "<%- escapeQuotes(projectName) %>"
 	},
 	ti: {
-		analyticsPlatformName: "<%-: tiAnalyticsPlatformName | escapeQuotes %>",
-		buildHash: "<%-: tiGithash | escapeQuotes %>",
-		buildDate: "<%-: tiTimestamp | escapeQuotes %>",
+		analyticsPlatformName: "<%- escapeQuotes(tiAnalyticsPlatformName) %>",
+		buildHash: "<%- escapeQuotes(tiGithash) %>",
+		buildDate: "<%- escapeQuotes(tiTimestamp) %>",
 		buildType: "<%- buildType %>",
 		colorsModule: "Ti/_/colors",
 		filesystem: {
-			registry: "<%-: tiFsRegistry | escapeQuotes %>"
+			registry: "<%- escapeQuotes(tiFsRegistry) %>"
 		},
-		osName: "<%-: tiOsName | escapeQuotes %>",
-		platformName: "<%-: tiPlatformName | escapeQuotes %>",
-		theme: "<%-: tiTheme | escapeQuotes %>",
-		version: "<%-: tiVersion | escapeQuotes %>"
+		osName: "<%- escapeQuotes(tiOsName) %>",
+		platformName: "<%- escapeQuotes(tiPlatformName) %>",
+		theme: "<%- escapeQuotes(tiTheme) %>",
+		version: "<%- escapeQuotes(tiVersion) %>"
 	},
 	vendorPrefixes: {
 		css: ["", "-webkit-", "-moz-", "-ms-", "-o-", "-khtml-"],

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -507,7 +507,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [dic setObject:userInfo forKey:@"userInfo"];
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:KTiWatchKitExtensionRequest object:self userInfo:dic];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiWatchKitExtensionRequest object:self userInfo:dic];
 }
 
 -(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo
@@ -920,6 +920,45 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	
 	[self endBackgrounding];
 
+}
+
+#pragma mark Handoff Delegates
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
+{
+    
+    NSMutableDictionary *dict = [NSMutableDictionary
+                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
+                                 nil];
+    
+    if([userActivity title] !=nil)
+    {
+        [dict setObject:[userActivity title] forKey:@"title"];
+    }
+    
+    if([userActivity webpageURL] !=nil)
+    {
+        [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+    
+    if([userActivity userInfo] !=nil)
+    {
+        [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+    
+    if (appBooted)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+    }
+    else
+    {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+        });
+    }
+    
+    return YES;
 }
 
 #pragma mark Push Notification Delegates

@@ -71,7 +71,7 @@ function toggleShowClass(clsName) {
 <% for (i in apis.proxies) { %>
 	<% var proxy = apis.proxies[i] %>
 	<tr class="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %> module_parent" element_type="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %>">
-	<td class="module_parent_title" <%= (proxy.pseudo ? "class=\"normal_type\" " : "") %>><a href=<%= "http://docs.appcelerator.com/titanium/latest/#!/api/"+proxy.name %>><%= proxy.name %></a></td>
+	<td class="module_parent_title" <%= (proxy.pseudo ? "class=\"normal_type\" " : "") %>><a href=<%= "http://docs.appcelerator.com/platform/latest/#!/api/"+proxy.name %>><%= proxy.name %></a></td>
 	<% for (platform in apis.coverage) { %>
 		<td style="background-color:<%= (contains(proxy.platforms, platform) ? green : red) %>; color: #FFF; text-align: center; font-weight: bold;"><%= (contains(proxy.platforms, platform) ? "YES" : "NO") %></td>
 	<% } %>
@@ -81,7 +81,7 @@ function toggleShowClass(clsName) {
 	<% for (i in proxy.properties) { %>
 		<% var property = proxy.properties[i] %>
 		<tr class="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %> module_child" module_child="true" element_type="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %>">
-		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/titanium/latest/#!/api/"+proxy.name+"-property-"+property.name %>><%= property.name %></a> (<i>property</i>)</td>
+		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/platform/latest/#!/api/"+proxy.name+"-property-"+property.name %>><%= property.name %></a> (<i>property</i>)</td>
 		<% for (platform in apis.coverage) { %>
 		<td style="background-color:<%= (contains(property.platforms, platform) ? green : red) %>; color: #FFF; text-align: center; font-weight: bold;"><%= (contains(property.platforms, platform) ? "YES" : "NO") %></td>
 		<% } %>
@@ -92,7 +92,7 @@ function toggleShowClass(clsName) {
 	<% for (i in proxy.methods) { %>
 		<% var method = proxy.methods[i] %>
 		<tr class="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %> module_child" module_child="true" element_type="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %>">
-		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/titanium/latest/#!/api/"+proxy.name+"-method-"+method.name %>><%= method.name %></a> (<i>method</i>)</td>
+		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/platform/latest/#!/api/"+proxy.name+"-method-"+method.name %>><%= method.name %></a> (<i>method</i>)</td>
 		<% for (platform in apis.coverage) { %>
 		<td style="background-color:<%= (contains(method.platforms, platform) ? green : red) %>; color: #FFF; text-align: center; font-weight: bold;"><%= (contains(method.platforms, platform) ? "YES" : "NO") %></td>
 		<% } %>
@@ -103,7 +103,7 @@ function toggleShowClass(clsName) {
 	<% for (i in proxy.events) { %>
 		<% var event = proxy.properties[i] %>
 		<tr class="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %> module_child" module_child="true" element_type="<%= (proxy.pseudo ? "pseudo_type" : "normal_type") %>">
-		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/titanium/latest/#!/api/"+proxy.name+"-event-"+event.name %>><%= event.name %></a> (<i>event</i>)</td>
+		<td class="module_child_title"><a href=<%= "http://docs.appcelerator.com/platform/latest/#!/api/"+proxy.name+"-event-"+event.name %>><%= event.name %></a> (<i>event</i>)</td>
 		<% for (platform in apis.coverage) { %>
 		<td style="background-color:<%= (contains(event.platforms, platform) ? green : red) %>; color: #FFF; text-align: center; font-weight: bold;"><%= (contains(event.platforms, platform) ? "YES" : "NO") %></td>
 		<% } %>

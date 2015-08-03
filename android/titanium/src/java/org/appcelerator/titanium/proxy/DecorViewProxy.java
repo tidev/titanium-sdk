@@ -54,7 +54,7 @@ public class DecorViewProxy extends TiViewProxy
 
 		if (activity != null)
 		{
-			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
+			return TiOrientationHelper.convertRotationToTiOrientationMode(activity.getWindowManager().getDefaultDisplay().getRotation());
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);

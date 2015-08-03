@@ -282,6 +282,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
+-(void)setContentOffset_:(id)value withObject:(id)args
+{
+    CGPoint offset = [TiUtils pointValue:value];
+    BOOL animated = [TiUtils boolValue: [args valueForKey:@"animated"] def:NO];
+    [_tableView setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -837,8 +844,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (searchActive) {
             [self buildResultsForSearchText];
         }
-        [_tableView reloadSectionIndexTitles];
     }
+    [_tableView reloadSectionIndexTitles];
 }
 
 #pragma mark - SectionIndexTitle Support Datasource methods.
@@ -878,6 +885,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
             NSUInteger index = [filteredTitles indexOfObject:title];
+
+            if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+                [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+            }
+
             if (index > 0 && (index < [filteredIndices count]) ) {
                 return [[filteredIndices objectAtIndex:index] intValue];
             }
@@ -890,8 +903,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
         NSUInteger index = [sectionTitles indexOfObject:title];
+        int sectionIndex = [[sectionIndices objectAtIndex:index] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
+
         if (index > 0 && (index < [sectionIndices count]) ) {
-            return [[sectionIndices objectAtIndex:index] intValue];
+            return sectionIndex;
         }
         return 0;
     }
@@ -920,13 +940,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_ARRAY(value);
     NSArray* propArray = (NSArray*)value;
     NSMutableArray* returnArray = nil;
+    
     for (id prop in propArray) {
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
         int actionStyle = [TiUtils intValue:@"style" properties:prop];
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+    
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
             NSString* eventName = @"rowAction";
+            
             if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
                 TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
                 NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
@@ -947,6 +970,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [theItem release];
                 [theSection release];
             }
+            
+            // Hide editActions after selection
+            [[self tableView] setEditing:NO];
 
         }];
         if (theColor != nil) {
@@ -1999,26 +2025,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point)
 {
-	if (!CGRectContainsPoint([view bounds], point)) {
-		return nil;
-	}
-	for (UIView *subview in [view subviews]) {
-		TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
-		if (viewProxy != nil) {
-			id bindId = [viewProxy valueForKey:@"bindId"];
-			if (bindId != nil) {
-				return viewProxy;
-			}
-		}
-	}
-	if ([view isKindOfClass:[TiUIView class]]) {
-		TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-		id bindId = [viewProxy valueForKey:@"bindId"];
-		if (bindId != nil) {
-			return viewProxy;
-		}
-	}
-	return nil;
+    if (!CGRectContainsPoint([view bounds], point)) {
+        return nil;
+    }
+    for (int i = (int)[view.subviews count]-1; i >=0; i--){
+        UIView *subview = [view.subviews objectAtIndex:i];
+        TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
+        if (viewProxy != nil) {
+            id bindId = [viewProxy valueForKey:@"bindId"];
+            if (bindId != nil) {
+                return viewProxy;
+            }
+        }
+    }
+    if ([view isKindOfClass:[TiUIView class]]) {
+        TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
+        id bindId = [viewProxy valueForKey:@"bindId"];
+        if (bindId != nil) {
+            return viewProxy;
+        }
+    }
+    return nil;
 }
 
 #endif

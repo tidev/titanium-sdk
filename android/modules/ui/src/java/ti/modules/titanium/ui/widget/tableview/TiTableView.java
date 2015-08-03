@@ -136,6 +136,9 @@ public class TiTableView extends FrameLayout
 					index.add(i);
 				}
 			}
+			if (index.size() == 0) {
+				proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
+			}
 		}
 
 		public int getCount() {

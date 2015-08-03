@@ -28,6 +28,8 @@
 @property(nonatomic,readwrite,assign) CGFloat paddingRight;
 @property(nonatomic,readwrite,assign) CGFloat leftButtonPadding;
 @property(nonatomic,readwrite,assign) CGFloat rightButtonPadding;
+@property(nonatomic,readwrite,assign) NSArray* leadingBarButtonGroups;
+@property(nonatomic,readwrite,assign) NSArray* trailingBarButtonGroups;
 
 -(void)setTouchHandler:(TiUIView*)handler;
 

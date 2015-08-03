@@ -1057,6 +1057,11 @@ properties:
     platforms: [iphone, ipad]
     since: "3.3.0"
 
+  - name: elevation
+    summary: Sets the elevation of this view
+    type: Number
+    platforms: [android]
+  
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean

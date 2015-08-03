@@ -21,7 +21,6 @@ var ADB = require('titanium-sdk/lib/adb'),
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/archiver/core'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	cleanCSS = require('clean-css'),
@@ -45,41 +44,6 @@ var ADB = require('titanium-sdk/lib/adb'),
 	__n = i18nLib.__n,
 	version = appc.version,
 	xml = appc.xml;
-
-// Archiver 0.4.10 has a problem where the stack size is exceeded if the project
-// has lots and lots of files. Below is a function copied directly from
-// lib/archiver/core.js and modified to use a setTimeout to collapse the call
-// stack. Copyright (c) 2012-2013 Chris Talkington, contributors.
-archiverCore.prototype._processQueue = function _processQueue() {
-	if (this.archiver.processing) {
-		return;
-	}
-
-	if (this.archiver.queue.length > 0) {
-		var next = this.archiver.queue.shift();
-		var nextCallback = function(err, file) {
-			next.callback(err);
-
-			if (!err) {
-				this.archiver.files.push(file);
-				this.archiver.processing = false;
-				// do a setTimeout to collapse the call stack
-				setTimeout(function () {
-					this._processQueue();
-				}.bind(this), 0);
-			}
-		}.bind(this);
-
-		this.archiver.processing = true;
-
-		this._processFile(next.source, next.data, nextCallback);
-	} else if (this.archiver.finalized && this.archiver.writableEndCalled === false) {
-		this.archiver.writableEndCalled = true;
-		this.end();
-	} else if (this.archiver.finalize && this.archiver.queue.length === 0) {
-		this._finalize();
-	}
-};
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -125,9 +89,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 
 	var _t = this;
-
-	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
-	this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
 	function assertIssue(logger, issues, name) {
 		var i = 0,
@@ -1188,6 +1149,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
+
+		if (this.targetSDK < this.minTargetApiLevel) {
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 	}
 
 	// check that we have this target sdk installed
@@ -1668,7 +1634,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
-		'compileJSS',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -1883,9 +1848,6 @@ AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
 		return hashes;
 	}
 
-	// jss files
-	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
-
 	next();
 };
 
@@ -2082,6 +2044,13 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
+	if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
+		return true;
+	}
+
 	if (this.minSDK != manifest.minSDK) {
 		this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.minSDK));
@@ -2114,13 +2083,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info(__('Forcing rebuild: Android services in tiapp.xml SDK changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.servicesHash));
 		this.logger.info('  ' + __('Now: %s', this.servicesHash));
-		return true;
-	}
-
-	if (this.jssFilesHash != manifest.jssFilesHash) {
-		this.logger.info(__('Forcing rebuild: One or more JSS files changed since last build'));
-		this.logger.info('  ' + __('Was: %s', manifest.jssFilesHash));
-		this.logger.info('  ' + __('Now: %s', this.jssFilesHash));
 		return true;
 	}
 
@@ -2310,7 +2272,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				// if this is a directory, recurse
-				if (isDir) return recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
+				if (isDir) {
+					setImmediate(function () {
+						recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
+					});
+					return;
+				}
 
 				// we have a file, now we need to see what sort of file
 
@@ -2416,11 +2383,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						next();
 						break;
 
-					case 'jss':
-						// ignore, these will be compiled later by compileJSS()
-						next();
-						break;
-
 					case 'xml':
 						if (_t.xmlMergeRegExp.test(filename)) {
 							_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
@@ -2464,6 +2426,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		function (cb) {
 			var src = path.join(this.projectDir, 'Resources');
 			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
 			copyDir.call(this, {
 				src: src,
 				dest: this.buildBinAssetsResourcesDir,
@@ -2475,6 +2438,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		function (cb) {
 			var src = path.join(this.projectDir, 'Resources', 'android');
 			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
 			copyDir.call(this, {
 				src: src,
 				dest: this.buildBinAssetsResourcesDir
@@ -2486,6 +2450,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	this.commonJsModules.forEach(function (module) {
 		// copy the main module
 		tasks.push(function (cb) {
+			_t.logger.debug(__('Copying %s', module.libFile.cyan));
 			copyDir.call(this, {
 				src: module.libFile,
 				dest: this.buildBinAssetsResourcesDir,
@@ -2499,8 +2464,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		// copy the assets
 		tasks.push(function (cb) {
+			var src = path.join(module.modulePath, 'assets');
+			_t.logger.debug(__('Copying %s', src.cyan));
 			copyDir.call(this, {
-				src: path.join(module.modulePath, 'assets'),
+				src: src,
 				dest: path.join(this.buildBinAssetsResourcesDir, 'modules', module.id)
 			}, cb);
 		});
@@ -3085,22 +3052,6 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	next();
 };
 
-AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
-	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
-		fs.writeFile(
-			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
-			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
-				appid: this.appid,
-				classes: appc.util.mix({}, results.classes, results.tags),
-				classesDensity: appc.util.mix({}, results.classes_density, results.tags_density),
-				ids: results.ids,
-				idsDensity: results.ids_density
-			}),
-			callback
-		);
-	}.bind(this));
-};
-
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	if (!this.forceRebuild) return next();
 
@@ -3311,18 +3262,18 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 	function replaceSpaces(s) {
 		return s.replace(/./g, '\\u0020');
 	}
-	
+
 	function resolveRegionName(locale) {
 		if (locale.match(/\w{2}(-|_)r?\w{2}/)) {
 			var parts = locale.split(/-|_/),
 			    lang = parts[0],
 			    region = parts[1],
 			    separator = '-';
-	
+
 			if (region.length == 2) {
 				separator = '-r';
 			}
-	
+
 			return lang + separator + region;
 		}
 		return locale;
@@ -4217,6 +4168,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		guid: this.tiapp.guid,
 		icon: this.tiapp.icon,
 		fullscreen: this.tiapp.fullscreen,
+		navbarHidden: this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
 		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
 		encryptJS: this.encryptJS,
@@ -4225,7 +4177,6 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		propertiesHash: this.propertiesHash,
 		activitiesHash: this.activitiesHash,
 		servicesHash: this.servicesHash,
-		jssFilesHash: this.jssFilesHash,
 		jarLibHash: this.jarLibHash
 	}, callback);
 };

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -102,6 +102,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 	class ListViewWrapper extends FrameLayout {
 		private boolean viewFocused = false;
+		private boolean selectionSet = false;
 		public ListViewWrapper(Context context) {
 			super(context);
 		}
@@ -117,6 +118,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			if (listView == null || (Build.VERSION.SDK_INT >= 18 && listView != null && !changed && viewFocused)) {
 				viewFocused = false;
 				super.onLayout(changed, left, top, right, bottom);
+				return;
+			}
+			// Starting with API 21, setSelection() triggers another layout pass, so we need to end it here to prevent
+			// an infinite loop
+			if (Build.VERSION.SDK_INT >= 21 && selectionSet) {
+				selectionSet = false;
 				return;
 			}
 			OnFocusChangeListener focusListener = null;
@@ -163,7 +170,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					//Restore cursor position
 					if (cursorPosition != -1) {
 						((EditText)focusedView).setSelection(cursorPosition);
+						selectionSet = true;
 					}
+
 				}
 			}
 		}
@@ -485,10 +494,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		}
 
-		if (d.containsKey(TiC.PROPERTY_DIVIDER_HEIGHT)) {
-			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_DIVIDER_HEIGHT), -1);
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
+			TiDimension dHeight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_SEPARATOR_HEIGHT), -1);
 			int height = dHeight.getAsPixels(listView);
-			if (height > 0) {
+			if (height >= 0) {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}
@@ -641,11 +650,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 
 	private void reFilter(String searchText) {
+		int numResults = 0;
 		if (searchText != null) {
 			for (int i = 0; i < sections.size(); ++i) {
 				ListSectionProxy section = sections.get(i);
-				section.applyFilter(searchText);
+				numResults += section.applyFilter(searchText);
 			}
+		}
+		if (numResults == 0) {
+			fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
@@ -701,10 +714,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			String color = TiConvert.toString(newValue);
 			setSeparatorColor(color);
-		} else if (key.equals(TiC.PROPERTY_DIVIDER_HEIGHT)) {
+		} else if (key.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
 			TiDimension dHeight = TiConvert.toTiDimension(newValue, -1);
 			int height = dHeight.getAsPixels(listView);
-			if (height > 0) {
+			if (height >= 0) {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}

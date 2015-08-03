@@ -25,10 +25,12 @@
 	NSString *purpose;
 	BOOL trackingHeading;
 	BOOL trackingLocation;
-    BOOL trackSignificantLocationChange;
+	BOOL trackSignificantLocationChange;
+	BOOL allowsBackgroundLocationUpdates;
+    
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-    CLActivityType activityType;
-    BOOL pauseLocationUpdateAutomatically;
+	CLActivityType activityType;
+	BOOL pauseLocationUpdateAutomatically;
 #endif
 	NSDictionary * lastLocationDict;
 	NSRecursiveLock* lock;

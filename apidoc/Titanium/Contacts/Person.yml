@@ -43,7 +43,7 @@ properties:
         
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: arrays of dictionary types with seven keys, `CountryCode`, `Street`, `City`, 
-        `County`, `State`, `Country` and `ZIP`, each with a `string` type value.
+        , `State`, `Country` and `PostalCode`, each with a `string` type value.
 
         On Android:
 
@@ -84,11 +84,12 @@ properties:
     since: 3.6.0
 
   - name: created
-    summary: Date and time that the person record was created. Single value.
+    summary: Date and time that the person record was created. Single value. Deprecated since iOS 9.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
     
   - name: date
     summary: Dates associated with the person. Multi-value.
@@ -138,9 +139,16 @@ properties:
     type: Number
     platforms: [android]
     permission: read-only
-    
+
+  - name: identifier
+    summary: Identifier of the person.
+    type: String
+    platforms: [iphone, ipad]
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+
   - name: image
-    summary: Image for the person. Single value.
+    summary: Image for the person. Single value. Read-only for >= iOS9
     description: Set to `null` to remove the image. 
     type: Titanium.Blob
     platforms: [android, iphone, ipad]
@@ -211,11 +219,12 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: modified
-    summary: Date and time that the person record was last modified. Single value.
+    summary: Date and time that the person record was last modified. Single value. Deprecated since iOS 9.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
     
   - name: nickname
     summary: Nickname of the person. Single value.
@@ -249,9 +258,10 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: recordId
-    summary: Record identifier of the person. Single value.
+    summary: Record identifier of the person. Single value. Deprecated since iOS 9.
     type: Number
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
     
   - name: relatedNames
     summary: Names of people to which the person is related. Multi-value.

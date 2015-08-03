@@ -24,6 +24,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
@@ -61,7 +62,8 @@ import android.view.View;
 
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
-	"softKeyboardOnFocus", "transform"
+	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
+	"translationX", "translationY", "translationZ"
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
@@ -884,24 +886,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public KrollDict toImage()
+	public TiBlob toImage()
 	{
 		if (TiApplication.isUIThread()) {
 			return handleToImage();
 
 		} else {
-			return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
+			return (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
 		}
 	}
 
-	protected KrollDict handleToImage()
+	protected TiBlob handleToImage()
 	{
 		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
 		}
-
-		return view.toImage();
+		KrollDict dict = view.toImage();
+		return TiUIHelper.getImageFromDict(dict);
 	}
 
 	/**

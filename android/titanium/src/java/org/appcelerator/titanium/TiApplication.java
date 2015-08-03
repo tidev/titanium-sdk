@@ -108,6 +108,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
+	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
@@ -645,6 +646,27 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isAnalyticsEnabled()
 	{
 		return getAppInfo().isAnalyticsEnabled();
+	}
+	
+	public void setFilterAnalyticsEvents(String[] events)
+	{
+		filteredAnalyticsEvents = events;
+	}
+	
+	public boolean isAnalyticsFiltered(String eventName)
+	{
+		if (filteredAnalyticsEvents == null) {
+			return false;
+		}
+
+		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
+			String currentName = filteredAnalyticsEvents[i];
+			if (eventName.equals(currentName)) {
+				return true;
+			}
+					
+		}
+		return false;
 	}
 
 	public String getDeployType()

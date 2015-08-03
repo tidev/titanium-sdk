@@ -1,5 +1,8 @@
 language: objective-c
 xcode_sdk: iphonesimulator7.1
+node_js:
+- '0.10'
+- '0.12'
 sudo: false
 install:
 - npm install

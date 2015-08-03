@@ -84,7 +84,7 @@ function DEFNODE(type, props, methods, base) {
     return ctor;
 };
 
-var AST_Token = DEFNODE("Token", "type value line col pos endpos nlb comments_before file", {
+var AST_Token = DEFNODE("Token", "type value line col pos endline endcol endpos nlb comments_before file", {
 }, null);
 
 var AST_Node = DEFNODE("Node", "start end", {
@@ -120,11 +120,12 @@ var AST_Debugger = DEFNODE("Debugger", null, {
     $documentation: "Represents a debugger statement",
 }, AST_Statement);
 
-var AST_Directive = DEFNODE("Directive", "value scope", {
+var AST_Directive = DEFNODE("Directive", "value scope quote", {
     $documentation: "Represents a directive, like \"use strict\";",
     $propdoc: {
         value: "[string] The value of this directive as a plain string (it's not an AST_String!)",
-        scope: "[AST_Scope/S] The scope that this directive affects"
+        scope: "[AST_Scope/S] The scope that this directive affects",
+        quote: "[string] the original quote character"
     },
 }, AST_Statement);
 
@@ -205,21 +206,27 @@ var AST_DWLoop = DEFNODE("DWLoop", "condition", {
     $documentation: "Base class for do/while statements",
     $propdoc: {
         condition: "[AST_Node] the loop condition.  Should not be instanceof AST_Statement"
-    },
+    }
+}, AST_IterationStatement);
+
+var AST_Do = DEFNODE("Do", null, {
+    $documentation: "A `do` statement",
+    _walk: function(visitor) {
+        return visitor._visit(this, function(){
+            this.body._walk(visitor);
+            this.condition._walk(visitor);
+        });
+    }
+}, AST_DWLoop);
+
+var AST_While = DEFNODE("While", null, {
+    $documentation: "A `while` statement",
     _walk: function(visitor) {
         return visitor._visit(this, function(){
             this.condition._walk(visitor);
             this.body._walk(visitor);
         });
     }
-}, AST_IterationStatement);
-
-var AST_Do = DEFNODE("Do", null, {
-    $documentation: "A `do` statement",
-}, AST_DWLoop);
-
-var AST_While = DEFNODE("While", null, {
-    $documentation: "A `while` statement",
 }, AST_DWLoop);
 
 var AST_For = DEFNODE("For", "init condition step", {
@@ -760,8 +767,11 @@ var AST_ObjectProperty = DEFNODE("ObjectProperty", "key value", {
     }
 });
 
-var AST_ObjectKeyVal = DEFNODE("ObjectKeyVal", null, {
+var AST_ObjectKeyVal = DEFNODE("ObjectKeyVal", "quote", {
     $documentation: "A key: value object property",
+    $propdoc: {
+        quote: "[string] the original quote character"
+    }
 }, AST_ObjectProperty);
 
 var AST_ObjectSetter = DEFNODE("ObjectSetter", null, {
@@ -846,10 +856,11 @@ var AST_Constant = DEFNODE("Constant", null, {
     }
 });
 
-var AST_String = DEFNODE("String", "value", {
+var AST_String = DEFNODE("String", "value quote", {
     $documentation: "A string literal",
     $propdoc: {
-        value: "[string] the contents of this string"
+        value: "[string] the contents of this string",
+        quote: "[string] the original quote character"
     }
 }, AST_Constant);
 
