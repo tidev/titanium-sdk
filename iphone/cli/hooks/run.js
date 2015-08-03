@@ -39,7 +39,7 @@ exports.init = function (logger, config, cli) {
 				levels = logger.getLevels(),
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
-			ioslib.simulator.launch(builder.deviceId, {
+			ioslib.simulator.launch(builder.simHandle, {
 				appPath: builder.xcodeAppDir,
 				focus: cli.argv['sim-focus'],
 				killIfRunning: false, // it will only kill the simulator if the device udid is different
@@ -47,7 +47,7 @@ exports.init = function (logger, config, cli) {
 				launchWatchApp: builder.hasWatchApp && cli.argv['launch-watch-app'],
 				launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
 				logFilename: builder.tiapp.guid + '.log',
-				watchUDID: cli.argv['watch-device-id'],
+				watchHandleOrUDID: builder.watchSimHandle,
 				watchAppName: cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				if (!simStarted) {
@@ -92,7 +92,7 @@ exports.init = function (logger, config, cli) {
 				finished = null;
 			}).on('error', function (err) {
 				endLog();
-				logger.error(err);
+				logger.error(err.message || err.toString());
 				logger.log();
 				process.exit(0);
 			});
