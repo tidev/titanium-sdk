@@ -69,10 +69,17 @@
 
 - (void) dealloc
 {
+	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+#ifdef TI_USE_KROLL_THREAD
 	TiThreadRemoveFromSuperviewOnMainThread(textWidgetView, YES);
 	TiThreadReleaseOnMainThread(textWidgetView, NO);
-	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
 	textWidgetView = nil;	//Wasted action, yes.
+#else
+    TiThreadPerformOnMainThread(^{
+        [textWidgetView removeFromSuperview];
+        RELEASE_TO_NIL(textWidgetView);
+    }, YES);
+#endif
 	[super dealloc];
 }
 

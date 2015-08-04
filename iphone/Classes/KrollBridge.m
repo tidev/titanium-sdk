@@ -438,17 +438,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	const char *urlCString = [[url_ absoluteString] UTF8String];
-	
-	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
+
+    TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-//  TIMOB-18152. There is no need to check syntax since TiEvalScript
-//  will check syntax before evaluation of the script.
-//	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-//		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-//	}
-	
-	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
 #ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode]) {
@@ -464,6 +457,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #endif
         if (exception == NULL) {
             evaluationError = NO;
+        } else {
+            evaluationError = YES;
         }
 	}
 	if (exception != NULL) {
@@ -474,7 +469,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
-    
     [pool release];
 }
 
