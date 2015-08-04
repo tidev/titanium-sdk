@@ -1,16 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiBase.h"
 #include <math.h>
+#include <Foundation/Foundation.h>
+#include <UIKit/UIKit.h>
 
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
 
+#define TI_INLINE static __inline__
 
 //Not a class for speed reasons, like LayoutConstraint.
 
@@ -155,3 +157,78 @@ TI_INLINE CGRect TiDimensionLayerContentCenter(TiDimension top, TiDimension left
 
 	return result;
 }
+
+
+
+typedef enum {
+    TiLayoutRuleAbsolute,
+    TiLayoutRuleVertical,
+    TiLayoutRuleHorizontal,
+} TiLayoutRule;
+
+struct TiLayoutConstraint {
+    
+    TiDimension centerX;
+    TiDimension left;
+    TiDimension right;
+    TiDimension width;
+    
+    TiDimension centerY;
+    TiDimension top;
+    TiDimension bottom;
+    TiDimension height;
+    
+    TiLayoutRule layoutStyle;
+    struct {
+        unsigned int horizontalWrap:1;
+    } layoutFlags;
+    
+    CGFloat minimumHeight;
+    CGFloat minimumWidth;
+    
+};
+
+typedef struct TiLayoutConstraint TiLayoutConstraint;
+
+
+TI_INLINE CGFloat TiFixedValueRuleFromObject(id value)
+{
+    if([value respondsToSelector:@selector(floatValue)]) {
+        return [value floatValue];
+    }
+    return 0;
+}
+
+TI_INLINE TiLayoutRule TiLayoutRuleFromObject(id object)
+{
+    if ([object isKindOfClass:[NSString class]])
+    {
+        if ([object caseInsensitiveCompare:@"vertical"]==NSOrderedSame)
+        {
+            return TiLayoutRuleVertical;
+        }
+        if ([object caseInsensitiveCompare:@"horizontal"]==NSOrderedSame)
+        {
+            return TiLayoutRuleHorizontal;
+        }
+    }
+    return TiLayoutRuleAbsolute;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsAbsolute(TiLayoutRule rule)
+{
+    return rule==TiLayoutRuleAbsolute;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsVertical(TiLayoutRule rule)
+{
+    return rule==TiLayoutRuleVertical;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsHorizontal(TiLayoutRule rule)
+{
+    return rule==TiLayoutRuleHorizontal;
+}
+
+
+

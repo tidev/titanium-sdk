@@ -1,13 +1,25 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiDimension.h"
 #import "TiUtils.h"
-#import "TiApp.h"
+
+NSString* const kTiBehaviorSize = @"SIZE";
+NSString* const kTiBehaviorFill = @"FILL";
+NSString* const kTiBehaviorAuto = @"auto";
+NSString* const kTiUnitPixel = @"px";
+NSString* const kTiUnitCm = @"cm";
+NSString* const kTiUnitMm = @"mm";
+NSString* const kTiUnitInch = @"in";
+NSString* const kTiUnitDip = @"dip";
+NSString* const kTiUnitDipAlternate = @"dp";
+NSString* const kTiUnitSystem = @"system";
+NSString* const kTiUnitPercent = @"%";
+
 
 const TiDimension TiDimensionZero = {TiDimensionTypeDip, 0};
 const TiDimension TiDimensionAuto = {TiDimensionTypeAuto, 0};
@@ -115,7 +127,7 @@ TiDimension TiDimensionFromObject(id object)
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
-        id val = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+        id val = @"dpi";
         if (val == nil) {
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
@@ -140,12 +152,12 @@ TiDimension TiDimensionFromObject(id object)
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
             else {
-                DebugLog(@"[WARN] Property ti.ui.defaultunit is not valid value. Defaulting to system");
+//                DebugLog(@"[WARN] Property ti.ui.defaultunit is not valid value. Defaulting to system");
                 return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
             }
         }
         else {
-            DebugLog(@"[WARN] Property ti.ui.defaultunit is not of type string. Defaulting to system");
+//            DebugLog(@"[WARN] Property ti.ui.defaultunit is not of type string. Defaulting to system");
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
 	}
