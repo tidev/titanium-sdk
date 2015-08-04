@@ -1730,7 +1730,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					iosVersion:             this.iosSdkVersion,
 					simType:                deviceFamily === 'ipad' ? 'ipad' : 'iphone',
 					simVersion:             this.iosSdkVersion,
-					watchAppBeingInstalled: this.hasWatchAppV1 || this.hasWatchAppV2orNewer,
+					watchAppBeingInstalled: (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
 					watchHandleOrUDID:      cli.argv['watch-device-id'],
 					watchMinOSVersion:      this.watchMinOSVersion,
 					logger: function (msg) {
@@ -4416,7 +4416,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				stopOutputting = false,
 				buffer = '',
 				clangCompileMFileRegExp = / \-c ((?:.+)\.m) /,
-				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs|Strip|CodeSign|Validate) /;
+				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs|Strip|CodeSign|Validate|Stripping) /;
 
 			function printLine(line) {
 				if (line.length) {

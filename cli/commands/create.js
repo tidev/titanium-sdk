@@ -28,7 +28,9 @@ var appc = require('node-appc'),
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Create');
 exports.desc = __('creates a new project');
-exports.extendedDesc = __('Creates a new Titanium application, module, or extension.');
+exports.extendedDesc = __('Creates a new Titanium application, native module, or Apple Watch™ app.') + '\n\n'
+	+ __('Apple, iPhone, and iPad are registered trademarks of Apple Inc. Apple Watch is a trademark of Apple Inc.') + '\n\n'
+	+ __('Android is a trademark of Google Inc.');
 
 /**
  * Encapsulates the create command's state.

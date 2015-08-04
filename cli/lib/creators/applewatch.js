@@ -1,9 +1,12 @@
 /**
  * @overview
- * Logic for creating new Apple® Watch™ apps.
+ * Logic for creating new Apple Watch™ apps.
  *
  * @copyright
  * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * Apple, iPhone, and iPad are registered trademarks of Apple Inc. Apple Watch
+ * is a trademark of Apple Inc.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -24,15 +27,15 @@ var appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__;
 
 /**
- * Creates Apple® Watch™ projects.
+ * Creates Apple Watch™ projects.
  *
- * @module lib/creators/fruitwatch
+ * @module lib/creators/applewatch
  */
 
-module.exports = FruitWatchCreator;
+module.exports = AppleWatchCreator;
 
 /**
- * Constructs the Apple® Watch™ app creator.
+ * Constructs the Apple Watch™ app creator.
  * @class
  * @classdesc Creates a module project.
  * @constructor
@@ -40,20 +43,20 @@ module.exports = FruitWatchCreator;
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
  */
-function FruitWatchCreator(logger, config, cli) {
+function AppleWatchCreator(logger, config, cli) {
 	Creator.apply(this, arguments);
 
-	this.title = __('Apple® Watch™ App');
+	this.title = __('Apple Watch™ App');
 	this.titleOrder = 3;
-	this.type = 'fruitwatch';
+	this.type = 'applewatch';
 }
 
-util.inherits(FruitWatchCreator, Creator);
+util.inherits(AppleWatchCreator, Creator);
 
 /**
- * Initializes the Apple® Watch™ app creator.
+ * Initializes the Apple Watch™ app creator.
  */
-FruitWatchCreator.prototype.init = function init() {
+AppleWatchCreator.prototype.init = function init() {
 	if (process.platform !== 'darwin') {
 		throw new Error(__('Platform "%s" is not supported', process.platform));
 	}
@@ -74,7 +77,7 @@ FruitWatchCreator.prototype.init = function init() {
  *
  * @returns {Object}
  */
-FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjectDir(order) {
+AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjectDir(order) {
 	var cli = this.cli,
 		config = this.config,
 		logger = this.logger;
@@ -159,7 +162,7 @@ FruitWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
  *
  * @returns {Object}
  */
-FruitWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
+AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(order) {
 	var cli = this.cli,
 		config = this.config,
 		logger = this.logger;
@@ -202,7 +205,7 @@ FruitWatchCreator.prototype.configOptionAppName = function configOptionAppName(o
  *
  * @param {Function} callback - A function to call after the project has been created
  */
-FruitWatchCreator.prototype.run = function run(callback) {
+AppleWatchCreator.prototype.run = function run(callback) {
 	Creator.prototype.run.apply(this, arguments);
 
 	// download/install the project template

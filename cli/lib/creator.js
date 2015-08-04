@@ -342,8 +342,8 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 
 	return {
 		abbr: 'p',
-		default: !cli.argv.prompt && 'all' || undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-		desc: __('one or more target platforms:') + '\n\u2022 ' + appc.string.rpad(this.type + ':', 7) + (' [' + availablePlatforms.join(', ') + ']').grey,
+		default: !cli.argv.prompt ? 'all' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
+		desc: __('one or more target platforms.'),
 		order: order,
 		prompt: function (callback) {
 			callback(fields.text({
@@ -353,7 +353,8 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 			}));
 		},
 		required: true,
-		validate: validate
+		validate: validate,
+		values: availablePlatforms
 	};
 };
 
