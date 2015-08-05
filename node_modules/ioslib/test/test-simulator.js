@@ -29,7 +29,7 @@ function checkSims(sims) {
 	should(sims).be.an.Array;
 	sims.forEach(function (sim) {
 		should(sim).be.an.Object;
-		should(sim).have.keys('udid', 'name', 'version', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsXcode', 'supportsWatch', 'watchCompanion', 'runtime', 'runtimeName', 'systemLog', 'dataDir');
+		should(sim).have.keys('udid', 'name', 'version', 'type', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'supportsXcode', 'supportsWatch', 'watchCompanion', 'runtime', 'runtimeName', 'systemLog', 'dataDir');
 
 		['udid', 'name', 'version', 'state', 'deviceType', 'deviceName', 'deviceDir', 'model', 'family', 'runtime', 'runtimeName', 'xcode', 'systemLog', 'dataDir'].forEach(function (key) {
 			if (sim[key] !== null) {
@@ -81,18 +81,18 @@ function build(app, iosVersion, defs, done){
 			'-configuration', 'Debug',
 			'-scheme', app,
 			'-destination', "platform='iOS Simulator',OS=" + appc.version.format(iosVersion, 2, 2) + ",name='iPhone 6'",
-			'GCC_PREPROCESSOR_DEFINITIONS="' + defs.join(' ') + '"',
-			'CONFIGURATION_BUILD_DIR="build/\\$(CONFIGURATION)\\$(EFFECTIVE_PLATFORM_NAME)"'
+			'-derivedDataPath', path.join(__dirname, app),
+			'GCC_PREPROCESSOR_DEFINITIONS="' + defs.join(' ') + '"'
 		];
 
 		exec(args.join(' '), {
 			cwd: path.join(__dirname, app)
 		}, function (err, stdout, stderr) {
 			if (err) {
-				return done(err);
+				return done(stdout + '\n' + stderr);
 			}
 			should(stdout).match(/BUILD SUCCEEDED/);
-			var appPath = path.join(__dirname, app, 'build', 'Debug-iphonesimulator', app + '.app');
+			var appPath = path.join(__dirname, app, 'build', 'Products', 'Debug-iphonesimulator', app + '.app');
 			should(fs.existsSync(appPath)).be.true;
 			done(null, appPath);
 		});
@@ -702,7 +702,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and log basic logs', function (done) {
+	(process.env.TRAVIS ? it.skip : it.only)('should be able to launch simulator and log basic logs', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 

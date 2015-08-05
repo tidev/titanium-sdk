@@ -132,6 +132,8 @@ function detect(options, callback) {
 				udid:           udid,
 				name:           name,
 				version:        '1.0',
+				type:           'watchos',
+
 				deviceType:     null,
 				deviceName:     name,
 				deviceDir:      null,
@@ -140,8 +142,10 @@ function detect(options, callback) {
 				supportsXcode:  xcodes,
 				supportsWatch:  {},
 				watchCompanion: {},
+
 				runtime:        null,
 				runtimeName:    'watchOS 1.0',
+
 				systemLog:      null,
 				dataDir:        null
 			};
@@ -218,6 +222,7 @@ function detect(options, callback) {
 								udid:           plist.UDID,
 								name:           plist.name,
 								version:        runtime.version,
+								type:           type,
 
 								deviceType:     plist.deviceType,
 								deviceName:     deviceType.name,
@@ -311,7 +316,7 @@ function detect(options, callback) {
  *
  * @returns {Object} An object containing the app's id and if `watchAppName` is specified, the watch app's id, OS version, and min OS version.
  */
-function findAppIds(appPath, watchAppName) {
+function getAppInfo(appPath, watchAppName) {
 	// validate the specified appPath
 	if (!fs.existsSync(appPath)) {
 		throw new Error(__('App path does not exist: ' + appPath));
@@ -329,7 +334,8 @@ function findAppIds(appPath, watchAppName) {
 	}
 
 	var results = {
-		appId: plist.CFBundleIdentifier
+		appId: plist.CFBundleIdentifier,
+		appName: path.basename(appPath).replace(/\.app$/, '')
 	};
 
 	if (watchAppName) {
@@ -343,8 +349,9 @@ function findAppIds(appPath, watchAppName) {
 					if (fs.existsSync(appDir) && fs.statSync(appDir).isDirectory() && /\.app$/.test(name)) {
 						var plist = readPlist(path.join(appDir, 'Info.plist'));
 						if (plist && plist.WKWatchKitApp && (typeof watchAppName !== 'string' || fs.existsSync(path.join(appDir, watchAppName)))) {
-							results.watchAppId = plist.CFBundleIdentifier;
-							results.watchOSVersion = '1.0';
+							results.watchAppName      = path.basename(appDir).replace(/\.app$/, '');
+							results.watchAppId        = plist.CFBundleIdentifier;
+							results.watchOSVersion    = '1.0';
 							results.watchMinOSVersion = '1.0';
 							return true;
 						}
@@ -359,8 +366,9 @@ function findAppIds(appPath, watchAppName) {
 			fs.existsSync(watchDir) && fs.readdirSync(watchDir).some(function (name) {
 				var plist = readPlist(path.join(watchDir, name, 'Info.plist'));
 				if (plist && (plist.DTPlatformName === 'watchos' || plist.WKWatchKitApp) && (typeof watchAppName !== 'string' || fs.existsSync(path.join(watchDir, watchAppName)))) {
-					results.watchAppId = plist.CFBundleIdentifier;
-					results.watchOSVersion = plist.DTPlatformVersion;
+					results.watchAppName      = name.replace(/\.app$/, '');
+					results.watchAppId        = plist.CFBundleIdentifier;
+					results.watchOSVersion    = plist.DTPlatformVersion;
 					results.watchMinOSVersion = plist.MinimumOSVersion;
 					return true;
 				}
@@ -479,7 +487,7 @@ function findSimulators(options, callback) {
 								return simHandle.watchCompanion[a].model < simHandle.watchCompanion[b].model ? 1 : simHandle.watchCompanion[a].model > simHandle.watchCompanion[b].model ? -1 : 0;
 							})
 							.some(function (watchUDID) {
-								watchSimHandle = simHandle.watchCompanion[watchUDID];
+								watchSimHandle = new SimHandle(simHandle.watchCompanion[watchUDID]);
 								return true;
 							});
 
@@ -706,6 +714,7 @@ function findSimulators(options, callback) {
  * @emits module:simulator#launched
  * @emits module:simulator#log
  * @emits module:simulator#log-debug
+ * @emits module:simulator#log-error
  * @emits module:simulator#log-file
  * @emits module:simulator#log-raw
  *
@@ -735,7 +744,7 @@ function launch(simHandleOrUDID, options, callback) {
 		if (options.appPath) {
 			findSimOpts.appBeingInstalled = true;
 			try {
-				var ids = findAppIds(options.appPath, options.watchAppName || !!options.launchWatchApp || !!options.launchWatchAppOnly);
+				var ids = getAppInfo(options.appPath, options.watchAppName || !!options.launchWatchApp || !!options.launchWatchAppOnly);
 				if (!options.launchBundleId) {
 					appId = ids.appId;
 				}
@@ -761,11 +770,16 @@ function launch(simHandleOrUDID, options, callback) {
 				return callback(err);
 			}
 
-			var appName = path.basename(options.appPath).replace(/\.app$/, ''),
-				crashFileRegExp = new RegExp('^' + appName + '_\\d{4}\\-\\d{2}\\-\\d{2}\\-\\d{6}_.*\.crash$'),
+			var crashFileRegExp,
 				existingCrashes = getCrashes(),
 				findLogTimer = null,
-				logFileTail
+				logFileTail;
+
+			if (options.appPath) {
+				crashFileRegExp = new RegExp('^' + ids.appName + '_\\d{4}\\-\\d{2}\\-\\d{2}\\-\\d{6}_.*\.crash$'),
+				simHandle.appName = ids.appName;
+				watchSimHandle && (watchSimHandle.appName = ids.watchAppName);
+			}
 
 			// sometimes the simulator doesn't remove old log files in which case we get
 			// our logging jacked - we need to remove them before running the simulator
@@ -807,7 +821,7 @@ function launch(simHandleOrUDID, options, callback) {
 			}
 
 			function getCrashes() {
-				if (fs.existsSync(simInfo.simulators.crashDir)) {
+				if (crashFileRegExp && fs.existsSync(simInfo.simulators.crashDir)) {
 					return fs.readdirSync(simInfo.simulators.crashDir).filter(function (n) { return crashFileRegExp.test(n); });
 				}
 				return [];
@@ -836,24 +850,24 @@ function launch(simHandleOrUDID, options, callback) {
 				return false;
 			}
 
-			function startSimulator(simHandle) {
+			function startSimulator(handle) {
 				var booted = false,
 					simEmitter = new EventEmitter;
 
 				function simExited(code, signal) {
 					if (code || code === 0) {
-						emitter.emit('log-debug', __('%s Simulator has exited with code %s', simHandle.name, code));
+						emitter.emit('log-debug', __('%s Simulator has exited with code %s', handle.deviceName, code));
 					} else {
-						emitter.emit('log-debug', __('%s Simulator has exited', simHandle.name));
+						emitter.emit('log-debug', __('%s Simulator has exited', handle.deviceName));
 					}
-					simHandle.systemLogTail && simHandle.systemLogTail.unwatch();
-					simHandle.systemLogTail = null;
+					handle.systemLogTail && handle.systemLogTail.unwatch();
+					handle.systemLogTail = null;
 					simEmitter.emit('stop', code);
 				}
 
 				async.series([
 					function checkIfRunningAndBooted(next) {
-						isRunning(simHandle.simulator, function (err, pid, udid) {
+						isRunning(handle.simulator, function (err, pid, udid) {
 							if (err) {
 								return next(err);
 							}
@@ -862,12 +876,12 @@ function launch(simHandleOrUDID, options, callback) {
 								return next();
 							}
 
-							appc.subprocess.run(simHandle.simctl, ['getenv', simHandle.udid, 'chrisrocks'], function (code, out, run) {
+							appc.subprocess.run(handle.simctl, ['getenv', handle.udid, 'chrisrocks'], function (code, out, run) {
 								if (code) {
-									emitter.emit('log-debug', __('Simulator is running, but not in a booted state, stopping simulator'));
-									stop(simHandle, next);
+									emitter.emit('log-debug', __('%s Simulator is running, but not in a booted state, stopping simulator', handle.deviceName));
+									stop(handle, next);
 								} else {
-									emitter.emit('log-debug', __('Running simulator already running with the correct udid'));
+									emitter.emit('log-debug', __('%s Simulator already running with the correct udid', handle.deviceName));
 									booted = true;
 
 									// because we didn't start the simulator, we have no child process to
@@ -889,59 +903,87 @@ function launch(simHandleOrUDID, options, callback) {
 					},
 
 					function tailSystemLog(next) {
-						if (!simHandle.systemLog) {
+						if (!handle.systemLog) {
 							return next();
 						}
 
 						// make sure the system log exists
-						if (!fs.existsSync(simHandle.systemLog)) {
-							var dir = path.dirname(simHandle.systemLog);
+						if (!fs.existsSync(handle.systemLog)) {
+							var dir = path.dirname(handle.systemLog);
 							fs.existsSync(dir) || mkdirp.sync(dir);
-							fs.writeFileSync(simHandle.systemLog, '');
+							fs.writeFileSync(handle.systemLog, '');
 						}
 
 						var smsRegExp = / SpringBoard\[\d+\]\: SMS Plugin initialized/,
-							systemLogRegExp = new RegExp(' ' + appName + '\\[(\\d+)\\]: (.*)'),
-							watchInstallRegExp = watchAppId ? new RegExp('companionappd\\[(\\d+)\\]: .*WatchKit: application \\(' + watchAppId + '\\)') : null,
-							watchInstallFailRegExp,
+							systemLogRegExp = new RegExp(' ' + handle.appName + '\\[(\\d+)\\]: (.*)'),
+							watchLogMsgRegExp = handle.type === 'ios' && watchAppId ? new RegExp('companionappd\\[(\\d+)\\]: \\((.+)\\) WatchKit: application \\(' + watchAppId + '\\),?\w*(.*)') : null,
+							watchInstallRegExp = /install status: (\d+), message: (.*)$/,
+							successRegExp = /succeeded|success/i,
 							crash1RegExp = /^\*\*\* Terminating app/, // objective-c issue
 							crash2RegExp = new RegExp(' (SpringBoard|Carousel)\\[(\\d+)\\]: Application \'UIKitApplication:' + appId + '\\[(\\w+)\\]\' crashed'), // c++ issue
 							crash3RegExp = new RegExp('launchd_sim\\[(\\d+)\\] \\(UIKitApplication:' + appId + '\\[(\\w+)\\]'), // killed by ios or seg fault
 							autoExitToken = options.autoExitToken || 'AUTO_EXIT',
 							detectedCrash = false;
 
-						simHandle.systemLogTail = new Tail(simHandle.systemLog, '\n', { interval: 500 } );
-						simHandle.systemLogTail.on('line', function (line) {
-							var m;
-							emitter.emit('log-raw', line, simHandle);
+						emitter.emit('log-debug', __('Tailing %s Simulator system log: %s', handle.deviceName, handle.systemLog));
 
-							if (watchInstallRegExp) {
-								if (m = line.match(watchInstallRegExp)) {
-									watchInstallFailRegExp = new RegExp('companionappd\\[' + m[1] + '\\]: \\(Error\\) WatchKit: (.*)$');
-									watchInstallRegExp = null;
-									return;
-								}
-							} else if (watchInstallFailRegExp) {
-								if (m = line.match(watchInstallFailRegExp)) {
-									simEmitter.emit('install', new Error(__('Watch App installation failure: %s', m[1])));
+						// tail the simulator's system log.
+						// as we do this, we want to look for specific things like the watch being installed,
+						// and the app starting.
+						handle.systemLogTail = new Tail(handle.systemLog, '\n', { interval: 500 }, /* fromBeginning */ false );
+						handle.systemLogTail.on('line', function (line) {
+							var m;
+							emitter.emit('log-raw', line, handle);
+
+							if (!booted || !handle.installing) {
+								return;
+							}
+
+							if (watchLogMsgRegExp) {
+								if (m = line.match(watchLogMsgRegExp)) {
+									// refine our regex now that we have the pid
+									watchLogMsgRegExp = new RegExp('companionappd\\[(' + m[1] + ')\\]: \\((.+)\\) WatchKit: (.*)$');
+
+									var type = m[2].trim().toLowerCase(),
+										msg = m[3].trim();
+
+									if (type === 'note') {
+										// did the watch app install succeed?
+										if ((m = msg.match(watchInstallRegExp)) && parseInt(m[1]) === 2 && successRegExp.test(m[2])) {
+											emitter.emit('log-debug', __('Watch App installed successfully!'));
+											handle.installed = true;
+										}
+									} else if (type === 'error') {
+										// did the watch app install fail?
+										simEmitter.emit('error', new Error(__('Watch App installation failure: %s', msg)));
+									}
+
 									return;
 								}
 							}
 
-							if (simHandle.appStarted) {
-								if (m = line.match(systemLogRegExp)) {
-									emitter.emit('log', m[2], simHandle);
+							if (handle.appStarted) {
+								m = line.match(systemLogRegExp);
+
+								if (m) {
+									if (handle.type === 'watchos' && m[2].indexOf('(Error) WatchKit:') !== -1) {
+										emitter.emit('log-error', m[2], handle);
+										return;
+									}
+
+									emitter.emit('log', m[2], handle);
 									if (options.autoExit && m[2].indexOf(autoExitToken) !== -1) {
 										emitter.emit('log-debug', __('Found "%s" token, stopping simulator', autoExitToken));
 										// stopping the simulator will cause the "close" event to fire
-										stop(simHandle, function () {
+										stop(handle, function () {
 											cleanupAndEmit('app-quit');
 										});
 										return;
 									}
 								}
 
-								if (!detectedCrash && ((m && crash1RegExp.test(m[2])) || crash2RegExp.test(line) || crash3RegExp.test(line))) {
+								// check for an iPhone app crash
+								if (!detectedCrash && handle.type === 'ios' && ((m && crash1RegExp.test(m[2])) || crash2RegExp.test(line) || crash3RegExp.test(line))) {
 									detectedCrash = true;
 									// wait 1 second for the potential crash log to be written
 									setTimeout(function () {
@@ -955,7 +997,7 @@ function launch(simHandleOrUDID, options, callback) {
 								}
 							}
 						});
-						simHandle.systemLogTail.watch();
+						handle.systemLogTail.watch();
 
 						next();
 					},
@@ -965,12 +1007,12 @@ function launch(simHandleOrUDID, options, callback) {
 							return next();
 						}
 
-						emitter.emit('log-debug', __('Running: %s', simHandle.simctl + ' shutdown ' + simHandle.udid));
-						appc.subprocess.run(simHandle.simctl, ['shutdown', simHandle.udid], function (code, out, err) {
+						emitter.emit('log-debug', __('Running: %s', handle.simctl + ' shutdown ' + handle.udid));
+						appc.subprocess.run(handle.simctl, ['shutdown', handle.udid], function (code, out, err) {
 							if (code) {
-								emitter.emit('log-debug', __('Simulator was already shutdown'));
+								emitter.emit('log-debug', __('%s Simulator was already shutdown', handle.deviceName));
 							} else {
-								emitter.emit('log-debug', __('Simulator needed to be shutdown'));
+								emitter.emit('log-debug', __('%s Simulator needed to be shutdown', handle.deviceName));
 							}
 							next();
 						});
@@ -982,9 +1024,9 @@ function launch(simHandleOrUDID, options, callback) {
 						}
 
 						// not running, start the simulator
-						emitter.emit('log-debug', __('Running: %s', simHandle.simulator + ' -CurrentDeviceUDID ' + simHandle.udid));
+						emitter.emit('log-debug', __('Running: %s', handle.simulator + ' -CurrentDeviceUDID ' + handle.udid));
 
-						var child = spawn(simHandle.simulator, ['-CurrentDeviceUDID', simHandle.udid], { detached: true, stdio: 'ignore' });
+						var child = spawn(handle.simulator, ['-CurrentDeviceUDID', handle.udid], { detached: true, stdio: 'ignore' });
 						child.on('close', simExited);
 						child.unref();
 
@@ -992,7 +1034,7 @@ function launch(simHandleOrUDID, options, callback) {
 						async.whilst(
 							function () { return !booted; },
 							function (cb) {
-								appc.subprocess.run(simHandle.simctl, ['getenv', simHandle.udid, 'chrisrocks'], function (code, out, run) {
+								appc.subprocess.run(handle.simctl, ['getenv', handle.udid, 'chrisrocks'], function (code, out, run) {
 									if (code) {
 										setTimeout(function () {
 											cb();
@@ -1004,6 +1046,7 @@ function launch(simHandleOrUDID, options, callback) {
 								});
 							},
 							function () {
+								emitter.emit('log-debug', __('%s Simulator started', handle.deviceName));
 								next();
 							}
 						);
@@ -1093,7 +1136,6 @@ function launch(simHandleOrUDID, options, callback) {
 						logFileTail = null;
 
 						if (code instanceof Error) {
-							emitter.emit('log-debug', code.message);
 							cleanupAndEmit('error', code);
 						} else {
 							// wait 1 second for the potential crash log to be written
@@ -1110,11 +1152,10 @@ function launch(simHandleOrUDID, options, callback) {
 
 					startSimulator(simHandle)
 						.on('start', function (err) {
-							err || emitter.emit('log-debug', __('iOS Simulator started'));
 							emitter.emit('launched', simHandle, watchSimHandle);
 							next(err);
 						})
-						.on('install', function (err) {
+						.on('error', function (err) {
 							if (err) {
 								simHandle.error = err;
 								shutdown(err);
@@ -1127,10 +1168,7 @@ function launch(simHandleOrUDID, options, callback) {
 					// if we need to, start the watchOS Simulator
 					if (watchSimHandle && appc.version.gte(selectedXcode.version, '7.0')) {
 						startSimulator(watchSimHandle)
-							.on('start', function (err) {
-								err || emitter.emit('log-debug', __('Watch Simulator started'));
-								next(err);
-							})
+							.on('start', next)
 							.on('stop', function (code) {
 								// TODO: detect crashes for the watch app
 							});
@@ -1139,78 +1177,70 @@ function launch(simHandleOrUDID, options, callback) {
 					}
 				},
 
-				function focusOrHideIosSim(next) {
-					var done = false,
-						args,
-						action;
-
-					// focus or hide the iOS Simulator
-					if (options.focus !== false && !options.hide && !options.autoExit) {
-						action = ['focus', 'focused'];
-						args = [
-							path.join(__dirname, 'iphone_sim_activate.scpt'),
-							path.basename(simHandle.simulator)
-						];
-
-						if (watchSimHandle && appc.version.satisfies(selectedXcode.version, '>=6.2 <7.0')) {
-							// Xcode 6... we need to show the external display via the activate script
-							args.push(watchSimHandle.name);
-						} else if (appc.version.lt(selectedXcode.version, '7.0')) {
-							args.push('Disabled');
+				function focusOrHideSims(next) {
+					async.eachSeries([ watchSimHandle, simHandle ], function (handle, next) {
+						if (!handle || (handle.type === 'watchos' && appc.version.lt(handle.version, '2.0'))) {
+							// either we don't have a watch handle or we do, but it's version 1.x which
+							// is an external display and doesn't need to be focused
+							return next();
 						}
-					} else if (options.hide || options.autoExit) {
-						action = ['hide', 'hidden'];
-						args = [
-							path.join(__dirname, 'iphone_sim_hide.scpt'),
-							path.basename(simHandle.simulator)
-						];
-					}
 
-					if (!args) {
-						return next();
-					}
+						var done = false,
+							args,
+							action;
 
-					async.whilst(
-						function () { return !done; },
-						function (cb) {
-							emitter.emit('log-debug', __('Running: %s', 'osascript "' + args.join('" "') + '"'));
-							appc.subprocess.run('osascript', args, function (code, out, err) {
-								if (code && /Application isn.t running/.test(err)) {
-									// give the iOS Simulator a half second to load
-									setTimeout(function () {
-										cb();
-									}, 500);
-									return;
-								}
+						// focus or hide the iOS Simulator
+						if (options.focus !== false && !options.hide && !options.autoExit) {
+							action = ['focus', 'focused'];
+							args = [
+								path.join(__dirname, 'sim_focus.scpt'),
+								path.basename(handle.simulator)
+							];
 
-								if (code) {
-									emitter.emit('log-debug', __('Failed to %s simulator, continuing', action[0]));
-								} else {
-									emitter.emit('log-debug', __('Simulator successfully %s', action[1]));
-								}
-								done = true;
+							if (watchSimHandle && appc.version.satisfies(selectedXcode.version, '>=6.2 <7.0')) {
+								// Xcode 6... we need to show the external display via the activate script
+								args.push(watchSimHandle.name);
+							} else if (appc.version.lt(selectedXcode.version, '7.0')) {
+								args.push('Disabled');
+							}
+						} else if (options.hide || options.autoExit) {
+							action = ['hide', 'hidden'];
+							args = [
+								path.join(__dirname, 'sim_hide.scpt'),
+								path.basename(handle.simulator)
+							];
+						}
 
-								cb();
-							});
-						},
-						next
-					);
-				},
+						if (!args) {
+							return next();
+						}
 
-				function hideWatchSim(next) {
-					// if needed, hide the watchOS Simulator
-					if (watchSimHandle && appc.version.gte(watchSimHandle.version, '2.0') && (options.hide || options.autoExit)) {
-						var args = [
-							path.join(__dirname, 'iphone_sim_hide.scpt'),
-							path.basename(watchSimHandle.simulator)
-						];
-						emitter.emit('log-debug', __('Running: %s', 'osascript "' + args.join('" "') + '"'));
-						appc.subprocess.run('osascript', args, function (code, out, err) {
-							next();
-						});
-					} else {
-						next();
-					}
+						async.whilst(
+							function () { return !done; },
+							function (cb) {
+								emitter.emit('log-debug', __('Running: %s', 'osascript "' + args.join('" "') + '"'));
+								appc.subprocess.run('osascript', args, function (code, out, err) {
+									if (code && /Application isn.t running/.test(err)) {
+										// give the iOS Simulator a half second to load
+										setTimeout(function () {
+											cb();
+										}, 500);
+										return;
+									}
+
+									if (code) {
+										emitter.emit('log-debug', __('Failed to %s %s Simulator, continuing', action[0], handle.deviceName));
+									} else {
+										emitter.emit('log-debug', __('%s Simulator successfully %s', handle.deviceName, action[1]));
+									}
+									done = true;
+
+									cb();
+								});
+							},
+							next
+						);
+					}, next);
 				},
 
 				function uninstallApp(next) {
@@ -1244,6 +1274,8 @@ function launch(simHandleOrUDID, options, callback) {
 
 					// install the app
 					var args = ['install', simHandle.udid, options.appPath];
+					simHandle.installing = true;
+					watchSimHandle && (watchSimHandle.installing = true);
 					emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
 					appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
 						if (code) {
@@ -1273,12 +1305,16 @@ function launch(simHandleOrUDID, options, callback) {
 
 				async.series([
 					function waitForWatchAppToSync(next) {
-						if (watchSimHandle && watchAppId && appc.version.gte(selectedXcode.version, '7.0')) {
+						if (watchSimHandle && watchAppId && !simHandle.installed) {
 							// since we are launching the Watch Simulator, we need to give the iOS Simulator a
 							// second to install the watch app in the Watch Simulator
-							setTimeout(function () {
-								next();
-							}, 1000);
+							emitter.emit('log-debug', __('Waiting for Watch App to install...'));
+							var timer = setInterval(function () {
+								if (simHandle.installed) {
+									clearInterval(timer);
+									next();
+								}
+							}, 250);
 						} else {
 							next();
 						}
@@ -1347,7 +1383,7 @@ function launch(simHandleOrUDID, options, callback) {
 									var logFile = path.join(dir, 'Documents', options.logFilename);
 									if (fs.existsSync(logFile)) {
 										emitter.emit('log-debug', __('Found application log file: %s', logFile));
-										logFileTail = new Tail(logFile, '\n', { interval: 500 } );
+										logFileTail = new Tail(logFile, '\n', { interval: 500 }, /* fromBeginning */ true );
 										logFileTail.on('line', function (msg) {
 											emitter.emit('log-file', msg);
 										});
