@@ -1105,6 +1105,7 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 		xcodes = this.iosInfo.xcode;
 
 	return {
+		abbr: 'W',
 		desc: __('the watch simulator UDID to launch when building an app with a watch app; only used when target is %s', 'simulator'.cyan),
 		hint: __('udid'),
 		prompt: function (callback) {
@@ -2030,7 +2031,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir            = path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
@@ -2698,10 +2699,21 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 						extObjs.PBXGroup[uuid].children.forEach(function (child) {
 							if (extObjs.PBXGroup[child.value]) {
-								addGroup(child.value, basePath);
-							} else if (extObjs.PBXFileReference[child.value]) {
+								return addGroup(child.value, basePath);
+							}
+
+							if (extObjs.PBXFileReference[child.value]) {
 								xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
 								xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+							}
+
+							if (extObjs.PBXVariantGroup && extObjs.PBXVariantGroup[child.value]) {
+								xobjs.PBXVariantGroup || (xobjs.PBXVariantGroup = {});
+								var varGroup = xobjs.PBXVariantGroup[child.value] = extObjs.PBXVariantGroup[child.value];
+								varGroup.children && varGroup.children.forEach(function (child) {
+									xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
+									xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+								});
 							}
 						});
 					}(child.value, ext.basePath));
@@ -4416,7 +4428,31 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				stopOutputting = false,
 				buffer = '',
 				clangCompileMFileRegExp = / \-c ((?:.+)\.m) /,
-				taskRegExp = /^(CompileC|Ld|CompileAssetCatalog|ProcessInfoPlistFile|GenerateDSYMFile|Touch|PBXCp|ValidateEmbeddedBinary|Ditto|ProcessProductPackaging|ProcessPCH|ProcessPCH\+\+|CreateUniversalBinary|CopySwiftLibs|Strip|CodeSign|Validate|Stripping) /;
+				// here's a list of tasks that Xcode can perform... we use this so we can inject some whitespace and make the xcodebuild output pretty
+				taskRegExp = new RegExp('^(' + [
+					'CodeSign',
+					'CompileAssetCatalog',
+					'CompileC',
+					'CompileStoryboard',
+					'CopySwiftLibs',
+					'CpHeader',
+					'CreateUniversalBinary',
+					'Ditto',
+					'GenerateDSYMFile',
+					'Ld',
+					'Libtool',
+					'LinkStoryboards',
+					'PBXCp',
+					'ProcessInfoPlistFile',
+					'ProcessPCH',
+					'ProcessPCH\\+\\+',
+					'ProcessProductPackaging',
+					'Strip',
+					'Stripping',
+					'Touch',
+					'Validate',
+					'ValidateEmbeddedBinary'
+				].join('|') + ') ');
 
 			function printLine(line) {
 				if (line.length) {
@@ -4519,12 +4555,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
-		'-scheme', this.tiapp.name
+		'-scheme', this.tiapp.name,
+		'-derivedDataPath', this.buildDir
 	];
 
 	if (this.simHandle) {
+		// when building for the simulator, we need to specify a destination and a scheme (above)
+		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
-		args.push('CONFIGURATION_BUILD_DIR=build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)');
 	}
 
 	xcodebuildHook(
