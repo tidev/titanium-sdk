@@ -2853,6 +2853,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
+	// inject the team
+	var team = cli.tiapp.ios && cli.tiapp.ios.team;
+	if (team) {
+		pbxProject.attributes || (pbxProject.attributes = {});
+		pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
+		pbxProject.targets.forEach(function (id) {
+			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = team;
+		});
+	}
+
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 	if (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) {
 		// TODO: Make sure the version of Xcode can support this version of watch app
@@ -2907,6 +2917,8 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
 		dest = path.join(this.buildDir, 'Entitlements.plist');
 
+	delete this.buildDirFiles[dest];
+
 	if (fs.existsSync(entitlementsFile)) {
 		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan));
 		this.copyFileSync(entitlementsFile, dest);
@@ -2953,7 +2965,6 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
-	delete this.buildDirFiles[dest];
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
