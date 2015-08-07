@@ -119,6 +119,7 @@ exports.trackDevices = lockAndLoad(function (callback) {
  */
 exports.installApp = lockAndLoad(function (udid, appPath, callback) {
 	appPath = path.resolve(appPath);
+console.log(appPath);
 	if (!fs.existsSync(appPath)) {
 		return callback(new Error('Specified .app path does not exist'));
 	}
