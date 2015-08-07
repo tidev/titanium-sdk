@@ -33,6 +33,7 @@
     "node-uuid": "1.4.3",
     "request": "2.60.0",
     "sprintf": "0.1.5",
+    "sqlite3": "^3.0.10",
     "temp": "0.8.3",
     "uglify-js": "2.4.24",
     "windowslib": "0.1.15",
