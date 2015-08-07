@@ -2853,13 +2853,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
-	// inject the team
-	var team = cli.tiapp.ios && cli.tiapp.ios.team;
-	if (team) {
+	// inject the team id
+	var teamId = cli.tiapp.ios && cli.tiapp.ios['team-id'];
+	if (teamId) {
 		pbxProject.attributes || (pbxProject.attributes = {});
 		pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
 		pbxProject.targets.forEach(function (id) {
-			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = team;
+			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = teamId;
 		});
 	}
 
