@@ -15,7 +15,7 @@ const
 
 function checkXcode(xcode) {
 	should(xcode).be.an.Object;
-	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'executables');
+	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
 
 	should(xcode.xcodeapp).be.a.String;
 	should(xcode.xcodeapp).not.equal('');
@@ -83,6 +83,18 @@ function checkXcode(xcode) {
 			should(s).not.equal('');
 		});
 	}
+
+	should(xcode.teams).be.an.Object;
+	Object.keys(xcode.teams).forEach(function (teamId) {
+		should(xcode.teams[teamId]).be.an.Object;
+		should(xcode.teams[teamId]).have.keys('name', 'status', 'type');
+		should(xcode.teams[teamId].name).be.a.String();
+		should(xcode.teams[teamId].name).not.equal('');
+		should(xcode.teams[teamId].status).be.a.String();
+		should(xcode.teams[teamId].status).not.equal('');
+		should(xcode.teams[teamId].type).be.a.String();
+		should(xcode.teams[teamId].type).not.equal('');
+	});
 
 	var keys = ['xcodebuild', 'clang', 'clang_xx', 'libtool', 'lipo', 'otool', 'pngcrush', 'simulator', 'watchsimulator', 'simctl'];
 	should(xcode.executables).be.an.Object;

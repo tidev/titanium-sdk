@@ -2014,7 +2014,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework'];
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios && this.tiapp.ios['use-jscore-framework'];
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -2853,13 +2853,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
-	// inject the team
-	var team = cli.tiapp.ios && cli.tiapp.ios.team;
-	if (team) {
+	// inject the team id
+	var teamId = this.tiapp.ios && this.tiapp.ios['team-id'];
+	if (teamId) {
 		pbxProject.attributes || (pbxProject.attributes = {});
 		pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
 		pbxProject.targets.forEach(function (id) {
-			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = team;
+			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = teamId;
 		});
 	}
 
