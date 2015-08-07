@@ -1776,6 +1776,30 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 			},
 
+			function validateCapabilities() {
+				// check if we have any capabilities that we should need a team id
+				if (this.tiapp.ios && !this.tiapp.ios['team-id'] && this.tiapp.ios.capabilities && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
+					logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
+					if (Object.keys(this.xcodeEnv.teams).length) {
+						logger.log(__('Available teams:'));
+						Object.keys(this.xcodeEnv.teams).forEach(function (id) {
+							var team = this.xcodeEnv.teams[id];
+							logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
+						}, this);
+						logger.log();
+					} else {
+						logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+					}
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <ios>'.grey);
+					logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+					logger.log('    </ios>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+					process.exit(1);
+				}
+			},
+
 			function toSymlinkOrNotToSymlink() {
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
@@ -2858,8 +2882,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (teamId) {
 		pbxProject.attributes || (pbxProject.attributes = {});
 		pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-		pbxProject.targets.forEach(function (id) {
-			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = teamId;
+
+		var caps = this.tiapp.ios.capabilities;
+
+		pbxProject.targets.forEach(function (target) {
+			var ta = pbxProject.attributes.TargetAttributes[target.value] = (pbxProject.attributes.TargetAttributes[target.value] || {});
+
+			ta.DevelopmentTeam = teamId;
+
+			caps && Object.keys(caps).forEach(function (cap) {
+				ta.SystemCapabilities || (ta.SystemCapabilities = {});
+
+				if (cap === 'app-groups') {
+					ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
+					ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+				}
+			});
 		});
 	}
 
@@ -2912,6 +2950,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
 	this.logger.info(__('Creating Entitlements.plist'));
+
+/*
+<key>com.apple.security.application-groups</key>
++       <array>
++               <string>group.appc.testext</string>
++       </array>
+*/
 
 	// allow the project to have its own custom entitlements
 	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),

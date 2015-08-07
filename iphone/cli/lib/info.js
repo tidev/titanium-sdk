@@ -124,6 +124,18 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			}
 
 			logger.log('  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no'));
+
+			if (Object.keys(x.teams).length) {
+				Object.keys(x.teams).forEach(function (id, i) {
+					if (i === 0) {
+						logger.log('  ' + rpad('  ' + __('Teams'))                 + ' = ' + styleValue(id) + ' ' + x.teams[id].name + ' - ' + x.teams[id].type + (' (' + x.teams[id].status + ')').grey);
+					} else {
+						logger.log('  ' + rpad('       ')                          + ' = ' + styleValue(id) + ' ' + x.teams[id].name + ' - ' + x.teams[id].type + (' (' + x.teams[id].status + ')').grey);
+					}
+				});
+			} else {
+				logger.log('  ' + rpad('  ' + __('Teams'))                         + ' = ' + styleValue(__('none')));
+			}
 		});
 		logger.log();
 	} else {
