@@ -2401,8 +2401,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = scrubbedAppName + '_Prefix.pch';
 			} else if (obj.path === 'Titanium.plist') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = 'Info.plist';
+			} else if (obj.path === 'Titanium.entitlements') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.entitlements"';
 			} else if (obj.path === 'Titanium.app') {
-				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '"';
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			}
@@ -2420,6 +2422,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = 'Info.plist';
 					} else if (child.comment === 'Titanium.app') {
 						child.comment = '"' + appName + '.app"';
+					} else if (child.comment === 'Titanium.entitlements') {
+						child.comment = '"' + appName + '.entitlements"';
 					}
 				});
 			}
@@ -2514,7 +2518,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
-			SDKROOT: 'iphoneos'
+			SDKROOT: 'iphoneos',
+			CODE_SIGN_ENTITLEMENTS: appName + '.entitlements'
 		};
 
 	// set additional build settings
@@ -2830,7 +2835,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
 						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
 					} else if (haveEntitlements) {
-						var entFile = 'entitlements.plist';
+						haveEntitlements = false;
+
+						var entFile = targetName + '.entitlements';
 						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
 						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
 
@@ -2844,19 +2851,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						};
 						xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
 
-						// add the file reference to the frameworks build phase
-						frameworksGroup.children.push({
+						// add the file to the target's pbx group
+						targetGroup && targetGroup.children.push({
 							value: entFileRefUuid,
 							comment: entFile
 						});
-
-						// add the file to the target's pbx group
-						if (targetGroup && !targetGroup.children.some(function (child) { return child.value === entFileRefUuid; })) {
-							targetGroup.children.push({
-								value: entFileRefUuid,
-								comment: entFile
-							});
-						}
 					}
 				}, this);
 
@@ -2991,6 +2990,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 
 		delete this.buildDirFiles[dest];
+
 		done();
 	});
 
@@ -3078,7 +3078,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 		}
 	}
 
-	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, 'Entitlements.plist'));
+	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'));
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
