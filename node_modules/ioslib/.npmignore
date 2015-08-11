@@ -6,6 +6,7 @@ npm-debug.log
 
 test/TestApp/info.plist
 test/TestApp/build
+test/TestApp/Build
 test/TestApp/Logs
 test/TestApp/ModuleCache
 test/TestApp/TestApp.xcodeproj/xcuserdata
@@ -13,6 +14,7 @@ test/TestApp/TestApp.xcodeproj/project.xcworkspace
 
 test/TestWatchApp/info.plist
 test/TestWatchApp/build
+test/TestWatchApp/Build
 test/TestWatchApp/Logs
 test/TestWatchApp/ModuleCache
 test/TestWatchApp/TestWatchApp.xcodeproj/xcuserdata
@@ -20,6 +22,7 @@ test/TestWatchApp/TestWatchApp.xcodeproj/project.xcworkspace
 
 test/TestWatchApp2/info.plist
 test/TestWatchApp2/build
+test/TestWatchApp2/Build
 test/TestWatchApp2/Logs
 test/TestWatchApp2/ModuleCache
 test/TestWatchApp2/TestWatchApp2.xcodeproj/xcuserdata

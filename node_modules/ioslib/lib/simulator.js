@@ -949,7 +949,7 @@ function launch(simHandleOrUDID, options, callback) {
 
 									if (type === 'note') {
 										// did the watch app install succeed?
-										if ((m = msg.match(watchInstallRegExp)) && parseInt(m[1]) === 2 && successRegExp.test(m[2])) {
+										if (!handle.installed && (m = msg.match(watchInstallRegExp)) && parseInt(m[1]) === 2 && successRegExp.test(m[2])) {
 											emitter.emit('log-debug', __('Watch App installed successfully!'));
 											handle.installed = true;
 										}
