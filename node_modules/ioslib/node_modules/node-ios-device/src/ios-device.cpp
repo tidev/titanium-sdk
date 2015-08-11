@@ -18,7 +18,7 @@ using namespace v8;
  * function.
  */
 typedef struct Listener {
-	Persistent<Function> callback;
+	Nan::Persistent<Function> callback;
 } Listener;
 
 /*
@@ -52,7 +52,7 @@ char* cfstring_to_cstr(CFStringRef str) {
 class Device {
 public:
 	am_device device;
-	Persistent<Object> props;
+	Nan::Persistent<Object> props;
 	bool connected;
 
 	service_conn_t logConnection;
@@ -61,16 +61,16 @@ public:
 	Listener* logCallback;
 
 	Device(am_device& dev) : device(dev), connected(false), logSocket(NULL), logSource(NULL), logCallback(NULL) {
-		NanAssignPersistent<Object>(props, NanNew<Object>());
+		props.Reset(Nan::New<Object>());
 	}
 
 	// fetches info from the device and populates the JavaScript object
 	void populate(CFStringRef udid) {
-		Local<Object> p = NanNew<Object>();
+		Local<Object> p = Nan::New<Object>();
 
 		char* str = cfstring_to_cstr(udid);
 		if (str != NULL) {
-			p->Set(NanNew("udid"), NanNew(str));
+			Nan::Set(p, Nan::New("udid").ToLocalChecked(), Nan::New(str).ToLocalChecked());
 			free(str);
 		}
 
@@ -85,7 +85,7 @@ public:
 		this->getProp(p, "productVersion",  CFSTR("ProductVersion"));
 		this->getProp(p, "serialNumber",    CFSTR("SerialNumber"));
 
-		NanAssignPersistent<Object>(props, p);
+		props.Reset(p);
 	}
 
 private:
@@ -95,7 +95,7 @@ private:
 			char* str = cfstring_to_cstr(value);
 			CFRelease(value);
 			if (str != NULL) {
-				p->Set(NanNew(propName), NanNew(str));
+				Nan::Set(p, Nan::New(propName).ToLocalChecked(), Nan::New(str).ToLocalChecked());
 				free(str);
 			}
 		}
@@ -107,25 +107,25 @@ private:
  * Defines a JavaScript function that adds an event listener.
  */
 NAN_METHOD(on) {
-	if (args.Length() >= 2) {
-		if (!args[0]->IsString()) {
-			return NanThrowError(Exception::Error(NanNew("Argument \'event\' must be a string")));
+	if (info.Length() >= 2) {
+		if (!info[0]->IsString()) {
+			return Nan::ThrowError(Exception::Error(Nan::New("Argument \'event\' must be a string").ToLocalChecked()));
 		}
 
-		if (!args[1]->IsFunction()) {
-			return NanThrowError(Exception::Error(NanNew("Argument \'callback\' must be a function")));
+		if (!info[1]->IsFunction()) {
+			return Nan::ThrowError(Exception::Error(Nan::New("Argument \'callback\' must be a function").ToLocalChecked()));
 		}
 
-		Handle<String> event = Handle<String>::Cast(args[0]);
+		Handle<String> event = Handle<String>::Cast(info[0]);
 		String::Utf8Value str(event->ToString());
 		CFStringRef eventName = CFStringCreateWithCString(NULL, (char*)*str, kCFStringEncodingUTF8);
 
 		Listener* listener = new Listener;
-		NanAssignPersistent<Function>(listener->callback, Local<Function>::Cast(args[1]));
+		listener->callback.Reset(Local<Function>::Cast(info[1]));
 		CFDictionarySetValue(listeners, eventName, listener);
 	}
 
-	NanReturnUndefined();
+	info.GetReturnValue().SetUndefined();
 }
 
 /*
@@ -142,8 +142,8 @@ void emit(const char* event) {
 		if (CFStringCompare(keys[i], eventStr, 0) == kCFCompareEqualTo) {
 			const Listener* listener = (const Listener*)CFDictionaryGetValue(listeners, keys[i]);
 			if (listener != NULL) {
-				Local<Function> callback = NanNew<Function>(listener->callback);
-				callback->Call(NanGetCurrentContext()->Global(), 0, NULL);
+				Local<Function> callback = Nan::New<Function>(listener->callback);
+				callback->Call(Nan::GetCurrentContext()->Global(), 0, NULL);
 			}
 		}
 	}
@@ -158,8 +158,8 @@ void emit(const char* event) {
 NAN_METHOD(pump_run_loop) {
 	CFTimeInterval interval = 0.25;
 
-	if (args.Length() > 0 && args[0]->IsNumber()) {
-		Local<Number> intervalArg = Local<Number>::Cast(args[0]);
+	if (info.Length() > 0 && info[0]->IsNumber()) {
+		Local<Number> intervalArg = Local<Number>::Cast(info[0]);
 		interval = intervalArg->NumberValue();
 	}
 
@@ -171,7 +171,7 @@ NAN_METHOD(pump_run_loop) {
 		emit("devicesChanged");
 	}
 
-	NanReturnUndefined();
+	info.GetReturnValue().SetUndefined();
 }
 
 /*
@@ -180,21 +180,20 @@ NAN_METHOD(pump_run_loop) {
  * This should be called after pumpRunLoop() has been called.
  */
 NAN_METHOD(devices) {
-	NanScope();
-	Handle<Array> result = NanNew<Array>();
+	Local<Array> result = Nan::New<Array>();
 
 	CFIndex size = CFDictionaryGetCount(connected_devices);
 	Device** values = (Device**)malloc(size * sizeof(Device*));
 	CFDictionaryGetKeysAndValues(connected_devices, NULL, (const void **)values);
 
 	for (CFIndex i = 0; i < size; i++) {
-		Persistent<Object>* obj = &values[i]->props;
-		result->Set(i, NanNew<Object>(*obj));
+		Nan::Persistent<Object>* obj = &values[i]->props;
+		Nan::Set(result, i, Nan::New<Object>(*obj));
 	}
 
 	free(values);
 
-	NanReturnValue(result);
+	info.GetReturnValue().Set(result);
 }
 
 /*
@@ -268,18 +267,18 @@ void on_device_notification(am_device_notification_callback_info* info, void* ar
 NAN_METHOD(installApp) {
 	char tmp[256];
 
-	if (args.Length() < 2 || args[0]->IsUndefined() || args[1]->IsUndefined()) {
-		return NanThrowError(Exception::Error(NanNew("Missing required arguments \'udid\' and \'appPath\'")));
+	if (info.Length() < 2 || info[0]->IsUndefined() || info[1]->IsUndefined()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Missing required arguments \'udid\' and \'appPath\'").ToLocalChecked()));
 	}
 
 	// validate the 'udid'
-	if (!args[0]->IsString()) {
-		return NanThrowError(Exception::Error(NanNew("Argument \'udid\' must be a string")));
+	if (!info[0]->IsString()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Argument \'udid\' must be a string").ToLocalChecked()));
 	}
 
-	Handle<String> udidHandle = Handle<String>::Cast(args[0]);
+	Handle<String> udidHandle = Handle<String>::Cast(info[0]);
 	if (udidHandle->Length() == 0) {
-		return NanThrowError(Exception::Error(NanNew("The \'udid\' must not be an empty string")));
+		return Nan::ThrowError(Exception::Error(Nan::New("The \'udid\' must not be an empty string").ToLocalChecked()));
 	}
 
 	String::Utf8Value udidValue(udidHandle->ToString());
@@ -289,7 +288,7 @@ NAN_METHOD(installApp) {
 	if (!CFDictionaryContainsKey(connected_devices, (const void*)udidStr)) {
 		CFRelease(udidStr);
 		snprintf(tmp, 256, "Device \'%s\' not connected", udid);
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
 	Device* deviceObj = (Device*)CFDictionaryGetValue(connected_devices, udidStr);
@@ -297,13 +296,13 @@ NAN_METHOD(installApp) {
 	am_device* device = &deviceObj->device;
 
 	// validate the 'appPath'
-	if (!args[1]->IsString()) {
-		return NanThrowError(Exception::Error(NanNew("Argument \'appPath\' must be a string")));
+	if (!info[1]->IsString()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Argument \'appPath\' must be a string").ToLocalChecked()));
 	}
 
-	Handle<String> appPathHandle = Handle<String>::Cast(args[1]);
+	Handle<String> appPathHandle = Handle<String>::Cast(info[1]);
 	if (appPathHandle->Length() == 0) {
-		return NanThrowError(Exception::Error(NanNew("The \'appPath\' must not be an empty string")));
+		return Nan::ThrowError(Exception::Error(Nan::New("The \'appPath\' must not be an empty string").ToLocalChecked()));
 	}
 
 	String::Utf8Value appPathValue(appPathHandle->ToString());
@@ -312,7 +311,7 @@ NAN_METHOD(installApp) {
 	// check the file exists
 	if (::access(appPath, F_OK) != 0) {
 		snprintf(tmp, 256, "The app path \'%s\' does not exist", appPath);
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
 	// get the path to the app
@@ -332,14 +331,14 @@ NAN_METHOD(installApp) {
 	// connect to the device
 	rval = AMDeviceConnect(*device);
 	if (rval == MDERR_SYSCALL) {
-		return NanThrowError(Exception::Error(NanNew("Failed to connect to device: setsockopt() failed")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: setsockopt() failed").ToLocalChecked()));
 	} else if (rval == MDERR_QUERY_FAILED) {
-		return NanThrowError(Exception::Error(NanNew("Failed to connect to device: the daemon query failed")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: the daemon query failed").ToLocalChecked()));
 	} else if (rval == MDERR_INVALID_ARGUMENT) {
-		return NanThrowError(Exception::Error(NanNew("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff").ToLocalChecked()));
 	} else if (rval != MDERR_OK) {
 		snprintf(tmp, 256, "Failed to connect to device (0x%x)", rval);
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
 	// make sure we're paired
@@ -347,7 +346,7 @@ NAN_METHOD(installApp) {
 	if (rval != 1) {
 		rval = AMDevicePair(*device);
 		if (rval != 1) {
-			return NanThrowError(Exception::Error(NanNew("Device is not paired")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired").ToLocalChecked()));
 		}
 	}
 
@@ -356,16 +355,16 @@ NAN_METHOD(installApp) {
 	if (rval != MDERR_OK) {
 		rval = AMDevicePair(*device);
 		if (rval != 1) {
-			return NanThrowError(Exception::Error(NanNew("Failed to pair device")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to pair device").ToLocalChecked()));
 		} else {
 			rval = AMDeviceValidatePairing(*device);
 			if (rval == MDERR_INVALID_ARGUMENT) {
-				return NanThrowError(Exception::Error(NanNew("Device is not paired: the device is null")));
+				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: the device is null").ToLocalChecked()));
 			} else if (rval == MDERR_DICT_NOT_LOADED) {
-				return NanThrowError(Exception::Error(NanNew("Device is not paired: load_dict() failed")));
+				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: load_dict() failed").ToLocalChecked()));
 			} else if (rval != MDERR_OK) {
 				snprintf(tmp, 256, "Device is not paired (0x%x)", rval);
-				return NanThrowError(Exception::Error(NanNew(tmp)));
+				return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 			}
 		}
 	}
@@ -373,12 +372,12 @@ NAN_METHOD(installApp) {
 	// start the session
 	rval = AMDeviceStartSession(*device);
 	if (rval == MDERR_INVALID_ARGUMENT) {
-		return NanThrowError(Exception::Error(NanNew("Failed to start session: the lockdown connection has not been established")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: the lockdown connection has not been established").ToLocalChecked()));
 	} else if (rval == MDERR_DICT_NOT_LOADED) {
-		return NanThrowError(Exception::Error(NanNew("Failed to start session: load_dict() failed")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: load_dict() failed").ToLocalChecked()));
 	} else if (rval != MDERR_OK) {
 		snprintf(tmp, 256, "Failed to start session (0x%x)", rval);
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
 	deviceObj->connected = true;
@@ -396,10 +395,10 @@ NAN_METHOD(installApp) {
 		CFRelease(options);
 		CFRelease(localUrl);
 		if (rval == -402653177) {
-			return NanThrowError(Exception::Error(NanNew("Failed to copy app to device: can't install app that contains symlinks")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to copy app to device: can't install app that contains symlinks").ToLocalChecked()));
 		} else {
 			snprintf(tmp, 256, "Failed to copy app to device (0x%x)", rval);
-			return NanThrowError(Exception::Error(NanNew(tmp)));
+			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 		}
 	}
 
@@ -412,10 +411,10 @@ NAN_METHOD(installApp) {
 		CFRelease(options);
 		CFRelease(localUrl);
 		if (rval == -402620395) {
-			return NanThrowError(Exception::Error(NanNew("Failed to install app on device: most likely a provisioning profile issue")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to install app on device: most likely a provisioning profile issue").ToLocalChecked()));
 		} else {
 			snprintf(tmp, 256, "Failed to install app on device (0x%x)", rval);
-			return NanThrowError(Exception::Error(NanNew(tmp)));
+			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 		}
 	}
 
@@ -426,7 +425,7 @@ NAN_METHOD(installApp) {
 	CFRelease(options);
 	CFRelease(localUrl);
 
-	NanReturnUndefined();
+	info.GetReturnValue().SetUndefined();
 }
 
 /**
@@ -434,7 +433,7 @@ NAN_METHOD(installApp) {
  */
 void LogSocketCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef address, const void *data, void *info) {
 	Device* device = (Device*)info;
-	Local<Function> callback = NanNew<Function>(device->logCallback->callback);
+	Local<Function> callback = Nan::New<Function>(device->logCallback->callback);
 	CFIndex length = CFDataGetLength((CFDataRef)data);
 	const char *buffer = (const char*)CFDataGetBytePtr((CFDataRef)data);
 	char* str = new char[length + 1];
@@ -458,8 +457,8 @@ void LogSocketCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef addre
 			if (c == '\n' || c == '\0') {
 				str[j] = '\0';
 				if (j > 0) {
-					argv[0] = NanNew(str);
-					callback->Call(NanGetCurrentContext()->Global(), 1, argv);
+					argv[0] = Nan::New(str).ToLocalChecked();
+					callback->Call(Nan::GetCurrentContext()->Global(), 1, argv);
 				}
 				j = 0;
 				if (c == '\0') {
@@ -485,18 +484,18 @@ void LogSocketCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef addre
 NAN_METHOD(log) {
 	char tmp[256];
 
-	if (args.Length() < 2 || args[0]->IsUndefined() || args[1]->IsUndefined()) {
-		return NanThrowError(Exception::Error(NanNew("Missing required arguments \'udid\' and \'appPath\'")));
+	if (info.Length() < 2 || info[0]->IsUndefined() || info[1]->IsUndefined()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Missing required arguments \'udid\' and \'appPath\'").ToLocalChecked()));
 	}
 
 	// validate the 'udid'
-	if (!args[0]->IsString()) {
-		return NanThrowError(Exception::Error(NanNew("Argument \'udid\' must be a string")));
+	if (!info[0]->IsString()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Argument \'udid\' must be a string").ToLocalChecked()));
 	}
 
-	Handle<String> udidHandle = Handle<String>::Cast(args[0]);
+	Handle<String> udidHandle = Handle<String>::Cast(info[0]);
 	if (udidHandle->Length() == 0) {
-		return NanThrowError(Exception::Error(NanNew("The \'udid\' must not be an empty string")));
+		return Nan::ThrowError(Exception::Error(Nan::New("The \'udid\' must not be an empty string").ToLocalChecked()));
 	}
 
 	String::Utf8Value udidValue(udidHandle->ToString());
@@ -506,15 +505,15 @@ NAN_METHOD(log) {
 	if (!CFDictionaryContainsKey(connected_devices, (const void*)udidStr)) {
 		CFRelease(udidStr);
 		snprintf(tmp, 256, "Device \'%s\' not connected", udid);
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
-	if (!args[1]->IsFunction()) {
-		return NanThrowError(Exception::Error(NanNew("Argument \'callback\' must be a function")));
+	if (!info[1]->IsFunction()) {
+		return Nan::ThrowError(Exception::Error(Nan::New("Argument \'callback\' must be a function").ToLocalChecked()));
 	}
 
 	Listener* logCallback = new Listener;
-	NanAssignPersistent<Function>(logCallback->callback, Local<Function>::Cast(args[1]));
+	logCallback->callback.Reset(Local<Function>::Cast(info[1]));
 
 	Device* deviceObj = (Device*)CFDictionaryGetValue(connected_devices, udidStr);
 	CFRelease(udidStr);
@@ -527,14 +526,14 @@ NAN_METHOD(log) {
 		// connect to the device
 		rval = AMDeviceConnect(*device);
 		if (rval == MDERR_SYSCALL) {
-			return NanThrowError(Exception::Error(NanNew("Failed to connect to device: setsockopt() failed")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: setsockopt() failed").ToLocalChecked()));
 		} else if (rval == MDERR_QUERY_FAILED) {
-			return NanThrowError(Exception::Error(NanNew("Failed to connect to device: the daemon query failed")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: the daemon query failed").ToLocalChecked()));
 		} else if (rval == MDERR_INVALID_ARGUMENT) {
-			return NanThrowError(Exception::Error(NanNew("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff").ToLocalChecked()));
 		} else if (rval != MDERR_OK) {
 			snprintf(tmp, 256, "Failed to connect to device (0x%x)", rval);
-			return NanThrowError(Exception::Error(NanNew(tmp)));
+			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 		}
 
 		// make sure we're paired
@@ -542,7 +541,7 @@ NAN_METHOD(log) {
 		if (rval != 1) {
 			rval = AMDevicePair(*device);
 			if (rval != 1) {
-				return NanThrowError(Exception::Error(NanNew("Device is not paired")));
+				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired").ToLocalChecked()));
 			}
 		}
 
@@ -551,16 +550,16 @@ NAN_METHOD(log) {
 		if (rval != MDERR_OK) {
 			rval = AMDevicePair(*device);
 			if (rval != 1) {
-				return NanThrowError(Exception::Error(NanNew("Failed to pair device")));
+				return Nan::ThrowError(Exception::Error(Nan::New("Failed to pair device").ToLocalChecked()));
 			} else {
 				rval = AMDeviceValidatePairing(*device);
 				if (rval == MDERR_INVALID_ARGUMENT) {
-					return NanThrowError(Exception::Error(NanNew("Device is not paired: the device is null")));
+					return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: the device is null").ToLocalChecked()));
 				} else if (rval == MDERR_DICT_NOT_LOADED) {
-					return NanThrowError(Exception::Error(NanNew("Device is not paired: load_dict() failed")));
+					return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: load_dict() failed").ToLocalChecked()));
 				} else if (rval != MDERR_OK) {
 					snprintf(tmp, 256, "Device is not paired (0x%x)", rval);
-					return NanThrowError(Exception::Error(NanNew(tmp)));
+					return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 				}
 			}
 		}
@@ -568,12 +567,12 @@ NAN_METHOD(log) {
 		// start the session
 		rval = AMDeviceStartSession(*device);
 		if (rval == MDERR_INVALID_ARGUMENT) {
-			return NanThrowError(Exception::Error(NanNew("Failed to start session: the lockdown connection has not been established")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: the lockdown connection has not been established").ToLocalChecked()));
 		} else if (rval == MDERR_DICT_NOT_LOADED) {
-			return NanThrowError(Exception::Error(NanNew("Failed to start session: load_dict() failed")));
+			return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: load_dict() failed").ToLocalChecked()));
 		} else if (rval != MDERR_OK) {
 			snprintf(tmp, 256, "Failed to start session (0x%x)", rval);
-			return NanThrowError(Exception::Error(NanNew(tmp)));
+			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 		}
 
 		deviceObj->connected = true;
@@ -589,7 +588,7 @@ NAN_METHOD(log) {
 		} else {
 			snprintf(tmp, 256, "Failed to start \"%s\" service (0x%x)", AMSVC_SYSLOG_RELAY, rval);
 		}
-		return NanThrowError(Exception::Error(NanNew(tmp)));
+		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
 	AMDeviceStopSession(*device);
@@ -599,12 +598,12 @@ NAN_METHOD(log) {
 	CFSocketContext socketCtx = { 0, deviceObj, NULL, NULL, NULL };
 	CFSocketRef socket = CFSocketCreateWithNative(kCFAllocatorDefault, connection, kCFSocketDataCallBack, LogSocketCallback, &socketCtx);
 	if (!socket) {
-		return NanThrowError(Exception::Error(NanNew("Failed to create socket")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to create socket").ToLocalChecked()));
 	}
 
 	CFRunLoopSourceRef source = CFSocketCreateRunLoopSource(kCFAllocatorDefault, socket, 0);
 	if (!source) {
-		return NanThrowError(Exception::Error(NanNew("Failed to create socket run loop source")));
+		return Nan::ThrowError(Exception::Error(Nan::New("Failed to create socket run loop source").ToLocalChecked()));
 	}
 
 	CFRunLoopAddSource(CFRunLoopGetMain(), source, kCFRunLoopCommonModes);
@@ -624,7 +623,7 @@ NAN_METHOD(log) {
 	deviceObj->logSource = source;
 	deviceObj->logCallback = logCallback;
 
-	NanReturnUndefined();
+	info.GetReturnValue().SetUndefined();
 }
 
 static void cleanup(void *arg) {
@@ -676,11 +675,11 @@ static void cleanup(void *arg) {
  * to the device notifications.
  */
 void init(Handle<Object> exports) {
-	exports->Set(NanNew("on"),          NanNew<FunctionTemplate>(on)->GetFunction());
-	exports->Set(NanNew("pumpRunLoop"), NanNew<FunctionTemplate>(pump_run_loop)->GetFunction());
-	exports->Set(NanNew("devices"),     NanNew<FunctionTemplate>(devices)->GetFunction());
-	exports->Set(NanNew("installApp"),  NanNew<FunctionTemplate>(installApp)->GetFunction());
-	exports->Set(NanNew("log"),         NanNew<FunctionTemplate>(log)->GetFunction());
+	exports->Set(Nan::New("on").ToLocalChecked(),          Nan::New<FunctionTemplate>(on)->GetFunction());
+	exports->Set(Nan::New("pumpRunLoop").ToLocalChecked(), Nan::New<FunctionTemplate>(pump_run_loop)->GetFunction());
+	exports->Set(Nan::New("devices").ToLocalChecked(),     Nan::New<FunctionTemplate>(devices)->GetFunction());
+	exports->Set(Nan::New("installApp").ToLocalChecked(),  Nan::New<FunctionTemplate>(installApp)->GetFunction());
+	exports->Set(Nan::New("log").ToLocalChecked(),         Nan::New<FunctionTemplate>(log)->GetFunction());
 
 	listeners = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);
 	connected_devices = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);

@@ -1358,10 +1358,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			});
 		}
 
+		this.tiapp.ios || (this.tiapp.ios = {});
+		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
+		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
+
 		series(this, [
 			function validateExtensions(next) {
 				// if there's no extensions, then skip this step
-				if (!this.tiapp.ios || !Array.isArray(this.tiapp.ios.extensions) || !this.tiapp.ios.extensions.length) {
+				if (!this.tiapp.ios.extensions.length) {
 					return next();
 				}
 
@@ -1776,6 +1780,30 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 			},
 
+			function validateCapabilities() {
+				// check if we have any capabilities that we should need a team id
+				if (!this.tiapp.ios['team-id'] && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
+					logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
+					if (Object.keys(this.xcodeEnv.teams).length) {
+						logger.log(__('Available teams:'));
+						Object.keys(this.xcodeEnv.teams).forEach(function (id) {
+							var team = this.xcodeEnv.teams[id];
+							logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
+						}, this);
+						logger.log();
+					} else {
+						logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+					}
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <ios>'.grey);
+					logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+					logger.log('    </ios>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+					process.exit(1);
+				}
+			},
+
 			function toSymlinkOrNotToSymlink() {
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
@@ -1796,7 +1824,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
 				var defaultMinIosSdk = this.packageJson.minIosVersion;
-				this.minIosVer = cli.tiapp.ios && cli.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
+				this.minIosVer = cli.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
 				if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
@@ -2014,7 +2042,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios && this.tiapp.ios['use-jscore-framework'];
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'];
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -2373,8 +2401,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = scrubbedAppName + '_Prefix.pch';
 			} else if (obj.path === 'Titanium.plist') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = 'Info.plist';
+			} else if (obj.path === 'Titanium.entitlements') {
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.entitlements"';
 			} else if (obj.path === 'Titanium.app') {
-				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '"';
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			}
@@ -2392,6 +2422,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = 'Info.plist';
 					} else if (child.comment === 'Titanium.app') {
 						child.comment = '"' + appName + '.app"';
+					} else if (child.comment === 'Titanium.entitlements') {
+						child.comment = '"' + appName + '.entitlements"';
 					}
 				});
 			}
@@ -2478,22 +2510,26 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
 		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value],
 		keychains = this.iosInfo.certs.keychains,
+		teamId = this.tiapp.ios['team-id'],
+		caps = this.tiapp.ios.capabilities,
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ],
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
-			SDKROOT: 'iphoneos'
+			SDKROOT: 'iphoneos',
+			CODE_SIGN_ENTITLEMENTS: appName + '.entitlements'
 		};
 
+	// set additional build settings
 	if (this.target === 'simulator') {
 		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
 
-	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios && this.tiapp.ios.enablecoverage) {
+	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
 		gccDefs.push('KROLL_COVERAGE=1');
 	}
 
@@ -2529,10 +2565,27 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}, this);
 	}
 
+	// inject the team id
+	if (teamId) {
+		pbxProject.attributes || (pbxProject.attributes = {});
+		var ta = pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
+		ta[mainTargetUuid] || (ta[mainTargetUuid] = {});
+		ta[mainTargetUuid].DevelopmentTeam = teamId;
+
+		// turn on any capabilities
+		Object.keys(caps).forEach(function (cap) {
+			ta[mainTargetUuid].SystemCapabilities || (ta[mainTargetUuid].SystemCapabilities = {});
+			if (cap === 'app-groups') {
+				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
+				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+			}
+		});
+	}
+
 	// set the identity and provisioning profile for the app
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
-	});
+	}, this);
 
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
@@ -2610,7 +2663,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				var target = null,
 					targetUuid = extTarget.value,
 					targetName = extTarget.comment,
-					targetInfo = ext.targetInfo[targetName];
+					targetInfo = ext.targetInfo[targetName],
+					targetGroup = null;
 
 				// do we care about this target?
 				ext.targets.some(function (t) { if (t.name === targetName) { target = t; return true; } });
@@ -2625,6 +2679,19 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					pbxProject.attributes || (pbxProject.attributes = {});
 					pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
 					pbxProject.attributes.TargetAttributes[targetUuid] = extPBXProject.attributes.TargetAttributes[targetUuid];
+				}
+
+				if (teamId) {
+					var ta = pbxProject.attributes.TargetAttributes[targetUuid] || (pbxProject.attributes.TargetAttributes[targetUuid] = {});
+					ta.DevelopmentTeam = teamId;
+
+					Object.keys(caps).forEach(function (cap) {
+						ta.SystemCapabilities || (ta.SystemCapabilities = {});
+						if (cap === 'app-groups') {
+							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
+							ta.SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+						}
+					});
 				}
 
 				// add the native target
@@ -2718,6 +2785,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						});
 					}(child.value, ext.basePath));
 
+					// save the target group so that we can add an entitlements.plist to it if it doesn't already exist
+					targetGroup = xobjs.PBXGroup[child.value];
+
 					return true;
 				});
 
@@ -2725,6 +2795,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				var buildConfigurationListUuid = xobjs.PBXNativeTarget[targetUuid].buildConfigurationList;
 				xobjs.XCConfigurationList[buildConfigurationListUuid] = extObjs.XCConfigurationList[buildConfigurationListUuid];
 				xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment']
+
+				var haveEntitlements = teamId && Object.keys(caps).some(function (cap) { return /^(app\-groups)$/.test(cap); });
 
 				xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
 					xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
@@ -2759,7 +2831,31 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 
 					if (extBuildSettings.CODE_SIGN_ENTITLEMENTS) {
-						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + ext.relPath + '/' + extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '') + '"';
+						var entFile = extBuildSettings.CODE_SIGN_ENTITLEMENTS.replace(/^"/, '').replace(/"$/, '');
+						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
+						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+					} else if (haveEntitlements) {
+						haveEntitlements = false;
+
+						var entFile = targetName + '.entitlements';
+						extBuildSettings.CODE_SIGN_ENTITLEMENTS = '"' + path.join(ext.relPath, targetName, entFile) + '"';
+						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
+
+						// create the file reference
+						var entFileRefUuid = generateUuid();
+						xobjs.PBXFileReference[entFileRefUuid] = {
+							isa: 'PBXFileReference',
+							lastKnownFileType: 'text.xml',
+							path: '"' + entFile + '"',
+							sourceTree: '"<group>"'
+						};
+						xobjs.PBXFileReference[entFileRefUuid + '_comment'] = entFile;
+
+						// add the file to the target's pbx group
+						targetGroup && targetGroup.children.push({
+							value: entFileRefUuid,
+							comment: entFile
+						});
 					}
 				}, this);
 
@@ -2853,16 +2949,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
-	// inject the team id
-	var teamId = this.tiapp.ios && this.tiapp.ios['team-id'];
-	if (teamId) {
-		pbxProject.attributes || (pbxProject.attributes = {});
-		pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-		pbxProject.targets.forEach(function (id) {
-			pbxProject.attributes.TargetAttributes[id].DevelopmentTeam = teamId;
-		});
-	}
-
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 	if (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) {
 		// TODO: Make sure the version of Xcode can support this version of watch app
@@ -2904,60 +2990,35 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 
 		delete this.buildDirFiles[dest];
+
 		done();
 	});
 
 	hook(xcodeProject, next);
 };
 
-iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
-	this.logger.info(__('Creating Entitlements.plist'));
+iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest) {
+	var caps = this.tiapp.ios.capabilities;
 
-	// allow the project to have its own custom entitlements
-	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
-		dest = path.join(this.buildDir, 'Entitlements.plist');
+	// add any capabilities entitlements
+	Object.keys(caps).forEach(function (cap) {
+		if (cap === 'app-groups') {
+			Array.isArray(plist['com.apple.security.application-groups']) || (plist['com.apple.security.application-groups'] = []);
+			caps[cap].forEach(function (group) {
+				if (plist['com.apple.security.application-groups'].indexOf(group) === -1) {
+					plist['com.apple.security.application-groups'].push(group);
+				}
+			});
+		}
+	});
 
 	delete this.buildDirFiles[dest];
 
-	if (fs.existsSync(entitlementsFile)) {
-		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan));
-		this.copyFileSync(entitlementsFile, dest);
-		delete this.buildDirFiles[dest];
-		return;
-	}
-
-	function getPP(list, uuid) {
-		for (var i = 0, l = list.length; i < l; i++) {
-			if (list[i].uuid === uuid) {
-				return list[i];
-			}
-		}
-	}
-
-	var pp;
-	if (this.target === 'device') {
-		pp = getPP(this.iosInfo.provisioning.development, this.provisioningProfileUUID);
-	} else {
-		pp = getPP(this.iosInfo.provisioning.distribution, this.provisioningProfileUUID);
-		if (!pp) {
-			pp = getPP(this.iosInfo.provisioning.adhoc, this.provisioningProfileUUID);
-		}
-	}
-
-	var plist = new appc.plist();
-	if (pp) {
-		// attempt to customize it by reading provisioning profile
-		(this.target === 'dist-appstore') && (plist['beta-reports-active'] = true);
-		plist['get-task-allow'] = !!pp.getTaskAllow;
-		pp.apsEnvironment && (plist['aps-environment'] = pp.apsEnvironment);
-		plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
-		plist['keychain-access-groups'] = [ plist['application-identifier'] ];
-	}
-
+	// write the entitlements.plist
 	var contents = plist.toString('xml');
 	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
 		if (!this.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'Entitlements.plist'));
+			this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
 			this.forceRebuild = true;
 		}
 		this.logger.debug(__('Writing %s', dest.cyan));
@@ -2965,6 +3026,59 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
+};
+
+iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
+	this.logger.info(__('Creating Entitlements.plist'));
+
+	// allow the project to have its own custom entitlements
+	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
+		plist = new appc.plist(),
+		pp = (function (provisioning, target, uuid) {
+			function getPP(list, uuid) {
+				for (var i = 0, l = list.length; i < l; i++) {
+					if (list[i].uuid === uuid) {
+						list[i].getTaskAllow = !!list[i].getTaskAllow;
+						return list[i];
+					}
+				}
+			}
+
+			if (target === 'device') {
+				return getPP(provisioning.development, uuid);
+			} else if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid);
+			}
+		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
+
+	// check if we have a custom entitlements plist file
+	if (fs.existsSync(entitlementsFile)) {
+		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan));
+		plist = new appc.plist(entitlementsFile);
+	}
+
+	// if we have a provisioning profile, make sure some entitlement settings are correct set
+	if (pp) {
+		// attempt to customize it by reading provisioning profile
+		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
+			plist['beta-reports-active'] = true;
+		}
+		if (!plist.hasOwnProperty('get-task-allow')) {
+			plist['get-task-allow'] = pp.getTaskAllow;
+		}
+		if (pp.apsEnvironment && !plist.hasOwnProperty('aps-environment')) {
+			plist['aps-environment'] = pp.apsEnvironment;
+		}
+		if (!plist.hasOwnProperty('application-identifier')) {
+			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+		}
+		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
+		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
+			plist['keychain-access-groups'].push(plist['application-identifier']);
+		}
+	}
+
+	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'));
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
@@ -3547,7 +3661,7 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 		this.logger.debug(__('Copying %s', extName.cyan));
 
 		this.copyDirSync(src, dest, {
-			rootIgnoreDirs: /^build$/i,
+			rootIgnoreDirs: new RegExp('^(build|' + path.basename(extension.projectPath) + ')$', 'i'),
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: this.ignoreFiles,
 			beforeCopy: function (srcFile, destFile, srcStat) {
@@ -3620,7 +3734,18 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 				}
 			}.bind(this)
 		});
+
 		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
+
+		// check if we need to write an entitlements file
+		Object.keys(extension.targetInfo).forEach(function (target) {
+			if (!extension.targetInfo[target].entitlementsFile) {
+				return;
+			}
+
+			var plist = new appc.plist(fs.existsSync(extension.targetInfo[target].entitlementsFile) ? extension.targetInfo[target].entitlementsFile : null);
+			this._embedCapabilitiesAndWriteEntitlementsPlist(plist, extension.targetInfo[target].entitlementsFile);
+		}, this);
 	}, this);
 };
 
