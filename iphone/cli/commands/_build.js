@@ -2539,7 +2539,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		buildSettings.PROVISIONING_PROFILE = '"' + this.provisioningProfileUUID + '"';
 		buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 		if (this.keychain) {
-			buildSettings.OTHER_CODE_SIGN_FLAGS = '--keychain ' + this.keychain;
+			buildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
 		}
 	}
 
@@ -2822,7 +2822,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						extBuildSettings.PROVISIONING_PROFILE = '"' + target.ppUUIDs[this.target] + '"';
 						extBuildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 						if (this.keychain) {
-							extBuildSettings.OTHER_CODE_SIGN_FLAGS = '--keychain ' + this.keychain;
+							extBuildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
 						}
 					}
 
