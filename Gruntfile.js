@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 		}
 
 		grunt.log.writeln('Removing old Node modules');
-		(function rm(dir, ignore) {
+		function rm(dir, ignore) {
 			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 				var file = path.join(dir, name);
 
@@ -55,7 +55,9 @@ module.exports = function (grunt) {
 					fs.unlinkSync(file);
 				}
 			});
-		}(path.join(__dirname, 'node_modules'), ['sqlite3', 'titanium-sdk']));
+		}
+
+		rm(path.join(__dirname, 'node_modules'), ['sqlite3', 'titanium-sdk']);
 
 		grunt.log.writeln('Running npm install');
 		exec('npm install', function (err, stdout, stderr) {
@@ -65,6 +67,7 @@ module.exports = function (grunt) {
 
 			grunt.log.writeln('Building node-ios-device binaries');
 			exec('make', { cwd: path.join(__dirname, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device') }, function (err, stdout, stderr) {
+				rm(path.join(__dirname, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device', 'build'));
 				done(err);
 			});
 		});

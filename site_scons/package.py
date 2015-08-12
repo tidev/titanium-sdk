@@ -442,6 +442,9 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 		dir = os.path.join(top_dir, 'node_modules', dep)
 		print 'Adding %s' % dir
 		zip_dir(zf, dir, '%s/node_modules/%s' % (basepath, dep))
+	dir = os.path.join(top_dir, 'node_modules', 'titanium-sdk')
+	print 'Adding %s' % dir
+	zip_dir(zf, dir, '%s/node_modules/titanium-sdk' % basepath)
 
 	manifest_json = '''{
 	"name": "%s",
