@@ -1248,6 +1248,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}
 
 		// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
+		var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
 		this.blacklistDirectories.push(cli.tiapp.name);
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
@@ -1256,6 +1257,11 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (filename) {
 				var lcaseFilename = filename.toLowerCase(),
 					isDir = fs.statSync(path.join(dir, filename)).isDirectory();
+
+				// if we have a platform resource dir, then this will not be copied and we should be ok
+				if (platformsRegExp.test(lcaseFilename)) {
+					return;
+				}
 
 				if (this.blacklistDirectories.indexOf(lcaseFilename) !== -1) {
 					if (isDir) {
