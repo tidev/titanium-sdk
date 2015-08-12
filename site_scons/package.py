@@ -436,8 +436,12 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	zf.write(os.path.join(top_dir, 'package.json'), '%s/package.json' % basepath)
 	zip_dir(zf, os.path.join(top_dir, 'cli'), '%s/cli' % basepath, ignore_paths=ignore_paths)
 
-	ignore_paths.append(os.path.join(top_dir, 'node_modules', '.bin'))
-	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
+	# ignore node_modules dirs
+	pkgJson = simplejson.loads(open(os.path.join(top_dir, 'package.json'), 'r').read())
+	for dep in pkgJson['dependencies']:
+		dir = os.path.join(top_dir, 'node_modules', dep)
+		print 'Adding %s' % dir
+		zip_dir(zf, dir, '%s/node_modules/%s' % (basepath, dep))
 
 	manifest_json = '''{
 	"name": "%s",
@@ -525,7 +529,7 @@ class Packager(object):
 		process_args = ['node', 'docgen.js', '-f', 'parity']
 		if windows: process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 		subprocess.Popen(process_args, cwd=doc_dir).wait()
-		
+
 		for os_name in os_names.values():
 			zip_mobilesdk(dist_dir, os_name, version, module_apiversion, android, iphone, ipad, mobileweb, blackberry, tizen, ivi, windows, version_tag, self.build_jsca)
 
