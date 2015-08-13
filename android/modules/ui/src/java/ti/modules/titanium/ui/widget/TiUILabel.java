@@ -60,7 +60,7 @@ public class TiUILabel extends TiUIView
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
 				// Only allow label to exceed the size of parent when it's size behavior with both wordwrap and ellipsize disabled
-				if (!wordWrap && ellipsize != null && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
+				if (!wordWrap && ellipsize == null && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 						MeasureSpec.UNSPECIFIED);
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
@@ -206,14 +206,15 @@ public class TiUILabel extends TiUIView
 			String verticalAlign = d.optString(TiC.PROPERTY_VERTICAL_ALIGN, "middle");
 			TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 		}
+
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			
 			Object value = d.get(TiC.PROPERTY_ELLIPSIZE);
-			
+
 			if (value instanceof Boolean){
 				ellipsize = (Boolean) value ? TruncateAt.END : null;
 			}
-			
+
 			if (value instanceof Integer){
 				switch((Integer)value){
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
@@ -231,13 +232,14 @@ public class TiUILabel extends TiUIView
 						ellipsize = null;
 				}
 			}
-			
 			tv.setEllipsize(ellipsize);
 		}
+
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
 			tv.setSingleLine(!wordWrap);
 		}
+
 		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
 			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
 			if (value instanceof HashMap) {
