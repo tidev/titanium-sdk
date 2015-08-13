@@ -204,6 +204,9 @@ extern NSString * const TI_APPLICATION_GUID;
                         [form addFormData:[blob data] fileName:name fieldName:key];
                     }
                 }
+                else if ([value isKindOfClass:[NSDictionary class]]) {
+                    [form setJSONData:value];
+                }
                 else {
                     [form addFormKey:key
                             andValue:[TiUtils stringValue:value]];
