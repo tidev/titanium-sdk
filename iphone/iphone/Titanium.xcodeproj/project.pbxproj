@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
 		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -757,6 +758,7 @@
 		502A68EA16F0428500661EF6 /* TiViewTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewTemplate.m; sourceTree = "<group>"; };
 		5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExceptionHandler.h; sourceTree = "<group>"; };
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
+		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
 		83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
 		83DCEC301B7A687900F282B3 /* Titanium.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Titanium.entitlements; sourceTree = "<group>"; };
@@ -2003,6 +2005,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				838159EC1B7C3EFA002EE811 /* Assets.xcassets */,
 				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
 				2464F96211AB996C001C035A /* module.xcconfig */,
 				83DCEC301B7A687900F282B3 /* Titanium.entitlements */,
@@ -2335,6 +2338,7 @@
 				241EAF36118E30260081A5BE /* Pre-Compile */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+				838159D01B7A9632002EE811 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -2389,6 +2393,17 @@
 			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
 		};
 /* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		838159D01B7A9632002EE811 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				838159E21B7A9632002EE811 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1D60588E0D05DD3D006BFB54 /* Sources */ = {
@@ -2678,6 +2693,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				COPY_PHASE_STRIP = NO;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
@@ -2708,6 +2724,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				COPY_PHASE_STRIP = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;

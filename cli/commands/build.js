@@ -309,7 +309,7 @@ exports.run = function (logger, config, cli, finished) {
 				logger.error(__('An error occurred during build after %s', delta));
 				if (err instanceof appc.exception) {
 					err.dump(logger.error);
-				} else {
+				} else if (err !== true) {
 					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
 						logger.error(msg);
 					});

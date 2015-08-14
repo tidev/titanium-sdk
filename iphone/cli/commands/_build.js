@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
+	pngSize = require('png-size'),
 	spawn = require('child_process').spawn,
 	ti = require('titanium-sdk'),
 	util = require('util'),
@@ -64,23 +65,6 @@ function iOSBuilder() {
 
 	// populated the first time getDeviceFamily() is called
 	this.deviceFamily = null;
-
-	this.deviceFamilyNames = {
-		iphone: ['ios', 'iphone'],
-		ipad: ['ios', 'ipad'],
-		universal: ['ios', 'iphone', 'ipad']
-	};
-
-	this.xcodeTargetSuffixes = {
-		iphone: '',
-		ipad: '-iPad',
-		universal: '-universal'
-	};
-
-	this.simTypes = {
-		iphone: 'iPhone',
-		ipad: 'iPad'
-	};
 
 	this.blacklistDirectories = [
 		'contents',
@@ -1364,6 +1348,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			});
 		}
 
+		// make sure we have an app icon
+		if (!this.tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) { return fs.existsSync(this.projectDir, p, this.tiapp.icon); }, this)) {
+			logger.info(this.tiapp.icon ? __('Unable to find an app icon in the Resources directory, using default') : __('No app icon set in tiapp.xml, using default'));
+			this.tiapp.icon = 'appicon.png';
+		}
+
+		if (!/\.png$/.test(this.tiapp.icon)) {
+			logger.error(__('Application icon must be a PNG formatted image.') + '\n');
+			process.exit(1);
+		}
+
 		this.tiapp.ios || (this.tiapp.ios = {});
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
@@ -1378,7 +1373,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				// if there are any extensions, validate them
 				async.eachSeries(this.tiapp.ios.extensions, function (ext, next) {
 					if (!ext.projectPath) {
-						logger.error(__('iOS extensions must have a "projectPath" attribute that points to a folder containing an Xcode project') + '\n');
+						logger.error(__('iOS extensions must have a "projectPath" attribute that points to a folder containing an Xcode project.') + '\n');
 						process.exit(1);
 					}
 
@@ -1949,7 +1944,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// titanium related tasks
 		'writeDebugProfilePlists',
 		'copyItunesArtwork',
-		'copyTitaniumFiles',
+		'copyResources',
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
@@ -2070,13 +2065,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
-
-	// make sure we have an icon
-	if (!this.tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) {
-			return fs.existsSync(this.projectDir, p, this.tiapp.icon);
-		}, this)) {
-		this.tiapp.icon = 'appicon.png';
-	}
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -3123,18 +3111,10 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		// this should not exist, but nuke it so we can create it below
 		delete plist.UIAppFonts;
 
-		// override the default icons with the tiapp.xml version
-		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
-		['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
-			name = iconName + name;
-			if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
-				fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
-				fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
-				if (plist.CFBundleIconFiles.indexOf(name) === -1) {
-					plist.CFBundleIconFiles.push(name);
-				}
-			}
-		}, this);
+		// delete the CFBundleIconFile/CFBundleIconFiles from the default Info.plist so that we
+		// can detect below if the custom Info.plist has a CFBundleIconFile/CFBundleIconFiles
+		delete plist.CFBundleIconFile;
+		delete plist.CFBundleIconFiles;
 
 		// override the default launch screens
 		var resourceDir = path.join(this.projectDir, 'Resources'),
@@ -3351,6 +3331,16 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	var fonts = Object.keys(fontMap);
 	fonts.length && (plist.UIAppFonts = fonts);
+
+	// if CFBundleIconFile exists, delete it since we're going to use an asset catalog
+	if (plist.CFBundleIconFile) {
+		this.logger.warn(__('Removing custom Info.plist "CFBundleIconFile" since we now use an asset catalog for app icons.'));
+		delete plist.CFBundleIconFile;
+	}
+	if (plist.CFBundleIconFiles) {
+		this.logger.warn(__('Removing custom Info.plist "CFBundleIconFiles" since we now use an asset catalog for app icons.'));
+		delete plist.CFBundleIconFiles;
+	}
 
 	// write the Info.plist
 	var prev = this.previousBuildManifest.files && this.previousBuildManifest.files['Info.plist'],
@@ -3867,21 +3857,23 @@ iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork() {
 	}
 };
 
-iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
-	var iconFilename = this.tiapp.icon || 'appicon.png',
-		icon = iconFilename.match(/^(.*)\.(.+)$/),
+iOSBuilder.prototype.copyResources = function copyResources(next) {
+	var filenameRegExp = /^(.*)\.(\w+)$/,
+
+		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
 		ignoreFiles = this.ignoreFiles,
-		ignorePlatformDirs = new RegExp('^(' + ti.platforms.filter(function (p) { return p !== 'iphone' && p !== 'ios'; }).concat(['iphone', 'ios', 'blackberry', iconFilename]).join('|') + ')$'),
+		ignorePlatformDirs = new RegExp('^(' + ti.platforms.filter(function (p) { return p !== 'iphone' && p !== 'ios'; }).concat(['iphone', 'ios', 'blackberry']).join('|') + ')$'),
 
-		unsymlinkableFileRegExp = new RegExp("^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork" + (icon ? '|' + icon[1].replace(/\./g, '\\.') + '.*\\.' + icon[2] : '') + "$"),
-		extRegExp = /\.(\w+)$/,
+		unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)|iTunesArtwork$/,
+		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'),
 
 		resourcesToCopy = {},
 		jsFiles = {},
 		cssFiles = {},
-		htmlJsFiles = {};
+		htmlJsFiles = {},
+		appIcons = {};
 
 	function walk(src, dest, ignore, origSrc) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
@@ -3897,14 +3889,26 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 					return walk(from, to, null, origSrc || src);
 				}
 
-				var ext = name.match(extRegExp),
+				var parts = name.match(filenameRegExp),
 					info = {
+						name: parts ? parts[1] : name,
+						ext: parts ? parts[2] : null,
 						src: from,
 						dest: to,
 						srcStat: srcStat
 					};
 
-				switch (ext && ext[1]) {
+				// check if we have an app icon
+				if (appIconRegExp) {
+					var m = name.match(appIconRegExp);
+					if (m) {
+						info.tag = m[1];
+						appIcons[relPath] = info;
+						return;
+					}
+				}
+
+				switch (parts && parts[2]) {
 					case 'js':
 						jsFiles[relPath] = info;
 						break;
@@ -3926,25 +3930,10 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 		});
 	}
 
-	this.logger.info(__('Analyzing app icon'));
-	[	path.join(this.projectDir, 'Resources', 'iphone', this.tiapp.icon),
-		path.join(this.projectDir, 'Resources', 'ios', this.tiapp.icon),
-		path.join(this.platformPath, 'resources', this.tiapp.icon)
-	].some(function (icon) {
-		if (fs.existsSync(icon)) {
-			resourcesToCopy[this.tiapp.icon] = {
-				src: icon,
-				dest: path.join(this.xcodeAppDir, this.tiapp.icon),
-				srcStat: fs.statSync(icon)
-			};
-			return true;
-		}
-	}, this);
-
 	this.logger.info(__('Analyzing Resources directory'));
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, ignorePlatformDirs);
-	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, new RegExp('^' + iconFilename + '$'));
-	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir, new RegExp('^' + iconFilename + '$'));
+	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
+	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
 
 	// don't process JS files referenced from HTML files
 	Object.keys(htmlJsFiles).forEach(function (file) {
@@ -4114,6 +4103,8 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 		},
 
 		function writeAppProps() {
+			this.logger.info(__('Writing app properties'));
+
 			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
 				props = {};
 
@@ -4132,6 +4123,245 @@ iOSBuilder.prototype.copyTitaniumFiles = function copyTitaniumFiles(next) {
 			}
 
 			delete this.buildDirFiles[appPropsFile];
+		},
+
+		function writeAssetCatalog(next) {
+			this.logger.info(__('Processing asset catalog app icons'));
+
+			function writeAssetFile(dest, json) {
+				var parent = path.dirname(dest),
+					contents = JSON.stringify(json, null, '  ');
+
+				delete this.buildDirFiles[dest];
+
+				if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
+						this.forceRebuild = true;
+					}
+					this.logger.debug(__('Writing %s', dest.cyan));
+					fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
+					fs.writeFileSync(dest, contents);
+				} else {
+					this.logger.trace(__('No change, skipping %s', dest.cyan));
+				}
+			}
+
+			// write the asset catalog Contents.json
+			writeAssetFile.call(this, path.join(this.buildDir, 'Assets.xcassets', 'Contents.json'), {
+				info: {
+					version: 1,
+					author: 'xcode'
+				}
+			});
+
+			// write the app icon set's Contents.json
+			var appIconSetDir = path.join(this.buildDir, 'Assets.xcassets', 'AppIcon.appiconset'),
+				appIconSet = {
+					images: [],
+					info: {
+						version: 1,
+						author: 'xcode'
+					}
+				},
+				lookup = {
+					'-Small':       { height: 29, width: 29, scale: 1, idioms: [ 'ipad' ] },
+					'-Small@2x':    { height: 29, width: 29, scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small@3x':    { height: 29, width: 29, scale: 3, idioms: [ 'iphone' ] },
+					'-Small-40':    { height: 40, width: 40, scale: 1, idioms: [ 'ipad' ] },
+					'-Small-40@2x': { height: 40, width: 40, scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small-40@3x': { height: 40, width: 40, scale: 3, idioms: [ 'iphone' ] },
+					'-60@2x':       { height: 60, width: 60, scale: 2, idioms: [ 'iphone' ] },
+					'-60@3x':       { height: 60, width: 60, scale: 3, idioms: [ 'iphone' ] },
+					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ] },
+					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ] }
+				},
+				maxDim = Object.keys(lookup).map(function (key) {
+					return lookup[key].width * lookup[key].scale;
+				}).reduce(function (a, b) {
+					return a > b ? a : b;
+				});
+
+			fs.existsSync(appIconSetDir) || wrench.mkdirSyncRecursive(appIconSetDir);
+
+			Object.keys(appIcons).forEach(function (filename) {
+				var info = appIcons[filename];
+
+				if (!info.tag) {
+					// probably appicon.png, we don't care so skip it
+					return;
+				}
+
+				if (!lookup[info.tag]) {
+					// we don't care about this image
+					this.logger.debug(__('Unsupported app icon %s, skipping', info.src.replace(this.projectDir + '/', '').cyan));
+					return;
+				}
+
+				var meta = lookup[info.tag],
+					contents = fs.readFileSync(info.src),
+					size = pngSize(contents),
+					w = meta.width * meta.scale,
+					h = meta.height * meta.scale;
+
+				// check that the app icon is square
+				if (size.width !== size.height) {
+					this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+					return;
+				}
+
+				// validate the app icon meets the requirements
+				if (size.width !== w) {
+					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height, w, w));
+					return;
+				}
+
+				this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+
+				// inject images into the app icon set
+				meta.idioms.forEach(function (idiom) {
+					appIconSet.images.push({
+						size:     meta.width + 'x' + meta.height,
+						idiom:    idiom,
+						filename: filename,
+						scale:    meta.scale + 'x'
+					});
+				});
+
+				delete lookup[info.tag];
+
+				// copy the app icon
+				var srcStat = fs.statSync(info.src),
+					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+					prev = this.previousBuildManifest.files && this.previousBuildManifest.files[filename],
+					dest = path.join(appIconSetDir, filename),
+					destExists = fs.existsSync(dest),
+					destStat = destExists && fs.statSync(dest),
+					hash = this.hash(contents),
+					fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== hash;
+
+				if (!fileChanged || !this.copyFileSync(info.src, dest, { contents: contents, forceCopy: true })) {
+					this.logger.trace(__('No change, skipping %s', dest.cyan));
+				}
+
+				this.currentBuildManifest.files[filename] = {
+					hash:  hash,
+					mtime: srcMtime,
+					size:  srcStat.size
+				};
+
+				delete this.buildDirFiles[dest];
+			}, this);
+
+			if (!Object.keys(lookup).length) {
+				// wow, we had all of the icons! amazing!
+				this.logger.debug(__('All app icons are present and are correct'));
+				writeAssetFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+				return next();
+			}
+
+			// we have missing icons :(
+			// see if we can resize appicon.png or appicon@2x.png
+			this.logger.debug(__n(
+				'Missing %s app icon, attempting to find %%s to generate missing icon',
+				'Missing %s app icons, attempting to find %%s to generate missing icons',
+				Object.keys(lookup).length,
+				this.tiapp.icon
+			));
+
+			async.some(
+				[
+					this.tiapp.icon.replace(/\.png$/, '@2x.png'),
+					this.tiapp.icon
+				],
+
+				function (filename, cb) {
+					var info = appIcons[filename];
+
+					if (!info) {
+						return cb(false);
+					}
+
+					info.filename = filename;
+					info.contents = fs.readFileSync(info.src);
+
+					var size = pngSize(info.contents);
+					if (size.width !== size.height) {
+						this.logger.debug(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+						return cb(false);
+					}
+
+					if (size.width < maxDim) {
+						this.logger.debug(__('Skipping app icon %s because image is not large enough; current size %sx%s, should be at least %sx%s', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height, maxDim, maxDim));
+						return cb(false);
+					}
+
+					info.width = size.width;
+					info.height = size.height;
+
+					this.logger.debug(__('Found suitable app icon: %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+
+					var outputImages = [];
+					Object.keys(lookup).forEach(function (key) {
+						var meta = lookup[key],
+							filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
+							dest = path.join(appIconSetDir, filename);
+
+						delete this.buildDirFiles[dest];
+
+						// inject images into the app icon set
+						meta.idioms.forEach(function (idiom) {
+							appIconSet.images.push({
+								size:     meta.width + 'x' + meta.height,
+								idiom:    idiom,
+								filename: filename,
+								scale:    meta.scale + 'x'
+							});
+						});
+
+						outputImages.push({
+							file: dest,
+							width: meta.width * meta.scale,
+							height: meta.height * meta.scale
+						});
+					}, this);
+
+					// resize!
+					appc.image.resize(info.src, outputImages, function (error, stdout, stderr) {
+						if (error) {
+							this.logger.error(error);
+							this.logger.log();
+							process.exit(1);
+						}
+						cb(true);
+					}.bind(this), this.logger);
+				}.bind(this),
+
+				function (result) {
+					if (!result) {
+						this.logger.error(__('No suitable app icon that is at least %sx%s, unable to create missing icons:', maxDim, maxDim));
+						Object.keys(lookup).forEach(function (key) {
+							var meta = lookup[key];
+							this.logger.error('  ' +
+								__('%s - Used for %s - required size: %sx%s (%sx%s %s)',
+									this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
+									meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', '),
+									meta.width * meta.scale,
+									meta.height * meta.scale,
+									meta.width,
+									meta.height,
+									'@' + meta.scale + 'x'
+								)
+							);
+						}, this);
+						return next(true);
+					}
+
+					writeAssetFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+
+					next();
+				}.bind(this)
+			);
 		}
 	], next);
 };
