@@ -461,7 +461,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			return;
 		}
 		((TiUIPicker)peekView()).selectRow(column, row, animated);
-		if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), true)) {
+		if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), false)) {
 			((TiUIPicker)peekView()).openPicker();
 		}
 	}

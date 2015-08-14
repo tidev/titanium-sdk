@@ -347,7 +347,7 @@ properties:
 
         If `false`, selection will not open when `setSelectedRow` is called.
     type: Boolean
-    default: true (Android)
+    default: false (Android)
     platforms: [android]
     since: "4.3.0"
     
