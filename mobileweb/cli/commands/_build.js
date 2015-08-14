@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile Web CLI build command
  *
- * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -9,7 +9,7 @@ const
 	appc = require('node-appc'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
+	CleanCSS = require('clean-css'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -903,7 +903,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 	}, this);
 
 	// write the titanium.css
-	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? cleanCSS.process(tiCSS.join('')) : tiCSS.join(''));
+	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS().minify(tiCSS.join('')).styles : tiCSS.join(''));
 
 	next();
 };
