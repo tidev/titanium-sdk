@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: ['Gruntfile.js', 'apidoc/**/*.js', '!apidoc/node_modules/**']
+			src: ['apidoc/**/*.js', '!apidoc/node_modules/**']
 		},
 		clangFormat: {
 			src: [] // unused ATM
@@ -37,6 +37,7 @@ module.exports = function (grunt) {
 		}
 
 		grunt.log.writeln('Removing old Node modules');
+
 		function rm(dir, ignore) {
 			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 				var file = path.join(dir, name);
