@@ -7,12 +7,10 @@
 
 package ti.modules.titanium.network;
 
+import java.net.HttpCookie;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -41,29 +39,28 @@ public class CookieProxy extends KrollProxy
 		systemExpiryDateFormatter.setTimeZone(timezone);
 	}
 
-	private BasicClientCookie basicClientCookie;
+	private HttpCookie httpCookie;
 
 	public CookieProxy()
 	{
 		super();
 	}
 
-	public CookieProxy(Cookie cookie)
+	public CookieProxy(HttpCookie cookie)
 	{
 		super();
-		if (cookie instanceof BasicClientCookie) {
-			basicClientCookie = (BasicClientCookie) cookie;
-			setProperty(TiC.PROPERTY_NAME, basicClientCookie.getName());
-			setProperty(TiC.PROPERTY_VALUE, basicClientCookie.getValue());
-			setProperty(TiC.PROPERTY_DOMAIN, basicClientCookie.getDomain());
-			Date expiryDate = basicClientCookie.getExpiryDate();
-			if (expiryDate != null) {
-				setProperty(TiC.PROPERTY_EXPIRY_DATE, httpExpiryDateFormatter.format(expiryDate));
-			}
-			setProperty(TiC.PROPERTY_COMMENT, basicClientCookie.getComment());
-			setProperty(TiC.PROPERTY_PATH, basicClientCookie.getPath());
-			setProperty(TiC.PROPERTY_SECURE, basicClientCookie.isSecure());
-			setProperty(TiC.PROPERTY_VERSION, basicClientCookie.getVersion());
+		if (cookie instanceof HttpCookie) {
+			httpCookie = (HttpCookie) cookie;
+			setProperty(TiC.PROPERTY_NAME, httpCookie.getName());
+			setProperty(TiC.PROPERTY_VALUE, httpCookie.getValue());
+			setProperty(TiC.PROPERTY_DOMAIN, httpCookie.getDomain());
+			// PROPERTY_EXPIRY_DATE not used instead, PROPERTY_MAX_AGE is used
+			// See http://developer.android.com/reference/java/net/HttpCookie.html for more info
+			setProperty(TiC.PROPERTY_MAX_AGE, httpCookie.getMaxAge());
+			setProperty(TiC.PROPERTY_COMMENT, httpCookie.getComment());
+			setProperty(TiC.PROPERTY_PATH, httpCookie.getPath());
+			setProperty(TiC.PROPERTY_SECURE, httpCookie.getSecure());
+			setProperty(TiC.PROPERTY_VERSION, httpCookie.getVersion());
 		} else {
 			Log.e(TAG, "Unable to create CookieProxy. Invalid cookie type.");
 		}
@@ -95,70 +92,65 @@ public class CookieProxy extends KrollProxy
 		String name = TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
 		String value = TiConvert.toString(getProperty(TiC.PROPERTY_VALUE));
 		if (name != null) {
-			this.basicClientCookie = new BasicClientCookie(name, value);
+			this.httpCookie = new HttpCookie(name, value);
 		} else {
 			Log.w(TAG, "Unable to create the http client cookie. Need to provide a valid name.");
 			return;
 		}
 
 		if (dict.containsKey(TiC.PROPERTY_DOMAIN)) {
-			basicClientCookie.setDomain(TiConvert.toString(getProperty(TiC.PROPERTY_DOMAIN)));
+			httpCookie.setDomain(TiConvert.toString(getProperty(TiC.PROPERTY_DOMAIN)));
 		}
-		if (dict.containsKey(TiC.PROPERTY_EXPIRY_DATE)) {
-			try {
-				basicClientCookie.setExpiryDate(httpExpiryDateFormatter.parse(TiConvert
-					.toString(getProperty(TiC.PROPERTY_EXPIRY_DATE))));
-			} catch (Exception e) {
-				Log.e(TAG, "Unable to set expiry date to the cookie.", e);
-			}
-		}
+		if (dict.containsKey(TiC.PROPERTY_MAX_AGE)) {
+			// PROPERTY_EXPIRY_DATE not used instead, PROPERTY_MAX_AGE is used
+			// See http://developer.android.com/reference/java/net/HttpCookie.html for more info
+			httpCookie.setMaxAge(TiConvert.toInt(getProperty(TiC.PROPERTY_MAX_AGE)));
+		}		
 		if (dict.containsKey(TiC.PROPERTY_COMMENT)) {
-			basicClientCookie.setComment(TiConvert.toString(getProperty(TiC.PROPERTY_COMMENT)));
+			httpCookie.setComment(TiConvert.toString(getProperty(TiC.PROPERTY_COMMENT)));
 		}
 		if (dict.containsKey(TiC.PROPERTY_PATH)) {
-			basicClientCookie.setPath(TiConvert.toString(getProperty(TiC.PROPERTY_PATH)));
+			httpCookie.setPath(TiConvert.toString(getProperty(TiC.PROPERTY_PATH)));
 		}
 		if (dict.containsKey(TiC.PROPERTY_SECURE)) {
-			basicClientCookie.setSecure(TiConvert.toBoolean(getProperty(TiC.PROPERTY_SECURE)));
+			httpCookie.setSecure(TiConvert.toBoolean(getProperty(TiC.PROPERTY_SECURE)));
 		}
 		if (dict.containsKey(TiC.PROPERTY_VERSION)) {
-			basicClientCookie.setVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_VERSION)));
+			httpCookie.setVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_VERSION)));
 		}
 	}
 
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (basicClientCookie == null) {
+		if (httpCookie == null) {
 			return;
 		}
 
 		super.onPropertyChanged(name, value);
 
 		if (TiC.PROPERTY_VALUE.equals(name)) {
-			basicClientCookie.setValue(TiConvert.toString(value));
+			httpCookie.setValue(TiConvert.toString(value));
 		} else if (TiC.PROPERTY_DOMAIN.equals(name)) {
-			basicClientCookie.setDomain(TiConvert.toString(value));
-		} else if (TiC.PROPERTY_EXPIRY_DATE.equals(name)) {
-			try {
-				basicClientCookie.setExpiryDate(httpExpiryDateFormatter.parse(TiConvert.toString(value)));
-			} catch (Exception e) {
-				Log.e(TAG, "Unable to set expiry date to the cookie.", e);
-			}
+			httpCookie.setDomain(TiConvert.toString(value));
+		} else if (TiC.PROPERTY_MAX_AGE.equals(name)) {
+			// PROPERTY_EXPIRY_DATE not used instead, PROPERTY_MAX_AGE is used
+			// See http://developer.android.com/reference/java/net/HttpCookie.html for more info
+			httpCookie.setMaxAge(TiConvert.toInt(value));
 		} else if (TiC.PROPERTY_COMMENT.equals(name)) {
-			basicClientCookie.setComment(TiConvert.toString(value));
+			httpCookie.setComment(TiConvert.toString(value));
 		} else if (TiC.PROPERTY_PATH.equals(name)) {
-			basicClientCookie.setPath(TiConvert.toString(value));
+			httpCookie.setPath(TiConvert.toString(value));
 		} else if (TiC.PROPERTY_SECURE.equals(name)) {
-			basicClientCookie.setSecure(TiConvert.toBoolean(value));
+			httpCookie.setSecure(TiConvert.toBoolean(value));
 		} else if (TiC.PROPERTY_VERSION.equals(name)) {
-			basicClientCookie.setVersion(TiConvert.toInt(value));
+			httpCookie.setVersion(TiConvert.toInt(value));
 		}
 	}
 
-	public BasicClientCookie getHTTPCookie()
+	public HttpCookie getHTTPCookie()
 	{
-		return basicClientCookie;
+		return httpCookie;
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -170,6 +162,6 @@ public class CookieProxy extends KrollProxy
 	@Override
 	public String getApiName()
 	{
-		return "Ti.Network.Cookie";
+		return "Ti.Network.CookieProxy";
 	}
 }
