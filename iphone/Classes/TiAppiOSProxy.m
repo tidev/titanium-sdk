@@ -16,8 +16,9 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#if IS_XCODE_7
 #import "TiAppiOSWatchSessionProxy.h"
-
+#endif
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -145,13 +146,13 @@
 }
 
 #pragma mark Public
-
+#if IS_XCODE_7
 -(id)createWatchSession:(id)args
 {
     TiAppiOSWatchSessionProxy *watchSessionProxy = [[[TiAppiOSWatchSessionProxy alloc] init] autorelease];
     return watchSessionProxy;
 }
-
+#endif
 -(id)createUserActivity:(id)args
 {
     NSString* activityType;
