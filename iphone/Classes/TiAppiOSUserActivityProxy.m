@@ -6,6 +6,7 @@
  */
 
 #import "TiAppiOSUserActivityProxy.h"
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOS
@@ -53,8 +54,6 @@
     _isValid = NO;
     if([TiUtils isIOS8OrGreater]){
         if([props objectForKey:@"activityType"]){
-            NSArray *supportedActivityTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSUserActivityTypes"];
-            
             if(![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]]){
                 DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
                 return NO;
@@ -285,6 +284,14 @@
 {
     ENSURE_UI_THREAD(invalidate,unused);
     [_userActivity invalidate];
+}
+
+#pragma mark Add ContentAttributeSet
+-(void)addContentAttributeSet:(id)contentAttributeSet
+{
+    ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
+    ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
+    _userActivity.contentAttributeSet = contentAttributeSet;
 }
 
 #pragma mark iOS 9 UserActivity Methods

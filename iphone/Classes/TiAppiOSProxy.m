@@ -16,6 +16,9 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
+#import "TiAppiOSSearchableItemProxy.h"
+#import "TiAppiOSSearchableIndexProxy.h"
 
 @implementation TiAppiOSProxy
 
@@ -144,6 +147,41 @@
 }
 
 #pragma mark Public
+
+#import "TiAppiOSSearchableItemProxy.h"
+
+-(id)createSearchableIndex:(id)unused
+{
+    TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
+    return proxy;
+}
+
+-(id)createSearchableItem:(id)args
+{
+    ENSURE_ARG_COUNT(args,3);
+    NSString* identifier = [args objectAtIndex:0];
+    ENSURE_TYPE(identifier,NSString);
+    
+    NSString* domainIdentifier = [args objectAtIndex:1];
+    ENSURE_TYPE(domainIdentifier,NSString);
+
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet = [args objectAtIndex:2];
+    ENSURE_TYPE(attributeSet,TiAppiOSSearchableItemAttributeSetProxy);
+    
+    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
+                                           initWithUniqueIdentifier:identifier
+                                           withDomainIdentifier:domainIdentifier
+                                           withAttributeSet:attributeSet.attributes] autorelease];
+    return proxy;
+}
+
+-(id)createSearchableItemAttributeSet:(id)itemContentType
+{
+    ENSURE_SINGLE_ARG(itemContentType,NSString);
+    TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType] autorelease];
+    
+    return proxy;
+}
 
 -(id)createUserActivity:(id)args
 {

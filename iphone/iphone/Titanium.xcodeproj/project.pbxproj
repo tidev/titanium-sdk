@@ -285,6 +285,9 @@
 		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
+		CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */; };
+		CA0D39E81B7F709E009D534C /* TiAppiOSSearchableItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */; };
+		CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */; };
 		CEBC15711A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
@@ -886,6 +889,12 @@
 		BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationCategoryProxy.m; sourceTree = "<group>"; };
 		BBDD81321A2C71C9003CDA10 /* TiUIAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIAttributedStringProxy.h; sourceTree = "<group>"; };
 		BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIAttributedStringProxy.m; sourceTree = "<group>"; };
+		CA0D39E31B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableItemAttributeSetProxy.h; sourceTree = "<group>"; };
+		CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableItemAttributeSetProxy.m; sourceTree = "<group>"; };
+		CA0D39E61B7F709E009D534C /* TiAppiOSSearchableItemProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableItemProxy.h; sourceTree = "<group>"; };
+		CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableItemProxy.m; sourceTree = "<group>"; };
+		CA0D39E91B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableIndexProxy.h; sourceTree = "<group>"; };
+		CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableIndexProxy.m; sourceTree = "<group>"; };
 		CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserDefaultsProxy.h; sourceTree = "<group>"; };
 		CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserDefaultsProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
@@ -1049,6 +1058,12 @@
 				83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */,
 				CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */,
 				CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */,
+				CA0D39E31B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.h */,
+				CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */,
+				CA0D39E61B7F709E009D534C /* TiAppiOSSearchableItemProxy.h */,
+				CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */,
+				CA0D39E91B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.h */,
+				CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -2434,6 +2449,7 @@
 				24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */,
 				24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */,
 				24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */,
+				CA0D39E81B7F709E009D534C /* TiAppiOSSearchableItemProxy.m in Sources */,
 				24CA89BB1111615D0084E2DE /* KrollMethod.m in Sources */,
 				84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				24CA89BC1111615D0084E2DE /* KrollMethodDelegate.m in Sources */,
@@ -2457,6 +2473,7 @@
 				24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */,
 				24CA8B7C111161FE0084E2DE /* TiUITextArea.m in Sources */,
 				24CA8B7D111161FE0084E2DE /* TiUITabProxy.m in Sources */,
+				CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */,
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
@@ -2652,6 +2669,7 @@
 				2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */,
 				848C2594145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				848C259A145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
+				CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */,
 				848C259F145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
 				848C25A4145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
