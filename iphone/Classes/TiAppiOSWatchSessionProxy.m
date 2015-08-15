@@ -333,6 +333,7 @@
             NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                       NUMINT(0), @"errorCode",
                                       @"", @"message",
+                                      downloadedData,@"data",
                                       nil];
             [dict addEntriesFromDictionary:success];
         }
