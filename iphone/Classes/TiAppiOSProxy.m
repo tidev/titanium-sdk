@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,6 +16,7 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#import "TiAppiOSWatchSessionProxy.h"
 
 @implementation TiAppiOSProxy
 
@@ -144,6 +145,12 @@
 }
 
 #pragma mark Public
+
+-(id)createWatchSession:(id)args
+{
+    TiAppiOSWatchSessionProxy *watchSessionProxy = [[[TiAppiOSWatchSessionProxy alloc] init] autorelease];
+    return watchSessionProxy;
+}
 
 -(id)createUserActivity:(id)args
 {
