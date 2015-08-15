@@ -8,8 +8,7 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 
 #ifdef USE_TI_APPIOS
-@interface TiAppiOSSearchableIndexProxy : TiProxy {
-
+@interface TiAppiOSSearchableIndexProxy : TiProxy<CSSearchableIndexDelegate> {
 }
 #endif
 @end
