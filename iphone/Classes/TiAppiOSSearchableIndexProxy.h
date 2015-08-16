@@ -5,17 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiProxy.h"
+#import <CoreSpotlight/CoreSpotlight.h>
 
 #ifdef USE_TI_APPIOS
+@interface TiAppiOSSearchableIndexProxy : TiProxy {
 
-@interface TiAppiOSUserActivityProxy : TiProxy<NSUserActivityDelegate> {
-    @private
-    BOOL _isValid;
-    BOOL _supported;
 }
--(id)initWithOptions:(NSDictionary*)props;
-@property(nonatomic,strong) NSUserActivity *userActivity;
-
-@end
-
 #endif
+@end
