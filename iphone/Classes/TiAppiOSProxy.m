@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,10 +16,12 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#if IS_XCODE_7
+#import "TiAppiOSWatchSessionProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
-
+#endif
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -147,9 +149,12 @@
 }
 
 #pragma mark Public
-
-#import "TiAppiOSSearchableItemProxy.h"
-
+#if IS_XCODE_7
+-(id)createWatchSession:(id)args
+{
+    TiAppiOSWatchSessionProxy *watchSessionProxy = [[[TiAppiOSWatchSessionProxy alloc] init] autorelease];
+    return watchSessionProxy;
+}
 -(id)createSearchableIndex:(id)unused
 {
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
@@ -165,7 +170,7 @@
     
     NSString* domainIdentifier;
     ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
-
+    
     TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
@@ -182,7 +187,7 @@
     ENSURE_SINGLE_ARG(args,NSDictionary);
     ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
     
-    NSMutableDictionary *props = [args mutableCopy];
+    NSMutableDictionary *props = [[args mutableCopy] autorelease];
     [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
     
     TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
@@ -190,6 +195,7 @@
     return proxy;
 }
 
+#endif
 -(id)createUserActivity:(id)args
 {
     NSString* activityType;
