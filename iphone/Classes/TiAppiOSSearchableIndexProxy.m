@@ -17,7 +17,7 @@
     return @"Ti.App.iOS.SearchableIndex";
 }
 
--(id)isSupported
+-(id)isSupported:(id)unused
 {
     if([TiUtils isIOS9OrGreater]){
         return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
