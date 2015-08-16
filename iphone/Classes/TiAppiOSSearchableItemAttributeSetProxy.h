@@ -9,10 +9,13 @@
 
 #ifdef USE_TI_APPIOS
 @interface TiAppiOSSearchableItemAttributeSetProxy : TiProxy {
-
+@private
+    NSArray *dateFieldTypes;
+    NSArray *urlFieldTypes;
+    NSArray *unsupportedFieldTypes;
 }
 
--(id)initWithItemContentType:(NSString *)itemContentType;
+-(id)initWithItemContentType:(NSString *)itemContentType withProps:(NSDictionary*)props;
 
 @property(nonatomic,retain) CSSearchableItemAttributeSet *attributes;
 

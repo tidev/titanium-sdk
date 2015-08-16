@@ -158,15 +158,16 @@
 
 -(id)createSearchableItem:(id)args
 {
-    ENSURE_ARG_COUNT(args,3);
-    NSString* identifier = [args objectAtIndex:0];
-    ENSURE_TYPE(identifier,NSString);
+    ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    NSString* domainIdentifier = [args objectAtIndex:1];
-    ENSURE_TYPE(domainIdentifier,NSString);
+    NSString* identifier;
+    ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
+    
+    NSString* domainIdentifier;
+    ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
 
-    TiAppiOSSearchableItemAttributeSetProxy *attributeSet = [args objectAtIndex:2];
-    ENSURE_TYPE(attributeSet,TiAppiOSSearchableItemAttributeSetProxy);
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
+    ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
     TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
                                            initWithUniqueIdentifier:identifier
@@ -175,10 +176,16 @@
     return proxy;
 }
 
--(id)createSearchableItemAttributeSet:(id)itemContentType
+-(id)createSearchableItemAttributeSet:(id)args
 {
-    ENSURE_SINGLE_ARG(itemContentType,NSString);
-    TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType] autorelease];
+    NSString* itemContentType;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
+    
+    NSMutableDictionary *props = [args mutableCopy];
+    [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+    
+    TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
     
     return proxy;
 }

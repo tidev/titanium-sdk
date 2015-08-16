@@ -291,7 +291,7 @@
 {
     ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
     ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
-    _userActivity.contentAttributeSet = contentAttributeSet;
+    _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy*)contentAttributeSet).attributes;
 }
 
 #pragma mark iOS 9 UserActivity Methods

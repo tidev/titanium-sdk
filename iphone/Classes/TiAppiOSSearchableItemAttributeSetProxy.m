@@ -17,12 +17,46 @@
     return @"Ti.App.iOS.SearchableItemAttributeSet";
 }
 
--(id)initWithItemContentType:(NSString *)itemContentType
+-(void)initFieldTypeInformation
+{
+    dateFieldTypes = @[@"metadataModificationDate",@"recordingDate",@"downloadedDate",@"lastUsedDate",@"contentCreationDate",@"contentModificationDate",@"addedDate",@"recordingDate",@"downloadedDate",@"lastUsedDate"];
+    urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"URL"];
+    unsupportedFieldTypes = @[@"thumbnailData"];
+}
+
+-(id)initWithItemContentType:(NSString *)itemContentType withProps:(NSDictionary*)props
 {
     if (self = [super init]) {
         _attributes = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:itemContentType];
+        [self initFieldTypeInformation];
+        if(props !=nil){
+            [self applyLoadTimeProperties:props];
+        }
     }
     return self;
+}
+
+-(void)applyLoadTimeProperties:(NSDictionary*)props
+{
+    [props enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop) {
+        if ([_attributes respondsToSelector:NSSelectorFromString(key)]){
+            //Check this is a supported type
+            if(![unsupportedFieldTypes containsObject:key]){
+                if([dateFieldTypes containsObject:key]){
+                    //Use date logic to add
+                    [_attributes setValue:[TiUtils dateForUTCDate:object] forKey:key];
+                }else if([urlFieldTypes containsObject:key]){
+                    //Use URL logic to add
+                    [_attributes setValue:[NSURL URLWithString:[object stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] forKey:key];
+                }else{
+                    [_attributes setValue:object forKey:key];
+                }
+            }
+        }
+        else{
+            NSLog(@"[ERROR] field %@ is invalid",key);
+        }
+    }];
 }
 
 //*********************************
@@ -543,6 +577,9 @@
 //the creation date of an edited or 'mastered' version of the original art.
 -(NSString*)recordingDate
 {
+    if(_attributes.recordingDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.recordingDate];
 }
 
@@ -745,6 +782,9 @@
 // This is the date that the file was last downloaded / received.
 -(NSString*)downloadedDate
 {
+    if(_attributes.downloadedDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.downloadedDate];
 }
 
@@ -800,6 +840,9 @@
 //This is the date that the item was last used
 -(NSString*)lastUsedDate
 {
+    if(_attributes.lastUsedDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.lastUsedDate];
 }
 
@@ -814,6 +857,9 @@
 //This is the date that the contents of the item were created
 -(NSString*)contentCreationDate
 {
+    if(_attributes.contentCreationDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.contentCreationDate];
 }
 
@@ -827,6 +873,9 @@
 //This is the date that the contents of the item were last modified
 -(NSString*)contentModificationDate
 {
+    if(_attributes.contentModificationDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.contentModificationDate];
 }
 
@@ -840,6 +889,9 @@
 //This is the date that the item was moved into the current location.
 -(NSString*)addedDate
 {
+    if(_attributes.addedDate == nil){
+        return nil;
+    }
     return [TiUtils UTCDateForDate:_attributes.addedDate];
 }
 
