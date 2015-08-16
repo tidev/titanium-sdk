@@ -11,6 +11,24 @@ description: |
     [BonjourService](Titanium.Network.BonjourService) objects.
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
+
+    For iOS9 and greater, Apple introduced App Transport Security. So by default,
+    all access to non-https urls are forbidden. To force access to all urls, it is 
+    possible by including in the tiapp.xml with
+    <ios>
+        <plist>
+            <dict>
+                <key>NSAppTransportSecurity</key>
+                <dict>
+                    <key>NSAllowsArbitraryLoads</key>
+                    <true/>
+                </dict>
+            </dict>
+        </plist>
+    </ios>
+    However, it is recommended to use exceptions to only the required sites instead.
+    Please refer to the Apple Reference Documentation for more details.
+
 extends: Titanium.Module
 since: "0.1"
 methods:
