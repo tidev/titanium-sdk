@@ -51,7 +51,7 @@ methods:
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: updateAppContext
+  - name: updateAppContext
     summary: |
         Sends an app context update to the apple watch.
     description: |
@@ -64,7 +64,7 @@ methods:
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: transferUserInfo
+  - name: transferUserInfo
     summary: |
         Transfers an user info to the apple watch.
     description: |
@@ -76,7 +76,7 @@ methods:
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: transferFile
+  - name: transferFile
     summary: |
         Transfers a file to the apple watch.
     description: |
@@ -86,14 +86,12 @@ methods:
       - name: fileURL
         summary: Local filesystem path of file to send to apple watch.
         type: String        
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
       - name: metaData
         summary: Additional information of file to send to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: transferCurrentComplication
+  - name: transferCurrentComplication
     summary: |
         Transfers complication data to the apple watch.
     description: |
@@ -105,21 +103,21 @@ methods:
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: cancelAllUserInfoTransfers
+  - name: cancelAllUserInfoTransfers
     summary: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     description: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: cancelAllFileTransfers
+  - name: cancelAllFileTransfers
     summary: |
         Cancels all incomplete file transfers to the apple watch.
     description: |
         Cancels all incomplete file transfers to the apple watch.
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    - name: cancelAllTransfers
+  - name: cancelAllTransfers
     summary: |
         Cancels all incomplete transfers to the apple watch.
     description: |
@@ -135,7 +133,7 @@ events:
         summary: message content
         type: Dictionary
         platforms: [iphone, ipad]
-    - name: watchSessionReceivedAppContext
+  - name: watchSessionReceivedAppContext
     summary: |
         App received app context from apple watch.
     properties:
@@ -143,7 +141,7 @@ events:
         summary: app Context
         type: Dictionary
         platforms: [iphone, ipad]
-    - name: watchSessionReceivedUserInfo
+  - name: watchSessionReceivedUserInfo
     summary: |
         App received user info from apple watch in background.
     properties:
