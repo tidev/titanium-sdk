@@ -584,7 +584,7 @@ examples:
             });
             
             itemAttr.contentDescription ="Tech Example \nOn: " + String.formatDate(new Date(),"short");
-            itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
+            itemAttr.keyWords =["Mobile","Appcelerator","Titanium"];
 
             var item = Ti.App.iOS.createSearchableItem({
                 identifier:"my-id",
