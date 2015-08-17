@@ -333,23 +333,25 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setMedia:(id)media_
 {
+    
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
-		[self setUrl:[NSURL fileURLWithPath:[media_ path]]];
+        [self setUrl:[media_ absoluteURL]];
 	}
 	else if ([media_ isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)media_;
 		if ([blob type] == TiBlobTypeFile)
 		{
-			[self setUrl:[blob nativePath]];
+            [self setUrl:[blob nativePath]];
 		}
 		else if ([blob type] == TiBlobTypeData)
 		{
 			RELEASE_TO_NIL(tempFile);
 			tempFile = [[TiUtils createTempFile:@"mov"] retain];
 			[blob writeTo:[tempFile path] error:nil];
-			[self setUrl:[NSURL fileURLWithPath:[tempFile path]]];
+            
+            [self setUrl:[tempFile path]];
 		}
 		else
 		{
@@ -397,12 +399,17 @@ NSArray* moviePlayerKeys = nil;
         return;
     }
 	RELEASE_TO_NIL(url);
+    
 	url = [newUrl retain];
     loaded = NO;
 	sizeSet = NO;
 	if (movie!=nil)
 	{
-		[self restart];
+        AVPlayerItem *fooVideoItem = [AVPlayerItem playerItemWithURL: self.url];
+        AVQueuePlayer *queuePlayer = [AVQueuePlayer queuePlayerWithItems:[NSArray arrayWithObjects:fooVideoItem,nil]];
+        
+        [queuePlayer play];
+        [queuePlayer advanceToNextItem];
 	}
 	else {
 		[self ensurePlayer];
@@ -418,7 +425,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)autoplay
 {	
 	if (movie != nil) {
-		return NUMBOOL([movie shouldAutoplay]);
+		return NUMBOOL(movie.player.currentItem.playbackLikelyToKeepUp == YES);
 	}
 	else {
 		RETURN_FROM_LOAD_PROPERTIES(@"autoplay",NUMBOOL(YES));
@@ -428,7 +435,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)setAutoplay:(id)value
 {
 	if (movie != nil) {
-		[movie setShouldAutoplay:[TiUtils boolValue:value]];
+		//[movie.player.currentItem setShouldAutoplay:[TiUtils boolValue:value]];
 	}
 	else {
 		[loadProperties setValue:value forKey:@"autoplay"];
@@ -467,12 +474,17 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-	TiThreadPerformOnMainThread(^{[movie.player cancelAllThumbnailImageRequests];}, NO);
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"5.1.0", "Not available any more.")
+
+//	TiThreadPerformOnMainThread(^{[movie.player cancelAllThumbnailImageRequests];}, NO);
 }
 
 -(void)requestThumbnailImagesAtTimes:(id)args
 {
-    ENSURE_ARG_COUNT(args, 3);
+
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.requestThumbnailImagesAtTimes", @"5.1.0", "Not available any more.")
+
+    /*ENSURE_ARG_COUNT(args, 3);
     
     ENSURE_TYPE([args objectAtIndex:0], NSArray);
     ENSURE_TYPE([args objectAtIndex:1], NSNumber);
@@ -488,7 +500,7 @@ NSArray* moviePlayerKeys = nil;
             thumbnailCallback = [[args objectAtIndex:2] retain];
             [movie requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
         }, NO);
-    }
+    }*/
 }
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
@@ -556,7 +568,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)endPlaybackTime
 {
 	if (movie != nil) {
-        NSTimeInterval n = [movie.player endPlaybackTime];
+        NSTimeInterval n = CMTimeGetSeconds(movie.player.currentItem.asset.duration);
         if (n == -1) {
             n = NAN;
         }
