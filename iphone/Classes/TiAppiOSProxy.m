@@ -18,6 +18,9 @@
 #import "TiAppiOSUserActivityProxy.h"
 #if IS_XCODE_7
 #import "TiAppiOSWatchSessionProxy.h"
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
+#import "TiAppiOSSearchableItemProxy.h"
+#import "TiAppiOSSearchableIndexProxy.h"
 #endif
 @implementation TiAppiOSProxy
 
@@ -152,6 +155,46 @@
     TiAppiOSWatchSessionProxy *watchSessionProxy = [[[TiAppiOSWatchSessionProxy alloc] init] autorelease];
     return watchSessionProxy;
 }
+-(id)createSearchableIndex:(id)unused
+{
+    TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
+    return proxy;
+}
+
+-(id)createSearchableItem:(id)args
+{
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    
+    NSString* identifier;
+    ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
+    
+    NSString* domainIdentifier;
+    ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
+    
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
+    ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
+    
+    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
+                                           initWithUniqueIdentifier:identifier
+                                           withDomainIdentifier:domainIdentifier
+                                           withAttributeSet:attributeSet.attributes] autorelease];
+    return proxy;
+}
+
+-(id)createSearchableItemAttributeSet:(id)args
+{
+    NSString* itemContentType;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
+    
+    NSMutableDictionary *props = [[args mutableCopy] autorelease];
+    [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+    
+    TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
+    
+    return proxy;
+}
+
 #endif
 -(id)createUserActivity:(id)args
 {

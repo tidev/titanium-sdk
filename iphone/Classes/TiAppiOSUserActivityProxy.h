@@ -14,7 +14,7 @@
     BOOL _supported;
 }
 -(id)initWithOptions:(NSDictionary*)props;
-@property(nonatomic,retain) NSUserActivity *userActivity;
+@property(nonatomic,strong) NSUserActivity *userActivity;
 
 @end
 
