@@ -31,7 +31,7 @@
 	RELEASE_TO_NIL(messageLabel);
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
-    RELEASE_TO_NIL(spinnerColor);
+	RELEASE_TO_NIL(spinnerColor);
 	[super dealloc];
 }
 
@@ -224,11 +224,8 @@
 {
     UIColor * newColor = [[TiUtils colorValue:value] _color];
     [spinnerColor release];
-    spinnerColor = [newColor retain];
-    if (indicatorView != nil)
-    {
-        [indicatorView setColor:spinnerColor];
-    }
+     spinnerColor = [newColor retain];
+    [[self indicatorView] setColor:spinnerColor];
 }
 
 - (void)didMoveToWindow
