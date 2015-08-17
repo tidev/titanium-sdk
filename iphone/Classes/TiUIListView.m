@@ -801,18 +801,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)cleanup:(id)unused
 {
-    if ([searchController isActive]) {
-        [searchController setActive:NO animated:NO];
-    }
-
     if (_headerViewProxy != nil) {
         [_headerViewProxy windowWillClose];
-        [_headerViewProxy windowDidClose];
     }
     
     if (_footerViewProxy != nil) {
         [_footerViewProxy windowWillClose];
-        [_footerViewProxy windowDidClose];
     }
 }
 
