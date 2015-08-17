@@ -6,7 +6,9 @@
  */
 
 #import "TiAppiOSUserActivityProxy.h"
+#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
+#endif
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOS
@@ -388,7 +390,7 @@
 
 -(void)setRequiredUserInfoKeys:(id)keys
 {
-    ENSURE_SINGLE_ARG(keys, NSArray);
+    ENSURE_ARRAY(keys);
     ENSURE_UI_THREAD(setRequiredUserInfoKeys,keys);
     if(![TiUtils isIOS9OrGreater]){
         return;
@@ -407,7 +409,7 @@
 
 -(void)setKeywords:(id)keys
 {
-    ENSURE_SINGLE_ARG(keys, NSArray);
+    ENSURE_ARRAY(keys);
     ENSURE_UI_THREAD(setKeywords,keys);
     if(![TiUtils isIOS9OrGreater]){
         return;

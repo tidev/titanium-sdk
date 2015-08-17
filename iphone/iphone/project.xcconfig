@@ -4,4 +4,4 @@ TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore //Li
 OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)
 OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)
 OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -framework Contacts -framework ContactsUI -framework WatchConnectivity
-OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -framework Contacts -framework ContactsUI -framework WatchConnectivity
+OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -framework Contacts -framework ContactsUI -framework WatchConnectivity -framework CoreSpotlight

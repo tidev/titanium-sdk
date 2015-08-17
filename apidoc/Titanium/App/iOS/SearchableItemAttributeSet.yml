@@ -44,7 +44,7 @@ properties:
     platforms: [iphone,ipad]
   - name: thumbnailData
     summary: Image data for thumbnail for this item.
-    type: String,Titanium.Blob
+    type: [String, Titanium.Blob]
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: relatedUniqueIdentifier

@@ -1,10 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
@@ -15,6 +15,12 @@
 -(NSString*)apiName
 {
     return @"Ti.App.iOS.SearchableItemAttributeSet";
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_attributes);
+    [super dealloc];
 }
 
 -(void)initFieldTypeInformation
@@ -84,7 +90,7 @@
 
 -(void)setAlternateNames:(NSArray*)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setAlternateNames,value);
     _attributes.alternateNames = value;
 }
@@ -185,7 +191,7 @@
 
 -(void)setContentTypeTree:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setContentTypeTree,value);
     _attributes.contentTypeTree = value;
 }
@@ -199,7 +205,7 @@
 
 -(void)setKeyWords:(id)words
 {
-    ENSURE_SINGLE_ARG(words,NSArray);
+    ENSURE_ARRAY(words)
     ENSURE_UI_THREAD(setKeyWords,words);
     _attributes.keywords = words;
 }
@@ -290,7 +296,7 @@
 
 -(void)setAudiences:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setAudiences,value);
     _attributes.audiences = value;
 }
@@ -387,7 +393,7 @@
 
 -(void)setEncodingApplications:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setEncodingApplications,value);
     _attributes.encodingApplications = value;
 }
@@ -413,7 +419,7 @@
 
 -(void)setFontNames:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setFontNames,value);
     _attributes.fontNames = value;
 }
@@ -745,7 +751,7 @@
 
 -(void)setEditors:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setEditors,value);
     _attributes.editors = value;
 }
@@ -758,7 +764,7 @@
 
 -(void)setParticipants:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setParticipants,value);
     _attributes.participants = value;
 }
@@ -773,7 +779,7 @@
 
 -(void)setProjects:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setProjects,value);
     _attributes.projects = value;
 }
@@ -806,7 +812,7 @@
 
 -(void)setContentSources:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setContentSources,value);
     _attributes.contentSources = value;
 }
@@ -923,7 +929,7 @@
 
 -(void)setContactKeywords:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setContactKeywords,value);
     _attributes.contactKeywords = value;
 }
@@ -949,7 +955,7 @@
 
 -(void)setCodecs:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setCodecs,value);
     _attributes.codecs = value;
 }
@@ -962,7 +968,7 @@
 
 -(void)setMediaTypes:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setMediaTypes,value);
     _attributes.mediaTypes = value;
 }
@@ -1038,7 +1044,7 @@
 
 -(void)setOrganizations:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setOrganizations,value);
     _attributes.organizations = value;
 }
@@ -1066,7 +1072,7 @@
 
 -(void)setLanguages:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setLanguages,value);
     _attributes.languages = value;
 }
@@ -1102,7 +1108,7 @@
 
 -(void)setPublishers:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setPublishers,value);
     _attributes.publishers = value;
 }
@@ -1118,7 +1124,7 @@
 
 -(void)setContributors:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setContributors,value);
     _attributes.contributors = value;
 }
@@ -1136,7 +1142,7 @@
 
 -(void)setCoverage:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setCoverage,value);
     _attributes.coverage = value;
 }
@@ -1240,7 +1246,7 @@
 
 -(void)setPerformers:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSArray);
+    ENSURE_ARRAY(value);
     ENSURE_UI_THREAD(setPerformers,value);
     _attributes.performers = value;
 }
@@ -1310,5 +1316,5 @@
 }
 
 @end
-
+#endif
 #endif
