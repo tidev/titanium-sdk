@@ -69,13 +69,6 @@ methods:
     returns:
         type: Titanium.App.iOS.UserDefaults
     since: "4.0.0"
-  - name: createWatchSession
-    summary: |
-        Creates and returns an instance of Titanium.App.iOS.WatchSession.
-    returns:
-        type: Titanium.App.iOS.WatchSession
-    since: "5.0.0"
-    osver: {ios: {min: "9.0"}}
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
 
