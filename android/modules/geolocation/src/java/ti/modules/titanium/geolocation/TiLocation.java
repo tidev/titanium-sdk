@@ -6,20 +6,18 @@
  */
 package ti.modules.titanium.geolocation;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -229,16 +227,32 @@ public class TiLocation implements Handler.Callback
 					geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
 					Log.d(TAG, "GEO URL [" + url + "]", Log.DEBUG_MODE);
-					HttpGet httpGet = new HttpGet(url);
-
-					HttpParams httpParams = new BasicHttpParams();
-					HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
-
-					HttpClient client = new DefaultHttpClient(httpParams);
-					client.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-					ResponseHandler<String> responseHandler = new BasicResponseHandler();
-					String response = client.execute(httpGet, responseHandler);
-
+					HttpURLConnection connection = null;
+					String response;
+					StringBuilder result = new StringBuilder();
+					try {
+					    URL mURL = new URL(url);
+					    connection = (HttpURLConnection) mURL.openConnection();
+					    connection.setRequestProperty("Expect", "100-continue");
+					    connection.connect();
+					    int responseCode = connection.getResponseCode();
+					    if (responseCode == 200) {
+					        InputStream in = new BufferedInputStream(connection.getInputStream());
+			                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			                String line;
+			                while ((line = reader.readLine()) != null) {
+			                    result.append(line);
+			                }
+			                response = result.toString();
+					    } else
+					        response = null;
+					} catch (Exception e) {
+					    response = null;
+					} finally {
+					    if (connection != null) {
+					        connection.disconnect();
+					    }
+					}
 					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
 					if (response != null) {
