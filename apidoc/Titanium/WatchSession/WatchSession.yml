@@ -1,42 +1,47 @@
 ---
-name: Titanium.App.iOS.WatchSession
+name: Titanium.WatchSession
 description: |
     WatchSession is used to enable transfer of data between an apple watch and a titanium app via Watch Connectivity
     framework introduced in iOS9. WatchSession only supports watchOS2.
 
-extends: Titanium.Proxy
+extends: Titanium.Module
 platforms: [iphone,ipad]
 since: "5.0.0"
-createable: true
 properties:
   - name: isSupported
-    summary: If the device supports watch connectivity. Readonly.
+    summary: If the device supports watch connectivity.
     type: Boolean
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: isPaired
-    summary: If the device is paired with an apple watch. Readonly.
+    summary: If the device is paired with an apple watch.
     type: Boolean
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: isWatchAppInstalled
-    summary: If accompanying watch app is installed in apple watch. Readonly.
+    summary: If accompanying watch app is installed in apple watch.
     type: Boolean
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: isComplicationEnabled
-    summary: If complication is enabled on installed watch app in apple watch. Readonly.
+    summary: If complication is enabled on installed watch app in apple watch.
     type: Boolean
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: isReachable
-    summary: If apple watch is currently reachable. Readonly.
+    summary: If apple watch is currently reachable.
     type: Boolean
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: recentAppContext
-    summary: The most recent app context received from apple watch. Readonly.
+    summary: The most recent app context received from apple watch.
     type: Dictionary
+    permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
 methods:
@@ -261,7 +266,7 @@ examples:
               borderColor: '#bbb',
               borderRadius: 5,
               color: '#888',
-              font: {fontSize:10},
+              font: {fontSize:16},
               textAlign: 'left',
               value: 'This is where we listen for events',
               bottom: 10,
@@ -270,7 +275,7 @@ examples:
 
             win.add(eventsArea);
 
-            var watchSession = Ti.App.iOS.createWatchSession();
+
 
             var imageView = Ti.UI.createImageView ({
                 top: 240,
@@ -287,12 +292,12 @@ examples:
 
             statusBtn.addEventListener('click', function(e) {
                 eventsArea.value += '\nbtn pressed '
-                + '\nwatchOS2 is supported: ' + watchSession.isSupported
-                + '\nwatch is paired: ' + watchSession.isPaired
-                + '\nwatchApp is installed: ' + watchSession.isWatchAppInstalled
-                + '\nwatchComplication is enabled: ' + watchSession.isComplicationEnabled
-                + '\nwatch is reachable: ' + watchSession.isReachable
-                + '\nMost recent app context: ' + JSON.stringify(watchSession.recentAppContext);
+                + '\nwatchOS2 is supported: ' + Ti.WatchSession.isSupported
+                + '\nwatch is paired: ' + Ti.WatchSession.isPaired
+                + '\nwatchApp is installed: ' + Ti.WatchSession.isWatchAppInstalled
+                + '\nwatchComplication is enabled: ' + Ti.WatchSession.isComplicationEnabled
+                + '\nwatch is reachable: ' + Ti.WatchSession.isReachable
+                + '\nMost recent app context: ' + JSON.stringify(Ti.WatchSession.recentAppContext);
             })
             win.add(statusBtn);
 
@@ -302,8 +307,12 @@ examples:
             });
 
             sendMsgBtn.addEventListener('click', function(e) {
-                watchSession.sendMessage({
-                    message: 'Hi from app'
+                Ti.WatchSession.sendMessage({
+                    message: {
+                        message: 'Hi',
+                        from: 'app',
+                        type: 'message'
+                    }
                 });
             });
 
@@ -313,8 +322,11 @@ examples:
             });
 
             sendUserInfoBtn.addEventListener('click', function(e) {
-                watchSession.transferUserInfo({
-                    userInfo: 'user info from app'
+                Ti.WatchSession.transferUserInfo({
+                    userInfo: {
+                        data: 'user info from app',
+                        created: '2015'
+                    }
                 });
             });
 
@@ -325,11 +337,11 @@ examples:
 
             sendAppContextBtn.addEventListener('click', function(e) {
                 //only the latest appContext is registered. Send 2 to test.
-                watchSession.updateAppContext({
-                    appContext: 'AppContext from app you should not see'
-                });
-                watchSession.updateAppContext({
-                    appContext: 'AppContext from app'
+                Ti.WatchSession.updateAppContext({
+                    appContext: {
+                        status: 'AppContext from app',
+                        updates: 2
+                    }
                 });
             });
 
@@ -339,56 +351,60 @@ examples:
             });
 
             sendFileBtn.addEventListener('click', function(e) {
-                watchSession.transferFile({
-                    fileURL: 'default_app_logo.png',
+                Ti.WatchSession.transferFile({
+                    fileURL: '/images/default_app_logo.png',
                     metaData: {
                         data: 'appcelerator logo'
                     }
                 });
             });
 
-            watchSession.addEventListener('watchSessionReceivedMessage', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionReceivedMessage', function(e) {
                 eventsArea.value += '\nwatchSessionReceivedMessage '
                 + '\n' + JSON.stringify(e);
             });
 
-            watchSession.addEventListener('watchSessionReceivedUserInfo', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionReceivedUserInfo', function(e) {
                 eventsArea.value += '\nwatchSessionReceivedUserInfo '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e); 
             });
 
-            watchSession.addEventListener('watchSessionReceivedFile', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionReceivedFile', function(e) {
                 eventsArea.value += '\nwatchSessionReceivedFile '
                 + '\n' + JSON.stringify(e);
+                //original implementation
+            //  file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, e.fileName);
+            //  imageView.setImage(file);
+                //new implementation
                 var cacheFile = e.data.getFile();
                 var downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
-                downloadedFile.write(e.data);
+                downloadedFile.write(e.data);   
                 imageView.setImage(downloadedFile);
             });
 
-            watchSession.addEventListener('watchSessionReceivedAppContext', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionReceivedAppContext', function(e) {
                 eventsArea.value += '\nwatchSessionReceivedAppContext '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e); 
             });
 
-            watchSession.addEventListener('watchStateChanged', function(e) {
+            Ti.WatchSession.addEventListener('watchStateChanged', function(e) {
                 eventsArea.value += '\nwatchStateChanged '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e);     
             });
 
-            watchSession.addEventListener('watchReachabilityChanged', function(e) {
+            Ti.WatchSession.addEventListener('watchReachabilityChanged', function(e) {
                 eventsArea.value += '\nwatchReachabilityChanged '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e);     
             });
 
-            watchSession.addEventListener('watchSessionFinishedFileTransfer', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionFinishedFileTransfer', function(e) {
                 eventsArea.value += '\nwatchSessionFinishedFileTransfer '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e);     
             });
 
-            watchSession.addEventListener('watchSessionFinishedUserInfoTransfer', function(e) {
+            Ti.WatchSession.addEventListener('watchSessionFinishedUserInfoTransfer', function(e) {
                 eventsArea.value += '\nwatchSessionFinishedUserInfoTransfer '
-                + '\n' + JSON.stringify(e);
+                + '\n' + JSON.stringify(e);     
             });
             win.add(sendMsgBtn);
             win.add(sendUserInfoBtn);
@@ -396,5 +412,3 @@ examples:
             win.add(sendAppContextBtn);
 
             win.open();
-
-

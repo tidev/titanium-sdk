@@ -5,17 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#import "TiProxy.h"
+#import "TiModule.h"
 #import <WatchConnectivity/watchConnectivity.h>
-#ifdef USE_TI_APPIOS
 
-@interface TiAppiOSWatchSessionProxy : TiProxy<WCSessionDelegate> {
+@interface WatchSessionModule : TiModule<WCSessionDelegate> {
 @private
-    BOOL _supported;
     WCSession *watchSession;
 }
--(id)init;
 
 @end
-#endif
 #endif

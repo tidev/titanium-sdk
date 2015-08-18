@@ -17,7 +17,6 @@
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
 #if IS_XCODE_7
-#import "TiAppiOSWatchSessionProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -150,11 +149,6 @@
 
 #pragma mark Public
 #if IS_XCODE_7
--(id)createWatchSession:(id)args
-{
-    TiAppiOSWatchSessionProxy *watchSessionProxy = [[[TiAppiOSWatchSessionProxy alloc] init] autorelease];
-    return watchSessionProxy;
-}
 -(id)createSearchableIndex:(id)unused
 {
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
