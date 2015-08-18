@@ -2500,7 +2500,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
-			CODE_SIGN_ENTITLEMENTS: appName + '.entitlements'
+			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"'
 		};
 
 	// set additional build settings
