@@ -233,7 +233,7 @@
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiViewTemplate.m */; };
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
-		823CC8AC1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.m */; };
+		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */; };
 		841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -762,8 +762,8 @@
 		502A68EA16F0428500661EF6 /* TiViewTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewTemplate.m; sourceTree = "<group>"; };
 		5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExceptionHandler.h; sourceTree = "<group>"; };
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
-		823CC8AA1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSWatchSessionModule.h; sourceTree = "<group>"; };
-		823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSWatchSessionModule.m; sourceTree = "<group>"; };
+		823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchSessionModule.h; sourceTree = "<group>"; };
+		823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchSessionModule.m; sourceTree = "<group>"; };
 		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
 		83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
@@ -1047,8 +1047,6 @@
 		24ADC50F1299F5A50014DB75 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				823CC8AA1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.h */,
-				823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.m */,
 				24ADC5101299F60C0014DB75 /* TiAppiOSProxy.h */,
 				24ADC5111299F60C0014DB75 /* TiAppiOSProxy.m */,
 				24ADC5141299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.h */,
@@ -1200,6 +1198,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				823AE1DF1B82E85A00E7044C /* WatchSession */,
 				D93DAA4C16CBF8A000AD64C9 /* Calendar */,
 				24F6204D1199F1F400EEAD3C /* TopTiModule.h */,
 				24F6204E1199F1F400EEAD3C /* TopTiModule.m */,
@@ -2128,6 +2127,15 @@
 			name = ListView;
 			sourceTree = "<group>";
 		};
+		823AE1DF1B82E85A00E7044C /* WatchSession */ = {
+			isa = PBXGroup;
+			children = (
+				823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */,
+				823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */,
+			);
+			name = WatchSession;
+			sourceTree = "<group>";
+		};
 		844812C21A1D49FB00FBE03A /* TiProfiler */ = {
 			isa = PBXGroup;
 			children = (
@@ -2620,7 +2628,7 @@
 				B606EF4A190B14ED00663EFC /* Reachability.m in Sources */,
 				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
-				823CC8AC1B7F0E4D00D220C7 /* TiAppiOSWatchSessionModule.m in Sources */,
+				823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,

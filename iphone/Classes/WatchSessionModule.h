@@ -7,15 +7,11 @@
 #if IS_XCODE_7
 #import "TiModule.h"
 #import <WatchConnectivity/watchConnectivity.h>
-#ifdef USE_TI_APPIOS
 
-@interface TiAppiOSWatchSessionModule : TiModule<WCSessionDelegate> {
+@interface WatchSessionModule : TiModule<WCSessionDelegate> {
 @private
-    BOOL _supported;
     WCSession *watchSession;
 }
-//-(id)init;
 
 @end
-#endif
 #endif

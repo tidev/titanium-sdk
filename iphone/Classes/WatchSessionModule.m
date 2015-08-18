@@ -5,40 +5,36 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#ifdef USE_TI_APPIOS
 
-#import "TiAppiOSWatchSessionModule.h"
+#import "WatchSessionModule.h"
 #import "TiUtils.h"
 
-@implementation TiAppiOSWatchSessionModule
-#pragma mark Titanium Proxy components
+@implementation WatchSessionModule
+#pragma mark Titanium components
 
 -(NSString*)apiName
 {
-    return @"Ti.App.iOS.WatchSession";
+    return @"Ti.WatchSession";
 }
 
 -(WCSession*)watchSession
 {
     if (watchSession == nil) {
-        _supported = NO;
-        if([TiUtils isIOS9OrGreater]){
-            if ([WCSession isSupported]) {
-                _supported = YES;
-                watchSession = [WCSession defaultSession];
-                watchSession.delegate = self;
-                [watchSession activateSession];
-            }
+        if ([WCSession isSupported]) {
+            watchSession = [WCSession defaultSession];
+            watchSession.delegate = self;
+            [watchSession activateSession];
+        }
+        else {
+            DebugLog(@"[ERROR] Target does not support watch connectivity");
         }
     }
-    if (_supported == NO) {
-        DebugLog(@"[ERROR] Target does not support watch connectivity");
-    }
+    return watchSession;
 }
 
 -(void)dealloc
 {
-    if(_supported == YES){
+    if (watchSession != nil) {
         watchSession.delegate = nil;
     }
     [super dealloc];
@@ -47,13 +43,13 @@
 #pragma mark watch session properties
 -(NSNumber*)isSupported
 {
-    return NUMBOOL(_supported);
+    return NUMBOOL([WCSession isSupported]);
 }
 
 -(NSNumber*)isPaired
 {
-    if (_supported == YES) {
-        return NUMBOOL([watchSession isPaired]);
+    if ([WCSession isSupported] == YES) {
+        return NUMBOOL([[self watchSession] isPaired]);
     }
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
@@ -61,8 +57,8 @@
 
 -(NSNumber*)isWatchAppInstalled
 {
-    if (_supported == YES) {
-        return NUMBOOL([watchSession isWatchAppInstalled]);
+    if ([WCSession isSupported] == YES) {
+        return NUMBOOL([[self watchSession] isWatchAppInstalled]);
     }
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
@@ -70,8 +66,8 @@
 
 -(NSNumber*)isComplicationEnabled
 {
-    if (_supported == YES) {
-        return NUMBOOL([watchSession isComplicationEnabled]);
+    if ([WCSession isSupported] == YES) {
+        return NUMBOOL([[self watchSession] isComplicationEnabled]);
     }
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
@@ -79,8 +75,8 @@
 
 -(NSNumber*)isReachable
 {
-    if (_supported == YES) {
-        return NUMBOOL([watchSession isReachable]);
+    if ([WCSession isSupported] == YES) {
+        return NUMBOOL([[self watchSession] isReachable]);
     }
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
@@ -89,8 +85,8 @@
 //copy of most recent app context sent to watch
 -(NSDictionary*)recentAppContext
 {
-    if (_supported == YES) {
-        return [watchSession applicationContext];
+    if ([WCSession isSupported] == YES) {
+        return [[self watchSession] applicationContext];
     }
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return nil;
@@ -99,27 +95,27 @@
 #pragma mark watch session methods
 -(void)sendMessage:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
     id message = [value objectForKey:@"message"];
     ENSURE_SINGLE_ARG(message, NSDictionary)
-    [watchSession sendMessage:message replyHandler:nil errorHandler:nil];
+    [[self watchSession] sendMessage:message replyHandler:nil errorHandler:nil];
 }
 //sent to watch so that it can update its state when it wakes
 -(void)updateAppContext:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
@@ -127,7 +123,7 @@
     id appContext = [value objectForKey:@"appContext"];
     ENSURE_SINGLE_ARG(appContext, NSDictionary)
     NSError *error = nil;
-    if (![watchSession updateApplicationContext:appContext error:&error]) {
+    if (![[self watchSession] updateApplicationContext:appContext error:&error]) {
         [self throwException:[NSString stringWithFormat:@"Unable to update Application Context: %@",[TiUtils messageFromError:error]]
                    subreason:nil
                     location:CODELOCATION];
@@ -137,11 +133,11 @@
 //sent in background
 -(void)transferUserInfo:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
@@ -149,13 +145,13 @@
     id userInfo = [value objectForKey:@"userInfo"];
     ENSURE_SINGLE_ARG(userInfo, NSDictionary)
     
-    WCSessionUserInfoTransfer *transferSession = [watchSession transferUserInfo:userInfo];
+    WCSessionUserInfoTransfer *transferSession = [[self watchSession] transferUserInfo:userInfo];
 }
 
 //sent in background
 -(void)transferFile:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
@@ -167,20 +163,20 @@
     ENSURE_STRING([value objectForKey:@"fileURL"])
     NSURL *fileURL = [TiUtils toURL:[value objectForKey:@"fileURL"] proxy:self];
     NSDictionary *metaData = [value objectForKey:@"metaData"];
-    WCSessionFileTransfer *transferSession = [watchSession transferFile:fileURL metadata:metaData];
+    WCSessionFileTransfer *transferSession = [[self watchSession] transferFile:fileURL metadata:metaData];
 }
 
 -(void)transferCurrentComplication:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
-    if ([watchSession isComplicationEnabled] == NO) {
+    if ([[self watchSession] isComplicationEnabled] == NO) {
         DebugLog(@"[ERROR] Complication not enabled");
         return;
     }
@@ -188,21 +184,21 @@
     id complication = [value objectForKey:@"complication"];
     ENSURE_SINGLE_ARG(complication, NSDictionary)
     
-    WCSessionUserInfoTransfer *transferSession = [watchSession transferCurrentComplicationUserInfo:complication];
+    WCSessionUserInfoTransfer *transferSession = [[self watchSession] transferCurrentComplicationUserInfo:complication];
 }
 
 -(void)cancelAllUserInfoTransfers:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
 
-    NSArray *sessions = [watchSession outstandingUserInfoTransfers];
+    NSArray *sessions = [[self watchSession] outstandingUserInfoTransfers];
     for (WCSessionUserInfoTransfer *session in sessions) {
         [session cancel];
     }
@@ -210,16 +206,16 @@
 
 -(void)cancelAllFileTransfers:(id)value
 {
-    if (_supported == NO) {
+    if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
         return;
     }
-    if ([watchSession isPaired] == NO) {
+    if ([[self watchSession] isPaired] == NO) {
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
     
-    NSArray *sessions = [watchSession outstandingFileTransfers];
+    NSArray *sessions = [[self watchSession] outstandingFileTransfers];
     for (WCSessionUserInfoTransfer *session in sessions) {
         [session cancel];
     }
@@ -366,5 +362,5 @@
 }
 
 @end
-#endif
+
 #endif
