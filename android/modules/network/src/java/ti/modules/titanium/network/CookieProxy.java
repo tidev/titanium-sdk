@@ -162,6 +162,6 @@ public class CookieProxy extends KrollProxy
 	@Override
 	public String getApiName()
 	{
-		return "Ti.Network.CookieProxy";
+		return "Ti.Network.Cookie";
 	}
 }

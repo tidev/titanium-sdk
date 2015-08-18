@@ -4,8 +4,7 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
 public class TiAuthenticator extends Authenticator {
-	
-	String domain;
+    String domain;
     String user;
     String password;
 
@@ -15,14 +14,14 @@ public class TiAuthenticator extends Authenticator {
         this.user = user;
         this.password = password;
     }
-    
+
     public TiAuthenticator(String domain, String user, String password) {
         super();
         this.domain = domain;
         this.user = user;
         this.password = password;
     }
-    
+
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
         if (domain != null && !domain.isEmpty()) {

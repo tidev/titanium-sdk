@@ -146,95 +146,90 @@ public class TiHTTPClient
 	private TiFile responseFile;
 
 	private void handleResponse(HttpURLConnection connection) throws IOException {
-		connected = true;	
+	    connected = true;	
 
-		long contentLength;
-		
-		if (connection != null) {
-			TiHTTPClient c = this;
-			
+	    long contentLength;
+
+	    if (connection != null) {
+	        TiHTTPClient c = this;
+
 	        contentLength = connection.getContentLength();
-			setReadyState(READY_STATE_HEADERS_RECEIVED);
-			
-			setStatus(connection.getResponseCode());
-			setStatusText(connection.getResponseMessage());
-			setReadyState(READY_STATE_LOADING);
+	        setReadyState(READY_STATE_HEADERS_RECEIVED);
 
-			if (proxy.hasProperty(TiC.PROPERTY_FILE)) {
-				Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
-				if (f instanceof String) {
-					String fileName = (String) f;
-					TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
-					if (baseFile instanceof TiFile) {
-						responseFile = (TiFile) baseFile;
-					}
-				}
-				if (responseFile == null && Log.isDebugModeEnabled()) {
-					Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
-				}
-			}
-			
-			responseHeaders = connection.getHeaderFields();
-						
-			// GZIPInputStream is handled transparently
-			// No additional handling is required as compared to HTTPClient
-			contentType = connection.getContentType();
-			
-			String[] values = contentType.split(";"); //The values.length must be equal to 2...
-			String charset = "";
+	        setStatus(connection.getResponseCode());
+	        setStatusText(connection.getResponseMessage());
+	        setReadyState(READY_STATE_LOADING);
 
-			for (String value : values) {
-			    value = value.trim();
-			    if (value.toLowerCase().startsWith("charset=")) {
-			        charset = value.substring("charset=".length());
-			    }
-			}			
-			// If no charset is defined, default to UTF-8			
-			if ("".equals(charset)) {
-			    charset = "UTF-8";
-			}
-			responseData = null;
-			
-			int status = connection.getResponseCode();
-			InputStream in;
-			
-			if (status >= 400) {
-			    in = connection.getErrorStream();
-			} else {
-			    in = connection.getInputStream();
-			}
-			
-			InputStream is = new BufferedInputStream(in);
+	        if (proxy.hasProperty(TiC.PROPERTY_FILE)) {
+	            Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
+	            if (f instanceof String) {
+	                String fileName = (String) f;
+	                TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
+	                if (baseFile instanceof TiFile) {
+	                    responseFile = (TiFile) baseFile;
+	                }
+	            }
+	            if (responseFile == null && Log.isDebugModeEnabled()) {
+	                Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
+	            }
+	        }
 
-			if (is != null) {
-				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
-				int count = 0;
-				long totalSize = 0;
-				byte[] buf = new byte[4096];
-				Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
-				
-				while((count = is.read(buf)) != -1) {
-					if (aborted) {
-						break;
-					}
-					totalSize += count;					
-					try {
-						handleEntityData(buf, count, totalSize, contentLength);
-					} catch (IOException e) {
-						Log.e(TAG, "Error handling entity data", e);
+	        responseHeaders = connection.getHeaderFields();
 
-						// TODO
-						//Context.throwAsScriptRuntimeEx(e);
-					}
-				}
-				//entity.consumeContent()
-				// TODO: Close inputstream					
+	        // GZIPInputStream is handled transparently
+	        // No additional handling is required as compared to HTTPClient
+	        contentType = connection.getContentType();
 
-				if (totalSize > 0) {
-					finishedReceivingEntityData(totalSize);
-				}
-			}
-		}		
+	        String[] values = contentType.split(";"); //The values.length must be equal to 2...
+	        String charset = "";
+
+	        for (String value : values) {
+	            value = value.trim();
+	            if (value.toLowerCase().startsWith("charset=")) {
+	                charset = value.substring("charset=".length());
+	            }
+	        }
+	        // If no charset is defined, default to UTF-8
+	        if ("".equals(charset)) {
+	            charset = "UTF-8";
+	        }
+	        responseData = null;
+
+	        int status = connection.getResponseCode();
+	        InputStream in;
+
+	        if (status >= 400) {
+	            in = connection.getErrorStream();
+	        } else {
+	            in = connection.getInputStream();
+	        }
+
+	        InputStream is = new BufferedInputStream(in);
+
+	        if (is != null) {
+	            Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
+	            int count = 0;
+	            long totalSize = 0;
+	            byte[] buf = new byte[4096];
+	            Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
+
+	            while((count = is.read(buf)) != -1) {
+	                if (aborted) {
+	                    break;
+	                }
+	                totalSize += count;
+	                try {
+	                    handleEntityData(buf, count, totalSize, contentLength);
+	                } catch (IOException e) {
+	                    Log.e(TAG, "Error handling entity data", e);
+	                }
+	            }
+
+	            if (totalSize > 0) {
+	                finishedReceivingEntityData(totalSize);
+	            }
+	        }
+	    }
 	}
 	
 	private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException
