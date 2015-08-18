@@ -7,10 +7,10 @@
 #if IS_XCODE_7
 #ifdef USE_TI_APPIOS
 
-#import "TiAppiOSWatchSessionProxy.h"
+#import "TiAppiOSWatchSessionModule.h"
 #import "TiUtils.h"
 
-@implementation TiAppiOSWatchSessionProxy
+@implementation TiAppiOSWatchSessionModule
 #pragma mark Titanium Proxy components
 
 -(NSString*)apiName
@@ -18,9 +18,9 @@
     return @"Ti.App.iOS.WatchSession";
 }
 
--(id)init
+-(WCSession*)watchSession
 {
-    if (self = [super init]) {
+    if (watchSession == nil) {
         _supported = NO;
         if([TiUtils isIOS9OrGreater]){
             if ([WCSession isSupported]) {
@@ -34,7 +34,6 @@
     if (_supported == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
     }
-    return self;
 }
 
 -(void)dealloc
