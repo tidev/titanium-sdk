@@ -942,7 +942,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
     
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
-            NSString* eventName = @"rowAction";
+            NSString* eventName = @"editaction";
             
             if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
                 TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
