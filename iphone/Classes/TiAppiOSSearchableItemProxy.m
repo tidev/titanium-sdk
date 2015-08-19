@@ -66,6 +66,6 @@
     _item.expirationDate = [TiUtils dateForUTCDate:value];
 }
 
-#endif
 @end
+#endif
 #endif

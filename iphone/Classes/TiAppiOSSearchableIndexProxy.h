@@ -12,6 +12,6 @@
 @interface TiAppiOSSearchableIndexProxy : TiProxy {
 
 }
-#endif
 @end
+#endif
 #endif
