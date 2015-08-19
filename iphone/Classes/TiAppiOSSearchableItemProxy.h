@@ -18,6 +18,6 @@
 
 @property(nonatomic,retain) CSSearchableItem *item;
 
-#endif
 @end
+#endif
 #endif

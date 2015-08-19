@@ -20,7 +20,6 @@
 
 @property(nonatomic,retain) CSSearchableItemAttributeSet *attributes;
 
-#endif
-
 @end
+#endif
 #endif
