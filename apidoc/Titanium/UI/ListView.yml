@@ -388,8 +388,8 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-  - name: rowAction
-    summary: Fired when the user interacts with one of the custom row actions defined by <Titanium.UI.ListItem.editActions>.
+  - name: editaction
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
         `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
