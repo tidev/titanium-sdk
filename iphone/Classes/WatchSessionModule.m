@@ -145,7 +145,7 @@
     id userInfo = [value objectForKey:@"userInfo"];
     ENSURE_SINGLE_ARG(userInfo, NSDictionary)
     
-    WCSessionUserInfoTransfer *transferSession = [[self watchSession] transferUserInfo:userInfo];
+    [[self watchSession] transferUserInfo:userInfo];
 }
 
 //sent in background
@@ -163,7 +163,7 @@
     ENSURE_STRING([value objectForKey:@"fileURL"])
     NSURL *fileURL = [TiUtils toURL:[value objectForKey:@"fileURL"] proxy:self];
     NSDictionary *metaData = [value objectForKey:@"metaData"];
-    WCSessionFileTransfer *transferSession = [[self watchSession] transferFile:fileURL metadata:metaData];
+    [[self watchSession] transferFile:fileURL metadata:metaData];
 }
 
 -(void)transferCurrentComplication:(id)value
@@ -184,7 +184,7 @@
     id complication = [value objectForKey:@"complication"];
     ENSURE_SINGLE_ARG(complication, NSDictionary)
     
-    WCSessionUserInfoTransfer *transferSession = [[self watchSession] transferCurrentComplicationUserInfo:complication];
+    [[self watchSession] transferCurrentComplicationUserInfo:complication];
 }
 
 -(void)cancelAllUserInfoTransfers:(id)value

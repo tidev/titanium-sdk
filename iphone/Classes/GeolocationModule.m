@@ -540,7 +540,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	KrollCallback *callback = [args objectAtIndex:2];
 	ENSURE_TYPE(callback,KrollCallback);
 	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
-	[self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:rcb];
+	[self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:[rcb autorelease]];
 }
 
 -(void)forwardGeocoder:(id)args
@@ -549,7 +549,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	KrollCallback *callback = [args objectAtIndex:1];
 	ENSURE_TYPE(callback,KrollCallback);
 	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
-	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
+	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:[fcb autorelease]];
 }
 
 -(void)getCurrentHeading:(id)callback 

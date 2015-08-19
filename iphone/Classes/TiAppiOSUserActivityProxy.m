@@ -127,9 +127,9 @@
 
 -(NSDictionary*)copyActivity
 {
-    NSMutableDictionary *dict = [[NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:[_userActivity activityType],@"activityType",
-                                 nil] autorelease];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc]
+                                 initWithObjectsAndKeys:[_userActivity activityType],@"activityType",
+                                 nil];
     
     if([_userActivity title] !=nil){
         [dict setObject:[_userActivity title] forKey:@"title"];
@@ -187,7 +187,7 @@
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywillsave"]){
-        [self fireEvent:@"useractivitywillsave" withObject:[self copyActivity]];
+        [self fireEvent:@"useractivitywillsave" withObject:[[self copyActivity] autorelease]];
     }
 }
 
@@ -196,7 +196,7 @@
 - (void)userActivityWasContinued:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywascontinued"]){
-        [self fireEvent:@"useractivitywascontinued" withObject:[self copyActivity]];
+        [self fireEvent:@"useractivitywascontinued" withObject:[[self copyActivity] autorelease]];
     }
 }
 

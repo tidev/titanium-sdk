@@ -168,7 +168,7 @@ FILENOOP(setHidden:(id)x);
 {
 	ENSURE_SINGLE_ARG(args, NSString);
 	NSError *error = nil;
-	BOOL result = [fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
+	[fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
 	if (error != nil) {
 		NSLog(@"[ERROR] Error setting protection key: %@", [TiUtils messageFromError:error]);
 		return NUMBOOL(NO);
