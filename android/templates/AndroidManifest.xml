@@ -28,7 +28,8 @@
 		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:theme="@android:style/Theme.Translucent" />
-		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
+		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"
+			android:theme="@style/Theme.TiPreferences" />
 
 		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false" />
