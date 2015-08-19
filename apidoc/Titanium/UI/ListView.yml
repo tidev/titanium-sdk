@@ -446,11 +446,15 @@ events:
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+        summary: |
+            The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the list view when the event fires.
+        summary: |
+            The index of the first visible section in the list view when the event fires.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: bubbles
