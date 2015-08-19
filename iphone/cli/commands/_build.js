@@ -1072,6 +1072,7 @@ iOSBuilder.prototype.configOptionWatchAppName = function configOptionWatchAppNam
  */
 iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDeviceId(order) {
 	var cli = this.cli,
+		iosSims = this.iosInfo.simulators.ios,
 		watchSims = this.iosInfo.simulators.watchos,
 		xcodes = this.iosInfo.xcode;
 
@@ -1087,17 +1088,31 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 			var options = {},
 				maxName = 0,
 				maxDesc = 0,
-				iosSdkVersion = cli.argv['ios-version'];
+				iosSdkVersion = cli.argv['ios-version'],
+				iphoneSim = null;
+
+			if (cli.argv['device-id']) {
+				Object.keys(iosSims).some(function (ver) {
+					return iosSims[ver].some(function (sim) {
+						if (sim.udid === cli.argv['device-id']) {
+							iphoneSim = sim;
+							return true;
+						}
+					});
+				});
+			}
 
 			Object.keys(watchSims).forEach(function (sdk) {
 				watchSims[sdk].forEach(function (sim) {
 					// check iOS SDK compatibility
-					if (!iosSdkVersion ||
+					if ((!iosSdkVersion ||
 							Object.keys(sim.supportsXcode).some(function (xcodeId) {
 								if (sim.supportsXcode[xcodeId] && xcodes[xcodeId].sdks.indexOf(iosSdkVersion) !== -1) {
 									return true;
 								}
 							})
+						) &&
+						(!iphoneSim || iphoneSim.watchCompanion[sim.udid])
 					) {
 						options[sdk] || (options[sdk] = []);
 						options[sdk].push(sim);
@@ -1132,15 +1147,14 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 			callback(fields.select(params));
 		},
 		validate: function (value, callback) {
-			if (cli.argv.target === 'simulator') {
+			if (!cli.argv['build-only'] && cli.argv.target === 'simulator') {
 				if (!value || value === true) {
-					callback(true);
+					return callback(true);
 				} else if (!Object.keys(watchSims).some(function (ver) { return watchSims[ver].some(function (sim) { return sim.udid === value; }); })) {
-					callback(new Error(__('Invalid Watch Simulator UDID "%s"', value)));
+					return callback(new Error(__('Invalid Watch Simulator UDID "%s"', value)));
 				}
-			} else {
-				callback(null, value);
 			}
+			callback(null, value);
 		}
 	};
 };
