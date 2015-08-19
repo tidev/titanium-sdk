@@ -1710,6 +1710,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [eventArgs setValue:section forKey:@"firstVisibleSection"];
             [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
         }
+    
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
 
