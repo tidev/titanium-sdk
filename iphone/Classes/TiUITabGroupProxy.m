@@ -183,6 +183,24 @@ static NSArray* tabGroupKeySequence;
 	return NO;
 }
 
+-(TiLayoutViewController*)hostingController;
+{
+    if (controller == nil)
+    {
+        controller = [[TiLayoutViewController alloc] initWithViewProxy:self];
+        UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+        [tabController willMoveToParentViewController:controller];
+        [controller addChildViewController:tabController];
+        UIView* controllerView = [controller view];
+        if ([controllerView isKindOfClass:[TiLayoutView class]]) {
+            [(TiLayoutView*)controllerView setInnerView:[tabController view]];
+        }
+        [controllerView addSubview:[tabController view]];
+        [controllerView bringSubviewToFront:[tabController view]];
+        [tabController didMoveToParentViewController:controller];
+    }
+    return controller;
+}
 
 -(void)gainFocus
 {
@@ -210,70 +228,6 @@ static NSArray* tabGroupKeySequence;
     [super resignFocus];
 }
 
-- (void)viewWillAppear:(BOOL)animated;
-{
-	if ([self viewAttached])
-	{
-		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-		[tabController viewWillAppear:animated];
-	}
-    [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated;
-{
-	if ([self viewAttached])
-	{
-		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-		[tabController viewDidAppear:animated];
-	}
-    [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated;
-{
-	if ([self viewAttached])
-	{
-		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-		[tabController viewWillDisappear:animated];
-	}
-    [super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated;
-{
-	if ([self viewAttached])
-	{
-		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
-		[tabController viewDidDisappear:animated];
-	}
-    [super viewDidDisappear:animated];
-}
-
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	}
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	}
-}
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-	}
-}
 
 -(UIStatusBarStyle)preferredStatusBarStyle;
 {
@@ -308,14 +262,6 @@ static NSArray* tabGroupKeySequence;
 		}
 	}
 	return [super orientationFlags];
-}
-
--(void)willChangeSize
-{
-	[super willChangeSize];
-
-	[tabs makeObjectsPerformSelector:@selector(willChangeSize)];
-	//TODO: Shouldn't tabs have a lock protecting them?
 }
 
 @end

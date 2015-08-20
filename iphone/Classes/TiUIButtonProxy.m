@@ -94,32 +94,6 @@
 	return suggestedHeight;
 }
 
-
--(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	switch ((int)styleCache)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-		case UITitaniumNativeItemDisclosure:
-			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-		default: {
-			break;
-		}
-	}
-	return suggestedResizing;
-}
-
--(BOOL)optimizeSubviewInsertion
-{
-    return YES;
-}
-
--(UIView *) parentViewForChild:(TiViewProxy *)child
-{
-	return [(TiUIButton *)[self view] viewGroupWrapper];
-}
-
 -(void)removeBarButtonView
 {
     // If we remove the button here, it could be the case that the system
@@ -166,17 +140,17 @@
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
+//-(TiDimension)defaultAutoWidthBehavior:(id)unused
+//{
+//    return TiDimensionAutoSize;
+//}
+//-(TiDimension)defaultAutoHeightBehavior:(id)unused
+//{
+//    return TiDimensionAutoSize;
+//}
 
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
+//USE_VIEW_FOR_CONTENT_HEIGHT
+//USE_VIEW_FOR_CONTENT_WIDTH
 
 @end
 

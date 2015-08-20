@@ -38,20 +38,6 @@ NSArray* sliderKeySequence;
     [super _initWithProperties:properties];
 }
 
-
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
-}
-
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
-
-USE_VIEW_FOR_VERIFY_HEIGHT
-
 @end
 
 #endif

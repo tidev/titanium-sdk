@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B69884E01B7E4BE700B25676 /* TiSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = B69884DF1B7E4BE700B25676 /* TiSwitch.m */; };
+		B69884E31B81ED7900B25676 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B69884E21B81ED7900B25676 /* TiToolbar.m */; };
 		B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECC1B7155BE00DF0FBC /* main.m */; };
 		B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECF1B7155BE00DF0FBC /* AppDelegate.m */; };
 		B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FED21B7155BE00DF0FBC /* ViewController.m */; };
@@ -21,6 +23,7 @@
 		B6A0FF041B7155FB00DF0FBC /* TiSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FEFC1B7155FB00DF0FBC /* TiSlider.m */; };
 		B6A0FF051B7155FB00DF0FBC /* TiTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FEFE1B7155FB00DF0FBC /* TiTableView.m */; };
 		B6A0FF101B7159BD00DF0FBC /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF0F1B7159BD00DF0FBC /* TiUtils.m */; };
+		B6FFDBB01B75273F0080FE97 /* TiTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = B6FFDBAF1B75273F0080FE97 /* TiTextField.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +37,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B69884DE1B7E4BE700B25676 /* TiSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSwitch.h; sourceTree = "<group>"; };
+		B69884DF1B7E4BE700B25676 /* TiSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSwitch.m; sourceTree = "<group>"; };
+		B69884E11B81ED7900B25676 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
+		B69884E21B81ED7900B25676 /* TiToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiToolbar.m; sourceTree = "<group>"; };
 		B6A0FEC81B7155BE00DF0FBC /* layout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = layout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6A0FECC1B7155BE00DF0FBC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B6A0FECE1B7155BE00DF0FBC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -60,9 +67,14 @@
 		B6A0FEFC1B7155FB00DF0FBC /* TiSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSlider.m; sourceTree = "<group>"; };
 		B6A0FEFD1B7155FB00DF0FBC /* TiTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTableView.h; sourceTree = "<group>"; };
 		B6A0FEFE1B7155FB00DF0FBC /* TiTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTableView.m; sourceTree = "<group>"; };
-		B6A0FF0A1B71567700DF0FBC /* layout.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = layout.xcconfig; sourceTree = "<group>"; };
+		B6A0FF0A1B71567700DF0FBC /* layout.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = layout.xcconfig; sourceTree = SOURCE_ROOT; };
 		B6A0FF0E1B7159BD00DF0FBC /* TiUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUtils.h; sourceTree = "<group>"; };
 		B6A0FF0F1B7159BD00DF0FBC /* TiUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUtils.m; sourceTree = "<group>"; };
+		B6A0FF1F1B71649600DF0FBC /* layout.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = layout.pch; sourceTree = "<group>"; };
+		B6A8F50B1B79199C002C9571 /* TiLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutViewController.h; sourceTree = "<group>"; };
+		B6A8F50C1B79199C002C9571 /* TiLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutViewController.m; sourceTree = "<group>"; };
+		B6FFDBAE1B75273F0080FE97 /* TiTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTextField.h; sourceTree = "<group>"; };
+		B6FFDBAF1B75273F0080FE97 /* TiTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTextField.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,7 +98,6 @@
 		B6A0FEBF1B7155BE00DF0FBC = {
 			isa = PBXGroup;
 			children = (
-				B6A0FF0A1B71567700DF0FBC /* layout.xcconfig */,
 				B6A0FECA1B7155BE00DF0FBC /* layout */,
 				B6A0FEE41B7155BE00DF0FBC /* layoutTests */,
 				B6A0FEC91B7155BE00DF0FBC /* Products */,
@@ -122,7 +133,9 @@
 		B6A0FECB1B7155BE00DF0FBC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B6A0FF0A1B71567700DF0FBC /* layout.xcconfig */,
 				B6A0FECC1B7155BE00DF0FBC /* main.m */,
+				B6A0FF1F1B71649600DF0FBC /* layout.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -153,6 +166,14 @@
 				B6A0FEFC1B7155FB00DF0FBC /* TiSlider.m */,
 				B6A0FEFD1B7155FB00DF0FBC /* TiTableView.h */,
 				B6A0FEFE1B7155FB00DF0FBC /* TiTableView.m */,
+				B6FFDBAE1B75273F0080FE97 /* TiTextField.h */,
+				B6FFDBAF1B75273F0080FE97 /* TiTextField.m */,
+				B6A8F50B1B79199C002C9571 /* TiLayoutViewController.h */,
+				B6A8F50C1B79199C002C9571 /* TiLayoutViewController.m */,
+				B69884DE1B7E4BE700B25676 /* TiSwitch.h */,
+				B69884DF1B7E4BE700B25676 /* TiSwitch.m */,
+				B69884E11B81ED7900B25676 /* TiToolbar.h */,
+				B69884E21B81ED7900B25676 /* TiToolbar.m */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -265,12 +286,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B69884E31B81ED7900B25676 /* TiToolbar.m in Sources */,
+				B69884E01B7E4BE700B25676 /* TiSwitch.m in Sources */,
 				B6A0FF051B7155FB00DF0FBC /* TiTableView.m in Sources */,
 				B6A0FF031B7155FB00DF0FBC /* TiScrollView.m in Sources */,
 				B6A0FF021B7155FB00DF0FBC /* TiScrollableView.m in Sources */,
 				B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */,
 				B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */,
 				B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */,
+				B6FFDBB01B75273F0080FE97 /* TiTextField.m in Sources */,
 				B6A0FF101B7159BD00DF0FBC /* TiUtils.m in Sources */,
 				B6A0FF001B7155FB00DF0FBC /* TiLabel.m in Sources */,
 				B6A0FEFF1B7155FB00DF0FBC /* TiDimension.m in Sources */,
@@ -336,6 +360,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = /Users/penrique/Documents/github/titanium_mobile/iphone/layout/layout/layout.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -346,7 +371,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -379,13 +404,14 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = /Users/penrique/Documents/github/titanium_mobile/iphone/layout/layout/layout.pch;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -462,6 +488,7 @@
 				B6A0FEEC1B7155BE00DF0FBC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B6A0FEED1B7155BE00DF0FBC /* Build configuration list for PBXNativeTarget "layoutTests" */ = {
 			isa = XCConfigurationList;
@@ -470,6 +497,7 @@
 				B6A0FEEF1B7155BE00DF0FBC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

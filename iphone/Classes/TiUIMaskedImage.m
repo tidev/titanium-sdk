@@ -10,13 +10,28 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
+#import "TiViewProxy.h"
 
 @implementation TiUIMaskedImage
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setDefaultHeight:TiDimensionAuto];
+        [self setDefaultWidth:TiDimensionAuto];
+        
+        transparentImageView = [[UIImageView alloc] init];
+        [transparentImageView setAlpha:0.0];
+        [self setInnerView:transparentImageView];
+        [self addSubview:transparentImageView];
+    }
+    return self;
+}
 -(UIImage *)image
 {
 	id value = imageURL;
-	TiProxy * ourProxy = [self proxy];
+	TiViewProxy * ourProxy = [self proxy];
 
 	if (value == nil)
 	{
@@ -28,7 +43,7 @@
 -(UIImage *)mask
 {
 	id value = maskURL;
-	TiProxy * ourProxy = [self proxy];
+	TiViewProxy * ourProxy = [self proxy];
 
 	if (value == nil)
 	{
@@ -37,28 +52,7 @@
 	return [TiUtils toImage:value proxy:ourProxy];
 }
 
-
--(CGFloat)contentWidthForWidth:(CGFloat)value
-{
-	UIImage * image = [self image];
-	if (image!=nil)
-	{
-		return image.size.width;
-	}
-	return value;
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)value
-{
-	UIImage * image = [self image];
-	if (image!=nil)
-	{
-		return image.size.height;
-	}
-	return value;
-}
-
-- (void)dealloc 
+- (void)dealloc
 {
 	RELEASE_TO_NIL(maskURL)
 	RELEASE_TO_NIL(imageURL);
@@ -74,14 +68,16 @@
 -(void)setImage_:(id)newImage
 {
 	RELEASE_TO_NIL(imageURL);
-	imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain];	//If this results in a nil, then it's a proxy.
+	imageURL = [[TiUtils toURL:newImage proxy:[self proxy]] retain];	//If this results in a nil, then it's a proxy.
+    UIImage* image = [UIImage imageWithContentsOfFile:[imageURL relativePath]];
+    [transparentImageView setImage:image];
 	[self setNeedsDisplay];
 }
 
 -(void)setMask_:(id)newMask
 {
 	RELEASE_TO_NIL(maskURL);
-	maskURL = [[TiUtils toURL:newMask proxy:self.proxy] retain];
+	maskURL = [[TiUtils toURL:newMask proxy:[self proxy]] retain];
 	[self setNeedsDisplay];
 }
 
@@ -105,6 +101,12 @@
 	{
 		[self setNeedsDisplay];
 	}
+}
+
+-(void)didMoveToWindow
+{
+    [self setNeedsDisplay];
+    [super didMoveToWindow];
 }
 
 - (void)drawRect:(CGRect)rect 

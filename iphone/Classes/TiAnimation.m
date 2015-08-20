@@ -9,7 +9,6 @@
 #import "Ti3DMatrix.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
-#import "LayoutConstraint.h"
 #import "KrollCallback.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -352,6 +351,7 @@ self.p = v;\
 
 -(void)animate:(id)args
 {
+    
 	ENSURE_UI_THREAD(animate,args);
 
 #if ANIMATION_DEBUG==1
@@ -391,26 +391,34 @@ self.p = v;\
 	
 	BOOL transitionAnimation = [self isTransitionAnimation];
 	
-	TiUIView *view_ = (transitionAnimation && view!=nil) ? 
-        [view view] : 
-        (([theview isKindOfClass:[TiViewProxy class]]) ? 
-            [(TiViewProxy*)theview view] : 
-            (TiUIView *)theview);
-	TiUIView *transitionView = transitionAnimation ? 
-        (([theview isKindOfClass:[TiViewProxy class]]) ? 
-            (TiUIView*)[(TiViewProxy*)theview view] : 
-            (TiUIView*)theview) : 
-        nil;
-	
-	if (transitionView!=nil)
+    TiUIView *view_ = nil;
+    if (transitionAnimation && view != nil) {
+        view_ = [view view];
+    } else if ([theview isKindOfClass:[TiViewProxy class]]) {
+        view_ = [(TiViewProxy*)theview view];
+    } else {
+        view_ = (TiUIView *)theview;
+    }
+    
+    TiUIView *transitionView = nil;
+    if (transitionAnimation) {
+        if ([theview isKindOfClass:[TiViewProxy class]]) {
+            transitionView = [(TiViewProxy*)theview view];
+        } else {
+            transitionView = (TiUIView*)theview;
+        }
+    }
+
+    if (transitionView != nil)
 	{
 		// we need to first make sure our new view that we're transitioning to is sized but we don't want
 		// to add to the view hiearchry inside the animation block or you'll get the sizings as part of the
 		// animation.. which we don't want
 		TiViewProxy * ourProxy = (TiViewProxy*)[view_ proxy];
-		LayoutConstraint *contraints = [ourProxy layoutProperties];
-		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
-		[ourProxy layoutChildren:NO];
+
+        //		LayoutConstraint *contraints = [ourProxy layoutProperties];
+        //		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
+        //		[ourProxy layoutChildren:NO];
 	}
 
 	animatedView = [theview retain];
@@ -488,16 +496,15 @@ self.p = v;\
             if ([view_ isKindOfClass:[TiUIView class]])
             {	//TODO: Shouldn't we be updating the proxy's properties to reflect this?
                 TiUIView *uiview = (TiUIView*)view_;
-                LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
+//                LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
                 
                 BOOL doReposition = NO;
                 
 #define CHECK_LAYOUT_CHANGE(a) \
-if (a!=nil && layoutProperties!=NULL) \
+if (a!=nil) \
 {\
 id cacheValue = [[(TiUIView*)view_ proxy] valueForKey:@#a]; \
 [reverseAnimation setValue:cacheValue forKey:@#a]; \
-layoutProperties->a = TiDimensionFromObject(a); \
 doReposition = YES;\
 }
 
@@ -507,12 +514,10 @@ doReposition = YES;\
                 CHECK_LAYOUT_CHANGE(height);
                 CHECK_LAYOUT_CHANGE(top);
                 CHECK_LAYOUT_CHANGE(bottom);
-                if (center!=nil && layoutProperties != NULL)
+                
+                if (center!=nil)
                 {
                     [reverseAnimation setCenter:[[[TiPoint alloc] initWithPoint:[(TiUIView*)view_ center]] autorelease]];
-
-                    layoutProperties->centerX = [center xDimension];
-                    layoutProperties->centerY = [center yDimension];
                     doReposition = YES;
                 }
                 
@@ -557,7 +562,7 @@ doReposition = YES;\
                         shadowAnimation.timingFunction = [self timingFunction];
                     }
                     
-                    [(TiViewProxy *)[uiview proxy] reposition];
+//                    [(TiViewProxy *)[uiview proxy] reposition];
                     
                     if (hasGradient || hasBackgroundImage) {
                         boundsAnimation.toValue = [NSValue valueWithCGRect:[uiview bounds]];

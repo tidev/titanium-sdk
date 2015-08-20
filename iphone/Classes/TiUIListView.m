@@ -200,6 +200,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return _tableView;
 }
 
+/*
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     if (![searchController isActive]) {
@@ -227,7 +228,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_pullViewProxy parentSizeWillChange];
     }
 }
-
+*/
 - (id)accessibilityElement
 {
 	return self.tableView;
@@ -1849,6 +1850,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     CGRect minimumContentRect = [_tableView bounds];
     InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+}
+
+-(void)keyboardDidHide
+{
+    
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop

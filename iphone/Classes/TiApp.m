@@ -46,6 +46,21 @@ BOOL applicationInMemoryPanic = NO;
 
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
+
+@implementation TiAppWindow
+
+-(void)setRootViewController:(UIViewController * _Nullable)rootViewController
+{
+    [super setRootViewController:rootViewController];
+}
+
+-(void)removeFromSuperview
+{
+    [super removeFromSuperview];
+}
+
+@end
+
 @interface TiApp()
 - (void)checkBackgroundServices;
 - (void)appBoot;
@@ -305,6 +320,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(UIImageView*)splashScreenImage
 {
+    LOG_MISSING
+    /*
     if(splashScreenImage == nil) {
         splashScreenImage = [[UIImageView alloc] init];
         [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
@@ -339,6 +356,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
     }
     return splashScreenImage;
+     */
+    return nil;
 }
 
 - (void)generateNotification:(NSDictionary*)dict
@@ -363,7 +382,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[TiExceptionHandler defaultExceptionHandler];
 
 	// nibless window
-	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+	window = [[TiAppWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
 	[self initController];
 
@@ -1037,7 +1056,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 {
     [controller hideControllerModal:modalController animated:animated];
 }
-
+/*
 - (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
     if ([self windowIsKeyWindow]) {
@@ -1047,7 +1066,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     //UIInterfaceOrientationMaskAll = 30;
     return 30;
 }
-
+*/
 - (void)dealloc 
 {
 	RELEASE_TO_NIL(kjsBridge);

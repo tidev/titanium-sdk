@@ -12,9 +12,6 @@
 
 @implementation TiUIProgressBarProxy
 
-USE_VIEW_FOR_CONTENT_WIDTH
-USE_VIEW_FOR_CONTENT_HEIGHT
-
 -(NSString*)apiName
 {
     return @"Ti.UI.ProgressBar";
@@ -27,14 +24,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	return [[TiUIProgressBar alloc] initWithStyle:style];
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
 @end
 
 #endif

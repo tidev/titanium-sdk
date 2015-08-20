@@ -182,13 +182,6 @@
     }
 }
 
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    [super frameSizeChanged:frame bounds:bounds];
-    [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-}
-
 -(void)setShowMasterInPortrait_:(id)value withObject:(id)animated
 {
     BOOL oldVal = showMasterInPortrait;

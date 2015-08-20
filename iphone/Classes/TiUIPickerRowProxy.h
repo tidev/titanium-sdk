@@ -11,7 +11,9 @@
 @interface TiUIPickerRowProxy : TiViewProxy 
 {
 @private
-    UIImage* snapshot;
+    UIView* tempView;
+    UIImageView* imageView;
+    UIImage* image;
 }
 
 -(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView;

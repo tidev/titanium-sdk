@@ -17,7 +17,6 @@
 
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
-#import "TiLayoutQueue.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -45,7 +44,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     UIApplication * app = [UIApplication sharedApplication];
     TiApp * appDelegate = [TiApp app];
-    [TiLayoutQueue resetQueue];
     
     /* Begin backgrounding simulation */
     [appDelegate applicationWillResignActive:app];

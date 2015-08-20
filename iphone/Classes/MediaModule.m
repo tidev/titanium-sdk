@@ -880,7 +880,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
         else {
             [[TiApp app] hideModalController:picker animated:animatedPicker];
-            [[TiApp controller] repositionSubviews];
         }
         if (cameraView != nil) {
             [cameraView windowDidClose];
@@ -1053,7 +1052,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (musicPicker != nil)
     {
         [[TiApp app] hideModalController:musicPicker animated:animatedPicker];
-        [[TiApp controller] repositionSubviews];
         [self destroyPicker];
     }
 }
@@ -1375,7 +1373,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	else
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
-		[[TiApp controller] repositionSubviews];
 	}
     if (cameraView != nil) {
         [cameraView windowDidClose];
@@ -1512,7 +1509,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
             [cameraView windowDidOpen];
-            [cameraView layoutChildren:NO];
         }
         
         // allow a transform on the preview image

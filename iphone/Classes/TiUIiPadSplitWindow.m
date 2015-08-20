@@ -85,13 +85,6 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	}
 	return controller;
 }
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[[[self controller] view] setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 //FIXME - probably should remove this ... not sure...
 
 -(void)setToolbar:(id)items withObject:(id)properties

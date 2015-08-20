@@ -25,7 +25,10 @@
 	{
 		suppressReturn = YES;
 		maxLength = -1;
-        [self textWidgetView];
+        textWidgetView = [self textWidgetView];
+        [self setInnerView:textWidgetView];
+        [self setDefaultWidth:TiDimensionAutoFill];
+        [self setDefaultHeight:TiDimensionAutoSize];
 	}
 	return self;
 }
@@ -101,18 +104,17 @@
 	return nil;
 }
 
+-(void)setInputAccessoryView:(UIView*)arg
+{
+    // for sublcass
+}
+
 - (id)accessibilityElement
 {
 	return [self textWidgetView];
 }
 
 #pragma mark Common values
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[textWidgetView setFrame:[self bounds]];
-    [super frameSizeChanged:frame bounds:bounds];
-}
 
 -(void)setColor_:(id)color
 {
@@ -245,12 +247,14 @@
 
 
 #pragma mark - Titanium Internal Use Only
+
 -(void)updateKeyboardStatus
 {
     if ( ([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy]) ) {
         [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
     }
 }
+
 
 @end
 

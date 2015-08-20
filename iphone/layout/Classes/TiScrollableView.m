@@ -47,7 +47,7 @@
         [super addSubview:_scrollView];
         [super addSubview:_dotsView];
 
-}
+    }
     return self;
 }
 

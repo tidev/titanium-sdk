@@ -12,7 +12,6 @@
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
 #import "TiApp.h"
-#import "TiLayoutQueue.h"
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we 
@@ -179,76 +178,14 @@
 
 #pragma mark - TiWindowProtocol overrides
 
--(UIViewController*)hostingController;
+-(TiLayoutViewController*)hostingController;
 {
     if (controller == nil) {
-        UIViewController* theController = [super hostingController];
-        [theController setHidesBottomBarWhenPushed:[TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]];
-        return theController;
+        controller = [super hostingController];
+        [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]];
+        return controller;
     }
     return [super hostingController];
-}
-
--(BOOL)_handleOpen:(id)args
-{
-	// this is a special case that calls open again above to cause the event lifecycle to
-	// happen after the JS context is fully up and ready
-	if (contextReady && context!=nil)
-	{
-		return [super _handleOpen:args];
-	}
-	
-	//
-	// at this level, open is top-level since this is a window.  if you want 
-	// to open a window within a tab, you'll need to call tab.open(window)
-	//
-	
-	NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
-	
-	if (url!=nil)
-	{
-        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
-        // Window based JS can only be loaded from local filesystem within app resources
-		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
-		{
-			// since this function is recursive, only do this if we haven't already created the context
-			if (context==nil)
-			{
-				RELEASE_TO_NIL(context);
-				// remember our base url so we can restore on close
-				oldBaseURL = [[self _baseURL] retain];
-				// set our new base
-				[self _setBaseURL:url];
-				contextReady=NO;
-				context = [[KrollBridge alloc] initWithHost:[self _host]];
-				id theTabGroup = [tab tabGroup];
-				id theTab = (theTabGroup == nil)?nil:tab;
-				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",theTabGroup,@"currentTabGroup",theTab,@"currentTab",nil];
-				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
-				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
-				[context boot:latch url:url preload:preload];
-				if ([latch waitForBoot])
-				{
-                    if ([context evaluationError]) {
-                        DebugLog(@"Could not boot context. Context has evaluation error");
-                        return NO;
-                    }
-                    contextReady = YES;
-					return [super _handleOpen:args];
-				}
-				else 
-				{
-					return NO;
-				}
-			}
-		}
-		else 
-		{
-			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
-		}
-	}
-	
-	return [super _handleOpen:args];
 }
 
 -(void) windowDidClose
@@ -262,9 +199,9 @@
         NSMutableArray* childrenToRemove = [[NSMutableArray alloc] init];
         pthread_rwlock_rdlock(&childrenLock);
         for (TiViewProxy* child in children) {
-            if ([child belongsToContext:context]) {
-                [childrenToRemove addObject:child];
-            }
+//            if ([child belongsToContext:context]) {
+//                [childrenToRemove addObject:child];
+//            }
         }
         pthread_rwlock_unlock(&childrenLock);
         [context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
@@ -286,12 +223,6 @@
 	}
 	RELEASE_TO_NIL(oldBaseURL);
 	return [super _handleClose:args];
-}
-
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    [self willChangeSize];
 }
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
@@ -489,7 +420,9 @@
         [self setLeftNavButtons:leftNavButtons withObject:lProperties];
     } else {
         leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
-        [self setLeftNavButton:leftNavButtons withObject:lProperties];
+        if (!IS_NULL_OR_NIL(leftNavButtons)) {
+            [self setLeftNavButton:leftNavButtons withObject:lProperties];
+        }
     }
     //Update RightNavButton
     NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
@@ -498,7 +431,9 @@
         [self setRightNavButtons:rightNavButtons withObject:rProperties];
     } else {
         rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
-        [self setRightNavButton:rightNavButtons withObject:rProperties];
+        if (!IS_NULL_OR_NIL(rightNavButtons)) {
+            [self setRightNavButton:rightNavButtons withObject:rProperties];
+        }
     }
 }
 
@@ -557,7 +492,7 @@
     [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
         [self refreshRightNavButtons:nil];
-    }, NO);
+    }, YES);
     
 }
 
@@ -686,9 +621,9 @@
 	else
 	{
 		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
-		if ((backTitle == nil) && [prevController isKindOfClass:[TiViewController class]])
+		if ((backTitle == nil) && [prevController isKindOfClass:[TiLayoutViewController class]])
 		{
-			id tc = [(TiViewController*)prevController proxy];
+			TiViewProxy* tc = [(TiLayoutViewController*)prevController viewProxy];
 			backTitle = [TiUtils stringValue:[tc valueForKey:@"title"]];
 		}
 		if (backTitle != nil)
@@ -761,19 +696,8 @@
 
     UIView * oldView = [ourNavItem titleView];
     if ([oldView isKindOfClass:[TiUIView class]]) {
-        TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
+        TiViewProxy * oldProxy = [(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
-            //relayout titleControl
-            CGRect barBounds;
-            barBounds.origin = CGPointZero;
-            barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
-            
-            [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
-            [oldView setAutoresizingMask:UIViewAutoresizingNone];
-            
-            //layout the titleControl children
-            [titleControl layoutChildren:NO];
-            
             return;
         }
         [oldProxy removeBarButtonView];
@@ -781,7 +705,7 @@
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
+		newTitleView = [titleControl view];
 	}
 	else
 	{
@@ -891,7 +815,7 @@
 					}
 				}
 			}
-			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
+			NSMutableArray * array = [NSMutableArray array];
 			for (TiViewProxy *proxy in items)
 			{
 				if([proxy supportsNavBarPositioning])
@@ -911,8 +835,6 @@
 			UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
 			[ourNC.toolbar setBarTintColor:barColor];
 			[ourNC.toolbar setTintColor:tintColor];
-			
-			[array release];
 			
 		}
 	},YES);

@@ -20,7 +20,7 @@
 
 @private
 	TiUIScrollViewImpl * scrollView;
-	UIView * wrapperView;
+	TiLayoutView * contentView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
 	
@@ -31,16 +31,12 @@
 }
 
 @property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;
-
+@property(nonatomic, copy) void (^onContentLayout)(TiLayoutView* sender, CGRect rect);
 @property(nonatomic,readonly) TiDimension contentWidth;
 
--(void)setNeedsHandleContentSize;
--(void)setNeedsHandleContentSizeIfAutosizing;
--(BOOL)handleContentSizeIfNeeded;
--(void)handleContentSize;
 -(void)setContentOffset_:(id)value withObject:(id)property;
 -(void)setZoomScale_:(id)value withObject:(id)property;
--(UIView *)wrapperView;
+-(TiLayoutView *)contentView;
 -(void)scrollToBottom;
 
 @end

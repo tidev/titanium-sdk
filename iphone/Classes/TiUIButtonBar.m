@@ -17,6 +17,8 @@
 	if (self != nil)
 	{
 		selectedIndex = -1;
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoSize];
 	}
 	return self;
 }
@@ -34,15 +36,14 @@
 	return YES;
 }
 
+
 -(UISegmentedControl *)segmentedControl
 {
 	if (segmentedControl==nil)
 	{
-		CGRect ourBoundsRect = [self bounds];
-		segmentedControl=[[UISegmentedControl alloc] initWithFrame:ourBoundsRect];
-		[segmentedControl setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-		[segmentedControl addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
-		[self addSubview:segmentedControl];
+		segmentedControl=[[UISegmentedControl alloc] init];
+        [segmentedControl addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
+        [self setInnerView:segmentedControl];
 	}
 	return segmentedControl;
 }
@@ -52,27 +53,9 @@
 	return [self segmentedControl];
 }
 
-// For regression #1880.  Because there are essentially TWO kinds of 'width' going on with tabbed/button bars
-// (width of all elements, width of the proxy) we assume that if the user has set the width of the bar completely,
-// AND the width of the proxy is undefined, they want magic!
--(void)frameSizeChanged:(CGRect)frame_ bounds:(CGRect)bounds_
-{
-    // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
-    UISegmentedControl* ourControl = [self segmentedControl];
-    if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
-        CGRect controlBounds = bounds_;
-        controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
-        [ourControl setBounds:controlBounds];
-    }
-    else {
-        [ourControl setFrame:bounds_];
-    }
-    [super frameSizeChanged:frame_ bounds:bounds_];
-}
-
 - (void)setTabbedBar: (BOOL)newIsTabbed;
 {
-	[[self segmentedControl] setMomentary:!newIsTabbed];
+    [[self segmentedControl] setMomentary:!newIsTabbed];
 }
 
 -(void)setBackgroundColor_:(id)value
@@ -101,7 +84,6 @@
 	ENSURE_ARRAY(value);
 
 	int thisSegmentIndex = 0;
-	controlSpecifiedWidth = YES;
 	for (id thisSegmentEntry in value)
 	{
 		NSString * thisSegmentTitle = [TiUtils stringValue:thisSegmentEntry];
@@ -139,17 +121,14 @@
 			[segmentedControl insertSegmentWithTitle:thisSegmentTitle atIndex:thisSegmentIndex animated:NO];
 		}
 
-		[segmentedControl setWidth:thisSegmentWidth forSegmentAtIndex:thisSegmentIndex];
 		[segmentedControl setEnabled:thisSegmentEnabled forSegmentAtIndex:thisSegmentIndex];
 		thisSegmentIndex ++;
-		controlSpecifiedWidth &= (thisSegmentWidth != 0.0);
 	}
 
 	if (![segmentedControl isMomentary])
 	{
 		[segmentedControl setSelectedSegmentIndex:selectedIndex];
 	}
-
 }
 
 -(IBAction)onSegmentChange:(id)sender
@@ -176,16 +155,6 @@
 		selectedIndex = -1;
 		[self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
 	}
-}
-
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
-{
-	return [[self segmentedControl] sizeThatFits:CGSizeZero].width;
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)width
-{
-	return [[self segmentedControl] sizeThatFits:CGSizeZero].height;
 }
 
 @end

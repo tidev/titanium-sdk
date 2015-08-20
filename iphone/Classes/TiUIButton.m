@@ -13,6 +13,8 @@
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
+#import "UIModule.h"
+
 
 @implementation TiUIButton
 
@@ -22,7 +24,6 @@
 {
 	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
-	RELEASE_TO_NIL(viewGroupWrapper);
 	RELEASE_TO_NIL(backgroundImageCache)
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
 	[super dealloc];
@@ -35,8 +36,8 @@
 		return nil;
 	}
 	
-	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]] 
-	   && ![(TiUIView*)superResult touchEnabled])) {
+	if ([superResult isKindOfClass:[TiUIView class]]
+	   && ![(TiUIView*)superResult touchEnabled]) {
 		return [self button];
 	}
 
@@ -52,19 +53,18 @@
 
 -(void)setHighlighting:(BOOL)isHiglighted
 {
-	for (TiUIView * thisView in [viewGroupWrapper subviews])
-	{
-		if ([thisView respondsToSelector:@selector(setHighlighted:)])
-		{
-			[(id)thisView setHighlighted:isHiglighted];
-		}
-	}
+    [[self button] setHighlighted:isHiglighted];
+}
+
+-(void)postLayoutEvent
+{
+    [super postLayoutEvent];
+    [self updateBackgroundImage];
 }
 
 -(void)updateBackgroundImage
 {
 	CGRect bounds = [self bounds];
-	[button setFrame:bounds];
 	if ((backgroundImageCache == nil) || (bounds.size.width == 0) || (bounds.size.height == 0)) {
 		[button setBackgroundImage:nil forState:UIControlStateNormal];
 		return;
@@ -89,12 +89,6 @@
         [theView release];
     }
 	[button setBackgroundImage:backgroundImageUnstretchedCache forState:UIControlStateNormal];	
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[super frameSizeChanged:frame bounds:bounds];
-	[self updateBackgroundImage];
 }
 
 - (void)controlAction:(id)sender forEvent:(UIEvent *)event
@@ -137,6 +131,11 @@
 	}
 }
 
+-(void)didMoveToWindow
+{
+    [super didMoveToWindow];
+}
+
 -(UIButton*)button
 {
 	if (button==nil)
@@ -147,7 +146,10 @@
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
-		[self addSubview:button];
+        // new API for autolayout, must be called
+        [self setInnerView:button];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoSize];
 		if (style==UIButtonTypeCustom)
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
@@ -155,34 +157,12 @@
 		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 		button.exclusiveTouch = YES;
 	}
-	if ((viewGroupWrapper != nil) && ([viewGroupWrapper	superview]!=button)) {
-		[viewGroupWrapper setFrame:[button bounds]];
-		[button addSubview:viewGroupWrapper];
-	}
 	return button;
 }
 
 - (id)accessibilityElement
 {
 	return [self button];
-}
-
--(UIView *) viewGroupWrapper
-{
-	if (viewGroupWrapper == nil) {
-		viewGroupWrapper = [[UIView alloc] initWithFrame:[self bounds]];
-		[viewGroupWrapper setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-	}
-	if (button != [viewGroupWrapper superview]) {
-		if (button != nil) {
-			[viewGroupWrapper setFrame:[button bounds]];
-			[button addSubview:viewGroupWrapper];
-		}
-		else {
-			[viewGroupWrapper removeFromSuperview];
-		}
-	}
-	return viewGroupWrapper;
 }
 
 #pragma mark Public APIs
@@ -212,7 +192,6 @@
 	if (image!=nil)
 	{
 		[[self button] setImage:image forState:UIControlStateNormal];
-		[(TiViewProxy *)[self proxy] contentsWillChange];
 	}
 	else
 	{
@@ -334,33 +313,75 @@
 	[[[self button] titleLabel] setShadowOffset:size];
 }
 
+-(void)setVerticalAlign_:(id)args
+{
+    UIButton *b = [self button];
+    if ([args isKindOfClass:[NSString class]])
+    {
+        if ([args isEqualToString:@"top"])
+        {
+            [b setContentVerticalAlignment:UIControlContentVerticalAlignmentTop];
+            [b setNeedsLayout];
+            return;
+        }
+        if ([args isEqualToString:@"middle"] || [args isEqualToString:@"center"])
+        {
+            [b setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+            [b setNeedsLayout];
+            return;
+        }
+        [b setContentVerticalAlignment:UIControlContentVerticalAlignmentBottom];
+        [b setNeedsLayout];
+        return;
+    }
+    else if ([args isKindOfClass:[NSNumber class]])
+    {
+        [b setContentVerticalAlignment:[TiUtils intValue:args]];
+        [b setNeedsLayout];
+        return;
+    }
+}
+
 -(void)setTextAlign_:(id)align
 {
 	UIButton *b = [self button];
-	if ([align isEqual:@"left"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-		b.contentEdgeInsets = UIEdgeInsetsMake(0,10,0,0);
-	}
-	else if ([align isEqual:@"right"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-		b.contentEdgeInsets = UIEdgeInsetsMake(0,0,10,0);
-	}
-	else if ([align isEqual:@"center"])
-	{
-		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-	}
-}
-
--(CGFloat)contentWidthForWidth:(CGFloat)value
-{
-	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)value
-{
-	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
+    if ([align isKindOfClass:[NSString class]]) {
+        
+        if ([align isEqual:@"left"])
+        {
+            [b setContentHorizontalAlignment: UIControlContentHorizontalAlignmentLeft];
+            [b setNeedsLayout];
+            return;
+        }
+        if ([align isEqual:@"right"])
+        {
+            [b setContentHorizontalAlignment: UIControlContentHorizontalAlignmentRight];
+            [b setNeedsLayout];
+            return;
+        }
+        if ([align isEqual:@"center"])
+        {
+            [b setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+            [b setNeedsLayout];
+            return;
+        }
+    } else if ([align isKindOfClass:[NSNumber class]]) {
+        
+        NSTextAlignment current = (NSTextAlignment)[TiUtils intValue:align];
+        UIControlContentHorizontalAlignment actual = UIControlContentHorizontalAlignmentCenter;
+        
+        if (current == NSTextAlignmentCenter) {
+            actual = UIControlContentHorizontalAlignmentCenter;
+        } else if (current == NSTextAlignmentLeft) {
+            actual = UIControlContentHorizontalAlignmentLeft;
+        } else if (current == NSTextAlignmentRight) {
+            actual = UIControlContentHorizontalAlignmentRight;
+        }
+        
+        [b setContentHorizontalAlignment:actual];
+        [b setNeedsLayout];
+        return;
+    }
 }
 
 @end

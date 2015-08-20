@@ -5,52 +5,444 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
+
 #import "TiRootViewController.h"
 #import "TiUtils.h"
 #import "TiApp.h"
-#import "TiLayoutQueue.h"
 #import "TiErrorController.h"
+#import "TiLayoutView.h"
 
-#ifdef FORCE_WITH_MODAL
-@interface ForcingController: UIViewController {
-@private
-    TiOrientationFlags orientationFlags;
-    UIInterfaceOrientation supportedOrientation;
+
+@implementation TiRootViewController
+
+@synthesize statusBarInitiallyHidden = _statusBarInitiallyHidden;
+@synthesize defaultStatusBarStyle = _defaultStatusBarStyle;
+@synthesize defaultOrientations = _defaultOrientations;
+@synthesize hostingView = _hostingView;
+@synthesize keyboardFocusedProxy = _keyboardFocusedProxy;
+@synthesize keyboardVisible = _keyboardVisible;
+@synthesize statusBarVisibilityChanged = _statusBarVisibilityChanged;
+@synthesize statusBarIsHidden = _statusBarIsHidden;
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _defaultOrientations = TiOrientationNone;
+        [self processInfoPlist];
+    }
+    return self;
+}
+
+-(void)loadView
+{
+//    [super loadView];
+    TiLayoutView* backgroundView = [[TiLayoutView alloc] init];
+    [backgroundView setTranslatesAutoresizingMaskIntoConstraints:YES];
+    [backgroundView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    [self setView:backgroundView];
+    _hostingView = [[TiLayoutView alloc] init];
+    [[self view] addSubview:_hostingView];
+    [backgroundView release];
+}
+-(void)processInfoPlist
+{
+    //read the default orientations
+    [self defaultOrientations];
+//
+//    //read the default value of UIStatusBarHidden
+    id statHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"];
+    _statusBarInitiallyHidden = [TiUtils boolValue:statHidden];
+//    //read the value of UIViewControllerBasedStatusBarAppearance
+//    id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
+//    viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
+//    //read the value of statusBarStyle
+    id statusStyle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarStyle"];
     
-}
--(void)setOrientation:(UIInterfaceOrientation)newOrientation;
-@end
-
-@implementation ForcingController
--(void)setOrientation:(UIInterfaceOrientation)newOrientation
-{
-    supportedOrientation = newOrientation;
-    orientationFlags = TiOrientationNone;
-    TI_ORIENTATION_SET(orientationFlags, supportedOrientation);
-}
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return (toInterfaceOrientation == supportedOrientation);
+    if (!IS_NULL_OR_NIL(statusStyle)) {
+        if ([statusStyle isEqualToString:@"UIStatusBarStyleDefault"]) {
+            _defaultStatusBarStyle = UIStatusBarStyleDefault;
+        } else if ([statusStyle isEqualToString:@"UIStatusBarStyleBlackTranslucent"] ||
+                   [statusStyle isEqualToString:@"UIStatusBarStyleLightContent"] ||
+                   [statusStyle isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
+            _defaultStatusBarStyle = UIStatusBarStyleLightContent;
+        }
+    }
 }
 
-// New Autorotation support.
-- (BOOL)shouldAutorotate{
+-(TiOrientationFlags)defaultOrientations;
+{
+    if (_defaultOrientations == TiOrientationNone) {
+        // Read the orientation values from the plist - if they exist.
+        NSArray* orientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
+        TiOrientationFlags defaultFlags = TiOrientationPortrait;
+        
+        if ([TiUtils isIPad]) {
+            defaultFlags = TiOrientationAny;
+            NSArray * ipadOrientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations~ipad"];
+            if ([ipadOrientations respondsToSelector:@selector(count)] && ([ipadOrientations count] > 0)) {
+                orientations = ipadOrientations;
+            }
+        }
+        
+        if ([orientations respondsToSelector:@selector(count)] && ([orientations count] > 0)) {
+            defaultFlags = TiOrientationNone;
+            for (NSString* orientationString in orientations) {
+                UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:orientationString def:-1];
+                switch (orientation) {
+                    case UIInterfaceOrientationLandscapeLeft:
+                    case UIInterfaceOrientationLandscapeRight:
+                    case UIInterfaceOrientationPortrait:
+                    case UIInterfaceOrientationPortraitUpsideDown:
+                        TI_ORIENTATION_SET(defaultFlags, orientation);
+                        break;
+                        
+                    default:
+                        break;
+                }
+            }
+        }
+        _defaultOrientations = defaultFlags;
+    }
+    
+    return _defaultOrientations;
+}
+
+-(void)forceOrientationChange
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    UIInterfaceOrientationMask curr = UIInterfaceOrientationMaskAll;
+    UIInterfaceOrientationMask selected = [self supportedInterfaceOrientations];
+    BOOL force = NO;
+    switch(orientation) {
+        case UIDeviceOrientationUnknown: force = YES; break;
+        case UIDeviceOrientationPortrait: curr = UIInterfaceOrientationMaskPortrait; break;
+        case UIDeviceOrientationPortraitUpsideDown: curr = UIInterfaceOrientationMaskPortraitUpsideDown; break;
+        case UIDeviceOrientationLandscapeLeft: curr = UIInterfaceOrientationMaskLandscapeLeft; break;
+        case UIDeviceOrientationLandscapeRight: curr = UIInterfaceOrientationMaskLandscapeRight; break;
+        case UIDeviceOrientationFaceUp: force = YES; break;
+        case UIDeviceOrientationFaceDown: force = YES; break;
+    }
+    
+    UIInterfaceOrientationMask result = curr & selected;
+    if (result == 0 || force) {
+        UIApplication *app = [UIApplication sharedApplication];
+        UIWindow *window = [app keyWindow];
+        UIViewController* root = [window rootViewController];
+        window.rootViewController = nil;
+        window.rootViewController = root;
+    }
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    return [[self topContainerController] supportedInterfaceOrientations];
+}
+
+- (BOOL)shouldAutorotate
+{
     return YES;
 }
-- (NSUInteger)supportedInterfaceOrientations
+
+
+-(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    return orientationFlags;
+
+    [self dismissKeyboard];
+    
+    TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
+    [[last viewProxy] resignFocus];
+
+    
+    if ([theWindow isModal]) {
+
+    } else {
+
+    }
 }
-// Returns interface orientation masks.
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+
+-(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    return supportedOrientation;
+    [self forceOrientationChange];
+    [self dismissKeyboard];
+    if ([self presentedViewController] == nil) {
+        TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
+        [[last viewProxy] gainFocus];
+    }
+    [self dismissDefaultImage];
+}
+
+-(void)willCloseWindow:(id<TiWindowProtocol>)theWindow
+{
+    [self dismissKeyboard];
+    TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
+
+    [theWindow resignFocus];
+    if ([theWindow isModal]) {
+
+    } else {
+
+    }
+}
+
+-(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
+{
+    [self dismissKeyboard];
+    [self forceOrientationChange];
+    if ([self presentedViewController] == nil) {
+        TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
+        [[last viewProxy] gainFocus];
+    }
+}
+
+-(void)dismissKeyboard
+{
+    if ([self keyboardFocusedProxy] != nil) {
+        [[self keyboardFocusedProxy] blur:nil];
+    }
+}
+
+-(void)dismissDefaultImage
+{
+    LOG_MISSING
+}
+
+-(void)showControllerModal:(UIViewController*)controller animated:(BOOL)animated
+{
+    BOOL trulyAnimated = animated;
+    UIViewController* topVC = [self topPresentedController];
+    
+    if ([topVC isBeingDismissed]) {
+        topVC = [topVC presentingViewController];
+    }
+    
+    if ([topVC isKindOfClass:[TiErrorController class]]) {
+        DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
+        return;
+    }
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([topVC isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)topVC).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+                if (![controller isKindOfClass:[TiErrorController class]]) {
+                    DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+                    return;
+                }
+            }
+        }
+    }
+    if (topVC == self) {
+//        [[containedWindows lastObject] resignFocus];
+    } else if ([topVC respondsToSelector:@selector(viewProxy)]) {
+        id theProxy = [(id)topVC viewProxy];
+        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(id<TiWindowProtocol>)theProxy resignFocus];
+        }
+    }
+    [self dismissKeyboard];
+    [topVC presentViewController:controller animated:trulyAnimated completion:nil];
+}
+
+-(void)hideControllerModal:(UIViewController*)controller animated:(BOOL)animated
+{
+    UIViewController* topVC = [self topPresentedController];
+    if (topVC != controller) {
+        DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
+    }
+    BOOL trulyAnimated = animated;
+    UIViewController* presenter = [controller presentingViewController];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        if ([presenter isKindOfClass:[UIAlertController class]]) {
+            if (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert ) {
+                trulyAnimated = NO;
+            }
+        }
+    }
+    [presenter dismissViewControllerAnimated:trulyAnimated completion:^{
+        if (presenter == self) {
+            [self didCloseWindow:nil];
+        } else {
+            [self dismissKeyboard];
+            
+            if ([presenter respondsToSelector:@selector(viewProxy)]) {
+                id theProxy = [(id)presenter viewProxy];
+                if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                    [(id<TiWindowProtocol>)theProxy gainFocus];
+                }
+            } else if ([TiUtils isIOS8OrGreater]){
+                //This code block will only execute when errorController is presented on top of an alert
+                if ([presenter isKindOfClass:[UIAlertController class]] && (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert)) {
+                    UIViewController* alertPresenter = [presenter presentingViewController];
+                    [alertPresenter dismissViewControllerAnimated:NO completion:^{
+                        [alertPresenter presentViewController:presenter animated:NO completion:nil];
+                    }];
+                }
+            }
+        }
+    }];
+}
+-(NSUInteger)supportedOrientationsForAppDelegate
+{
+    return 0;
+}
+-(void)setBackgroundColor:(UIColor*)color
+{
+    [[self hostingView] setBackgroundColor:color];
+}
+-(void)setBackgroundImage:(UIImage*)image
+{
+    [[self hostingView] setBackgroundColor:[UIColor colorWithPatternImage:image]];
+}
+-(void)incrementActiveAlertControllerCount
+{
+    if ([TiUtils isIOS8OrGreater]){
+        ++_activeAlertControllerCount;
+    }
+}
+-(void)decrementActiveAlertControllerCount
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        --_activeAlertControllerCount;
+        if (_activeAlertControllerCount == 0) {
+            UIViewController* topVC = [self topPresentedController];
+            if (topVC == self) {
+                [self didCloseWindow:nil];
+            } else {
+                [self dismissKeyboard];
+                
+                if ([topVC respondsToSelector:@selector(proxy)]) {
+                    id theProxy = [(id)topVC proxy];
+                    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                        [(id<TiWindowProtocol>)theProxy gainFocus];
+                    }
+                }
+            }
+        }
+    }
+}
+
+-(TiLayoutViewController*)topContainerController;
+{
+    return [[[[TiApp app] controller] childViewControllers] lastObject];
+}
+-(UIViewController*)topPresentedController
+{
+    return [self topPresentedControllerCheckingPopover:NO];
+}
+
+-(UIViewController*)topPresentedControllerCheckingPopover:(BOOL)checkPopover
+{
+    UIViewController* topmostController = [TiApp controller];
+    UIViewController* presentedViewController = nil;
+    while ( topmostController != nil ) {
+        presentedViewController = [topmostController presentedViewController];
+        if ((presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
+            if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
+                presentedViewController = nil;
+            } else if ([presentedViewController isKindOfClass:[UIAlertController class]]) {
+                presentedViewController = nil;
+            }
+        }
+        if (presentedViewController != nil) {
+            topmostController = presentedViewController;
+            presentedViewController = nil;
+        }
+        else {
+            break;
+        }
+    }
+    return topmostController;
+}
+
+-(BOOL)statusBarInitiallyHidden
+{
+    return _statusBarInitiallyHidden;
+}
+
+-(TiLayoutView*)hostingView
+{
+    return (TiLayoutView*)[self view];
+}
+
+#if defined(DEBUG) || defined(DEVELOPER)
+-(void)shutdownUi:(id)arg
+{
+    //FIRST DISMISS ALL MODAL WINDOWS
+    UIViewController* topVC = [self topPresentedController];
+    if (topVC != self) {
+        UIViewController* presenter = [topVC presentingViewController];
+        [presenter dismissViewControllerAnimated:NO completion:^{
+            [self shutdownUi:arg];
+        }];
+        return;
+    }
+    LOG_MISSING
+    //At this point all modal stuff is done. Go ahead and clean up proxies.
+//    NSArray* modalCopy = [modalWindows copy];
+//    NSArray* windowCopy = [containedWindows copy];
+//    
+//    if(modalCopy != nil) {
+//        for (TiViewProxy* theWindow in [modalCopy reverseObjectEnumerator]) {
+//            [theWindow windowWillClose];
+//            [theWindow windowDidClose];
+//        }
+//        [modalCopy release];
+//    }
+//    if (windowCopy != nil) {
+//        for (TiViewProxy* theWindow in [windowCopy reverseObjectEnumerator]) {
+//            [theWindow windowWillClose];
+//            [theWindow windowDidClose];
+//        }
+//        [windowCopy release];
+//    }
+    
+    DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
+    if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
+        [arg performSelector:@selector(_resumeRestart:) withObject:nil];
+    } else {
+        DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
+    }
+}
+#endif
+
+-(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy
+{
+    _keyboardVisible = YES;
+    [self setKeyboardFocusedProxy: visibleProxy];
+}
+-(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy
+{
+    [self setKeyboardFocusedProxy: nil];
+    _keyboardVisible = NO;
+}
+
+-(void)handleNewKeyboardStatus
+{
+    LOG_MISSING
+}
+- (BOOL)prefersStatusBarHidden
+{
+    BOOL oldStatus = _statusBarIsHidden;
+    if ([[self childViewControllers] count] > 0) {
+        _statusBarIsHidden = [[[self topContainerController] viewProxy] hidesStatusBar];
+//        if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
+//            _statusBarIsHidden = YES;
+//        }
+    } else {
+        _statusBarIsHidden = oldStatus = _statusBarInitiallyHidden;
+    }
+    
+    
+    _statusBarVisibilityChanged = (_statusBarIsHidden != oldStatus);
+    return _statusBarIsHidden;
 }
 
 @end
-#endif
 
-@interface TiRootViewNeue : UIView
+#if 0
+
+@interface TiRootViewNeue : TiLayoutView
 @end
 
 @implementation TiRootViewNeue
@@ -89,7 +481,6 @@
 	RELEASE_TO_NIL(bgImage);
     RELEASE_TO_NIL(containedWindows);
     RELEASE_TO_NIL(modalWindows);
-    RELEASE_TO_NIL(hostView);
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -171,29 +562,14 @@
 
 -(void)loadView
 {
-    TiRootViewNeue *rootView = [[TiRootViewNeue alloc] initWithFrame:[TiUtils frameForController:self]];
-    self.view = rootView;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    self.view = [[[TiRootViewNeue alloc] init] autorelease];
     [self updateBackground];
     
-    UIView* theHost = nil;
-    
-    if ([TiUtils isIOS8OrGreater]) {
-        hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
-        hostView.backgroundColor = [UIColor clearColor];
-        hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        [rootView addSubview:hostView];
-        theHost = hostView;
-    } else {
-        theHost = rootView;
-    }
     
     if (defaultImageView != nil) {
-        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-        [theHost addSubview:defaultImageView];
+//        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+//        [rootView addSubview:defaultImageView];
     }
-    [rootView becomeFirstResponder];
-    [rootView release];
 }
 
 #pragma mark Remote Control Notifications
@@ -791,11 +1167,7 @@
 -(UIView *)hostingView
 {
     if ([self canHostWindows] && [self isViewLoaded]) {
-        if ([TiUtils isIOS8OrGreater]) {
-            return hostView;
-        } else {
-            return self.view;
-        }
+        return self.view;
     } else {
         return nil;
     }
@@ -1024,17 +1396,6 @@
     return [[self view]bounds];
 }
 
--(void)repositionSubviews
-{
-    //Since the window relayout is now driven from viewDidLayoutSubviews
-    //this is not required. Leaving it in place in case someone is using it now.
-    /*
-    for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
-        [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
-    }
-    */
-}
-
 -(UIInterfaceOrientation) lastValidOrientation:(TiOrientationFlags)orientationFlags
 {
     if (TI_ORIENTATION_ALLOWED(orientationFlags,deviceOrientation)) {
@@ -1100,23 +1461,25 @@
 
 - (void)viewDidLayoutSubviews
 {
-    if ([TiUtils isIOS8OrGreater] && curTransformAngle == 0 && forceLayout) {
-        [[self hostingView] setFrame:self.view.bounds];
-    }
-#ifdef DEVELOPER
-    CGRect bounds = [[self hostingView] bounds];
-    NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
-#endif
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self hostingView] bounds])) {
-                [(TiViewProxy*)thisWindow parentSizeWillChange];
-            }
-        }
-    }
-    forceLayout = NO;
+    [self.view setNeedsUpdateConstraints];
+    LOG_MISSING
+//    if ([TiUtils isIOS8OrGreater] && curTransformAngle == 0 && forceLayout) {
+//        [[self hostingView] setFrame:self.view.bounds];
+//    }
+//#ifdef DEVELOPER
+//    CGRect bounds = [[self hostingView] bounds];
+//    NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
+//#endif
+//    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+//        if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+//            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self hostingView] bounds])) {
+//                [(TiViewProxy*)thisWindow parentSizeWillChange];
+//            }
+//        }
+//    }
+//    forceLayout = NO;
     [super viewDidLayoutSubviews];
-    [self adjustFrameForUpSideDownOrientation:nil];
+//    [self adjustFrameForUpSideDownOrientation:nil];
 }
 
 //IOS5 support. Begin Section. Drop in 3.2
@@ -1190,7 +1553,8 @@
     return 30;//UIInterfaceOrientationMaskAll
 }
 
-- (NSUInteger)supportedInterfaceOrientations{
+- (NSUInteger)supportedInterfaceOrientations
+{
     //IOS6. If forcing status bar orientation, this must return 0.
     if (forcingStatusBarOrientation) {
         return 0;
@@ -1258,16 +1622,12 @@
 #if defined(DEBUG) || defined(DEVELOPER)
         DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,[[UIApplication sharedApplication] statusBarOrientation]);
 #endif
-#ifdef FORCE_WITH_MODAL
-        [self forceRotateToOrientation:target];
-#else
         if ([TiUtils isIOS8OrGreater]) {
             [self rotateHostingViewToOrientation:target fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
         } else {
             [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
         }
         forcingRotation = NO;
-#endif
     } else {
         [self resetTransformAndForceLayout:NO];
     }
@@ -1297,28 +1657,6 @@
 	}
 	orientationHistory[0] = newOrientation;
 }
-
-#ifdef FORCE_WITH_MODAL
--(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
-{
-    UIViewController* tempPresenter = [self topPresentedController];
-    ForcingController* dummy = [[ForcingController alloc] init];
-    [dummy setOrientation:newOrientation];
-    forcingStatusBarOrientation = YES;
-
-    [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
-    
-    forcingStatusBarOrientation = NO;
-    
-    [self updateOrientationHistory:newOrientation];
-    
-    [tempPresenter presentViewController:dummy animated:NO completion:^{
-        [UIViewController attemptRotationToDeviceOrientation];
-        [tempPresenter dismissViewControllerAnimated:NO completion:nil];
-        [dummy release];
-    }];
-}
-#endif
 
 -(void)resetTransformAndForceLayout:(BOOL)updateStatusBar
 {
@@ -1396,7 +1734,7 @@
     forcingStatusBarOrientation = YES;
     [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
     forcingStatusBarOrientation = NO;
-    */
+     */
     curTransformAngle = offset % 360;
     
     switch (curTransformAngle) {
@@ -1415,8 +1753,13 @@
             transform = CGAffineTransformIdentity;
             break;
     }
-    [hostView setTransform:transform];
-    [hostView setFrame:self.view.bounds];
+    [[self view] setNeedsLayout];
+//    NSLog(@"%@", NSStringFromCGRect(self.view.bounds));
+//    [self.view setTransform:transform];
+    NSNumber *value = [NSNumber numberWithInt:newOrientation];
+    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];//    [self.view setNeedsUpdateConstraints];
+//    NSLog(@"%@", NSStringFromCGRect(self.view.bounds));
+//    [self.view setFrame:self.view.bounds];
     
 }
 
@@ -1602,9 +1945,9 @@
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
+//    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+//        [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//    }
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
@@ -1663,3 +2006,5 @@
 }
 
 @end
+
+#endif

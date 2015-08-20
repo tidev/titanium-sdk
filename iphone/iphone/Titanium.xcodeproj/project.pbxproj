@@ -135,7 +135,6 @@
 		24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; };
 		24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC6111161FD0084E2DE /* TiHost.m */; };
 		24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; };
-		24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
 		24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
 		24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };
 		24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsPerson.m */; };
@@ -154,7 +153,6 @@
 		24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B00111161FE0084E2DE /* NetworkModule.m */; };
 		24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
 		24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
-		24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
 		24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
 		24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
 		24CA8BE5111161FE0084E2DE /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B12111161FE0084E2DE /* FilesystemModule.m */; };
@@ -270,7 +268,6 @@
 		B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF791209DC400045FEAE /* MGSplitCornersView.m */; };
 		B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */; };
 		B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7D1209DC400045FEAE /* MGSplitViewController.m */; };
-		B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
 		B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FBA3126FB2DF00E29C73 /* TiPublicAPI.m */; };
 		B480501F1278AB010030AA3F /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
@@ -280,7 +277,11 @@
 		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF60190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
+		B6504D4C1B85EAB700D6DF65 /* TiUITableViewRow.m in Sources */ = {isa = PBXBuildFile; fileRef = B6504D4B1B85EAB700D6DF65 /* TiUITableViewRow.m */; };
 		B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
+		B6A0FF1E1B71645500DF0FBC /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		B6A0FF221B71683C00DF0FBC /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF211B71683C00DF0FBC /* TiDimension.m */; };
+		B6A8F5101B7919A4002C9571 /* TiLayoutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
@@ -566,8 +567,6 @@
 		24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiFilesystemFileProxy.m; path = ../Classes/TiFilesystemFileProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8AC9111161FD0084E2DE /* TiFilesystemFileProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFilesystemFileProxy.h; path = ../Classes/TiFilesystemFileProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AD0111161FD0084E2DE /* TiEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiEvaluator.h; path = ../Classes/TiEvaluator.h; sourceTree = SOURCE_ROOT; };
-		24CA8AD1111161FD0084E2DE /* TiDimension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = TiDimension.m; path = ../Classes/TiDimension.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		24CA8AD2111161FD0084E2DE /* TiDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = TiDimension.h; path = ../Classes/TiDimension.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDatabaseResultSetProxy.m; path = ../Classes/TiDatabaseResultSetProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8AD4111161FD0084E2DE /* TiDatabaseResultSetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDatabaseResultSetProxy.h; path = ../Classes/TiDatabaseResultSetProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDatabaseProxy.m; path = ../Classes/TiDatabaseProxy.m; sourceTree = SOURCE_ROOT; };
@@ -605,8 +604,6 @@
 		24CA8B03111161FE0084E2DE /* Mimetypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mimetypes.h; path = ../Classes/Mimetypes.h; sourceTree = SOURCE_ROOT; };
 		24CA8B04111161FE0084E2DE /* MediaModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MediaModule.m; path = ../Classes/MediaModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8B05111161FE0084E2DE /* MediaModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MediaModule.h; path = ../Classes/MediaModule.h; sourceTree = SOURCE_ROOT; };
-		24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LayoutConstraint.m; path = ../Classes/LayoutConstraint.m; sourceTree = SOURCE_ROOT; };
-		24CA8B0B111161FE0084E2DE /* LayoutConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayoutConstraint.h; path = ../Classes/LayoutConstraint.h; sourceTree = SOURCE_ROOT; };
 		24CA8B0C111161FE0084E2DE /* ImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoader.m; path = ../Classes/ImageLoader.m; sourceTree = SOURCE_ROOT; };
 		24CA8B0D111161FE0084E2DE /* ImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageLoader.h; path = ../Classes/ImageLoader.h; sourceTree = SOURCE_ROOT; };
 		24CA8B0E111161FE0084E2DE /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GestureModule.m; path = ../Classes/GestureModule.m; sourceTree = SOURCE_ROOT; };
@@ -843,8 +840,6 @@
 		B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MGSplitDividerView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		B440EF7C1209DC400045FEAE /* MGSplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MGSplitViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		B440EF7D1209DC400045FEAE /* MGSplitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MGSplitViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		B468B4EF11B5816F007D1C1E /* TiLayoutQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutQueue.h; sourceTree = "<group>"; };
-		B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutQueue.m; sourceTree = "<group>"; };
 		B473FB66126F8F7900E29C73 /* TiThreading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiThreading.h; sourceTree = "<group>"; };
 		B473FB67126F8F7900E29C73 /* TiThreading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiThreading.m; sourceTree = "<group>"; };
 		B473FBA2126FB2DF00E29C73 /* TiPublicAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiPublicAPI.h; sourceTree = "<group>"; };
@@ -874,8 +869,16 @@
 		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../Classes/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
+		B6504D4A1B85EAB700D6DF65 /* TiUITableViewRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewRow.h; sourceTree = "<group>"; };
+		B6504D4B1B85EAB700D6DF65 /* TiUITableViewRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewRow.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
+		B6A0FF1C1B71645500DF0FBC /* TiLayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutView.h; path = ../layout/Classes/TiLayoutView.h; sourceTree = "<group>"; };
+		B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutView.m; path = ../layout/Classes/TiLayoutView.m; sourceTree = "<group>"; };
+		B6A0FF201B71683C00DF0FBC /* TiDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDimension.h; path = ../layout/Classes/TiDimension.h; sourceTree = "<group>"; };
+		B6A0FF211B71683C00DF0FBC /* TiDimension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDimension.m; path = ../layout/Classes/TiDimension.m; sourceTree = "<group>"; };
+		B6A8F50E1B7919A4002C9571 /* TiLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutViewController.h; path = ../layout/Classes/TiLayoutViewController.h; sourceTree = "<group>"; };
+		B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutViewController.m; path = ../layout/Classes/TiLayoutViewController.m; sourceTree = "<group>"; };
 		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationActionProxy.m; sourceTree = "<group>"; };
@@ -1053,6 +1056,7 @@
 		24CA8902111160BE0084E2DE /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B6A0FF1B1B71644300DF0FBC /* Layout */,
 				24EB07D1111D420D001DC2D1 /* DOM */,
 				24CA8A09111161D60084E2DE /* Modules */,
 				24CA8A0A111161DC0084E2DE /* Utils */,
@@ -1218,8 +1222,6 @@
 				24CA8AAD111161FD0084E2DE /* TiRect.h */,
 				24CA8AB2111161FD0084E2DE /* TiPoint.m */,
 				24CA8AB3111161FD0084E2DE /* TiPoint.h */,
-				24CA8AD1111161FD0084E2DE /* TiDimension.m */,
-				24CA8AD2111161FD0084E2DE /* TiDimension.h */,
 				24CA8ADA111161FE0084E2DE /* TiComplexValue.m */,
 				24CA8ADB111161FE0084E2DE /* TiComplexValue.h */,
 				24CA8ADC111161FE0084E2DE /* TiColor.m */,
@@ -1232,16 +1234,12 @@
 				24CA8AFF111161FE0084E2DE /* OperationQueue.h */,
 				24CA8B02111161FE0084E2DE /* Mimetypes.m */,
 				24CA8B03111161FE0084E2DE /* Mimetypes.h */,
-				24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */,
-				24CA8B0B111161FE0084E2DE /* LayoutConstraint.h */,
 				24CA8B0C111161FE0084E2DE /* ImageLoader.m */,
 				24CA8B0D111161FE0084E2DE /* ImageLoader.h */,
 				24F5B144111FDFE8005C9199 /* ListenerEntry.h */,
 				24F5B145111FDFE8005C9199 /* ListenerEntry.m */,
 				B4DE7E4C11823E990006DDE1 /* TiGradient.h */,
 				B4DE7E4D11823E990006DDE1 /* TiGradient.m */,
-				B468B4EF11B5816F007D1C1E /* TiLayoutQueue.h */,
-				B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */,
 				DAA72341156D642400757987 /* TiConsole.h */,
 				DAA72342156D642400757987 /* TiConsole.m */,
 				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
@@ -1662,6 +1660,8 @@
 				243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */,
 				243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */,
 				243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */,
+				B6504D4A1B85EAB700D6DF65 /* TiUITableViewRow.h */,
+				B6504D4B1B85EAB700D6DF65 /* TiUITableViewRow.m */,
 			);
 			name = "Tableview & Groupview";
 			sourceTree = "<group>";
@@ -2261,6 +2261,19 @@
 			path = ../Classes/APSHTTPClient;
 			sourceTree = "<group>";
 		};
+		B6A0FF1B1B71644300DF0FBC /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				B6A8F50E1B7919A4002C9571 /* TiLayoutViewController.h */,
+				B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */,
+				B6A0FF201B71683C00DF0FBC /* TiDimension.h */,
+				B6A0FF211B71683C00DF0FBC /* TiDimension.m */,
+				B6A0FF1C1B71645500DF0FBC /* TiLayoutView.h */,
+				B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */,
+			);
+			name = Layout;
+			sourceTree = "<group>";
+		};
 		BBDD81351A2C71E5003CDA10 /* AttributedString */ = {
 			isa = PBXGroup;
 			children = (
@@ -2484,16 +2497,18 @@
 				24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */,
 				24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
+				B6A0FF221B71683C00DF0FBC /* TiDimension.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
+				B6A8F5101B7919A4002C9571 /* TiLayoutViewController.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
-				24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */,
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
 				24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */,
 				24CA8BCB111161FE0084E2DE /* TiComplexValue.m in Sources */,
 				24CA8BCC111161FE0084E2DE /* TiColor.m in Sources */,
+				B6A0FF1E1B71645500DF0FBC /* TiLayoutView.m in Sources */,
 				84E00A9C17B646EE00B6DCE2 /* TiUIiOSNavWindowProxy.m in Sources */,
 				B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
 				8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */,
@@ -2509,10 +2524,10 @@
 				24CA8BDA111161FE0084E2DE /* PlatformModule.m in Sources */,
 				84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				24CA8BDB111161FE0084E2DE /* OperationQueue.m in Sources */,
+				B6504D4C1B85EAB700D6DF65 /* TiUITableViewRow.m in Sources */,
 				24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */,
 				24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */,
 				24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */,
-				24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */,
 				24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */,
 				24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */,
 				24CA8BE5111161FE0084E2DE /* FilesystemModule.m in Sources */,
@@ -2582,7 +2597,6 @@
 				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
-				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				242E967811BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,

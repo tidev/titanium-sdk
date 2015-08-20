@@ -114,32 +114,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	if (![[self valueForKey:@"value"] isEqual:newValue])
 	{
 		[self replaceValue:newValue forKey:@"value" notification:NO];
-		[self contentsWillChange];
+//		[self contentsWillChange];
 		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        /*
         TiThreadPerformOnMainThread(^{
             //Make sure the text widget is in view when editing.
             [(TiUITextWidget*)[self view] updateKeyboardStatus];
         }, NO);
+         */
 	}
 }
 
 #pragma mark Toolbar
-
-- (CGFloat) keyboardAccessoryHeight
-{
-	CGFloat result = MAX(keyboardAccessoryHeight,40);
-	if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
-		result = [(TiViewProxy<LayoutAutosizing>*)[keyboardTiView proxy] verifyHeight:result];
-	}
-	return result;
-}
-
--(void)setKeyboardToolbarHeight:(id)value
-{
-	ENSURE_UI_THREAD_1_ARG(value);
-	keyboardAccessoryHeight = [TiUtils floatValue:value];
-	//TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
-}
 
 -(void)setKeyboardToolbarColor:(id)value
 {
@@ -163,14 +149,17 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 			[items addObject:button];
 		}
 	}
-	[keyboardUIToolbar setItems:items animated:YES];
+	[[self keyboardUIToolbar] setItems:items animated:YES];
+
+    [(TiUITextWidget*)[self view] setInputAccessoryView:keyboardUIToolbar];
 }
 
 -(UIToolbar *)keyboardUIToolbar
 {
 	if(keyboardUIToolbar == nil)
 	{
-		keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320,[self keyboardAccessoryHeight])];
+		keyboardUIToolbar = [[UIToolbar alloc] init];
+        [keyboardUIToolbar sizeToFit];
 		UIColor * newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
 		if(newColor != nil){
 			[keyboardUIToolbar setBarTintColor:newColor];
@@ -224,8 +213,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	if ([value isKindOfClass:[NSArray class]])
 	{
 //TODO: Should we remove these gracefully?
-		[keyboardTiView removeFromSuperview];
-		RELEASE_TO_NIL(keyboardTiView);
+//		[keyboardTiView removeFromSuperview];
+//		RELEASE_TO_NIL(keyboardTiView);
 
         // TODO: Check for proxies
 		[keyboardToolbarItems autorelease];
@@ -234,9 +223,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
         }
         
 		keyboardToolbarItems = [value copy];
-		if(keyboardUIToolbar != nil) {
-			[self updateUIToolbar];
-		}        
+        [self updateUIToolbar];
 //TODO: If we have focus while this happens, we need to signal an update.
 		return;
 	}
@@ -259,6 +246,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		[keyboardUIToolbar setItems:nil];
 	
 		keyboardTiView = [valueView retain];
+        [(TiUITextWidget*)[self view] setInputAccessoryView:keyboardTiView];
 //TODO: If we have focus while this happens, we need to signal an update.
 	}
 }
@@ -274,15 +262,6 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	}
 
 	return nil;
-}
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
 }
 
 -(NSDictionary*)selection
@@ -309,9 +288,6 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
     TiThreadPerformOnMainThread(^{[(TiUITextWidget*)[self view] setSelectionFrom:arg to:property];}, NO);
 }
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
-
 
 @end
 

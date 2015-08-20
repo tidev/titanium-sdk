@@ -7,11 +7,11 @@
 #import "TiProxy.h"
 #import "TiAnimation.h"
 #import "TiGradient.h"
-#import "LayoutConstraint.h"
+#import "TiLayoutView.h"
 
 //By declaring a scrollView protocol, TiUITextWidget can access 
 @class TiUIView;
-
+@class TiViewProxy;
 /**
  The protocol for scrolling.
  */
@@ -22,6 +22,7 @@
  @param keyboardTop The keyboard height.
  */
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop;
+-(void)keyboardDidHide;
 
 /**
  Tells the scroll view to scroll to make the specified view visible.
@@ -43,13 +44,13 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  Base class for all Titanium views.
  @see TiViewProxy
  */
-@interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
+@interface TiUIView : TiLayoutView<TiProxyDelegate>
 {
 @protected
     BOOL configurationSet;
 
 @private
-	TiProxy *proxy;
+//	TiProxy *proxy;
 	TiAnimation *animation;
 	
 	CALayer *gradientLayer;
@@ -99,7 +100,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 /**
  Provides access to a proxy object of the view. 
  */
-@property(nonatomic,readwrite,assign)	TiProxy *proxy;
+@property(nonatomic, readwrite, assign)	TiViewProxy *proxy;
 
 /**
  Provides access to touch delegate of the view.
@@ -208,13 +209,6 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)updateTouchHandling;
 
 /**
- Tells the view that its frame and/or bounds has chnaged.
- @param frame The frame rect
- @param bounds The bounds rect
- */
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
-
-/**
  Tells the view to make its root view a first responder.
  */
 -(void)makeRootViewFirstResponder;
@@ -253,9 +247,6 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setBackgroundImage_:(id)value;
 
--(UIView *)gradientWrapperView;
--(void)checkBounds;
-
 @property (nonatomic, readonly) id accessibilityElement;
 
 - (void)setAccessibilityLabel_:(id)accessibilityLabel;
@@ -275,16 +266,6 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (void)processTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
-#pragma mark TO REMOVE, used only during transition.
-
-#define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
--(resultType)methodname:(inputType)value	\
-{	\
-	DeveloperLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
-	return [(TiViewProxy *)[self proxy] methodname:value];	\
-}
-
-#define USE_PROXY_FOR_VERIFY_AUTORESIZING	USE_PROXY_FOR_METHOD(UIViewAutoresizing,verifyAutoresizing,UIViewAutoresizing)
 
 
 

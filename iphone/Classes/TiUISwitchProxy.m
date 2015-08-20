@@ -16,28 +16,10 @@
     [super _initWithProperties:properties];
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
-}
-
 -(NSString*)apiName
 {
     return @"Ti.UI.Switch";
 }
-
-USE_VIEW_FOR_VERIFY_HEIGHT
-USE_VIEW_FOR_VERIFY_WIDTH
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
 
 @end
 

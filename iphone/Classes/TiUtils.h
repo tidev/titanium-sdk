@@ -648,4 +648,12 @@ typedef enum
  */
 + (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
 
+
++(NSDictionary*)proxyToJSON:(TiProxy*)proxy;
+@end
+
+
+@interface NSTimer (Blocks)
++(id)scheduledTimerWithTimeInterval:(NSTimeInterval)inTimeInterval block:(void (^)())inBlock repeats:(BOOL)inRepeats;
++(void)jdExecuteSimpleBlock:(NSTimer *)inTimer;
 @end

@@ -12,13 +12,6 @@
 
 @implementation TiUIiOSToolbarProxy
 
-USE_VIEW_FOR_VERIFY_HEIGHT
-
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
-}
-
 -(NSString*)apiName
 {
     return @"Ti.UI.iOS.Toolbar";
@@ -67,11 +60,6 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 		[self forgetProxy:currentItem];
 	}
 	[self replaceValue:newItems forKey:@"items" notification:YES];
-}
-
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
 }
 
 @end

@@ -20,8 +20,14 @@
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
     
-    self.window.rootViewController = [[ViewController alloc] init];
     
+//    UINavigationController* stackedViewControllers = [[UINavigationController alloc] init];
+//    [stackedViewControllers setNavigationBarHidden:YES];
+//    [stackedViewControllers pushViewController:[[ViewController alloc] init] animated:NO];
+//    self.window.rootViewController = stackedViewControllers;
+
+    self.window.rootViewController = [[ViewController alloc] init];
+
     [self.window makeKeyAndVisible];
     return YES;
 }

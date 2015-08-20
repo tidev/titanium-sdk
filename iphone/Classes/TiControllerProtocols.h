@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #import "TiViewProxy.h"
 
+
+@class TiLayoutViewController;
 /**
  Protocol for orientation controller.
  */
@@ -46,7 +48,7 @@
 -(void)resignFocus;
 -(BOOL)handleFocusEvents;
 //ViewController support. Always returns TiViewController (or subclass).
--(UIViewController*) hostingController;
+-(TiLayoutViewController*) hostingController;
 @end
 
 /**

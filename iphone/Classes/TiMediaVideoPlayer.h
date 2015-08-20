@@ -17,7 +17,7 @@
 	BOOL loaded;
 }
 
--(id)initWithPlayer:(MPMoviePlayerController*)controller proxy:(TiProxy*)proxy loaded:(BOOL)loaded_;
+-(id)initWithPlayer:(MPMoviePlayerController*)controller proxy:(TiViewProxy*)proxy loaded:(BOOL)loaded_;
 -(void)setMovie:(MPMoviePlayerController*)controller;
 -(void)movieLoaded;
 

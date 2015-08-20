@@ -20,6 +20,10 @@
 		min = 0;
 		max = 1;
 		[self setHidden:YES];
+        [self setDefaultWidth:TiDimensionAutoSize];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        backgroundView = [[UIView alloc] init];
+        [self setInnerView:backgroundView];
 	}
 	return self;
 }
@@ -28,29 +32,8 @@
 {
 	RELEASE_TO_NIL(progress);
 	RELEASE_TO_NIL(messageLabel);
+    RELEASE_TO_NIL(backgroundView);
 	[super dealloc];
-}
-
--(CGSize)sizeForFont:(CGFloat)suggestedWidth
-{
-	NSAttributedString *value = [messageLabel attributedText];
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
-    CGSize returnVal = [value boundingRectWithSize:maxSize
-                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                  context:nil].size;
-    return CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
-}
-
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
-{
-	return [self sizeForFont:suggestedWidth].width;
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)width
-{
-	CGSize fontSize = [self sizeForFont:width];
-	CGSize progressSize = [progress sizeThatFits:fontSize];
-	return fontSize.height + progressSize.height;
 }
 
 #pragma mark Accessors
@@ -60,8 +43,8 @@
 	if (progress==nil)
 	{
 		progress = [[UIProgressView alloc] initWithProgressViewStyle:style];
-		
-		[self addSubview:progress];
+        [progress setTranslatesAutoresizingMaskIntoConstraints:NO];
+		[backgroundView addSubview:progress];
 	}
 	return progress;
 }
@@ -71,10 +54,9 @@
 	if (messageLabel==nil)
 	{
 		messageLabel=[[UILabel alloc] init];
+        [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
 		[messageLabel setBackgroundColor:[UIColor clearColor]];
-		
-		[self setNeedsLayout];
-		[self addSubview:messageLabel];
+        [backgroundView addSubview:messageLabel];
 	}
 	return messageLabel;
 }
@@ -84,41 +66,23 @@
 	return [self messageLabel];
 }
 
-#pragma mark Repositioning
-
--(void)layoutSubviews
+#define TI_VIEWS(...) NSDictionaryOfVariableBindings(__VA_ARGS__)
+-(void)didMoveToWindow
 {
-	if(progress == nil)
-	{
-		return;
-	}
-
-	CGRect boundsRect = [self bounds];
-	
-	CGSize barSize = [progress sizeThatFits:boundsRect.size];
-
-	CGPoint centerPoint = CGPointMake(boundsRect.origin.x + (boundsRect.size.width/2),
-			boundsRect.origin.y + (boundsRect.size.height/2));
-
-	[progress setBounds:CGRectMake(0, 0, barSize.width, barSize.height)];
-
-	if (messageLabel == nil)
-	{
-		[progress setCenter:centerPoint];
-		return;
-	}
-
-	CGSize messageSize = [messageLabel sizeThatFits:boundsRect.size];
-	
-	float fittingHeight = barSize.height + messageSize.height + 5;
-	
-	[progress setCenter:CGPointMake(centerPoint.x,
-			centerPoint.y + (fittingHeight - barSize.height)/2)];
-
-	[messageLabel setBounds:CGRectMake(0, 0, messageSize.width, messageSize.height)];
-	[messageLabel setCenter:CGPointMake(centerPoint.x,
-			centerPoint.y - (fittingHeight - messageSize.height)/2)];
+    messageLabel = [self messageLabel];
+    progress = [self progress];
+    [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", TI_VIEWS(progress, messageLabel))];
+    [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", TI_VIEWS(progress, messageLabel))];
+    [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                               attribute:NSLayoutAttributeCenterX
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:backgroundView
+                                                               attribute:NSLayoutAttributeCenterX
+                                                              multiplier:1
+                                                                constant:0]];
+    [super didMoveToWindow];
 }
+#undef TI_VIEWS
 
 #pragma mark Properties
 
@@ -159,16 +123,7 @@
 -(void)setMessage_:(id)value
 {
 	NSString * text = [TiUtils stringValue:value];
-	if ([text length]>0)
-	{
-		[[self messageLabel] setText:text];
-	}
-	else
-	{
-		[messageLabel removeFromSuperview];
-		RELEASE_TO_NIL(messageLabel);
-	}
-	[self setNeedsLayout];
+    [[self messageLabel] setText:text];
 }
 
 

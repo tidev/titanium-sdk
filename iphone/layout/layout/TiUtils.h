@@ -7,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
+#define DEFINE_EXCEPTIONS
 #define DebugLog NSLog
 
 #define CODELOCATION	[NSString stringWithFormat:@"%s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
@@ -20,6 +21,47 @@
         @throw [NSException exceptionWithName:@"Invalid type passed to function" reason:[NSString stringWithFormat:@"expected: %@, was: %@", [t class], [x class]] userInfo:nil]; \
     }
 
+
+/**
+ Titanium orientation flags.
+ */
+typedef enum
+{
+    TiOrientationNone = 0,
+    TiOrientationAny = 0xFFFF,
+    
+    /**
+     Portrait orientation flag.
+     */
+    TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
+    
+    /**
+     Upside-down portrait orientation flag.
+     */
+    TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
+    
+    /**
+     Landscape left orientation flag.
+     */
+    TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
+    
+    /**
+     Landscape right orientation flag.
+     */
+    TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
+    
+    /**
+     Landscape (left or right) orientation flag.
+     */
+    TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
+    
+    /**
+     Portrait (normal or upside-down) orientation flag.
+     */
+    TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
+    
+} TiOrientationFlags;
+
 @interface TiUtils : UIView
 
 +(void)setIsTesting:(BOOL)flag;
@@ -31,11 +73,10 @@
 +(BOOL)isIOS8OrGreater;
 +(CGFloat)floatValue:(id)value;
 +(CGFloat)floatValue:(id)value def:(CGFloat) def;
-
 @end
 
 
 @interface NSTimer (Blocks)
 +(id)scheduledTimerWithTimeInterval:(NSTimeInterval)inTimeInterval block:(void (^)())inBlock repeats:(BOOL)inRepeats;
-
++(void)jdExecuteSimpleBlock:(NSTimer *)inTimer;
 @end

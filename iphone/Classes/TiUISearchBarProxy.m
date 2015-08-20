@@ -78,8 +78,8 @@
     if ([self viewAttached]) {
         UISearchBar* searchBar = [self searchBar];
         if ([searchBar superview] != view) {
+            [view setInnerView:searchBar];
             [view addSubview:searchBar];
-            [searchBar setFrame:[view bounds]];
         }
     }
     
@@ -91,12 +91,6 @@
     return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
-USE_VIEW_FOR_CONTENT_HEIGHT
 @end
 
 #endif

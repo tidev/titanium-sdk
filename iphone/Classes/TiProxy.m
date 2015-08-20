@@ -588,6 +588,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 #pragma mark Public
 
+-(NSDictionary*)toJSON:(id)args
+{
+    return [TiUtils proxyToJSON:self];
+}
 
 -(id<NSFastEnumeration>)allKeys
 {

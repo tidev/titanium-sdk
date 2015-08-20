@@ -92,6 +92,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
+    NSLog(@"[PEDRO] remove this!");
 	return _listItem.contentView;
 }
 

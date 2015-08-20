@@ -66,6 +66,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @implementation TiUIWebView
 @synthesize reloadData, reloadDataProperties;
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        webview = [self webview];
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	if (webview!=nil)
@@ -127,7 +138,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     willHandleTouches = [TiUtils boolValue:args def:YES];
 }
 
-
 -(UIWebView*)webview 
 {
 	if (webview==nil)
@@ -135,15 +145,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		// we attach the XHR bridge the first time we need a webview
 		[[TiApp app] attachXHRBridgeIfRequired];
 		
-		webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
+		webview = [[UIWebView alloc] init];
 		webview.delegate = self;
 		webview.opaque = NO;
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
-		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-		[self addSubview:webview];
+        webview.translatesAutoresizingMaskIntoConstraints = NO;
+        _backgroundView = [[UIView alloc] init];
+        [_backgroundView addSubview:webview];
+        [self setInnerView:_backgroundView];
 
-		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
+        BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
 		
 		// only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
 		if (![[self class] isLocalURL:url] && !hideLoadIndicator)
@@ -161,13 +173,26 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			}
 			spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
 			[spinner setHidesWhenStopped:YES];
-			spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-			[self addSubview:spinner];
-			[spinner sizeToFit];
+            [spinner setTranslatesAutoresizingMaskIntoConstraints:NO];
+            [self addSubview:spinner];
 			[spinner startAnimating];
+            [_backgroundView addSubview:spinner];
 		}
 	}
 	return webview;
+}
+
+
+-(void)updateConstraints
+{
+    if (!_constraintsAdded) {
+        _constraintsAdded = YES;
+        [_backgroundView addConstraints:TI_CONSTR(@"H:|[webview]|", NSDictionaryOfVariableBindings(webview))];
+        [_backgroundView addConstraints:TI_CONSTR(@"V:|[webview]|", NSDictionaryOfVariableBindings(webview))];
+        [_backgroundView addConstraint: [NSLayoutConstraint constraintWithItem:_backgroundView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:spinner attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
+        [_backgroundView addConstraint: [NSLayoutConstraint constraintWithItem:_backgroundView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:spinner attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+    }
+    [super updateConstraints];
 }
 
 - (id)accessibilityElement
@@ -182,20 +207,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[request setValue:basicCredentials forHTTPHeaderField:@"Authorization"];
 	}
 	[[self webview] loadRequest:request];
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    [super frameSizeChanged:frame bounds:bounds];
-	if (webview!=nil)
-	{
-		[TiUtils setView:webview positionRect:bounds];
-		
-		if (spinner!=nil)
-		{
-			spinner.center = self.center;
-		}		
-	}
 }
 
 -(NSURL*)fileURLToAppURL:(NSURL*)url_

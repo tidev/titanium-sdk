@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UISWITCH
+
 #import "TiUISwitch.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
@@ -18,15 +20,36 @@
 	[super dealloc];
 }
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoSize];
+        switchView = [self switchView];
+    }
+    return self;
+}
+
 -(UISwitch*)switchView
 {
 	if (switchView==nil)
 	{
 		switchView = [[UISwitch alloc] init];
+        [self setInnerView:switchView];
+        [self addSubview:switchView];
 		[switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
-		[self addSubview:switchView];
 	}
 	return switchView;
+}
+
+-(void)setWidth_:(id)width
+{
+    // empty, not allowed
+}
+-(void)setHeight_:(id)args
+{
+    // empty, not allowed
 }
 
 - (id)accessibilityElement
@@ -99,26 +122,7 @@
 	}
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[super frameSizeChanged:frame bounds:bounds];
-	[self setCenter:[self center]];
-}
-
--(void)setCenter:(CGPoint)center
-{
-	CGSize ourSize = [self bounds].size;
-	CGPoint ourAnchor = [[self layer] anchorPoint];
-	CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
-	CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
-	
-	center.x -= originx - floorf(originx);
-	center.y -= originy	- floorf(originy);
-	
-	[super setCenter:center];
-}
-
-- (IBAction)switchChanged:(id)sender
+- (void)switchChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
 	id current = [self.proxy valueForUndefinedKey:@"value"];
@@ -131,16 +135,6 @@
 	}
 }
 
--(CGFloat)verifyWidth:(CGFloat)suggestedWidth
-{
-	return [[self switchView] sizeThatFits:CGSizeZero].width;
-}
-
--(CGFloat)verifyHeight:(CGFloat)suggestedHeight
-{
-	return [[self switchView] sizeThatFits:CGSizeZero].height;
-}
-
-USE_PROXY_FOR_VERIFY_AUTORESIZING
-
 @end
+
+#endif

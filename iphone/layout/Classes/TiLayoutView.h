@@ -14,6 +14,7 @@
 @interface TiLayoutView : UIView
 
 // debug only, remove
+#ifdef DEBUG
 @property (nonatomic, retain) id left;
 @property (nonatomic, retain) id right;
 @property (nonatomic, retain) id top;
@@ -22,15 +23,19 @@
 @property (nonatomic, retain) id height;
 @property (nonatomic, retain) id layout;
 @property (nonatomic, retain) id center_;
-
+#endif
 
 @property(nonatomic) TiDimension defaultHeight;
 @property(nonatomic) TiDimension defaultWidth;
-@property(nonatomic) UIView* innerView;
-@property(nonatomic) NSString* viewName;
+@property(nonatomic, retain) UIView* innerView;
+@property(nonatomic, retain) NSString* viewName;
 @property(nonatomic, copy) void (^onLayout)(TiLayoutView* sender, CGRect rect);
 @property(nonatomic, copy) void (^onViewRemoved)(TiLayoutView* sender);
 @property(nonatomic) BOOL horizontalWrap;
+@property(nonatomic) BOOL loaded;
+@property(nonatomic, readonly) BOOL isInToolbar;
+@property(nonatomic, readonly) BOOL isToolbar;
+
 
 -(instancetype)initWithProperties:(NSDictionary*)properties;
 
@@ -45,6 +50,9 @@
 -(void)setHeight_:(id)args;
 -(void)setLayout_:(id)args;
 -(void)setCenter_:(id)args;
+
+-(void)animateProperties:(NSDictionary*)properties withDuration:(NSUInteger)milli andCallback:(void (^)(BOOL finished))callback;
+-(void)postLayoutEvent;
 
 +(void)removeConstraints:(UIView*)parent fromChild:(UIView*)child;
 @end

@@ -23,13 +23,16 @@
 {
 	[searchView setDelegate:nil];
 	RELEASE_TO_NIL(searchView);
-	[backgroundLayer removeFromSuperlayer];
-	RELEASE_TO_NIL(backgroundLayer);
 	[super dealloc];
 }
--(CGFloat)contentHeightForWidth:(CGFloat)width
+
+- (instancetype)init
 {
-    return [[self searchBar] sizeThatFits:CGSizeZero].height;
+    self = [super init];
+    if (self) {
+        searchView = [self searchBar];
+    }
+    return self;
 }
 
 -(UISearchBar*)searchBar
@@ -37,10 +40,11 @@
 	if (searchView==nil)
 	{
 		searchView = [[UISearchBar alloc] initWithFrame:CGRectZero];
-		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[searchView setDelegate:self];
 		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
-		[self addSubview:searchView];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoFill];
+        [self setInnerView:searchView];
 	}
 	return searchView;
 }	
@@ -48,13 +52,6 @@
 - (id)accessibilityElement
 {
 	return [self searchBar];
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[[self searchBar] setFrame:bounds];
-	[backgroundLayer setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate_
@@ -84,14 +81,12 @@
 {
 	UISearchBar *search = [self searchBar];
 	[search setShowsBookmarkButton:[TiUtils boolValue:value]];
-	[search sizeToFit];
 }
 
 -(void)setShowCancel_:(id)value
 {
 	UISearchBar *search = [self searchBar];
 	[search setShowsCancelButton:[TiUtils boolValue:value]];
-	[search sizeToFit];
 }
 
 -(void)setHintText_:(id)value

@@ -33,6 +33,17 @@
 
 DEFINE_EXCEPTIONS
 
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoSize];
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	if (timer!=nil)
@@ -45,72 +56,6 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(previous);
 	RELEASE_TO_NIL(imageView);
 	[super dealloc];
-}
-
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
-{
-	if (autoWidth > 0)
-	{
-		//If height is DIP returned a scaled autowidth to maintain aspect ratio
-		if (TiDimensionIsDip(height) && autoHeight > 0) {
-			return roundf(autoWidth*height.value/autoHeight);
-		}
-		return autoWidth;
-	}
-	
-	CGFloat calculatedWidth = TiDimensionCalculateValue(width, autoWidth);
-	if (calculatedWidth > 0)
-	{
-		return calculatedWidth;
-	}
-	
-	if (container!=nil)
-	{
-		return container.bounds.size.width;
-	}
-	
-	return 0;
-}
-
--(CGFloat)contentHeightForWidth:(CGFloat)width_
-{
-    if (width_ != autoWidth && autoWidth>0 && autoHeight > 0) {
-        return (width_*autoHeight/autoWidth);
-    }
-    
-	if (autoHeight > 0)
-	{
-		return autoHeight;
-	}
-	
-	CGFloat calculatedHeight = TiDimensionCalculateValue(height, autoHeight);
-	if (calculatedHeight > 0)
-	{
-		return calculatedHeight;
-	}
-	
-	if (container!=nil)
-	{
-		return container.bounds.size.height;
-	}
-	
-	return 0;
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	for (UIView *child in [self subviews])
-	{
-		[TiUtils setView:child positionRect:bounds];
-	}
-	if (container!=nil)
-	{
-		for (UIView *child in [container subviews])
-		{
-			[TiUtils setView:child positionRect:bounds];
-		}
-	}
-    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)timerFired:(id)arg
@@ -176,14 +121,20 @@ DEFINE_EXCEPTIONS
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
 {
-	UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+	UIView *view = [[UIView alloc] init];
+    [view setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
 	UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-	
-	spinner.center = view.center;
-	spinner.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;			
-	
-	[view addSubview:spinner];
+    [spinner setTranslatesAutoresizingMaskIntoConstraints:NO];
+
+    [view addSubview:spinner];
+    [view addConstraints:TI_CONSTR(@"V:|[spinner]|", NSDictionaryOfVariableBindings(spinner))];
+    [view addConstraints:TI_CONSTR(@"H:|[spinner]|", NSDictionaryOfVariableBindings(spinner))];
+    
 	[container addSubview:view];
+    [container addConstraints:TI_CONSTR(@"V:|[view]|", NSDictionaryOfVariableBindings(view))];
+    [container addConstraints:TI_CONSTR(@"H:|[view]|", NSDictionaryOfVariableBindings(view))];
+    
 	[view release];
 	[spinner release];
 	
@@ -295,9 +246,10 @@ DEFINE_EXCEPTIONS
 {
 	if (imageView==nil)
 	{
-		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
-		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:[self contentModeForImageView]];
+		imageView = [[UIImageView alloc] init];
+        [imageView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [imageView setContentMode:[self contentModeForImageView]];
+        [self setInnerView:imageView];
 		[self addSubview:imageView];
 	}
 	return imageView;
@@ -323,7 +275,7 @@ DEFINE_EXCEPTIONS
 	{
 		iv.alpha = 0;
 		
-		[(TiViewProxy *)[self proxy] contentsWillChange];
+//		[(TiViewProxy *)[self proxy] contentsWillChange];
 		
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
@@ -544,9 +496,11 @@ DEFINE_EXCEPTIONS
 	{
 		// we use a separate container view so we can both have an image
 		// and a set of images
-		container = [[UIView alloc] initWithFrame:self.bounds];
-		container.userInteractionEnabled = NO;
-		[self addSubview:container];
+		container = [[UIView alloc] init];
+        [container setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [container setUserInteractionEnabled: NO];
+        [self setInnerView:container];
+        [self addSubview:container];
 	}
 	return container;
 }
@@ -654,12 +608,14 @@ DEFINE_EXCEPTIONS
 -(void)setWidth_:(id)width_
 {
     width = TiDimensionFromObject(width_);
+    [super setWidth_:width_];
     [self updateContentMode];
 }
 
 -(void)setHeight_:(id)height_
 {
     height = TiDimensionFromObject(height_);
+    [super setHeight_:height_];
     [self updateContentMode];
 }
 
@@ -693,7 +649,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	[imageview setImage:image];
-	[(TiViewProxy*)[self proxy] contentsWillChange]; // Have to resize the proxy view to fit new subview size, if necessary
+//	[(TiViewProxy*)[self proxy] contentsWillChange]; // Have to resize the proxy view to fit new subview size, if necessary
 	
 	if (currentImage!=image)
 	{

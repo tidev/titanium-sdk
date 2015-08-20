@@ -63,15 +63,6 @@
 	return [self view];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	for (UIView *child in [self subviews])
-	{
-		[TiUtils setView:child positionRect:bounds];
-	}
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 // Largely stolen from TiUIImageView, but it's different enough that we can't make a common version...
 // TODO: Or can we?
 -(UIImage*)convertToUIImage:(id)arg

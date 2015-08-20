@@ -69,6 +69,7 @@ DEFINE_EXCEPTIONS
 -(id)initWithProxy:(TiUIButtonProxy*)proxy_
 {
 	self = [super init];
+    
 	id systemButton = [proxy_ valueForKey:@"systemButton"];
 	if (systemButton!=nil)
 	{
@@ -80,8 +81,9 @@ DEFINE_EXCEPTIONS
 			{
 				// we need to wrap our activity indicator view into a UIView that will delegate
 				// to our proxy
-				activityDelegate = [[TiUIView alloc] initWithFrame:button.frame];
+				activityDelegate = [[TiUIView alloc] init];
 				[activityDelegate addSubview:button];
+                [activityDelegate setInnerView:button];
 				activityDelegate.proxy = (TiViewProxy*)proxy_;
 				button = activityDelegate;
 			}
@@ -111,17 +113,17 @@ DEFINE_EXCEPTIONS
             { 
                 [(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
             }
-            //Sanity check. If the view bounds are zero set the bounds to auto dimensions
-            CGRect bounds = [[proxy_ view] bounds];
-            if (bounds.size.width == 0) {
-                CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
-                bounds.size.width = desiredWidth;                        
-            }
-            if (bounds.size.height == 0) {
-                CGFloat desiredHeight = [proxy_ autoHeightForSize:CGSizeMake(bounds.size.width, 1000)];
-                bounds.size.height = desiredHeight;
-            }
-            [[proxy_ view] setBounds:bounds];
+//            //Sanity check. If the view bounds are zero set the bounds to auto dimensions
+//            CGRect bounds = [[proxy_ view] bounds];
+//            if (bounds.size.width == 0) {
+//                CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
+//                bounds.size.width = desiredWidth;                        
+//            }
+//            if (bounds.size.height == 0) {
+//                CGFloat desiredHeight = [proxy_ autoHeightForSize:CGSizeMake(bounds.size.width, 1000)];
+//                bounds.size.height = desiredHeight;
+//            }
+//            [[proxy_ view] setBounds:bounds];
         }
         else if (image!=nil) {
             NSURL *url = [TiUtils toURL:image proxy:proxy_];

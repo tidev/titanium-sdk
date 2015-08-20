@@ -8,6 +8,8 @@
 #import <XCTest/XCTest.h>
 #import "TiLayoutView.h"
 #import "TiLabel.h"
+#import "TiToolbar.h"
+#import "TiSwitch.h"
 #import "TiScrollableView.h"
 
 #import "TiUtils.h"
@@ -40,7 +42,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)setUp {
     [super setUp];
     UIViewController* controller = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    myView = (TiLayoutView*)[controller view];
+    myView = (TiLayoutView*)[[[controller view] subviews] objectAtIndex:0];
 }
 
 - (void)tearDown {
@@ -688,4 +690,59 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     WAIT_FOR(done);
 }
 
+-(void)test_ToolbarItems
+{
+    TiToolbar* toolbar = [[TiToolbar alloc] init];
+
+    __block BOOL done1 = NO;
+    __block BOOL done2 = NO;
+    __block BOOL done3 = NO;
+    
+    [myView addSubview:toolbar];
+
+    TiSwitch* toggle1 = [[TiSwitch alloc] init];
+    TiSwitch* toggle2 = [[TiSwitch alloc] init];
+    TiSwitch* toggle3 = [[TiSwitch alloc] init];
+    
+    toggle1.viewName = @"switch_1";
+    toggle2.viewName = @"switch_2";
+    toggle3.viewName = @"switch_3";
+    
+    toggle1.backgroundColor = [UIColor redColor];
+    toggle2.backgroundColor = [UIColor yellowColor];
+    toggle3.backgroundColor = [UIColor greenColor];
+    
+    [toggle1 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
+        XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
+        
+        XCTAssertEqualWithAccuracy(rect.origin.x, 16, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
+        
+        done1 = YES;
+    }];
+    [toggle2 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
+        XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
+        
+        XCTAssertEqualWithAccuracy(rect.origin.x, 75, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
+        
+        done2 = YES;
+    }];
+    [toggle3 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
+        XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
+        
+        XCTAssertEqualWithAccuracy(rect.origin.x, 134, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
+        
+        done3 = YES;
+    }];
+    
+    [toolbar setItems:@[toggle1,toggle2,toggle3]];
+
+    WAIT_FOR( (done1 && done2 && done3) );
+
+}
 @end

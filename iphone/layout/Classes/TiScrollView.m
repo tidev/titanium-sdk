@@ -110,4 +110,9 @@
     [contentView setOnLayout:onContentLayout];
 }
 
+-(void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    [[self contentView] setBackgroundColor:backgroundColor];
+    [super setBackgroundColor:backgroundColor];
+}
 @end

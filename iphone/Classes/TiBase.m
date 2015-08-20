@@ -165,18 +165,6 @@ NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationS
 NSString * const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString * const kTiHandOff = @"TiHandOff";
 
-NSString* const kTiBehaviorSize = @"SIZE";
-NSString* const kTiBehaviorFill = @"FILL";
-NSString* const kTiBehaviorAuto = @"auto";
-NSString* const kTiUnitPixel = @"px";
-NSString* const kTiUnitCm = @"cm";
-NSString* const kTiUnitMm = @"mm";
-NSString* const kTiUnitInch = @"in";
-NSString* const kTiUnitDip = @"dip";
-NSString* const kTiUnitDipAlternate = @"dp";
-NSString* const kTiUnitSystem = @"system";
-NSString* const kTiUnitPercent = @"%";
-
 NSString* const kTiExceptionSubreason = @"TiExceptionSubreason";
 NSString* const kTiExceptionLocation = @"TiExceptionLocation";
 

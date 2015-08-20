@@ -28,19 +28,6 @@
     return @"Ti.UI.ActivityIndicator";
 }
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
-USE_VIEW_FOR_CONTENT_WIDTH
-
-USE_VIEW_FOR_CONTENT_HEIGHT
-
 @end
 
 #endif

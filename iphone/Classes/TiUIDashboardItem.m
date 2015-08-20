@@ -16,17 +16,6 @@
 
 @implementation TiUIDashboardItem
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	TiViewProxy *p = (TiViewProxy*)self.proxy;
-	[super frameSizeChanged:frame bounds:bounds];
-	
-    NSArray* children = [p children];
-	for (TiViewProxy *proxy in children)
-	{
-		[(TiUIView*)[proxy view] frameSizeChanged:self.frame bounds:self.bounds];
-	}
-}
 
 @end
 

@@ -8,10 +8,7 @@
 #if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 #import "TiUIView.h"
 
-@protocol ios6ToolbarDelegate
-- (NSInteger)positionForBar:(id)bar;
-@end
-@interface TiUIiOSToolbar : TiUIView<LayoutAutosizing,ios6ToolbarDelegate> {
+@interface TiUIiOSToolbar : TiUIView {
     UIToolbar * toolBar;
     BOOL hideTopBorder;
     BOOL showBottomBorder;

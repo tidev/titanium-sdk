@@ -8,12 +8,12 @@
 
 #import "TiUIView.h"
 
-@interface TiUILabel : TiUIView<LayoutAutosizing> {
+@interface TiUILabel : TiUIView {
 @private
     UILabel *label;
-    UIView* wrapperView;
-    BOOL requiresLayout;
-    CGRect padding;
+//    UIView* wrapperView;
+//    BOOL requiresLayout;
+//    CGRect padding;
     UIControlContentVerticalAlignment verticalAlign;
     CGRect initialLabelFrame;
     CGFloat minFontSize;

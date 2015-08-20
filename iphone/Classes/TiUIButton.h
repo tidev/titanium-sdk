@@ -11,9 +11,6 @@
 @interface TiUIButton : TiUIView {
 @private
 	UIButton *button;
-//In the rare case where the button is treated as a view group, we must have
-//an empty wrapper for -[parentViewForChild:]
-	UIView * viewGroupWrapper;
 	
 	UIImage * backgroundImageCache;
 	UIImage * backgroundImageUnstretchedCache;
@@ -24,7 +21,6 @@
 }
 
 -(UIButton*)button;
--(UIView*)viewGroupWrapper;
 
 -(void)setEnabled_:(id)value;
 

@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
 #include <math.h>
 #include <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
@@ -229,6 +230,4 @@ TI_INLINE BOOL TiLayoutRuleIsHorizontal(TiLayoutRule rule)
 {
     return rule==TiLayoutRuleHorizontal;
 }
-
-
 
