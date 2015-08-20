@@ -10,6 +10,18 @@
 #include <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
 
+extern NSString* const kTiBehaviorSize;
+extern NSString* const kTiBehaviorFill;
+extern NSString* const kTiBehaviorAuto;
+extern NSString* const kTiUnitPixel;
+extern NSString* const kTiUnitCm;
+extern NSString* const kTiUnitMm;
+extern NSString* const kTiUnitInch;
+extern NSString* const kTiUnitDip;
+extern NSString* const kTiUnitDipAlternate;
+extern NSString* const kTiUnitSystem;
+extern NSString* const kTiUnitPercent;
+
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
 
