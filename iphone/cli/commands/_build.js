@@ -116,7 +116,7 @@ function iOSBuilder() {
 
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
 	this.useJSCore = false;
-
+	this.runOnMainThread = true;
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
 
@@ -2015,6 +2015,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework'];
 
+	if (this.cli.tiapp.ios && this.cli.tiapp.ios['run-on-main-thread'] !== undefined) {
+		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = Boolean(this.cli.tiapp.ios['run-on-main-thread']);
+	}
+
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
@@ -2281,6 +2285,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 		// check if the use JavaScriptCore flag has changed
 		if (this.useJSCore !== manifest.useJSCore) {
 			this.logger.info(__('Forcing rebuild: use JSCore flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
+			this.logger.info('  ' + __('Now: %s', this.useJSCore));
+			return true;
+		}
+
+		// check if the use RunOnMainThread flag has changed
+		if (this.runOnMainThread !== manifest.runOnMainThread) {
+			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
 			this.logger.info('  ' + __('Now: %s', this.useJSCore));
 			return true;
@@ -4229,15 +4241,24 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
+		contents = fs.readFileSync(definesFile).toString();
+		var hasChanged = false;
+		if (!this.runOnMainThread) {
+			contents += '\n#define TI_USE_KROLL_THREAD';
+			hasChanged = true;
+		}
 		if (this.useJSCore) {
-			contents = fs.readFileSync(definesFile).toString() + '\n#define USE_JSCORE_FRAMEWORK';
-		} else {
+			contents += '\n#define USE_JSCORE_FRAMEWORK';
+			hasChanged = true;
+		}
+		if (!hasChanged) {
 			// just symlink the file
 			if (!this.copyFileSync(definesFile, dest)) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
 			return;
 		}
+		contents += '\n';
 	} else {
 		// build the defines.h file
 		contents = [
@@ -4273,7 +4294,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (this.useJSCore) {
 			contents.push('#define USE_JSCORE_FRAMEWORK')
 		}
-
+		if (!this.runOnMainThread) {
+			content.push('\n#define TI_USE_KROLL_THREAD');
+		}
 		contents = contents.join('\n');
 	}
 
