@@ -218,9 +218,6 @@ class Compiler(object):
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.assets_dir = os.path.join(self.iphone_dir,'assets')
 
-		if deploytype == 'commonjs':
-			self.assets_dir = os.path.join(self.iphone_dir, '..', 'assets')
-
 		self.modules = []
 		self.modules_metadata = []
 		self.exports = []
@@ -432,7 +429,11 @@ class Compiler(object):
 			softlink_for_simulator(self.project_dir,app_dir)
 
 	def compile_module(self):
-		root_asset = self.compile_commonjs_file(self.appid+'.js', os.path.join(self.assets_dir, self.appid+'.js'))
+		appid_js_file = os.path.join(self.assets_dir, self.appid+'.js')
+		if not os.path.exists(appid_js_file):
+			appid_js_file = os.path.join(self.project_dir, '..', 'assets', self.appid+'.js')
+
+		root_asset = self.compile_commonjs_file(self.appid+'.js', appid_js_file)
 
 		js_files = []
 		for root, dirs, files in os.walk(self.assets_dir, True, None, True):
