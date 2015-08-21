@@ -1137,8 +1137,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 				return 1;
 			})
+			.reverse()
 			.some(function (ver) {
-				if (targetSDKMap[ver].sdk >= this.minSupportedApiLevel && targetSDKMap[ver].sdk <= this.maxSupportedApiLevel) {
+				if (targetSDKMap[ver].sdk >= this.minTargetApiLevel && targetSDKMap[ver].sdk <= this.maxSupportedApiLevel) {
 					this.targetSDK = this.realTargetSDK = targetSDKMap[ver].sdk;
 					return true;
 				}
