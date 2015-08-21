@@ -24,6 +24,12 @@
     tags = [properties valueForKey:@"tags"];
     resourceRequest = [[NSBundleResourceRequest alloc] initWithTags:tags];
     
+    [resourceRequest.progress addObserver:self
+                              forKeyPath:@"fractionCompleted"
+                              options:NSKeyValueObservingOptionNew
+                              context:NULL
+     ];
+    
     [super _initWithProperties:properties];
 }
 
@@ -49,31 +55,25 @@
     // Define the error callback
     KrollCallback* errorCallback = [statusCallbacks valueForKey:@"error"];
     ENSURE_TYPE_OR_NIL(errorCallback, KrollCallback);
+    
+    // Add a listener to the current download progress
+    [resourceRequest.progress addObserver:self forKeyPath:@"fractionCompleted" options:NSKeyValueObservingOptionNew context:NULL];
    
     // Access the resources
     [resourceRequest beginAccessingResourcesWithCompletionHandler: ^(NSError * __nullable error) {
          resourcesLoaded = !error;
         
-        NSDictionary* callbackBody;
-
         if (resourcesLoaded == YES) {
-            callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
-                          @"success", YES
-                          , nil] autorelease];
-
-            [successCallback call: [NSArray arrayWithObjects: callbackBody, nil] thisObject: nil];
+            [successCallback call: [NSArray arrayWithObjects: @{ @"success" : @YES }, nil] thisObject: nil];
         } else {
-            callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
-                          @"success", NO,
-                          @"message", [error localizedDescription]
-                          , nil] autorelease];
-
-            [errorCallback call: [NSArray arrayWithObjects: callbackBody, nil] thisObject: nil];
+            [errorCallback call: [NSArray arrayWithObjects: @{ @"success" : @NO, @"message": [error localizedDescription] }, nil] thisObject: nil];
         }
+        
+        // Add the listener of the current download progress
+        [resourceRequest.progress removeObserver:self forKeyPath:@"fractionCompleted"];
         
         [successCallback release];
         [errorCallback release];
-        [callbackBody release];
     }];
 }
 
@@ -81,14 +81,13 @@
 {
     [resourceRequest conditionallyBeginAccessingResourcesWithCompletionHandler: ^(BOOL resourcesAvailable) {
             if(resourcesAvailable) {
-                NSLog(@"Resource available!");
+                resourcesLoaded = NO;
             } else {
                 [self beginAccessingResources:args];
             }
         }
      ];
 }
-
 
 -(void)endAccessingResources
 {
@@ -104,6 +103,20 @@
 {
     ENSURE_UI_THREAD_1_ARG(_priority);
     [resourceRequest setLoadingPriority:[TiUtils doubleValue:_priority]];
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ((object == resourceRequest.progress) &&([keyPath isEqualToString:@"fractionCompleted"])) {
+        if ([self _hasListeners:@"progress"])
+        {
+            double progressSoFar = resourceRequest.progress.fractionCompleted;
+            DebugLog(@"Download progress: %@", progressSoFar);
+
+            NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(progressSoFar) forKey:@"value"];
+            [self fireEvent:@"progress" withObject:event];
+        }
+    }
 }
 
 @end
