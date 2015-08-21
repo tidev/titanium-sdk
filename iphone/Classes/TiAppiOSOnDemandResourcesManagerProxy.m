@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSONDEMANDRESOURCESMANAGER
-#import "TiUIiOSOnDemandResourcesManagerProxy.h"
+#ifdef USE_TI_APPIOS
+#import "TiAppiOSOnDemandResourcesManagerProxy.h"
 #import "TiUtils.h"
 #import "TiFile.h"
 
-@implementation TiUIiOSOnDemandResourcesManagerProxy
+@implementation TiAppiOSOnDemandResourcesManagerProxy
 
 -(void)_destroy
 {
@@ -29,7 +29,7 @@
 
 -(NSString*)apiName
 {
-    return @"Ti.UI.iOS.OnDemandResourcesManager";
+    return @"Ti.App.iOS.OnDemandResourcesManager";
 }
 
 #pragma mark Public API's

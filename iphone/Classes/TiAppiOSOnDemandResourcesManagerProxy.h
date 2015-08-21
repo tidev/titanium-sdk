@@ -6,9 +6,9 @@
  */
 #import "TiProxy.h"
 #import <Foundation/Foundation.h>
-#ifdef USE_TI_UIIOSONDEMANDRESOURCESMANAGER
+#ifdef USE_TI_APPIOS
 
-@interface TiUIiOSOnDemandResourcesManagerProxy : TiProxy<NSProgressReporting> {
+@interface TiAppiOSOnDemandResourcesManagerProxy : TiProxy<NSProgressReporting> {
 @private
     NSMutableSet *tags;
     NSBundle *bundle;

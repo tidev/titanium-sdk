@@ -20,7 +20,9 @@
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
+#import "TiAppiOSOnDemandResourcesManagerProxy.h"
 #endif
+
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -187,6 +189,11 @@
     TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
     
     return proxy;
+}
+
+-(id)createOnDemandResourcesManager:(id)args
+{
+    return [[[TiAppiOSOnDemandResourcesManagerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 #endif
