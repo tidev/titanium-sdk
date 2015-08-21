@@ -36,53 +36,63 @@
 
 -(void)beginAccessingResources:(id)args
 {
-    ENSURE_ARG_COUNT(args, 1);
-    ENSURE_UI_THREAD_1_ARG(args);
+    NSDictionary* statusCallbacks = nil;
     
-    KrollCallback *callback = [args objectAtIndex:0];
-
-    [resourceRequest beginAccessingResourcesWithCompletionHandler: ^(NSError * __nullable error)
-     {
+    // Check the method arguments
+    statusCallbacks = [args objectAtIndex:0];
+    ENSURE_TYPE(statusCallbacks, NSDictionary);
+    
+    // Define the success callback
+    KrollCallback* successCallback = [statusCallbacks valueForKey:@"success"];
+    ENSURE_TYPE_OR_NIL(successCallback, KrollCallback);
+    
+    // Define the error callback
+    KrollCallback* errorCallback = [statusCallbacks valueForKey:@"error"];
+    ENSURE_TYPE_OR_NIL(errorCallback, KrollCallback);
+   
+    // Access the resources
+    [resourceRequest beginAccessingResourcesWithCompletionHandler: ^(NSError * __nullable error) {
          resourcesLoaded = !error;
-         
-         if(callback){
+        
+        NSDictionary* callbackBody;
 
-             NSDictionary* callbackBody;
+        if (resourcesLoaded == YES) {
+            callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
+                          @"success", YES
+                          , nil] autorelease];
 
-             if (resourcesLoaded == YES) {
-                 callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
-                                  @"status", @"Ti.UI.iOS.ON_DEMAND_RESOURCE_SUCCESS"
-                                  , nil] autorelease];
-             } else {
-                 callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
-                                  @"status", @"Ti.UI.iOS.ON_DEMAND_RESOURCE_ERROR"
-                                  , nil] autorelease];
-             }
-             
-             [callback call: [NSArray arrayWithObjects: callbackBody, nil] thisObject: nil];
-         }
+            [successCallback call: [NSArray arrayWithObjects: callbackBody, nil] thisObject: nil];
+        } else {
+            callbackBody = [[[NSDictionary alloc] initWithObjectsAndKeys:
+                          @"success", NO,
+                          @"message", [error localizedDescription]
+                          , nil] autorelease];
 
-      }
-     ];
+            [errorCallback call: [NSArray arrayWithObjects: callbackBody, nil] thisObject: nil];
+        }
+        
+        [successCallback release];
+        [errorCallback release];
+        [callbackBody release];
+    }];
 }
 
 -(void)conditionallyBeginAccessingResources:(id)args
 {
-    [resourceRequest conditionallyBeginAccessingResourcesWithCompletionHandler: ^(BOOL resourcesAvailable)
-        {
+    [resourceRequest conditionallyBeginAccessingResourcesWithCompletionHandler: ^(BOOL resourcesAvailable) {
             if(resourcesAvailable) {
-                NSLog(@"Resource available");
+                NSLog(@"Resource available!");
             } else {
-                NSLog(@"Resource not available");
+                [self beginAccessingResources:args];
             }
         }
      ];
 }
 
+
 -(void)endAccessingResources
 {
     [resourceRequest endAccessingResources];
-    NSLog(@"Resource access finished");
 }
 
 -(double)priority
