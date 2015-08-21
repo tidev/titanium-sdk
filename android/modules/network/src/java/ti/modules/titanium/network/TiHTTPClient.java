@@ -174,6 +174,10 @@ public class TiHTTPClient
 	            }
 	        }
 
+	        // Note on getHeaderFields()
+	        // HttpURLConnection include a mapping
+	        // for the null key; in HTTP's case, this maps to the HTTP status line and is
+	        // treated as being at position 0 when indexing into the header fields.
 	        responseHeaders = connection.getHeaderFields();
 
 	        // GZIPInputStream is handled transparently
@@ -665,7 +669,7 @@ public class TiHTTPClient
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
 	        for (Map.Entry<String, List<String>> entry : entrySet) {	            
 	        	String headerName = entry.getKey();	            	            
-	        	if(headerName.equalsIgnoreCase(getHeaderName)) {
+	        	if (headerName != null && headerName.equalsIgnoreCase(getHeaderName)) {
 	            	List<String> headerValues = entry.getValue();		            
 	            	for (String value : headerValues) {
 		            	if (!firstPass) {
