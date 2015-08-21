@@ -24,6 +24,9 @@
     NSRange lastSelectedRange;
 }
 
+@property(nonatomic,readwrite,assign) NSArray* leadingBarButtonGroups;
+@property(nonatomic,readwrite,assign) NSArray* trailingBarButtonGroups;
+
 @end
 
 #endif

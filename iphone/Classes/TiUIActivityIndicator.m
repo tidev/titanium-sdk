@@ -31,6 +31,7 @@
 	RELEASE_TO_NIL(messageLabel);
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
+	RELEASE_TO_NIL(spinnerColor);
 	[super dealloc];
 }
 
@@ -217,6 +218,14 @@
 		}
 	}
 
+}
+
+-(void)setIndicatorColor_:(id)value
+{
+    UIColor * newColor = [[TiUtils colorValue:value] _color];
+    [spinnerColor release];
+     spinnerColor = [newColor retain];
+    [[self indicatorView] setColor:spinnerColor];
 }
 
 - (void)didMoveToWindow

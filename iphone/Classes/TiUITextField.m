@@ -19,7 +19,7 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, leadingBarButtonGroups, trailingBarButtonGroups;
 
 -(void)configure
 {
@@ -31,7 +31,15 @@
 	paddingLeft = 0;
 	paddingRight = 0;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
-	[super setRightViewMode:UITextFieldViewModeAlways];	
+	[super setRightViewMode:UITextFieldViewModeAlways];
+    
+    // iOS9 QuickType (undo/redo)
+    if([TiUtils isIOS9OrGreater] == YES) {
+#if IS_XCODE_7
+        leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+#endif
+    }
 }
 
 -(void)dealloc
@@ -296,6 +304,23 @@
 
 #pragma mark Public APIs
 
+-(void)setShowUndoRedoActions_:(id)value
+{
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+#if IS_XCODE_7
+    TiTextField* tv = (TiTextField*)[self textWidgetView];
+    if([TiUtils boolValue:value] == YES) {
+        tv.inputAssistantItem.leadingBarButtonGroups = [tv leadingBarButtonGroups];
+        tv.inputAssistantItem.trailingBarButtonGroups = [tv trailingBarButtonGroups];
+    } else {
+        tv.inputAssistantItem.leadingBarButtonGroups = @[];
+        tv.inputAssistantItem.trailingBarButtonGroups = @[];
+    }
+#endif
+}
+
 -(void)setPaddingLeft_:(id)value
 {
     TiTextField* tv = (TiTextField*)[self textWidgetView];
@@ -492,6 +517,11 @@
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+    //sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
+    if (range.length + range.location > [[tf text] length]) {
+        return NO;
+    }
+    
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {

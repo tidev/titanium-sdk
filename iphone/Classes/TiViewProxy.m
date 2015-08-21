@@ -178,7 +178,12 @@ static NSArray* touchEventsArray;
 	if (children==nil) {
 		children = [[NSMutableArray alloc] init];
 	}
+    
+#ifdef TI_USE_KROLL_THREAD
 	if ([NSThread isMainThread]) {
+#else
+        [self rememberProxy:childView];
+#endif
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
 			position = (int)[children count];
@@ -203,6 +208,7 @@ static NSArray* touchEventsArray;
 		else {
 			[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
 		}
+#ifdef TI_USE_KROLL_THREAD
 	}
 	else
 	{
@@ -220,6 +226,7 @@ static NSArray* touchEventsArray;
 		pthread_rwlock_unlock(&childrenLock);
 		[childView setParent:self];
 	}
+#endif
 }
 
 -(void)insertAt:(id)args
@@ -1436,8 +1443,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		}
 		else
 		{
+#ifdef TI_USE_KROLL_THREAD
 			TiThreadReleaseOnMainThread(barButtonItem, NO);
 			barButtonItem = nil;
+#else
+            TiThreadPerformOnMainThread(^{
+                RELEASE_TO_NIL(barButtonItem);
+            }, NO);
+#endif
 		}
 	}
 
@@ -1450,8 +1463,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		else
 		{
 			view.proxy = nil;
+#ifdef TI_USE_KROLL_THREAD
 			TiThreadReleaseOnMainThread(view, NO);
 			view = nil;
+#else
+            TiThreadPerformOnMainThread(^{
+                RELEASE_TO_NIL(view);
+            }, YES);
+#endif
 		}
 	}
 	[destroyLock unlock];

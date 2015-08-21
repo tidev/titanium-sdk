@@ -10,10 +10,10 @@
 
 @implementation TiUIiOSTabbedBarProxy
 
-NSArray* tabbedKeySequence;
 
 -(NSArray*)keySequence
 {
+    static NSArray* tabbedKeySequence = nil;
 	if (tabbedKeySequence == nil) {
 		tabbedKeySequence = [[NSArray alloc] initWithObjects:@"labels",@"style",nil];
 	}

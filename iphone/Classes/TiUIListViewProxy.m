@@ -91,7 +91,7 @@
         block(nil);
         TiThreadPerformOnMainThread(^{
             [self.listView updateSearchResults:nil];
-        }, NO);
+        }, [NSThread isMainThread]);
         return;
     }
     
@@ -103,7 +103,7 @@
 	if (triggerMainThread) {
 		TiThreadPerformOnMainThread(^{
 			[self processUpdateActions];
-		}, NO);
+		}, [NSThread isMainThread]);
 	}
 }
 
@@ -218,9 +218,10 @@
 			[templates setObject:template forKey:key];
 		}
 	}];
+    
 	TiThreadPerformOnMainThread(^{
 		[self.listView setDictTemplates_:templates];
-	}, NO);
+	}, [NSThread isMainThread]);
 	[templates release];
 }
 
@@ -414,7 +415,7 @@
             TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
             [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
 }
 
@@ -459,7 +460,7 @@
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
             [self.listView.tableView deselectRowAtIndexPath:indexPath animated:YES];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
 }
 
@@ -495,7 +496,7 @@
     }
     TiThreadPerformOnMainThread(^{
         [self.listView setContentInsets_:arg1 withObject:arg2];
-    }, NO);
+    }, [NSThread isMainThread]);
 }
 
 #pragma mark - Marker Support
@@ -523,7 +524,7 @@
             NSArray* visibleRows = [self.listView.tableView indexPathsForVisibleRows];
             canAddMarker = ![visibleRows containsObject:marker];
         }
-    }, YES);
+    }, [NSThread isMainThread]);
     
     return canAddMarker;
 }

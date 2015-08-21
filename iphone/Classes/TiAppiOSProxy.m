@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,11 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
-
+#if IS_XCODE_7
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
+#import "TiAppiOSSearchableItemProxy.h"
+#import "TiAppiOSSearchableIndexProxy.h"
+#endif
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -144,7 +148,48 @@
 }
 
 #pragma mark Public
+#if IS_XCODE_7
+-(id)createSearchableIndex:(id)unused
+{
+    TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
+    return proxy;
+}
 
+-(id)createSearchableItem:(id)args
+{
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    
+    NSString* identifier;
+    ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
+    
+    NSString* domainIdentifier;
+    ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
+    
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
+    ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
+    
+    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
+                                           initWithUniqueIdentifier:identifier
+                                           withDomainIdentifier:domainIdentifier
+                                           withAttributeSet:attributeSet.attributes] autorelease];
+    return proxy;
+}
+
+-(id)createSearchableItemAttributeSet:(id)args
+{
+    NSString* itemContentType;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
+    
+    NSMutableDictionary *props = [[args mutableCopy] autorelease];
+    [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+    
+    TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
+    
+    return proxy;
+}
+
+#endif
 -(id)createUserActivity:(id)args
 {
     NSString* activityType;
@@ -162,7 +207,7 @@
     ENSURE_SINGLE_ARG(args,NSDictionary);
     ENSURE_ARG_FOR_KEY(suiteName, args, @"suiteName", NSString);
     
-    NSUserDefaults *defaultsObject = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+    NSUserDefaults *defaultsObject = [[[NSUserDefaults alloc] initWithSuiteName:suiteName] autorelease];
     
     TiAppiOSUserDefaultsProxy *userDefaultsProxy = [[[TiAppiOSUserDefaultsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     

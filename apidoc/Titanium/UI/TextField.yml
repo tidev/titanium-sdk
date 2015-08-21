@@ -176,7 +176,7 @@ properties:
     summary: |
         Determines whether to automatically correct text entered into this text field.
     description: |
-        Set to `true` to enable automatic spelling correction.
+        Set to `true` to enable automatic spelling correction. On iOS 9+, this can be used to disable QuickType suggestions.
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
@@ -478,7 +478,15 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since: "3.3.0"
-    
+
+  - name: showUndoRedoActions
+    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    type: Boolean
+    default: true
+    platforms: [ipad]
+    osver: {ios: {min: "9.0"}}
+    since: 4.3.0
+
   - name: textAlign
     summary: Text alignment within this text field.
     type: [String, Number]

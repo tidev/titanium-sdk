@@ -6,6 +6,9 @@
  */
 
 #import "TiAppiOSUserActivityProxy.h"
+#if IS_XCODE_7
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
+#endif
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOS
@@ -53,8 +56,6 @@
     _isValid = NO;
     if([TiUtils isIOS8OrGreater]){
         if([props objectForKey:@"activityType"]){
-            NSArray *supportedActivityTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSUserActivityTypes"];
-            
             if(![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]]){
                 DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
                 return NO;
@@ -126,9 +127,9 @@
 
 -(NSDictionary*)copyActivity
 {
-    NSMutableDictionary *dict = [[NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:[_userActivity activityType],@"activityType",
-                                 nil] autorelease];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc]
+                                 initWithObjectsAndKeys:[_userActivity activityType],@"activityType",
+                                 nil];
     
     if([_userActivity title] !=nil){
         [dict setObject:[_userActivity title] forKey:@"title"];
@@ -186,7 +187,7 @@
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywillsave"]){
-        [self fireEvent:@"useractivitywillsave" withObject:[self copyActivity]];
+        [self fireEvent:@"useractivitywillsave" withObject:[[self copyActivity] autorelease]];
     }
 }
 
@@ -195,7 +196,7 @@
 - (void)userActivityWasContinued:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywascontinued"]){
-        [self fireEvent:@"useractivitywascontinued" withObject:[self copyActivity]];
+        [self fireEvent:@"useractivitywascontinued" withObject:[[self copyActivity] autorelease]];
     }
 }
 
@@ -287,6 +288,19 @@
     [_userActivity invalidate];
 }
 
+#pragma mark Add ContentAttributeSet
+-(void)addContentAttributeSet:(id)contentAttributeSet
+{
+#if IS_XCODE_7
+    ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
+    ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+    _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy*)contentAttributeSet).attributes;
+#endif
+}
+
 #pragma mark iOS 9 UserActivity Methods
 #if IS_XCODE_7
 -(NSNumber*)eligibleForPublicIndexing
@@ -376,7 +390,7 @@
 
 -(void)setRequiredUserInfoKeys:(id)keys
 {
-    ENSURE_SINGLE_ARG(keys, NSArray);
+    ENSURE_ARRAY(keys);
     ENSURE_UI_THREAD(setRequiredUserInfoKeys,keys);
     if(![TiUtils isIOS9OrGreater]){
         return;
@@ -395,7 +409,7 @@
 
 -(void)setKeywords:(id)keys
 {
-    ENSURE_SINGLE_ARG(keys, NSArray);
+    ENSURE_ARRAY(keys);
     ENSURE_UI_THREAD(setKeywords,keys);
     if(![TiUtils isIOS9OrGreater]){
         return;

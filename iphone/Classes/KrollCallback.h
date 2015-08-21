@@ -22,7 +22,9 @@
 	TiObjectRef function;
 	KrollContext *context;
 	KrollBridge * bridge;
-	NSLock* contextLock;
+#ifdef TI_USE_KROLL_THREAD
+    NSLock* contextLock;
+#endif
 	NSString *type;
 }
 

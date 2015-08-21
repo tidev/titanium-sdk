@@ -16,6 +16,7 @@
 	
 	WebFont * fontDesc;
 	UIColor * textColor;
+	UIColor * spinnerColor;
 	UILabel * messageLabel;
 }
 

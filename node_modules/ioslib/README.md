@@ -186,6 +186,12 @@ To run all tests:
 npm test
 ```
 
+To see debug logging, set the `DEBUG` environment variable:
+
+```
+DEBUG=1 npm test
+```
+
 To run a specific test suite:
 
 ```

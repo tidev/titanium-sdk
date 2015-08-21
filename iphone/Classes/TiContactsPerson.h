@@ -22,7 +22,6 @@
     CNMutableContact* person;
 #endif
 	ContactsModule* module;
-    NSString* identifier;
 	NSDictionary* iOS9contactProperties;
 }
 

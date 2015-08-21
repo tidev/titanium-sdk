@@ -812,7 +812,7 @@ examples:
                 })
                 var allAlerts = new Array(alert1,alert2);
                 event1.alerts = allAlerts;
-                var newRule = event1.createRecurenceRule({
+                var newRule = event1.createRecurrenceRule({
                                     frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
                                     interval: 1,
                                     daysOfTheWeek: [{dayOfWeek:1,week:2},{dayOfWeek:2}],

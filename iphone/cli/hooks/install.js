@@ -102,9 +102,11 @@ exports.init = function (logger, config, cli) {
 					installCount = 0;
 
 				function quit(force) {
-					if (force || (runningCount <= 0 && startLog)) {
-						var endLogTxt = __('End application log');
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					if (force || runningCount <= 0) {
+						if (startLog) {
+							var endLogTxt = __('End application log');
+							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						}
 						process.exit(0);
 					}
 				}
@@ -174,14 +176,20 @@ exports.init = function (logger, config, cli) {
 						runningCount--;
 						quit();
 					}).on('error', function (err) {
-						err = err.message || err;
-						logger.error(err);
+						err = err.message || err.toString();
+						var details;
 						if (err.indexOf('0xe8008017') !== -1) {
-							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.'));
+							details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
+						} else if (err.indexOf('0xe8008019') !== -1) {
+							details = __('Chances are there is a signing issue. Clean the project and try building the project again.');
+						} else if (err.indexOf('0xe800007f') !== -1) {
+							details = __('Try reconnecting your device and try again.');
 						} else if (err.indexOf('0xe8008016') !== -1) {
-							logger.error(__('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.'));
+							details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
+						} else if (err.indexOf('0xe8008016') !== -1) {
+							details = __('Your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
 						}
-						next && next(err);
+						next && next(new appc.exception(err, details));
 						next = null;
 					}).on('disconnect', function () {
 						if (!running) {

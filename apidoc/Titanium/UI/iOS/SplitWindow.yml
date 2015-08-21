@@ -116,10 +116,54 @@ examples:
             });
             splitWin.open();
 
+  - title: Alloy XML Markup
+    example: |
+        Below is an Alloy version of the previous example. The first window is the `masterView` and the second window is the `detailView`. You can also use the `<Require>` element to add a `<Window>` or `<NavigationWindow>`.
+
+            **views/index.xml:**
+
+            <Alloy>
+              <SplitWindow backgroundColor="white" showMasterInPortrait="true">
+
+                <!-- First window is the masterView -->
+                <NavigationWindow>
+                  <Window title="Master View">
+                    <ListView>
+                      <ListSection headerTitle="Some items">
+                        <ListItem title="Item 1"></ListItem>
+                        <ListItem title="Item 2"></ListItem>
+                        <ListItem title="Item 3"></ListItem>
+                      </ListSection>
+                    </ListView>
+                  </Window>
+                </NavigationWindow>
+
+                <!-- Second window is the detailView -->
+                <NavigationWindow>
+                  <Window title="Detail View">
+                    <Label>I am the detail view.</Label>
+                  </Window>
+                </NavigationWindow>
+              </SplitWindow>
+            </Alloy>
+
+            **controllers/index.js:**
+
+            $.index.addEventListener('visible',function(e){
+              if (e.view == 'detail'){
+                e.button.title = "Master";
+                $.index.detailView.getWindow().leftNavButton = e.button;
+              } else if (e.view == 'master'){
+                $.index.detailView.getWindow().leftNavButton = null;
+              }
+            });
+
+            $.index.open();
+
 ---
 name: animationOption
 summary: |
-    Optional parameter for [setShowMasterInPortrait](Titanium.UI.iOS.SplitWindow.setShowMasterInPortrait) and 
+    Optional parameter for [setShowMasterInPortrait](Titanium.UI.iOS.SplitWindow.setShowMasterInPortrait) and
     [setMasterIsOverlayed](Titanium.UI.iOS.SplitWindow.setMasterIsOverlayed) methods.
 description: |
     On iOS, use the optional parameter `animated` to animate changes to masterView display mode in portrait orientation. For example

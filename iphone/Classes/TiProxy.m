@@ -430,8 +430,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
+#ifdef TI_USE_KROLL_THREAD
 		TiThreadReleaseOnMainThread(modelDelegate, YES);
         modelDelegate = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(modelDelegate);
+        }, YES);
+#endif
     }
 	pageContext=nil;
 	pageKrollObject = nil;
@@ -794,8 +800,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 }
-
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source
+{
+    [self fireCallback:type withArg:argDict withSource:source withHandler:nil];
+}
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))block
 {
 	NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
 	if ([argDict isKindOfClass:[NSDictionary class]])
@@ -804,7 +813,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil)) {
-		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:block];
 		return;
 	}
 	
@@ -813,7 +822,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	for (KrollBridge * currentBridge in bridges)
 	{
 		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
-		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:nil];
 	}
 }
 
@@ -961,20 +970,24 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		return;
 	}
-	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-	if (report || (code != 0))
-	{
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+        TiBindingEvent ourEvent;
+        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+        if (report || (code != 0))
+        {
+            TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil)
+        {
+            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    });
+#endif
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -985,18 +998,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-	if (report || (code != 0)) {
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TiBindingEvent ourEvent;
+        
+        ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+        if (report || (code != 0)) {
+            TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil)
+        {
+            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+    });
 }
 
 
