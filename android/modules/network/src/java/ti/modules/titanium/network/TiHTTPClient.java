@@ -174,6 +174,12 @@ public class TiHTTPClient
 	            }
 	        }
 
+	        // Check for new url that is redirected
+	        URL currentLocation = connection.getURL();
+	        if (autoRedirect && !mURL.sameFile(currentLocation)) {
+	            redirectedLocation = currentLocation.toString();
+	        }
+
 	        // Note on getHeaderFields()
 	        // HttpURLConnection include a mapping
 	        // for the null key; in HTTP's case, this maps to the HTTP status line and is
