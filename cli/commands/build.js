@@ -309,7 +309,7 @@ exports.run = function (logger, config, cli, finished) {
 				logger.error(__('An error occurred during build after %s', delta));
 				if (err instanceof appc.exception) {
 					err.dump(logger.error);
-				} else {
+				} else if (err !== true) {
 					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
 						logger.error(msg);
 					});
@@ -318,7 +318,11 @@ exports.run = function (logger, config, cli, finished) {
 				logger.log.end();
 				process.exit(1);
 			} else {
-//				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				// eventually all platforms will just show how long the build took since they
+				// are responsible for showing the own logging
+				if (platform !== 'iphone' || cli.argv['build-only']) {
+					logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				}
 				logger.log.end();
 			}
 

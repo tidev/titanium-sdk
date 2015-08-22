@@ -87,6 +87,15 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad] 
 methods:
+  - name: addContentAttributeSet
+    summary: |
+        Adds a Titanium.App.iOS.SearchableItemAttributeSet to the user activity.
+    parameters:
+      - name: parameters
+        summary: Properties to set on a new object, including any defined by Titanium.App.iOS.SearchableItemAttributeSet except those marked not-creation or read-only.
+        type: Dictionary<Titanium.App.iOS.SearchableItemAttributeSet>
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
   - name: becomeCurrent
     summary: |
         Marks the receiver as the activity currently in use by the user.

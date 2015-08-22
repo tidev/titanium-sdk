@@ -40,8 +40,9 @@ exports.install = install;
 function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {
 		if (cache && !options.bypassCache) {
-			emitter.emit('detected', cache);
-			return callback(null, cache);
+			var dupe = JSON.parse(JSON.stringify(cache));
+			emitter.emit('detected', dupe);
+			return callback(null, dupe);
 		}
 
 		iosDevice.devices(function (err, devices) {
@@ -50,13 +51,17 @@ function detect(options, callback) {
 				return callback(err);
 			}
 
-			cache = {
-				devices: JSON.parse(JSON.stringify(devices)),
+			var results = {
+				devices: devices,
 				issues: []
 			};
 
-			emitter.emit('detected', cache);
-			return callback(null, cache);
+			// the cache must be a clean copy that we'll clone for subsequent detect() calls
+			// because we can't allow the cache to be modified by reference
+			cache = JSON.parse(JSON.stringify(results));
+
+			emitter.emit('detected', results);
+			return callback(null, results);
 		});
 	});
 };

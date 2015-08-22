@@ -69,7 +69,6 @@ methods:
     returns:
         type: Titanium.App.iOS.UserDefaults
     since: "4.0.0"
-
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
 

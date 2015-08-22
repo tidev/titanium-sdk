@@ -3839,6 +3839,9 @@
   "application/vnd.uplanet.signal": {
     "source": "iana"
   },
+  "application/vnd.uri-map": {
+    "source": "iana"
+  },
   "application/vnd.valve.source.material": {
     "source": "iana"
   },

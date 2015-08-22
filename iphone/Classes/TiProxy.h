@@ -10,6 +10,10 @@
 #import "TiBindingRunLoop.h"
 #import <pthread.h>
 
+#ifndef TI_BASE_H
+#import "TiBase.h"
+#endif
+
 @class KrollBridge;
 @class KrollObject;
 
@@ -275,6 +279,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 //SetCallback is done internally by setValue:forUndefinedKey:
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))handler;
 
 #pragma mark Public 
 

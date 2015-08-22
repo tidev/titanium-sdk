@@ -1008,7 +1008,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	var targetSDKMap = {};
 	Object.keys(this.androidInfo.targets).forEach(function (i) {
 		var t = this.androidInfo.targets[i];
-		if (t.type == 'platform') {
+		if (t.type === 'platform') {
 			targetSDKMap[t.id.replace('android-', '')] = t;
 		}
 	}, this);
@@ -1049,30 +1049,24 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.log();
 	}
 
-	function normalizeVersion(ver, type) {
-		ver = (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
-		if (ver && tiappAndroidManifest) {
-			tiappAndroidManifest['uses-sdk'] || (tiappAndroidManifest['uses-sdk'] = {});
-			tiappAndroidManifest['uses-sdk'][type] = ver;
-		}
-		return ver;
-	}
-
 	if (usesSDK) {
 		usesSDK.minSdkVersion    && (this.minSDK    = usesSDK.minSdkVersion);
 		usesSDK.targetSdkVersion && (this.targetSDK = usesSDK.targetSdkVersion);
 		usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
 	}
 
-	// make sure the SDK versions are actual SDK versions and not the codenames
-	this.minSDK    = normalizeVersion(this.minSDK,    'minSdkVersion');
-	this.targetSDK = normalizeVersion(this.targetSDK, 'targetSdkVersion');
-	this.maxSDK    = normalizeVersion(this.maxSDK,    'maxSdkVersion');
+	// we need to translate the sdk to a real api level (i.e. L => 20, MNC => 22) so that
+	// we can valiate them
+	function getRealAPILevel(ver) {
+		return (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
+	}
+	this.realMinSDK    = getRealAPILevel(this.minSDK);
+	this.realTargetSDK = getRealAPILevel(this.targetSDK);
+	this.realMaxSDK    = getRealAPILevel(this.maxSDK);
 
 	// min sdk is too old
-	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
-	if (minApiLevel && minApiLevel < this.minSupportedApiLevel) {
-		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
+	if (this.minSDK && this.realMinSDK < this.minSupportedApiLevel) {
+		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK + (this.minSDK !== this.realMinSDK ? ' (' + this.realMinSDK + ')' : '')) + '\n');
 		logger.log(
 			appc.string.wrap(
 				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
@@ -1095,62 +1089,68 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	// target sdk is too old
-	if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
-		logger.error(__('The target SDK version must be %s or newer, but is currently set to %s', this.minTargetApiLevel, this.targetSDK) + '\n');
-		logger.log(
-			appc.string.wrap(
-				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
-				config.get('cli.width', 100)
-			)
-		);
-		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.log('    <android>'.grey);
-		logger.log('        <manifest>'.grey);
-		logger.log(('            <uses-sdk '
-			+ (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
-			+ 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
-			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-			+ '/>').magenta);
-		logger.log('        </manifest>'.grey);
-		logger.log('    </android>'.grey);
-		logger.log('</ti:app>'.grey);
-		logger.log();
-		process.exit(1);
-	}
+	if (this.targetSDK) {
+		// target sdk is too old
+		if (this.realTargetSDK < this.minTargetApiLevel) {
+			logger.error(__('The target SDK %s is not supported by Titanium SDK %s', this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : ''), ti.manifest.version));
+			logger.error(__('The target SDK version must be %s or newer', this.minTargetApiLevel) + '\n');
+			logger.log(
+				appc.string.wrap(
+					__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
+					config.get('cli.width', 100)
+				)
+			);
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <android>'.grey);
+			logger.log('        <manifest>'.grey);
+			logger.log(('            <uses-sdk '
+				+ (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
+				+ 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
+				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+				+ '/>').magenta);
+			logger.log('        </manifest>'.grey);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+			process.exit(1);
+		}
 
-	// target sdk < min sdk
-	if (this.targetSDK && this.targetSDK < minApiLevel) {
-		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
-		process.exit(1);
-	}
+		// target sdk < min sdk
+		if (this.realTargetSDK < this.realMinSDK) {
+			logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s',
+				this.minSDK + (this.minSDK !== this.realMinSDK ? ' (' + this.realMinSDK + ')' : ''),
+				this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')
+			) + '\n');
+			process.exit(1);
+		}
 
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(function (a, b) {
+	} else {
+		// if no target sdk, then default to most recent supported/installed
+		Object
+			.keys(targetSDKMap)
+			.sort(function (a, b) {
 				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
 					return 0;
 				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
 					return -1;
 				}
 				return 1;
-			}),
-			i = levels.length - 1;
-
-		for (; i >= 0; i--) {
-			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = targetSDKMap[levels[i]].sdk;
-				break;
-			}
-		}
+			})
+			.reverse()
+			.some(function (ver) {
+				if (targetSDKMap[ver].sdk >= this.minTargetApiLevel && targetSDKMap[ver].sdk <= this.maxSupportedApiLevel) {
+					this.targetSDK = this.realTargetSDK = targetSDKMap[ver].sdk;
+					return true;
+				}
+			}, this);
 
 		if (!this.targetSDK) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
 
-		if (this.targetSDK < this.minTargetApiLevel) {
+		if (this.realTargetSDK < this.minTargetApiLevel) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
@@ -1198,20 +1198,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		process.exit(1);
 	}
 
-	if (this.targetSDK < this.minSDK) {
+	if (this.realTargetSDK < this.realMinSDK) {
 		logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
 		process.exit(1);
 	}
 
-	var maxApiLevel = this.maxSDK && targetSDKMap[this.maxSDK] && targetSDKMap[this.maxSDK].sdk;
-	if (maxApiLevel && maxApiLevel < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+	if (this.realMaxSDK && this.realMaxSDK < this.realTargetSDK) {
+		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s',
+			this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : ''),
+			this.maxSDK + (this.maxSDK !== this.realMaxSDK ? ' (' + this.realMaxSDK + ')' : '')
+		) + '\n');
 		process.exit(1);
 	}
 
-	if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
+	if (this.maxSupportedApiLevel && this.realTargetSDK > this.maxSupportedApiLevel) {
 		// print warning that version this.targetSDK is not tested
-		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
+		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s',
+			String(this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')).cyan,
+			this.titaniumSdkVersion
+		));
 	}
 
 	// determine the abis to support
@@ -1235,8 +1240,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
 		// no --device-id, so intelligently auto select one
-		var ver = targetSDKMap[this.targetSDK].version,
-			apiLevel = targetSDKMap[this.targetSDK].sdk,
+		var ver = this.androidTargetSDK.version,
+			apiLevel = this.androidTargetSDK.sdk,
 			devices = this.devicesToAutoSelectFrom,
 			i,
 			len = devices.length,
@@ -1794,7 +1799,7 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 		}
 	}
 
-	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK).cyan));
+	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')).cyan));
 	this.logger.info(__('Building for the following architectures: %s', this.abis.join(', ').cyan));
 	this.logger.info(__('Signing with keystore: %s', (this.keystore + ' (' + this.keystoreAlias.name + ')').cyan));
 
@@ -3607,7 +3612,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
 	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.targetSDK >= 13) {
+	if (this.realTargetSDK >= 13) {
 		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
 			var activity = finalAndroidManifest.application.activity[name];
 			if (!activity.configChanges) {

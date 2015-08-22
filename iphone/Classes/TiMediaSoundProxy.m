@@ -276,9 +276,9 @@
 	} else if ([url_ isKindOfClass:[TiFile class]]) {
 		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
 	}
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread(^{
         [self player];  // instantiate the player
-    });
+    }, YES);
 }
 
 -(NSURL*)url
