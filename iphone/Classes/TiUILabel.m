@@ -410,6 +410,18 @@
 	[[self label] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
 }
 
+-(void)setEllipsize_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber);
+	//for bool case
+	if ([TiUtils intValue:value] == 1) {
+		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
+		return;
+	}
+    NSNumber *num = value;
+	[[self label] setLineBreakMode:[TiUtils intValue:value]];
+}
+
 -(void)setHighlightedColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
