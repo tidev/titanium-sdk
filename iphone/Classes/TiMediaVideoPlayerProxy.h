@@ -8,6 +8,7 @@
 
 #import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
+#import <AVKit/AVKit.h>
 #import "TiViewProxy.h"
 #import "TiColor.h"
 #import "TiFile.h"
@@ -26,6 +27,7 @@
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
 	NSUInteger callbackRequestCount;
+    BOOL seekToZeroBeforePlay;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 	BOOL sizeSet;

@@ -578,20 +578,13 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
-// Note that if we set the value on the UI thread, we have to return the value from the UI thread -
-// otherwise the request for the value may come in before it's set.  The alternative is to r/w lock
-// when reading properties - maybe we should do that instead.
 -(NSNumber*)fullscreen
 {
-	if (![NSThread isMainThread]) {
-		__block id result;
-		TiThreadPerformOnMainThread(^{result = [[self fullscreen] retain];}, YES);
-		return [result autorelease];
-	}
-	
 	if (movie != nil) {
-		NSNumber* result = NUMBOOL([movie isFullscreen]);
-		return result;
+        CGRect movieBounds = movie.videoBounds;
+        CGRect deviceBounds = [[UIScreen mainScreen] bounds];
+
+        return NUMBOOL(movieBounds.size.width == deviceBounds.size.width && movieBounds.size.height == deviceBounds.size.height);
 	}
 	else {
 		RETURN_FROM_LOAD_PROPERTIES(@"fullscreen",NUMBOOL(NO));
@@ -730,6 +723,13 @@ NSArray* moviePlayerKeys = nil;
 	
 	playing = YES;
     AVPlayer *player = [self ensurePlayer].player;
+    
+    if (seekToZeroBeforePlay == YES)
+    {
+        seekToZeroBeforePlay = NO;
+        [player seekToTime:kCMTimeZero];
+    }
+    
     [player play];
 }
 
@@ -871,6 +871,12 @@ NSArray* moviePlayerKeys = nil;
         [[[TiApp app] controller] resizeView];
         [[[TiApp app] controller] repositionSubviews];
     }, NO);
+}
+
+/* Called when the player item has played to its end time. */
+- (void)playerItemDidReachEnd:(NSNotification *)notification
+{
+    seekToZeroBeforePlay = YES;
 }
 
 
