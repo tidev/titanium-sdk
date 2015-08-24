@@ -1380,10 +1380,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 					// projectPath could be either the path to a project directory or the actual .xcodeproj
 					ext.origProjectPath = ext.projectPath;
-					ext.projectPath = appc.fs.resolvePath(ext.projectPath);
+					ext.projectPath = ext.projectPath[0] === '/' ? appc.fs.resolvePath(ext.projectPath) : appc.fs.resolvePath(this.projectDir, ext.projectPath);
 
 					var xcodeprojRegExp = /\.xcodeproj$/;
-
 					if (!xcodeprojRegExp.test(ext.projectPath)) {
 						// maybe we're the parent dir?
 						ext.projectPath = path.join(ext.projectPath, path.basename(ext.projectPath) + '.xcodeproj');
@@ -3328,7 +3327,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 				this.logger.warn(__('Info.plist references non-existent font: %s', cyan(f)));
 				fontMap[f] = 1;
 			}
-		});
+		}, this);
 	}
 
 	var fonts = Object.keys(fontMap);
