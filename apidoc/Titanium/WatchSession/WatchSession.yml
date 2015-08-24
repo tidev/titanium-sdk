@@ -51,8 +51,7 @@ methods:
     description: |
         Sends a message to the installed watchapp on the apple watch in the foreground. 
     parameters: 
-      - name: message
-        summary: Message to send to apple watch.
+      - summary: Message to send to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -64,8 +63,7 @@ methods:
         watchapp's delegate will receive the app context immediately when it becomes active. Only 1 app
         context is stored at any one time, subsequent updates will simply replace the earlier one sent.
     parameters: 
-      - name: appContext
-        summary: App context to be updated in apple watch.
+      - summary: App context to be updated in apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -76,8 +74,7 @@ methods:
         Transfers an user info object to the installed watchapp on the apple watch in the background.
         Subsequent transfers are queued. 
     parameters: 
-      - name: userInfo
-        summary: userInfo to be transferred to apple watch.
+      - summary: userInfo to be transferred to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -103,8 +100,7 @@ methods:
         Transfers complication data to the installed watchapp on the apple watch. This is only for
         watch apps with complication enabled.
     parameters: 
-      - name: complication
-        summary: complication to be transferred to apple watch.
+      - summary: complication to be transferred to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
