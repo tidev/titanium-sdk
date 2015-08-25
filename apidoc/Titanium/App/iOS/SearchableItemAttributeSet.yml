@@ -1,8 +1,8 @@
 ---
 name: Titanium.App.iOS.SearchableItemAttributeSet
+summary: The SearchableItemAttributeSet module is used to add meta data specific a Ti.App.iOS.SearchableItem entry.
 description: |
-    The SearchableItemAttributeSet module is used to add meta data specific a Ti.App.iOS.SearchableItem entry. The  
-    SearchableItemAttributeSet object provides a large number of properties covering most common scenarios such 
+    The SearchableItemAttributeSet object provides a large number of properties covering most common scenarios such 
     as files, music, video, and document searches. To effectively add and remove information from the iOS search index 
     you will need to use the below listed modules:
 
@@ -14,7 +14,7 @@ description: |
 
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
-since: "4.3.0"
+since: "5.0.0"
 createable: true
 properties:
   - name: displayName

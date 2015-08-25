@@ -1,8 +1,8 @@
 ---
 name: Titanium.App.iOS.SearchableItem
+summary: Used to create a unique object containing all of the search information that will appear in the device search index.
 description: |
-    The SearchableItem module is used to create a unique object containing all of the search information that will
-    appear in the device search index. To effectively add and remove information from the iOS search index 
+    To effectively add and remove information from the iOS search index 
     you will need to use the below listed modules:
 
     * Ti.App.iOS.SearchableItemAttributeSet - Used to create meta data related to the Titanium.App.iOS.SearchableItem
@@ -13,7 +13,7 @@ description: |
 
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
-since: "4.3.0"
+since: "5.0.0"
 createable: true
 properties:
   - name: uniqueIdentifier

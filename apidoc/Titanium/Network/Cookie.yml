@@ -32,20 +32,17 @@ properties:
     description: |
         Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
 
-        This has been removed since 5.1.0 in Android. Please use the property `maxAge`
+        This has been deprecated and removed since 5.0.0 in Android. Please use the property `maxAge`
         for Cookies in Android.
     type: String
     platforms: [iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
-    deprecated:
-        since: {android: "5.1.0"}
-        removed: {android: "5.1.0"}
 
   - name: maxAge
     summary: Sets the Max-Age attribute of a Cookie, in delta-seconds.
     type: Number
     platforms: [android]
-    since: "5.1.0"
+    since: "5.0.0"
 
   - name: httponly
     summary: The httponly attribute of the cookie.
