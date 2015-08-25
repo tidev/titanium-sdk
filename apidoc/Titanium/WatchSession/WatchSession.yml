@@ -45,6 +45,13 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
 methods:
+  - name: activate
+    summary: |
+        Activates watch session
+    description: |
+        Activates watch session to make app ready to receive messages from the watchapp.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
   - name: sendMessage
     summary: |
         Sends a message to the apple watch.

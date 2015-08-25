@@ -93,6 +93,11 @@
 }
 
 #pragma mark watch session methods
+-(void)activate:(id)value
+{
+    [self watchSession];
+}
+
 -(void)sendMessage:(id)value
 {
     if ([WCSession isSupported] == NO) {
