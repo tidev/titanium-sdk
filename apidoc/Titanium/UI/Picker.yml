@@ -20,7 +20,7 @@ description: |
     and `height` properties, but may omit picker columns or cut off picker rows
     if the size is set too small.
     
-    On iOS, by default, the size of the picker, including its background, is fixed at the
+    On iOS, by default, the size of the picker, is fixed at the
     same size as the iPhone keyboard to respect the
     [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
     The size of the picker should not be modified.
@@ -206,7 +206,7 @@ events:
         
 properties:
   - name: backgroundColor
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.

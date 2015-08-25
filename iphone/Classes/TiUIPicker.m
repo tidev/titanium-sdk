@@ -8,6 +8,7 @@
 
 #import "TiUIPicker.h"
 #import "TiUtils.h"
+ #import "Webcolor.h"
 #import "TiUIPickerRowProxy.h"
 #import "TiUIPickerColumnProxy.h"
 
@@ -148,6 +149,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	[self selectRowForColumn:column row:row animated:animated];
 }
 
+-(void)setBackgroundColor_:(id)color
+{
+	[[self picker] setBackgroundColor:[Webcolor webColorNamed:color]];
+}
 
 #pragma mark Public APIs 
 
