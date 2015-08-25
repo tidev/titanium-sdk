@@ -75,8 +75,8 @@ properties:
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
-  - name: keyWords
-    summary: Represents keywords associated with this particular item. Example Keywords might be Birthday etc.
+  - name: keywords
+    summary: Represents keywords associated with this particular item. Example keywords might be Birthday etc.
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -584,7 +584,7 @@ examples:
             });
             
             itemAttr.contentDescription ="Tech Example \nOn: " + String.formatDate(new Date(),"short");
-            itemAttr.keyWords =["Mobile","Appcelerator","Titanium"];
+            itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
 
             var item = Ti.App.iOS.createSearchableItem({
                 identifier:"my-id",

@@ -198,15 +198,15 @@
 
 //Represents keywords associated with this particular item.
 //Example Keywords might be Birthday,Important etc.
--(NSArray*)keyWords
+-(NSArray*)keywords
 {
     return _attributes.keywords;
 }
 
--(void)setKeyWords:(id)words
+-(void)setKeywords:(id)words
 {
     ENSURE_ARRAY(words)
-    ENSURE_UI_THREAD(setKeyWords,words);
+    ENSURE_UI_THREAD(setKeywords,words);
     _attributes.keywords = words;
 }
 
