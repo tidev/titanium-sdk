@@ -138,8 +138,8 @@ methods:
     platforms: [android]
     since: {android: "3.0.0"}
     deprecated:
-        since: {android: "5.1.0"}
-        removed: {android: "5.1.0"}
+        since: "5.0.0"
+        removed: "5.0.0"
 
   - name: addKeyManager
     summary: Adds a custom key manager.

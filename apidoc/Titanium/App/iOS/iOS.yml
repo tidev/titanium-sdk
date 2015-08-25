@@ -153,7 +153,7 @@ methods:
 
   - name: sendWatchExtensionReply
     deprecated:
-        since: "4.3.0"
+        since: "5.0.0"
         notes: |
             Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS 9 and later.
     summary: |
@@ -303,7 +303,7 @@ properties:
     type: Array<String>
     permission: read-only
     osver: {ios: {min: "8.0"}}
-    since: "4.3.0"
+    since: "5.0.0"
 
   - name: applicationOpenSettingsURL
     summary: Returns a URL to open the app's settings.
@@ -644,7 +644,7 @@ events:
 
   - name: watchkitextensionrequest
     deprecated:
-        since: "4.3.0"
+        since: "5.0.0"
         notes: |
             Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
@@ -708,7 +708,7 @@ events:
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.2"}}
-    since: '4.3.0'
+    since: '5.0.0'
 
 ---
 name: NotificationParams

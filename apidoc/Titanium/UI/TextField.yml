@@ -485,7 +485,7 @@ properties:
     default: true
     platforms: [ipad]
     osver: {ios: {min: "9.0"}}
-    since: 4.3.0
+    since: 5.0.0
 
   - name: textAlign
     summary: Text alignment within this text field.

@@ -1,7 +1,7 @@
 ---
 name: Titanium.App.iOS.SearchableIndex
+summary: The SearchableIndex module is used to add or remove Ti.App.iOS.SearchableItem object from the device search index. 
 description: |
-    The SearchableIndex module is used to add or remove Ti.App.iOS.SearchableItem object from the device search index. 
     To effectively add and remove information from the iOS search index you will need to use the below listed modules:
 
     * Ti.App.iOS.SearchableItemAttributeSet - Used to create meta data related to the Titanium.App.iOS.SearchableItem
@@ -12,7 +12,7 @@ description: |
 
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
-since: "4.3.0"
+since: "5.0.0"
 createable: true
 methods:
   - name: isSupported
@@ -20,7 +20,7 @@ methods:
     returns:
         type: Boolean
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}       
+    osver: {ios: {min: "9.0"}}
 
   - name: AddToDefaultSearchableIndex
     summary: |
