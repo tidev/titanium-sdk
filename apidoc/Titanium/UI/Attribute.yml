@@ -93,7 +93,7 @@ properties:
         On IOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the only supported iOS 7 constant
         <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE>.
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_BREAK>, you must use one of
+        On IOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
         these constants:
 
           * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING>
