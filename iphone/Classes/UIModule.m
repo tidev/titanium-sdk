@@ -540,6 +540,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -605,7 +606,30 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 {
     return NSTextEffectLetterpressStyle;
 }
-
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByWordWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByCharWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+{
+    return NUMINTEGER(NSLineBreakByClipping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+{
+    return NUMINTEGER(NSLineBreakByTruncatingHead);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+{
+    return NUMINTEGER(NSLineBreakByTruncatingTail);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+{
+    return NUMINTEGER(NSLineBreakByTruncatingMiddle);
+}
 #endif
 
 @end

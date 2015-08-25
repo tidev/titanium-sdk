@@ -177,6 +177,14 @@
             attrName = NSExpansionAttributeName;
             attrValue = [TiUtils numberFromObject:value];
             break;
+            
+        case AttributeNameLineBreak:
+            attrName = NSParagraphStyleAttributeName;
+            NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+            NSNumber * num = [TiUtils numberFromObject:value];
+            [paragraphStyle setLineBreakMode:[num unsignedIntegerValue]];
+            attrValue = paragraphStyle;
+            break;
 	}
 	if(errorMessage != nil) {
 		DebugLog(@"[WARN] Ti.UI.%@", errorMessage);
