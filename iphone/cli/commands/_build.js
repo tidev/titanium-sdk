@@ -4118,9 +4118,28 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ] },
 					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ] }
 				},
-				maxDim = Object.keys(lookup).map(function (key) {
+				deviceFamily = this.deviceFamily,
+				maxDim;
+
+			if (deviceFamily !== 'universal') {
+				// remove all unnecessary icons from the lookup
+				Object.keys(lookup).forEach(function (key) {
+					if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1) {
+						// remove ipad only
+						delete lookup[key];
+					} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1) {
+						// remove iphone only
+						delete lookup[key];
+					}
+				});
+			}
+
+			maxDim = Object
+				.keys(lookup)
+				.map(function (key) {
 					return lookup[key].width * lookup[key].scale;
-				}).reduce(function (a, b) {
+				})
+				.reduce(function (a, b) {
 					return a > b ? a : b;
 				});
 
@@ -4340,8 +4359,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					return;
 				}
 
-				if (this.deviceFamily === 'iphone' && meta.idiom === 'ipad') {
-					// skip iPad specific launch images for iPhone-only apps
+				// skip device specific launch images
+				if (this.deviceFamily === 'iphone' && meta.idiom !== 'iphone') {
+					this.logger.debug(__('Skipping iPad launch image: %s', info.src.replace(this.projectDir + '/', '').cyan));
+					return;
+				}
+
+				if (this.deviceFamily === 'ipad' && meta.idiom !== 'ipad') {
+					this.logger.debug(__('Skipping iPhone launch image: %s', info.src.replace(this.projectDir + '/', '').cyan));
 					return;
 				}
 
@@ -4372,13 +4397,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				totalMissing = 0;
 			Object.keys(found).forEach(function (lang) {
 				Object.keys(lookup).forEach(function (filename) {
-					if (!found[lang][filename]) {
+					if (!found[lang][filename] && (this.deviceFamily !== 'ipad' || lookup[filename].idiom === 'ipad') && (this.deviceFamily !== 'iphone' || lookup[filename].idiom === 'iphone')) {
 						missing[lang] || (missing[lang] = {});
 						missing[lang][filename] = 1;
 						totalMissing++;
 					}
-				});
-			});
+				}, this);
+			}, this);
 
 			if (totalMissing) {
 				// we have missing launch images :(
