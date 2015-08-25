@@ -133,6 +133,13 @@ function iOSBuilder() {
 
 	// an array of products (Xcode targets) being built
 	this.products = [];
+
+	// when true and Apple Transport Security is manually enabled via custom Info.plist or
+	// tiapp.xml <ios><plist> section, then injects appcelerator.com whitelisted
+	//
+	// we default to true, but if "ios.whitelist.appcelerator.com" tiapp.xml property is
+	// set to false, then we'll force appcelerator.com to NOT be whitelisted
+	this.whitelistAppceleratorDotCom = true;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2065,6 +2072,11 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
+
+	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
+		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
+		this.whitelistAppceleratorDotCom = false;
+	}
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -3083,7 +3095,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		plist = this.infoPlist = new appc.plist(),
 		iphone = this.tiapp.iphone,
 		ios = this.tiapp.ios,
-		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid']['value'],
+		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid'].value,
 		iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 		consts = {
 			'__APPICON__': iconName,
@@ -3298,6 +3310,36 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	// override the CFBundleIdentifier to the app id
 	plist.CFBundleIdentifier = this.tiapp.id;
+
+	// inject Apple Transport Security settings
+	if (!plist.NSAppTransportSecurity || typeof plist.NSAppTransportSecurity !== 'object') {
+		this.logger.debug(__('Disabling ATS'));
+		// disable ATS
+		plist.NSAppTransportSecurity = {
+			NSAllowsArbitraryLoads: true
+		};
+	} else if (!plist.NSAppTransportSecurity.NSAllowsArbitraryLoads && this.whitelistAppceleratorDotCom) {
+		// we have a whitelist, make sure appcelerator.com is in the list
+		plist.NSAppTransportSecurity || (plist.NSAppTransportSecurity = {});
+		plist.NSAppTransportSecurity.NSAllowsArbitraryLoads = false;
+
+		this.logger.debug(__('Inject appcelerator.com into ATS whitelist'));
+		plist.NSAppTransportSecurity.NSExceptionDomains || (plist.NSAppTransportSecurity.NSExceptionDomains = {});
+		if (!plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com']) {
+			plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com'] = {
+				NSExceptionMinimumTLSVersion: 'TLSv1.2',
+				NSExceptionRequiresForwardSecrecy: true,
+				NSExceptionAllowsInsecureHTTPLoads: false,
+				NSRequiresCertificateTransparency: false,
+				NSIncludesSubdomains: true,
+				NSThirdPartyExceptionMinimumTLSVersion: 'TLSv1.2',
+				NSThirdPartyExceptionRequiresForwardSecrecy: true,
+				NSThirdPartyExceptionAllowsInsecureHTTPLoads: true
+			};
+		}
+	} else {
+		this.logger.debug(__('ATS enabled, but appcelerator.com sites will be unreachable'));
+	}
 
 	if (this.target === 'device' && this.deviceId === 'itunes') {
 		// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync.
