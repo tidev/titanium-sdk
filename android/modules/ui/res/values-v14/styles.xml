@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TiPreferences" parent="@android:style/Theme.Holo" />
+    <style name="Theme.TiPreferences" parent="@android:style/Theme.Holo">
+   		<item name="android:actionBarStyle">@style/ActionBar.V14.TiPreferences</item>
+    </style>
+    
+    <!-- Activity action bar styles -->
+    <style name="ActionBar.V14.TiPreferences" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+    	<!-- For Material Theme, primary_dark_material_dark is #ff000000-->
+        <item name="android:background">#ff000000</item>
+        <item name="android:height">56dp</item>
+        <item name="android:titleTextStyle">@style/ActionBar.V14.TiPreferences.TitleTextStyle</item>
+        <item name="android:logo">@android:color/transparent</item>
+    </style>
+    
+    <style name="ActionBar.V14.TiPreferences.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title" >
+     <item name="android:textColor">@android:color/white</item>
+	</style>
 
 </resources>
