@@ -93,6 +93,11 @@
 }
 
 #pragma mark watch session methods
+-(void)activate:(id)value
+{
+    [self watchSession];
+}
+
 -(void)sendMessage:(id)value
 {
     if ([WCSession isSupported] == NO) {
@@ -103,10 +108,8 @@
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
-    ENSURE_SINGLE_ARG(value,NSDictionary)
-    id message = [value objectForKey:@"message"];
-    ENSURE_SINGLE_ARG(message, NSDictionary)
-    [[self watchSession] sendMessage:message replyHandler:nil errorHandler:nil];
+    ENSURE_SINGLE_ARG(value, NSDictionary)
+    [[self watchSession] sendMessage:value replyHandler:nil errorHandler:nil];
 }
 //sent to watch so that it can update its state when it wakes
 -(void)updateAppContext:(id)value
@@ -120,10 +123,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id appContext = [value objectForKey:@"appContext"];
-    ENSURE_SINGLE_ARG(appContext, NSDictionary)
     NSError *error = nil;
-    if (![[self watchSession] updateApplicationContext:appContext error:&error]) {
+    if (![[self watchSession] updateApplicationContext:value error:&error]) {
         [self throwException:[NSString stringWithFormat:@"Unable to update Application Context: %@",[TiUtils messageFromError:error]]
                    subreason:nil
                     location:CODELOCATION];
@@ -142,10 +143,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id userInfo = [value objectForKey:@"userInfo"];
-    ENSURE_SINGLE_ARG(userInfo, NSDictionary)
     
-    [[self watchSession] transferUserInfo:userInfo];
+    [[self watchSession] transferUserInfo:value];
 }
 
 //sent in background
@@ -181,10 +180,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id complication = [value objectForKey:@"complication"];
-    ENSURE_SINGLE_ARG(complication, NSDictionary)
     
-    [[self watchSession] transferCurrentComplicationUserInfo:complication];
+    [[self watchSession] transferCurrentComplicationUserInfo:value];
 }
 
 -(void)cancelAllUserInfoTransfers:(id)value
