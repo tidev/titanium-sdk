@@ -41,6 +41,10 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
 
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_START;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_END;
+
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_TOP;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_BOTTOM;

@@ -1118,7 +1118,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
@@ -1127,7 +1127,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_END
@@ -1136,7 +1136,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
     
   - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
