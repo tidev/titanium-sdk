@@ -1,9 +1,9 @@
 ---
 name: Titanium.WatchSession
+summary: Used to enable transfer of data between an apple watch and a titanium app
 description: |
     WatchSession is used to enable transfer of data between an apple watch and a titanium app via Watch Connectivity
     framework introduced in iOS9. WatchSession only supports watchOS2.
-
 extends: Titanium.Module
 platforms: [iphone,ipad]
 since: "5.0.0"
@@ -59,7 +59,7 @@ methods:
         Sends a message to the installed watchapp on the apple watch in the foreground. 
     parameters: 
       - name: params
-      - summary: Message to send to apple watch.
+        summary: Message to send to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -72,7 +72,7 @@ methods:
         context is stored at any one time, subsequent updates will simply replace the earlier one sent.
     parameters: 
       - name: params    
-      - summary: App context to be updated in apple watch.
+        summary: App context to be updated in apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -84,7 +84,7 @@ methods:
         Subsequent transfers are queued. 
     parameters:
       - name: params
-      - summary: userInfo to be transferred to apple watch.
+        summary: userInfo to be transferred to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
@@ -111,7 +111,7 @@ methods:
         watch apps with complication enabled.
     parameters: 
       - name: params
-      - summary: complication to be transferred to apple watch.
+        summary: complication to be transferred to apple watch.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
