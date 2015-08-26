@@ -113,8 +113,8 @@
                                               [TiUtils stringValue:@"expirationDate" properties:props]]];
         }
         
-        if([props objectForKey:@"keyWords"]){
-            [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keyWords"]]];
+        if([props objectForKey:@"keywords"]){
+            [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keywords"]]];
         }
         
         if([props objectForKey:@"requiredUserInfoKeys"]){
@@ -398,7 +398,7 @@
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:keys]];
 }
 
--(NSArray*)keyWords
+-(NSArray*)keywords
 {
     if(![TiUtils isIOS9OrGreater]){
         return;

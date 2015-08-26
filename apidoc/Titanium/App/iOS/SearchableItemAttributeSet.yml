@@ -563,8 +563,8 @@ properties:
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
-  - name: URL
-    summary: URL of the item.
+  - name: url
+    summary: url of the item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
