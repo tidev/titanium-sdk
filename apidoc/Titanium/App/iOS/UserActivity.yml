@@ -45,7 +45,7 @@ properties:
     type: Boolean
     osver: {ios: {min: "8.0"}}
     platforms: [iphone,ipad]    
-  - name: keyWords
+  - name: keywords
     summary: An array of String keywords representing words or phrases that might help the user to find this activity in the application history.
     type: Array<String>
     osver: {ios: {min: "9.0"}}
