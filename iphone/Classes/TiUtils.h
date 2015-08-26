@@ -650,6 +650,9 @@ typedef enum
 
 
 +(NSDictionary*)proxyToJSON:(TiProxy*)proxy;
++ (void) dumpViews:(UIView*) view label:(NSString *) text indent:(NSString*) indent detail:(BOOL)flag;
++ (void) dumpViews:(UIView*) view detail:(BOOL)flag;
+
 @end
 
 

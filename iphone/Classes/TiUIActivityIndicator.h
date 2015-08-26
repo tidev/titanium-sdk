@@ -17,6 +17,7 @@
 	WebFont * fontDesc;
 	UIColor * textColor;
 	UILabel * messageLabel;
+    BOOL _constraintsAdded;
 }
 
 -(UIActivityIndicatorView*)indicatorView;

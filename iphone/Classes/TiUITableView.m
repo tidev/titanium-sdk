@@ -1,4 +1,4 @@
-/**
+    /**
  * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
@@ -402,8 +402,8 @@
 		{
 			[tableview setRowHeight:rowHeight.value];
 		} else if ([TiUtils isIOS8OrGreater]) {
-            tableview.estimatedRowHeight = 44;
-            tableview.rowHeight = UITableViewAutomaticDimension;
+            tableview.estimatedRowHeight = UITableViewAutomaticDimension;
+            tableview.rowHeight = 44;
 		}
 		
         BOOL initBackGround = YES;
@@ -840,9 +840,18 @@
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
 {
-    CGSize maxSize = CGSizeMake(320, 1000);
+    CGSize maxSize = self.bounds.size;
+    if (CGSizeEqualToSize(maxSize, CGSizeZero)) {
+        if (TiDimensionIsDip([self tiLayoutConstraint]->width)) {
+            maxSize.width = [self tiLayoutConstraint]->width.value;
+            maxSize.height = 10000;
+        } else {
+            maxSize = [[UIScreen mainScreen] bounds].size;
+        }
+    }
+
     UIFont *font = [[WebFont defaultBoldFont] font];
-    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
+    UILabel *headerLabel = [[[UILabel alloc] init] autorelease];
     headerLabel.text = text;
     headerLabel.textColor = [UIColor blackColor];
     headerLabel.shadowColor = [UIColor whiteColor];
@@ -851,23 +860,29 @@
     headerLabel.backgroundColor = [UIColor clearColor];
     headerLabel.numberOfLines = 0;
     
-    NSAttributedString* theString = [headerLabel attributedText];
-    CGSize returnVal = [theString boundingRectWithSize:maxSize
-                                           options:NSStringDrawingUsesLineFragmentOrigin
-                                           context:nil].size;
+    UIView* containerView = [[UIView alloc] initWithFrame:self.bounds];
+    [containerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     
-    
-    CGSize size = CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
-	
+    TiLayoutView* v = [[[TiLayoutView alloc] init] autorelease];
+    [v setDefaultWidth:TiDimensionAutoFill];
+    [v setDefaultHeight:TiDimensionAutoSize];
+    [v setInnerView:headerLabel];
+
     UITableViewStyle style = [[self tableView] style];
     int x = (style==UITableViewStyleGrouped) ? 15 : 10;
-    int y = 10;
-    int y2 = (footer) ? 0 : 10;
-    UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
-    [headerLabel setFrame:CGRectMake(x, y2, size.width, size.height)];
-    [containerView addSubview:headerLabel];
-	
-	return containerView;
+    int y = (footer) ? 0 : 10;
+
+    
+    CGSize size = [v sizeThatFits:maxSize];
+    
+    [containerView setFrame:CGRectMake(0, 0, maxSize.width, size.height+y+y)];
+    [containerView addSubview:v];
+    [TiLayoutView removeConstraints:containerView fromChild:v];
+    [v addConstraints:TI_CONSTR( TI_STRING(@"[v(%f)]", maxSize.width-x-x), NSDictionaryOfVariableBindings(v))];
+    [containerView addConstraints:TI_CONSTR( TI_STRING(@"H:|-(%i)-[v]",x), NSDictionaryOfVariableBindings(v))];
+    [containerView addConstraints:TI_CONSTR( TI_STRING(@"V:|-(%i)-[v]-(%i)-|",y,y), NSDictionaryOfVariableBindings(v))];
+    
+    return [containerView autorelease];
 }
 
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath
@@ -1347,60 +1362,58 @@
 	}
 }
 
-/*
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(void)postLayoutEvent
 {
-	if (searchHidden)
-	{
-		if (searchField!=nil)
-		{
+    [super postLayoutEvent];
+    
+    if (searchHidden)
+    {
+        if (searchField!=nil)
+        {
             animateHide = YES;
             [self hideSearchScreen:nil];
-		}
-	}
-	else 
-	{
-		if (tableview!=nil && searchField!=nil)
-		{
-			[tableview setContentOffset:CGPointMake(0,0)];
-		}
-	}
+        }
+    }
+    else
+    {
+        if (tableview!=nil && searchField!=nil)
+        {
+            [tableview setContentOffset:CGPointMake(0,0)];
+        }
+    }
     
-	if (!searchActivated) {
-		[searchField ensureSearchBarHeirarchy];
-	}
-
-	[super frameSizeChanged:frame bounds:bounds];
-	
-	if (tableHeaderPullView!=nil)
-	{
-		tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
-		[TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
-		[proxy windowWillOpen];
-	}
-	
-	if ([[self tableView] tableHeaderView]!=nil)
-	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
-		if (proxy!=nil)
-		{
-			[proxy windowWillOpen];
+    if (!searchActivated) {
+        [searchField ensureSearchBarHeirarchy];
+    }
+    
+    if (tableHeaderPullView!=nil)
+    {
+        tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
+        [TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
+        [proxy windowWillOpen];
+    }
+    
+    if ([[self tableView] tableHeaderView]!=nil)
+    {
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
+        if (proxy!=nil)
+        {
+            [proxy windowWillOpen];
             proxy.parentVisible=YES;
-		}
-	}
-
-	if ([tableview tableFooterView]!=nil)
-	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
-		if (proxy!=nil)
-		{
-			[proxy windowWillOpen];
+        }
+    }
+    
+    if ([tableview tableFooterView]!=nil)
+    {
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
+        if (proxy!=nil)
+        {
+            [proxy windowWillOpen];
             proxy.parentVisible=YES;
-		}
-	}
+        }
+    }
 }
-*/
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
@@ -1520,19 +1533,26 @@
 		return;
 	}
 	
-	UIView * searchView = [searchField view];
 
 	if (tableHeaderView == nil)
 	{
-		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
-		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
-		[tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[TiUtils setView:searchView positionRect:wrapperFrame];
-		[tableHeaderView addSubview:searchView];
-		[tableview setTableHeaderView:tableHeaderView];
-		[searchView sizeToFit];
+        UIView * searchView = [searchField view];
+        UISearchBar *bar = [searchField searchBar];
+        
+        CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
+        
+        tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
+        [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+
+        [searchView setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+        [searchView setFrame:[tableHeaderView bounds]];
+        
+        [bar setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [bar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+        
+        [tableHeaderView addSubview:searchView];
+        [tableview setTableHeaderView:tableHeaderView];
 	}
 }
 
@@ -1545,19 +1565,7 @@
     searchActivated = YES;
     [[searchController searchResultsTableView] reloadData];
 }
-/*
- * This is no longer required since we do it from the 
- * searchDisplayControllerDidEndSearch method
- */
-/*
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-    if (searchActivated && ([searchBar.text length] == 0)) {
-        searchActivated = NO;
-        [tableview reloadData];
-    }
-}
-*/
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
@@ -1670,18 +1678,18 @@
 
 -(void)proxyDidRelayout:(id)sender
 {
-    TiThreadPerformOnMainThread(^{
-        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
-            UIView* headerView = [[self tableView] tableHeaderView];
-            [headerView setFrame:[headerView bounds]];
-            [[self tableView] setTableHeaderView:headerView];
-        }
-        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
-            UIView *footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:[footerView bounds]];
-            [[self tableView] setTableFooterView:footerView];
-        }
-    },NO);
+//    TiThreadPerformOnMainThread(^{
+//        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
+//            UIView* headerView = [[self tableView] tableHeaderView];
+//            [headerView setFrame:[headerView bounds]];
+//            [[self tableView] setTableHeaderView:headerView];
+//        }
+//        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
+//            UIView *footerView = [[self tableView] tableFooterView];
+//            [footerView setFrame:[footerView bounds]];
+//            [[self tableView] setTableFooterView:footerView];
+//        }
+//    },NO);
 }
 
 -(void)setHeaderTitle_:(id)args
@@ -2068,12 +2076,11 @@ return result;	\
         [row setCallbackCell:(TiUITableViewCell*)cell];
 	}
     [row initializeTableViewCell:cell];
-    [cell setNeedsUpdateConstraints];
-    [cell updateConstraintsIfNeeded];
     if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
-	
+    [cell setNeedsUpdateConstraints];
+    [cell updateConstraintsIfNeeded];
 	return cell;
 }
 
@@ -2437,123 +2444,83 @@ return result;	\
     }
     
     TiUITableViewRowProxy *row = [self rowForIndexPath:index];
-
-    if (TiDimensionIsUndefined([row rowHeight])) {
-        return tableview.estimatedRowHeight;
-    }
-    
-    TiUITableViewCell* cell = nil;
-    if (row.callbackCell != nil) {
-        cell = row.callbackCell;
-    } else {
-        cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-        [row initializeTableViewCell:cell];
-    }
-
-    if (TiDimensionIsDip([row rowHeight])) {
-        CGFloat height = TiDimensionCalculateValue([row rowHeight], 1);
-        tableview.estimatedRowHeight = height;
-        return height;
-    }
-
-    [cell setNeedsUpdateConstraints];
-    [cell updateConstraintsIfNeeded];
-    [cell setBounds: CGRectMake(0.0f, 0.0f, CGRectGetWidth(tableview.bounds), CGRectGetHeight(cell.bounds))];
-    [cell setNeedsLayout];
-    [cell layoutIfNeeded];
-    
-    // Get the actual height required for the cell's contentView
-    CGFloat height = [[cell contentView] systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
-    // Add an extra point to the height to account for the cell separator,
-    // which is added between the bottom of the cell's contentView and the
-    // bottom of the table view cell.
-    height += 1.0f;
-    
-    return height;
-
-    /*
-	NSIndexPath* index = indexPath;
-	if (ourTableView != tableview) {
-		index = [self indexPathFromSearchIndex:[indexPath row]];
-	}
-	
-	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
-    
-
-	CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
-	CGFloat height = [row rowHeight:width];
-	height = [self tableRowHeight:height];
-	return height < 1 ? tableview.rowHeight : height;
-     */
+    CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
+    CGFloat height = [row rowHeight:width];
+    height = [self tableRowHeight:height];
+    return height < 1 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	return [self sectionView:section forLocation:@"headerView" section:nil];
+    TiUIView* headerView = [self sectionView:section forLocation:@"headerView" section:nil];
+    if (headerView == nil) return nil;
+    UIView* view = [[UIView alloc] init];
+    [view addSubview:headerView];
+    return [view autorelease];
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	return [self sectionView:section forLocation:@"footerView" section:nil];
+    TiUIView* footerView = [self sectionView:section forLocation:@"footerView" section:nil];
+    if (footerView == nil) return nil;
+    UIView* view = [[UIView alloc] init];
+    [view addSubview:footerView];
+    return [view autorelease];
 }
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
 {
-    LOG_MISSING
-    return 0.0;
-//	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
-//    RETURN_IF_SEARCH_IS_ACTIVE(0.0);
-//	TiUITableViewSectionProxy *sectionProxy = nil;
-//	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
-//	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
-//	CGFloat size = 0.0;
-//	if (viewProxy!=nil)
-//	{
-//		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-//		switch (viewLayout->height.type)
-//		{
-//			case TiDimensionTypeDip:
-//				size += viewLayout->height.value;
-//				break;
-//			case TiDimensionTypeAuto:
-//				size += [viewProxy autoHeightForSize:[tableview bounds].size];
-//				break;
-//			default:
-//				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-//				break;
-//		}
-//	}
-//    /*
-//     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-//     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-//     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-//     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-//     * provided it is NOT the empty string.
-//     * 
-//     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-//     * return a 0.0 height that is overridden by the system.
-//     */
-//	else if ([sectionProxy headerTitle]!=nil)
-//	{
-//        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
-//            return size;
-//        }
-//		size+=[tableview sectionHeaderHeight];
-//        
-//        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-//            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;            
-//        }
-//	}
-//	return size;
+	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
+    RETURN_IF_SEARCH_IS_ACTIVE(0.0);
+	TiUITableViewSectionProxy *sectionProxy = nil;
+	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
+	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
+	CGFloat size = 0.0;
+	if (viewProxy!=nil)
+	{
+		TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
+		switch (viewLayout->height.type)
+		{
+			case TiDimensionTypeDip:
+				size += viewLayout->height.value;
+				break;
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+				size += [view sizeThatFits:tableview.bounds.size].height;
+				break;
+			default:
+				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+				break;
+		}
+	}
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     * 
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
+	else if ([sectionProxy headerTitle]!=nil)
+	{
+        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+		size+=[tableview sectionHeaderHeight];
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;            
+        }
+	}
+	return size;
 }
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section
 {
-    LOG_MISSING
-    return 0.0;
-    /*
 	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
     RETURN_IF_SEARCH_IS_ACTIVE(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
@@ -2563,14 +2530,15 @@ return result;	\
 	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
-		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+		TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForSize:[tableview bounds].size];
+            case TiDimensionTypeAutoSize:
+				size += [view sizeThatFits:tableview.bounds.size].height;
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2580,14 +2548,14 @@ return result;	\
 	else if ([sectionProxy footerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableview sectionFooterHeight];
+		size += [tableview sectionFooterHeight];
 	}
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
 		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return size;
-     */
+
 }
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop

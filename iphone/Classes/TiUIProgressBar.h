@@ -17,6 +17,7 @@
 	CGFloat max;
 	CGFloat min;
     UIView* backgroundView;
+    BOOL _constraintsAdded;
 }
 
 -(id)initWithStyle:(UIProgressViewStyle)style;

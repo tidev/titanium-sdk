@@ -17,6 +17,8 @@
     if (self) {
         [self setDefaultHeight:TiDimensionAutoSize];
         [self setDefaultWidth:TiDimensionAutoFill];
+        [self setWidth_:@"FILL"];
+        [self setHeight_:@"SIZE"];
     }
     return self;
 }
@@ -48,17 +50,20 @@
     
 }
 
-
--(void)didMoveToWindow
+-(void)removeFromSuperview
 {
-//    [super didMoveToWindow];
+    [super removeFromSuperview];
+}
+
+-(void)didMoveToSuperview
+{
+    [self setLoaded:NO];
+    [super didMoveToSuperview];
     [self setTranslatesAutoresizingMaskIntoConstraints:YES];
     [self setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
     [self setFrame:[[self superview] bounds]];
-    if (![self loaded]) {
-        [self setLoaded:YES];
-        [self layoutChildren];
-    }
 }
+
+
 
 @end

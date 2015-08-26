@@ -295,6 +295,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     return width;
 }
 
+
 -(CGFloat)rowHeight:(CGFloat)width
 {
 	if (TiDimensionIsDip(height))
@@ -304,7 +305,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	CGFloat result = 0;
 	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
-        result = [[self view] intrinsicContentSize].height;// [self minimumParentHeightForSize:CGSizeMake(width, [self table].bounds.size.height)];
+        if (width < 1) return [table tableRowHeight:0];
+        
+        TiUITableViewCell* cell = nil;
+        if (self.callbackCell != nil) {
+            cell = self.callbackCell;
+        } else {
+            cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:self.tableClass row:self] autorelease];
+            [self initializeTableViewCell:cell];
+        }
+        result = [[self view] sizeThatFits:CGSizeMake(width, 10000)].height;
 	}
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);

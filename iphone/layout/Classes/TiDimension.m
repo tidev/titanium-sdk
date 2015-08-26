@@ -92,10 +92,14 @@ TiDimension TiDimensionFromObject(id object)
 		{
 			return TiDimensionAutoFill;
 		}
-		if ([object caseInsensitiveCompare:kTiBehaviorSize]==NSOrderedSame)
-		{
-			return TiDimensionAutoSize;
-		}
+        if ([object caseInsensitiveCompare:kTiBehaviorSize]==NSOrderedSame)
+        {
+            return TiDimensionAutoSize;
+        }
+        if ([object caseInsensitiveCompare:@"undefined"]==NSOrderedSame)
+        {
+            return TiDimensionUndefined;
+        }
 		
         if ([object hasSuffix:kTiUnitPixel])
         {

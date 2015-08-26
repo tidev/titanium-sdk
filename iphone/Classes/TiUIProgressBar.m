@@ -67,20 +67,22 @@
 }
 
 #define TI_VIEWS(...) NSDictionaryOfVariableBindings(__VA_ARGS__)
--(void)didMoveToWindow
+-(void)updateConstraints
 {
-    messageLabel = [self messageLabel];
-    progress = [self progress];
-    [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", TI_VIEWS(progress, messageLabel))];
-    [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", TI_VIEWS(progress, messageLabel))];
-    [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
-                                                               attribute:NSLayoutAttributeCenterX
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:backgroundView
-                                                               attribute:NSLayoutAttributeCenterX
-                                                              multiplier:1
-                                                                constant:0]];
-    [super didMoveToWindow];
+    if (!_constraintsAdded) {
+        messageLabel = [self messageLabel];
+        progress = [self progress];
+        [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", TI_VIEWS(progress, messageLabel))];
+        [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", TI_VIEWS(progress, messageLabel))];
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                  multiplier:1
+                                                                    constant:0]];
+    }
+    [super updateConstraints];
 }
 #undef TI_VIEWS
 

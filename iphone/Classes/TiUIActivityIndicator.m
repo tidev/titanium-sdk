@@ -162,8 +162,10 @@
 }
 
 #define TI_VIEWS(...) NSDictionaryOfVariableBindings(__VA_ARGS__)
-- (void)didMoveToWindow
+- (void)updateConstraints
 {
+    if (!_constraintsAdded) {
+        _constraintsAdded = YES;
     messageLabel = [self messageLabel];
     indicatorView = [self indicatorView];
     NSDictionary* views = TI_VIEWS(indicatorView, messageLabel);
@@ -176,17 +178,25 @@
                                                                attribute:NSLayoutAttributeCenterX
                                                               multiplier:1
                                                                 constant:0]];
-
+    }
+    [super updateConstraints];
+}
+#undef TI_VIEWS
+-(void)didMoveToWindow
+{
     //TIMOB-15293
+    messageLabel = [self messageLabel];
+    indicatorView = [self indicatorView];
     if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
         BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
         if (visible) {
             [indicatorView startAnimating];
         }
+        
     }
     [super didMoveToWindow];
 }
-#undef TI_VIEWS
+
 @end
 
 

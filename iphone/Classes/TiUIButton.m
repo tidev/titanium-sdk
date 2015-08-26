@@ -131,11 +131,6 @@
 	}
 }
 
--(void)didMoveToWindow
-{
-    [super didMoveToWindow];
-}
-
 -(UIButton*)button
 {
 	if (button==nil)

@@ -72,8 +72,6 @@ static NSString* TiLayoutStringFromRelation(NSLayoutRelation relation)
         secondView = TI_STRING(@"%@", [second class]);
     }
     
-    //        [NSLayoutConstraint constraintWithItem:nil attribute:0 relatedBy:0 toItem:nil attribute:0 multiplier:0 constant:0]
-    //
     if ([self secondAttribute] == NSLayoutAttributeNotAnAttribute) {
         
         return  TI_STRING(@"<(%@).%@ %@ %i (%@*%@)>",

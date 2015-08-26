@@ -23,6 +23,7 @@
 		B6A0FF041B7155FB00DF0FBC /* TiSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FEFC1B7155FB00DF0FBC /* TiSlider.m */; };
 		B6A0FF051B7155FB00DF0FBC /* TiTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FEFE1B7155FB00DF0FBC /* TiTableView.m */; };
 		B6A0FF101B7159BD00DF0FBC /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF0F1B7159BD00DF0FBC /* TiUtils.m */; };
+		B6F8D5191B8B797600F1D92B /* TiUILayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B6F8D5181B8B797600F1D92B /* TiUILayoutView.m */; };
 		B6FFDBB01B75273F0080FE97 /* TiTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = B6FFDBAF1B75273F0080FE97 /* TiTextField.m */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,8 @@
 		B6A0FF1F1B71649600DF0FBC /* layout.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = layout.pch; sourceTree = "<group>"; };
 		B6A8F50B1B79199C002C9571 /* TiLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutViewController.h; sourceTree = "<group>"; };
 		B6A8F50C1B79199C002C9571 /* TiLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutViewController.m; sourceTree = "<group>"; };
+		B6F8D5171B8B797600F1D92B /* TiUILayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUILayoutView.h; sourceTree = "<group>"; };
+		B6F8D5181B8B797600F1D92B /* TiUILayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUILayoutView.m; sourceTree = "<group>"; };
 		B6FFDBAE1B75273F0080FE97 /* TiTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTextField.h; sourceTree = "<group>"; };
 		B6FFDBAF1B75273F0080FE97 /* TiTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTextField.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -174,6 +177,8 @@
 				B69884DF1B7E4BE700B25676 /* TiSwitch.m */,
 				B69884E11B81ED7900B25676 /* TiToolbar.h */,
 				B69884E21B81ED7900B25676 /* TiToolbar.m */,
+				B6F8D5171B8B797600F1D92B /* TiUILayoutView.h */,
+				B6F8D5181B8B797600F1D92B /* TiUILayoutView.m */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -293,6 +298,7 @@
 				B6A0FF021B7155FB00DF0FBC /* TiScrollableView.m in Sources */,
 				B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */,
 				B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */,
+				B6F8D5191B8B797600F1D92B /* TiUILayoutView.m in Sources */,
 				B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */,
 				B6FFDBB01B75273F0080FE97 /* TiTextField.m in Sources */,
 				B6A0FF101B7159BD00DF0FBC /* TiUtils.m in Sources */,

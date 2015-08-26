@@ -174,10 +174,15 @@
 	return label;
 }
 
--(CGSize) intrinsicContentSize
+-(void)postLayoutEvent
 {
-    return [[self label] intrinsicContentSize];
+    [super postLayoutEvent];
 }
+
+//-(CGSize) intrinsicContentSize
+//{
+//    return [[self label] intrinsicContentSize];
+//}
 
 -(BOOL)proxyHasGestureListeners
 {

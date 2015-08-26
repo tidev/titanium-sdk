@@ -2044,6 +2044,35 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return dict;
 }
 
++ (void) dumpViews:(UIView*) view label:(NSString *) text indent:(NSString*) indent detail:(BOOL)flag
+{
+    Class cl = [view class];
+    NSString *classDescription = [cl description];
+    if (flag) {
+        while ([cl superclass]) {
+            cl = [cl superclass];
+            classDescription = [classDescription stringByAppendingFormat:@":%@", [cl description]];
+        }
+    }
+    if ([text compare:@""] == NSOrderedSame) {
+        NSLog(@"%@ %@", classDescription, NSStringFromCGRect(view.frame));
+    } else {
+        NSLog(@"%@ %@ %@", text, classDescription, NSStringFromCGRect(view.frame));
+    }
+    for (NSUInteger i = 0; i < [view.subviews count]; i++)
+    {
+        UIView *subView = [view.subviews objectAtIndex:i];
+        NSString *newIndent = [[NSString alloc] initWithFormat:@"  %@", indent];
+        NSString *msg = [[NSString alloc] initWithFormat:@"%@%lu:", newIndent, (unsigned long)i];
+        [TiUtils dumpViews:subView label:msg indent:newIndent detail:flag];
+    }
+}
+
++ (void) dumpViews:(UIView*) view detail:(BOOL)flag
+{
+    [TiUtils dumpViews:view label:@"" indent:@"" detail:flag];
+}
+
 @end
 
 
