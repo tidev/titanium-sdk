@@ -452,6 +452,19 @@ properties:
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LINE_BREAK
+    summary: |
+        Use with <Attribute.type> to wrap and truncate the text.
+    description: |
+        Set <Attribute.value> to a `Titanium.UI.ATTRIBUTE_LINE_BREAK_*` constant.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
         Use with <Attribute.value> to not draw a line.
@@ -671,6 +684,90 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+    summary: |
+        Use with <Attribute.value> to set lines to not draw past the edge of the text container.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the beginning of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the middle of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the end of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
