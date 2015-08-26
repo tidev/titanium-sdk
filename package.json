@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "adm-zip": "0.4.7",
-    "archiver": "0.14.4",
+    "archiver": "0.15.0",
     "async": "1.4.2",
     "buffer-equal": "0.0.1",
     "clean-css": "3.3.9",
@@ -27,12 +27,12 @@
     "ejs": "2.3.3",
     "fields": "0.1.24",
     "humanize": "0.0.9",
-    "ioslib": "0.6.2",
+    "ioslib": "0.6.3",
     "moment": "2.10.6",
     "node-appc": "0.2.28",
     "node-uuid": "1.4.3",
     "png-size": "^0.1.0",
-    "request": "2.60.0",
+    "request": "2.61.0",
     "sprintf": "0.1.5",
     "sqlite3": "^3.0.10",
     "temp": "0.8.3",
@@ -50,7 +50,7 @@
     "grunt-mocha-test": "^0.12.7",
     "mocha": "*",
     "optimist": "~0.6.1",
-    "should": "~7.0.3"
+    "should": "~7.0.4"
   },
   "repository": {
     "type": "git",

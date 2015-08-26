@@ -22,7 +22,6 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	humanize = require('humanize'),
 	ioslib = require('ioslib'),
-	iosPackageJson = appc.pkginfo.package(module),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
@@ -223,7 +222,7 @@ iOSBuilder.prototype.getDeviceFamily = function getDeviceFamily() {
 	}
 
 	var deviceFamily = this.cli.argv['device-family'],
-		deploymentTargets = this.cli.tiapp && this.cli.tiapp['deployment-targets'];
+		deploymentTargets = this.tiapp && this.tiapp['deployment-targets'];
 
 	if (!deviceFamily && deploymentTargets) {
 		// device family was not an environment variable, construct via the tiapp.xml's deployment targets
@@ -278,8 +277,8 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			profileDir:        config.get('ios.profileDir'),
 			// xcode
 			searchPath:        config.get('paths.xcode'),
-			minIosVersion:     iosPackageJson.minIosVersion,
-			supportedVersions: iosPackageJson.vendorDependencies.xcode
+			minIosVersion:     this.packageJson.minIosVersion,
+			supportedVersions: this.packageJson.vendorDependencies.xcode
 		}, function (err, iosInfo) {
 			this.iosInfo = iosInfo;
 
@@ -881,7 +880,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		order: order,
 		prompt: function (callback) {
 			var provisioningProfiles = {},
-				appId = cli.tiapp.id,
+				appId = _t.tiapp.id,
 				maxAppId = 0,
 				pp;
 
@@ -1217,10 +1216,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.minifyJS = false;
 		}
 
-		var appId = cli.tiapp.id;
+		var appId = this.tiapp.id;
 
 		// at this point we've validated everything except underscores in the app id
-		if (!config.get('app.skipAppIdValidation') && !cli.tiapp.properties['ti.skipAppIdValidation']) {
+		if (!config.get('app.skipAppIdValidation') && !this.tiapp.properties['ti.skipAppIdValidation']) {
 			if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(appId)) {
 				logger.error(__('tiapp.xml contains an invalid app id "%s"', appId));
 				logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
@@ -1241,7 +1240,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
 		var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
-		this.blacklistDirectories.push(cli.tiapp.name);
+		this.blacklistDirectories.push(this.tiapp.name);
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
 			path.join(this.projectDir, 'Resources', 'ios')
@@ -1669,7 +1668,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
 					// we'll let ioslib suggest an iOS version
 				} else { // device, dist-appstore, dist-adhoc
-					var minVer = this.minSupportedIosSdk;
+					var minVer = this.tiapp.ios['min-ios-ver'] && appc.version.gt(this.tiapp.ios['min-ios-ver'], this.minSupportedIosSdk) ? this.tiapp.ios['min-ios-ver'] : this.minSupportedIosSdk;
 					if (this.hasWatchAppV2orNewer && appc.version.lt(minVer, '9.0')) {
 						minVer = '9.0';
 					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
@@ -1735,8 +1734,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					profileDir:             config.get('ios.profileDir'),
 					// xcode
 					searchPath:             config.get('paths.xcode'),
-					minIosVersion:          iosPackageJson.minIosVersion,
-					supportedVersions:      iosPackageJson.vendorDependencies.xcode,
+					minIosVersion:          this.tiapp.ios['min-ios-ver'] || this.packageJson.minIosVersion,
+					supportedVersions:      this.packageJson.vendorDependencies.xcode,
 					// find params
 					appBeingInstalled:      true,
 					simHandleOrUDID:        cli.argv['device-id'],
@@ -1765,27 +1764,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 					next();
 				}.bind(this));
-			},
-
-			function validateDevice() {
-				// check the min-ios-ver for the device we're installing to
-				if (this.target === 'device') {
-					this.getDeviceInfo().devices.forEach(function (device) {
-						if (device.udid !== 'all' && device.udid !== 'itunes' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
-							logger.error(__('This app does not support the device "%s"', device.name) + '\n');
-							logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", device.productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
-							logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(device.productVersion, 2, 2).cyan));
-							logger.log();
-							logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-							logger.log('    <ios>'.grey);
-							logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
-							logger.log('    </ios>'.grey);
-							logger.log('</ti:app>'.grey);
-							logger.log();
-							process.exit(0);
-						}
-					}, this);
-				}
 			},
 
 			function validateCapabilities() {
@@ -1832,7 +1810,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
 				var defaultMinIosSdk = this.packageJson.minIosVersion;
-				this.minIosVer = cli.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
+				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
 				if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
@@ -1840,8 +1818,30 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosSdk, 2).cyan));
 					this.minIosVer = defaultMinIosSdk;
 				} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
-					logger.info(__('The %s of the iOS section in the tiapp.xml is greater than the specified %s: Using %s as minimum', 'min-ios-ver'.cyan, 'ios-version'.cyan, version.format(this.iosSdkVersion, 2).cyan));
-					this.minIosVer = this.iosSdkVersion;
+					logger.error(__('The <min-ios-ver> of the iOS section in the tiapp.xml is set to %s and is greater than the specified iOS version %s', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)));
+					logger.error(__('Either rerun with --ios-version %s or set the <min-ios-ver> to %s.', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)) + '\n');
+					process.exit(1);
+				}
+			},
+
+			function validateDevice() {
+				// check the min-ios-ver for the device we're installing to
+				if (this.target === 'device') {
+					this.getDeviceInfo().devices.forEach(function (device) {
+						if (device.udid !== 'all' && device.udid !== 'itunes' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
+							logger.error(__('This app does not support the device "%s"', device.name) + '\n');
+							logger.log(__("The device is running iOS %s, however the app's the minimum iOS version is set to %s", device.productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
+							logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(device.productVersion, 2, 2).cyan));
+							logger.log();
+							logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+							logger.log('    <ios>'.grey);
+							logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
+							logger.log('    </ios>'.grey);
+							logger.log('</ti:app>'.grey);
+							logger.log();
+							process.exit(0);
+						}
+					}, this);
 				}
 			},
 
@@ -1996,18 +1996,18 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
-		name: cli.tiapp.name,
-		publisher: cli.tiapp.publisher,
-		url: cli.tiapp.url,
-		image: cli.tiapp.icon,
-		appid: cli.tiapp.id,
-		description: cli.tiapp.description,
-		type: cli.argv.type,
-		guid: cli.tiapp.guid,
-		version: cli.tiapp.version,
-		copyright: cli.tiapp.copyright,
-		date: (new Date()).toDateString()
+		dir:         cli.argv['project-dir'],
+		name:        this.tiapp.name,
+		publisher:   this.tiapp.publisher,
+		url:         this.tiapp.url,
+		image:       this.tiapp.icon,
+		appid:       this.tiapp.id,
+		description: this.tiapp.description,
+		type:        cli.argv.type,
+		guid:        this.tiapp.guid,
+		version:     this.tiapp.version,
+		copyright:   this.tiapp.copyright,
+		date:        (new Date).toDateString()
 	});
 };
 
@@ -2588,10 +2588,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		});
 	}
 
-	// set the identity and provisioning profile for the app
+	// set the min ios version for the whole project
+	xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+		buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(this.minIosVer, 2);
+	}, this);
+
+	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
-	}, this);
+	});
 
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
