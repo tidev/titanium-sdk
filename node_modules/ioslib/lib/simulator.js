@@ -510,7 +510,11 @@ function findSimulators(options, callback) {
 					// no watch sim, just an ios sim
 					// find the version of Xcode
 					Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
-						if (simHandle.supportsXcode[id] && xcodeInfo.xcode[id].supported && (!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1)) {
+						if (simHandle.supportsXcode[id] &&
+							xcodeInfo.xcode[id].supported &&
+							(!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1) &&
+							(!options.minIosVersion || xcodeInfo.xcode[id].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); }))
+						) {
 							selectedXcode = xcodeInfo.xcode[id];
 							return true;
 						}
@@ -520,6 +524,8 @@ function findSimulators(options, callback) {
 				if (!selectedXcode) {
 					if (options.iosVersion) {
 						return callback(new Error(__('Unable to find any Xcode installations that support both iOS %s and iOS Simulator %s.', options.iosVersion, options.simHandleOrUDID)));
+					} else if (options.minIosVersion) {
+						return callback(new Error(__('Unable to find any Xcode installations that support at least iOS %s and iOS Simulator %s.', options.minIosVersion, options.simHandleOrUDID)));
 					} else {
 						return callback(new Error(__('Unable to find any supported Xcode installations. Please install the latest Xcode.')));
 					}
@@ -576,6 +582,9 @@ function findSimulators(options, callback) {
 							return false;
 						}
 						if (options.iosVersion && xcodeInfo.xcode[ver].sdks.indexOf(options.iosVersion) === -1) {
+							return false;
+						}
+						if (options.minIosVersion && !xcodeInfo.xcode[ver].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); })) {
 							return false;
 						}
 						return true;
@@ -638,6 +647,8 @@ function findSimulators(options, callback) {
 				if (!selectedXcode) {
 					if (options.iosVersion) {
 						return callback(new Error(__('Unable to find any Xcode installations that supports iOS %s.', options.iosVersion)));
+					} else if (options.minIosVersion) {
+						return callback(new Error(__('Unable to find any Xcode installations that supports at least iOS %s.', options.minIosVersion)));
 					} else {
 						return callback(new Error(__('Unable to find any supported Xcode installations. Please install the latest Xcode.')));
 					}
