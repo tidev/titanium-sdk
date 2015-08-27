@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -111,6 +112,7 @@ public class TiHTTPClient
 	private OutputStream responseOut;
 	private String charset;
 	private String contentType;
+	private String contentEncoding;
 	private long maxBufferSize;
 	private Object data;
 	private boolean needMultipart;
@@ -186,8 +188,8 @@ public class TiHTTPClient
 	        // treated as being at position 0 when indexing into the header fields.
 	        responseHeaders = connection.getHeaderFields();
 
-	        // GZIPInputStream is handled transparently
-	        // No additional handling is required as compared to HTTPClient
+	        contentEncoding = connection.getContentEncoding();
+
 	        contentType = connection.getContentType();
 
 	        String[] values = contentType.split(";"); //The values.length must be equal to 2...
@@ -212,6 +214,10 @@ public class TiHTTPClient
 	            in = connection.getErrorStream();
 	        } else {
 	            in = connection.getInputStream();
+	        }
+
+	        if ("gzip".equalsIgnoreCase(contentEncoding)) {
+	            in = new GZIPInputStream(in);
 	        }
 
 	        InputStream is = new BufferedInputStream(in);
@@ -609,7 +615,6 @@ public class TiHTTPClient
 	        for (Map.Entry<String, List<String>> entry : entrySet) {
 	            String headerName = entry.getKey();
 	            sb.append(headerName).append(":");
-	            System.out.println("Header Name:" + headerName);
 	            List<String> headerValues = entry.getValue();
 	            for (String value : headerValues) {
 	                sb.append(value).append("\n");
@@ -1122,6 +1127,9 @@ public class TiHTTPClient
 						client.setDoOutput(true);
 					}
 					client.setUseCaches(false);
+					// This is to set gzip default to disable
+					// https://code.google.com/p/android/issues/detail?id=174949
+					client.setRequestProperty("Accept-Encoding", "identity");
 					client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 					if (parts.size() > 0 && needMultipart) {
 						boundary = HttpUrlConnectionUtils.generateBoundary();
