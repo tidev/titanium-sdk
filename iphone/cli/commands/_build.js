@@ -880,7 +880,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		order: order,
 		prompt: function (callback) {
 			var provisioningProfiles = {},
-				appId = _t.tiapp.id,
+				appId = cli.tiapp.id,
 				maxAppId = 0,
 				pp;
 
