@@ -1,15 +1,14 @@
 ---
 name: Titanium.App.iOS.SearchableIndex
-summary: The SearchableIndex module is used to add or remove Ti.App.iOS.SearchableItem object from the device search index. 
+summary: The SearchableIndex module is used to add or remove Ti.App.iOS.SearchableItem objects from the device search index.
 description: |
-    To effectively add and remove information from the iOS search index you will need to use the below listed modules:
+    To effectively add and remove information from the iOS search index you will need to use the following modules:
 
-    * Ti.App.iOS.SearchableItemAttributeSet - Used to create meta data related to the Titanium.App.iOS.SearchableItem
-    * Ti.App.iOS.SearchableItem - Used to assemble meta data into a unique object package to be used by Ti.App.iOS.SearchableIndex     
-    * Ti.App.iOS.SearchableIndex  - Used to add and remove Ti.App.iOS.SearchableItem objects to the device search index
+    * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
+    * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
+    * <Titanium.App.iOS.SearchableIndex>  - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
 
     To use this feature make sure you have a compatible device running iOS 9 or later.
-
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "5.0.0"
@@ -24,61 +23,61 @@ methods:
 
   - name: addToDefaultSearchableIndex
     summary: |
-        Adds an array of Titanium.App.iOS.SearchableItem to the default search index.
+        Adds an array of Titanium.App.iOS.SearchableItem objects to the default search index.
     parameters:
       - name: Array
-        summary: Provides an array of Titanium.App.iOS.SearchableItem to be added to the default search index.
-        type: Array<Titanium.App.iOS.SearchableItem>    
+        summary: Array of Titanium.App.iOS.SearchableItem objects to be added to the default search index.
+        type: Array<Titanium.App.iOS.SearchableItem>
       - name: callback
-        summary: Function to invoke on success or failure of add the array Titanium.App.iOS.SearchableItem to the default search index. 
+        summary: Function to invoke on success or failure of adding the array Titanium.App.iOS.SearchableItem object to the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}           
+    osver: {ios: {min: "9.0"}}
 
   - name: deleteAllSearchableItems
     summary: |
         Removes all search items added by the application.
     parameters:
       - name: callback
-        summary: Function to invoke on success or failure of deleting all search items. 
+        summary: Function to invoke on success or failure of deleting all search items.
         type: Callback<Dictionary>
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}   
+    osver: {ios: {min: "9.0"}}
 
   - name: deleteAllSearchableItemByDomainIdenifiers
     summary: |
-        Removes search items based on an array of domainIdentifiers.
+        Removes search items based on an array of domain identifiers.
     parameters:
       - name: Array
-        summary: Provides an array of domainIdentifiers to be removed from the default search index.
-        type: Array<String>    
+        summary: Array of domain identifiers to be removed from the default search index.
+        type: Array<String>
       - name: callback
-        summary: Function to invoke on success or failure of removing search items from the default search index. 
+        summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}   
+    osver: {ios: {min: "9.0"}}
 
   - name: deleteSearchableItemsByIdentifiers
     summary: |
         Removes search items based on an array of identifiers.
     parameters:
       - name: Array
-        summary: Provides an array of identifiers to be removed from the default search index.
-        type: Array<String>    
+        summary: Array of identifiers to be removed from the default search index.
+        type: Array<String>
       - name: callback
-        summary: Function to invoke on success or failure of removing search items from the default search index. 
+        summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}    
+    osver: {ios: {min: "9.0"}}
 examples:
-  - title: Creating a new SearchableIndex Example
+  - title: Add Searchable Content to the On-Device Index
     example: |
-        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and 
-        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then
-        Ti.App.iOS.SearchableIndex is used to add the Ti.App.iOS.SearchableItem to the default search index.
-                
+        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and
+        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then passed to the
+        Ti.App.iOS.SearchableIndex object to add it to the on-device search index.
+
         #### app.js
-            
+
             var searchItems = [];
             var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
                 itemContentType:"public.image",
@@ -92,8 +91,8 @@ examples:
                 domainIdentifier:"com.mydomain",
                 attributeSet:itemAttr
             });
-            searchItems.push(item); 
-            
+            searchItems.push(item);
+
             var indexer = Ti.App.iOS.createSearchableIndex();
 
             indexer.addToDefaultSearchableIndex(searchItems,function(e){
@@ -102,6 +101,6 @@ examples:
                 }else{
                     alert("Errored: " + JSON.stringify(e.error));
                 }
-            });         
+            });
 
-            
+
