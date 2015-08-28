@@ -59,7 +59,7 @@ examples:
 
             var searchItems = [];
             var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
-                itemContentType:"public.image",
+                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
                 title:"Titanium Core Spotlight Tutorial",
                 contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
                 keywords:["Mobile","Appcelerator","Titanium"]
