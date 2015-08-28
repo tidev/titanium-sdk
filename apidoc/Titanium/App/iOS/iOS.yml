@@ -684,38 +684,43 @@ events:
     osver: {ios: {min: "8.2"}}
     since: '4.1.0'
 
-  - name: handoff
-    summary: Fired when iOS Handoff calls continueUserActivity. Available only on iOS 8.2 and later.
+  - name: continueactivity
+    summary: Fired when iOS continueactivity calls continueUserActivity. Available only on iOS 8.2 and later.
     description: |
-        Add this event if your Titanium application if you are responding to an iOS Handoff continueUserActivity request. When the user taps on the handoff icon
-        your Titanium application will be opened in the background and provides your Titanium app the information from the NSUserActivity. When this
-        event is fired you should implement logic within your application to allow the user to pick-up from where they left off on their other device.
+        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight continueUserActivity request. This event will 
+        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides 
+        your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the 
+        user to pick-up from where they left off on their other device.
 
-        Ti.App.iOS.addEventListener("handoff",function(e){
+        Ti.App.iOS.addEventListener("continueactivity",function(e){
             console.log("activityType: " + e.activityType);
         });
 
     properties:
       - name: activityType
         summary: |
-            Unique string identifer for handoff user activity. This identifier must be defined in your tiapp.xml file.
+            Unique string identifer for user activity. This identifier must be defined in your tiapp.xml file.
         type: String
+      - name: searchableItemActivityIdentifier
+        summary: |
+            With field will contain the searchable Unique Identifier if the continueactivity is fired from a Core Spotlight searh result.
+        type: String        
       - name: title
         summary: |
-            The optional title provided to the handoff user activity.
+            The optional title provided to the user activity or search item.
         type: String
       - name: webpageURL
         summary: |
-            The optional webpageURL provided to the handoff user activity.
+            The optional webpageURL provided to the user activity.
         type: String
       - name: userInfo
         summary: |
-            The optional userInfo provided to the handoff user activity.  The userInfo is a custom dictionary and can contain any information needed 
-            to create your handoff session.
+            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed 
+            to create your handoff or Core Spotlight session.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.2"}}
-    since: '4.3.0'
+    since: '5.0.0'
 
 ---
 name: NotificationParams

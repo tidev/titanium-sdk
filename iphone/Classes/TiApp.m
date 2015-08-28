@@ -952,11 +952,11 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     }
     
     if (appBooted){
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
     }
     else{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
         });
     }
     
