@@ -1,13 +1,13 @@
 ---
 name: Titanium.App.iOS
 summary: |
-    The top-level App iOS module, available only to iOS devices, that includes the facilities to 
+    The top-level App iOS module, available only to iOS devices, that includes the facilities to
     create and manage local notifications and background services.
 description: |
 
     ### Local Notifications
 
-    Local notifications are a way for an application that is not running in the foreground to let 
+    Local notifications are a way for an application that is not running in the foreground to let
     users know that it has information for them. When invoked, the application either displays a
     banner message or an alert dialog with a **Close** button to dismiss and an **Open** button to bring the application
     into the foreground. The application can also modify the icon badge, to show the
@@ -53,6 +53,25 @@ description: |
     For more information on getting started, refer to the
     [iOS Background Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
 
+    ### Handoff User Activities
+
+    In iOS 8, Apple introduced Handoff, which allows you to create and transfer user activies from one device to another.
+    For example, you can start editing a document on your phone, then transfer the activity to your iPad to continue
+    editing the document.
+
+    To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
+    To continue the activity on another device, listen for the [handoff](Titanium.App.iOS.handoff) event.
+
+    ### Index Application Content
+
+    In iOS 9, Apple lets you index application content, such as music, videos, images and documents, to allow it
+    to be searched in iOS Spotlight.  To effectively add and remove information from the iOS search index
+    you will need to use the following APIs:
+
+    * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
+    * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
+    * <Titanium.App.iOS.SearchableIndex> - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
+
 extends: Titanium.Module
 platforms: [iphone, ipad]
 since: "1.5"
@@ -89,7 +108,7 @@ methods:
     parameters:
       - name: params
         summary: |
-            Parameters used to create the service. Must include a `url` property, to specify the 
+            Parameters used to create the service. Must include a `url` property, to specify the
             local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
 
@@ -101,7 +120,7 @@ methods:
         Call this method at application start up.  If the application needs to register for remote
         notifications, call this method before calling
         [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
-    parameters: 
+    parameters:
       - name: params
         summary: Parameters used to enroll the application in local notifications.
         type: UserNotificationSettings
@@ -156,21 +175,18 @@ methods:
         since: "5.0.0"
         notes: |
             Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS 9 and later.
-    summary: |
-        Marks the end of an openParentApplication:reply execution by a WatchKit extension.
-        Available only on iOS 8.2 and later.
+    summary: Marks the end of an `openParentApplication:reply` execution by a WatchKit extension.
     description: |
         This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
         information can be provided in the userInfo argument will be provided back to the WatchKit extension as part of the reply method.
         If no userInfo is provide nil will be sent to the WatchKit extension to during the reply callback.
 
         This method should be used as part of the `watchkitextensionrequest` event as shown below.
-        
-        Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
-            var replyContent = {foo:"bar"};
-            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
-        });
 
+            Ti.App.iOS.addEventListener("watchkitextensionrequest", function(e) {
+                var replyContent = {foo: "bar"};
+                Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
+            });
     parameters:
       - name: handlerId
         summary: |
@@ -180,7 +196,7 @@ methods:
       - name: userInfo
         summary: |
             Custom data object which will be passed in the reply method to your WatchKit extension.
-        type: Dictionary        
+        type: Dictionary
     osver: {ios: {min: "8.2"}}
     since: "4.1.0"
 
@@ -196,7 +212,7 @@ properties:
     type: String
     permission: read-only
     since: "3.0.0"
-    
+
   - name: BACKGROUNDFETCHINTERVAL_MIN
     summary: |
         Use with [setMinimumBackgroundFetchInterval](Titanium.App.iOS.setMinimumBackgroundFetchInterval) method.
@@ -282,8 +298,8 @@ properties:
     summary: |
         Provides an Array of the NSUserActivityTypes keys defined within your Titanium project.
         (available on iOS 8 and later).
-    description: |        
-        Used to obtain a list of the NSUserActivityTypes keys defined in your Titanium project's tiapp.xml file. 
+    description: |
+        Used to obtain a list of the NSUserActivityTypes keys defined in your Titanium project's tiapp.xml file.
         These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
         NSUserActivityTypes must be defined at build time in your tiapp.xml file as shown below:
 
@@ -307,8 +323,8 @@ properties:
 
   - name: applicationOpenSettingsURL
     summary: Returns a URL to open the app's settings.
-    description: |        
-        Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method. 
+    description: |
+        Used to create a URL that you can pass to the [openURL](Titanium.Platform.openURL) method.
         When you open the URL built from this string, the system launches the Settings app and displays the app's custom settings, if it has any.
 
             var settingsURL = Ti.App.iOS.applicationOpenSettingsURL;
@@ -333,7 +349,7 @@ events:
       - name: alertBody
         summary: Alert message.
         type: String
-        
+
       - name: alertLaunchImage
         summary: Image displayed instead of `Default.png` when launching the application.
         type: String
@@ -353,7 +369,7 @@ events:
       - name: timezone
         summary: Timezone of the date when the notification was configured to fire.
         type: String
-        
+
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
@@ -369,7 +385,7 @@ events:
       - name: alertBody
         summary: Alert message.
         type: String
-        
+
       - name: alertLaunchImage
         summary: Image displayed instead of `Default.png` when launching the application.
         type: String
@@ -404,11 +420,11 @@ events:
 
   - name: remotenotificationaction
     summary: Fired when a user selects an action for an interactive remote notification.
-    properties: 
+    properties:
       - name: data
         summary: The payload passed to the Apple Push Notification Service.
         type: Dictionary
-        
+
       - name: category
         summary: Identifier of the category of the interactive notification.
         type: String
@@ -658,11 +674,10 @@ events:
         current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
-        Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
-            var replyContent = {foo:"bar"};
-            Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
-        });
-
+            Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
+                var replyContent = {foo:"bar"};
+                Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
+            });
     properties:
       - name: handlerId
         summary: |
@@ -671,28 +686,27 @@ events:
         type: String
       - name: userInfo
         summary: |
-            The payload passed to the openParentApplication:reply method from the WatchKit extension.
+            The payload passed to the `openParentApplication:reply` method from the WatchKit extension.
         type: Dictionary
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.2"}}
     since: '4.1.0'
 
   - name: continueactivity
-    summary: Fired when iOS continueactivity calls continueUserActivity. Available only on iOS 8.2 and later.
+    summary: Fired when iOS continueactivity calls `continueUserActivity`.
     description: |
-        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight continueUserActivity request. This event will 
+        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will 
         fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides 
         your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the 
         user to pick-up from where they left off on their other device.
 
-        Ti.App.iOS.addEventListener("continueactivity",function(e){
-            console.log("activityType: " + e.activityType);
-        });
-
+            Ti.App.iOS.addEventListener("continueactivity", function(e) {
+                console.log('activityType: '' + e.activityType);
+            });
     properties:
       - name: activityType
         summary: |
-            Unique string identifer for user activity. This identifier must be defined in your tiapp.xml file.
+            Unique string identifer for the handoff user activity. The identifier must be defined in your `tiapp.xml` file.
         type: String
       - name: searchableItemActivityIdentifier
         summary: |
@@ -718,7 +732,7 @@ events:
 ---
 name: NotificationParams
 summary: |
-    Dictionary object of parameters used to create a notification using 
+    Dictionary object of parameters used to create a notification using
     <Titanium.App.iOS.scheduleLocalNotification>.
 since: "1.7"
 platforms: [iphone, ipad]
@@ -730,17 +744,17 @@ properties:
         to display.
     type: String
     optional: true
-    
+
   - name: alertBody
     summary: Alert message to display.
     type: String
     optional: true
-    
+
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
     type: String
     optional: true
-    
+
   - name: badge
     summary: Application badge value.
     type: Number
@@ -756,28 +770,28 @@ properties:
   - name: date
     summary: Date and time for the notification to occur.
     type: Date
-    
+
   - name: repeat
     summary: Interval to repeat the notification. One of `weekly`, `daily`, `yearly,` `monthly`.
     type: String
     optional: true
-    
+
   - name: sound
     summary: |
         Path to the sound file to play when notification occurs, relative to the `Resources` folder.
     type: String
     optional: true
-    
+
   - name: timezone
     summary: |
         Timezone of the date configured for the notification. If not set, the system timezone is used.
     type: String
     optional: true
-    
+
   - name: userInfo
     summary: Data to pass to the application with the notification event.
     type: Dictionary
-    optional: true  
+    optional: true
 
 ---
 name: UserNotificationSettings
