@@ -264,7 +264,7 @@ examples:
         
         #### app.js
         
-            Ti.WatchSession.active();
+            Ti.WatchSession.activate();
 
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
