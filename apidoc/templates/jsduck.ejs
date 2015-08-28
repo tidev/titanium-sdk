@@ -59,7 +59,7 @@
 <% if (property.permission == 'read-only') { %> * @readonly <% } %>
 <% if (property.permission == 'write-only') { %> * @writeonly <% } %>
 <% } %>
-<% if ('availability' in property && property.availability == 'creation-only') { %> * @creationOnly	<% } %>		
+<% if ('availability' in property && property.availability == 'creation') { %> * @creationOnly	<% } %>		
  * <%- property.summary %>
 <% if (property.deprecated) { %> * <%- property.deprecated %> <% } %>
 <% if (property.osver) { %> * <%- property.osver %> <% } %>

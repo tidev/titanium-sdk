@@ -419,6 +419,7 @@ function exportAPIs (api, type) {
 					}
 					break;
 				case 'properties':
+					annotatedMember.availability = member.availability || null;
 					annotatedMember.constants = exportConstants(member);
 					annotatedMember.defaultValue = exportDefault(member);
 					annotatedMember.permission = member.permission || 'read-write';

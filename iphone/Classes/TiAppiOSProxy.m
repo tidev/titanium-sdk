@@ -16,6 +16,7 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 #if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
@@ -90,8 +91,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveWatchExtensionRequestNotification:) name:kTiWatchKitExtensionRequest object:nil];
         }
-        if ((count == 1) && [type isEqual:@"handoff"]) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHandOffNotification:) name:kTiHandOff object:nil];
+        if ((count == 1) && [type isEqual:@"continueactivity"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
         }
     }
 
@@ -141,8 +142,8 @@
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
         }
-        if ((count == 1) && [type isEqual:@"handoff"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiHandOff object:nil];
+        if ((count == 1) && [type isEqual:@"continueactivity"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
         }
     }
 }
@@ -562,10 +563,10 @@
 	}
 }
 
--(void)didReceiveHandOffNotification:(NSNotification*)notif
+-(void)didReceiveContinueActivityNotification:(NSNotification*)notif
 {
     NSDictionary *notification = [notif userInfo];
-    [self fireEvent:@"handoff" withObject:notification];
+    [self fireEvent:@"continueactivity" withObject:notification];
 }
 
 -(void)didReceiveLocalNotification:(NSNotification*)note
@@ -742,6 +743,220 @@
 		return NUMINT(UIUserNotificationActivationModeForeground);
 	}
 	return NUMINT(0);
+}
+
+#pragma mark UTI Text Type Constants
+-(CFStringRef)UTTYPE_TEXT
+{
+	return kUTTypeText;
+}
+
+-(CFStringRef)UTTYPE_PLAIN_TEXT
+{
+	return kUTTypePlainText;
+}
+
+-(CFStringRef)UTTYPE_UTF8_PLAIN_TEXT
+{
+	return kUTTypeUTF8PlainText;
+}
+
+-(CFStringRef)UTTYPE_UTF16_EXTERNAL_PLAIN_TEXT
+{
+	return kUTTypeUTF16ExternalPlainText;
+}
+
+-(CFStringRef)UTTYPE_UTF16_PLAIN_TEXT
+{
+	return kUTTypeUTF16PlainText;
+}
+
+-(CFStringRef)UTTYPE_RTF
+{
+	return kUTTypeRTF;
+}
+
+-(CFStringRef)UTTYPE_HTML
+{
+	return kUTTypeHTML;
+}
+
+-(CFStringRef)UTTYPE_XML
+{
+	return kUTTypeXML;
+}
+
+-(CFStringRef)UTTYPE_SOURCE_CODE
+{
+	return kUTTypeSourceCode;
+}
+
+-(CFStringRef)UTTYPE_C_SOURCE
+{
+	return kUTTypeCSource;
+}
+
+-(CFStringRef)UTTYPE_OBJECTIVE_C_SOURCE
+{
+	return kUTTypeObjectiveCSource;
+}
+
+-(CFStringRef)UTTYPE_C_PLUS_PLUS_SOURCE
+{
+	return kUTTypeCPlusPlusSource;
+}
+
+-(CFStringRef)UTTYPE_OBJECTIVE_C_PLUS_PLUS_SOURCE
+{
+	return kUTTypeObjectiveCPlusPlusSource;
+}
+
+-(CFStringRef)UTTYPE_C_HEADER
+{
+	return kUTTypeCHeader;
+}
+
+-(CFStringRef)UTTYPE_C_PLUS_PLUS_HEADER
+{
+	return kUTTypeCPlusPlusHeader;
+}
+
+-(CFStringRef)UTTYPE_JAVA_SOURCE
+{
+	return kUTTypeJavaSource;
+}
+
+#pragma mark UTI Composite Content Type Constants
+-(CFStringRef)UTTYPE_PDF
+{
+	return kUTTypePDF;
+}
+
+-(CFStringRef)UTTYPE_RTFD
+{
+	return kUTTypeRTFD;
+}
+
+-(CFStringRef)UTTYPE_FLAT_RTFD
+{
+	return kUTTypeFlatRTFD;
+}
+
+-(CFStringRef)UTTYPE_TXN_TEXT_AND_MULTIMEDIA_DATA
+{
+	return kUTTypeTXNTextAndMultimediaData;
+}
+
+-(CFStringRef)UTTYPE_WEB_ARCHIVE
+{
+	return kUTTypeWebArchive;
+}
+
+#pragma mark UTI Image Content Types
+-(CFStringRef)UTTYPE_IMAGE
+{
+	return kUTTypeImage;
+}
+
+-(CFStringRef)UTTYPE_JPEG
+{
+	return kUTTypeJPEG;
+}
+
+-(CFStringRef)UTTYPE_JPEG2000
+{
+	return kUTTypeJPEG2000;
+}
+
+-(CFStringRef)UTTYPE_TIFF
+{
+	return kUTTypeTIFF;
+}
+
+-(CFStringRef)UTTYPE_PICT
+{
+	return kUTTypePICT;
+}
+
+-(CFStringRef)UTTYPE_GIF
+{
+	return kUTTypeGIF;
+}
+
+-(CFStringRef)UTTYPE_PNG
+{
+	return kUTTypePNG;
+}
+
+-(CFStringRef)UTTYPE_QUICKTIME_IMAGE
+{
+	return kUTTypeQuickTimeImage;
+}
+
+-(CFStringRef)UTTYPE_APPLE_ICNS
+{
+	return kUTTypeAppleICNS;
+}
+
+-(CFStringRef)UTTYPE_BMP
+{
+	return kUTTypeBMP;
+}
+
+-(CFStringRef)UTTYPE_ICO
+{
+	return kUTTypeICO;
+}
+
+#pragma mark UTI Audio Visual Content Types
+-(CFStringRef)UTTYPE_AUDIO_VISUAL_CONTENT
+{
+	return kUTTypeAudiovisualContent;
+}
+
+-(CFStringRef)UTTYPE_MOVIE
+{
+	return kUTTypeMovie;
+}
+
+-(CFStringRef)UTTYPE_VIDEO
+{
+	return kUTTypeVideo;
+}
+
+-(CFStringRef)UTTYPE_AUDIO
+{
+	return kUTTypeAudio;
+}
+
+-(CFStringRef)UTTYPE_QUICKTIME_MOVIE
+{
+	return kUTTypeQuickTimeMovie;
+}
+
+-(CFStringRef)UTTYPE_MPEG
+{
+	return kUTTypeMPEG;
+}
+
+-(CFStringRef)UTTYPE_MPEG4
+{
+	return kUTTypeMPEG4;
+}
+
+-(CFStringRef)UTTYPE_MP3
+{
+	return kUTTypeMP3;
+}
+
+-(CFStringRef)UTTYPE_MPEG4_AUDIO
+{
+	return kUTTypeMPEG4Audio;
+}
+
+-(CFStringRef)UTTYPE_APPLE_PROTECTED_MPEG4_AUDIO
+{
+	return kUTTypeAppleProtectedMPEG4Audio;
 }
 
 -(NSString*)applicationOpenSettingsURL

@@ -2,55 +2,64 @@
 name: Titanium.App.iOS.SearchableItem
 summary: Used to create a unique object containing all of the search information that will appear in the device search index.
 description: |
-    To effectively add and remove information from the iOS search index 
-    you will need to use the below listed modules:
+    To effectively add and remove information from the iOS search index you will need to use the below listed modules:
 
-    * Ti.App.iOS.SearchableItemAttributeSet - Used to create meta data related to the Titanium.App.iOS.SearchableItem
-    * Ti.App.iOS.SearchableItem - Used to assemble meta data into a unique object package to be used by Ti.App.iOS.SearchableIndex     
-    * Ti.App.iOS.SearchableIndex  - Used to add and remove Ti.App.iOS.SearchableItem objects to the device search index
+    * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
+    * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
+    * <Titanium.App.iOS.SearchableIndex> - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
 
     To use this feature make sure you have a compatible device running iOS 9 or later.
 
+    To create a SearchableItem object, use the Titanium.App.iOS.createSearchableItem method.
+    Pass a dictionary of properties to the method that will help identify the item.
+    At minimum, you must set the [attributeSet](Titanium.App.iOS.SearchableItem.attributeSet) property, which associates
+    the metadata with the SearchableItem object.
+
+    Then, pass the SearchableItem object to a SearchableIndex object's
+    [addToDefaultSearchableIndex()](Titanium.App.iOS.SearchableIndex.addToDefaultSearchableIndex) method to add the item
+    to the device's search index.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
+osver: {ios: {min: "9.0"}}
 since: "5.0.0"
 createable: true
 properties:
-  - name: uniqueIdentifier
-    summary: Unique to your application group
-    type: String
+  - name: attributeSet
+    summary: Set of metadata properties to display for the item.
+    description: Must be set to create a SearchableItem object.
+    type: Titanium.App.iOS.SearchableItemAttributeSet
     availability: creation
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    accessors: false
   - name: domainIdentifier
     summary: Identifier that represents the "domain" or owner of this item.
     type: String
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
   - name: expirationDate
-    summary: Searchable items have an expiration date or time to live.  By default it's set to 1 month..
+    summary: Searchable items have an expiration date or time to live.  By default it is set to one month.
     description: |
-        Absolute date after which this activity is no longer eligible to be indexed or handed off.
+        Absolute date after which the activity is no longer eligible to be indexed or handed off.
 
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+  - name: uniqueIdentifier
+    summary: Unique identifier to your application group.
+    type: String
+    osver: {ios: {min: "9.0"}}
 examples:
-  - title: Creating a new SearchableItem Example
+  - title: Add Searchable Content to the On-Device Index
     example: |
-        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and 
-        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then
-        Ti.App.iOS.SearchableIndex is used to add the Ti.App.iOS.SearchableItem to the default search index.
-                
+        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and
+        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then passed to the
+        Ti.App.iOS.SearchableIndex object to add it to the on-device search index.
+
         #### app.js
-        	
+
             var searchItems = [];
             var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
-                itemContentType:"public.image",
+                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
                 title:"Titanium Core Spotlight Tutorial",
                 contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
                 keywords:["Mobile","Appcelerator","Titanium"]
@@ -65,7 +74,7 @@ examples:
 
             var indexer = Ti.App.iOS.createSearchableIndex();
 
-            indexer.AddToDefaultSearchableIndex(searchItems,function(e){
+            indexer.addToDefaultSearchableIndex(searchItems,function(e){
                 if(e.success){
                     alert("Press the home button and now search for your keywords");
                 }else{

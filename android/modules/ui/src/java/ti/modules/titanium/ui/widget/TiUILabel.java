@@ -173,6 +173,7 @@ public class TiUILabel extends TiUIView
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT), TextView.BufferType.SPANNABLE);
+			
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
 		}
@@ -265,7 +266,7 @@ public class TiUILabel extends TiUIView
 			if (attributedString instanceof AttributedStringProxy) {
 				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
 				if (spannableText != null) {
-					tv.setText(spannableText);
+					tv.setText(spannableText, TextView.BufferType.NORMAL);
 				}
 			}
 		}
@@ -352,7 +353,7 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
 			if (spannableText != null) {
-				tv.setText(spannableText);
+				tv.setText(spannableText, TextView.BufferType.NORMAL);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
