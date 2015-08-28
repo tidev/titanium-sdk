@@ -285,6 +285,267 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: UTTYPE_TEXT
+    summary: |
+        Uniform type identifier for all text types.
+    type: String
+    permission: read-only
+    value: "public.text"
+    since: 5.0.0
+
+  - name: UTTYPE_PLAIN_TEXT
+    summary: |
+        Uniform type identifier for a plain text type, equivalent to MIME type text/plain.
+    type: String
+    permission: read-only
+    value: "public.plain-text"
+    since: 5.0.0
+
+  - name: UTTYPE_UTF8_PLAIN_TEXT
+    summary: |
+        Uniform type identifier for Unicode-8 plain text type.
+    type: String
+    permission: read-only
+    value: "public.utf8-plain-text"
+    since: 5.0.0
+
+  - name: UTTYPE_UTF16_EXTERNAL_PLAIN_TEXT
+    summary: |
+        Uniform type identifier for Unicode-16 with byte-order mark (BOM), or if BOM is not present,
+        an external representation byte order (big-endian).
+    type: String
+    permission: read-only
+    since: 5.0.0
+
+  - name: UTTYPE_UTF16_PLAIN_TEXT
+    summary: |
+        Uniform type identifier for Unicode-16, native byte order, with an optional byte-order mark (BOM).
+    type: String
+    permission: read-only
+    since: 5.0.0
+
+  - name: UTTYPE_RTF
+    summary: |
+        Uniform type identifier for Rich Text.
+    type: String
+    permission: read-only
+    value: "public.rtf"
+    since: 5.0.0
+
+  - name: UTTYPE_HTML
+    summary: |
+        Uniform type identifier for HTML.
+    type: String
+    permission: read-only
+    value: "public.html"
+    since: 5.0.0
+
+  - name: UTTYPE_XML
+    summary: |
+        Uniform type identifier for XML.
+    type: String
+    permission: read-only
+    value: "public.xml"
+    since: 5.0.0
+
+  - name: UTTYPE_PDF
+    summary: |
+        Uniform type identifier for PDF data.
+    type: String
+    permission: read-only
+    value: "com.adobe.pdf"
+    since: 5.0.0
+
+  - name: UTTYPE_RTFD
+    summary: |
+        Uniform type identifier for Rich Text Format Directory, that is, Rich Text with content embedding, on-disk format.
+    type: String
+    permission: read-only
+    value: "com.apple.rtfd"
+    since: 5.0.0
+
+  - name: UTTYPE_FLAT_RTFD
+    summary: |
+        Uniform type identifier for Rich Text with content embedding, pasteboard format.
+    type: String
+    permission: read-only
+    value: "com.apple.flat-rtfd"
+    since: 5.0.0
+
+  - name: UTTYPE_TXN_TEXT_AND_MULTIMEDIA_DATA
+    summary: |
+        Uniform type identifier for MLTE (Textension) format for mixed text and multimedia data.
+    type: String
+    permission: read-only
+    since: 5.0.0
+
+  - name: UTTYPE_WEB_ARCHIVE
+    summary: |
+        Uniform type identifier for WebKit webarchive format.
+    type: String
+    permission: read-only
+    value: "com.apple.webarchive"
+    since: 5.0.0
+
+  - name: UTTYPE_IMAGE
+    summary: |
+        Uniform type identifier for all image types.
+    type: String
+    permission: read-only
+    value: "public.image"
+    since: 5.0.0
+
+  - name: UTTYPE_JPEG
+    summary: |
+        Uniform type identifier for JPEG images.
+    type: String
+    permission: read-only
+    value: "public.jpeg"
+    since: 5.0.0
+
+  - name: UTTYPE_JPEG2000
+    summary: |
+        Uniform type identifier for JPEG 2000 images.
+    type: String
+    permission: read-only
+    value: "public.jpeg-2000"
+    since: 5.0.0
+
+  - name: UTTYPE_TIFF
+    summary: |
+        Uniform type identifier for TIFF images.
+    type: String
+    permission: read-only
+    value: "public.tiff"
+    since: 5.0.0
+
+  - name: UTTYPE_PICT
+    summary: |
+        Uniform type identifier for PICT images.
+    type: String
+    permission: read-only
+    value: "com.apple.pict"
+    since: 5.0.0
+
+  - name: UTTYPE_GIF
+    summary: |
+        Uniform type identifier for GIF images.
+    type: String
+    permission: read-only
+    value: "com.compuserve.gif"
+    since: 5.0.0
+
+  - name: UTTYPE_PNG
+    summary: |
+        Uniform type identifier for PNG images.
+    type: String
+    permission: read-only
+    value: "public.png"
+    since: 5.0.0
+
+  - name: UTTYPE_QUICKTIME_IMAGE
+    summary: |
+        Uniform type identifier for QuickTime images.
+    type: String
+    permission: read-only
+    value: "com.apple.quicktime-image"
+    since: 5.0.0
+
+  - name: UTTYPE_APPLE_ICNS
+    summary: |
+        Uniform type identifier for Mac OS icon images.
+    type: String
+    permission: read-only
+    value: "com.apple.icns"
+    since: 5.0.0
+
+  - name: UTTYPE_BMP
+    summary: |
+        Uniform type identifier for Windows bitmap images.
+    type: String
+    permission: read-only
+    value: "com.microsoft.bmp"
+    since: 5.0.0
+
+  - name: UTTYPE_ICO
+    summary: |
+        Uniform type identifier for Windows icon images.
+    type: String
+    permission: read-only
+    value: "com.microsoft.ico"
+    since: 5.0.0
+
+  - name: UTTYPE_MOVIE
+    summary: |
+        Uniform type identifier for all audiovisual content.
+    type: String
+    permission: read-only
+    value: "public.movie"
+    since: 5.0.0
+
+  - name: UTTYPE_VIDEO
+    summary: |
+        Uniform type identifier for all video content without audio.
+    type: String
+    permission: read-only
+    value: "public.video"
+    since: 5.0.0
+
+  - name: UTTYPE_AUDIO
+    summary: |
+        Uniform type identifier for all audio content.
+    type: String
+    permission: read-only
+    value: "public.audio"
+    since: 5.0.0
+
+  - name: UTTYPE_QUICKTIME_MOVIE
+    summary: |
+        Uniform type identifier for QuickTime movies.
+    type: String
+    permission: read-only
+    value: "com.apple.quicktime-movie"
+    since: 5.0.0
+
+  - name: UTTYPE_MPEG
+    summary: |
+        Uniform type identifier for MPEG-1 and MPEG-2 content.
+    type: String
+    permission: read-only
+    value: "public.mpeg"
+    since: 5.0.0
+
+  - name: UTTYPE_MPEG4
+    summary: |
+        Uniform type identifier for MPEG-4 content.
+    type: String
+    permission: read-only
+    value: "public.mpeg-4"
+    since: 5.0.0
+
+  - name: UTTYPE_MP3
+    summary: |
+        Uniform type identifier for MP3 audio.
+    type: String
+    permission: read-only
+    value: "public.mp3"
+    since: 5.0.0
+
+  - name: UTTYPE_MPEG4_AUDIO
+    summary: |
+        Uniform type identifier for MPEG-4 audio.
+    type: String
+    permission: read-only
+    value: "public.mpeg-4-audio"
+    since: 5.0.0
+
+  - name: UTTYPE_APPLE_PROTECTED_MPEG4_AUDIO
+    summary: |
+        Uniform type identifier for protected MPEG-4 audio (iTunes music store format).
+    type: String
+    permission: read-only
+    since: 5.0.0
+
   - name: currentUserNotificationSettings
     summary: |
         Notification types and user notification categories the application is registered to use
