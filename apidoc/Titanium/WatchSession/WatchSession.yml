@@ -39,7 +39,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: recentAppContext
-    summary: The most recent application context set to the watch app.
+    summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
     osver: {ios: {min: "9.0"}}
