@@ -594,7 +594,7 @@ extern NSString * const kTiURLSessionEventsCompleted;
 extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
 extern NSString * const kTiWatchKitExtensionRequest;
-extern NSString * const kTiHandOff;
+extern NSString * const kTiContinueActivity;
     
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;

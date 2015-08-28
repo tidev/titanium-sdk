@@ -25,6 +25,7 @@
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
+#import <CoreSpotlight/CoreSpotlight.h>
 
 TiApp* sharedApp;
 
@@ -932,29 +933,30 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
                                  dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
                                  nil];
     
-    if([userActivity title] !=nil)
-    {
+    if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
+        if([userActivity userInfo] !=nil){
+            [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+        }
+    }
+    
+    if([userActivity title] !=nil){
         [dict setObject:[userActivity title] forKey:@"title"];
     }
     
-    if([userActivity webpageURL] !=nil)
-    {
+    if([userActivity webpageURL] !=nil){
         [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
     }
     
-    if([userActivity userInfo] !=nil)
-    {
+    if([userActivity userInfo] !=nil){
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
     
-    if (appBooted)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+    if (appBooted){
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
     }
-    else
-    {
+    else{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHandOff object:self userInfo:dict];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
         });
     }
     
