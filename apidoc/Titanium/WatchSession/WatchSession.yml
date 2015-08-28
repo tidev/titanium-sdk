@@ -263,6 +263,8 @@ examples:
         in Objective-C in the Xcode project inside the extensions folder of the Titanium Project.
         
         #### app.js
+        
+            Ti.WatchSession.active();
 
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
