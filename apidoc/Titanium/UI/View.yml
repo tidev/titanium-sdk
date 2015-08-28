@@ -599,7 +599,23 @@ methods:
         
   - name: hide
     summary: Hides this view.
-    
+
+  - name: insertAt
+    summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array to
+               insert the view. If omitted, inserts the view to the end of the array.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
+
   - name: remove
     summary: Removes a child view from this view's hierarchy.
     parameters:
@@ -610,6 +626,22 @@ methods:
   - name: removeAllChildren
     summary: Removes all child views from this view's hierarchy.
     since: {android: "3.1.0",  iphone: "3.1.0", ipad: "3.1.0"}
+
+  - name: replaceAt
+    summary: Replaces a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
+               the view elment to replace.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
 
   - name: show
     summary: Makes this view visible.

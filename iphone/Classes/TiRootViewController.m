@@ -261,47 +261,43 @@
 		*imageIdiom = UIUserInterfaceIdiomPad;
 		// Specific orientation check
 		switch (orientation) {
-			case UIDeviceOrientationPortrait:
-				image = [UIImage imageNamed:@"Default-Portrait.png"];
-				break;
-			case UIDeviceOrientationPortraitUpsideDown:
-				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
-				break;
-			case UIDeviceOrientationLandscapeLeft:
-				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
-				break;
-			case UIDeviceOrientationLandscapeRight:
-				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
-				break;
-			default:
-				image = nil;
-		}
-		if (image != nil) {
-			return image;
-		}
-		
-		// Generic orientation check
-		if (UIDeviceOrientationIsPortrait(orientation)) {
-			image = [UIImage imageNamed:@"Default-Portrait.png"];
-		}
-		else if (UIDeviceOrientationIsLandscape(orientation)) {
-			image = [UIImage imageNamed:@"Default-Landscape.png"];
-		}
-		
-		if (image != nil) {
-			return image;
-		}
-	}
-	*imageOrientation = UIDeviceOrientationPortrait;
-	*imageIdiom = UIUserInterfaceIdiomPhone;
-	// Default
+            case UIDeviceOrientationPortrait:
+            case UIDeviceOrientationPortraitUpsideDown:
+                image = [UIImage imageNamed:@"LaunchImage-700-Portrait"];
+                break;
+            case UIDeviceOrientationLandscapeLeft:
+            case UIDeviceOrientationLandscapeRight:
+                image = [UIImage imageNamed:@"LaunchImage-700-Landscape"];
+                break;
+            default:
+                image = nil;
+        }
+        if (image != nil) {
+            return image;
+        }
+        
+        // Generic orientation check
+        if (UIDeviceOrientationIsPortrait(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-700-Portrait"];
+        }
+        else if (UIDeviceOrientationIsLandscape(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-700-Landscape"];
+        }
+        
+        if (image != nil) {
+            return image;
+        }
+    }
+    *imageOrientation = UIDeviceOrientationPortrait;
+    *imageIdiom = UIUserInterfaceIdiomPhone;
+    // Default
     image = nil;
     if ([TiUtils isRetinaHDDisplay]) {
         if (UIDeviceOrientationIsPortrait(orientation)) {
-            image = [UIImage imageNamed:@"Default-Portrait-736h.png"];
+            image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
         }
         else if (UIDeviceOrientationIsLandscape(orientation)) {
-            image = [UIImage imageNamed:@"Default-Landscape-736h.png"];
+            image = [UIImage imageNamed:@"LaunchImage-800-Landscape-736h@3x"];
         }
         if (image!=nil) {
             *imageOrientation = orientation;
@@ -309,18 +305,19 @@
         }
     }
     if ([TiUtils isRetinaiPhone6]) {
-        image = [UIImage imageNamed:@"Default-667h.png"];
+        image = [UIImage imageNamed:@"LaunchImage-800-667h"];
         if (image!=nil) {
             return image;
         }
     }
     if ([TiUtils isRetinaFourInch]) {
-        image = [UIImage imageNamed:@"Default-568h.png"];
+        image = [UIImage imageNamed:@"LaunchImage-700-568h@2x"];
         if (image!=nil) {
             return image;
         }
     }
-	return [UIImage imageNamed:@"Default.png"];
+
+    return [UIImage imageNamed:@"LaunchImage-700@2x"];
 }
 
 -(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
