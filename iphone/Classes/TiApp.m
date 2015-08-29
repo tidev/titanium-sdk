@@ -25,7 +25,9 @@
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
+#if IS_XCODE_7
 #import <CoreSpotlight/CoreSpotlight.h>
+#endif
 
 TiApp* sharedApp;
 
@@ -932,13 +934,14 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     NSMutableDictionary *dict = [NSMutableDictionary
                                  dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
                                  nil];
-    
+
+#if IS_XCODE_7
     if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
         if([userActivity userInfo] !=nil){
             [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
         }
     }
-    
+#endif
     if([userActivity title] !=nil){
         [dict setObject:[userActivity title] forKey:@"title"];
     }
