@@ -132,7 +132,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];
@@ -163,7 +163,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];
@@ -206,7 +206,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];
@@ -251,7 +251,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];
@@ -310,7 +310,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];
@@ -358,7 +358,7 @@
             if (theDelegate != nil) {
                 [theDelegate updateSearchResults:nil];
                 if ([theDispatcher isKindOfClass:[TiViewProxy class]]) {
-                    [(TiViewProxy*)theDispatcher contentsWillChange];
+//                    [(TiViewProxy*)theDispatcher contentsWillChange];
                 }
             }
         }];

@@ -7,10 +7,14 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiUILabelProxy.h"
-#import "TiUILabel.h"
 #import "TiUtils.h"
 
 @implementation TiUILabelProxy
+
+-(TiUILabel*)label
+{
+    return (TiUILabel*)[self view];
+}
 
 -(NSString*)apiName
 {

@@ -607,6 +607,9 @@ DEFINE_EXCEPTIONS
     
     if (![superview isKindOfClass:[TiLayoutView class]] && ![self isInToolbar])
     {
+        if ([superview isKindOfClass:[UITableView class]]) {
+            return;
+        } else
         if ([superview isKindOfClass:[UIScrollView class]])
         {
             TiLayoutRemoveChildConstraints(superview, self);

@@ -1,4 +1,4 @@
-    /**
+/**
  * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
@@ -1553,6 +1553,8 @@
         
         [tableHeaderView addSubview:searchView];
         [tableview setTableHeaderView:tableHeaderView];
+
+        [bar sizeToFit];
 	}
 }
 
@@ -1717,9 +1719,19 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
 	if (args!=nil)
 	{
-		TiUIView *view = (TiUIView*) [args view];
-		UITableView *table = [self tableView];
-		[table setTableHeaderView:view];
+        [args windowWillOpen];
+        TiUIView* tiView = (TiUIView*)[args view];
+        
+        CGSize parentSize = self.bounds.size;
+        if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+            parentSize = [[UIScreen mainScreen] bounds].size;
+        }
+        CGSize s = [tiView sizeThatFits:parentSize];
+        
+        UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, parentSize.width, s.height)];
+        [view addSubview:tiView];
+        [[self tableView] setTableHeaderView:view];
+        [view autorelease];
         if (headerViewProxy != nil) {
             [headerViewProxy setProxyObserver:nil];
             [[self proxy] forgetProxy:headerViewProxy];
@@ -1745,8 +1757,18 @@
 	if (args!=nil)
 	{
 		[args windowWillOpen];
-		UIView *view = [args view];
+        TiUIView* tiView = (TiUIView*)[args view];
+        
+        CGSize parentSize = self.bounds.size;
+        if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+            parentSize = [[UIScreen mainScreen] bounds].size;
+        }
+        CGSize s = [tiView sizeThatFits:parentSize];
+        
+        UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, parentSize.width, s.height)];
+        [view addSubview:tiView];
 		[[self tableView] setTableFooterView:view];
+        [view autorelease];
         if (footerViewProxy != nil) {
             [footerViewProxy setProxyObserver:nil];
             [[self proxy] forgetProxy:footerViewProxy];
@@ -1787,6 +1809,9 @@
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
 		[TiUtils configureController:tableController withObject:nil];
+        [[self tableView] setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [[self tableView] setFrame:[self bounds]];
+        [[self tableView] setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
@@ -2558,15 +2583,21 @@ return result;	\
 
 }
 
+
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	CGRect minimumContentRect = [tableview bounds];
-	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardTop, 0);
+    [[self tableView] setContentInset: contentInsets];
+    [[self tableView] setScrollIndicatorInsets: contentInsets];
 }
+
 -(void)keyboardDidHide
 {
-    
+    [[self tableView] setContentInset: UIEdgeInsetsZero];
+    [[self tableView] setScrollIndicatorInsets: UIEdgeInsetsZero];
 }
+
+
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([tableview isScrollEnabled]) {

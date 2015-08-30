@@ -78,8 +78,8 @@
     if ([self viewAttached]) {
         UISearchBar* searchBar = [self searchBar];
         if ([searchBar superview] != view) {
-            [view setInnerView:searchBar];
             [view addSubview:searchBar];
+            [searchBar setFrame:[view bounds]];
         }
     }
     

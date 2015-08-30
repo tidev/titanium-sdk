@@ -117,20 +117,47 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(TiViewProxy*)initWrapperProxy
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
-    LayoutConstraint* viewLayout = [theProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
+    [[theProxy view] setDefaultHeight:TiDimensionAutoSize];
+    [[theProxy view] setDefaultWidth:TiDimensionAutoFill];
+    [[theProxy view] setWidth_:@"FILL"];
+    [[theProxy view] setHeight_:@"SIZE"];
     return theProxy;
 }
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
 {
+    if (CGSizeEqualToSize(CGSizeZero, self.frame.size)) return;
     [theProxy setProxyObserver:self];
-    if (header) {
-        [self.tableView setTableHeaderView:[theProxy view]];
-    } else {
-        [self.tableView setTableFooterView:[theProxy view]];
+
+    TiUIView* tiView = (TiUIView*)[theProxy view];
+    if ([[tiView subviews] count] == 0) {
+        if (header) {
+            [self.tableView setTableHeaderView:nil];
+        } else {
+            [self.tableView setTableFooterView:nil];
+        }
+        return;
     }
+    CGSize parentSize = self.bounds.size;
+    if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+        parentSize = [[UIScreen mainScreen] bounds].size;
+    }
+    CGSize s = [tiView sizeThatFits:parentSize];
+    UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, parentSize.width, s.height)];
+    [view addSubview:tiView];
+    
+    if (s.height == 0) {
+        [self.tableView setTableHeaderView:nil];
+    } else {
+        if (header) {
+            [[theProxy view] setViewName:@"Header"];
+            [self.tableView setTableHeaderView:view];
+        } else {
+            [[theProxy view] setViewName:@"Footer"];
+            [self.tableView setTableFooterView:view];
+        }
+    }
+    [view autorelease];
     [theProxy windowWillOpen];
     [theProxy setParentVisible:YES];
     [theProxy windowDidOpen];
@@ -148,8 +175,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)configureHeaders
 {
     _headerViewProxy = [self initWrapperProxy];
-    LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
-    viewLayout->layoutStyle = TiLayoutRuleVertical;
+    [[_headerViewProxy view] setLayout_:@"vertical"];
     [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
     _searchWrapper = [self initWrapperProxy];
@@ -165,11 +191,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (_tableView == nil) {
         UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
 
-        _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
-        _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:style];
         _tableView.delegate = self;
         _tableView.dataSource = self;
 
+        [self setInnerView:_tableView];
+        
         if (TiDimensionIsDip(_rowHeight)) {
             [_tableView setRowHeight:_rowHeight.value];
         }
@@ -195,40 +222,39 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
     }
     if ([_tableView superview] != self) {
-        [self addSubview:_tableView];
+        [self setInnerView:_tableView];
     }
     return _tableView;
 }
 
-/*
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(void)postLayoutEvent
 {
+    [super postLayoutEvent];
     if (![searchController isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_tableView];
             if (rowWidth > 0) {
                 CGFloat right = _tableView.bounds.size.width - rowWidth;
-                [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+                [[_searchWrapper view] setRight_: NUMFLOAT(right)];
             }
         }
     } else {
         [_tableView reloadData];
     }
-    [super frameSizeChanged:frame bounds:bounds];
-    
+
     if (_headerViewProxy != nil) {
-        [_headerViewProxy parentSizeWillChange];
+        [self setHeaderFooter:_headerViewProxy isHeader:YES];
     }
     if (_footerViewProxy != nil) {
-        [_footerViewProxy parentSizeWillChange];
+        [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
-    if (_pullViewWrapper != nil) {
-        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
-        [_pullViewProxy parentSizeWillChange];
-    }
+//    if (_pullViewWrapper != nil) {
+//        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
+//        [_pullViewProxy parentSizeWillChange];
+    //    }
+    [[self tableView] reloadData];
 }
-*/
 - (id)accessibilityElement
 {
 	return self.tableView;
@@ -262,25 +288,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [((TiUIListItem*)theCell) ensureVisibleSelectorWithTableView:_tableView];
         }
     }];
-}
-
--(void)proxyDidRelayout:(id)sender
-{
-    TiThreadPerformOnMainThread(^{
-        if (sender == _headerViewProxy) {
-            UIView* headerView = [[self tableView] tableHeaderView];
-            [headerView setFrame:[headerView bounds]];
-            [[self tableView] setTableHeaderView:headerView];
-            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
-        } else if (sender == _footerViewProxy) {
-            UIView *footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:[footerView bounds]];
-            [[self tableView] setTableFooterView:footerView];
-            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
-        } else if (sender == _pullViewProxy) {
-            pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
-        }
-    },NO);
 }
 
 -(void)setContentOffset_:(id)value withObject:(id)args
@@ -342,16 +349,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     TiViewProxy* viewproxy = [proxy valueForKey:location];
     if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
-        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        TiLayoutConstraint *viewLayout = [[viewproxy view] tiLayoutConstraint];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
+            [[viewproxy view] setHeight_:@"SIZE"];
         }
         
         TiUIView* theView = [viewproxy view];
         if (![viewproxy viewAttached]) {
             [viewproxy windowWillOpen];
-            [viewproxy willShow];
             [viewproxy windowDidOpen];
         }
         return theView;
@@ -590,6 +596,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerWrapper removeAllChildren:nil];
     TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:NO];
     [_headerWrapper add:theProxy];
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 - (void)setFooterTitle_:(id)args
@@ -600,13 +607,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.tableView setTableFooterView:nil];
         [_footerViewProxy windowDidClose];
         RELEASE_TO_NIL(_footerViewProxy);
-        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
+//        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
     } else {
         [self configureFooter];
         [_footerViewProxy removeAllChildren:nil];
         TiViewProxy *theProxy = [[self class] titleViewForText:[TiUtils stringValue:args] inTable:[self tableView] footer:YES];
         [_footerViewProxy add:theProxy];
     }
+    [self setHeaderFooter:_footerViewProxy isHeader:YES];
 }
 
 -(void)setHeaderView_:(id)args
@@ -617,6 +625,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (args!=nil) {
         [_headerWrapper add:(TiViewProxy*) args];
     }
+    [self setHeaderFooter:_headerViewProxy isHeader:YES];
 }
 
 -(void)setFooterView_:(id)args
@@ -628,12 +637,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.tableView setTableFooterView:nil];
         [_footerViewProxy windowDidClose];
         RELEASE_TO_NIL(_footerViewProxy);
-        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
+//        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
     } else {
         [self configureFooter];
         [_footerViewProxy removeAllChildren:nil];
         [_footerViewProxy add:(TiViewProxy*) args];
     }
+    [self setHeaderFooter:_footerViewProxy isHeader:NO];
 }
 
 -(void)setRefreshControl_:(id)args
@@ -652,56 +662,58 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setPullView_:(id)args
 {
-    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
-    if (args == nil) {
-        [_pullViewProxy setProxyObserver:nil];
-        [_pullViewProxy windowWillClose];
-        [_pullViewWrapper removeFromSuperview];
-        [_pullViewProxy windowDidClose];
-        RELEASE_TO_NIL(_pullViewWrapper);
-        RELEASE_TO_NIL(_pullViewProxy);
-    } else {
-        if ([self tableView].bounds.size.width==0)
-        {
-            [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
-            return;
-        }
-        if (_pullViewProxy != nil) {
-            [_pullViewProxy setProxyObserver:nil];
-            [_pullViewProxy windowWillClose];
-            [_pullViewProxy windowDidClose];
-            RELEASE_TO_NIL(_pullViewProxy);
-        }
-        if (_pullViewWrapper == nil) {
-            _pullViewWrapper = [[UIView alloc] init];
-            [_tableView addSubview:_pullViewWrapper];
-        }
-        CGSize refSize = _tableView.bounds.size;
-        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        _pullViewProxy = [args retain];
-        TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
-        _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
-        LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
-        //If height is not dip, explicitly set it to SIZE
-        if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
-        }
-        //If bottom is not dip set it to 0
-        if (viewLayout->bottom.type != TiDimensionTypeDip) {
-            viewLayout->bottom = TiDimensionZero;
-        }
-        //Remove other vertical positioning constraints
-        viewLayout->top = TiDimensionUndefined;
-        viewLayout->centerY = TiDimensionUndefined;
-        
-        [_pullViewProxy setProxyObserver:self];
-        [_pullViewProxy windowWillOpen];
-        [_pullViewWrapper addSubview:[_pullViewProxy view]];
-        _pullViewProxy.parentVisible = YES;
-        [_pullViewProxy refreshSize];
-        [_pullViewProxy willChangeSize];
-        [_pullViewProxy windowDidOpen];
-    }
+    LOG_MISSING;
+
+//    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+//    if (args == nil) {
+//        [_pullViewProxy setProxyObserver:nil];
+//        [_pullViewProxy windowWillClose];
+//        [_pullViewWrapper removeFromSuperview];
+//        [_pullViewProxy windowDidClose];
+//        RELEASE_TO_NIL(_pullViewWrapper);
+//        RELEASE_TO_NIL(_pullViewProxy);
+//    } else {
+//        if ([self tableView].bounds.size.width==0)
+//        {
+//            [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
+//            return;
+//        }
+//        if (_pullViewProxy != nil) {
+//            [_pullViewProxy setProxyObserver:nil];
+//            [_pullViewProxy windowWillClose];
+//            [_pullViewProxy windowDidClose];
+//            RELEASE_TO_NIL(_pullViewProxy);
+//        }
+//        if (_pullViewWrapper == nil) {
+//            _pullViewWrapper = [[UIView alloc] init];
+//            [_tableView addSubview:_pullViewWrapper];
+//        }
+//        CGSize refSize = _tableView.bounds.size;
+//        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
+//        _pullViewProxy = [args retain];
+//        TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
+//        _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
+//        LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
+//        //If height is not dip, explicitly set it to SIZE
+//        if (viewLayout->height.type != TiDimensionTypeDip) {
+//            viewLayout->height = TiDimensionAutoSize;
+//        }
+//        //If bottom is not dip set it to 0
+//        if (viewLayout->bottom.type != TiDimensionTypeDip) {
+//            viewLayout->bottom = TiDimensionZero;
+//        }
+//        //Remove other vertical positioning constraints
+//        viewLayout->top = TiDimensionUndefined;
+//        viewLayout->centerY = TiDimensionUndefined;
+//        
+//        [_pullViewProxy setProxyObserver:self];
+//        [_pullViewProxy windowWillOpen];
+//        [_pullViewWrapper addSubview:[_pullViewProxy view]];
+//        _pullViewProxy.parentVisible = YES;
+//        [_pullViewProxy refreshSize];
+//        [_pullViewProxy willChangeSize];
+//        [_pullViewProxy windowDidOpen];
+//    }
     
 }
 
@@ -1503,7 +1515,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat size = 0.0;
     if (view!=nil) {
         TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
-        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
         switch (viewLayout->height.type)
         {
             case TiDimensionTypeDip:
@@ -1511,7 +1523,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 break;
             case TiDimensionTypeAuto:
             case TiDimensionTypeAutoSize:
-                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                size += [view sizeThatFits:[self.tableView bounds].size].height;
                 break;
             default:
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -1563,7 +1575,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat size = 0.0;
     if (view!=nil) {
         TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
-        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+        TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
         switch (viewLayout->height.type)
         {
             case TiDimensionTypeDip:
@@ -1571,7 +1583,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 break;
             case TiDimensionTypeAuto:
             case TiDimensionTypeAutoSize:
-                size += [viewProxy autoHeightForSize:[self.tableView bounds].size];
+                size += [view sizeThatFits:[self.tableView bounds].size].height;
                 break;
             default:
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -1643,10 +1655,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                     }
                     if (maxWidth > 0) {
                         TiUIListItemProxy* theProxy = [theCell proxy];
-                        [theProxy layoutProperties]->height = TiDimensionAutoSize;
-                        [theProxy layoutProperties]->width = TiDimensionAutoFill;
-                        CGFloat result =  [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
-                        return result;
+                        [[theProxy view] setHeight_:@"SIZE"];
+                        [[theProxy view] setWidth_:@"FILL"];
+                        CGSize result = [[theProxy view] sizeThatFits:CGSizeMake(maxWidth, self.bounds.size.height)];
+                        return result.height;
                     }
                 }
                 
@@ -1778,8 +1790,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
     if (_searchWrapper != nil) {
-        [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
-        [_searchWrapper refreshView:nil];
+        [[_searchWrapper view] setRight_:@0];
+//        [_searchWrapper refreshView:nil];
         [self initSearchController:self];
     }
 }
@@ -1834,8 +1846,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
             CGFloat right = _tableView.bounds.size.width - rowWidth;
-            [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
-            [_searchWrapper refreshView:nil];
+            [[_searchWrapper view] setRight_:NUMFLOAT(right)];
+//            [_searchWrapper refreshView:nil];
         }
     }
     //IOS7 DP3. TableView seems to be adding the searchView to
@@ -1929,13 +1941,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         //Header auto height when no sections
         if (_headerViewProxy != nil) {
-            resultHeight += [_headerViewProxy autoHeightForSize:refSize];
+            resultHeight += [[_headerViewProxy view] sizeThatFits:refSize].height;
         }
     }
     
     //Footer auto height
     if (_footerViewProxy) {
-        resultHeight += [_footerViewProxy autoHeightForSize:refSize];
+        resultHeight += [[_footerViewProxy view]sizeThatFits:refSize].height;
     }
     
     return resultHeight;
@@ -2004,15 +2016,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [titleProxy setValue:@"black" forKey:@"color"];
     [titleProxy setValue:@"white" forKey:@"shadowColor"];
     [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"0",@"x",@"1",@"y", nil] forKey:@"shadowOffset"];
+    [titleProxy setValue:@"titleView" forKey:@"viewName"];
+    [titleProxy setValue:@"SIZE" forKey:@"height"];
+    [titleProxy setValue:@10 forKey:@"top"];
+    [titleProxy setValue:@10 forKey:@"bottom"];
+    [titleProxy setValue:([tableView style] == UITableViewStyleGrouped) ? @15 : @10 forKey:@"left"];
+    [titleProxy setValue:([tableView style] == UITableViewStyleGrouped) ? @15 : @10 forKey:@"right"];
     
-    LayoutConstraint *viewLayout = [titleProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    viewLayout->top = TiDimensionDip(10.0);
-    viewLayout->bottom = TiDimensionDip(10.0);
-    viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-    viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-
     return [titleProxy autorelease];
 }
 

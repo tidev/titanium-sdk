@@ -11,9 +11,8 @@
 #import "TiToolbar.h"
 #import "TiSwitch.h"
 #import "TiScrollableView.h"
-
 #import "TiUtils.h"
-
+#import "ViewController.h"
 #define WAIT_FOR(DONE) \
 while(!DONE) { \
 [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]]; \
@@ -41,8 +40,8 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 
 - (void)setUp {
     [super setUp];
-    UIViewController* controller = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    myView = (TiLayoutView*)[[[controller view] subviews] objectAtIndex:0];
+    ViewController* controller = (ViewController*)[[[UIApplication sharedApplication] keyWindow] rootViewController];
+    myView = [controller contentView];
 }
 
 - (void)tearDown {
