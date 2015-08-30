@@ -14,6 +14,9 @@
 #import "TiUtils.h"
 #import "TiLabel.h"
 
+
+#import "TiUILayoutView.h"
+
 static NSMutableArray* viewControllers = nil;
 
 @interface TiButton : TiLayoutView
@@ -76,24 +79,62 @@ static NSMutableArray* viewControllers = nil;
 
     [super loadView];
     UIView* view = [self view];
-    [view setBackgroundColor:[self randomColor]];
+    [view setBackgroundColor:[UIColor lightGrayColor]];
     
-    contentView = [[TiLayoutView alloc] init];
-    contentView.viewName = @"BackgroundView";
-    [view addSubview:contentView];
-    [self setView:view];
+//    contentView = [[TiLayoutView alloc] init];
+//    contentView.viewName = @"BackgroundView";
+//    [view addSubview:contentView];
+//    [self setView:view];
 }
 
 -(void)onTimer:(id)sender
 {
     [self openNavWindow];
 }
+
+-(TiLayoutView*)contentView
+{
+    return contentView;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-        
+    
+    UIView* cell = [[UIView alloc] init];
+    cell.backgroundColor = [UIColor whiteColor];
+    TiLayoutView* parentView = [[TiLayoutView alloc] init];
+    parentView.height = @"SIZE";
+    {
+        TiLabel* label = [[TiLabel alloc] init];
+        label.top = @20;
+        label.left = @20;
+        label.right = @20;
+        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"];
+        [parentView addSubview:label];
+    }
+    {
+        TiLabel* label = [[TiLabel alloc] init];
+        label.top = @200;
+        label.left = @20;
+        label.bottom = @10;
+        label.right = @20;
+        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt, Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"];
+        [parentView addSubview:label];
+    }
+    
+    [cell addSubview:parentView];
+    [cell setBounds: CGRectMake(0.0f, 0.0f, 200, [[UIScreen mainScreen] bounds].size.height)];
+    [cell setNeedsLayout];
+    [cell layoutIfNeeded];
+    CGSize s = [cell systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    NSLog(@"Rect %@", NSStringFromCGSize(cell.frame.size));
+    [cell setFrame:CGRectMake(0, 0, 200, s.height)];
+    cell.center = self.view.center;
+    [[self view] addSubview:cell];
+    
     /*
-    TiToolbar* toolbar = [[TiToolbar alloc] init];
-    [contentView insertSubview:toolbar atIndex:1];
+     TiToolbar* toolbar = [[TiToolbar alloc] init];
+     [contentView insertSubview:toolbar atIndex:1];
     {
         TiSwitch* toggle1 = [[TiSwitch alloc] init];
         TiSwitch* toggle2 = [[TiSwitch alloc] init];

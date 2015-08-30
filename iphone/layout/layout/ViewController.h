@@ -6,9 +6,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "TiLayoutView.h"
 @interface ViewController : UIViewController
 
-
+-(TiLayoutView*)contentView;
 @end
 
