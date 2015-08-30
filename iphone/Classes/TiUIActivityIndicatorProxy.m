@@ -14,7 +14,7 @@
 -(NSArray *)keySequence
 {
     return [NSArray arrayWithObjects:
-            @"visibile",
+            @"visible",
             @"font",
             @"message",
             @"color",
