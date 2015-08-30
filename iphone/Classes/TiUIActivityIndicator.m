@@ -83,6 +83,9 @@
         //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
         //visible property of the ActivityIndicator (initialized to false)
         [indicatorView setHidesWhenStopped:NO];
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
         [self setNeedsLayout];
         [self addSubview:indicatorView];
     }
@@ -216,6 +219,9 @@
 		if (messageLabel != nil) {
 			[self setNeedsLayout];
 		}
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
 	}
 
 }

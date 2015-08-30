@@ -11,6 +11,18 @@
 
 @implementation TiUIActivityIndicatorProxy
 
+-(NSArray *)keySequence
+{
+    return [NSArray arrayWithObjects:
+            @"visible",
+            @"font",
+            @"message",
+            @"color",
+            @"style",
+            @"indicatorColor",
+            nil];
+}
+
 -(NSMutableDictionary*)langConversionTable
 {
     return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
