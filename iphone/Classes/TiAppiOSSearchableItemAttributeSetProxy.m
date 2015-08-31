@@ -53,7 +53,7 @@
                     [_attributes setValue:[TiUtils dateForUTCDate:object] forKey:key];
                 }else if([urlFieldTypes containsObject:key]){
                     //Use URL logic to add
-                    [_attributes setValue:[NSURL URLWithString:[object stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] forKey:key];
+                    [_attributes setValue:[self sanitizeURL:object] forKey:key];
                 }else{
                     [_attributes setValue:object forKey:key];
                 }
@@ -122,7 +122,7 @@
 {
     ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setContentURL,value);
-    _attributes.contentURL =[NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    _attributes.contentURL = [self sanitizeURL:value];
 }
 
 //Optional file URL pointing to a thumbnail image for this item
@@ -135,7 +135,7 @@
 {
     ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setThumbnailURL,value);
-    _attributes.thumbnailURL = [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    _attributes.thumbnailURL = [self sanitizeURL:value];
 }
 
 //Optional image data for thumbnail for this item
@@ -1316,7 +1316,7 @@
 {
     ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setUrl,value);
-    _attributes.URL = [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    _attributes.URL = [self sanitizeURL:value];;
 }
 
 @end
