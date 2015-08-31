@@ -58,6 +58,10 @@
                     [_attributes setValue:object forKey:key];
                 }
             }
+            else {
+                //Use blob to add
+                [_attributes setValue:[object data] forKey:key];
+            }
         }
         else{
             NSLog(@"[ERROR] field %@ is invalid",key);
