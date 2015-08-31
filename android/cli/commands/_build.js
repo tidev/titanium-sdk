@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -174,6 +174,15 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 					if (!version.satisfies(jdkInfo.version, _t.packageJson.vendorDependencies.java)) {
 						logger.error(__('JDK version %s detected, but only version %s is supported', jdkInfo.version, _t.packageJson.vendorDependencies.java) + '\n');
+						process.exit(1);
+					}
+
+					// on OS X, we need JDK 1.6 for titanium_prep
+					if (process.platform === 'darwin' && !Object.keys(jdkInfo.jdks).some(function (ver) { return appc.version.satisfies(jdkInfo.jdks[ver].version, '1.6.x'); })) {
+						logger.error(__('Titanium requires JDK 1.6 when building on Mac OS X.'));
+						logger.error(__('You can download it from %s', 'http://appcelerator.com/jdk-osx'));
+						logger.error(__('If you still see this message, then you may need to set the JAVA_HOME to help Titanium locate the JDK.'));
+						logger.error(__('To see which JDKs Titanium finds, run "ti info --types jdk --output json".') + '\n');
 						process.exit(1);
 					}
 
