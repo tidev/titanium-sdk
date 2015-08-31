@@ -9,6 +9,19 @@
 #import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
 
-@interface InterfaceController : WKInterfaceController
+@interface InterfaceController : WKInterfaceController <WCSessionDelegate> {
+    WCSession *watchSession;
+    NSString *backgroundSavedString;
+    NSData *imageData;
+}
+
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *titaniumLabel;
+@property (strong, nonatomic) IBOutlet WKInterfaceButton *titaniumButton;
+@property (strong, nonatomic) IBOutlet WKInterfaceImage *titaniumImage;
+
+-(IBAction)sendMsgButtonPressed:(id)sender;
+-(IBAction)sendUserInfoButtonPressed:(id)sender;
+-(IBAction)sendFileButtonPressed:(id)sender;
+-(IBAction)sendAppContextButtonPressed:(id)sender;
 
 @end
