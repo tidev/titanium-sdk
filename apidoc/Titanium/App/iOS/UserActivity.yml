@@ -209,7 +209,7 @@ examples:
             }
             activity.becomeCurrent();
 
-            Ti.App.iOS.addEventListener('handoff', function(e) {
+            Ti.App.iOS.addEventListener('continueactivity', function(e) {
                 if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
                     alert(e.userInfo.msg);
                 }

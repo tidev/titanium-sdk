@@ -60,7 +60,8 @@ description: |
     editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
-    To continue the activity on another device, listen for the [handoff](Titanium.App.iOS.handoff) event.
+    To continue the activity on another device, listen for the
+    [continueactivity](Titanium.App.iOS.continueactivity) event.
 
     ### Index Application Content
 
