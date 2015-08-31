@@ -41,7 +41,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -443,7 +442,7 @@ public class WheelView extends View {
 
 		int maxLength = getMaxTextLength();
 		if (maxLength > 0) {
-			float textWidth = FloatMath.ceil(Layout.getDesiredWidth("0", itemsPaint));
+			float textWidth = (float) Math.ceil(Layout.getDesiredWidth("0", itemsPaint));
 			itemsWidth = (int) (maxLength * textWidth);
 		} else {
 			itemsWidth = 0;
@@ -452,7 +451,7 @@ public class WheelView extends View {
 
 		labelWidth = 0;
 		if (label != null && label.length() > 0) {
-			labelWidth = (int) FloatMath.ceil(Layout.getDesiredWidth(label, valuePaint));
+			labelWidth = (int) Math.ceil(Layout.getDesiredWidth(label, valuePaint));
 		}
 
 		boolean recalculate = false;
