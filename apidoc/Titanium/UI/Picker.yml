@@ -349,7 +349,7 @@ properties:
     type: Boolean
     default: false (Android)
     platforms: [android]
-    since: "4.3.0"
+    since: "5.0.0"
     
   - name: type
     summary: Determines the type of picker displayed

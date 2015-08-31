@@ -1,22 +1,40 @@
 ---
 name: Titanium.App.iOS.SearchableItemAttributeSet
+summary: The SearchableItemAttributeSet module defines metadata properties for SearchItem and UserActivity objects.
 description: |
-    The SearchableItemAttributeSet module is used to add meta data specific a Ti.App.iOS.SearchableItem entry. The  
-    SearchableItemAttributeSet object provides a large number of properties covering most common scenarios such 
-    as files, music, video, and document searches. To effectively add and remove information from the iOS search index 
+    The SearchableItemAttributeSet object provides a large number of properties covering most common scenarios such
+    as files, music, video, and document searches. To effectively add and remove information from the iOS search index
     you will need to use the below listed modules:
 
-    * Ti.App.iOS.SearchableItemAttributeSet - Used to create meta data related to the Titanium.App.iOS.SearchableItem
-    * Ti.App.iOS.SearchableItem - Used to assemble meta data into a unique object package to be used by Ti.App.iOS.SearchableIndex     
-    * Ti.App.iOS.SearchableIndex  - Used to add and remove Ti.App.iOS.SearchableItem objects to the device search index
+    * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
+    * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
+    * <Titanium.App.iOS.SearchableIndex>  - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
 
     To use this feature make sure you have a compatible device running iOS 9 or later.
 
+    To create a SearchableItemAttributeSet object, use the Titanium.App.iOS.createSearchableItemAttributeSet method.
+    Pass a dictionary of metadata properties to the method to associate with a SearchableItem object or UserActivity.
+    At minimum, you must set the [itemContentType](Titanium.App.iOS.SearchableItemAttributeSet.itemContentType) property.
+
+    Pass the SearchableItemAttributeSet object to either the Titanium.App.iOS.createSearchableItem method to the `attributeSet` key
+    or to a UserActivity object's [addContentAttributeSet()](Titanium.App.iOS.UserActivity.addContentAttributeSet) method.
+
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
-since: "4.3.0"
+since: "5.0.0"
+osver: {ios: {min: "9.0"}}
 createable: true
 properties:
+  - name: itemContentType
+    summary: Content type of the attribute set.
+    description: |
+        Must be set to create a SearchableItemAttributeSet object.  Set to an identifier in the
+        [iOS Developer Library: System-Declared Uniform Type Identifiers](https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
+    type: String
+    constants: Titanium.App.iOS.UTTYPE_*
+    availability: creation
+    osver: {ios: {min: "9.0"}}
+    accessors: false
   - name: displayName
     summary: A localized string to be displayed in the UI for this item.
     type: String
@@ -28,7 +46,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: path
-    summary: This is the complete path to the item.
+    summary: The complete path to the item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -53,19 +71,15 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: metadataModificationDate
-    summary: This is the date that the last metadata attribute was changed.
-    description: |   
-        This is the date that the last metadata attribute was changed. 
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the last metadata attribute was changed.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentType
-    availability: creation  
+    availability: creation
     summary: UTI Type pedigree for an item.
     type: String
     osver: {ios: {min: "9.0"}}
@@ -75,79 +89,73 @@ properties:
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
-  - name: keyWords
-    summary: Represents keywords associated with this particular item. Example Keywords might be Birthday etc.
+  - name: keywords
+    summary: Represents keywords associated with this particular item. Example keywords might be Birthday etc.
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: title
-    summary: The title of this particular item.
+    summary: The title of the particular item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: subject
-    summary: Subject of the this item.
+    summary: Subject of the the item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: theme
-    summary: Theme of the this item.
+    summary: Theme of the the item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentDescription
     summary: An account of the content of the resource.
     description: |
-        An account of the content of the resource. Description may include
-        but is not limited to: an abstract, table of contents, reference
-        to a graphical representation of content or a free-text account of
-        the content.        
+        Description may include but is not limited to: an abstract, table of contents, reference
+        to a graphical representation of content or a free-text account of the content.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: identifier
     summary: Used to reference to the resource within a given context.
     description: |
-        Used to reference to the resource within a given
-        context. Recommended best practice is to identify the resource by
-        means of a string or number conforming to a formal identification system.   
+        Recommended best practice is to identify the resource by
+        means of a string or number conforming to a formal identification system.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: audiences
     summary: A class of entity for whom the resource is intended or useful.
     description: |
-        A class of entity for whom the resource is intended or useful. A
-        class of entity may be determined by the creator or the publisher
-        or by a third party.  
+        A class of entity may be determined by the creator, publisher
+        or third party.
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: fileSize
-    summary: Size of the document in MB.  
+    summary: Size of the document in MB.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: pageCount
-    summary: Number of pages in the item. 
+    summary: Number of pages in the item.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: pageWidth
-    summary: Width in points (72 points per inch) of the document page. 
+    summary: Width in points (72 points per inch) of the document page.
     description: |
-        Width in points (72 points per inch) of the document page
-        (first page only for PDF's - other pages within the PDF may
-        not be the same width). 
+        First page only for PDF's - other pages within the PDF may
+        not be the same width.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: pageHeight
-    summary: Height in points (72 points per inch) of the document page. 
+    summary: Height in points (72 points per inch) of the document page.
     description: |
-        Height in points (72 points per inch) of the document page
-        (first page only for PDF's - other pages within the PDF may
-        not be the same height).
+        First page only for PDF's - other pages within the PDF may
+        not be the same height.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -167,7 +175,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: kind
-    summary: Kind that this item represents.
+    summary: Kind that the item represents.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -179,17 +187,17 @@ properties:
   - name: audioSampleRate
     summary: The sample rate of the audio data contained in the file.
     description: |
-        The sample rate of the audio data contained in the file. The sample rate is a
-        float value representing hz (audio_frames/second). For example: 44100.0, 22254.54.    
+        The sample rate is a float value representing Hertz (audio_frames/second),
+        for example, 44100.0 or 22254.54.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: audioChannelCount
     summary: The number of channels in the audio data contained in the file.
     description: |
-        The number of channels in the audio data contained in the file. This item only represents
+        This item only represents
         the number of discreet channels of audio data found in the file. It does not indicate
-        any configuration of the data in regards to a user's speaker setup.  
+        any configuration of the data in regards to a user's speaker setup.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -240,16 +248,14 @@ properties:
     platforms: [iphone,ipad]
   - name: recordingDate
     summary: The recording date of the song/composition.
-    description: |   
-        The recording date of the song/composition. This information differs from
-        the contentCreationDate attribute as it indicates the date that the
+    description: |
+        This information differs from
+        the `contentCreationDate` attribute as it indicates the date that the
         'art' was created, in contrast to contentCreationDate which for example, could indicate
         the creation date of an edited or 'mastered' version of the original art.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
 
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -259,51 +265,47 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: generalMIDISequence
-    summary: This attribute indicates whether the MIDI sequence contained in the file is setup for use with a General MIDI device.
-    description: | 
-        This attribute indicates whether the MIDI sequence contained in the file is setup for use with a 
-        General MIDI device.  Should be 1 if true, 0 otherwise.
+    summary: Used to indicates whether the MIDI sequence contained in the file is setup for use with a General MIDI device.
+    description: Should be `1` if true and `0` otherwise.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: musicalInstrumentCategory
-    summary: Meta data attribute that stores the category of instrument.
-    description: | 
-        Meta data attribute that stores the category of
-        instrument. Files should have an instrument associated with
+    summary: Metadata attribute that stores the category of instrument.
+    description: |
+        Files should have an instrument associated with
         them ("Other Instrument" is provided as a catch-all). For some
         categories, like "Keyboards" there are instrument names which
-        provide a more detailed instrument definition (e.g., Piano,Organ, etc.)
+        provide a more detailed instrument definition, for example, Piano, Organ, etc.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: musicalInstrumentName
-    summary: Meta data attribute that stores the name of instrument.
-    description: | 
-        Meta data attribute that stores the name of instrument
-        (relative to the instrument category) Files can have an
+    summary: Metadata attribute that stores the name of instrument.
+    description: |
+        Relative to the instrument category. Files can have an
         instrument name associated with them if they have certain
-        instrument categories (e.g., the category Percussion has
-        multiple instruments, including Conga and Bongo).
+        instrument categories, for example, the category Percussion has
+        multiple instruments, including Conga and Bongo.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: supportsPhoneCall
-    summary: This should be used to indicate that using the phone number is appropriate.
-    description: | 
-        If supportsPhoneCall is 1 and the item has the phoneNumbers property, then the phone number 
-        may be used to initiate phone calls. This should be used to indicate that using the phone 
-        number is appropriate, and a primary action for the user. For example, supportsPhoneCall 
-        would be set on a business, but not an academic paper that happens to have phone numbers 
+    summary: Used to indicate that using the phone number is appropriate.
+    description: |
+        If `supportsPhoneCall` is `1` and the item has the `phoneNumbers` property set, then the phone number
+        may be used to initiate phone calls. This should be used to indicate that using the phone
+        number is appropriate, and a primary action for the user. For example, `supportsPhoneCall`
+        would be set on a business, but not an academic paper that happens to have phone numbers
         for the authors or the institution.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: supportsNavigation
     summary: Used to determine if navigation is supported.
-    description: | 
-        If supportsNavigation is set to 1, and the item has the latitude and longitude properties set, 
-        then the latitude and longitude may be used for navigation. For example, supportsNavigation 
+    description: |
+        If `supportsNavigation` is set to `1`, and the item has the `latitude` and `longitude` properties set,
+        then the latitude and longitude may be used for navigation. For example, `supportsNavigation`
         would be set on a restaurant review, but not on a photo.
     type: Number
     osver: {ios: {min: "9.0"}}
@@ -344,82 +346,62 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: downloadedDate
-    summary: This is the date that the file was last downloaded / received.
-    description: |   
-        This is the date that the file was last downloaded / received.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the file was last downloaded / received.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: lastUsedDate
-    summary: This is the date that the item was last used.
-    description: |   
-        This is the date that the item was last used.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the item was last used.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentCreationDate
-    summary: This is the date that the contents of the item were created.
-    description: |   
-        This is the date that the contents of the item were created.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the contents of the item were created.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentModificationDate
-    summary: This is the date that the contents of the item were last modified.
-    description: |   
-        This is the date that the contents of the item were last modified.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the contents of the item were last modified.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: addedDate
-    summary: This is the date that the item was moved into the current location.
-    description: |   
-        This is the date that the item was moved into the current location.
-        
-        When setting this property the Date format accepted is: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
-        When reading this property Date values will be returned as String in the format: "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-
+    summary: The date that the item was moved into the current location.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentSources
-    summary: This attribute indicates where the item was obtained from.
+    summary: Used to indicate where the item was obtained from.
     type: Array<String>
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: comment
-    summary: This is a comment related to a file.
+    summary: Comment related to a file.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: copyright
-    summary: This is the copyright of the content.
+    summary: Copyright of the content.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: duration
-    summary: This is the duration in seconds of the content of the item (if appropriate).
+    summary: Duration in seconds of the content of the item (if appropriate).
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -454,7 +436,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: streamable
-    summary: Whether the content is prepared for streaming.  Should be 0 for not streamable 1 for streamable.
+    summary: Whether the content is prepared for streaming.  Set to `0` for not streamable and `1` for streamable.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -474,7 +456,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: deliveryType
-    summary: The delivery type of the item.  Should be 0 for fast start and 1 for RTSP.
+    summary: The delivery type of the item.  Set to `0` for fast start and `1` for RTSP.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -509,7 +491,7 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: ratingDescription
-    summary: A description of the rating.  E.g. the number of reviewers.
+    summary: A description of the rating, for example, the number of reviewers.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -524,17 +506,17 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: director
-    summary: Director of the item (e.g. movie director)
+    summary: Director of the item, for example, the movie director.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: producer
-    summary: Producer of the content
+    summary: Producer of the content.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: genre
-    summary: Genre of the item (e.g. movie genre)
+    summary: Genre of the item, for example, movie genre.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
@@ -554,37 +536,37 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: local
-    summary: Whether or not the item is local. Should be 1 if true 0 otherwise.
+    summary: Whether or not the item is local. Set to `1` if true and `0` otherwise.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
   - name: contentRating
-    summary: Whether or not the item has explicit content. Should be 1 if explicit 0 for clean.
+    summary: Whether or not the item has explicit content. Set to `1` for explicit or `0` for clean.
     type: Number
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
-  - name: URL
+  - name: url
     summary: URL of the item.
     type: String
     osver: {ios: {min: "9.0"}}
     platforms: [iphone,ipad]
 examples:
-  - title: Creating a new SearchableItemAttributeSet Example
+  - title: Add Searchable Content to the On-Device Index
     example: |
-        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and 
-        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then
-        Ti.App.iOS.SearchableIndex is used to add the Ti.App.iOS.SearchableItem to the default search index.
-                
+        The following example demonstrates how to create a new Ti.App.iOS.SearchableItem and
+        add a Ti.App.iOS.SearchableItemAttributeSet. The Ti.App.iOS.SearchableItem is then passed to the
+        Ti.App.iOS.SearchableIndex object to add it to the on-device search index.
+
         #### app.js
-            
+
             var searchItems = [];
             var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
-                itemContentType:"public.image",
-                title:"Titanium Core Spotlight Tutorial"                
+                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
+                title:"Titanium Core Spotlight Tutorial"
             });
-            
+
             itemAttr.contentDescription ="Tech Example \nOn: " + String.formatDate(new Date(),"short");
-            itemAttr.keyWords =["Mobile","Appcelerator","Titanium"];
+            itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
 
             var item = Ti.App.iOS.createSearchableItem({
                 identifier:"my-id",
@@ -595,11 +577,11 @@ examples:
 
             var indexer = Ti.App.iOS.createSearchableIndex();
 
-            indexer.AddToDefaultSearchableIndex(searchItems,function(e){
+            indexer.addToDefaultSearchableIndex(searchItems,function(e){
                 if(e.success){
                     alert("Press the home button and now search for your keywords");
                 }else{
                     alert("Errored: " + JSON.stringify(e.error));
                 }
-            });     
+            });
 

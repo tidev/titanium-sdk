@@ -26,7 +26,7 @@
     }
 }
 
--(void)AddToDefaultSearchableIndex:(id)args
+-(void)addToDefaultSearchableIndex:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
     NSArray *searchItems = [args objectAtIndex:0];
@@ -35,7 +35,7 @@
     KrollCallback *callback = [args objectAtIndex:1];
     ENSURE_TYPE(callback,KrollCallback);
     
-    ENSURE_UI_THREAD(AddToDefaultSearchableIndex,args);
+    ENSURE_UI_THREAD(addToDefaultSearchableIndex,args);
     
     //Convert from Proxy to search item
     NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];

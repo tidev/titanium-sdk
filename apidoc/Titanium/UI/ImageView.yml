@@ -207,6 +207,10 @@ properties:
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
         or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
         Mobile Web.
+
+        For Android, if there is a redirect and change in protocol, it will not follow. For example,
+        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images

@@ -26,7 +26,7 @@
 -(void)initFieldTypeInformation
 {
     dateFieldTypes = @[@"metadataModificationDate",@"recordingDate",@"downloadedDate",@"lastUsedDate",@"contentCreationDate",@"contentModificationDate",@"addedDate",@"recordingDate",@"downloadedDate",@"lastUsedDate"];
-    urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"URL"];
+    urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"url"];
     unsupportedFieldTypes = @[@"thumbnailData"];
 }
 
@@ -198,15 +198,15 @@
 
 //Represents keywords associated with this particular item.
 //Example Keywords might be Birthday,Important etc.
--(NSArray*)keyWords
+-(NSArray*)keywords
 {
     return _attributes.keywords;
 }
 
--(void)setKeyWords:(id)words
+-(void)setKeywords:(id)words
 {
     ENSURE_ARRAY(words)
-    ENSURE_UI_THREAD(setKeyWords,words);
+    ENSURE_UI_THREAD(setKeywords,words);
     _attributes.keywords = words;
 }
 
@@ -1303,15 +1303,15 @@
     _attributes.contentRating = value;
 }
 //URL of the item
--(NSString*)URL
+-(NSString*)url
 {
     return [_attributes.URL absoluteString];
 }
 
--(void)setURL:(id)value
+-(void)setUrl:(id)value
 {
     ENSURE_SINGLE_ARG(value,NSString);
-    ENSURE_UI_THREAD(setURL,value);
+    ENSURE_UI_THREAD(setUrl,value);
     _attributes.URL = [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
 
