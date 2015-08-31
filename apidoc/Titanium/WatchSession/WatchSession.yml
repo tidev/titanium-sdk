@@ -5,7 +5,7 @@ description: |
     WatchSession enables data and file transfers between a WatchKit application and a Titanium application
     using the iOS Watch Connectivity framework introduced in iOS 9 and watchOS 2.
 extends: Titanium.Module
-platforms: [iphone,ipad]
+platforms: [iphone]
 since: "5.0.0"
 properties:
   - name: isSupported
@@ -13,44 +13,44 @@ properties:
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
   - name: isPaired
     summary: Returns `true` if the device is paired with a watch.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
   - name: isWatchAppInstalled
     summary: Returns `true` if the accompanying watch app is installed.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
   - name: isComplicationEnabled
     summary: Returns `true` if complication is enabled on the installed watch app.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
   - name: isReachable
     summary: Returns `true` if the watch is currently reachable.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
   - name: recentApplicationContext
     summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
 methods:
   - name: activateSession
     summary: |
         Activates the watch session
     description: |
         Activates the watch session to make the app ready to receive messages from the watch app.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: sendMessage
     summary: |
@@ -61,7 +61,7 @@ methods:
       - name: params
         summary: Message to send to apple watch.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: updateApplicationContext
     summary: |
@@ -74,7 +74,7 @@ methods:
       - name: params    
         summary: App context to be updated in apple watch.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: transferUserInfo
     summary: |
@@ -86,7 +86,7 @@ methods:
       - name: params
         summary: userInfo to be transferred to apple watch.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: transferFile
     summary: |
@@ -101,7 +101,7 @@ methods:
 
               * `fileURL` (String) (required): Local filesystem path of file to send to the watch app.
               * `metaData` (Dictionary) (optional): Additional information about the file to send to the watch app.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: transferCurrentComplication
     summary: |
@@ -113,28 +113,28 @@ methods:
       - name: params
         summary: Complication to be transferred to watch app.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: cancelAllUserInfoTransfers
     summary: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     description: |
         Cancels all incomplete user info and complication transfers to the apple watch.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: cancelAllFileTransfers
     summary: |
         Cancels all incomplete file transfers to the apple watch.
     description: |
         Cancels all incomplete file transfers to the apple watch.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
   - name: cancelAllTransfers
     summary: |
         Cancels all incomplete transfers to the apple watch.
     description: |
         Cancels all incomplete transfers to the apple watch, including user info, complication and file.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     osver: {ios: {min: "9.0"}}
 events:
   - name: receivemessage
@@ -144,7 +144,7 @@ events:
       - name: message
         summary: message content
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: receiveapplicationcontext
     summary: |
         App received app context from apple watch.
@@ -152,7 +152,7 @@ events:
       - name: applicationContext
         summary: application Context
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: receiveuserinfo
     summary: |
         App received user info from apple watch in background.
@@ -160,7 +160,7 @@ events:
       - name: userInfo
         summary: user info content
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: receivefile
     summary: |
         App received file from apple watch in background.
@@ -168,23 +168,23 @@ events:
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
         type: Titanium.Blob
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: metaData
         summary: Information about the file.
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
         type: Number 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: message
         summary: Error message if any.
         type: String 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: watchstatechanged
     summary: |
         The watch state has changed.
@@ -192,15 +192,15 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: reachabilitychanged
     summary: |
         The watch reachability state has changed.
@@ -208,7 +208,7 @@ events:
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: finishuserinfotransfer
     summary: |
         Fired when the application completed user info transfer to the watch app.
@@ -216,19 +216,19 @@ events:
       - name: userInfo
         summary: The downloaded data as a Titanium.Blob object.
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
         type: Number 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: message
         summary: Error message if any.
         type: String 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
   - name: finishfiletransfer
     summary: |
         App completed file transfer to watch app.
@@ -236,23 +236,23 @@ events:
       - name: fileURL
         summary: URL of the file transferred.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: metaData
         summary: meta data of the file transferred.
         type: Dictionary
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
         type: Number 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
       - name: message
         summary: Error message if any.
         type: String 
-        platforms: [iphone, ipad]
+        platforms: [iphone]
 examples:
   - title: Creating a Watch Session
     example: |
