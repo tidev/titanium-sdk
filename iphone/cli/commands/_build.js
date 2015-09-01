@@ -4495,6 +4495,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				var info = jsFiles[file];
 				if (this.encryptJS) {
+					if (file.indexOf('/') === 0) {
+						file = path.basename(file);
+					}
 					file = file.replace(/\./g, '_');
 					info.dest = path.join(this.buildAssetsDir, file);
 					this.jsFilesToEncrypt.push(file);
