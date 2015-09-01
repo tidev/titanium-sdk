@@ -4858,7 +4858,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		);
 
 		if (this.useJSCore) {
-			contents.push('#define USE_JSCORE_FRAMEWORK')
+			contents.push('#define USE_JSCORE_FRAMEWORK');
 		}
 		if (!this.runOnMainThread) {
 			contents.push('#define TI_USE_KROLL_THREAD');
