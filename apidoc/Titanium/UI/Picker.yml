@@ -339,6 +339,18 @@ properties:
     default: true (Android), false (iPhone, iPad)
     platforms: [android, iphone, ipad]
     
+  - name: selectionOpens
+    summary: |
+        Determines whether calling the method `setSelectedRow` opens when called
+    description: |
+        If `true`, selection will open when `setSelectedRow` is called.
+
+        If `false`, selection will not open when `setSelectedRow` is called.
+    type: Boolean
+    default: false (Android)
+    platforms: [android]
+    since: "5.0.0"
+    
   - name: type
     summary: Determines the type of picker displayed
     description: |

@@ -278,7 +278,6 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
 #endif
@@ -316,7 +315,6 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
 #endif
@@ -335,13 +333,13 @@
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest deleteGroup:(CNMutableGroup*)group];
 	return saveRequest;
 }
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }

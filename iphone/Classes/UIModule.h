@@ -41,6 +41,10 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
 
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_START;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_END;
+
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_TOP;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_BOTTOM;
@@ -256,6 +260,13 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_NATURAL;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CLIPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif

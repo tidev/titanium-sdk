@@ -186,6 +186,8 @@ exports.init = function (logger, config, cli) {
 							details = __('Try reconnecting your device and try again.');
 						} else if (err.indexOf('0xe8008016') !== -1) {
 							details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
+						} else if (err.indexOf('0xe8008016') !== -1) {
+							details = __('Your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
 						}
 						next && next(new appc.exception(err, details));
 						next = null;

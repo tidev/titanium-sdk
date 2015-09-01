@@ -388,8 +388,8 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-  - name: rowAction
-    summary: Fired when the user interacts with one of the custom row actions defined by <Titanium.UI.ListItem.editActions>.
+  - name: editaction
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
         `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -446,11 +446,15 @@ events:
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+        summary: |
+            The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the list view when the event fires.
+        summary: |
+            The index of the first visible section in the list view when the event fires.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: bubbles

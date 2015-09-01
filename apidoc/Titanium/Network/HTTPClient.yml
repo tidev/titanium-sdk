@@ -125,7 +125,9 @@ methods:
 
   - name: addAuthFactory
     summary: Registers a new AuthSchemeFactory for a given scheme.
-    description: Use this method to add support for authorization schemes not natively supported by Android.
+    description: |
+        This has been deprecated.
+        Use this method to add support for authorization schemes not natively supported by Android.
     parameters:
       - name: scheme
         summary: The authentication scheme.
@@ -135,6 +137,9 @@ methods:
         type: Object
     platforms: [android]
     since: {android: "3.0.0"}
+    deprecated:
+        since: "5.0.0"
+        removed: "5.0.0"
 
   - name: addKeyManager
     summary: Adds a custom key manager.

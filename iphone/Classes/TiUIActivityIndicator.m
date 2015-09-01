@@ -31,6 +31,7 @@
 	RELEASE_TO_NIL(messageLabel);
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
+	RELEASE_TO_NIL(spinnerColor);
 	[super dealloc];
 }
 
@@ -82,6 +83,9 @@
         //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
         //visible property of the ActivityIndicator (initialized to false)
         [indicatorView setHidesWhenStopped:NO];
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
         [self setNeedsLayout];
         [self addSubview:indicatorView];
     }
@@ -215,8 +219,19 @@
 		if (messageLabel != nil) {
 			[self setNeedsLayout];
 		}
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
 	}
 
+}
+
+-(void)setIndicatorColor_:(id)value
+{
+    UIColor * newColor = [[TiUtils colorValue:value] _color];
+    [spinnerColor release];
+     spinnerColor = [newColor retain];
+    [[self indicatorView] setColor:spinnerColor];
 }
 
 - (void)didMoveToWindow

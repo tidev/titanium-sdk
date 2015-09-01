@@ -50,6 +50,7 @@ exports.init = function (logger, config, cli) {
 				watchHandleOrUDID: builder.watchSimHandle,
 				watchAppName: cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
+				// Titanium app log messages
 				if (!simStarted) {
 					finished && finished();
 					finished = null;
@@ -66,8 +67,15 @@ exports.init = function (logger, config, cli) {
 				} else {
 					logger[lastLogger](line);
 				}
+			}).on('log', function (msg, simHandle) {
+				// system log messages
+				logger.trace(('[' + simHandle.appName + '] ' + msg).grey);
 			}).on('log-debug', function (msg) {
+				// ioslib debug messages
 				logger.trace(('[ioslib] ' + msg.replace('[DEBUG] ', '')).grey);
+			}).on('log-error', function (msg, simHandle) {
+				// system log error messages
+				logger.error('[' + simHandle.appName + '] ' + msg);
 			}).on('app-quit', function (code) {
 				endLog();
 				var ex;
