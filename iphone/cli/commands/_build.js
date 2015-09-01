@@ -4858,10 +4858,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		);
 
 		if (this.useJSCore) {
-			contents.push('#define USE_JSCORE_FRAMEWORK')
+			contents.push('#define USE_JSCORE_FRAMEWORK');
 		}
 		if (!this.runOnMainThread) {
-			content.push('#define TI_USE_KROLL_THREAD');
+			contents.push('#define TI_USE_KROLL_THREAD');
 		}
 		contents = contents.join('\n');
 	}
