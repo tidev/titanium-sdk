@@ -33,9 +33,6 @@ public class TiUIDatePicker extends TiUIView
 
 	protected Date minDate, maxDate;
 	protected int minuteInterval;
-	protected int currentYear;
-	protected int currentMonth;
-	protected int currentDayOfMonth;
 	
 	public TiUIDatePicker(TiViewProxy proxy)
 	{
@@ -123,10 +120,7 @@ public class TiUIDatePicker extends TiUIView
             }
         }
         suppressChangeEvent = true;
-        currentYear = calendar.get(Calendar.YEAR);
-        currentMonth = calendar.get(Calendar.MONTH);
-        currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-        picker.init(currentYear, currentMonth, currentDayOfMonth, this);
+        picker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
         suppressChangeEvent = false;
         
         if (!valueExistsInProxy) {
@@ -160,20 +154,6 @@ public class TiUIDatePicker extends TiUIView
 	
 	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
 	{
-        // TIMOB-19192 There seems to be a bug that calls onDateChanged twice on Android 5.0.X.
-        // This checks if the previous date and changed date is the same before firing any changes.
-        // If the dates are the same, nothing has changed, hence it is returned.
-        if ((picker.getYear() == currentYear)
-                && (picker.getMonth() == currentMonth)
-                && (picker.getDayOfMonth() == currentDayOfMonth)
-                && (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)) {
-            return;
-        } else {
-            currentYear = picker.getYear();
-            currentMonth = picker.getMonth();
-            currentDayOfMonth = picker.getDayOfMonth();
-        }
-
     	Calendar targetCalendar = Calendar.getInstance();
     	targetCalendar.set(Calendar.YEAR, year);
     	targetCalendar.set(Calendar.MONTH, monthOfYear);
