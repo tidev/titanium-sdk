@@ -2014,9 +2014,9 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.cli.tiapp.ios && this.cli.tiapp.ios['use-jscore-framework'];
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.cli.tiapp.ios && (this.cli.tiapp.ios['use-jscore-framework'] || false);
 
-	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && this.tiapp.ios['run-on-main-thread'];
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] || true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
