@@ -152,21 +152,34 @@
 #if IS_XCODE_7
 -(id)createSearchableIndex:(id)unused
 {
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
     return proxy;
 }
 
 -(id)createSearchableItem:(id)args
 {
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchableItem:args] retain];}, YES);
+        return [result autorelease];
+    }
+    
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    NSString* identifier;
+    NSString* identifier = nil;
     ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
     
-    NSString* domainIdentifier;
+    NSString* domainIdentifier = nil;
     ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
     
-    TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet = nil;
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
     TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
@@ -178,27 +191,40 @@
 
 -(id)createSearchableItemAttributeSet:(id)args
 {
-    NSString* itemContentType;
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchableItemAttributeSet:args] retain];}, YES);
+        return [result autorelease];
+    }
     ENSURE_SINGLE_ARG(args,NSDictionary);
+    NSString* itemContentType = nil;
     ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
     
-    NSMutableDictionary *props = [[args mutableCopy] autorelease];
+    NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:args];
     [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
     
     TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
-    
+
     return proxy;
 }
 
 #endif
 -(id)createUserActivity:(id)args
 {
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createUserActivity:args] retain];}, YES);
+        return [result autorelease];
+    }
     NSString* activityType;
     ENSURE_SINGLE_ARG(args,NSDictionary);
     ENSURE_ARG_FOR_KEY(activityType, args, @"activityType", NSString);
     
     TiAppiOSUserActivityProxy *userActivityProxy = [[[TiAppiOSUserActivityProxy alloc] initWithOptions:args] autorelease];
-    
+
     return userActivityProxy;
 }
 
