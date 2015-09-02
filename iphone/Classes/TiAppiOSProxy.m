@@ -305,8 +305,8 @@
 	notifAction.authenticationRequired = authenticationRequired;
     
     if([TiUtils isIOS9OrGreater] == YES) {
-        NSInteger behaviour = [TiUtils intValue:[args objectForKey:@"behaviour"]];
-        notifAction.behavior = behaviour;
+        NSInteger behavior = [TiUtils intValue:[args objectForKey:@"behavior"]];
+        notifAction.behavior = behavior;
     }
 
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -777,7 +777,7 @@
     return NUMINT(0);
 }
 
--(NSNumber*)USER_NOTIFICATION_BEHAVIOUR_DEFAULT
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorDefault);
@@ -785,7 +785,7 @@
     return NUMINT(0);
 }
 
--(NSNumber*)USER_NOTIFICATION_BEHAVIOUR_TEXTINPUT
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorTextInput);
