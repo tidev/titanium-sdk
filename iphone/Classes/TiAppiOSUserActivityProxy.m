@@ -270,7 +270,7 @@
 
 -(void)setNeedsSave:(id)value
 {
-    ENSURE_SINGLE_ARG(value, NSString);
+    ENSURE_SINGLE_ARG(value, NSNumber);
     ENSURE_UI_THREAD(setNeedsSave,value);
     
     [_userActivity setNeedsSave:[TiUtils boolValue:value]];
