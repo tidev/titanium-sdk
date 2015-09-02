@@ -303,6 +303,11 @@
 
 	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
 	notifAction.authenticationRequired = authenticationRequired;
+    
+    if([TiUtils isIOS9OrGreater] == YES) {
+        NSInteger behaviour = [TiUtils intValue:[args objectForKey:@"behaviour"]];
+        notifAction.behavior = behaviour;
+    }
 
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	ap.notificationAction = notifAction;
@@ -763,12 +768,29 @@
 	}
 	return NUMINT(0);
 }
+
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationActivationModeForeground);
-	}
-	return NUMINT(0);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationActivationModeForeground);
+    }
+    return NUMINT(0);
+}
+
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOUR_DEFAULT
+{
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINT(UIUserNotificationActionBehaviorDefault);
+    }
+    return NUMINT(0);
+}
+
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOUR_TEXTINPUT
+{
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINT(UIUserNotificationActionBehaviorTextInput);
+    }
+    return NUMINT(0);
 }
 
 #pragma mark UTI Text Type Constants
