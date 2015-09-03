@@ -593,84 +593,50 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)loadState
 {
-	if (movie != nil) {
-		return NUMINT([movie loadState]);
-	}
-	else {
-		return NUMINT(MPMovieLoadStateUnknown);
-	}
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"5.1.0", @"Please use Ti.Media.playbackState");
+    return [self playbackState];
 }
 
--(NSNumber*)mediaTypes
+-(NSString*)mediaTypes
 {
-    
-    /*
-     NSString *const AVMediaTypeVideo;
-     NSString *const AVMediaTypeAudio;
-     NSString *const AVMediaTypeText;
-     NSString *const AVMediaTypeClosedCaption;
-     NSString *const AVMediaTypeSubtitle;
-     NSString *const AVMediaTypeTimecode;
-     NSString *const AVMediaTypeTimedMetadata;
-     NSString *const AVMediaTypeMetadata;
-     NSString *const AVMediaTypeMuxed;
-     */
-    
+    // Available media types: https://developer.apple.com/library/prerelease/ios/documentation/AVFoundation/Reference/AVFoundation_Constants/index.html#//apple_ref/doc/constant_group/Media_Types
+    // TODO: Not always use the first asset track
 	if (movie != nil) {
-		return NUMINT([movie movieMediaTypes]);
+		return [movie.player.currentItem.asset.tracks[0] mediaType];
 	}
 	else {
-		return NUMINT(MPMovieMediaTypeMaskNone);
+		return AVMediaTypeVideo;
 	}
 }
 
 -(NSNumber*)sourceType
 {
-	if (movie != nil) {
-		return NUMINT([movie movieSourceType]);
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"sourceType",NUMINT(MPMovieSourceTypeUnknown));
-	}
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"5.1.0", @"5.1.0");
+    return NUMINT(-1);
 }
 
 -(void)setSourceType:(id)type
 {
-	ENSURE_SINGLE_ARG(type,NSObject);
-	if (movie != nil) {
-		movie.movieSourceType = [TiUtils intValue:type];
-	}
-	else {
-		[loadProperties setValue:type forKey:@"sourceType"];
-	}
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"5.1.0", @"5.1.0");
 }
 
 -(NSNumber*)playbackState
 {
-	if (movie != nil) {
-		return NUMINT([movie playbackState]);
+	if (movie.player != nil) {
+		return NUMINT(movie.player.status);
 	}
-    return NUMINT(MPMoviePlaybackStateStopped);
+    return NUMINT(AVPlayerStatusUnknown);
 }
 
 -(void)setRepeatMode:(id)value
 {
-	if (movie != nil) {
-		[movie setRepeatMode:[TiUtils intValue:value]];
-	}
-	else {
-		[loadProperties setValue:value forKey:@"repeatMode"];
-	}
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"5.1.0", @"5.1.0");
 }
 
 -(NSNumber*)repeatMode
 {
-	if (movie != nil) {
-		return NUMINT([movie repeatMode]);
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"repeatMode",NUMINT(MPMovieRepeatModeNone));
-	}
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"5.1.0", @"5.1.0");
+    return NUMINT(-1);
 }
 
 -(id)naturalSize
@@ -1015,16 +981,14 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
 		[self fireEvent:@"playbackstate" withObject:event];
 	}
-	switch ([movie playbackState]) {
-		case MPMoviePlaybackStatePaused:
-		case MPMoviePlaybackStateStopped:
+	switch (movie.player.status) {
+		case AVPlayerStatusUnknown:
+		case AVPlayerStatusFailed:
 			playing = NO;
 			break;
-		case MPMoviePlaybackStatePlaying:
+		case AVPlayerStatusReadyToPlay:
 			playing = YES;
 			break;
-        default:
-            break;
 	}
 }
 
