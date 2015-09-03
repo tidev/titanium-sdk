@@ -138,7 +138,7 @@ exports.detect = function detect(config, opts, finished) {
 					}
 
 					['/Library/Java/JavaVirtualMachines', '/System/Library/Java/JavaVirtualMachines'].forEach(function (parent) {
-						fs.readdirSync(parent).forEach(function (name) {
+						fs.existsSync(parent) && fs.readdirSync(parent).forEach(function (name) {
 							var p = path.join(parent, name, 'Contents', 'Home');
 							jdkPaths.indexOf(p) === -1 && isJDK(p) && jdkPaths.push(p);
 						});
@@ -153,7 +153,7 @@ exports.detect = function detect(config, opts, finished) {
 
 			['%SystemDrive%', '%ProgramFiles%', '%ProgramFiles(x86)%', '%ProgramW6432%', '~'].forEach(function (dir) {
 				dir = afs.resolvePath(dir);
-				fs.readdirSync(dir).forEach(function (name) {
+				fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
 					var subdir = path.join(dir, name);
 					isJDK(subdir) && jdkPaths.indexOf(subdir) === -1 && jdkPaths.push(subdir);
 				});

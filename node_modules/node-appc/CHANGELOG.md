@@ -1,3 +1,7 @@
+0.2.31 (9/3/2015)
+------------------
+ * Bug fix in JDK detection [TIMOB-19400]
+
 0.2.30 (8/31/2015)
 ------------------
  * Windows specific bug fixes [TIMOB-19400]
