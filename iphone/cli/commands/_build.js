@@ -4493,52 +4493,54 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.info(__('Processing JavaScript files'));
 
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
-				var info = jsFiles[file];
-				if (this.encryptJS) {
-					if (file.indexOf('/') === 0) {
-						file = path.basename(file);
-					}
-					file = file.replace(/\./g, '_');
-					info.dest = path.join(this.buildAssetsDir, file);
-					this.jsFilesToEncrypt.push(file);
-				}
-
-				this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-					try {
-						// parse the AST
-						var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-					} catch (ex) {
-						ex.message.split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
+				setImmediate(function () {
+					var info = jsFiles[file];
+					if (this.encryptJS) {
+						if (file.indexOf('/') === 0) {
+							file = path.basename(file);
+						}
+						file = file.replace(/\./g, '_');
+						info.dest = path.join(this.buildAssetsDir, file);
+						this.jsFilesToEncrypt.push(file);
 					}
 
-					// we want to sort by the "to" filename so that we correctly handle file overwriting
-					this.tiSymbols[info.dest] = r.symbols;
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+						try {
+							// parse the AST
+							var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+						} catch (ex) {
+							ex.message.split('\n').forEach(this.logger.error);
+							this.logger.log();
+							process.exit(1);
+						}
 
-					var dir = path.dirname(to);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+						// we want to sort by the "to" filename so that we correctly handle file overwriting
+						this.tiSymbols[info.dest] = r.symbols;
 
-					delete this.buildDirFiles[to];
+						var dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-					if (this.minifyJS) {
-						this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-							if (!fs.existsSync(to) || r.contents !== fs.readFileSync(to).toString()) {
-								this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-								fs.writeFileSync(to, r.contents);
-								this.jsFilesChanged = true;
-							} else {
+						delete this.buildDirFiles[to];
+
+						if (this.minifyJS) {
+							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								if (!fs.existsSync(to) || r.contents !== fs.readFileSync(to).toString()) {
+									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+									fs.writeFileSync(to, r.contents);
+									this.jsFilesChanged = true;
+								} else {
+									this.logger.trace(__('No change, skipping %s', to.cyan));
+								}
+								cb2();
+							})(r, from, to, cb);
+						} else {
+							if (!this.copyFileSync(from, to)) {
 								this.logger.trace(__('No change, skipping %s', to.cyan));
 							}
-							cb2();
-						})(r, from, to, cb);
-					} else {
-						if (!this.copyFileSync(from, to)) {
-							this.logger.trace(__('No change, skipping %s', to.cyan));
+							cb();
 						}
-						cb();
-					}
-				})(info.src, info.dest, next);
+					})(info.src, info.dest, next);
+				}.bind(this));
 			}.bind(this), next);
 		},
 
