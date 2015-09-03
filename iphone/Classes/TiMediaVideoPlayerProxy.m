@@ -99,10 +99,10 @@ NSArray* moviePlayerKeys = nil;
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	
-	[nc addObserver:self selector:@selector(handlePlayerNotification:) 
-			   name: MPMoviePlayerPlaybackDidFinishNotification
-			 object:movie];
-	
+    [nc addObserver:self selector:@selector(handlePlayerNotification:)
+               name:AVPlayerItemDidPlayToEndTimeNotification
+             object:movie];
+    
 	[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
 			   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
 			 object:movie];
@@ -140,7 +140,7 @@ NSArray* moviePlayerKeys = nil;
 			 object:movie];
 	
 	[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
-			   name:MPMoviePlayerPlaybackStateDidChangeNotification 
+			   name:AVPlayerItemTimeJumpedNotification
 			 object:movie];
 	
 		//FIXME: add to replace preload for 3.2
@@ -472,6 +472,17 @@ NSArray* moviePlayerKeys = nil;
 	}, YES);
 }
 
+-(NSNumber*)allowsPictureInPicturePlayback
+{
+    return NUMBOOL(movie.allowsPictureInPicturePlayback);
+}
+
+-(void)setAllowsPictureInPicturePlayback:(id)value
+{
+    ENSURE_ARG_COUNT(value, 1);
+    [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+}
+
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
     DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"5.1.0", "Not available any more.")
@@ -752,6 +763,7 @@ NSArray* moviePlayerKeys = nil;
 
 - (void) handlePlayerNotification: (NSNotification *) notification
 {
+    NSLog(@"[INFO] test1");
 	if ([notification object] != movie) 
 	{
 		return;
@@ -759,15 +771,18 @@ NSArray* moviePlayerKeys = nil;
 	
 	NSString * name = [notification name];
 	
-	if ([name isEqualToString:MPMoviePlayerPlaybackDidFinishNotification])
+    NSLog(@"[INFO] test2");
+	if ([name isEqualToString:AVPlayerItemDidPlayToEndTimeNotification])
 	{
+        NSLog(@"[INFO] test3");
 		if ([self _hasListeners:@"complete"])
 		{
-			NSNumber *reason = [[notification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+			NSNumber *reason = [[notification userInfo] objectForKey:AVPlayerItemDidPlayToEndTimeNotification];
+            NSLog(@"[INFO] test4");
 
 			NSString * errorMessage;
 			int errorCode;
-			if ([reason intValue] == MPMovieFinishReasonPlaybackError)
+			if ([reason intValue] == AVPlayerStatusFailed)
 			{
 				errorMessage = @"Video Playback encountered an error";
 				errorCode = -1;
@@ -932,19 +947,15 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	MPMoviePlayerController *player = (MPMoviePlayerController *)note.object;
+	AVPlayerViewController *_movie = (AVPlayerViewController *)note.object;
 	
-	if (((player.loadState & MPMovieLoadStatePlayable)==MPMovieLoadStatePlayable) || 
-		 ((player.loadState & MPMovieLoadStatePlaythroughOK)==MPMovieLoadStatePlaythroughOK)
-		&&
-		(player.playbackState == MPMoviePlaybackStateStopped||
-		player.playbackState == MPMoviePlaybackStatePlaying)) 
+	if ((_movie.player.status & AVPlayerItemStatusReadyToPlay) == AVPlayerItemStatusReadyToPlay)
 	{
 		if ([self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
 			[vp movieLoaded];
-			if ((player.loadState & MPMovieLoadStatePlayable)==MPMovieLoadStatePlayable) {
+			if ((_movie.player.status & AVPlayerItemStatusReadyToPlay) == AVPlayerItemStatusReadyToPlay) {
 				if ([self _hasListeners:@"load"]) {
 					[self fireEvent:@"load" withObject:nil];
 				}

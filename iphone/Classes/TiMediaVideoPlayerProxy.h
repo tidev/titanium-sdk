@@ -49,6 +49,8 @@
 @property(nonatomic,readwrite,assign) TiColor* backgroundColor;
 @property(nonatomic,readonly) NSNumber* playing;
 @property(nonatomic,copy)	NSNumber *volume;
+@property(nonatomic) id allowsPictureInPicturePlayback;
+
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
