@@ -41,12 +41,12 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.hardware.SensorManager;
@@ -55,8 +55,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,7 +70,7 @@ import com.appcelerator.analytics.APSAnalytics;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
-public abstract class TiBaseActivity extends ActionBarActivity 
+public abstract class TiBaseActivity extends AppCompatActivity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
@@ -421,8 +419,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 	}
-	
-
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	@SuppressWarnings("deprecation")
@@ -634,7 +630,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		});
 	}
-
+	
 	protected void handleSendMessage(int messageId)
 	{
 		try {
