@@ -24,7 +24,7 @@ description: |
     same height as the iPhone keyboard to respect the
     [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
     The default `width` on iOS is 320px and the `height` is 228px. As part of iOS9, the `height` can be changed
-    and will be ingnored on devices running iOS < 9.
+    and will be ignored on devices running iOS < 9.
     The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
 
