@@ -18,12 +18,13 @@ description: |
     By default, the spinner is automatically sized to fit its content and can overflow
     to additional spinner rows. The size of the picker can be adjusted with the `width`
     and `height` properties, but may omit picker columns or cut off picker rows
-    if the size is set too small.
-    
+    if the size is set too small. Note: On iOS, the `height` property is only available in iOS9 and later.
+
     On iOS, by default, the size of the picker, including its background, is fixed at the
-    same size as the iPhone keyboard to respect the
+    same height as the iPhone keyboard to respect the
     [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
-    The size of the picker should not be modified.
+    The default `width` on iOS is 320px and the `height` is 228px. As part of iOS9, the `height` can be changed
+    and will be ignored on devices running iOS < 9.
     The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
 
@@ -68,7 +69,7 @@ methods:
         type: Number
     returns: 
       - type: Titanium.UI.PickerRow
-    
+
   - name: reloadColumn
     summary: Repopulates values for a column.
     parameters:
@@ -265,7 +266,18 @@ properties:
     type: Boolean
     default: true (spinner enabled), false (otherwise)
     platforms: [android]
-    
+
+  - name: height
+    summary: Sets the height of the picker.
+    description: |
+        Only available on iOS9 or later as part of the new resizable features. Ignored on iOS < 9.
+    type: String
+    default: 228
+    platforms: [iphone, ipad]
+    since: "5.0.1"
+    availability: creation
+    osver: {ios: {min: "9.0"}}
+
   - name: locale
     summary: Locale used when displaying Date and Time picker values.
     description: |
