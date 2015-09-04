@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,13 +14,6 @@
      limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <android.support.v7.internal.widget.NativeActionModeAwareLayout
-            android:id="@id/action_bar_activity_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:foregroundGravity="fill_horizontal|top"
-            android:foreground="?android:attr/windowContentOverlay" />
-
-</merge>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+        android:color="@color/abc_color_highlight_material"
+        android:radius="20dp" />
