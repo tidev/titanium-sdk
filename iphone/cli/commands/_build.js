@@ -3021,7 +3021,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 };
 
 iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest) {
-	var caps = this.tiapp.ios.capabilities;
+	var caps = this.tiapp.ios.capabilities,
+		parent = path.dirname(dest);
 
 	// add any capabilities entitlements
 	Object.keys(caps).forEach(function (cap) {
@@ -3045,6 +3046,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 			this.forceRebuild = true;
 		}
 		this.logger.debug(__('Writing %s', dest.cyan));
+		fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
 		fs.writeFileSync(dest, contents);
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
