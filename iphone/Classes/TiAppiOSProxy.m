@@ -173,8 +173,8 @@
     
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    NSString* identifier = nil;
-    ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
+    NSString* uniqueIdentifier = nil;
+    ENSURE_ARG_FOR_KEY(uniqueIdentifier, args, @"uniqueIdentifier", NSString);
     
     NSString* domainIdentifier = nil;
     ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
@@ -183,7 +183,7 @@
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
     TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
-                                           initWithUniqueIdentifier:identifier
+                                           initWithUniqueIdentifier:uniqueIdentifier
                                            withDomainIdentifier:domainIdentifier
                                            withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
