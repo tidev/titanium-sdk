@@ -6,46 +6,21 @@
  */
 package ti.modules.titanium.ui.android;
 
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.TiActivity;
 
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 
-@SuppressWarnings("deprecation")
-public class TiPreferencesActivity extends PreferenceActivity 
+public class TiPreferencesActivity extends TiActivity 
 {
-	private static final String TAG = "TiPreferencesActivity";
-	private static final String DEFAULT_PREFS_RNAME = "preferences";
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		String prefsName = DEFAULT_PREFS_RNAME;
-		if (getIntent().hasExtra("prefsName")) {
-			String name = getIntent().getExtras().getString("prefsName");
-			if (name != null && name.length() > 0) {
-				prefsName = name;
-			}
-		}
-		
-		// Find the layout file, do nothing if not found
-		try {
-			getPreferenceManager().setSharedPreferencesName(TiApplication.APPLICATION_PREFERENCES_NAME);
-			int resid = TiRHelper.getResource("xml." + prefsName);
-			if (resid != 0) {
-				addPreferencesFromResource(resid);
-			} else {
-				Log.e(TAG, "xml." + prefsName + " preferences not found.");
-				finish();
-				return;
-			}
-		} catch (TiRHelper.ResourceNotFoundException e) {
-			Log.e(TAG, "Error loading preferences: " + e.getMessage());
-			finish();
-			return;
-		}
-	}
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Display the fragment as the main content.
+        getFragmentManager().beginTransaction()
+        .replace(android.R.id.content, new TiPreferencesFragment())
+        .commit();
+
+    }
 }
