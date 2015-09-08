@@ -152,7 +152,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	RELEASE_TO_NIL(contactKeysWithImage)
 #if IS_XCODE_7
 	RELEASE_TO_NIL(contactStore)
-    saveRequest = nil;
+	saveRequest = nil;
 	RELEASE_TO_NIL(contactPicker)
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:CNContactStoreDidChangeNotification object:nil];
 #endif
@@ -301,7 +301,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 					   subreason:nil
 						location:CODELOCATION];
 		};
-        saveRequest = nil;
+		saveRequest = nil;
 		return;
 	}
 #endif
@@ -769,7 +769,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 #if IS_XCODE_7
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
-        saveRequest = nil;
+		saveRequest = nil;
 		saveRequest = [person getSaveRequestForDeletion];
 		return;
 	}
@@ -856,7 +856,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 #if IS_XCODE_7
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsGroup *group = arg;
-        saveRequest = nil;
+		saveRequest = nil;
 		saveRequest = [group getSaveRequestForDeletion];
 		return;
 	}

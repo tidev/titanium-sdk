@@ -62,7 +62,7 @@ static NSDictionary* iOS9propertyKeys;
 #endif
 -(void)dealloc
 {
-    iOS9contactProperties = nil;
+	iOS9contactProperties = nil;
 	[super dealloc];
 }
 
@@ -301,7 +301,7 @@ static NSDictionary* iOS9propertyKeys;
 }
 -(void)updateiOS9ContactProperties
 {
-    iOS9contactProperties = nil;
+	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
 #endif
