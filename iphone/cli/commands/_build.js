@@ -4483,7 +4483,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
 					var dir = path.dirname(info.dest);
 					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-					fs.writeFileSync(info.dest, new CleanCSS().minify(fs.readFileSync(info.src).toString()).styles);
+					fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
 				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 				}

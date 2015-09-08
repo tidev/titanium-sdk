@@ -23,7 +23,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	archiver = require('archiver'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
+	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('titanium-sdk/lib/emulator'),
@@ -2362,7 +2362,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
 								if (err) throw err;
-								fs.writeFile(to, cleanCSS.process(data.toString()), next);
+								fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
 							});
 						} else {
 							copyFile.call(_t, from, to, next);

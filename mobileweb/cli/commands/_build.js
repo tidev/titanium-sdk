@@ -903,7 +903,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 	}, this);
 
 	// write the titanium.css
-	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS().minify(tiCSS.join('')).styles : tiCSS.join(''));
+	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS({ processImport: false }).minify(tiCSS.join('')).styles : tiCSS.join(''));
 
 	next();
 };
