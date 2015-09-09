@@ -62,7 +62,7 @@ static NSDictionary* iOS9propertyKeys;
 #endif
 -(void)dealloc
 {
-	RELEASE_TO_NIL(iOS9contactProperties)
+	iOS9contactProperties = nil;
 	[super dealloc];
 }
 
@@ -301,7 +301,7 @@ static NSDictionary* iOS9propertyKeys;
 }
 -(void)updateiOS9ContactProperties
 {
-	RELEASE_TO_NIL(iOS9contactProperties)
+	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
 #endif
