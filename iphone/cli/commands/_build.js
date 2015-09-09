@@ -4232,6 +4232,41 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.tiapp.icon
 			));
 
+			var defaultIcon = path.join(this.projectDir, 'DefaultIcon.png');
+			if (!fs.existsSync(defaultIcon)) {
+				this.logger.error(__('Unable to find DefaultIcon.png in the project root directory'));
+				this.logger.error(__('Unable to create missing icons:'));
+				Object.keys(lookup).forEach(function (key) {
+					var meta = lookup[key];
+					this.logger.error('  ' +
+						__('%s - Used for %s - required size: %sx%s (%sx%s %s)',
+							this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
+							meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', '),
+							meta.width * meta.scale,
+							meta.height * meta.scale,
+							meta.width,
+							meta.height,
+							'@' + meta.scale + 'x'
+						)
+					);
+				}, this);
+				return next(true);
+			}
+
+			var contents = fs.readFileSync(defaultIcon),
+				size = pngSize(contents);
+
+			if (size.width !== size.height) {
+				this.logger.error(__('The DefaultIcon.png dimensions (%sx%s) are not equal', size.width, size.height));
+				this.logger.error(__('The DefaultIcon.png must be square'));
+				return next(true);
+			}
+
+			if (size.width < maxDim) {
+				this.logger.error(__('The DefaultIcon.png must be at least %sx%s; %sx%s is highly recommended', maxDim, maxDim, 1024, 1024));
+				return cb(true);
+			}
+
 			async.some(
 				[
 					this.tiapp.icon.replace(/\.png$/, '@2x.png'),
@@ -4302,22 +4337,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				function (result) {
 					if (!result) {
-						this.logger.error(__('No suitable app icon that is at least %sx%s, unable to create missing icons:', maxDim, maxDim));
-						Object.keys(lookup).forEach(function (key) {
-							var meta = lookup[key];
-							this.logger.error('  ' +
-								__('%s - Used for %s - required size: %sx%s (%sx%s %s)',
-									this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
-									meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', '),
-									meta.width * meta.scale,
-									meta.height * meta.scale,
-									meta.width,
-									meta.height,
-									'@' + meta.scale + 'x'
-								)
-							);
-						}, this);
-						return next(true);
 					}
 
 					writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
