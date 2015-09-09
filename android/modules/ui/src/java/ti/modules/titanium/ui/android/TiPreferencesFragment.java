@@ -10,19 +10,12 @@ import android.preference.PreferenceFragment;
 public class TiPreferencesFragment extends PreferenceFragment {
     
     private static final String TAG = "TiPreferencesFragment";
-    private static final String DEFAULT_PREFS_RNAME = "preferences";
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        String prefsName = DEFAULT_PREFS_RNAME;
-        if (getActivity().getIntent().hasExtra("prefsName")) {
-            String name = getActivity().getIntent().getExtras().getString("prefsName");
-            if (name != null && name.length() > 0) {
-                prefsName = name;
-            }
-        }
+        String prefsName = getArguments().getString(TiPreferencesActivity.PREFS_KEY);
         
         // Find the layout file, do nothing if not found
         try {
