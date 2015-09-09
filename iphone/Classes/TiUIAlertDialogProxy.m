@@ -167,16 +167,16 @@ static BOOL alertShowing = NO;
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
                     textField.placeholder = [self valueForKey:@"placeholder"] ?: @"";
-                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:0];
-                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:0];
+                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIReturnKeyDefault];
+                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIKeyboardTypeDefault];
                 }];
             } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = [self valueForKey:@"loginPlaceholer"] ?: @"Login";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginPlaceholder"]] ?: @"Login";
                     textField.secureTextEntry = NO;
                 }];
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = [self valueForKey:@"passwordPlaceholer"] ?: @"Password";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordPlaceholder"]] ?: @"Password";
                     textField.secureTextEntry = YES;
                 }];
             }
@@ -278,10 +278,5 @@ static BOOL alertShowing = NO;
         [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
     }
 }
-
-#pragma mark Defaults
-
-DEFINE_DEF_INT_PROP(returnKeyType,UIReturnKeyDefault);
-DEFINE_DEF_INT_PROP(keyboardType,UIKeyboardTypeDefault);
 
 @end
