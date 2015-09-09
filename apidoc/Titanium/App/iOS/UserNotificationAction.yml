@@ -27,6 +27,18 @@ properties:
     type: Number
     availability: creation
 
+  - name: behavior
+    summary: Selects whether to show a text input outside the application to reply to a notification.
+    description: |
+        Set to `Titanium.App.iOS.USER_NOTIFICATION_BEHAVIOR_TEXTINPUT` to show the text input inside the notification.
+
+        Set to `Titanium.App.iOS.USER_NOTIFICATION_BEHAVIOR_DEFAULT` to show no text input inside the notification.
+    constants: Titanium.App.iOS.USER_NOTIFICATION_BEHAVIOR_*
+    type: Number
+    availability: creation
+    osver: {ios: {min: "9.0"}}
+    since: "5.0.1"
+
   - name: authenticationRequired
     summary: Set to true if the action requires the device to be unlocked.
     type: Boolean
