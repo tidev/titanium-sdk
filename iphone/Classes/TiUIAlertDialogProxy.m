@@ -166,7 +166,7 @@ static BOOL alertShowing = NO;
             if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
-                    textField.placeholder = [self valueForKey:@"placeholder"] ?: @"";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"placeholder"]] ?: @"";
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIReturnKeyDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIKeyboardTypeDefault];
                 }];
