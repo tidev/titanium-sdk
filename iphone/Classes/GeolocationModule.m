@@ -535,12 +535,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)reverseGeocoder:(id)args
 {
 	ENSURE_ARG_COUNT(args,3);
-	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
-	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	KrollCallback *callback = [args objectAtIndex:2];
 	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
+	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:rcb];
+#endif
 }
 
 -(void)forwardGeocoder:(id)args
@@ -548,8 +550,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,2);
 	KrollCallback *callback = [args objectAtIndex:1];
 	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
 	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
+#endif
 }
 
 -(void)getCurrentHeading:(id)callback 
