@@ -16,7 +16,8 @@ ioslib supports Xcode 6 and newer.
 ## Prerequisites
 
 This library current depends on [node-ios-device](https://github.com/appcelerator/node-ios-device)
-and thus is currently compatible with Node.js version 0.8.0 through 0.12.0.
+and thus is currently compatible with Node.js version 0.8.0 through 0.12.0, io.js 1.0 through 3.3,
+and Node.js 4.0.
 
 ## Installation
 
