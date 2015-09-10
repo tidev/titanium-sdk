@@ -4107,10 +4107,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'-Small-40':    { height: 40, width: 40, scale: 1, idioms: [ 'ipad' ] },
 					'-Small-40@2x': { height: 40, width: 40, scale: 2, idioms: [ 'iphone', 'ipad' ] },
 					'-Small-40@3x': { height: 40, width: 40, scale: 3, idioms: [ 'iphone' ] },
-					'-60@2x':       { height: 60, width: 60, scale: 2, idioms: [ 'iphone' ] },
-					'-60@3x':       { height: 60, width: 60, scale: 3, idioms: [ 'iphone' ] },
-					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ] },
-					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ] }
+					'-60@2x':       { height: 60, width: 60, scale: 2, idioms: [ 'iphone' ], required: true },
+					'-60@3x':       { height: 60, width: 60, scale: 3, idioms: [ 'iphone' ], required: true },
+					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ], required: true },
+					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ], required: true }
 				},
 				deviceFamily = this.deviceFamily,
 				missingIcons = [];
@@ -4267,7 +4267,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					file: dest,
 					width: meta.width * meta.scale,
 					height: meta.height * meta.scale,
-					required: true
+					required: !!meta.required
 				});
 			}, this);
 
