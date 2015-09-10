@@ -4182,7 +4182,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				resourcesToCopy[filename] = info;
 			}, this);
 
-			if (true || this.target === 'dist-adhoc') {
+			if (this.target === 'dist-adhoc') {
 				this.logger.info(__('Copying iTunes artwork'));
 
 				var artworkFiles = [
