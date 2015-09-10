@@ -80,6 +80,29 @@ test('boolean and alias with options hash', function (t) {
     t.end();
 });
 
+test('boolean and alias array with options hash', function (t) {
+    var aliased = [ '-h', 'derp' ];
+    var regular = [ '--herp', 'derp' ];
+    var alt = [ '--harp', 'derp' ];
+    var opts = {
+        alias: { 'h': ['herp', 'harp'] },
+        boolean: 'h'
+    };
+    var aliasedArgv = parse(aliased, opts);
+    var propertyArgv = parse(regular, opts);
+    var altPropertyArgv = parse(alt, opts);
+    var expected = {
+        harp: true,
+        herp: true,
+        h: true,
+        '_': [ 'derp' ]
+    };
+    t.same(aliasedArgv, expected);
+    t.same(propertyArgv, expected);
+    t.same(altPropertyArgv, expected);
+    t.end();
+});
+
 test('boolean and alias using explicit true', function (t) {
     var aliased = [ '-h', 'true' ];
     var regular = [ '--herp',  'true' ];
