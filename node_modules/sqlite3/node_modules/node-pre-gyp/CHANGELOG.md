@@ -1,5 +1,10 @@
 # node-pre-gyp changelog
 
+## 0.6.10
+
+ - Added known node and io.js versions including 3.x and 4.x versions
+ - Upgraded `tar` dep
+
 ## 0.6.9
 
  - Upgraded `rc` dep

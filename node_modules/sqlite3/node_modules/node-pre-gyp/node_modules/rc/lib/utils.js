@@ -3,14 +3,14 @@ var ini  = require('ini')
 var path = require('path')
 var stripJsonComments = require('strip-json-comments')
 
-var parse = exports.parse = function (content, file) {
+var parse = exports.parse = function (content) {
 
   //if it ends in .json or starts with { then it must be json.
   //must be done this way, because ini accepts everything.
   //can't just try and parse it and let it throw if it's not ini.
   //everything is ini. even json with a systax error.
 
-  if((file && /\.json$/.test(file)) || /^\s*{/.test(content)) 
+  if(/^\s*{/.test(content))
     return JSON.parse(stripJsonComments(content))
   return ini.parse(content)
 
