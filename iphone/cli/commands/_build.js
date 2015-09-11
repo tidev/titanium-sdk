@@ -4566,7 +4566,8 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 				this.logger.debug(__('Running %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan));
 
 				var child = spawn(exe, args, opts),
-					out = '';
+					out = '',
+					err = '';
 
 				child.stdin.write(this.jsFilesToEncrypt.join('\n'));
 				child.stdin.end();
@@ -4575,9 +4576,14 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 					out += data.toString();
 				});
 
+				child.stderr.on('data', function (data) {
+					err += data.toString();
+				});
+
 				child.on('close', function (code) {
 					if (code) {
-						this.logger.error(__('titanium_prep failed to run (%s)', code) + '\n');
+						this.logger.error(__('titanium_prep failed to run (%s)', code));
+						this.logger.error(__(err)  + '\n');
 						process.exit(1);
 					}
 
