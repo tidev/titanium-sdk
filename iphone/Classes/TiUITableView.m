@@ -699,7 +699,7 @@
 				[UIView setAnimationsEnabled:NO];
 			}
             
-            [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
             
 			if(action.animation == UITableViewRowAnimationNone) {
 				[UIView setAnimationsEnabled:YES];
