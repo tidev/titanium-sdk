@@ -304,11 +304,13 @@
 	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
 	notifAction.authenticationRequired = authenticationRequired;
     
+#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         NSInteger behavior = [TiUtils intValue:[args objectForKey:@"behavior"]];
         notifAction.behavior = behavior;
     }
-
+#endif
+    
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	ap.notificationAction = notifAction;
     
@@ -779,17 +781,21 @@
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
+#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorDefault);
     }
+#endif
     return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
+#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorTextInput);
     }
+#endif
     return NUMINT(0);
 }
 
