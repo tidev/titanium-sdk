@@ -23,7 +23,6 @@ const
 	fs = require('fs'),
 	path = require('path'),
 	readPlist = require('./utilities').readPlist,
-	sqlite3 = require('sqlite3'),
 	__ = appc.i18n(__dirname).__;
 
 var cache,
@@ -38,6 +37,7 @@ var cache,
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
  * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
+ * @param {String} [options.sqlite] - Path to the <code>sqlite</code> executable (most likely named sqlite3)
  * @param {String} [options.supportedVersions] - A string with a version number or range to check if an Xcode install is supported.
  * @param {Function} [callback(err, results)] - A function to call with the Xcode information.
  *
@@ -330,29 +330,41 @@ exports.detect = function detect(options, callback) {
 			},
 
 			function findTeams(next) {
-				async.each(Object.keys(results.xcode), function (id, cb) {
-					var xc = results.xcode[id],
-						dbFile = appc.fs.resolvePath('~/Library/Developer/Xcode/DeveloperPortal ' + xc.version + '.db');
-
-					if (!fs.existsSync(dbFile)) {
-						return cb();
+				appc.subprocess.findExecutable([options.sqlite, '/usr/bin/sqlite3', '/usr/bin/sqlite', 'sqlite3', 'sqlite'], function (err, sqlite) {
+					if (err) {
+						results.issues.push({
+							id: 'IOS_SQLITE_EXECUTABLE_NOT_FOUND',
+							type: 'error',
+							message: __("Unable to find the 'sqlite' or 'sqlite3' executable.")
+						});
+						return next();
 					}
 
-					var db = new sqlite3.Database(dbFile);
-					db.all('SELECT ZNAME, ZSTATUS, ZTEAMID, ZTYPE FROM ZTEAM', function (err, rows) {
-						err || rows.forEach(function (row) {
-							if (row.ZTEAMID) {
-								xc.teams[row.ZTEAMID] = {
-									name: row.ZNAME,
-									status: row.ZSTATUS || 'unknown',
-									type: row.ZTYPE
-								};
+					async.each(Object.keys(results.xcode), function (id, cb) {
+						var xc = results.xcode[id],
+							dbFile = appc.fs.resolvePath('~/Library/Developer/Xcode/DeveloperPortal ' + xc.version + '.db');
+
+						if (!fs.existsSync(dbFile)) {
+							return cb();
+						}
+
+						appc.subprocess.run(sqlite, [dbFile, '-separator', '|||', 'SELECT ZNAME, ZSTATUS, ZTEAMID, ZTYPE FROM ZTEAM'], function (code, out, err) {
+							if (!code) {
+								out.trim().split('\n').forEach(function (line) {
+									var cols = line.trim().split('|||');
+									if (cols.length === 4) {
+										xc.teams[cols[2]] = {
+											name: cols[0],
+											status: cols[1] || 'unknown',
+											type: cols[3]
+										};
+									}
+								});
 							}
+							cb();
 						});
-						db.close();
-						cb();
-					});
-				}, next);
+					}, next);
+				});
 			}
 		], function () {
 			if (Object.keys(results.xcode).length) {
