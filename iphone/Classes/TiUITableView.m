@@ -695,15 +695,15 @@
 			[self insertRow:row before:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 
-            if(action.animation == UITableViewRowAnimationNone) {
-                [UIView setAnimationsEnabled:NO];
-            }
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
             
             [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
             
-            if(action.animation == UITableViewRowAnimationNone) {
-                [UIView setAnimationsEnabled:YES];
-            }
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
             
 			break;
 		}
@@ -768,15 +768,15 @@
 			[self insertRow:row after:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
             
-            if(action.animation == UITableViewRowAnimationNone) {
-                [UIView setAnimationsEnabled:NO];
-            }
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
             
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
             
-            if(action.animation == UITableViewRowAnimationNone) {
-                [UIView setAnimationsEnabled:YES];
-            }
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
             
 			break;
 		}
