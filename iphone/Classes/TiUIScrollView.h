@@ -34,6 +34,7 @@
 
 @property(nonatomic,readonly) TiDimension contentWidth;
 
+
 -(void)setNeedsHandleContentSize;
 -(void)setNeedsHandleContentSizeIfAutosizing;
 -(BOOL)handleContentSizeIfNeeded;

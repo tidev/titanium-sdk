@@ -422,6 +422,41 @@ static NSArray* scrollViewKeySequence;
 	}
 }
 
+#pragma accessibility label
+
+- (void)setAccessibilityLabel:(id)accessibilityLabel
+{
+    if (self.accessibilityLabel != nil)
+    {
+        self.accessibilityLabel = nil;
+        [self.accessibilityLabel release];
+    }
+
+}
+
+- (void)setAccessibilityValue:(id)accessibilityValue
+{
+    if (self.accessibilityValue != nil)
+    {
+        self.accessibilityValue = nil;
+        [self.accessibilityValue release];
+    }
+}
+
+- (void)setAccessibilityHint:(id)accessibilityHint
+{
+    if (self.accessibilityHint != nil)
+    {
+        self.accessibilityHint = nil;
+        [self.accessibilityHint release];
+    }
+}
+
+- (void)setAccessibilityHidden:(id)accessibilityHidden
+{
+// Needed to overight the method to make sure the variable stays null
+}
+
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 
 @end

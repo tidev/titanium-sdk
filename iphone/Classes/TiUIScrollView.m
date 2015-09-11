@@ -114,6 +114,7 @@
 	return [self scrollView];
 }
 
+
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
