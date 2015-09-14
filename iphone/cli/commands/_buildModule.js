@@ -741,7 +741,8 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'ios'
+					'-p', 'ios',
+					'--force'
 				],
 				this.logger,
 				cb
