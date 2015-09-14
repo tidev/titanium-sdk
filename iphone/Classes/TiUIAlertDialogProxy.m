@@ -164,14 +164,17 @@ static BOOL alertShowing = NO;
             if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"placeholder"]] ?: @"";
+                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIReturnKeyDefault];
+                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIKeyboardTypeDefault];
                 }];
             } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = @"Login";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginPlaceholder"]] ?: @"Login";
                     textField.secureTextEntry = NO;
                 }];
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = @"Password";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordPlaceholder"]] ?: @"Password";
                     textField.secureTextEntry = YES;
                 }];
             }
