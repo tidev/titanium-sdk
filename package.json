@@ -29,6 +29,7 @@
     "humanize": "0.0.9",
     "ioslib": "0.6.9",
     "moment": "2.10.6",
+    "markdown": "0.5.0",
     "node-appc": "0.2.31",
     "node-uuid": "1.4.3",
     "png-size": "0.1.0",
