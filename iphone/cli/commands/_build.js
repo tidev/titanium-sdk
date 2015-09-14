@@ -3140,6 +3140,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		plist.CFBundleShortVersionString = this.tiapp.version;
 	}
 
+	// if they have not explicitly set the UIRequiresFullScreen setting, then force it to true
+	if (plist.UIRequiresFullScreen === undefined) {
+		plist.UIRequiresFullScreen = true;
+	}
+
 	// this should not exist, but nuke it so we can create it below
 	delete plist.UIAppFonts;
 
