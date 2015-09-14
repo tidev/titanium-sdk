@@ -301,7 +301,7 @@ static NSDictionary* iOS9propertyKeys;
 }
 -(void)updateiOS9ContactProperties
 {
-    RELEASE_TO_NIL(iOS9contactProperties)
+	RELEASE_TO_NIL(iOS9contactProperties)
 	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
