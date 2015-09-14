@@ -284,6 +284,9 @@ public class MediaModule extends KrollModule
 	}
 
 	protected boolean hasPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 		if (currentActivity.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED &&
 				currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
