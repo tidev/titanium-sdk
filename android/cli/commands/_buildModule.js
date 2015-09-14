@@ -1524,7 +1524,8 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'android'
+					'-p', 'android',
+					'--force'
 				],
 				this.logger,
 				cb
