@@ -8,6 +8,51 @@
 
 #import "WatchSessionModule.h"
 #import "TiUtils.h"
+#import "TiEvaluator.h"
+
+@interface WatchMessageCallback : NSObject
+{
+    id<TiEvaluator> context;
+    KrollCallback *callback;
+}
+-(id)initWithCallback:(KrollCallback*)callback context:(id<TiEvaluator>)context;
+@end
+
+@implementation WatchMessageCallback
+
+-(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
+{
+    //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
+    if (self = [super init])
+    {
+        callback = [callback_ retain];
+        context = [context_ retain];
+    }
+    return self;
+}
+-(void)dealloc
+{
+    RELEASE_TO_NIL(callback);
+    RELEASE_TO_NIL(context);
+    [super dealloc];
+}
+
+-(void)replySuccess:(NSDictionary*)replyMessage
+{
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    replyMessage,@"message",
+                                    NUMBOOL(YES),@"success",
+                                    NUMINT(0), @"code", nil];
+    [context fireEvent:callback withObject:event remove:NO thisObject:nil];
+}
+
+-(void)replyError:(NSError*)error
+{
+    NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+    [context fireEvent:callback withObject:event remove:NO thisObject:nil];
+}
+
+@end
 
 @implementation WatchSessionModule
 #pragma mark Titanium components
@@ -98,7 +143,7 @@
     [self watchSession];
 }
 
--(void)sendMessage:(id)value
+-(void)sendMessage:(id)args
 {
     if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
@@ -108,8 +153,20 @@
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
-    ENSURE_SINGLE_ARG(value, NSDictionary)
-    [[self watchSession] sendMessage:value replyHandler:nil errorHandler:nil];
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    NSDictionary *value = args;
+    KrollCallback *replyHandler = [value objectForKey:@"onReply"];
+    if (replyHandler == nil) {
+        [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:nil errorHandler:nil];
+        return;
+    }
+    [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:^(NSDictionary<NSString *,id> * _Nonnull replyMessage) {
+        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        [wmc replySuccess:replyMessage];
+    } errorHandler:^(NSError * _Nonnull error) {
+        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        [wmc replyError:error];
+    }];
 }
 //sent to watch so that it can update its state when it wakes
 -(void)updateApplicationContext:(id)value
