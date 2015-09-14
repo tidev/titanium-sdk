@@ -429,7 +429,6 @@ static NSArray* scrollViewKeySequence;
     if (self.accessibilityLabel != nil)
     {
         self.accessibilityLabel = nil;
-        [self.accessibilityLabel release];
     }
 
 }
@@ -439,7 +438,6 @@ static NSArray* scrollViewKeySequence;
     if (self.accessibilityValue != nil)
     {
         self.accessibilityValue = nil;
-        [self.accessibilityValue release];
     }
 }
 
@@ -448,13 +446,12 @@ static NSArray* scrollViewKeySequence;
     if (self.accessibilityHint != nil)
     {
         self.accessibilityHint = nil;
-        [self.accessibilityHint release];
     }
 }
 
 - (void)setAccessibilityHidden:(id)accessibilityHidden
 {
-// Needed to overight the method to make sure the variable stays null
+// Needed to overwrite the method to make sure the variable stays null
 }
 
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
