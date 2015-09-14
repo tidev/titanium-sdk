@@ -62,7 +62,7 @@ static NSDictionary* iOS9propertyKeys;
 #endif
 -(void)dealloc
 {
-	iOS9contactProperties = nil;
+    RELEASE_TO_NIL(iOS9contactProperties)
 	[super dealloc];
 }
 
@@ -77,7 +77,7 @@ static NSDictionary* iOS9propertyKeys;
 	if (contact == nil) {
 		return nil;
 	}
-	return [NSDictionary dictionaryWithObjectsAndKeys:contact.givenName, @"firstName",
+	return [[NSDictionary alloc] initWithObjectsAndKeys:contact.givenName, @"firstName",
 		contact.familyName, @"lastName",
 		contact.middleName, @"middleName",
 		contact.namePrefix, @"prefix",
@@ -301,6 +301,7 @@ static NSDictionary* iOS9propertyKeys;
 }
 -(void)updateiOS9ContactProperties
 {
+    RELEASE_TO_NIL(iOS9contactProperties)
 	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
