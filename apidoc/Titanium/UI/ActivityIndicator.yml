@@ -130,17 +130,13 @@ properties:
     description: |
         One of the activity indicator style constants.
 
-        For iOS, use one of the constants with `iPhone` in the namespace.
-
-        For Android and Mobile Web, use a constant without `iPhone` in the namespace.
-
         On Mobile Web, setting the style automatically sets the indicator color and diameter.
 
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-    constants: [Titanium.UI.iPhone.ActivityIndicatorStyle.*, Titanium.UI.ActivityIndicatorStyle.*]
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
+    constants: Titanium.UI.ActivityIndicatorStyle.*
+    default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>
 
 
   - name: indicatorColor
@@ -191,18 +187,11 @@ examples:
               fullscreen: true
             });
 
-            var style;
-            if (Ti.Platform.name === 'iPhone OS'){
-              style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-            }
-            else {
-              style = Ti.UI.ActivityIndicatorStyle.DARK;
-            }
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
               font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
               message: 'Loading...',
-              style:style,
+              style: Ti.UI.ActivityIndicatorStyle.DARK,
               top:10,
               left:10,
               height:Ti.UI.SIZE,
