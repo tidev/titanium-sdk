@@ -25,8 +25,11 @@
 #ifdef USE_TI_UIIOS
 	TiProxy *ios;
 #endif
-#ifdef USE_TI_UICLIPBOARD	
-	TiProxy *clipboard;
+#ifdef USE_TI_UICLIPBOARD
+    TiProxy *clipboard;
+#endif
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+    TiProxy *ActivityIndicatorStyle;
 #endif
 }
 
@@ -269,6 +272,10 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+#endif
+
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+@property (nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
 #endif
 
 @end
