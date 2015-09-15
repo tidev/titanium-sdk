@@ -48,7 +48,7 @@
 
 <% cls.properties.forEach(function (property) { %>
 /**
-<% if ('defaultValue' in property && property.defaultValue) { %>
+<% if ('defaultValue' in property && property.defaultValue !== '') { %>
  * @property [<%- property.name %>=<%- property.defaultValue %>]
 <% } else { %>
  * @property <%- property.name %>
