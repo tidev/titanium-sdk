@@ -62,39 +62,6 @@
 	return button;
 }
 
--(CGFloat) verifyWidth:(CGFloat)suggestedWidth
-{
-	switch((int)styleCache)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-			return 18;
-		case UITitaniumNativeItemDisclosure:
-			return 29;
-		default: {
-			break;
-		}
-	}
-	return suggestedWidth;
-}
-
--(CGFloat) verifyHeight:(CGFloat)suggestedHeight
-{
-	switch((int)styleCache)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-			return 19;
-		case UITitaniumNativeItemDisclosure:
-			return 31;
-		default: {
-			break;
-		}
-	}
-	return suggestedHeight;
-}
-
-
 -(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
 	switch ((int)styleCache)
