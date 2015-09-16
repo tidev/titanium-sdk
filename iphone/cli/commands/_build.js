@@ -1805,6 +1805,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
 						this.symlinkFilesOnCopy = false;
 					}
+				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
+				    logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
+				    this.symlinkFilesOnCopy = false;
 				}
 			},
 
