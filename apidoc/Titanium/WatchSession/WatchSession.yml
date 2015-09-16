@@ -61,7 +61,7 @@ methods:
       - name: message
         summary: Message to send to apple watch.
         type: Dictionary
-      - name: onReply
+      - name: reply
         summary: Function to be called upon receiving a reply from the watch app.
         description: |
             This function is used to process the direct reply from the watch app after sending one.

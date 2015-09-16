@@ -155,7 +155,7 @@
     }
     ENSURE_SINGLE_ARG(args, NSDictionary)
     NSDictionary *value = args;
-    KrollCallback *replyHandler = [value objectForKey:@"onReply"];
+    KrollCallback *replyHandler = [value objectForKey:@"reply"];
     if (replyHandler == nil) {
         [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:nil errorHandler:nil];
         return;
