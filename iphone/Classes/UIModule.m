@@ -47,6 +47,9 @@
 #if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"

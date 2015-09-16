@@ -16,9 +16,9 @@
     return @"Ti.UI.iPhone.ActivityIndicatorStyle";
 }
 
-MAKE_SYSTEM_PROP(PLAIN,UIActivityIndicatorViewStyleWhite);
-MAKE_SYSTEM_PROP(BIG,UIActivityIndicatorViewStyleWhiteLarge);
-MAKE_SYSTEM_PROP(DARK,UIActivityIndicatorViewStyleGray);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UIActivityIndicatorViewStyleWhite, @"Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN", @"5.1.0", @"Ti.UI.ActivityIndicatorStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BIG, UIActivityIndicatorViewStyleWhiteLarge, @"Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN", @"5.1.0", @"Ti.UI.ActivityIndicatorStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DARK, UIActivityIndicatorViewStyleGray, @"Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN", @"5.1.0", @"Ti.UI.ActivityIndicatorStyle.PLAIN");
 
 @end
 
