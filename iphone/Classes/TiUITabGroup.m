@@ -96,9 +96,21 @@ DEFINE_EXCEPTIONS
 	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
 	NSArray * tabArray = [controller viewControllers];
-
-	NSInteger previousIndex = -1;
-	NSInteger index = -1;
+   
+    NSInteger previousIndex = 0;
+    NSInteger index = 0;
+    
+    if ([self.proxy valueForKey:@"index"] > 0)
+    {
+        index = -1;
+    }
+    
+    
+    if ([self.proxy valueForKey:@"previousIndex"] > 0)
+    {
+	 previousIndex = -1;
+    }
+    
 
 	if (focusedTabProxy != nil)
 	{
@@ -115,7 +127,8 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
 	[event setObject:NUMINTEGER(index) forKey:@"index"];
 
-	[self.proxy fireEvent:@"blur" withObject:event];
+	[self.proxy fireEvent:@"unselected" withObject:event];
+    [self.proxy fireEvent:@"blur" withObject:event];
 	[focusedTabProxy handleDidBlur:event];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
@@ -126,6 +139,7 @@ DEFINE_EXCEPTIONS
 
     // If we're in the middle of opening, the focus happens once the tabgroup is opened
     if (![(TiWindowProxy*)[self proxy] opening]) {
+        [self.proxy fireEvent:@"selected" withObject:event];
         [self.proxy fireEvent:@"focus" withObject:event];
     }
     //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
@@ -599,8 +613,10 @@ DEFINE_EXCEPTIONS
 	{
 		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
-	[self.proxy fireEvent:@"focus" withObject:event];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",[NSNull null],@"previousTab",nil];
+    [self.proxy fireEvent:@"selected" withObject:event];
+    [self.proxy fireEvent:@"focus" withObject:event];
+    
     
     // Tab has already been focused by the tab controller delegate
 	//[focused handleDidFocus:event];
