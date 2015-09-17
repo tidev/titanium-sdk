@@ -142,9 +142,11 @@ properties:
 
   - name: identifier
     summary: Identifier of the person.
+    description: Prior to iOS 9, use the [recordId](Titanium.Contacts.Person.recordId) property.
     type: String
     platforms: [iphone, ipad]
     permission: read-only
+    since: 5.0.0
     osver: {ios: {min: "9.0"}}
 
   - name: image
@@ -259,9 +261,10 @@ properties:
     
   - name: recordId
     summary: Record identifier of the person. Single value. Deprecated since iOS 9.
+    description: For iOS 9 and later, use the [identifier](Titanium.Contacts.Person.identifier) property.
     type: Number
     platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}}
+    osver: {ios: {max: "8.4"}}
     
   - name: relatedNames
     summary: Names of people to which the person is related. Multi-value.

@@ -398,6 +398,47 @@ events:
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
     platforms: [iphone, ipad]
+    since: 5.0.0
+    osver: {ios: {min: "8.0"}}
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: section
+        summary: List section from which the event was generated.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: rowAction
+    deprecated:
+        since: 5.0.0
+        removed: 5.0.0
+        notes: Renamed to [editaction](Titanium.UI.ListView.editaction).
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event.
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
+        before the user action.
+    platforms: [iphone, ipad]
     since: 4.1.0
     osver: {ios: {min: "8.0"}}
     properties:
