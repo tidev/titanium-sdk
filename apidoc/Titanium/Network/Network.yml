@@ -61,9 +61,11 @@ description: |
     **Whitelist URLs**
 
     If ATS is enabled and the web service you are trying to contact does not support the new security guidelines,
-    iOS will not allow you to connect to the service.  To allow the connection, you will need to add
-    a `NSAppTransportSecurity` dict to the `ios plist` section of the `tiapp.xml` file.
+    iOS will not allow you to connect to the service. An error will be returned in the network response
+    stating the connection failed because it did not meet the ATS policy standards.
 
+    To allow the connection, you will need to add
+    a `NSAppTransportSecurity` dict to the `ios plist` section of the `tiapp.xml` file.
     In the `NSAppTransportSecurity` dict, you add the `NSExceptionDomains` dict to whitelist
     specific domains.
 

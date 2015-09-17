@@ -22,7 +22,7 @@
 	"minWatchosVersion": "1.0",
 	"vendorDependencies": {
 		"xcode": ">=6.0 <=7.x",
-		"ios sdk": ">=8.0 <=8.x",
+		"ios sdk": ">=8.0 <=9.x",
 		"node": ">=0.10.0 <=0.12.x"
 	},
 	"repository": {

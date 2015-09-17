@@ -286,6 +286,24 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: USER_NOTIFICATION_BEHAVIOR_DEFAULT
+    summary: |
+        There will not appear a text input.
+        Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.0.1"
+
+  - name: USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
+    summary: |
+        There will appear a text input to answer an action outside the application.
+        Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.0.1"
+
   - name: UTTYPE_TEXT
     summary: |
         Uniform type identifier for all text types.

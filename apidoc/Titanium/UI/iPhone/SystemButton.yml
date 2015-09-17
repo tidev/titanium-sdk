@@ -16,6 +16,8 @@ description: |
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
+    Note: Starting at Titanium SDK 5.0, all icons have are automatically sized in the native behavior
+    and are not distorted any more.
     These standard button types are:
 
     * [CONTACT_ADD](Titanium.UI.iPhone.SystemButton.CONTACT_ADD)

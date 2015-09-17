@@ -14,7 +14,7 @@
 var appc = require('node-appc'),
 	AdmZip = require('adm-zip'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/archiver/core'),
+	archiverCore = require('archiver/lib/core'),
 	async = require('async'),
 	crypto = require('crypto'),
 	Builder = require('titanium-sdk/lib/builder'),
@@ -600,7 +600,6 @@ iOSModuleBuilder.prototype.packageModule = function (next) {
 		zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function() {
 			console.error = origConsoleError;
-			next();
 		});
 		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(zipStream);
@@ -742,7 +741,8 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'ios'
+					'-p', 'ios',
+					'--force'
 				],
 				this.logger,
 				cb

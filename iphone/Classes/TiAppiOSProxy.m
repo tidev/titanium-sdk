@@ -152,25 +152,38 @@
 #if IS_XCODE_7
 -(id)createSearchableIndex:(id)unused
 {
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
     return proxy;
 }
 
 -(id)createSearchableItem:(id)args
 {
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchableItem:args] retain];}, YES);
+        return [result autorelease];
+    }
+    
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    NSString* identifier;
-    ENSURE_ARG_FOR_KEY(identifier, args, @"identifier", NSString);
+    NSString* uniqueIdentifier = nil;
+    ENSURE_ARG_FOR_KEY(uniqueIdentifier, args, @"uniqueIdentifier", NSString);
     
-    NSString* domainIdentifier;
+    NSString* domainIdentifier = nil;
     ENSURE_ARG_FOR_KEY(domainIdentifier, args, @"domainIdentifier", NSString);
     
-    TiAppiOSSearchableItemAttributeSetProxy *attributeSet;
+    TiAppiOSSearchableItemAttributeSetProxy *attributeSet = nil;
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
     TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
-                                           initWithUniqueIdentifier:identifier
+                                           initWithUniqueIdentifier:uniqueIdentifier
                                            withDomainIdentifier:domainIdentifier
                                            withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
@@ -178,27 +191,40 @@
 
 -(id)createSearchableItemAttributeSet:(id)args
 {
-    NSString* itemContentType;
+    if (![TiUtils isIOS9OrGreater]) {
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchableItemAttributeSet:args] retain];}, YES);
+        return [result autorelease];
+    }
     ENSURE_SINGLE_ARG(args,NSDictionary);
+    NSString* itemContentType = nil;
     ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
     
-    NSMutableDictionary *props = [[args mutableCopy] autorelease];
+    NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:args];
     [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
     
     TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
-    
+
     return proxy;
 }
 
 #endif
 -(id)createUserActivity:(id)args
 {
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createUserActivity:args] retain];}, YES);
+        return [result autorelease];
+    }
     NSString* activityType;
     ENSURE_SINGLE_ARG(args,NSDictionary);
     ENSURE_ARG_FOR_KEY(activityType, args, @"activityType", NSString);
     
     TiAppiOSUserActivityProxy *userActivityProxy = [[[TiAppiOSUserActivityProxy alloc] initWithOptions:args] autorelease];
-    
+
     return userActivityProxy;
 }
 
@@ -277,7 +303,14 @@
 
 	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
 	notifAction.authenticationRequired = authenticationRequired;
-
+    
+#if IS_XCODE_7
+    if([TiUtils isIOS9OrGreater] == YES) {
+        NSInteger behavior = [TiUtils intValue:[args objectForKey:@"behavior"]];
+        notifAction.behavior = behavior;
+    }
+#endif
+    
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	ap.notificationAction = notifAction;
     
@@ -737,12 +770,33 @@
 	}
 	return NUMINT(0);
 }
+
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationActivationModeForeground);
-	}
-	return NUMINT(0);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationActivationModeForeground);
+    }
+    return NUMINT(0);
+}
+
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINT(UIUserNotificationActionBehaviorDefault);
+    }
+#endif
+    return NUMINT(0);
+}
+
+-(NSNumber*)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINT(UIUserNotificationActionBehaviorTextInput);
+    }
+#endif
+    return NUMINT(0);
 }
 
 #pragma mark UTI Text Type Constants

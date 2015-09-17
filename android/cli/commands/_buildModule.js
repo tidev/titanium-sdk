@@ -18,10 +18,9 @@ var ADB = require('titanium-sdk/lib/adb'),
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/archiver/core'),
+	archiverCore = require('archiver/lib/core'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -1525,7 +1524,8 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'android'
+					'-p', 'android',
+					'--force'
 				],
 				this.logger,
 				cb

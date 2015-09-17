@@ -5,6 +5,10 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "5.1.0"
+    notes: |
+        Use [Ti.UI.ActivityIndicatorStyle](Titanium.UI.ActivityIndicatorStyle) instead.
 
 properties:
   - name: BIG
@@ -18,7 +22,11 @@ properties:
         and [PLAIN](Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.1.0"
+        notes: |
+            Use [Ti.UI.ActivityIndicatorStyle.BIG](Titanium.UI.ActivityIndicatorStyle.BIG) instead.
+
   - name: DARK
     summary: Small gray spinning indicator.
     description: |
@@ -30,7 +38,11 @@ properties:
         and [PLAIN](Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.1.0"
+        notes: |
+            Use [Ti.UI.ActivityIndicatorStyle.DARK](Titanium.UI.ActivityIndicatorStyle.DARK) instead.
+
   - name: PLAIN
     summary: Small white spinning indicator (default.)
     description: |
@@ -42,3 +54,8 @@ properties:
         and [PLAIN](Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
+    deprecated:
+        since: "5.1.0"
+        notes: |
+            Use [Ti.UI.ActivityIndicatorStyle.PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN) instead.
+

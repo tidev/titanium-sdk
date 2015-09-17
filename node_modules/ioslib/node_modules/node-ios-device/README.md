@@ -12,6 +12,7 @@ node-ios-device is currently compatible with the following versions:
    * 0.8.x (module API v1)
    * 0.10.x (module API v11)
    * 0.12.x (module API v14)
+   * 4.0.x (module API v46)
  * io.js
    * 1.0.x (module API v42)
    * \^1.1.0 (module API v43)
