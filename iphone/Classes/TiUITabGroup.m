@@ -129,6 +129,13 @@ DEFINE_EXCEPTIONS
 
 	[self.proxy fireEvent:@"unselected" withObject:event];
     [self.proxy fireEvent:@"blur" withObject:event];
+    
+    if ([self.proxy _hasListeners:@"blur"])
+    {
+        
+        NSLog(@"[Warning] blur is deprecated use selected");
+    }
+        
 	[focusedTabProxy handleDidBlur:event];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
@@ -141,6 +148,12 @@ DEFINE_EXCEPTIONS
     if (![(TiWindowProxy*)[self proxy] opening]) {
         [self.proxy fireEvent:@"selected" withObject:event];
         [self.proxy fireEvent:@"focus" withObject:event];
+        
+        if ([self.proxy _hasListeners:@"focus"])
+        {
+            
+            NSLog(@"[Warning] focus is deprecated use selected");
+        }
     }
     //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
     if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
@@ -606,7 +619,7 @@ DEFINE_EXCEPTIONS
 	[view setFrame:[self bounds]];
 	[self addSubview:view];
 
-	// on an open, make sure we send the focus event to focused tab
+	// on an open, make sure we send the focu   s event to focused tab
     NSArray * tabArray = [controller viewControllers];
     NSInteger index = 0;
     if (focusedTabProxy != nil)
@@ -616,6 +629,12 @@ DEFINE_EXCEPTIONS
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",[NSNull null],@"previousTab",nil];
     [self.proxy fireEvent:@"selected" withObject:event];
     [self.proxy fireEvent:@"focus" withObject:event];
+    
+    if ([self.proxy _hasListeners:@"focus"])
+    {
+    
+        NSLog(@"[Warning] focus is deprecated use selected");
+    }
     
     
     // Tab has already been focused by the tab controller delegate
