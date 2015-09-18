@@ -78,7 +78,7 @@ Titanium developers regularly visit `#titanium_app` on irc.freenode.net.
 
 ### Slack
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](http://topener.nl/tislack).
+Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
 
 ### Twitter
 
