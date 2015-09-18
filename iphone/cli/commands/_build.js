@@ -4012,16 +4012,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	});
 
-	this.logger.info(__('Analyzing CommonJS modules'));
-	this.commonJsModules.forEach(function (module) {
-		var relPath = module.libFile.replace(this.projectDir + '/', '');
-		jsFiles[relPath] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
-	}, this);
-
 	this.logger.info(__('Analyzing platform files'));
 	walk(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir);
@@ -4058,6 +4048,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
+	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
 		var filename = path.basename(module.libFile);
 		if (jsFiles[filename]) {
@@ -4065,6 +4056,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.error(__('Please rename the file, then rebuild') + '\n');
 			process.exit(1);
 		}
+		jsFiles[filename] = {
+			src: module.libFile,
+			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
+			srcStat: fs.statSync(module.libFile)
+		};
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
