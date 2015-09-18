@@ -4945,7 +4945,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				return next();
 			}
 
-			async.each(pngs, function (file, cb) {
+			async.eachLimit(pngs, 5, function (file, cb) {
 				var output = file + '.tmp';
 				this.logger.debug(__('Optimizing %s', file.cyan));
 				appc.subprocess.run(this.xcodeEnv.executables.pngcrush, ['-q', '-iphone', '-f', 0, file, output], function (code, out, err) {
