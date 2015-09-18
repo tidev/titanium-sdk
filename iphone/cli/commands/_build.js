@@ -4483,8 +4483,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (this.minifyJS) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								if (!fs.existsSync(to) || r.contents !== fs.readFileSync(to).toString()) {
+								var exists = fs.existsSync(to);
+								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
 									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+									exists && fs.unlinkSync(to);
 									fs.writeFileSync(to, r.contents);
 									this.jsFilesChanged = true;
 								} else {
