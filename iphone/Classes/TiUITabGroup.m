@@ -93,12 +93,12 @@ DEFINE_EXCEPTIONS
         return;
     }
     
-	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
+	 NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
-	NSArray * tabArray = [controller viewControllers];
+	 NSArray * tabArray = [controller viewControllers];
    
-    NSInteger previousIndex = 0;
-    NSInteger index = 0;
+     NSInteger previousIndex = 0;
+     NSInteger index = 0;
     
     if ([self.proxy valueForKey:@"index"] > 0)
     {
