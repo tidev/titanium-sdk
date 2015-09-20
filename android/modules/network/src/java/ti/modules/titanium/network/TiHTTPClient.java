@@ -192,15 +192,17 @@ public class TiHTTPClient
 
 	        contentType = connection.getContentType();
 
-	        String[] values = contentType.split(";"); //The values.length must be equal to 2...
-	        String charset = "";
-
-	        for (String value : values) {
-	            value = value.trim();
-	            if (value.toLowerCase().startsWith("charset=")) {
-	                charset = value.substring("charset=".length());
-	            }
-	        }
+            String charset = "";
+            if(contentType != null){
+                String[] values = contentType.split(";"); //The values.length must be equal to 2...
+                for (String value : values) {
+                    value = value.trim();
+                    if (value.toLowerCase().startsWith("charset=")) {
+                        charset = value.substring("charset=".length());
+                    }
+                }
+            }
+            
 	        // If no charset is defined, default to UTF-8
 	        if ("".equals(charset)) {
 	            charset = "UTF-8";
