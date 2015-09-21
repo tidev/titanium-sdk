@@ -98,53 +98,25 @@ NSArray* moviePlayerKeys = nil;
 {
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	
-    [nc addObserver:self selector:@selector(handlePlayerNotification:)
-               name:AVPlayerItemDidPlayToEndTimeNotification
-             object:movie];
     
-	[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
-			   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleFullscreenEnterNotification:) 
-			   name:MPMoviePlayerWillEnterFullscreenNotification
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleFullscreenExitNotification:)
-			   name:MPMoviePlayerWillExitFullscreenNotification
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleSourceTypeNotification:) 
-			   name:MPMovieSourceTypeAvailableNotification
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleDurationAvailableNotification:) 
-			   name:MPMovieDurationAvailableNotification 
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleMediaTypesNotification:) 
-			   name:MPMovieMediaTypesAvailableNotification 
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleNaturalSizeAvailableNotification:)
-			   name:MPMovieNaturalSizeAvailableNotification 
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleLoadStateChangeNotification:)
-			   name:MPMoviePlayerLoadStateDidChangeNotification 
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handleNowPlayingNotification:)
-			   name:MPMoviePlayerNowPlayingMovieDidChangeNotification 
-			 object:movie];
-	
-	[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
-			   name:AVPlayerItemTimeJumpedNotification
-			 object:movie];
-	
-		//FIXME: add to replace preload for 3.2
-		//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
+    // For durationavailable
+    [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+    
+    // For playbackstate
+    [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+    
+    // For playing
+    [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+    
+    // For load / loadstate / preload
+    [movie.player addObserver:self forKeyPath:@"status" options:0 context:nil];
+    
+    // For complete
+    [nc addObserver:self selector: @selector(handlePlayerNotification:) name: AVPlayerItemDidPlayToEndTimeNotification object: [movie.player currentItem]];
+    
+    // For error
+    [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[movie.player currentItem]];
+
 }
 
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
@@ -292,7 +264,7 @@ NSArray* moviePlayerKeys = nil;
         }
     }
     else {
-        RETURN_FROM_LOAD_PROPERTIES(@"allowsAirPlay", NUMBOOL(NO));
+        [loadProperties valueForKey:@"allowsAirPlay"] || NUMBOOL(NO);
     }
 }
 
@@ -485,38 +457,12 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"5.1.0", "Not available any more.")
-
-//	TiThreadPerformOnMainThread(^{[movie.player cancelAllThumbnailImageRequests];}, NO);
-}
-
--(void)requestThumbnailImagesAtTimes:(id)args
-{
-
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.requestThumbnailImagesAtTimes", @"5.1.0", "Not available any more.")
-
-    /*ENSURE_ARG_COUNT(args, 3);
-    
-    ENSURE_TYPE([args objectAtIndex:0], NSArray);
-    ENSURE_TYPE([args objectAtIndex:1], NSNumber);
-    ENSURE_TYPE([args objectAtIndex:2],KrollCallback);
-    
-    NSArray* array = [args objectAtIndex:0];
-    if ([array count] > 0) {
-        NSNumber* option = [args objectAtIndex:1];
-        TiThreadPerformOnMainThread(^{
-            [movie cancelAllThumbnailImageRequests];
-            RELEASE_TO_NIL(thumbnailCallback);
-            callbackRequestCount = [array count];
-            thumbnailCallback = [[args objectAtIndex:2] retain];
-            [movie requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
-        }, NO);
-    }*/
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"5.1.0", @"5.1.0")
 }
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.6.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"5.1.0");
     return nil;
 }
 
@@ -634,7 +580,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)playbackState
 {
 	if (movie.player != nil) {
-		return NUMINT(movie.player.status);
+		return NUMINT(movie.player.rate);
 	}
     return NUMINT(AVPlayerStatusUnknown);
 }
@@ -763,22 +709,18 @@ NSArray* moviePlayerKeys = nil;
 
 - (void) handlePlayerNotification: (NSNotification *) notification
 {
-    NSLog(@"[INFO] test1");
-	if ([notification object] != movie) 
+	if ([notification object] != [movie.player currentItem])
 	{
 		return;
 	}
 	
 	NSString * name = [notification name];
 	
-    NSLog(@"[INFO] test2");
 	if ([name isEqualToString:AVPlayerItemDidPlayToEndTimeNotification])
 	{
-        NSLog(@"[INFO] test3");
 		if ([self _hasListeners:@"complete"])
 		{
 			NSNumber *reason = [[notification userInfo] objectForKey:AVPlayerItemDidPlayToEndTimeNotification];
-            NSLog(@"[INFO] test4");
 
 			NSString * errorMessage;
 			int errorCode;
@@ -812,38 +754,13 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
--(void)handleKeyWindowChanged:(NSNotification*)note
+-(void)handlePlayerErrorNotification:(NSNotification*)note
 {
-	if (playing)
-	{
-		if ([self _hasListeners:@"load"])
-		{
-			[self fireEvent:@"load" withObject:nil];
-		}
-	}
-}
-
--(void)handleThumbnailImageRequestFinishNotification:(NSNotification*)note
-{
-	if (thumbnailCallback!=nil)
-	{
-		NSDictionary *userinfo = [note userInfo];
-		NSError* value = [userinfo objectForKey:MPMoviePlayerThumbnailErrorKey];
-		NSMutableDictionary *event = [TiUtils dictionaryWithCode:[value code] message:[TiUtils messageFromError:value]];
-		if (value==nil)
-		{
-			UIImage *image = [userinfo valueForKey:MPMoviePlayerThumbnailImageKey];
-			TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-			[event setObject:blob forKey:@"image"];
-		}
-		[event setObject:[userinfo valueForKey:MPMoviePlayerThumbnailTimeKey] forKey:@"time"];
-		
-		[self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
-        
-		if (--callbackRequestCount <= 0) {
-			RELEASE_TO_NIL(thumbnailCallback);
-		}
-	}
+    NSError *error = note.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+    if([self _hasListeners:@"error"]) {
+        NSDictionary *event = [NSDictionary dictionaryWithObject:[error localizedDescription] forKey:@"error"];
+        [self fireEvent:@"error" withObject:event];
+    }
 }
 
 -(void)resizeRootView
@@ -860,49 +777,6 @@ NSArray* moviePlayerKeys = nil;
     seekToZeroBeforePlay = YES;
 }
 
-
--(void)handleFullscreenEnterNotification:(NSNotification*)note
-{
-	if ([self _hasListeners:@"fullscreen"])
-	{
-		NSDictionary *userinfo = [note userInfo];
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
-		[event setObject:NUMBOOL(YES) forKey:@"entering"];
-		[self fireEvent:@"fullscreen" withObject:event];
-	}	
-    statusBarWasHidden = [[UIApplication sharedApplication] isStatusBarHidden];
-}
-
--(void)handleFullscreenExitNotification:(NSNotification*)note
-{
-	NSDictionary *userinfo = [note userInfo];
-    if ([self _hasListeners:@"fullscreen"])
-	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
-		[event setObject:NUMBOOL(NO) forKey:@"entering"];
-		[self fireEvent:@"fullscreen" withObject:event];
-	}	
-	[[UIApplication sharedApplication] setStatusBarHidden:statusBarWasHidden];
-    //Wait untill the movie player animation is over before calculating the size of the movie player frame.
-    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[TiUtils doubleValue:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey]]];
-}
-
--(void)handleSourceTypeNotification:(NSNotification*)note
-{
-	if ([self _hasListeners:@"sourceChange"])
-	{	//TODO: Deprecate old event.
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
-		[self fireEvent:@"sourceChange" withObject:event];
-	}
-	if ([self _hasListeners:@"sourcechange"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
-		[self fireEvent:@"sourcechange" withObject:event];
-	}
-}
-
 -(void)handleDurationAvailableNotification:(NSNotification*)note
 {
 	if ([self _hasListeners:@"durationAvailable"])
@@ -917,53 +791,26 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
--(void)handleMediaTypesNotification:(NSNotification*)note
-{
-	if ([self _hasListeners:@"mediaTypesAvailable"])
-	{	//TODO: Deprecate old event.
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
-		[self fireEvent:@"mediaTypesAvailable" withObject:event];
-	}
-	if ([self _hasListeners:@"mediatypesavailable"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
-		[self fireEvent:@"mediatypesavailable" withObject:event];
-	}
-}
-
--(void)handleNaturalSizeAvailableNotification:(NSNotification*)note
-{
-	if ([self _hasListeners:@"naturalSizeAvailable"])
-	{	//TODO: Deprecate old event.
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self fireEvent:@"naturalSizeAvailable" withObject:event];
-	}
-	if ([self _hasListeners:@"naturalsizeavailable"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self fireEvent:@"naturalsizeavailable" withObject:event];
-	}
-}
-
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	AVPlayerViewController *_movie = (AVPlayerViewController *)note.object;
-	
-	if ((_movie.player.status & AVPlayerItemStatusReadyToPlay) == AVPlayerItemStatusReadyToPlay)
-	{
+	if (movie.player.status == AVPlayerItemStatusReadyToPlay) {
 		if ([self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
 			[vp movieLoaded];
-			if ((_movie.player.status & AVPlayerItemStatusReadyToPlay) == AVPlayerItemStatusReadyToPlay) {
-				if ([self _hasListeners:@"load"]) {
-					[self fireEvent:@"load" withObject:nil];
-				}
+            
+            if ([self _hasListeners:@"load"]) {
+				[self fireEvent:@"load" withObject:nil];
 			}
+            
+            if([self _hasListeners:@"preload"]) {
+                DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"5.1.0", @"Media.VideoPlayer.load");
+            }
 		} else {
             loaded = YES;
         }
-	}
+    }
+    
 	if ([self _hasListeners:@"loadstate"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
@@ -982,11 +829,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"playbackState"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
-		[self fireEvent:@"playbackState" withObject:event];
-	}
 	if ([self _hasListeners:@"playbackstate"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
@@ -1001,6 +843,22 @@ NSArray* moviePlayerKeys = nil;
 			playing = YES;
 			break;
 	}
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
+        [self handleDurationAvailableNotification:nil];
+    }
+    if ([keyPath isEqualToString:@"player.rate"]) {
+    	[self handlePlaybackStateChangeNotification:nil];
+    }
+    if ([keyPath isEqualToString:@"url"]) {
+    	[self handleNowPlayingNotification:nil];
+    }
+    if ([keyPath isEqualToString:@"status"]) {
+        [self handleLoadStateChangeNotification:nil];
+    }
 }
 
 @end
