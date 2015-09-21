@@ -613,7 +613,7 @@ DEFINE_EXCEPTIONS
 	[view setFrame:[self bounds]];
 	[self addSubview:view];
 
-	// on an open, make sure we send the focu   s event to focused tab
+	// on an open, make sure we send the focus event to focused tab
     NSArray * tabArray = [controller viewControllers];
     NSInteger index = 0;
     if (focusedTabProxy != nil)
