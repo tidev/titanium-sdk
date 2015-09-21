@@ -4949,9 +4949,11 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				appc.subprocess.run(this.xcodeEnv.executables.pngcrush, ['-q', '-iphone', '-f', 0, file, output], function (code, out, err) {
 					if (code) {
 						this.logger.error(__('Failed to optimize %s (code %s)', file, code));
-					} else {
+					} else if (fs.existsSync(output)) {
 						fs.existsSync(file) && fs.unlinkSync(file);
 						fs.renameSync(output, file);
+					} else {
+						this.logger.warn(__('Unable to optimize %s; invalid png?'));
 					}
 					cb();
 				}.bind(this));
