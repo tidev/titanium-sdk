@@ -109,7 +109,7 @@ events:
   - name: blur
     summary: |
         Fired when this tab group loses focus. On Android, fired when a tab in this tab group
-        loses focus.Deprecated on ios should use unselected.
+        loses focus.
     description: |
         On Android, this event also fires before putting the activity in the background
         (before the activity enters the pause state).
@@ -118,7 +118,7 @@ events:
         The application needs to monitor the <Titanium.App.pause> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
 
-        deprecated:
+    deprecated:
           since: "5.1.0"
           notes: |
               Use unselected instead.
@@ -198,7 +198,7 @@ events:
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
 
-        deprecated:
+    deprecated:
           since: "5.1.0"
           notes: |
               Use selected instead.
