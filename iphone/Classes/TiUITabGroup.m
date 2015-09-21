@@ -128,14 +128,11 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINTEGER(index) forKey:@"index"];
 
 	[self.proxy fireEvent:@"unselected" withObject:event];
-    [self.proxy fireEvent:@"blur" withObject:event];
+    if ([self.proxy _hasListeners:@"focus"]){
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+		[self.proxy fireEvent:@"blur" withObject:event];
+ 	}
     
-    if ([self.proxy _hasListeners:@"blur"])
-    {
-        
-        NSLog(@"[Warning] blur is deprecated use selected");
-    }
-        
 	[focusedTabProxy handleDidBlur:event];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
@@ -144,21 +141,18 @@ DEFINE_EXCEPTIONS
 	[self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
-    // If we're in the middle of opening, the focus happens once the tabgroup is opened
-    if (![(TiWindowProxy*)[self proxy] opening]) {
-        [self.proxy fireEvent:@"selected" withObject:event];
-        [self.proxy fireEvent:@"focus" withObject:event];
-        
-        if ([self.proxy _hasListeners:@"focus"])
-        {
-            
-            NSLog(@"[Warning] focus is deprecated use selected");
-        }
-    }
-    //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
-    if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
-        [focusedTabProxy handleDidFocus:event];
-    }
+	// If we're in the middle of opening, the focus happens once the tabgroup is opened
+	if (![(TiWindowProxy*)[self proxy] opening]) {
+		[self.proxy fireEvent:@"selected" withObject:event];
+		if ([self.proxy _hasListeners:@"focus"]){
+        	DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+        	[self.proxy fireEvent:@"focus" withObject:event];
+		}
+	}
+	//TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+	if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
+		[focusedTabProxy handleDidFocus:event];
+	}
 }
 
 
@@ -628,12 +622,10 @@ DEFINE_EXCEPTIONS
 	}
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",[NSNull null],@"previousTab",nil];
     [self.proxy fireEvent:@"selected" withObject:event];
-    [self.proxy fireEvent:@"focus" withObject:event];
-    
-    if ([self.proxy _hasListeners:@"focus"])
-    {
-    
-        NSLog(@"[Warning] focus is deprecated use selected");
+
+    if ([self.proxy _hasListeners:@"focus"]){
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+        [self.proxy fireEvent:@"focus" withObject:event];
     }
     
     
