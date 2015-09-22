@@ -128,8 +128,8 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINTEGER(index) forKey:@"index"];
 
 	[self.proxy fireEvent:@"unselected" withObject:event];
-    if ([self.proxy _hasListeners:@"focus"]){
-        DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+	if ([self.proxy _hasListeners:@"focus"]){
+		DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
 		[self.proxy fireEvent:@"blur" withObject:event];
  	}
     
@@ -144,9 +144,10 @@ DEFINE_EXCEPTIONS
 	// If we're in the middle of opening, the focus happens once the tabgroup is opened
 	if (![(TiWindowProxy*)[self proxy] opening]) {
 		[self.proxy fireEvent:@"selected" withObject:event];
-		if ([self.proxy _hasListeners:@"focus"]){
-        	DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
-        	[self.proxy fireEvent:@"focus" withObject:event];
+		
+	if ([self.proxy _hasListeners:@"focus"]){
+		DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+		[self.proxy fireEvent:@"focus" withObject:event];
 		}
 	}
 	//TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
