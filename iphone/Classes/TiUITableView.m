@@ -17,7 +17,7 @@
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
 
 @interface TiUIView(eventHandler);
