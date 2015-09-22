@@ -495,7 +495,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
-	var template = this.cli.argv.template || 'default',
+	var template = this.cli.argv.template = this.cli.argv.template || 'default',
 		builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template),
 		searchPaths = [],
 		additionalPaths = this.config.get('paths.templates'),
