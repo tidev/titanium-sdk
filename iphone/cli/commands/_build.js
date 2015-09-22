@@ -1805,6 +1805,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
 						this.symlinkFilesOnCopy = false;
 					}
+				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
+				    logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
+				    this.symlinkFilesOnCopy = false;
 				}
 			},
 
@@ -2050,9 +2053,9 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'];
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 
-	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && this.tiapp.ios['run-on-main-thread'];
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] !== false);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -4009,16 +4012,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	});
 
-	this.logger.info(__('Analyzing CommonJS modules'));
-	this.commonJsModules.forEach(function (module) {
-		var relPath = module.libFile.replace(this.projectDir + '/', '');
-		jsFiles[relPath] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
-	}, this);
-
 	this.logger.info(__('Analyzing platform files'));
 	walk(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir);
@@ -4055,6 +4048,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
+	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
 		var filename = path.basename(module.libFile);
 		if (jsFiles[filename]) {
@@ -4062,6 +4056,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.error(__('Please rename the file, then rebuild') + '\n');
 			process.exit(1);
 		}
+		jsFiles[filename] = {
+			src: module.libFile,
+			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
+			srcStat: fs.statSync(module.libFile)
+		};
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
@@ -4480,8 +4479,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (this.minifyJS) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								if (!fs.existsSync(to) || r.contents !== fs.readFileSync(to).toString()) {
+								var exists = fs.existsSync(to);
+								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
 									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+									exists && fs.unlinkSync(to);
 									fs.writeFileSync(to, r.contents);
 									this.jsFilesChanged = true;
 								} else {
@@ -4942,15 +4943,17 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 				return next();
 			}
 
-			async.each(pngs, function (file, cb) {
+			async.eachLimit(pngs, 5, function (file, cb) {
 				var output = file + '.tmp';
 				this.logger.debug(__('Optimizing %s', file.cyan));
 				appc.subprocess.run(this.xcodeEnv.executables.pngcrush, ['-q', '-iphone', '-f', 0, file, output], function (code, out, err) {
 					if (code) {
 						this.logger.error(__('Failed to optimize %s (code %s)', file, code));
-					} else {
+					} else if (fs.existsSync(output)) {
 						fs.existsSync(file) && fs.unlinkSync(file);
 						fs.renameSync(output, file);
+					} else {
+						this.logger.warn(__('Unable to optimize %s; invalid png?'));
 					}
 					cb();
 				}.bind(this));

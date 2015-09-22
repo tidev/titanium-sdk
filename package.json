@@ -27,7 +27,7 @@
     "ejs": "2.3.4",
     "fields": "0.1.24",
     "humanize": "0.0.9",
-    "ioslib": "0.6.9",
+    "ioslib": "0.7.0",
     "moment": "2.10.6",
     "markdown": "0.5.0",
     "node-appc": "0.2.31",
