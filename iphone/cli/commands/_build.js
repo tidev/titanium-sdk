@@ -3339,17 +3339,19 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	// inject Apple Transport Security settings
 	if (!plist.NSAppTransportSecurity || typeof plist.NSAppTransportSecurity !== 'object') {
-		this.logger.debug(__('Disabling ATS'));
+		this.logger.info(__('Disabling ATS'));
 		// disable ATS
 		plist.NSAppTransportSecurity = {
 			NSAllowsArbitraryLoads: true
 		};
-	} else if (!plist.NSAppTransportSecurity.NSAllowsArbitraryLoads && this.whitelistAppceleratorDotCom) {
+	} else if (plist.NSAppTransportSecurity.NSAllowsArbitraryLoads) {
+		this.logger.info(__('ATS explicitly disabled'));
+	} else if (this.whitelistAppceleratorDotCom) {
 		// we have a whitelist, make sure appcelerator.com is in the list
 		plist.NSAppTransportSecurity || (plist.NSAppTransportSecurity = {});
 		plist.NSAppTransportSecurity.NSAllowsArbitraryLoads = false;
 
-		this.logger.debug(__('Inject appcelerator.com into ATS whitelist'));
+		this.logger.info(__('ATS enabled, injecting appcelerator.com into ATS whitelist'));
 		plist.NSAppTransportSecurity.NSExceptionDomains || (plist.NSAppTransportSecurity.NSExceptionDomains = {});
 		if (!plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com']) {
 			plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com'] = {
@@ -3364,7 +3366,8 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			};
 		}
 	} else {
-		this.logger.debug(__('ATS enabled, but appcelerator.com sites will be unreachable'));
+		this.logger.warn(__('ATS enabled, however *.appcelerator.com are not whitelisted'));
+		this.logger.warn(__('Consider setting the "ios.whitelist.appcelerator.com" property in the tiapp.xml to "true"'));
 	}
 
 	if (this.target === 'device' && this.deviceId === 'itunes') {
