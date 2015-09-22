@@ -714,6 +714,7 @@ function findSimulators(options, callback) {
  * @param {String} [options.simType=iphone] - The type of simulator to launch. Must be either "iphone" or "ipad". Only applicable when udid is not specified.
  * @param {String} [options.simVersion] - The iOS version to boot. Defaults to the most recent version.
  * @param {String} [options.supportedVersions] - A string with a version number or range to check if an Xcode install is supported.
+ * @param {Boolean} [options.uninstallApp=false] - When true and `appPath` is specified, uninstalls the app before installing the new app. If app is not installed already, it continues.
  * @param {String} [options.watchAppName] - The name of the watch app to install. If omitted, automatically picks the watch app.
  * @param {String} [options.watchHandleOrUDID] - A watch sim handle or the UDID of the Watch Simulator to launch or null if your app has a watch app and you want ioslib to pick one.
  * @param {Function} [callback(err, simHandle)] - A function to call when the simulator has launched.
@@ -1255,7 +1256,7 @@ function launch(simHandleOrUDID, options, callback) {
 				},
 
 				function uninstallApp(next) {
-					if (!options.appPath || !appId) {
+					if (!options.appPath || !appId || options.uninstallApp !== true) {
 						return next();
 					}
 
