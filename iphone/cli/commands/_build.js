@@ -2390,7 +2390,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	var logger = this.logger,
 		appName = this.tiapp.name,
-		scrubbedAppName = appName.replace(/-/g, '_').replace(/\W/g, ''),
+		scrubbedAppName = appName.replace(/[-\W]/g, '_'),
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
@@ -3592,7 +3592,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	this.logger.info(__('Copying Titanium iOS files'));
 
 	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/-/g, '_').replace(/\W/g, ''),
+		name = this.tiapp.name.replace(/[-\W]/g, '_'),
 		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
 		copyFileRegExps = [
 			// note: order of regexps matters
@@ -3692,14 +3692,12 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		});
 	}, this);
 
-	function copyAndReplaceFile(src, name) {
+	function copyAndReplaceFile(src, dest) {
 		var srcStat = fs.statSync(src),
 			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
 			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
-			relPath = path.dirname(src).replace(this.platformPath + '/iphone', '').replace(/Titanium/g, name),
-			destFilename = path.basename(src).replace('Titanium', name),
-			dest = path.join(this.buildDir, relPath, destFilename),
+			relPath = path.dirname(src).replace(this.platformPath + '/iphone', ''),
 			destDir = path.dirname(dest),
 			destExists = fs.existsSync(dest),
 			destStat = destExists && fs.statSync(dest),
@@ -3713,7 +3711,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			}
 			this.logger.debug(__('Writing %s', dest.cyan));
 			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-			fs.writeFileSync(dest, contents.toString().replace(/Titanium/g, name));
+			fs.writeFileSync(dest, contents.toString().replace(/Titanium/g, this.tiapp.name));
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
@@ -3727,8 +3725,16 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		delete this.buildDirFiles[dest];
 	}
 
-	copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'Titanium_Prefix.pch'), name);
-	copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'), this.tiapp.name);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium_Prefix.pch'),
+		path.join(this.buildDir, name + '_Prefix.pch')
+	);
+	copyAndReplaceFile.call(
+		this,
+		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
+	);
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
@@ -5109,7 +5115,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
-		'-scheme', this.tiapp.name,
+		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
 		'-derivedDataPath', this.buildDir
 	];
 
