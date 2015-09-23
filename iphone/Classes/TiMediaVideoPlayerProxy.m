@@ -377,7 +377,6 @@ NSArray* moviePlayerKeys = nil;
 	sizeSet = NO;
 	if (movie!=nil)
 	{
-        DebugLog(@"playWithUrl!");
         AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL: url];
         [movie.player replaceCurrentItemWithPlayerItem:newVideoItem];
 	}
@@ -404,23 +403,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setAutoplay:(id)value
 {
-	if (movie != nil) {
-		//[movie.player.currentItem setShouldAutoplay:[TiUtils boolValue:value]];
-	}
-	else {
-		[loadProperties setValue:value forKey:@"autoplay"];
-	}
-}
-
--(NSNumber*)useApplicationAudioSession
-{
-    DebugLog(@"[WARN] Deprecated property useApplicationAudioSession; Setting this property has no effect'");
-    return NUMBOOL(YES);
-}
-
--(void)setUseApplicationAudioSession:(id)value
-{
-    DebugLog(@"[WARN] Deprecated property useApplicationAudioSession; Setting this property has no effect'");
+    [loadProperties setValue:value forKey:@"autoplay"];
 }
 
 -(NSNumber *)volume
@@ -673,7 +656,6 @@ NSArray* moviePlayerKeys = nil;
 {
     ENSURE_UI_THREAD(pause,args)
 	if (!playing) {
-        DebugLog(@"notplaying!");
 		return;
 	}
 	
@@ -755,10 +737,7 @@ NSArray* moviePlayerKeys = nil;
 			[self fireEvent:@"complete" withObject:event errorCode:errorCode message:errorMessage];
 		}
 		playing = NO;
-	}
-	else if ([name isEqualToString:MPMoviePlayerScalingModeDidChangeNotification] && [self _hasListeners:@"resize"])
-	{
-		[self fireEvent:@"resize" withObject:nil];
+        [self playerItemDidReachEnd];
 	}
 }
 
@@ -771,16 +750,8 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
--(void)resizeRootView
-{
-    TiThreadPerformOnMainThread(^{
-        [[[TiApp app] controller] resizeView];
-        [[[TiApp app] controller] repositionSubviews];
-    }, NO);
-}
-
 /* Called when the player item has played to its end time. */
-- (void)playerItemDidReachEnd:(NSNotification *)notification
+- (void)playerItemDidReachEnd
 {
     seekToZeroBeforePlay = YES;
 }
@@ -814,6 +785,11 @@ NSArray* moviePlayerKeys = nil;
             if([self _hasListeners:@"preload"]) {
                 DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"5.1.0", @"Media.VideoPlayer.load");
             }
+            
+            // Start the video if autoplay is enabled
+            if([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]] == YES) {
+                [self play:nil];
+            }
 		} else {
             loaded = YES;
         }
@@ -842,12 +818,14 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
 		[self fireEvent:@"playbackstate" withObject:event];
 	}
+    
 	switch (movie.player.status) {
 		case AVPlayerStatusUnknown:
 		case AVPlayerStatusFailed:
 			playing = NO;
 			break;
 		case AVPlayerStatusReadyToPlay:
+            playing = (movie.player.rate == 1.0);
 			break;
 	}
 }
