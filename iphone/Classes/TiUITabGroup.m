@@ -128,8 +128,8 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINTEGER(index) forKey:@"index"];
 
 	[self.proxy fireEvent:@"unselected" withObject:event];
-	if ([self.proxy _hasListeners:@"focus"]){
-		DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+	if ([self.proxy _hasListeners:@"blur"]){
+		DEPRECATED_REPLACED(@"UI.TabGroup.Event:blur" ,@"5.1.0",@"UI.TabGroup.Event:unselected")
 		[self.proxy fireEvent:@"blur" withObject:event];
  	}
     

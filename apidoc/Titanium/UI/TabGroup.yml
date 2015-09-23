@@ -149,7 +149,7 @@ events:
 - name: unselected
   summary: |
       Fired when this tab is not currently being focused. On Android, fired when a tab in this tab group
-      loses focus.
+      is unselected.
   description: |
       On Android, this event also fires before putting the activity in the background
       (before the activity enters the pause state).
@@ -158,7 +158,7 @@ events:
       The application needs to monitor the <Titanium.App.pause> event.
       See <Titanium.App> for more information on the iOS application lifecycle.
 
-      properties:
+  properties:
         - name: index
           summary: |
               Index of the current active tab. On iOS, a value of `undefined` indicates that the
@@ -233,7 +233,7 @@ events:
       The application needs to monitor the <Titanium.App.resumed> event.
       See <Titanium.App> for more information on the iOS application lifecycle.
 
-properties:
+  properties:
   - name: index
     summary: Index of the current active tab.
     type: Number
