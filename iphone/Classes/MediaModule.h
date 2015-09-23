@@ -78,10 +78,9 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_VOLUME_ONLY;
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_HIDDEN;
 
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_ASPECT_FIT;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_ASPECT_FILL;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_MODE_FILL;
+@property(nonatomic,readonly) NSString* VIDEO_SCALING_MODE_RESIZE;
+@property(nonatomic,readonly) NSString* VIDEO_SCALING_MODE_RESIZE_ASPECT;
+@property(nonatomic,readonly) NSString* VIDEO_SCALING_MODE_RESIZE_ASPECT_FILL;
 
 @property(nonatomic,readonly) NSNumber* QUALITY_HIGH;
 @property(nonatomic,readonly) NSNumber* QUALITY_MEDIUM;

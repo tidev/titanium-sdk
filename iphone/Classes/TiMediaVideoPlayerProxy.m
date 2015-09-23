@@ -377,11 +377,9 @@ NSArray* moviePlayerKeys = nil;
 	sizeSet = NO;
 	if (movie!=nil)
 	{
-        AVPlayerItem *fooVideoItem = [AVPlayerItem playerItemWithURL: self.url];
-        AVQueuePlayer *queuePlayer = [AVQueuePlayer queuePlayerWithItems:[NSArray arrayWithObjects:fooVideoItem,nil]];
-        
-        [queuePlayer play];
-        [queuePlayer advanceToNextItem];
+        DebugLog(@"playWithUrl!");
+        AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL: url];
+        [movie.player replaceCurrentItemWithPlayerItem:newVideoItem];
 	}
 	else {
 		[self ensurePlayer];
@@ -444,15 +442,24 @@ NSArray* moviePlayerKeys = nil;
 	}, YES);
 }
 
--(NSNumber*)allowsPictureInPicturePlayback
+-(NSNumber*)pictureInPictureEnabled
 {
-    return NUMBOOL(movie.allowsPictureInPicturePlayback);
+#if IS_XCODE_7
+    if([TiUtils isIOS9OrGreater] == YES) {
+        return NUMBOOL(movie.allowsPictureInPicturePlayback);
+    } else {
+        return NUMBOOL(NO);
+    }
+#else
+    return NUMBOOL(NO);
+#endif
 }
 
--(void)setAllowsPictureInPicturePlayback:(id)value
+-(void)setPictureInPictureEnabled:(NSNumber*)value
 {
-    ENSURE_ARG_COUNT(value, 1);
+#if IS_XCODE_7
     [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+#endif
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value
@@ -626,8 +633,8 @@ NSArray* moviePlayerKeys = nil;
 {
     ENSURE_UI_THREAD(stop, args);
 	playing = NO;
-	[movie.player pause];
-    movie.player = nil;
+	[movie.player seekToTime:CMTimeMake(0, 1)];
+    [movie.player pause];
 }
 
 -(void)play:(id)args
@@ -666,12 +673,13 @@ NSArray* moviePlayerKeys = nil;
 {
     ENSURE_UI_THREAD(pause,args)
 	if (!playing) {
+        DebugLog(@"notplaying!");
 		return;
 	}
 	
-	if ([movie respondsToSelector:@selector(pause)]) {
+	if ([movie.player respondsToSelector:@selector(pause)]) {
 		playing = NO;
-		[movie performSelector:@selector(pause)];
+		[movie.player performSelector:@selector(pause)];
 	}
 }
 
@@ -840,7 +848,6 @@ NSArray* moviePlayerKeys = nil;
 			playing = NO;
 			break;
 		case AVPlayerStatusReadyToPlay:
-			playing = YES;
 			break;
 	}
 }
