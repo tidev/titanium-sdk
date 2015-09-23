@@ -67,6 +67,7 @@ import org.json.JSONObject;
 import ti.modules.titanium.network.httpurlconnection.ContentBody;
 import ti.modules.titanium.network.httpurlconnection.Entity;
 import ti.modules.titanium.network.httpurlconnection.FileEntity;
+import ti.modules.titanium.network.httpurlconnection.HttpHelper;
 import ti.modules.titanium.network.httpurlconnection.HttpUrlConnectionUtils;
 import ti.modules.titanium.network.httpurlconnection.JsonBody;
 import ti.modules.titanium.network.httpurlconnection.NameValuePair;
@@ -1120,12 +1121,12 @@ public class TiHTTPClient
 						return;
 					}		
 					
-					boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+					boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
 					
 					client.setUseCaches(true);
-					client.setRequestMethod(method);
+					HttpHelper.setRequestMethodViaJreBugWorkaround(client, method);
 					client.setDoInput(true);
-					if (isPostOrPutOrPatch) {
+					if (isPostOrPut) {
 						client.setDoOutput(true);
 					}
 					client.setUseCaches(false);
@@ -1144,7 +1145,7 @@ public class TiHTTPClient
 						client.setRequestProperty(header, requestHeaders.get(header));
 					}
 					
-					if (isPostOrPutOrPatch) {			
+					if (isPostOrPut) {
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress) {
 								KrollDict data = new KrollDict();
