@@ -283,7 +283,8 @@ public class MediaModule extends KrollModule
 		activity.startActivity(intent);
 	}
 
-	protected boolean hasPermissions() {
+	@Kroll.method
+	public boolean hasCameraPermissions() {
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
@@ -292,15 +293,16 @@ public class MediaModule extends KrollModule
 				currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		} 
-		Log.w(TAG, "Camera and/or Read external storage permission(s) missing");
+		Log.w(TAG, "Camera permission(s) missing");
 		return false;		
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
-		if (!hasPermissions()) {
+		if (!hasCameraPermissions()) {
 			return;
 		}
 		KrollDict cameraOptions = null;
@@ -320,6 +322,17 @@ public class MediaModule extends KrollModule
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
+	}
+	
+	@Kroll.method
+	public void requestCameraPermissions()
+	{
+		if (hasCameraPermissions()) {
+			return;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CAMERA);
+		
 	}
 
 	/*
