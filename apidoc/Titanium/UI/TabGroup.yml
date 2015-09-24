@@ -148,7 +148,7 @@ events:
 
 - name: unselected
   summary: |
-      Fired when this tab is not currently being focused. On Android, fired when a tab in this tab group
+      Fired when this tab is not currently selected. On Android, fired when a tab in this tab group
       is unselected.
   description: |
       On Android, this event also fires before putting the activity in the background
