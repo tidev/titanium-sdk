@@ -229,7 +229,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSString*)scalingMode
 {
-    // TODO: Introduce new constants - https://developer.apple.com/library//ios/documentation/AVFoundation/Reference/AVPlayerLayer_Class/index.html#//apple_ref/occ/instp/AVPlayerLayer/videoGravity
 	if (movie != nil) {
 		return [movie videoGravity];
 	}
@@ -441,7 +440,9 @@ NSArray* moviePlayerKeys = nil;
 -(void)setPictureInPictureEnabled:(NSNumber*)value
 {
 #if IS_XCODE_7
-    [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+    if([TiUtils isIOS9OrGreater] == YES) {
+        [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+    }
 #endif
 }
 
