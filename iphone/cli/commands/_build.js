@@ -5116,7 +5116,10 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
-		'-derivedDataPath', this.buildDir
+		'-derivedDataPath', this.buildDir,
+		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
+		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
+		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')
 	];
 
 	if (this.simHandle) {
