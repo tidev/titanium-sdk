@@ -206,7 +206,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: contentHeight
-    summary: Height of the scrollable region.
+    summary: Height of the scrollable region in system units.
     description: |
         While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentHeight is the height of the scroll view.
@@ -222,7 +222,7 @@ properties:
 
         
   - name: contentWidth
-    summary: Width of the scrollable region.
+    summary: Width of the scrollable region in system units.
     description: |
         While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
