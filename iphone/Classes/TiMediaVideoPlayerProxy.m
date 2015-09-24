@@ -453,8 +453,27 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"5.1.0");
-    return nil;
+    ENSURE_ARG_COUNT(args, 1);
+    
+    CGFloat seconds = [TiUtils floatValue:@"time" properties:[args objectAtIndex:0] def:0.0];
+    
+    if(seconds == 0.0) {
+        NSLog(@"[ERROR] Please provide a valid \"time\" argument to generate a thumbnail.");
+        return nil;
+    }
+    
+    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];    
+    CGSize layerSize = CGSizeMake(layer.videoRect.size.width, layer.videoRect.size.height);
+    
+    UIImage* screenshot = [self takeScreenshotFromPlayer:layerSize andSpecifiedTime:CMTimeMakeWithSeconds(seconds, 1)];
+    
+    if(screenshot == nil) {
+        NSLog(@"[ERROR] The thumbnail could not be generated! Please make sure the player is initialized.");
+        return nil;
+    }
+    
+    TiBlob* result = [[TiBlob alloc] initWithImage:screenshot];
+    return result;
 }
 
 -(void)setBackgroundColor:(id)color
@@ -511,6 +530,34 @@ NSArray* moviePlayerKeys = nil;
 	else {
 		[loadProperties setValue:time forKey:@"currentPlaybackTime"];
 	}
+}
+
+- (UIImage *)takeScreenshotFromPlayer:(CGSize)maxSize andSpecifiedTime:(CMTime)specifiedTime
+{
+    
+    NSError *error;
+    CMTime actualTime;
+    
+    AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset:movie.player.currentItem.asset];
+    
+    // Setting a maximum size is not necessary for this code to
+    // successfully get a screenshot, but it was useful for my project.
+    generator.maximumSize = maxSize;
+    
+    CGImageRef cgIm = [generator copyCGImageAtTime:specifiedTime
+                                        actualTime:&actualTime
+                                             error:&error];
+    UIImage *image = [UIImage imageWithCGImage:cgIm];
+    CFRelease(cgIm);
+    
+    if (nil != error) {
+        NSLog(@"Error making screenshot: %@", [error localizedDescription]);
+        NSLog(@"Actual screenshot time: %f Requested screenshot time: %f", CMTimeGetSeconds(actualTime),
+              CMTimeGetSeconds(movie.player.currentTime));
+        return nil;
+    }
+    
+    return image;
 }
 
 -(NSNumber*)endPlaybackTime
