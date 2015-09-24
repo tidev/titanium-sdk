@@ -120,8 +120,7 @@ events:
 
     deprecated:
           since: "5.1.0"
-          notes: |
-              Use unselected instead.
+          notes: Use unselected instead.
 
     properties:
       - name: index
@@ -200,8 +199,7 @@ events:
 
     deprecated:
           since: "5.1.0"
-          notes: |
-              Use selected instead.
+          notes: Use selected instead.
 
     properties:
       - name: index
@@ -219,6 +217,9 @@ events:
       - name: previousTab
         summary: Previous active tab.
         type: Titanium.UI.Tab
+
+  - name: open
+    summary: Fired when the tab group is opened.
 
   - name: selected
     summary: |
