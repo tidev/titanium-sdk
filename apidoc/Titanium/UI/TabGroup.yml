@@ -146,11 +146,11 @@ events:
             the previous tab.
         type: Titanium.UI.Tab
 
-- name: unselected
-  summary: |
+  - name: unselected
+    summary: |
       Fired when this tab is not currently selected. On Android, fired when a tab in this tab group
       is unselected.
-  description: |
+    description: |
       On Android, this event also fires before putting the activity in the background
       (before the activity enters the pause state).
 
@@ -158,28 +158,28 @@ events:
       The application needs to monitor the <Titanium.App.pause> event.
       See <Titanium.App> for more information on the iOS application lifecycle.
 
-  properties:
-        - name: index
-          summary: |
-              Index of the current active tab. On iOS, a value of `undefined` indicates that the
-              **More** tab was the active tab.
-          type: Number
+    properties:
+      - name: index
+        summary: |
+            Index of the current active tab. On iOS, a value of `undefined` indicates that the
+            **More** tab was the active tab.
+        type: Number
 
-        - name: previousIndex
-          summary: |
-              Index of the previous active tab. On iOS, a value of `undefined` indicates that the
-              **More** tab was the previous tab.
-          type: Number
+      - name: previousIndex
+        summary: |
+            Index of the previous active tab. On iOS, a value of `undefined` indicates that the
+            **More** tab was the previous tab.
+        type: Number
 
-        - name: tab
-          summary: Active tab.
-          type: Titanium.UI.Tab
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
 
-        - name: previousTab
-          summary: |
-              Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was
-              the previous tab.
-          type: Titanium.UI.Tab
+      - name: previousTab
+        summary: |
+            Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was
+            the previous tab.
+        type: Titanium.UI.Tab
 
   - name: close
     summary: Fired when the tab group is closed.
@@ -220,38 +220,37 @@ events:
         summary: Previous active tab.
         type: Titanium.UI.Tab
 
-- name: selected
-  summary: |
-      Fired when this tab is selected. on Android , fired when the tab is
-      currently selected.
-  description: |
-      On Android, this event also fires when the activity enters the foreground
-      (after the activity enters the resume state).
+  - name: selected
+    summary: |
+        Fired when this tab is selected. on Android , fired when the tab is
+        currently selected.
+    description: |
+        On Android, this event also fires when the activity enters the foreground
+        (after the activity enters the resume state).
 
-      On iOS, this event does not fire after the application returns to the foreground
-      if it was previously backgrounded.
-      The application needs to monitor the <Titanium.App.resumed> event.
-      See <Titanium.App> for more information on the iOS application lifecycle.
+        On iOS, this event does not fire after the application returns to the foreground
+        if it was previously backgrounded.
+        See <Titanium.App> for more information on the iOS application lifecycle.
 
-  properties:
-  - name: index
-    summary: Index of the current active tab.
-    type: Number
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
 
-  - name: previousIndex
-    summary: Index of the previous active tab.
-    type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
 
-  - name: tab
-    summary: Active tab.
-    type: Titanium.UI.Tab
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
 
-  - name: previousTab
-    summary: Previous active tab.
-    type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab.
+        type: Titanium.UI.Tab
 
-  - name: open
-    summary: Fired when the tab group is opened.
+      - name: open
+        summary: Fired when the tab group is opened.
 
 
 methods:
