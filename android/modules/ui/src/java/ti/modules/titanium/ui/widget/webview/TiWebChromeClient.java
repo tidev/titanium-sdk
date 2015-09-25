@@ -6,12 +6,18 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -19,11 +25,16 @@ import ti.modules.titanium.ui.WebViewProxy;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
@@ -39,6 +50,11 @@ public class TiWebChromeClient extends WebChromeClient
 	private FrameLayout mCustomViewContainer;
 	private CustomViewCallback mCustomViewCallback;
 	private View mCustomView;
+
+	private ValueCallback<Uri[]> mFilePathCallback;
+	private ValueCallback<Uri> mFilePathCallbackLegacy;
+	private String mCameraPhotoPath;
+	private Uri mCameraPhotoUri;
 
 	public TiWebChromeClient(TiUIWebView webView)
 	{
@@ -172,5 +188,228 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 		return false;
 	}
+
+	// See: https://code.google.com/p/android/issues/detail?id=62220
+	// This is unsupported by Google Android
+	// openFileChooser for Android 3.0+
+	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType){
+
+	    if(mFilePathCallbackLegacy != null) {
+	        mFilePathCallbackLegacy.onReceiveValue(null);
+	    }
+	    mFilePathCallbackLegacy = filePathCallback;
+
+	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    if (takePictureIntent.resolveActivity(tiWebView.getProxy().getActivity().getPackageManager()) != null) {
+
+	        // Create the File where the photo should go
+	        File photoFile = null;
+	        try {
+	            photoFile = createImageFile();
+	            takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
+	        } catch (IOException ex) {
+	            // Error occurred while creating the File
+	            Log.e(TAG, "Unable to create Image File", ex);
+	        }
+
+	        // Continue only if the File was successfully created
+	        if (photoFile != null) {
+	            mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+	            mCameraPhotoUri = Uri.fromFile(photoFile);
+	            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
+	        } else {
+	            takePictureIntent = null;
+	        }
+	    }
+
+	    Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+	    contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+	    contentSelectionIntent.setType("image/*");
+
+	    Intent[] intentArray;
+	    if(takePictureIntent != null) {
+	        intentArray = new Intent[]{takePictureIntent};
+	    } else {
+	        intentArray = new Intent[0];
+	    }
+
+	    Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+	    chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+	    chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+	    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+	    IntentProxy intentProxy = new IntentProxy(chooserIntent);
+	    tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new OpenFileChooserCallbackFunction());
+	}
+
+    // See: https://code.google.com/p/android/issues/detail?id=62220
+    // This is unsupported by Google Android
+    // openFileChooser for Android < 3.0
+    public void openFileChooser(ValueCallback<Uri> filePathCallback) {
+        openFileChooser(filePathCallback, "");
+    }
+
+    // See: https://code.google.com/p/android/issues/detail?id=62220
+    // This is unsupported by Google Android
+    //openFileChooser for other Android versions
+    public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType, String capture) {
+        openFileChooser(filePathCallback, acceptType);
+    }
+
+    // This is officially supported by Google Android
+    // This is available on API level 21 and above
+    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+            WebChromeClient.FileChooserParams fileChooserParams) {
+
+        if(mFilePathCallback != null) {
+            mFilePathCallback.onReceiveValue(null);
+        }
+        mFilePathCallback = filePathCallback;
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(tiWebView.getProxy().getActivity().getPackageManager()) != null) {
+
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e(TAG, "Unable to create Image File", ex);
+            }
+
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+                mCameraPhotoUri = Uri.fromFile(photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
+            } else {
+                takePictureIntent = null;
+            }
+        }
+
+        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        contentSelectionIntent.setType("image/*");
+
+        Intent[] intentArray;
+        if(takePictureIntent != null) {
+            intentArray = new Intent[]{takePictureIntent};
+        } else {
+            intentArray = new Intent[0];
+        }
+
+        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+        IntentProxy intentProxy = new IntentProxy(chooserIntent);
+        tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new ShowFileChooserCallbackFunction());
+        return true;
+    }
+
+    class ShowFileChooserCallbackFunction implements KrollFunction {
+
+        @Override
+        public Object call(KrollObject krollObject, HashMap args) {
+            return null;
+        }
+
+        @Override
+        public Object call(KrollObject krollObject, Object[] args) {
+            return null;
+        }
+
+        @Override
+        public void callAsync(KrollObject krollObject, HashMap args) {
+            int resultCode = (int) args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
+            Intent data = null;
+            if(intentProxy != null) {
+                data = intentProxy.getIntent();
+            }
+
+            Uri[] results = null;
+            if(resultCode == Activity.RESULT_OK) {
+                if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
+                    // If there is no data, then we may have taken a photo
+                    if(mCameraPhotoPath != null) {
+                        results = new Uri[]{Uri.parse(mCameraPhotoPath)};
+                    }
+                } else {
+                    String dataString = data.getDataString();
+                    if (dataString != null) {
+                        results = new Uri[]{Uri.parse(dataString)};
+                    }
+                }
+            }
+
+            mFilePathCallback.onReceiveValue(results);
+            mFilePathCallback = null;
+        }
+
+        @Override
+        public void callAsync(KrollObject krollObject, Object[] args) {
+        }
+    }
+
+    class OpenFileChooserCallbackFunction implements KrollFunction {
+
+        @Override
+        public Object call(KrollObject krollObject, HashMap args) {
+            return null;
+        }
+
+        @Override
+        public Object call(KrollObject krollObject, Object[] args) {
+            return null;
+        }
+
+        @Override
+        public void callAsync(KrollObject krollObject, HashMap args) {
+            int resultCode = (int) args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
+            Intent data = null;
+            if(intentProxy != null) {
+                data = intentProxy.getIntent();
+            }
+
+            Uri results = null;
+            if(resultCode == Activity.RESULT_OK) {
+                if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
+                    // If there is no data, then we may have taken a photo
+                    if(mCameraPhotoUri != null) {
+                        results = mCameraPhotoUri;
+                    }
+                } else {
+                    String dataString = data.getDataString();
+                    if (dataString != null) {
+                        results = Uri.parse(dataString);
+                    }
+                }
+            }
+
+            mFilePathCallbackLegacy.onReceiveValue(results);
+            mFilePathCallbackLegacy = null;
+        }
+
+        @Override
+        public void callAsync(KrollObject krollObject, Object[] args) {
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File imageFile = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+                );
+        return imageFile;
+    }
 }
 
