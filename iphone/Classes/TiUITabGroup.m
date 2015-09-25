@@ -614,7 +614,7 @@ DEFINE_EXCEPTIONS
 		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",[NSNull null],@"previousTab",nil];
-    [self.proxy fireEvent:@"selected" withObject:event];
+        [self.proxy fireEvent:@"selected" withObject:event];
 
     if ([self.proxy _hasListeners:@"focus"]){
         DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
