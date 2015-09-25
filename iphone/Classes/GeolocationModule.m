@@ -1023,6 +1023,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
     if ([self _hasListeners:@"authorization"])
     {
+        
         [self fireEvent:@"authorization" withObject:event];
     }
 }
