@@ -43,7 +43,6 @@
 
 
 @interface TiMediaVideoPlayerProxy ()
-@property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
 @property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
 @end
 
@@ -240,12 +239,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)setAllowsAirPlay:(id)value
 {
     if (movie != nil) {
-        if ([movie.player respondsToSelector:@selector(allowsExternalPlayback:)]) {
-            movie.player.allowsExternalPlayback = [TiUtils boolValue:value];
-        }
-        else {
-            NSLog(@"[WARN] Canot use airplay; using pre-4.3 iOS");
-        }
+        [movie.player setAllowsExternalPlayback:[TiUtils boolValue:value]];
     }
     else {
         [loadProperties setValue:value forKey:@"allowsAirPlay"];
@@ -255,51 +249,22 @@ NSArray* moviePlayerKeys = nil;
 -(BOOL)allowsAirPlay
 {
     if (movie != nil) {
-        if ([movie.player respondsToSelector:@selector(allowsExternalPlayback)]) {
-            return movie.player.allowsExternalPlayback;
-        }
-        else {
-            return NO;
-        }
+        return [movie.player allowsExternalPlayback];
     }
     else {
         [loadProperties valueForKey:@"allowsAirPlay"] || NUMBOOL(NO);
     }
 }
 
-// < 3.2 functions for controls - deprecated
--(void)setMovieControlMode:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
-	[self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlMode
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
-	return [self mediaControlStyle];
-}
-
--(void)setMovieControlStyle:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    [self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlStyle
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    return [self mediaControlStyle];
-}
-
 -(void)setMediaControlStyle:(NSNumber *)value
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.2.0",@"4.4.0",@"Media.VideoPlayer.scaleMode");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"5.1.0",@"Media.VideoPlayer.scalingMode");
 }
 
 -(NSNumber*)mediaControlStyle
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.2.0",@"4.4.0",@"Media.VideoPlayer.scaleMode");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"5.1.0",@"Media.VideoPlayer.scalingMode");
+    return NUMINT(0);
 }
 
 -(void)setMedia:(id)media_
@@ -462,7 +427,7 @@ NSArray* moviePlayerKeys = nil;
         return nil;
     }
     
-    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];    
+    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];
     CGSize layerSize = CGSizeMake(layer.videoRect.size.width, layer.videoRect.size.height);
     
     UIImage* screenshot = [self takeScreenshotFromPlayer:layerSize andSpecifiedTime:CMTimeMakeWithSeconds(seconds, 1)];
@@ -474,6 +439,30 @@ NSArray* moviePlayerKeys = nil;
     
     TiBlob* result = [[TiBlob alloc] initWithImage:screenshot];
     return result;
+}
+
+-(void)setInitialPlaybackTime:(id)time
+{
+    ENSURE_UI_THREAD_1_ARG(time);
+    if (movie != nil) {
+        double ourTime = [TiUtils doubleValue:time];
+        if (ourTime > 0 || isnan(ourTime)) {
+            ourTime /= 1000.0f; // convert from milliseconds to seconds
+            
+            // Handle both setting this value on running videos and on creation
+            if(movie.player.status == AVPlayerItemStatusReadyToPlay) {
+                [movie.player seekToTime: CMTimeMake(ourTime, 1)];
+            } else {
+                // Set the time in the "load" event
+            }
+        }
+    }
+    [loadProperties setValue:time forKey:@"initialPlaybackTime"];
+}
+
+-(NSNumber*)initialPlaybackTime
+{
+    RETURN_FROM_LOAD_PROPERTIES(@"initialPlaybackTime", NUMINT(0));
 }
 
 -(void)setBackgroundColor:(id)color
@@ -551,8 +540,8 @@ NSArray* moviePlayerKeys = nil;
     CFRelease(cgIm);
     
     if (nil != error) {
-        NSLog(@"Error making screenshot: %@", [error localizedDescription]);
-        NSLog(@"Actual screenshot time: %f Requested screenshot time: %f", CMTimeGetSeconds(actualTime),
+        DebugLog(@"Error making screenshot!");
+        DebugLog(@"Actual screenshot time: %f Requested screenshot time: %f", CMTimeGetSeconds(actualTime),
               CMTimeGetSeconds(movie.player.currentTime));
         return nil;
     }
@@ -586,9 +575,36 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(void)setFullscreen:(id)value
+{
+    if (movie != nil && loaded) {
+        BOOL isFullscreen = [TiUtils boolValue:value];
+        sizeSet = YES;
+        TiThreadPerformOnMainThread(^{
+        
+            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];
+            [layer setBounds:[UIScreen mainScreen].bounds];
+        
+        }, NO);
+    }
+    
+    if ([value isEqual:[loadProperties valueForKey:@"fullscreen"]])
+    {
+        //This is to stop mutating loadProperties while configurePlayer.
+        return;
+    }
+    
+    // Movie players are picky.  You can't set the fullscreen value until
+    // the movie's size has been determined, so we always have to cache the value - just in case
+    // it's set before then.
+    if (!loaded || movie == nil) {
+        [loadProperties setValue:value forKey:@"fullscreen"];
+    }
+}
+
 -(NSNumber*)loadState
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"5.1.0", @"Please use Ti.Media.playbackState");
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"5.1.0", @"Please use Media.playbackState");
     return [self playbackState];
 }
 
@@ -824,6 +840,7 @@ NSArray* moviePlayerKeys = nil;
 		if ([self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
+            float initialPlaybackTime = [TiUtils floatValue:[loadProperties valueForKey:@"initialPlaybackTime"] def:0];
 			[vp movieLoaded];
             
             if ([self _hasListeners:@"load"]) {
@@ -832,6 +849,11 @@ NSArray* moviePlayerKeys = nil;
             
             if([self _hasListeners:@"preload"]) {
                 DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"5.1.0", @"Media.VideoPlayer.load");
+            }
+            
+            // Seek to the initial playback time if set
+            if(initialPlaybackTime > 0) {
+                [movie.player seekToTime:CMTimeMake(initialPlaybackTime, 1000)];
             }
             
             // Start the video if autoplay is enabled
