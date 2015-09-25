@@ -8,6 +8,7 @@ description: |
     Use the <Titanium.UI.createTabGroup> method or **`<TabGroup>`** Alloy element to create a tab group 
     that, in turn, contains one or more `<Tab>` elements.
     
+    You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically 
     switch to a specific tab using [setActiveTab](Titanium.UI.TabGroup.setActiveTab).
     
     #### Platform Implementation Notes
