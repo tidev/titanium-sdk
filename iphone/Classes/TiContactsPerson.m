@@ -62,7 +62,7 @@ static NSDictionary* iOS9propertyKeys;
 #endif
 -(void)dealloc
 {
-	RELEASE_TO_NIL(iOS9contactProperties)
+    RELEASE_TO_NIL(iOS9contactProperties)
 	[super dealloc];
 }
 
@@ -301,7 +301,8 @@ static NSDictionary* iOS9propertyKeys;
 }
 -(void)updateiOS9ContactProperties
 {
-	RELEASE_TO_NIL(iOS9contactProperties)
+    RELEASE_TO_NIL(iOS9contactProperties)
+	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
 #endif
@@ -354,7 +355,7 @@ static NSDictionary* iOS9propertyKeys;
 #if IS_XCODE_7
 -(NSDictionary*)dictionaryFromiOS9MultiValueArray:(NSArray *)property
 {
-	NSMutableDictionary *multiValueDict = [[NSMutableDictionary alloc] initWithCapacity:[property count]];
+	NSMutableDictionary *multiValueDict = [NSMutableDictionary dictionaryWithCapacity:[property count]];
 	for (CNLabeledValue *genericProperty in property) {
 		NSString *key = [[TiContactsPerson iOS9multiValueLabels] valueForKey:genericProperty.label];
 		if (key == nil) {
@@ -411,7 +412,6 @@ static NSDictionary* iOS9propertyKeys;
 		[multiValueDict setObject:labels forKey:key];
 	}
 	NSDictionary *result = [NSDictionary dictionaryWithDictionary:multiValueDict];
-	RELEASE_TO_NIL(multiValueDict);
 	return result;
 }
 #endif
@@ -492,6 +492,7 @@ static NSDictionary* iOS9propertyKeys;
 			RELEASE_TO_NIL(compositeName)
 			return nameStr;
 		}
+        RELEASE_TO_NIL(compositeName)
 		return @"No name";
 	}
 #endif
@@ -908,27 +909,27 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest deleteContact:person];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }

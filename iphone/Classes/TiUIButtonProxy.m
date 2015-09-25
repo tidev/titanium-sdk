@@ -62,36 +62,29 @@
 	return button;
 }
 
--(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+-(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	switch((int)styleCache)
+	switch ((int)styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
-			return 18;
 		case UITitaniumNativeItemDisclosure:
-			return 29;
+			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 		default: {
 			break;
 		}
 	}
-	return suggestedWidth;
+	return suggestedResizing;
 }
 
--(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+-(BOOL)optimizeSubviewInsertion
 {
-	switch((int)styleCache)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-			return 19;
-		case UITitaniumNativeItemDisclosure:
-			return 31;
-		default: {
-			break;
-		}
-	}
-	return suggestedHeight;
+    return YES;
+}
+
+-(UIView *) parentViewForChild:(TiViewProxy *)child
+{
+	return [(TiUIButton *)[self view] viewGroupWrapper];
 }
 
 -(void)removeBarButtonView

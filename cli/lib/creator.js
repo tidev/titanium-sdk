@@ -17,10 +17,12 @@ var appc = require('node-appc'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
+	i18n = appc.i18n(__dirname),
 	path = require('path'),
 	ti = require('titanium-sdk'),
 	wrench = require('wrench'),
-	__ = appc.i18n(__dirname).__;
+	__ = i18n.__,
+	__n = i18n.__n;
 
 /**
  * The base class for project creators (i.e. apps, modules).
@@ -342,8 +344,8 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 
 	return {
 		abbr: 'p',
-		default: !cli.argv.prompt && 'all' || undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-		desc: __('one or more target platforms:') + '\n\u2022 ' + appc.string.rpad(this.type + ':', 7) + (' [' + availablePlatforms.join(', ') + ']').grey,
+		default: !cli.argv.prompt ? 'all' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
+		desc: __('one or more target platforms.'),
 		order: order,
 		prompt: function (callback) {
 			callback(fields.text({
@@ -353,7 +355,9 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 			}));
 		},
 		required: true,
-		validate: validate
+		skipValueCheck: true,
+		validate: validate,
+		values: availablePlatforms
 	};
 };
 
@@ -491,7 +495,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
-	var template = this.cli.argv.template || 'default',
+	var template = this.cli.argv.template = this.cli.argv.template || 'default',
 		builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template),
 		searchPaths = [],
 		additionalPaths = this.config.get('paths.templates'),

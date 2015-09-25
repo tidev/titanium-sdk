@@ -104,7 +104,7 @@ methods:
       - name: id
         summary: Group identifier.
         type: String
-    since: "4.3.0"
+    since: "5.0.0"
     osver: {ios: {min: "9.0"}}
     
   - name: getPeopleWithName
@@ -137,7 +137,7 @@ methods:
       - name: id
         summary: Contact identifier.
         type: Number
-    since: "4.3.0"      
+    since: "5.0.0"      
     osver: {ios: {min: "9.0"}}
 
   - name: removeGroup

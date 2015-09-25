@@ -152,7 +152,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	RELEASE_TO_NIL(contactKeysWithImage)
 #if IS_XCODE_7
 	RELEASE_TO_NIL(contactStore)
-	RELEASE_TO_NIL(saveRequest)
+	saveRequest = nil;
 	RELEASE_TO_NIL(contactPicker)
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:CNContactStoreDidChangeNotification object:nil];
 #endif
@@ -301,7 +301,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
+		saveRequest = nil;
 		return;
 	}
 #endif
@@ -769,7 +769,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 #if IS_XCODE_7
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
-		RELEASE_TO_NIL(saveRequest)
+		saveRequest = nil;
 		saveRequest = [person getSaveRequestForDeletion];
 		return;
 	}
@@ -856,7 +856,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 #if IS_XCODE_7
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsGroup *group = arg;
-		RELEASE_TO_NIL(saveRequest)
+		saveRequest = nil;
 		saveRequest = [group getSaveRequestForDeletion];
 		return;
 	}
@@ -1053,7 +1053,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		}
 		if ([value isKindOfClass:[CNPostalAddress class]]) {
 			CNPostalAddress *address = value;
-			NSDictionary *addressDict = [[NSDictionary alloc] initWithObjectsAndKeys:address.street,@"Street",
+			NSDictionary *addressDict = [NSDictionary dictionaryWithObjectsAndKeys:address.street,@"Street",
 										 address.city,@"City",
 										 address.state,@"State",
 										 address.postalCode,@"PostalCode",
@@ -1063,7 +1063,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		}
 		if ([value isKindOfClass:[CNSocialProfile class]]) {
 			CNSocialProfile *profile = value;
-			NSDictionary *profileDict = [[NSDictionary alloc] initWithObjectsAndKeys:profile.service,@"service",
+			NSDictionary *profileDict = [NSDictionary dictionaryWithObjectsAndKeys:profile.service,@"service",
 										 profile.urlString,@"url",
 										 profile.userIdentifier,@"userIdentifier",
 										 profile.username,@"username", nil];
@@ -1075,7 +1075,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		}
 		if ([value isKindOfClass:[CNInstantMessageAddress class]]) {
 			CNInstantMessageAddress *im = value;
-			NSDictionary *imDict = [[NSDictionary alloc] initWithObjectsAndKeys:im.service,@"service",
+			NSDictionary *imDict = [NSDictionary dictionaryWithObjectsAndKeys:im.service,@"service",
 									im.username,@"username", nil];
 			result = imDict;
 		}

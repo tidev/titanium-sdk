@@ -16,6 +16,7 @@
     UIView* backgroundView;
 	WebFont * fontDesc;
 	UIColor * textColor;
+	UIColor * spinnerColor;
 	UILabel * messageLabel;
     BOOL _constraintsAdded;
 }

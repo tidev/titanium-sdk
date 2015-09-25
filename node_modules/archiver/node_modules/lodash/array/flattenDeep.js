@@ -10,8 +10,8 @@ var baseFlatten = require('../internal/baseFlatten');
  * @returns {Array} Returns the new flattened array.
  * @example
  *
- * _.flattenDeep([1, [2], [3, [[4]]]]);
- * // => [1, 2, 3, 4];
+ * _.flattenDeep([1, [2, 3, [4]]]);
+ * // => [1, 2, 3, 4]
  */
 function flattenDeep(array) {
   var length = array ? array.length : 0;

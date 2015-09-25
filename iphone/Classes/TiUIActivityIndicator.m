@@ -37,6 +37,7 @@
 	RELEASE_TO_NIL(messageLabel);
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
+	RELEASE_TO_NIL(spinnerColor);
 	[super dealloc];
 }
 
@@ -49,7 +50,11 @@
         //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
         //visible property of the ActivityIndicator (initialized to false)
         [indicatorView setHidesWhenStopped:NO];
-        [backgroundView addSubview:indicatorView];
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
+        [self setNeedsLayout];
+        [self addSubview:indicatorView];
     }
     return indicatorView;
 }

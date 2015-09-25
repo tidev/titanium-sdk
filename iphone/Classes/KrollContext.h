@@ -36,7 +36,9 @@
 	unsigned int loopCount;
 
 	BOOL destroyed;
+#ifndef __clang_analyzer__
 	BOOL suspended;
+#endif
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	void *debugger;

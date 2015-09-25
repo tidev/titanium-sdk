@@ -116,7 +116,7 @@ properties:
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
     type: [Number, Boolean]
     default: false
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: font
     summary: Font to use for the label text.
