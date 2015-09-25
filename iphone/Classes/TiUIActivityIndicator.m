@@ -53,8 +53,7 @@
         if(spinnerColor!=nil){
             [indicatorView setColor:spinnerColor];
         }
-        [self setNeedsLayout];
-        [self addSubview:indicatorView];
+        [backgroundView addSubview:indicatorView];
     }
     return indicatorView;
 }
@@ -164,6 +163,13 @@
 		[indicatorView setActivityIndicatorViewStyle:style];
 	}
 
+}
+
+-(void)setIndicatorColor_:(id)args
+{
+    UIColor* newColor = [[TiUtils colorValue:args] _color];
+    RELEASE_AND_REPLACE(spinnerColor, newColor);
+    [[self indicatorView] setColor:spinnerColor];
 }
 
 #define TI_VIEWS(...) NSDictionaryOfVariableBindings(__VA_ARGS__)

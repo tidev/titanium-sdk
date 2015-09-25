@@ -611,6 +611,16 @@ if (ENFORCE_BATCH_UPDATE) { \
 		[view configurationSet];
 		[view updateClipping];
 		viewInitialized = YES;
+#ifdef TI_USE_KROLL_THREAD
+        NSArray * childrenArray = [[self children] retain];
+        for (id child in childrenArray)
+        {
+            TiUIView *childView = [(TiViewProxy*)child view];
+            [self insertSubview:childView forProxy:child];
+        }
+        
+        [childrenArray release];
+#endif
         [self viewDidAttach];
 	}
     
