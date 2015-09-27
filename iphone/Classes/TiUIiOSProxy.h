@@ -133,5 +133,7 @@
 -(id)createTransitionAnimation:(id)args;
 #endif
 #endif
+
+-(id)createApplicationShortcuts:(id)args;
 @end
 

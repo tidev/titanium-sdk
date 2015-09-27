@@ -291,6 +291,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
         appBooted = YES;
+        if(launchedShortcutItem != nil){
+            [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+            launchedShortcutItem = nil;
+        }
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
@@ -880,11 +884,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
-	
-    if(launchedShortcutItem != nil){
-        [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-        launchedShortcutItem = nil;
-    }
     
 	// resume any image loading
 	[[ImageLoader sharedLoader] resume];
@@ -1171,18 +1170,15 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     }
     
     NSMutableDictionary *dict = [NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:shortcutItem.type,@"shortcutType",                                 nil];
+                                 dictionaryWithObjectsAndKeys:shortcutItem.type,@"type",
+                                 nil];
     
     if (shortcutItem.localizedTitle !=nil) {
         [dict setObject:shortcutItem.localizedTitle forKey:@"title" ];
     }
     
     if (shortcutItem.localizedSubtitle !=nil) {
-        [dict setObject:shortcutItem.localizedSubtitle forKey:@"subTitle" ];
-    }
-    
-    if(shortcutItem.userInfo !=nil){
-        [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
+        [dict setObject:shortcutItem.localizedSubtitle forKey:@"subtitle" ];
     }
     
     if(shortcutItem.userInfo !=nil){
@@ -1195,7 +1191,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
                                                             object:self userInfo:dict];
     }else{
         if(bootWait){
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
                                                                     object:self userInfo:dict];
             });

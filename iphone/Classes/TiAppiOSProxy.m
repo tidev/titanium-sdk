@@ -97,7 +97,7 @@
     }
     
     if([TiUtils isIOS9OrGreater]){
-        if ((count == 1) && [type isEqual:@"performactionforshortcutitem"]) {
+        if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
              (didReceiveApplicationShortcutNotification:) name:kTiApplicationShortcut object:nil];
         }
@@ -155,7 +155,7 @@
     }
     
     if([TiUtils isIOS9OrGreater]){
-        if ((count == 1) && [type isEqual:@"performactionforshortcutitem"]) {
+        if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
         }
     }
@@ -167,7 +167,7 @@
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
-    [self fireEvent:@"performactionforshortcutitem" withObject:[info userInfo]];
+    [self fireEvent:@"shortcutitemclick" withObject:[info userInfo]];
 }
 
 -(id)createSearchableIndex:(id)unused
