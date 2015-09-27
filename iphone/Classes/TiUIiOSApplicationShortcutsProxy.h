@@ -6,7 +6,8 @@
  */
 #import "TiProxy.h"
 
-
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 @interface TiUIiOSApplicationShortcutsProxy : TiProxy {}
 
 @end
+#endif

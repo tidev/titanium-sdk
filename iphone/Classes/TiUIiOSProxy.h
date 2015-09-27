@@ -134,6 +134,8 @@
 #endif
 #endif
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
+#endif
 @end
 

@@ -71,7 +71,9 @@
 #endif
 #endif
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
+#endif
 
 @implementation TiUIiOSProxy
 
@@ -457,6 +459,12 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 
 #endif
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+
+-(id)createApplicationShortcuts:(id)args
+{
+    return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE,UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY,UIApplicationShortcutIconTypePlay);
@@ -493,10 +501,8 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
 
 #endif
 
--(id)createApplicationShortcuts:(id)args
-{
-    return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
+
+#endif
 
 @end
 

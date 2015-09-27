@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #import "TiUtils.h"
 @implementation TiUIiOSApplicationShortcutsProxy
@@ -183,3 +184,4 @@
 }
 
 @end
+#endif
