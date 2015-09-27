@@ -383,6 +383,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
 	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
 	
+    
     [launchOptions setObject:NUMBOOL([[launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey] boolValue]) forKey:@"launchOptionsLocationKey"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
     
@@ -404,6 +405,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
+    
+    
+    UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+    
+    if(shortcut !=nil){
+        launchedShortcutItem = shortcut;
+    }
+    
     [self launchToUrl];
 	[self boot];
     [self createDefaultDirectories];
@@ -872,6 +881,11 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
 	
+    if(launchedShortcutItem != nil){
+        [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+        launchedShortcutItem = nil;
+    }
+    
 	// resume any image loading
 	[[ImageLoader sharedLoader] resume];
 }
@@ -1145,6 +1159,60 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
+}
+
+-(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
+ waitForBootIfNotLaunched:(BOOL) bootWait {
+    
+    
+    if(shortcutItem.type == nil){
+        NSLog(@"[ERROR] shortcut type required skipping this selection");
+        return NO;
+    }
+    
+    NSMutableDictionary *dict = [NSMutableDictionary
+                                 dictionaryWithObjectsAndKeys:shortcutItem.type,@"shortcutType",                                 nil];
+    
+    if (shortcutItem.localizedTitle !=nil) {
+        [dict setObject:shortcutItem.localizedTitle forKey:@"title" ];
+    }
+    
+    if (shortcutItem.localizedSubtitle !=nil) {
+        [dict setObject:shortcutItem.localizedSubtitle forKey:@"subTitle" ];
+    }
+    
+    if(shortcutItem.userInfo !=nil){
+        [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
+    }
+    
+    if(shortcutItem.userInfo !=nil){
+        [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
+    }
+    
+    //Fire event
+    if (appBooted){
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
+                                                            object:self userInfo:dict];
+    }else{
+        if(bootWait){
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
+                                                                    object:self userInfo:dict];
+            });
+        }
+    }
+    
+    return YES;
+}
+
+- (void)application:(UIApplication *)application
+performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
+  completionHandler:(void (^)(BOOL succeeded))completionHandler
+{
+    
+    BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem waitForBootIfNotLaunched:NO];
+    completionHandler(handledShortCutItem);
+    
 }
 
 -(void)registerBackgroundService:(TiProxy*)proxy

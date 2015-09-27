@@ -64,6 +64,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
+    UIApplicationShortcutItem *launchedShortcutItem;
 }
 
 @property (nonatomic) BOOL forceSplashAsSnapshot;
