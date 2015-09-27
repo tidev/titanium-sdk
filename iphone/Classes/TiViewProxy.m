@@ -14,8 +14,9 @@
 #import "TiStylesheet.h"
 #import "TiLocale.h"
 #import "TiUIView.h"
+#import "TiWindowProxy.h"
 #import "TiApp.h"
-
+#import "TiPreviewingDelegate.h"
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
@@ -1220,6 +1221,29 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(BOOL)windowHasOpened
 {
 	return windowOpened;
+}
+
+-(void)setPreviewWindow:(id)window
+{
+#if IS_XCODE_7
+    if([TiUtils isIOS9OrGreater] == NO) {
+        NSLog(@"[WARN] This API is only available on iOS9 and later.");
+        return;
+    }
+    
+    if([TiUtils forceTouchSupported] == NO) {
+        NSLog(@"[WARN] 3DTouch is not available on this device.");
+        return;
+    }
+    
+    ENSURE_SINGLE_ARG(window, TiWindowProxy);
+    [window rememberSelf];
+    
+    UIViewController *controller = [[TiApp app] controller];
+    TiPreviewingDelegate* delegate = [[TiPreviewingDelegate alloc] initWithWindowProxy:window andSourceView:self];
+        
+    [controller registerForPreviewingWithDelegate:delegate sourceView:[controller view]];
+#endif
 }
 
 -(BOOL)windowIsOpening

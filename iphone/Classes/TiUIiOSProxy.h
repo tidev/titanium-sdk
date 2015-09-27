@@ -30,6 +30,12 @@
 @property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_NORMAL;
 #endif
 
+#ifdef USE_TI_UIIOSPREVIEWACTION
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
+#endif
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
@@ -131,6 +137,9 @@
 #endif
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
+#endif
+#ifdef USE_TI_UIIOSPREVIEWACTION
+-(id)createPreviewAction:(id)args;
 #endif
 #endif
 @end

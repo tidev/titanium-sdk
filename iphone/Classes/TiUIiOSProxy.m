@@ -69,6 +69,9 @@
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
 #endif
+#ifdef USE_TI_UIIOSPREVIEWACTION
+#import "TiUIiOSPreviewActionProxy.h"
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -124,6 +127,31 @@
     return nil;
 }
 #endif
+
+#ifdef USE_TI_UIIOSPREVIEWACTION
+-(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
+{
+    if([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleDefault);
+    }
+    return nil;
+}
+-(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
+{
+    if([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleDestructive);
+    }
+    return nil;
+}
+-(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
+{
+    if([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleSelected);
+    }
+    return nil;
+}
+#endif
+
 
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
@@ -317,6 +345,14 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#ifdef USE_TI_UIIOSPREVIEWACTION
+-(id)createPreviewAction:(id)args
+{
+    return [[[TiUIiOSPreviewActionProxy alloc] initWithArguments:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {

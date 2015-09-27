@@ -20,6 +20,16 @@
     return self;
 }
 
+-(NSArray<id<UIPreviewActionItem>> *)previewActionItems
+{
+    return actionItems;
+}
+
+-(void)setActionItems:(NSArray<id<UIPreviewActionItem>> *)actions
+{
+    actionItems = actions;
+}
+
 -(void)dealloc
 {
     [super dealloc];
