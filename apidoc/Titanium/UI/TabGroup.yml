@@ -158,6 +158,7 @@ events:
         The application needs to monitor the <Titanium.App.pause> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
 
+
     properties:
       - name: index
         summary: |
@@ -182,7 +183,6 @@ events:
             the previous tab.
         type: Titanium.UI.Tab
 
-
   - name: close
     summary: Fired when the tab group is closed.
     platforms: [iphone, ipad, mobileweb]
@@ -204,6 +204,10 @@ events:
         since: "5.1.0"
         summary: Use selected instead.
 
+        deprecated:
+          since: "5.1.0"
+          notes: Use selected instead.
+
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -221,17 +225,16 @@ events:
         summary: Previous active tab.
         type: Titanium.UI.Tab
 
-  - name: selected
-    summary: |
-        Fired when this tab is selected. on Android , fired when the tab is
-        currently selected.
-    description: |
-        On Android, this event also fires when the activity enters the foreground
-        (after the activity enters the resume state).
-
-        On iOS, this event does not fire after the application returns to the foreground
-        if it was previously backgrounded.
-        See <Titanium.App> for more information on the iOS application lifecycle.
+- name: selected
+  summary: |
+      Fired when this tab is selected. on Android , fired when the tab is
+      currently selected.
+  description: |
+      On Android, this event also fires when the activity enters the foreground
+      (after the activity enters the resume state).
+      On iOS, this event does not fire after the application returns to the foreground
+      if it was previously backgrounded.
+      See <Titanium.App> for more information on the iOS application lifecycle.
 
     properties:
       - name: index
