@@ -126,7 +126,7 @@ DEFINE_EXCEPTIONS
     }
     
     if ([self.proxy _hasListeners:@"blur"]) {
-        DEPRECATED_REPLACED(@"UI.TabGroup.Event:blur" ,@"5.1.0",@"UI.TabGroup.Event.unselected")
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.blur" ,@"5.1.0",@"UI.TabGroup.Event.unselected")
         [self.proxy fireEvent:@"blur" withObject:event];
     }
     
@@ -145,7 +145,7 @@ DEFINE_EXCEPTIONS
         }
         
         if ([self.proxy _hasListeners:@"focus"]){
-            DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event:selected")
+            DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
             [self.proxy fireEvent:@"focus" withObject:event];
         }
 	}
@@ -624,7 +624,7 @@ DEFINE_EXCEPTIONS
     }
 
     if ([self.proxy _hasListeners:@"focus"]){
-        DEPRECATED_REPLACED(@"UI.TabGroup.Event:focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
         [self.proxy fireEvent:@"focus" withObject:event];
     }
     
