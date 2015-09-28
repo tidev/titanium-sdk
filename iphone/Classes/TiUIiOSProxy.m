@@ -131,23 +131,29 @@
 #ifdef USE_TI_UIIOSPREVIEWACTION
 -(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
 {
+#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDefault);
     }
+#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
+#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDestructive);
     }
+#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
 {
+#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleSelected);
     }
+#endif
     return nil;
 }
 #endif
@@ -346,11 +352,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 }
 #endif
 
+#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWACTION
 -(id)createPreviewAction:(id)args
 {
     return [[[TiUIiOSPreviewActionProxy alloc] initWithArguments:args] autorelease];
 }
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR

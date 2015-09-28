@@ -17,6 +17,9 @@
 
 -(id)initWithViewProxy:(TiViewProxy*)window;
 -(TiViewProxy*) proxy;
+
+#if IS_XCODE_7
 -(void)setActionItems:(NSArray<id<UIPreviewActionItem>> *)actions;
+#endif
 
 @end
