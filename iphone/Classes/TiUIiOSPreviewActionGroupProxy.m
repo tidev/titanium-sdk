@@ -14,7 +14,7 @@
 {
     [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
     [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
-    [self setActions:[[NSMutableArray alloc] init]];
+    [self setActions:[NSMutableArray array]];
     
     int index = 0;
     

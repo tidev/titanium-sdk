@@ -16,6 +16,7 @@
 #import "TiUIView.h"
 #import "TiWindowProxy.h"
 #import "TiApp.h"
+#import "TiUIiOSPreviewContextProxy.h"
 #import "TiPreviewingDelegate.h"
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -1223,7 +1224,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	return windowOpened;
 }
 
--(void)setPreviewWindow:(id)window
+-(void)setPreviewContext:(id)context
 {
 #if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == NO) {
@@ -1236,13 +1237,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         return;
     }
     
-    ENSURE_SINGLE_ARG(window, TiWindowProxy);
-    [window rememberSelf];
+    ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
     
-    UIViewController *controller = [[TiApp app] controller];
-    TiPreviewingDelegate* delegate = [[TiPreviewingDelegate alloc] initWithWindowProxy:window andSourceView:self];
-        
-    [controller registerForPreviewingWithDelegate:delegate sourceView:[controller view]];
+    [context setSourceView:self];
+    [context connectToDelegate];
 #endif
 }
 

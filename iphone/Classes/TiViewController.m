@@ -28,12 +28,13 @@
 
 -(void)setActionItems:(NSArray<id<UIPreviewActionItem>> *)actions
 {
-    actionItems = actions;
+    RELEASE_AND_REPLACE(actionItems, actions);
 }
 #endif
 
 -(void)dealloc
 {
+    RELEASE_TO_NIL(actionItems);
     [super dealloc];
 }
 

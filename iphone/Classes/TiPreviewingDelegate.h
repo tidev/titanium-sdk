@@ -11,15 +11,21 @@
 #import "TiWindowProxy.h"
 #import "TiViewController.h"
 #import "TiViewProxy.h"
+#import "TiUIiOSPreviewContextProxy.h"
 #import "TiUIiOSPreviewActionProxy.h"
 #import "TiUIiOSPreviewActionGroupProxy.h"
 
-@interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
+@class TiUIiOSPreviewContextProxy;
 
+@interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
+{
+    
+}
 @property(nonatomic, assign) TiWindowProxy* proxy;
 @property(nonatomic, assign) TiViewProxy* sourceView;
+@property(nonatomic, retain) NSArray* actions;
 
--(instancetype)initWithWindowProxy:(TiWindowProxy*)proxy andSourceView:(TiViewProxy*)sourceView;
+- (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
 
 @end
 #endif

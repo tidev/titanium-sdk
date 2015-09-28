@@ -10,13 +10,14 @@
 #import "TiPreviewingDelegate.h"
 
 @implementation TiPreviewingDelegate
-@synthesize proxy = _proxy, sourceView = _sourceView;
+@synthesize proxy = _proxy, sourceView = _sourceView, actions = _actions;
 
--(instancetype)initWithWindowProxy:(TiWindowProxy *)proxy andSourceView:(TiViewProxy*)sourceView
+-(instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext
 {
     if (self = [self init]) {
-        _proxy = proxy;
-        _sourceView = sourceView;
+        _proxy = [previewContext window];
+        _sourceView = [previewContext sourceView];
+        _actions = [previewContext actions];
     }
     
     return self;
@@ -29,6 +30,7 @@
     
     RELEASE_TO_NIL(_proxy);
     RELEASE_TO_NIL(_sourceView);
+    RELEASE_TO_NIL(_actions);
     
     [super dealloc];
 }
@@ -38,27 +40,31 @@
     [_proxy open:@[@{@"modal" : NUMBOOL(YES), @"animated" : NUMBOOL(NO)}]];
 }
 
-- (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location {
+- (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
+{
     
     TiViewController *controller = (TiViewController*)[_proxy hostingController];
     
     [_proxy windowWillOpen];
     
-    // controller.preferredContentSize = CGSizeMake(0, 300);
+    //controller.preferredContentSize = CGSizeMake(0, 300);
     previewingContext.sourceRect = _sourceView.view.frame;
     
-    NSMutableArray *result = [[NSMutableArray alloc] init];
+    NSMutableArray *result = [NSMutableArray array];
     int index = 0;
     
-    for(id item in [_sourceView valueForUndefinedKey:@"previewActions"]) {
-        if([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
+    for (id item in _actions) {
+        if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
             [item setActionIndex:index];
             [result addObject:[item action]];
-        } else if([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
+
+            index++;
+        } else if ([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
             [item setActionGroupIndex:index];
             [result addObject:[item group]];
+
+            index++;
         }
-        index++;
     }
 
     [controller setActionItems:result];
