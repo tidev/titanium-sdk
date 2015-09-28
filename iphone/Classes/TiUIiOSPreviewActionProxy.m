@@ -43,11 +43,11 @@
 
 -(void)fireEventWithAction:(UIPreviewAction*)action
 {
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMINT([self actionIndex]), @"index",
-                           [self title], @"title",
-                           NUMINT([self style]), @"style",
-                           nil];
+    NSDictionary *event = @{
+        @"index" : NUMINT([self actionIndex]),
+        @"title" : [self title],
+        @"style" : NUMINT([self style])
+    };
     
     [self fireEvent:@"click" withObject:event];
 }

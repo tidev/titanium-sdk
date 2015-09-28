@@ -18,9 +18,7 @@
 @class TiUIiOSPreviewContextProxy;
 
 @interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
-{
-    
-}
+
 @property(nonatomic, assign) TiWindowProxy* proxy;
 @property(nonatomic, assign) TiViewProxy* sourceView;
 @property(nonatomic, retain) NSArray* actions;
