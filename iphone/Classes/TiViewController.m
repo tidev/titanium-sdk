@@ -20,6 +20,7 @@
     return self;
 }
 
+#if IS_XCODE_7
 -(NSArray<id<UIPreviewActionItem>> *)previewActionItems
 {
     return actionItems;
@@ -29,6 +30,7 @@
 {
     actionItems = actions;
 }
+#endif
 
 -(void)dealloc
 {

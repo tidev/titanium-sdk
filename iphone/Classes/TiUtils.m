@@ -1934,7 +1934,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 #else
-    return NO
+    return NO;
 #endif
 }
 
