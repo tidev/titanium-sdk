@@ -50,9 +50,14 @@
     NSMutableArray *result = [[NSMutableArray alloc] init];
     int index = 0;
     
-    for(TiUIiOSPreviewActionProxy *currentAction in [_sourceView valueForUndefinedKey:@"previewActions"]) {
-        [currentAction setActionIndex:index];
-        [result addObject:[currentAction action]];
+    for(id item in [_sourceView valueForUndefinedKey:@"previewActions"]) {
+        if([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
+            [item setActionIndex:index];
+            [result addObject:[item action]];
+        } else if([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
+            [item setActionGroupIndex:index];
+            [result addObject:[item group]];
+        }
         index++;
     }
 

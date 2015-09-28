@@ -72,6 +72,9 @@
 #ifdef USE_TI_UIIOSPREVIEWACTION
 #import "TiUIiOSPreviewActionProxy.h"
 #endif
+#ifdef USE_TI_UIIOSPREVIEWACTIONGROUP
+#import "TiUIiOSPreviewActionGroupProxy.h"
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -356,7 +359,14 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 #ifdef USE_TI_UIIOSPREVIEWACTION
 -(id)createPreviewAction:(id)args
 {
-    return [[[TiUIiOSPreviewActionProxy alloc] initWithArguments:args] autorelease];
+    return [[[TiUIiOSPreviewActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSPREVIEWACTIONGROUP
+-(id)createPreviewActionGroup:(id)args
+{
+    return [[[TiUIiOSPreviewActionGroupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #endif

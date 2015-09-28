@@ -11,21 +11,22 @@
 @interface TiUIiOSPreviewActionProxy : TiViewProxy
 {
     UIPreviewAction *action;
-    NSString *title;
-    UIPreviewActionStyle style;
 }
 
 /**
     The index of the action inside the previewing context.
  */
-@property(nonatomic,assign) int actionIndex;
+@property(nonatomic) int actionIndex;
 
 /**
-    Initializes a new preview action proxy.
-    @param args The title and style of the action.
-    @return The configured proxy.
+    The style of the preview action
  */
--(instancetype)initWithArguments:(id)args;
+@property(nonatomic) UIPreviewActionStyle style;
+
+/**
+    The title of the preview action
+ */
+@property(nonatomic, retain) NSString *title;
 
 /**
     Returns a configured preview action.

@@ -9,17 +9,13 @@
 #import "TiUIiOSPreviewActionProxy.h"
 
 @implementation TiUIiOSPreviewActionProxy
-@synthesize actionIndex = _actionIndex;
 
--(instancetype)initWithArguments:(id)args
+-(void)_initWithProperties:(NSDictionary *)properties
 {
-    if (self = [self init])
-    {
-        title = [[NSString alloc] initWithString:[[args valueForKey:@"title"] objectAtIndex:0]];
-        style = [TiUtils intValue:[[args valueForKey:@"style"] objectAtIndex:0] def:0];
-    }
+    [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
+    [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
     
-    return self;
+    [super _initWithProperties:properties];
 }
                   
 -(void)dealloc
@@ -36,21 +32,21 @@
 
 -(UIPreviewAction*)action
 {
-    UIPreviewAction *result = [UIPreviewAction actionWithTitle:title style:style handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
+    action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
         if([self _hasListeners:@"click"]) {
             [self fireEventWithAction:_action];
         }
     }];
     
-    return result;
+    return action;
 }
 
 -(void)fireEventWithAction:(UIPreviewAction*)action
 {
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMINT(_actionIndex), @"index",
-                           title, @"title",
-                           NUMINT(style), @"style",
+                           NUMINT([self actionIndex]), @"index",
+                           [self title], @"title",
+                           NUMINT([self style]), @"style",
                            nil];
     
     [self fireEvent:@"click" withObject:event];

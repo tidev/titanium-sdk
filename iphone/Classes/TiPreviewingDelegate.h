@@ -12,6 +12,7 @@
 #import "TiViewController.h"
 #import "TiViewProxy.h"
 #import "TiUIiOSPreviewActionProxy.h"
+#import "TiUIiOSPreviewActionGroupProxy.h"
 
 @interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
 
