@@ -72,16 +72,15 @@
 
 -(BOOL)typeContained:(NSString*)type
 {
-    BOOL found = NO;
     UIApplicationShortcutItem *item;
     NSArray * shortcuts = [UIApplication sharedApplication].shortcutItems;
     for (item in shortcuts) {
         if([item.type isEqualToString:type]) {
-            found = YES;
+            return YES;
         }
     }
     
-    return found;
+    return NO;
 }
 
 -(NSNumber*) dynamicShortcutExists:(id)args
@@ -105,7 +104,8 @@
         return;
     }
     
-    id key = [args objectForKey:@"type"];
+    
+    NSString* key = [TiUtils stringValue:@"type" properties:args];
     
     if([self typeContained:key]==NO) {
         return;
@@ -113,15 +113,13 @@
     
     NSMutableArray * shortcuts = (NSMutableArray*)[UIApplication sharedApplication].shortcutItems;
     UIApplicationShortcutItem *item;
-    NSMutableArray *discardedItems = [NSMutableArray array];
     
     for (item in shortcuts) {
-        if (item.type == key) {
-            [discardedItems addObject:item];
+        if([item.type isEqualToString:key]) {
+            [shortcuts removeObject:item];
         }
     }
     
-    [shortcuts removeObjectsInArray:discardedItems];
     [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
