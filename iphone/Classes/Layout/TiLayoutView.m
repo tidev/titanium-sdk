@@ -842,7 +842,7 @@ DEFINE_EXCEPTIONS
     TiDimension bottom = childConstraints->bottom;
     
     TiDimension width = childConstraints->width;
-    //TiDimension height = childConstraints->height;
+    TiDimension height = childConstraints->height;
     
     // ========= Ti.UI.FILL ============
     if (IS_AUTOFILL(width) || (IS_UNDEFINED(width) && IS_AUTOFILL(child->_defaultWidth))) {
@@ -905,11 +905,11 @@ DEFINE_EXCEPTIONS
         [self addConstraints: TI_CONSTR( TI_STRING(@"V:[prev]-(%f)-[child]",(topValue+prevBottomValue)), viewsDict2)];
         
         
-        if (next == nil) // last one
+        if (next == nil && (IS_AUTOFILL(height) || (IS_UNDEFINED(height) && IS_AUTOFILL(child->_defaultHeight)))) // last one
         {
-            [self addConstraints: TI_CONSTR( TI_STRING(@"V:[child]-(>=%f)-|",(bottomValue)), viewsDict2)];
+            [self addConstraints: TI_CONSTR( TI_STRING(@"V:[child]-(%f)-|",(bottomValue)), viewsDict2)];
         } else {
-            [self removeConstraints: TI_CONSTR(@"V:[child]-(>=0)-|", viewsDict2)];
+            [self removeConstraints: TI_CONSTR(@"V:[child]-(0)-|", viewsDict2)];
         }
     }
 

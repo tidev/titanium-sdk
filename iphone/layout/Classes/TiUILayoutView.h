@@ -5,6 +5,7 @@
 //  Created by Pedro Enrique on 8/24/15.
 //  Copyright © 2015 Pedro Enrique. All rights reserved.
 //
+#if 0
 
 #import <UIKit/UIKit.h>
 
@@ -27,3 +28,4 @@ struct TiDimension;
 
 -(NSString*)viewName;
 @end
+#endif

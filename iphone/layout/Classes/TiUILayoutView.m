@@ -6,6 +6,7 @@
 //  Copyright © 2015 Pedro Enrique. All rights reserved.
 //
 
+#if 0
 #import "TiUILayoutView.h"
 #import "TiDimension.h"
 
@@ -395,3 +396,4 @@ static void TiLayoutRemoveConstraint(UIView* view, NSArray* constraints)
     }
     
 }
+#endif

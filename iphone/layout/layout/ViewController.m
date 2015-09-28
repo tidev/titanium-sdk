@@ -13,44 +13,21 @@
 #import "TiToolbar.h"
 #import "TiUtils.h"
 #import "TiLabel.h"
+#import "TiButton.h"
 
-
-#import "TiUILayoutView.h"
+#define width @"width"
+#define height @"height"
+#define top @"top"
+#define bottom @"bottom"
+#define left @"left"
+#define right @"right"
+#define layout @"layout"
+#define FILL @"FILL"
+#define SIZE @"SIZE"
 
 static NSMutableArray* viewControllers = nil;
 
-@interface TiButton : TiLayoutView
-@property (nonatomic) UIButton* button;
-@property(nonatomic, copy) void (^onClick)(TiButton* sender);
 
-@end
-
-@implementation TiButton
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        _button = [[UIButton alloc] init];
-        [_button setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [_button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        [self addSubview:_button];
-        
-        [self setDefaultHeight:TiDimensionFromObject(@"SIZE")];
-        [self setDefaultWidth:TiDimensionFromObject(@"SIZE")];
-        
-        [self setInnerView:_button];
-        [_button addTarget:self action:@selector(onButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    return self;
-}
--(void)onButtonClick:(id)sender
-{
-    if (_onClick != nil) {
-        _onClick(self);
-    }
-}
-@end
 
 @interface ViewController ()
 {
@@ -79,12 +56,11 @@ static NSMutableArray* viewControllers = nil;
 
     [super loadView];
     UIView* view = [self view];
-    [view setBackgroundColor:[UIColor lightGrayColor]];
+    [view setBackgroundColor:[UIColor whiteColor]];
     
-//    contentView = [[TiLayoutView alloc] init];
-//    contentView.viewName = @"BackgroundView";
-//    [view addSubview:contentView];
-//    [self setView:view];
+    contentView = [[TiLayoutView alloc] init];
+    contentView.viewName = @"contentView";
+    [view addSubview:contentView];
 }
 
 -(void)onTimer:(id)sender
@@ -99,38 +75,35 @@ static NSMutableArray* viewControllers = nil;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    UIView* cell = [[UIView alloc] init];
-    cell.backgroundColor = [UIColor whiteColor];
-    TiLayoutView* parentView = [[TiLayoutView alloc] init];
-    parentView.height = @"SIZE";
-    {
-        TiLabel* label = [[TiLabel alloc] init];
-        label.top = @20;
-        label.left = @20;
-        label.right = @20;
-        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"];
-        [parentView addSubview:label];
-    }
-    {
-        TiLabel* label = [[TiLabel alloc] init];
-        label.top = @200;
-        label.left = @20;
-        label.bottom = @10;
-        label.right = @20;
-        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt, Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"];
-        [parentView addSubview:label];
-    }
-    
-    [cell addSubview:parentView];
-    [cell setBounds: CGRectMake(0.0f, 0.0f, 200, [[UIScreen mainScreen] bounds].size.height)];
-    [cell setNeedsLayout];
-    [cell layoutIfNeeded];
-    CGSize s = [cell systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-    NSLog(@"Rect %@", NSStringFromCGSize(cell.frame.size));
-    [cell setFrame:CGRectMake(0, 0, 200, s.height)];
-    cell.center = self.view.center;
-    [[self view] addSubview:cell];
+//    
+//    TiLayoutView* w = [[TiLayoutView alloc] initWithProperties:@{width:@320, height:@480, layout:@"vertical"}];
+//    
+//        TiLabel* label = [[TiLabel alloc] init];
+//        [label setLeft_:@10];
+//        [label setRight_:@10];
+//        [label setTop_:@10];
+//        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique lectus nec ex venenatis, eu molestie augue posuere"];
+//        [label setBackgroundColor:[UIColor redColor]];
+//        [label setViewName:@"label"];
+//        
+//        TiLayoutView* otherView = [[TiLayoutView alloc] init];
+//        [otherView setBackgroundColor:[UIColor darkGrayColor]];
+//        [otherView setViewName:@"otherView"];
+//        
+//        [w addSubview:label];
+//        [w addSubview:otherView];
+//    
+//        
+//        [w setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
+//        }];
+//        [label setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
+//        }];
+//        [otherView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
+//        }];
+//    [contentView addSubview:w];
     
     /*
      TiToolbar* toolbar = [[TiToolbar alloc] init];

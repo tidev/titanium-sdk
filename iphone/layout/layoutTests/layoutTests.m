@@ -42,6 +42,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [super setUp];
     ViewController* controller = (ViewController*)[[[UIApplication sharedApplication] keyWindow] rootViewController];
     myView = [controller contentView];
+    [myView setLayout:@"absolute"];
 }
 
 - (void)tearDown {
@@ -443,6 +444,47 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [myView addSubview:view];
     WAIT_FOR(done)
     
+}
+
+-(void)test_VerticalLayoutFillSizeLast
+{
+    __block BOOL done1 = NO;
+    __block BOOL done2 = NO;
+
+    TiLabel* label = [[TiLabel alloc] init];
+    [label setLeft_:@10];
+    [label setRight_:@10];
+    [label setTop_:@10];
+    [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique lectus nec ex venenatis, eu molestie augue posuere"];
+    [label setBackgroundColor:[UIColor redColor]];
+    [label setViewName:@"label"];
+    
+    TiLayoutView* otherView = [[TiLayoutView alloc] init];
+    [otherView setBackgroundColor:[UIColor darkGrayColor]];
+    [otherView setViewName:@"otherView"];
+    
+    
+    [label setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqualWithAccuracy(rect.origin.x, 10, 2);
+        XCTAssertEqualWithAccuracy(rect.origin.y, 10, 2);
+        XCTAssertEqualWithAccuracy(rect.size.width, 300, 2);
+        XCTAssertEqualWithAccuracy(rect.size.height, 81, 2);
+        done1 = YES;
+    }];
+    [otherView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqualWithAccuracy(rect.origin.x, 0, 2);
+        XCTAssertEqualWithAccuracy(rect.origin.y, 91, 2);
+        XCTAssertEqualWithAccuracy(rect.size.width, 320, 2);
+        XCTAssertEqualWithAccuracy(rect.size.height, 388, 2);
+        done2 = YES;
+    }];
+
+    TiLayoutView* window = createWindow(myView);
+    [window setLayout_:@"vertical"];
+    [window addSubview:label];
+    [window addSubview:otherView];
+    
+    WAIT_FOR((done1 && done2));
 }
 
 /**
