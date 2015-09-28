@@ -613,7 +613,7 @@ DEFINE_EXCEPTIONS
 	{
 		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",[NSNull null],@"previousTab",nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
        [self.proxy fireEvent:@"selected" withObject:event];
 
     if ([self.proxy _hasListeners:@"focus"]){
