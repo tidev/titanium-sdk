@@ -292,7 +292,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		fflush(stderr);
         appBooted = YES;
 #if IS_XCODE_7
-        if(launchedShortcutItem != nil){
+        if(launchedShortcutItem != nil) {
             [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
             launchedShortcutItem = nil;
         }
@@ -415,7 +415,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #if IS_XCODE_7
     UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
     
-    if(shortcut !=nil){
+    if(shortcut !=nil) {
         launchedShortcutItem = shortcut;
     }
 #endif
@@ -1168,8 +1168,8 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
  waitForBootIfNotLaunched:(BOOL) bootWait {
     
     
-    if(shortcutItem.type == nil){
-        NSLog(@"[ERROR] shortcut type required skipping this selection");
+    if(shortcutItem.type == nil) {
+        NSLog(@"[ERROR] The shortcut type property is required");
         return NO;
     }
     
@@ -1185,16 +1185,15 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
         [dict setObject:shortcutItem.localizedSubtitle forKey:@"subtitle" ];
     }
     
-    if(shortcutItem.userInfo !=nil){
+    if(shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
     
-    //Fire event
-    if (appBooted){
+    if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
                                                             object:self userInfo:dict];
-    }else{
-        if(bootWait){
+    } else {
+        if(bootWait) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
                                                                     object:self userInfo:dict];
