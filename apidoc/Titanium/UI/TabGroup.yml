@@ -120,7 +120,7 @@ events:
 
     deprecated:
         since: "5.1.0"
-        summary: Use unselected instead.
+        Notes: Use unselected instead.
 
     properties:
       - name: index
@@ -200,7 +200,7 @@ events:
 
     deprecated:
         since: "5.1.0"
-        summary: Use selected instead.
+        Notes: Use selected instead.
 
     properties:
       - name: index
