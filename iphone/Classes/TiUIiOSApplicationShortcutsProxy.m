@@ -59,7 +59,18 @@
 
 -(NSArray*)listStaticShortcuts:(id)unused
 {
-    return [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
+    NSMutableArray *placeHolder = [[[NSMutableArray alloc] init] autorelease];
+    
+    NSArray *shortcuts = [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
+    
+    if(shortcuts == nil){
+        return placeHolder;
+    }
+    
+    if([shortcuts count] == 0){
+        return placeHolder;
+    }
+    return shortcuts;
 }
 
 -(BOOL)typeContained:(NSString*)type
@@ -133,7 +144,8 @@
     }
     
     if([self typeContained:[args objectForKey:@"type"]]){
-        NSLog(@"[ERROR] type %@ already exists. The type field must be unique",[args objectForKey:@"type"]);
+        NSLog(@"[ERROR] The shortcutitem type %@ already exists. This field must be unique.",
+              [args objectForKey:@"type"]);
         return;
     }
     
