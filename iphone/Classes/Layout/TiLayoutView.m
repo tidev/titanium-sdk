@@ -903,14 +903,12 @@ DEFINE_EXCEPTIONS
         
         CGFloat prevBottomValue = TiDimensionCalculateValue(prevBottom, 1);
         [self addConstraints: TI_CONSTR( TI_STRING(@"V:[prev]-(%f)-[child]",(topValue+prevBottomValue)), viewsDict2)];
-        
-        
-        if (next == nil && (IS_AUTOFILL(height) || (IS_UNDEFINED(height) && IS_AUTOFILL(child->_defaultHeight)))) // last one
-        {
-            [self addConstraints: TI_CONSTR( TI_STRING(@"V:[child]-(%f)-|",(bottomValue)), viewsDict2)];
-        } else {
-            [self removeConstraints: TI_CONSTR(@"V:[child]-(0)-|", viewsDict2)];
-        }
+    }
+    if (next == nil && (IS_AUTOFILL(height) || (IS_UNDEFINED(height) && IS_AUTOFILL(child->_defaultHeight)))) // last one
+    {
+        [self addConstraints: TI_CONSTR( TI_STRING(@"V:[child]-(%f)-|",(bottomValue)), viewsDict)];
+    } else {
+        [self removeConstraints: TI_CONSTR(@"V:[child]-(0)-|", viewsDict)];
     }
 
 }
