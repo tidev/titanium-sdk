@@ -291,10 +291,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
         appBooted = YES;
+#if IS_XCODE_7
         if(launchedShortcutItem != nil){
             [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
             launchedShortcutItem = nil;
         }
+#endif
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
@@ -410,12 +412,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     
-    
+#if IS_XCODE_7
     UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
     
     if(shortcut !=nil){
         launchedShortcutItem = shortcut;
     }
+#endif
     
     [self launchToUrl];
 	[self boot];
@@ -1160,6 +1163,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
+#if IS_XCODE_7
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
  waitForBootIfNotLaunched:(BOOL) bootWait {
     
@@ -1210,6 +1214,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     completionHandler(handledShortCutItem);
     
 }
+#endif
 
 -(void)registerBackgroundService:(TiProxy*)proxy
 {

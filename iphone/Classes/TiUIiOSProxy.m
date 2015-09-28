@@ -459,6 +459,7 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 
 #endif
 
+#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 
 -(id)createApplicationShortcuts:(id)args
@@ -500,8 +501,7 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO,UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
 
 #endif
-
-
+#endif
 #endif
 
 @end

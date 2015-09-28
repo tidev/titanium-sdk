@@ -134,8 +134,10 @@
 #endif
 #endif
 
+#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
+#endif
 #endif
 @end
 
