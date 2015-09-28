@@ -281,10 +281,10 @@
 		B606EF60190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6504D4C1B85EAB700D6DF65 /* TiUITableViewRow.m in Sources */ = {isa = PBXBuildFile; fileRef = B6504D4B1B85EAB700D6DF65 /* TiUITableViewRow.m */; };
+		B66638081BB5DE9800B9701D /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B66638031BB5DE9800B9701D /* TiDimension.m */; settings = {ASSET_TAGS = (); }; };
+		B66638091BB5DE9800B9701D /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B66638051BB5DE9800B9701D /* TiLayoutView.m */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-fobjc-arc"; }; };
+		B666380A1BB5DE9800B9701D /* TiLayoutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B66638071BB5DE9800B9701D /* TiLayoutViewController.m */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-fobjc-arc"; }; };
 		B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
-		B6A0FF1E1B71645500DF0FBC /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		B6A0FF221B71683C00DF0FBC /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FF211B71683C00DF0FBC /* TiDimension.m */; };
-		B6A8F5101B7919A4002C9571 /* TiLayoutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
@@ -879,19 +879,18 @@
 		B606EF5D190B42FB00663EFC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
 		B606EF5E190B42FB00663EFC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
 		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../Classes/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
-		B62930001B86521100B1A49A /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6504D4A1B85EAB700D6DF65 /* TiUITableViewRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewRow.h; sourceTree = "<group>"; };
 		B6504D4B1B85EAB700D6DF65 /* TiUITableViewRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewRow.m; sourceTree = "<group>"; };
+		B66638021BB5DE9800B9701D /* TiDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDimension.h; path = Layout/TiDimension.h; sourceTree = "<group>"; };
+		B66638031BB5DE9800B9701D /* TiDimension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDimension.m; path = Layout/TiDimension.m; sourceTree = "<group>"; };
+		B66638041BB5DE9800B9701D /* TiLayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutView.h; path = Layout/TiLayoutView.h; sourceTree = "<group>"; };
+		B66638051BB5DE9800B9701D /* TiLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutView.m; path = Layout/TiLayoutView.m; sourceTree = "<group>"; };
+		B66638061BB5DE9800B9701D /* TiLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutViewController.h; path = Layout/TiLayoutViewController.h; sourceTree = "<group>"; };
+		B66638071BB5DE9800B9701D /* TiLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutViewController.m; path = Layout/TiLayoutViewController.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
-		B6A0FF1C1B71645500DF0FBC /* TiLayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutView.h; path = ../layout/Classes/TiLayoutView.h; sourceTree = "<group>"; };
-		B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutView.m; path = ../layout/Classes/TiLayoutView.m; sourceTree = "<group>"; };
-		B6A0FF201B71683C00DF0FBC /* TiDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDimension.h; path = ../layout/Classes/TiDimension.h; sourceTree = "<group>"; };
-		B6A0FF211B71683C00DF0FBC /* TiDimension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDimension.m; path = ../layout/Classes/TiDimension.m; sourceTree = "<group>"; };
-		B6A8F50E1B7919A4002C9571 /* TiLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutViewController.h; path = ../layout/Classes/TiLayoutViewController.h; sourceTree = "<group>"; };
-		B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutViewController.m; path = ../layout/Classes/TiLayoutViewController.m; sourceTree = "<group>"; };
 		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationActionProxy.m; sourceTree = "<group>"; };
@@ -2000,7 +1999,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				B62930001B86521100B1A49A /* Launch Screen.storyboard */,
 				24CA8902111160BE0084E2DE /* Classes */,
 				24CA8903111160C30084E2DE /* Thirdparty */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -2304,12 +2302,12 @@
 		B6A0FF1B1B71644300DF0FBC /* Layout */ = {
 			isa = PBXGroup;
 			children = (
-				B6A8F50E1B7919A4002C9571 /* TiLayoutViewController.h */,
-				B6A8F50F1B7919A4002C9571 /* TiLayoutViewController.m */,
-				B6A0FF201B71683C00DF0FBC /* TiDimension.h */,
-				B6A0FF211B71683C00DF0FBC /* TiDimension.m */,
-				B6A0FF1C1B71645500DF0FBC /* TiLayoutView.h */,
-				B6A0FF1D1B71645500DF0FBC /* TiLayoutView.m */,
+				B66638021BB5DE9800B9701D /* TiDimension.h */,
+				B66638031BB5DE9800B9701D /* TiDimension.m */,
+				B66638041BB5DE9800B9701D /* TiLayoutView.h */,
+				B66638051BB5DE9800B9701D /* TiLayoutView.m */,
+				B66638061BB5DE9800B9701D /* TiLayoutViewController.h */,
+				B66638071BB5DE9800B9701D /* TiLayoutViewController.m */,
 			);
 			name = Layout;
 			sourceTree = "<group>";
@@ -2404,6 +2402,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0430;
+				TargetAttributes = {
+					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = 86C834R9VM;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2549,12 +2552,11 @@
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
 				24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */,
 				24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */,
+				B66638081BB5DE9800B9701D /* TiDimension.m in Sources */,
 				24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */,
 				24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
-				B6A0FF221B71683C00DF0FBC /* TiDimension.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
-				B6A8F5101B7919A4002C9571 /* TiLayoutViewController.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
@@ -2563,7 +2565,6 @@
 				24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */,
 				24CA8BCB111161FE0084E2DE /* TiComplexValue.m in Sources */,
 				24CA8BCC111161FE0084E2DE /* TiColor.m in Sources */,
-				B6A0FF1E1B71645500DF0FBC /* TiLayoutView.m in Sources */,
 				84E00A9C17B646EE00B6DCE2 /* TiUIiOSNavWindowProxy.m in Sources */,
 				B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
 				8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */,
@@ -2627,6 +2628,7 @@
 				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
 				B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				24C012921140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */,
+				B666380A1BB5DE9800B9701D /* TiLayoutViewController.m in Sources */,
 				248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				843FA58417BD4DFF0064E061 /* TiUIiOSNavWindow.m in Sources */,
@@ -2664,6 +2666,7 @@
 				2467310811E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
+				B66638091BB5DE9800B9701D /* TiLayoutView.m in Sources */,
 				B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */,
 				B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */,
 				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
@@ -2750,6 +2753,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
@@ -2770,6 +2775,7 @@
 				);
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2782,6 +2788,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
@@ -2798,6 +2806,7 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
