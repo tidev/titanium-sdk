@@ -87,6 +87,11 @@
     return @"Ti.UI.iOS";
 }
 
+-(NSNumber*)forceTouchSupported
+{
+    return NUMBOOL([TiUtils forceTouchSupported]);
+}
+
 -(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
 {
     return NUMFLOAT(UIScrollViewDecelerationRateNormal);

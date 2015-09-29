@@ -80,7 +80,6 @@
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
 
-
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
 
@@ -88,6 +87,12 @@
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
 
 #endif
+
+/**
+    Checks the force touch capibility of the current device.
+ */
+-(NSNumber*)forceTouchSupported;
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args;
 #endif
