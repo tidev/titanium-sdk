@@ -429,6 +429,7 @@ class Compiler(object):
 			softlink_for_simulator(self.project_dir,app_dir)
 
 	def compile_module(self):
+		module_properties = read_module_properties(self.project_dir)
 		appid_js_file = os.path.join(self.assets_dir, self.appid+'.js')
 		if not os.path.exists(appid_js_file):
 			appid_js_file = os.path.join(self.project_dir, '..', 'assets', self.appid+'.js')
@@ -447,7 +448,7 @@ class Compiler(object):
 		cmdinputfile = tempfile.TemporaryFile()
 		cmdinputfile.write('\n'.join(js_files))
 		cmdinputfile.seek(0)
-		module_assets = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
+		module_assets = subprocess.Popen([titanium_prep, self.appid, self.assets_dir, module_properties['guid']], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
 		cmdinputfile.close()
 
 		# Clean up the generated assets
