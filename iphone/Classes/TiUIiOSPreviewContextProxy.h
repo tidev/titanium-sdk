@@ -28,14 +28,9 @@
 @property(nonatomic,retain) NSMutableArray *actions;
 
 /**
-    The width of the preview.
- */
-@property(nonatomic) int width;
-
-/**
     The height of the preview
  */
-@property(nonatomic) int height;
+@property(nonatomic) int contentHeight;
 
 /**
     Connectes the collected preview data to the iOS delegates.

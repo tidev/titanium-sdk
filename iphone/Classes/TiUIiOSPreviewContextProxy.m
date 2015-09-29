@@ -12,11 +12,9 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self setWindow:[properties valueForKey:@"window"]];
-    [self setActions:[NSMutableArray array]];
-    [self setWidth:[TiUtils intValue:@"width"]];
-    [self setHeight:[TiUtils intValue:@"height"]];
+    [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
+    [self setActions:[NSMutableArray arrayWithArray:[properties valueForKey:@"actions"]]];
     
-    [self setActions:[properties valueForKey:@"actions"]];
     [[self window] rememberSelf];
     
     [super _initWithProperties:properties];
@@ -26,8 +24,8 @@
 {
     UIViewController *controller = [[TiApp app] controller];
     TiPreviewingDelegate* delegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
-    
-    [controller registerForPreviewingWithDelegate:delegate sourceView:[controller view]];
+        
+    [controller registerForPreviewingWithDelegate:delegate sourceView:[_sourceView view]];
 }
 
 @end

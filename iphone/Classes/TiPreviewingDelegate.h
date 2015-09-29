@@ -22,6 +22,7 @@
 @property(nonatomic, assign) TiWindowProxy* proxy;
 @property(nonatomic, assign) TiViewProxy* sourceView;
 @property(nonatomic, retain) NSArray* actions;
+@property(nonatomic) int contentHeight;
 
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
 

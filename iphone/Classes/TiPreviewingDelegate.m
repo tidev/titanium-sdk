@@ -10,7 +10,6 @@
 #import "TiPreviewingDelegate.h"
 
 @implementation TiPreviewingDelegate
-@synthesize proxy = _proxy, sourceView = _sourceView, actions = _actions;
 
 -(instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext
 {
@@ -18,6 +17,7 @@
         _proxy = [previewContext window];
         _sourceView = [previewContext sourceView];
         _actions = [previewContext actions];
+        _contentHeight = [previewContext contentHeight];
     }
     
     return self;
@@ -47,10 +47,14 @@
     
     [_proxy windowWillOpen];
     
-    //controller.preferredContentSize = CGSizeMake(0, 300);
+    if(_contentHeight > 0) {
+        controller.preferredContentSize = CGSizeMake(0.0, _contentHeight);
+    }
+
     previewingContext.sourceRect = _sourceView.view.frame;
     
     NSMutableArray *result = [NSMutableArray array];
+    
     int index = 0;
     
     for (id item in _actions) {
