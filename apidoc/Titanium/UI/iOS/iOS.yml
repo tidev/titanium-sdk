@@ -961,6 +961,14 @@ properties:
     since: "2.1.0"
     osver: {ios: {min: "5.0"}}
 
+  - name: forceTouchSupported
+    summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
+    description: |
+        Returns `true` if the device supports 3D-Touch (iPhone 6S / iPhone 6S Plus and later) or `false` if not.
+    type: Boolean
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
   - name: PUSH_MODE_CONTINUOUS
     summary: |
         Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.
@@ -976,6 +984,37 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_DEFAULT
+    summary: |
+        The normal style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
+        property and <Titanium.UI.iOS.PreviewAction.click> event.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_SELECTED
+    summary: The selected style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
+        property and <Titanium.UI.iOS.PreviewAction.click> event.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
+    summary: The destructive style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
+        property and <Titanium.UI.iOS.PreviewAction.click> event.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
 
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
