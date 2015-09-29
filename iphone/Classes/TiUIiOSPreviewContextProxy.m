@@ -25,7 +25,6 @@
     UIViewController *controller = [[[TiApp app] controller] topPresentedController];
     [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
                                        sourceView:[_sourceView view]];
-    [controller release];
 }
 
 @end
