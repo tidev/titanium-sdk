@@ -44,7 +44,9 @@
 +(void)setLocale:(NSString*)locale
 {
 	TiLocale *l = [TiLocale instance];
-	l.currentLocale = locale;
+    //[TIMOB]-19566:Truncate the string
+    locale =[locale substringToIndex:2];
+    l.currentLocale = locale;
 	NSString *path = [[ NSBundle mainBundle ] pathForResource:locale ofType:@"lproj" ];
 	if (path==nil)
 	{
