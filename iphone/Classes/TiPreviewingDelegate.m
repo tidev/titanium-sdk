@@ -8,6 +8,10 @@
 
 #if IS_XCODE_7
 #import "TiPreviewingDelegate.h"
+#import "TiUIListViewProxy.h"
+#import "TiUIListView.h"
+#import "TiUITableViewProxy.h"
+#import "TiUITableView.h"
 
 @implementation TiPreviewingDelegate
 
@@ -42,38 +46,57 @@
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
-    
     TiViewController *controller = (TiViewController*)[_proxy hostingController];
-    
-    [_proxy windowWillOpen];
-    
-    if(_contentHeight > 0) {
+    NSMutableArray *result = [NSMutableArray array];
+    int actionIndex = 0;
+
+    if (_contentHeight > 0) {
         controller.preferredContentSize = CGSizeMake(0.0, _contentHeight);
     }
-
-    previewingContext.sourceRect = _sourceView.view.frame;
-    
-    NSMutableArray *result = [NSMutableArray array];
-    
-    int index = 0;
     
     for (id item in _actions) {
         if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
-            [item setActionIndex:index];
+            [item setActionIndex:actionIndex];
             [result addObject:[item action]];
 
-            index++;
+            actionIndex++;
         } else if ([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
-            [item setActionGroupIndex:index];
+            [item setActionGroupIndex:actionIndex];
             [result addObject:[item group]];
 
-            index++;
+            actionIndex++;
         }
     }
 
+    previewingContext.sourceRect = [self createSourceRectWithController:controller andLocation:&location];
     [controller setActionItems:result];
+    [_proxy windowWillOpen];
     
     return controller;
+}
+
+-(CGRect)createSourceRectWithController:(TiViewController*)controller andLocation:(CGPoint*)location
+{
+    UITableView *tableView = nil;
+    
+    if ([_sourceView isKindOfClass:[TiUIListViewProxy class]] == YES) {
+        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)_sourceView;
+        TiUIListView *view = (TiUIListView*)[listProxy view];
+        tableView = [view tableView];
+    } else if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
+        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)_sourceView;
+        TiUITableView *view = (TiUITableView*)[tableProxy view];
+        tableView = [view tableView];
+    }
+    
+    if (tableView) {
+        NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:*location];
+        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        
+        return cell.frame;
+    } else {
+        return [[controller view] bounds];
+    }
 }
 
 @end

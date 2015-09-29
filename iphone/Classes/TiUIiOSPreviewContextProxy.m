@@ -22,7 +22,7 @@
 
 -(void)connectToDelegate
 {
-    UIViewController *controller = [[TiApp app] controller];
+    UIViewController *controller = [[[TiApp app] controller] topPresentedController];
     TiPreviewingDelegate* delegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
         
     [controller registerForPreviewingWithDelegate:delegate sourceView:[_sourceView view]];
