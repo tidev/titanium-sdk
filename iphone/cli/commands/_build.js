@@ -3578,23 +3578,37 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 
 	['libTiCore.a', 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a'].forEach(function (filename) {
 		var src = path.join(this.platformPath, filename),
-			dest = path.join(libDir, filename);
+			srcStat = fs.statSync(src),
+			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+			dest = path.join(libDir, filename),
+			destExists = fs.existsSync(dest),
+			destStat = destExists && fs.statSync(dest),
+			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
+			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
+			contents = null,
+			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime;
 
-		delete this.buildDirFiles[dest];
+		// note: we're skipping the hash check so that we don't have to read in 36MB of data
+		// this isn't going to be bulletproof, but hopefully the size and mtime will be enough to catch any changes
 
-		if (!this.copyFileSync(src, dest, { forceCopy: filename === 'libTiCore.a' && this.forceCopyAll })) {
+		if (!fileChanged || !this.copyFileSync(src, dest, { forceCopy: filename === 'libTiCore.a' && this.forceCopyAll, contents: contents || fs.readFileSync(src) })) {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
+
+		this.currentBuildManifest.files[rel] = {
+			hash:  null,
+			mtime: contents === null && prev ? prev.mtime : srcMtime,
+			size:  contents === null && prev ? prev.size  : srcStat.size
+		};
+
+		delete this.buildDirFiles[dest];
 	}, this);
 };
 
-iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
-	this.logger.info(__('Copying Titanium iOS files'));
-
-	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/[-\W]/g, '_'),
+iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents) {
+	var name = this.tiapp.name.replace(/[-\W]/g, '_'),
 		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
-		copyFileRegExps = [
+		regexes = [
 			// note: order of regexps matters
 			[/TitaniumViewController/g, namespace + '$ViewController'],
 			[/TitaniumModule/g, namespace + '$Module'],
@@ -3604,7 +3618,20 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			[new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile'],
 			[new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date).getFullYear() + ' by Appcelerator, Inc.'],
 			[/(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n']
-		],
+		];
+
+	for (var i = 0, l = regexes.length; i < l; i++) {
+		contents = contents.replace(regexes[i][0], regexes[i][1]);
+	}
+
+	return contents;
+};
+
+iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
+	this.logger.info(__('Copying Titanium iOS files'));
+
+	var nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
+		name = this.tiapp.name.replace(/[-\W]/g, '_'),
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
@@ -3625,8 +3652,15 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/,
 			beforeCopy: function (srcFile, destFile, srcStat) {
+				var filename = path.basename(srcFile);
+
+				// we skip the ApplicationRouting.m file here because we'll copy it in the encryptJSFiles task below
+				if (dir === 'Classes' && (filename === 'ApplicationRouting.m' || filename === 'defines.h')) {
+					this.logger.trace(__('Skipping %s, it\'ll be processed later', (dir + '/' + filename).cyan));
+					return null;
+				}
+
 				var rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-					filename = path.basename(srcFile),
 					destExists = fs.existsSync(destFile),
 					existingContent = destExists && fs.readFileSync(destFile),
 					contents = fs.readFileSync(srcFile),
@@ -3663,14 +3697,13 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 						return null;
 					}
 
-					contents = contents.toString();
-					for (var i = 0, l = copyFileRegExps.length; i < l; i++) {
-						contents = contents.replace(copyFileRegExps[i][0], copyFileRegExps[i][1]);
-					}
-
+					contents = this._scrubiOSSourceFile(contents.toString());
 					changed = contents !== existingContent.toString();
 				} else {
-					changed = !bufferEqual(contents, existingContent);
+					changed = !destExists || !bufferEqual(contents, existingContent);
+					if (!changed) {
+						return null;
+					}
 				}
 
 				if (!destExists || changed) {
@@ -4248,15 +4281,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				return next();
 			}
 
-			// we have missing icons :(
-			this.logger.debug(__n(
-				'Missing %s app icon, attempting to generate missing icon',
-				'Missing %s app icons, attempting to generate missing icons',
-				Object.keys(lookup).length + missingIcons.length
-			));
-
 			Object.keys(lookup).forEach(function (key) {
 				var meta = lookup[key],
+					width = meta.width * meta.scale,
+					height = meta.height * meta.scale,
 					filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
 					dest = path.join(appIconSetDir, filename);
 
@@ -4272,21 +4300,43 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					});
 				});
 
+				// check if the icon was previously resized
+				if (fs.existsSync(dest)) {
+					var contents = fs.readFileSync(dest),
+						size = pngSize(contents);
+
+					if (size.width === width && size.height === height) {
+						this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
+						// icon looks good, no need to generate it!
+						return;
+					}
+				}
+
 				missingIcons.push({
 					description: __('%s - Used for %s',
 						'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
 						meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
 					),
 					file: dest,
-					width: meta.width * meta.scale,
-					height: meta.height * meta.scale,
+					width: width,
+					height: height,
 					required: !!meta.required
 				});
 			}, this);
 
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
-			this.generateAppIcons(missingIcons, next);
+			if (missingIcons.length) {
+				this.logger.debug(__n(
+					'Missing %s app icon, generating missing icon',
+					'Missing %s app icons, generating missing icons',
+					missingIcons.length
+				));
+
+				this.generateAppIcons(missingIcons, next);
+			} else {
+				next();
+			}
 		},
 
 		function createLaunchImageSet() {
@@ -4536,26 +4586,49 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 };
 
 iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
-	if (!this.encryptJS) {
+	var rel = 'Classes/ApplicationRouting.m',
+		dest = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'),
+		destExists = fs.existsSync(dest),
+		destStat = destExists && fs.statSync(dest),
+		existingContent = destExists && fs.readFileSync(dest).toString(),
+		prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
+
+	delete this.buildDirFiles[dest];
+
+	if (!this.encryptJS || !this.jsFilesToEncrypt.length) {
+		var srcFile = path.join(this.platformPath, 'Classes', 'ApplicationRouting.m'),
+			srcStat = fs.statSync(srcFile),
+			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+			contents = this._scrubiOSSourceFile(fs.readFileSync(srcFile).toString()),
+			srcHash = this.hash(contents);
+
+		this.logger.debug(__('Using default application routing'));
+
+		if (!destExists || contents !== existingContent) {
+			if (!this.forceRebuild) {
+				this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
+				this.forceRebuild = true;
+			}
+			this.logger.debug(__('Writing %s', dest.cyan));
+			fs.writeFileSync(dest, contents);
+		} else {
+			this.logger.trace(__('No change, skipping %s', dest.cyan));
+		}
+
+		this.currentBuildManifest.files[rel] = {
+			hash: srcHash,
+			mtime: srcMtime,
+			size: srcStat.size
+		};
+
 		return next();
 	}
 
 	this.logger.info(__('Encrypting JavaScript files'));
 
-	if (!this.jsFilesToEncrypt.length) {
-		this.logger.debug(__('No JavaScript files have been changed, no need to encrypt'));
-		return next();
-	}
-
-	var routingFile = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'),
-		destExists = fs.existsSync(routingFile),
-		destStat = destExists && fs.statSync(routingFile),
-		existingContent = destExists && fs.readFileSync(routingFile).toString(),
-		prev = this.previousBuildManifest.files && this.previousBuildManifest.files['Classes/ApplicationRouting.m'];
-
 	if (!this.jsFilesChanged && destExists && prev && prev.size === destStat.size && prev.mtime === JSON.parse(JSON.stringify(destStat.mtime)) && prev.hash === this.hash(existingContent)) {
-		this.logger.debug(__('No JavaScript file changes, skipping titanium_prep'));
-		this.currentBuildManifest.files['Classes/ApplicationRouting.m'] = prev;
+		this.logger.info(__('No JavaScript file changes, skipping titanium_prep'));
+		this.currentBuildManifest.files[rel] = prev;
 		return next();
 	}
 
@@ -4610,23 +4683,23 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 							if (!this.forceRebuild) {
 								// since we just modified the ApplicationRouting.m, we need to force xcodebuild
 								this.forceRebuild = true;
-								this.logger.info(__('Forcing rebuild: %s changed since last build', routingFile.replace(this.buildDir + '/', '').cyan));
+								this.logger.info(__('Forcing rebuild: %s changed since last build', dest.replace(this.buildDir + '/', '').cyan));
 							}
 
-							this.logger.debug(__('Writing application routing source file: %s', routingFile.cyan));
-							fs.writeFileSync(routingFile, contents);
+							this.logger.debug(__('Writing application routing source file: %s', dest.cyan));
+							fs.writeFileSync(dest, contents);
 
-							var stat = fs.statSync(routingFile);
+							var stat = fs.statSync(dest);
 							this.currentBuildManifest.files['Classes/ApplicationRouting.m'] = {
 								hash: this.hash(contents),
 								mtime: stat.mtime,
 								size: stat.size
 							};
 						} else {
-							this.logger.trace(__('No change, skipping %s', routingFile.cyan));
+							this.logger.trace(__('No change, skipping %s', dest.cyan));
 						}
 
-						delete this.buildDirFiles[routingFile];
+						delete this.buildDirFiles[dest];
 						completed = true;
 					} else {
 						// failure, maybe it was a fluke, try again
@@ -4779,6 +4852,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	}, this);
 
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
+		destExists = fs.existsSync(dest),
 		contents;
 
 	delete this.buildDirFiles[dest];
@@ -4789,7 +4863,8 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
 		if (this.runOnMainThread && !this.useJSCore) {
-			if (!this.copyFileSync(definesFile, dest)) {
+			var contents = fs.readFileSync(definesFile).toString();
+			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
 			return;
@@ -4843,7 +4918,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		contents = contents.join('\n');
 	}
 
-	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+	if (!destExists || contents !== fs.readFileSync(dest).toString()) {
 		if (!this.forceRebuild) {
 			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'Classes/defines.h'));
 			this.forceRebuild = true;
@@ -4860,6 +4935,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', 'Intermediates'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function (product) {
+		product = product.replace(/^"/, '').replace(/"$/, '');
 		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product));
 		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product + '.dSYM'));
 	}, this);
