@@ -37,6 +37,11 @@
 		NSArray* languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 		NSString *preferredLang = [languages objectAtIndex:0];
 		[TiLocale setLocale:preferredLang];
+		NSString *var = [[UIDevice currentDevice] systemVersion];
+		if (var.floatValue >= 9.0) {
+			//[TIMOB-19566]:Truncate the current locale for parity between iOS versions
+			[l setCurrentLocale:[[l currentLocale] substringToIndex:2]];
+		}
 	}
 	return l.currentLocale;
 }
