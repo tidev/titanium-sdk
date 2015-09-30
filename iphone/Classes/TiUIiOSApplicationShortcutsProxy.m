@@ -23,19 +23,19 @@
                                   dictionaryWithObjectsAndKeys:item.type,@"type",
                                  nil];
     
-    if (item.localizedTitle !=nil) {
+    if (item.localizedTitle != nil) {
         [dict setObject:item.localizedTitle forKey:@"title" ];
     }
     
-    if (item.localizedSubtitle !=nil) {
+    if (item.localizedSubtitle != nil) {
         [dict setObject:item.localizedSubtitle forKey:@"subtitle" ];
     }
     
-    if (item.userInfo !=nil) {
+    if (item.userInfo != nil) {
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     
-    if (item.userInfo !=nil) {
+    if (item.userInfo != nil) {
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     return dict;
@@ -87,8 +87,8 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if ([args objectForKey:@"type"]==nil) {
-        NSLog(@"[ERROR] The shortcutType property required");
+    if ([args objectForKey:@"type"] == nil) {
+        NSLog(@"[ERROR] The type property required");
         return;
     }
     
@@ -99,7 +99,7 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if ([args objectForKey:@"type"]==nil) {
+    if ([args objectForKey:@"type"] == nil) {
         NSLog(@"[ERROR] The shortcutType property required");
         return;
     }
@@ -107,7 +107,7 @@
     
     NSString* key = [TiUtils stringValue:@"type" properties:args];
     
-    if ([self typeContained:key]==NO) {
+    if ([self typeContained:key] == NO) {
         return;
     }
     
@@ -128,12 +128,12 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if ([args objectForKey:@"type"]==nil) {
+    if ([args objectForKey:@"type"] == nil) {
         NSLog(@"[ERROR] The type property required");
         return;
     }
     
-    if ([args objectForKey:@"title"]==nil) {
+    if ([args objectForKey:@"title"] == nil) {
         NSLog(@"[ERROR] The title property required");
         return;
     }
@@ -146,8 +146,8 @@
     
     UIApplicationShortcutItem *shortcut = nil;
     
-    if ([args objectForKey:@"subtitle"]!=nil) {
-        if ([args objectForKey:@"icon"]==nil) {
+    if ([args objectForKey:@"subtitle"] != nil) {
+        if ([args objectForKey:@"icon"] == nil) {
             NSLog(@"[ERROR] You have defined a subtitle without defining an icon");
             return;
         } else {
@@ -158,8 +158,8 @@
                                                                userInfo:[args objectForKey:@"userInfo"]]autorelease];
         }
     } else {
-        if ([args objectForKey:@"icon"]!=nil ||
-           [args objectForKey:@"userInfo"]!=nil) {
+        if ([args objectForKey:@"icon"] != nil ||
+           [args objectForKey:@"userInfo"] != nil) {
             NSLog(@"[ERROR] You have defined icon or userInfo without defining subTitle. You must defined subTitle if you haved defined icon or userInfo");
             return;
         } else {
