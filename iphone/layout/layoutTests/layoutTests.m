@@ -446,6 +446,28 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     
 }
 
+-(void)test_VerticalLayoutOneComponent
+{
+    __block BOOL done = NO;
+    TiLayoutView* view = [[TiLayoutView alloc] init];
+    [view setBackgroundColor:[UIColor darkGrayColor]];
+    [view setViewName:@"view"];
+    
+    TiLayoutView* window = createWindow(myView);
+    [window setLayout_:@"vertical"];
+    [window addSubview:view];
+    
+    [view setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        XCTAssertEqual(rect.origin.x, 0);
+        XCTAssertEqual(rect.origin.y, 0);
+        XCTAssertEqual(rect.size.width, 320);
+        XCTAssertEqual(rect.size.height, 480);
+        done = YES;
+    }];
+    
+    WAIT_FOR(done);
+
+}
 -(void)test_VerticalLayoutFillSizeLast
 {
     __block BOOL done1 = NO;

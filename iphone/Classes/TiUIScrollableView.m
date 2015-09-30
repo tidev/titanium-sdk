@@ -240,7 +240,7 @@
 
 -(void)setShowPagingControl_:(id)args
 {
-    [_dotsView setHidden:[TiUtils boolValue:args]];
+    [_dotsView setHidden:![TiUtils boolValue:args]];
 }
 
 -(void)setPagingControlHeight_:(id)args

@@ -438,7 +438,6 @@
         CGFloat ratio = minFontSize/label.font.pointSize;
         [label setMinimumScaleFactor:ratio];
     }
-//    [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setMinimumFontSize_:(id)size

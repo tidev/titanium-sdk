@@ -177,18 +177,30 @@
 {
     if (!_constraintsAdded) {
         _constraintsAdded = YES;
-    messageLabel = [self messageLabel];
-    indicatorView = [self indicatorView];
-    NSDictionary* views = TI_VIEWS(indicatorView, messageLabel);
-    [backgroundView addConstraints:TI_CONSTR(@"V:|[indicatorView]-[messageLabel]|", views)];
-    [backgroundView addConstraints:TI_CONSTR(@"H:|[indicatorView]|", views)];
-    [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
-                                                               attribute:NSLayoutAttributeCenterX
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:backgroundView
-                                                               attribute:NSLayoutAttributeCenterX
-                                                              multiplier:1
-                                                                constant:0]];
+        messageLabel = [self messageLabel];
+        indicatorView = [self indicatorView];
+        NSDictionary* views = TI_VIEWS(indicatorView, messageLabel, backgroundView);
+        [backgroundView addConstraints:TI_CONSTR(@"H:|[indicatorView]-[messageLabel]|", views)];
+        
+        // Make the backgroundView as small as the biggest of the two
+        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[messageLabel]-(>=0)-|", views)];
+        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[indicatorView]-(>=0)-|", views)];
+        // Center both verically
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                  multiplier:1
+                                                                    constant:0]];
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                  multiplier:1
+                                                                    constant:0]];
+
     }
     [super updateConstraints];
 }

@@ -99,9 +99,8 @@
         
         [contentView setDefaultHeight:TiDimensionAutoSize];
         [contentView setDefaultWidth:TiDimensionAutoSize];
-        
+
         [scrollView addSubview:contentView];
-        [super addSubview:scrollView];
         
         [self setDefaultHeight:TiDimensionAutoFill];
         [self setDefaultWidth:TiDimensionAutoFill];

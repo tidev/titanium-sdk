@@ -15,13 +15,6 @@
 #import "TiLabel.h"
 #import "TiButton.h"
 
-#define width @"width"
-#define height @"height"
-#define top @"top"
-#define bottom @"bottom"
-#define left @"left"
-#define right @"right"
-#define layout @"layout"
 #define FILL @"FILL"
 #define SIZE @"SIZE"
 
@@ -60,6 +53,7 @@ static NSMutableArray* viewControllers = nil;
     
     contentView = [[TiLayoutView alloc] init];
     contentView.viewName = @"contentView";
+    contentView.backgroundColor = [UIColor lightGrayColor];
     [view addSubview:contentView];
 }
 
@@ -75,159 +69,29 @@ static NSMutableArray* viewControllers = nil;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    
-//    TiLayoutView* w = [[TiLayoutView alloc] initWithProperties:@{width:@320, height:@480, layout:@"vertical"}];
-//    
-//        TiLabel* label = [[TiLabel alloc] init];
-//        [label setLeft_:@10];
-//        [label setRight_:@10];
-//        [label setTop_:@10];
-//        [label setText:@"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tristique lectus nec ex venenatis, eu molestie augue posuere"];
-//        [label setBackgroundColor:[UIColor redColor]];
-//        [label setViewName:@"label"];
-//        
-//        TiLayoutView* otherView = [[TiLayoutView alloc] init];
-//        [otherView setBackgroundColor:[UIColor darkGrayColor]];
-//        [otherView setViewName:@"otherView"];
-//        
-//        [w addSubview:label];
-//        [w addSubview:otherView];
-//    
-//        
-//        [w setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
-//        }];
-//        [label setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
-//        }];
-//        [otherView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-//            NSLog(@"%@ %@", [sender viewName], NSStringFromCGRect(rect));
-//        }];
-//    [contentView addSubview:w];
-    
-    /*
-     TiToolbar* toolbar = [[TiToolbar alloc] init];
-     [contentView insertSubview:toolbar atIndex:1];
-    {
-        TiSwitch* toggle1 = [[TiSwitch alloc] init];
-        TiSwitch* toggle2 = [[TiSwitch alloc] init];
-        TiSwitch* toggle3 = [[TiSwitch alloc] init];
-        
-        toggle1.viewName = @"Switch1";
-        toggle2.viewName = @"Switch2";
-        toggle3.viewName = @"Switch3";
-        
-        toggle1.backgroundColor = [UIColor redColor];
-        toggle2.backgroundColor = [UIColor yellowColor];
-        toggle3.backgroundColor = [UIColor greenColor];
-        NSArray<TiLayoutView*>* items = @[toggle1,toggle2,toggle3];
-        [toggle1 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-            NSLog(@"Item 1: %@", NSStringFromCGRect(rect));
-        }];
-        [toggle2 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-            NSLog(@"Item 2: %@", NSStringFromCGRect(rect));
-        }];
-        [toggle3 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-            NSLog(@"Item 3: %@", NSStringFromCGRect(rect));
-        }];
-        [toolbar setItems:items];
-    }
-    TiLayoutView* newView = [[TiLayoutView alloc] init];
-    newView.backgroundColor = [UIColor redColor];
-    newView.viewName = @"RedView";
-    [newView setWidth_:@100];
-    [newView setHeight_:@100];
-    [contentView insertSubview:newView atIndex:5];
-    */
-    /*
-    TiLayoutView* cV = contentView == nil ? (TiLayoutView*)self.view : contentView;
-    
-    TiButton* openNewButton = [[TiButton alloc] init];
-    [[openNewButton button] setTitle:@"open new" forState:UIControlStateNormal];
-    [openNewButton setTop_:@10];
-    [openNewButton setOnClick:^(TiButton *sender) {
-        [self openNewViewController];
-    }];
-    [cV addSubview:openNewButton];
 
+    TiScrollView* scrollView = [[TiScrollView alloc] init];
+    scrollView.layout = @"vertical";
+    scrollView.contentView.width = FILL;
+    scrollView.contentView.height = SIZE;
     
-    TiButton* closeNewButton = [[TiButton alloc] init];
-    [[closeNewButton button] setTitle:@"close this" forState:UIControlStateNormal];
-    [closeNewButton setBottom_:@60];
-    [closeNewButton setOnClick:^(TiButton *sender) {
-        [self closeThisViewController];
-    }];
-    [cV addSubview:closeNewButton];
-
-    
-    TiButton* logButton = [[TiButton alloc] init];
-    [[logButton button] setTitle:@"log" forState:UIControlStateNormal];
-    [logButton setBottom_:@10];
-    [logButton setOnClick:^(TiButton *sender) {
-        NSLog(@"%@", [self presentationController]);
-    }];
-    [cV addSubview:logButton];
-
-
-    TiButton* openNavButton = [[TiButton alloc] init];
-    [[openNavButton button] setTitle:@"open nav" forState:UIControlStateNormal];
-    [openNavButton setTop_:@60];
-    [openNavButton setOnClick:^(TiButton *sender) {
-        [self openNavWindow];
-    }];
-    [cV addSubview:openNavButton];
-    
-
-    TiScrollView* container = [[TiScrollView alloc] init];
-    container.top = @120;
-    container.bottom = @120;
-    container.left = @20;
-    container.right = @20;
-    container.layout = @"vertical";
-    container.backgroundColor = [UIColor whiteColor];
-    
-    [cV addSubview:container];
-    
-    TiTextField* field = [[TiTextField alloc] init];
-    field.backgroundColor = [self randomColor];
-    [container addSubview:field];
-    
-    for (NSInteger i = 1; i < [viewControllers count]; i++) {
-        TiButton* btn = [[TiButton alloc] init];
-        [[btn button] setTitle:TI_STRING(@"Close view %li", (long)i) forState:UIControlStateNormal];
-        btn.top = @5;
-        btn.onClick = ^(TiButton *sender) {
-            [self closeViewController:[viewControllers objectAtIndex:i]];
-        };
-        [container addSubview:btn];
-    }
-    */
-    
-    if ([self navigationController]) {
-
-        TiSwitch* toggle1 = [[TiSwitch alloc] init];
-        UIBarButtonItem* bttn = [[UIBarButtonItem alloc] initWithCustomView: toggle1];
-
-        TiSwitch* toggle2 = [[TiSwitch alloc] init];
-        
-        UIBarButtonItem* btt2 = [[UIBarButtonItem alloc] initWithCustomView: toggle2];
-
-//        [toggle1 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-//            [sender setHidden:NO];
-//            [sender setTranslatesAutoresizingMaskIntoConstraints:YES];
-//            [sender setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-//            NSLog(@"Final rect: %@", NSStringFromCGRect(rect));
-//        }];
-//        [toggle2 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
-//            [sender setHidden:NO];
-//            [sender setTranslatesAutoresizingMaskIntoConstraints:YES];
-//            [sender setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-//            NSLog(@"Final rect: %@", NSStringFromCGRect(rect));
-//        }];
-        [self setToolbarItems:@[bttn, btt2]];
-        [[self navigationController] setToolbarHidden:NO];
+    for (int i = 0; i < 30; i++) {
+        TiLayoutView* view = [[TiLayoutView alloc] init];
+        view.height = @100;
+        view.viewName = TI_STRING(@"View.%i", i);
+        view.backgroundColor = [self randomColor];
+        [scrollView addSubview:view];
     }
     
+    [[self contentView] addSubview:scrollView];
+    [scrollView setOnContentLayout:^(TiLayoutView *sender, CGRect rect) {
+        NSLog(@"ContentView Rect: %@", NSStringFromCGRect(rect));
+        NSLog(@"%@", [sender constraints]);
+    }];
+    [scrollView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        NSLog(@"Scrollview Rect: %@", NSStringFromCGRect(rect));
+        NSLog(@"%@", [sender constraints]);
+    }];
 }
 
 - (void)didReceiveMemoryWarning {

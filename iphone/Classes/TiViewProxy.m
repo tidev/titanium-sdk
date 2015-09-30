@@ -270,31 +270,30 @@ static NSArray* touchEventsArray;
 
 -(void)animate:(id)arg
 {
-    /*
-    */
-    
     if ([arg isKindOfClass:[NSArray class]]) {
         id firstArg = [arg objectAtIndex:0];
         if ([firstArg isKindOfClass:[NSDictionary class]]) {
             
             NSDictionary* properties = [arg objectAtIndex:0];
-            KrollCallback* callback = nil;
-            if ([arg count] > 1) {
-                callback = [arg objectAtIndex:1];
+            if ([properties valueForKey:@"view"] == nil) {
+                KrollCallback* callback = nil;
+                if ([arg count] > 1) {
+                    callback = [arg objectAtIndex:1];
+                }
+                NSUInteger duration = [TiUtils intValue:[properties valueForKey:@"duration"] def:300];
+                
+                TiThreadPerformOnMainThread(^{
+                    [[self view] animateProperties:properties
+                                      withDuration:duration andCallback:^(BOOL finished) {
+                                          if (callback != nil) {
+                                              
+                                              [callback call:@[] thisObject:self];
+                                          }
+                                      }];
+                }, NO);
+                
+                return;
             }
-            NSUInteger duration = [TiUtils intValue:[properties valueForKey:@"duration"] def:300];
-            
-            TiThreadPerformOnMainThread(^{
-                [[self view] animateProperties:properties
-                                  withDuration:duration andCallback:^(BOOL finished) {
-                                      if (callback != nil) {
-                                          
-                                          [callback call:@[] thisObject:self];
-                                      }
-                                  }];
-            }, NO);
-
-            return;
         }
     }
     
@@ -306,7 +305,6 @@ static NSArray* touchEventsArray;
 			VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
 		}
 		[self windowWillOpen]; // we need to manually attach the window if you're animating
-//		[parent layoutChildrenIfNeeded];
 		[[self view] animate:newAnimation];
 	}, NO);
 }
@@ -486,23 +484,26 @@ if (ENFORCE_BATCH_UPDATE) { \
 			[self windowWillOpen];
 		}
 		TiUIView *myview = [self view];
+        
+        
+        
 		CGSize size = myview.bounds.size;
-//		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
-//		{
-//			CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
-//			CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
-//			if (width > 0 && height > 0)
-//			{
-//				size = CGSizeMake(width, height);
-//			}
-//			if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
-//			{
-//				size = [UIScreen mainScreen].bounds.size;
-//			}
-//			CGRect rect = CGRectMake(0, 0, size.width, size.height);
-//			[TiUtils setView:myview positionRect:rect];
-//		}
-		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
+        CGSize screenSize = [UIScreen mainScreen].bounds.size;
+        
+        if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+        {
+            size = CGSizeMake(TiDimensionCalculateValue([myview tiLayoutConstraint]->width, 1), TiDimensionCalculateValue([myview tiLayoutConstraint]->height, 1));
+        }
+        if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+        {
+            size = [myview sizeThatFits:screenSize height:@"FILL"];
+        }
+        if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+        {
+            size = screenSize;
+        }
+
+        UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];

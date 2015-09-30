@@ -55,5 +55,5 @@
 -(void)postLayoutEvent;
 
 +(void)removeConstraints:(UIView*)parent fromChild:(UIView*)child;
-
+-(CGSize)sizeThatFits:(CGSize)size height:(id)height;
 @end

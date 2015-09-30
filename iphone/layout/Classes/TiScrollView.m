@@ -30,13 +30,12 @@
 
         
         [contentView setBackgroundColor:[UIColor greenColor]];
-        [contentView setViewName:@"contentView"];
+        [contentView setViewName:@"TiScrollView.ContentView"];
 
         [contentView setDefaultHeight:TiDimensionFromObject(@"SIZE")];
         [contentView setDefaultWidth:TiDimensionFromObject(@"SIZE")];
         
         [scrollView addSubview:contentView];
-        [super addSubview:scrollView];
         
         [self setDefaultHeight:TiDimensionFromObject(@"FILL")];
         [self setDefaultWidth:TiDimensionFromObject(@"FILL")];
@@ -50,7 +49,7 @@
 
 -(void)setViewName:(NSString *)viewName
 {
-    [contentView setViewName:TI_STRING(@"contentView.%@",viewName)];
+    [contentView setViewName:TI_STRING(@"TiScrollView.ContentView.%@",viewName)];
     [super setViewName:viewName];
 }
 

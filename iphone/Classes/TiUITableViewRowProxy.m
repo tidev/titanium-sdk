@@ -305,6 +305,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             [self initializeTableViewCell:cell];
         }
         result = [[self view] sizeThatFits:CGSizeMake(width, 10000)].height;
+        if (result > 0) result += 10;
 	}
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);

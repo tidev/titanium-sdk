@@ -13,6 +13,5 @@
     return @"Ti.UI.View";
 }
 
-
 @end
 

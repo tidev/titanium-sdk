@@ -328,6 +328,17 @@
 	[super dealloc];
 }
 
+-(CGSize)sizeOfTiUIView:(TiUIView*)view
+{
+    CGSize parentSize = self.bounds.size;
+    if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+        parentSize = [[UIScreen mainScreen] bounds].size;
+    }
+    CGSize newSize = [view sizeThatFits:parentSize];
+    newSize.width = parentSize.width;
+    return newSize;
+}
+
 -(BOOL)isScrollable
 {
 	return [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"scrollable"] def:YES];
@@ -2456,7 +2467,9 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-    
+    if (rowWidth == 0) {
+        rowWidth = [UIScreen mainScreen].bounds.size.width;
+    }
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
     // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
@@ -2500,6 +2513,7 @@ return result;	\
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
     TiUIView* headerView = [self sectionView:section forLocation:@"headerView" section:nil];
     if (headerView == nil) return nil;
+    
     UIView* view = [[UIView alloc] init];
     [view addSubview:headerView];
     return [view autorelease];
@@ -2510,7 +2524,8 @@ return result;	\
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
     TiUIView* footerView = [self sectionView:section forLocation:@"footerView" section:nil];
     if (footerView == nil) return nil;
-    UIView* view = [[UIView alloc] init];
+    CGSize size = [self sizeOfTiUIView:footerView];
+    UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     [view addSubview:footerView];
     return [view autorelease];
 }
@@ -2533,7 +2548,7 @@ return result;	\
 				break;
             case TiDimensionTypeAuto:
             case TiDimensionTypeAutoSize:
-				size += [view sizeThatFits:tableview.bounds.size].height;
+                size += [self sizeOfTiUIView:view].height;
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;

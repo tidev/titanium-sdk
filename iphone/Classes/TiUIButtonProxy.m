@@ -82,11 +82,6 @@
     return YES;
 }
 
--(UIView *) parentViewForChild:(TiViewProxy *)child
-{
-	return [(TiUIButton *)[self view] viewGroupWrapper];
-}
-
 -(void)removeBarButtonView
 {
     // If we remove the button here, it could be the case that the system
