@@ -520,6 +520,7 @@ DEFINE_EXCEPTIONS
 					for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
 						[sha appendFormat:@"%02x", digest[i]];
 					}
+					[sha appendString:@"."];
 					[sha appendString:[url pathExtension]];
 					resultImage = [UIImage imageNamed:sha];
 					RELEASE_TO_NIL(sha)
