@@ -11,7 +11,6 @@
 #import "TiApp.h"
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
-#include <CommonCrypto/CommonDigest.h>
 
 //#define DEBUG_IMAGE_CACHE
 
@@ -529,7 +528,7 @@ DEFINE_EXCEPTIONS
 			if (resultImage == nil) {
 				resultImage = [UIImage imageWithContentsOfFile:path];
 			}
-            if (scaleUp && [self imageScale:resultImage]==1.0)
+			if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
 				// on the ipad running iphone app in emulation mode, this won't exist when
 				// do click 2x to scale it up so we have to check for this method
