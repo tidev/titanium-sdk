@@ -31,11 +31,11 @@
         [dict setObject:item.localizedSubtitle forKey:@"subtitle" ];
     }
     
-    if(item.userInfo !=nil) {
+    if (item.userInfo !=nil) {
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     
-    if(item.userInfo !=nil) {
+    if (item.userInfo !=nil) {
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     return dict;
@@ -75,7 +75,7 @@
     UIApplicationShortcutItem *item;
     NSArray * shortcuts = [UIApplication sharedApplication].shortcutItems;
     for (item in shortcuts) {
-        if([item.type isEqualToString:type]) {
+        if ([item.type isEqualToString:type]) {
             return YES;
         }
     }
@@ -87,7 +87,7 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if([args objectForKey:@"type"]==nil) {
+    if ([args objectForKey:@"type"]==nil) {
         NSLog(@"[ERROR] The shortcutType property required");
         return;
     }
@@ -99,7 +99,7 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if([args objectForKey:@"type"]==nil) {
+    if ([args objectForKey:@"type"]==nil) {
         NSLog(@"[ERROR] The shortcutType property required");
         return;
     }
@@ -107,7 +107,7 @@
     
     NSString* key = [TiUtils stringValue:@"type" properties:args];
     
-    if([self typeContained:key]==NO) {
+    if ([self typeContained:key]==NO) {
         return;
     }
     
@@ -115,7 +115,7 @@
     UIApplicationShortcutItem *item;
     
     for (item in shortcuts) {
-        if([item.type isEqualToString:key]) {
+        if ([item.type isEqualToString:key]) {
             [shortcuts removeObject:item];
         }
     }
@@ -128,17 +128,17 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if([args objectForKey:@"type"]==nil) {
+    if ([args objectForKey:@"type"]==nil) {
         NSLog(@"[ERROR] The type property required");
         return;
     }
     
-    if([args objectForKey:@"title"]==nil) {
+    if ([args objectForKey:@"title"]==nil) {
         NSLog(@"[ERROR] The title property required");
         return;
     }
     
-    if([self typeContained:[args objectForKey:@"type"]]) {
+    if ([self typeContained:[args objectForKey:@"type"]]) {
         NSLog(@"[ERROR] The shortcutitem type %@ already exists. This field must be unique.",
               [args objectForKey:@"type"]);
         return;
@@ -146,8 +146,8 @@
     
     UIApplicationShortcutItem *shortcut = nil;
     
-    if([args objectForKey:@"subtitle"]!=nil) {
-        if([args objectForKey:@"icon"]==nil) {
+    if ([args objectForKey:@"subtitle"]!=nil) {
+        if ([args objectForKey:@"icon"]==nil) {
             NSLog(@"[ERROR] You have defined a subtitle without defining an icon");
             return;
         } else {
@@ -158,7 +158,7 @@
                                                                userInfo:[args objectForKey:@"userInfo"]]autorelease];
         }
     } else {
-        if([args objectForKey:@"icon"]!=nil ||
+        if ([args objectForKey:@"icon"]!=nil ||
            [args objectForKey:@"userInfo"]!=nil) {
             NSLog(@"[ERROR] You have defined icon or userInfo without defining subTitle. You must defined subTitle if you haved defined icon or userInfo");
             return;
@@ -168,7 +168,7 @@
         }
     }
     
-    if(shortcut!=nil) {
+    if (shortcut!=nil) {
         NSMutableArray *shortcuts = (NSMutableArray*) [UIApplication sharedApplication].shortcutItems;
         [shortcuts addObject:shortcut];
         [UIApplication sharedApplication].shortcutItems = shortcuts;
@@ -178,12 +178,12 @@
 
 -(UIApplicationShortcutIcon*)findIcon:(id)value
 {
-    if([value isKindOfClass:[NSNumber class]]) {
+    if ([value isKindOfClass:[NSNumber class]]) {
         NSInteger iconIndex = [value integerValue];
         return [UIApplicationShortcutIcon iconWithType:iconIndex];
     }
     
-    if([value isKindOfClass:[NSString class]]) {
+    if ([value isKindOfClass:[NSString class]]) {
         return [UIApplicationShortcutIcon iconWithTemplateImageName:(NSString*)value];
     }
     
