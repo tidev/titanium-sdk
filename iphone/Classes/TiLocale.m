@@ -40,8 +40,8 @@
 		NSString *var = [[UIDevice currentDevice] systemVersion];
 		if (var.floatValue >= 9.0)
 		{
-            //[TIMOB-19566]:Truncate the current locale for parity between iOS versions
-            l.currentLocale =[l.currentLocale substringToIndex:2];
+		   //[TIMOB-19566]:Truncate the current locale for parity between iOS versions
+		   l.currentLocale =[l.currentLocale substringToIndex:2];
 		}
 	}
 	return l.currentLocale;
