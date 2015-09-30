@@ -496,7 +496,12 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
+            //attempt to obtain from assets catalog, return nil if not found
+            NSString *imageName = [[img lastPathComponent] stringByDeletingPathExtension];
+            UIImage* image = [UIImage imageNamed:imageName];
+            if (image == nil) {
+                image = [UIImage imageWithContentsOfFile:[img path]];
+            }
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;

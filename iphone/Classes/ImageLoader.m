@@ -504,7 +504,12 @@ DEFINE_EXCEPTIONS
 			{
 				scaleUp = YES;
 			}
-			UIImage * resultImage = [UIImage imageWithContentsOfFile:path];
+			//attempt to obtain from assets catalog, return nil if not found
+			NSString *imageName = [[path lastPathComponent] stringByDeletingPathExtension];
+			UIImage* resultImage = [UIImage imageNamed:imageName];
+			if (resultImage == nil) {
+				resultImage = [UIImage imageWithContentsOfFile:path];
+			}
 			if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
 				// on the ipad running iphone app in emulation mode, this won't exist when
