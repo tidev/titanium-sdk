@@ -15,7 +15,7 @@
 /**
     The window to preview and open.
  */
-@property(nonatomic,retain) TiWindowProxy *window;
+@property(nonatomic,retain) TiViewProxy *preview;
 
 /**
     The source view which triggered the peek.
@@ -31,6 +31,11 @@
     The height of the preview
  */
 @property(nonatomic) int contentHeight;
+
+/**
+    The callback to be triggered after "popping" the window.
+ */
+@property(nonatomic,retain) KrollCallback *popCallback;
 
 /**
     Connectes the collected preview data to the iOS delegates.

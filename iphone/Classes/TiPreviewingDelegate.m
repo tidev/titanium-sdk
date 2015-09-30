@@ -18,10 +18,14 @@
 -(instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext
 {
     if (self = [self init]) {
-        _proxy = [previewContext window];
-        _sourceView = [previewContext sourceView];
-        _actions = [previewContext actions];
-        _contentHeight = [previewContext contentHeight];
+        
+        _previewContext = previewContext;
+        
+        _preview = [_previewContext preview];
+        _sourceView = [_previewContext sourceView];
+        _actions = [_previewContext actions];
+        _contentHeight = [_previewContext contentHeight];
+        _popCallback = [_previewContext popCallback];
     }
     
     return self;
@@ -29,24 +33,30 @@
 
 -(void)dealloc
 {
-    [_proxy forgetSelf];
+    [_preview forgetSelf];
     [_sourceView forgetSelf];
     
-    RELEASE_TO_NIL(_proxy);
+    RELEASE_TO_NIL(_preview);
     RELEASE_TO_NIL(_sourceView);
     RELEASE_TO_NIL(_actions);
+    RELEASE_TO_NIL(_popCallback);
+    RELEASE_TO_NIL(_previewContext);
     
     [super dealloc];
 }
 
 -(void)previewingContext:(id<UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    [_proxy open:@[@{@"modal" : NUMBOOL(YES), @"animated" : NUMBOOL(NO)}]];
+    NSDictionary * propertiesDict = @{ @"preview" : _preview };
+    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+    
+    [_popCallback call:invocationArray thisObject:_previewContext];
+    [invocationArray release];
 }
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
-    TiViewController *controller = (TiViewController*)[_proxy hostingController];
+    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:_preview];
     NSMutableArray *result = [NSMutableArray array];
     int actionIndex = 0;
 
@@ -70,7 +80,7 @@
 
     previewingContext.sourceRect = [self createSourceRectWithController:controller andLocation:&location];
     [controller setActionItems:result];
-    [_proxy windowWillOpen];
+    [_preview windowWillOpen];
     
     return controller;
 }

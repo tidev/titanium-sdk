@@ -11,13 +11,21 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self setWindow:[properties valueForKey:@"window"]];
+    [self setPreview:[properties valueForKey:@"preview"]];
     [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
     [self setActions:[NSMutableArray arrayWithArray:[properties valueForKey:@"actions"]]];
-    
-    [[self window] rememberSelf];
-    
+    [self setPopCallback:[properties objectForKey:@"pop"]];
+        
     [super _initWithProperties:properties];
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_preview);
+    RELEASE_TO_NIL(_actions);
+    RELEASE_TO_NIL(_popCallback);
+    
+    [super dealloc];
 }
 
 -(void)connectToDelegate

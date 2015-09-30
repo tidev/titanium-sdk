@@ -21,13 +21,6 @@ extends: Titanium.Proxy
 osver: {ios: {min: "9.0"}}
 
 properties:
-  - name: window
-    summary: The preview window.
-    description: |
-        Provides the preview for "peeking" and which will be be opened after "popping".
-    type: Titanium.UI.Window
-    optional: false
-
   - name: actions
     summary: The preview actions and preview action groups.
     description: |
@@ -37,12 +30,28 @@ properties:
     optional: true
 
   - name: contentHeight
-    summary: The height of the window preview.
+    summary: The height of the preview.
     description: |
         Specified the height of the preview which will be shown during "peeking".
     type: Number
     optional: true
     default: The available height of the screen.
+
+  - name: pop
+    summary: The callback after popping the preview.
+    description: |
+        Called after the user the preview is popped. You will most likely open a window in here.
+    type: Callback<PreviewPopResponse>
+    optional: false
+
+  - name: preview
+    summary: The preview view.
+    description: |
+        Provides the preview for "peeking". This view is independent from the window which can be openend after
+        "popping" the preview to give you the change to provide different layouts for the preview and the full
+        window.
+    type: Titanium.UI.View
+    optional: false
 
 examples:
   - title: PreviewContext example
@@ -51,15 +60,24 @@ examples:
         After that, we assign the preview context to a view which will trigger the "peeking" of it. Note, that this
         is independent from the click event of the view itself.
 
+            var actions = [];
             var win = Ti.UI.createWindow({
                 backgroundColor: "white"
             });
-            var actions = [],
 
-            // The window to be previewed after peeking and shown after popping.
-            var detailWindow = Ti.UI.createWindow({
+            // The view to be previewed while popping.
+            var previewView = Ti.UI.createView({
                 backgroundColor: "blue"
             });
+
+            // The window to be opened after popping the preview.
+            var detailWindow = Ti.UI.createWindow({
+                backgroundColor: "yellow"
+            });
+
+            detailWindow.add(Ti.UI.createLabel({
+                text: "You made it!"
+            }));
 
             // The actions to be added to the preview context.
             var action = Ti.UI.iOS.createPreviewAction({
@@ -68,15 +86,15 @@ examples:
             });
 
             action.addEventListener("click", function(e) {
-                alert("Title: "+e.title+" / Style: "+e.style+" / Index: "+e.index);
+                alert("Title: " + e.title + " / Style: " + e.style+" / Index: " + e.index);
             });
 
             var subAction = Ti.UI.iOS.createPreviewAction({
-                title: "Previw Subaction"
+                title: "Preview Subaction"
             })
 
             subAction.addEventListener("click", function(e) {
-                alert("Title: "+e.title+" / Style: "+e.style+" / Index: "+e.index);
+                alert("Title: " + e.title + " / Style: " + e.style+" / Subindex: " + e.index);
             });
 
             var actionGroup = Ti.UI.iOS.createPreviewActionGroup({
@@ -90,14 +108,17 @@ examples:
 
             // Create the preview context
             var context = Ti.UI.iOS.createPreviewContext({
-                window: detailWindow,
-                actions: actions,
-            	contentHeight: 300
+                preview: previewView,
+                actions: actions, // Can have both Ti.UI.iOS.PreviewAction + Ti.UI.iOS.PreviewActionGroup
+            	contentHeight: 300, // When unspecified, we use the available height
+                pop: function() { // Called after popping the preview
+                    detailWindow.open();
+                }
             });
 
             // Assign the preview context
             var button = Ti.UI.createButton({
-                previewContext: context,
+                previewContext: context, // Will be ignored on unsupported devices
                 title : "Open Window!",
                 backgroundColor: "#A6171C",
                 width: 200,
@@ -108,3 +129,6 @@ examples:
             win.add(button);
             win.open();
 
+---
+name: PreviewPopResponse
+summary: Argument passed to the callback when the user pops the preview.

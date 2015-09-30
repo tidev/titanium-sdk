@@ -19,9 +19,12 @@
 
 @interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
 
-@property(nonatomic, assign) TiWindowProxy* proxy;
+@property(nonatomic, assign) TiUIiOSPreviewContextProxy *previewContext;
+
+@property(nonatomic, assign) TiViewProxy* preview;
 @property(nonatomic, assign) TiViewProxy* sourceView;
 @property(nonatomic, retain) NSArray* actions;
+@property(nonatomic, retain) KrollCallback* popCallback;
 @property(nonatomic) int contentHeight;
 
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
