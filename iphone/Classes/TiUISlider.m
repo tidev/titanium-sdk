@@ -81,7 +81,7 @@
         return;
     }
     
-    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:rightTrackLeftCap topCap:rightTrackTopCap];
+    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:rightTrackLeftCap topCap:rightTrackTopCap withOriginalImageArg:value];
 
     [[self sliderView] setMaximumTrackImage:ret forState:state];
 }
@@ -95,7 +95,7 @@
         return;
     }
     
-    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftTrackLeftCap topCap:leftTrackTopCap];
+    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftTrackLeftCap topCap:leftTrackTopCap withOriginalImageArg:value];
 
 
     [[self sliderView] setMinimumTrackImage:ret forState:state];

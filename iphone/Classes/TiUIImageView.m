@@ -17,6 +17,7 @@
 #import "TiFile.h"
 #import "UIImage+Resize.h"
 #import "TiUIImageViewProxy.h"
+#include <CommonCrypto/CommonDigest.h>
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -353,7 +354,7 @@ DEFINE_EXCEPTIONS
 {
 	int position = [TiUtils intValue:pos];
 	NSURL *theurl = [TiUtils toURL:[images objectAtIndex:position] proxy:self.proxy];
-	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
+	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl withOriginalImageArg:[images objectAtIndex:position]];
 	if (theimage==nil)
 	{
 		theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
@@ -464,7 +465,7 @@ DEFINE_EXCEPTIONS
     
     if (defURL!=nil)
     {
-        UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
+        UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize withOriginalImageArg:@"modules/ui/images/photoDefault.png"];
         
         UIImage *imageToUse = [self rotatedImage:poster];
         
@@ -475,7 +476,7 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)loadUrl:(NSURL*)img
+-(void)loadUrl:(NSURL*)img withOriginalImageArg: (NSString*)arg
 {
 	[self cancelPendingImageLoads];
 	
@@ -496,7 +497,22 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
+        unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+        NSData *stringBytes = [arg dataUsingEncoding: NSUTF8StringEncoding]; /* or some other encoding */
+        UIImage *image = nil;
+        if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+            /* SHA-1 hash has been calculated and stored in 'digest'. */
+            NSMutableString *sha = [[NSMutableString alloc] init];
+            for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+            {
+                [sha appendFormat:@"%02x", digest[i]];
+            }
+            image = [UIImage imageNamed:sha];
+            RELEASE_TO_NIL(sha)
+        }
+        if (image == nil) {
+            image = [UIImage imageWithContentsOfFile:[img path]];
+        }
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;
@@ -511,7 +527,7 @@ DEFINE_EXCEPTIONS
         }
         
         
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:img];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:img withOriginalImageArg:arg];
 		if (image==nil)
 		{
             [self loadDefaultImage:imageSize];
@@ -562,7 +578,7 @@ DEFINE_EXCEPTIONS
     else if ([arg isKindOfClass:[TiFile class]]) {
         TiFile *file = (TiFile*)arg;
         NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withOriginalImageArg:[file path]];
     }
     else if ([arg isKindOfClass:[UIImage class]]) {
 		// called within this class
@@ -688,7 +704,7 @@ DEFINE_EXCEPTIONS
                         location:CODELOCATION];
         }
         
-        [self loadUrl:imageURL];
+        [self loadUrl:imageURL withOriginalImageArg:arg];
 		return;
 	}
 	

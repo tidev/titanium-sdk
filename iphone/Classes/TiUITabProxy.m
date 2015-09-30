@@ -513,11 +513,11 @@
 		{
 			currentWindow = self;
 		}
-		image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow] withOriginalImageArg:icon];
 
 		id activeIcon = [self valueForKey:@"activeIcon"];
 		if ([activeIcon isKindOfClass:[NSString class]]) {
-			activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+			activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow] withOriginalImageArg:activeIcon];
 		}
 	}
 	[rootController setTitle:title];

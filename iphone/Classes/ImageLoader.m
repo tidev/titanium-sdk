@@ -11,6 +11,7 @@
 #import "TiApp.h"
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
+#include <CommonCrypto/CommonDigest.h>
 
 //#define DEBUG_IMAGE_CACHE
 
@@ -465,7 +466,7 @@ DEFINE_EXCEPTIONS
 	return 1.0;
 }
 
--(ImageCacheEntry *)entryForKey:(NSURL *)url
+-(ImageCacheEntry *)entryForKey:(NSURL *)url withOriginalImageArg:(NSString *)arg
 {
 	if (url == nil)
 	{
@@ -504,8 +505,23 @@ DEFINE_EXCEPTIONS
 			{
 				scaleUp = YES;
 			}
-			UIImage * resultImage = [UIImage imageWithContentsOfFile:path];
-			if (scaleUp && [self imageScale:resultImage]==1.0)
+			unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+			NSData *stringBytes = [path dataUsingEncoding: NSUTF8StringEncoding]; /* or some other encoding */
+			UIImage *resultImage = nil;
+			if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+				/* SHA-1 hash has been calculated and stored in 'digest'. */
+				NSMutableString *sha = [[NSMutableString alloc] init];
+				for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+				{
+					[sha appendFormat:@"%02x", digest[i]];
+				}
+				resultImage = [UIImage imageNamed:sha];
+				RELEASE_TO_NIL(sha)
+			}
+			if (resultImage == nil) {
+				resultImage = [UIImage imageWithContentsOfFile:path];
+			}
+            if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
 				// on the ipad running iphone app in emulation mode, this won't exist when
 				// do click 2x to scale it up so we have to check for this method
@@ -573,24 +589,24 @@ DEFINE_EXCEPTIONS
 	return nil;
 }
 
--(UIImage *)loadImmediateImage:(NSURL *)url
+-(UIImage *)loadImmediateImage:(NSURL *)url withOriginalImageArg:(NSString *)arg
 {
-	return [self loadImmediateImage:url withSize:CGSizeZero];
+	return [self loadImmediateImage:url withSize:CGSizeZero withOriginalImageArg:arg];
 }
 
--(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
+-(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize withOriginalImageArg:(NSString *)arg
 {
-	return [[self entryForKey:url] imageForSize:imageSize];
+	return [[self entryForKey:url withOriginalImageArg:arg] imageForSize:imageSize];
 }
 
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withOriginalImageArg:(NSString *)arg
 {
-    return [self loadImmediateStretchableImage:url withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+    return [self loadImmediateStretchableImage:url withLeftCap:TiDimensionAuto topCap:TiDimensionAuto withOriginalImageArg:arg];
 }
 
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top  withOriginalImageArg:(NSString *)arg
 {
-    ImageCacheEntry* image = [self entryForKey:url];
+    ImageCacheEntry* image = [self entryForKey:url withOriginalImageArg:arg];
     image.leftCap = left;
     image.topCap = top;
 	return [image stretchableImage];    

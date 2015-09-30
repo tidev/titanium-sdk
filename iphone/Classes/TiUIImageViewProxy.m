@@ -146,7 +146,7 @@ static NSArray* imageKeySequence;
 	if (imageValue!=nil)
 	{
 		NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withOriginalImageArg:[TiUtils stringValue:imageValue]];
 		
 		if (image!=nil)
 		{

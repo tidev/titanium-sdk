@@ -644,7 +644,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	}
 
 	NSURL * urlAttempt = [self toURL:object proxy:proxy];
-	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
+	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize withOriginalImageArg:object];
 	return image;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
@@ -664,7 +664,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	}
 
 	NSURL * urlAttempt = [self toURL:object proxy:proxy];
-	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt];
+	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withOriginalImageArg:object];
 	return image;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
@@ -856,7 +856,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
 {
-	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:[self toURL:object proxy:proxy]];
+	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:[self toURL:object proxy:proxy] withOriginalImageArg:object];
 }
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy
@@ -865,7 +865,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return [(TiBlob*)object image];
     }
     else if ([object isKindOfClass:[NSString class]]) {
-        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy] withOriginalImageArg:object];
     }
     
     return nil;
@@ -1841,7 +1841,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     else if ([image isKindOfClass:[NSString class]]) {
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL withOriginalImageArg:image];
         if (resultImage==nil && [image isEqualToString:@"Default.png"])
         {
             // special case where we're asking for Default.png and it's in Bundle not path

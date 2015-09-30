@@ -143,7 +143,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateImage:(NSURL *)url;
+-(UIImage *)loadImmediateImage:(NSURL *)url withOriginalImageArg:(NSString *)arg;
 
 /**
  Tells the loader to return previously loaded image with URL and size.
@@ -152,7 +152,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
+-(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize withOriginalImageArg:(NSString *)arg;
 
 /**
  Tells the loader to return previously loaded stretchable image with URL.
@@ -160,7 +160,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withOriginalImageArg:(NSString *)arg;
 
 /**
  Tells the loader to return previously loaded stretchable image with URL and specified cap values.
@@ -170,7 +170,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top;
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top withOriginalImageArg:(NSString *)arg;
 
 /**
  Returns the full image size.

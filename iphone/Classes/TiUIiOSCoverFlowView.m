@@ -89,11 +89,11 @@
 	{
 		TiFile *file = (TiFile*)arg;
 		NSURL * fileUrl = [TiUtils toURL:[file path] proxy:self.proxy];
-		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withOriginalImageArg:[file path]];
 	}
 	else if ([arg isKindOfClass:[NSString class]]) {
 		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
-		image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withOriginalImageArg:arg];
 	}
 	else if ([arg isKindOfClass:[UIImage class]])
 	{

@@ -1666,7 +1666,7 @@
 -(void)setBackgroundImage_:(id)arg
 {
 	NSURL *url = [TiUtils toURL:arg proxy:(TiProxy*)self.proxy];
-	UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+	UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withOriginalImageArg:arg];
 	[[self tableView] setBackgroundColor:[UIColor colorWithPatternImage:image]];
     
     self.backgroundImage = arg;

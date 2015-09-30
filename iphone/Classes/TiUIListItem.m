@@ -237,7 +237,7 @@
 -(void) applyBackgroundWithSelectedColor:(id)selectedBackgroundColor selectedImage:(id)selectedBackgroundImage
 {
     UIColor* sbgColor = (selectedBackgroundColor != nil) ? ([[TiUtils colorValue:selectedBackgroundColor] _color]) : nil;
-    UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+    UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto withOriginalImageArg:selectedBackgroundImage];
     if (sbgImage != nil) {
         if ([self.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
             [(UIImageView*)self.selectedBackgroundView setImage:sbgImage];
@@ -340,7 +340,7 @@
     if (IS_NULL_OR_NIL(backgroundImage)) {
         backgroundImage = [_initialValues objectForKey:@"backgroundImage"];
     }
-    UIImage* bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+    UIImage* bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto withOriginalImageArg:backgroundImage];
     if (bgImage != nil) {
         //Set the backgroundView to ImageView and set its backgroundColor to bgColor
         if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
@@ -378,7 +378,7 @@
 				id imageValue = [properties objectForKey:@"image"];
 				if ([self shouldUpdateValue:imageValue forKeyPath:@"imageView.image"]) {
 					NSURL *imageUrl = [TiUtils toURL:imageValue proxy:_proxy];
-					UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl];
+					UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl withOriginalImageArg:imageValue];
 					if (image != nil) {
 						[self recordChangeValue:imageValue forKeyPath:@"imageView.image" withBlock:^{
 							self.imageView.image = image;
