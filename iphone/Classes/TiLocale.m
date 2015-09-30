@@ -37,6 +37,12 @@
 		NSArray* languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
 		NSString *preferredLang = [languages objectAtIndex:0];
 		[TiLocale setLocale:preferredLang];
+		NSString *var = [[UIDevice currentDevice] systemVersion];
+		if (var.floatValue >= 9.0)
+		{
+            //[TIMOB-19566]:Truncate the current locale for parity between iOS versions
+            l.currentLocale =[l.currentLocale substringToIndex:2];
+		}
 	}
 	return l.currentLocale;
 }
@@ -44,11 +50,6 @@
 +(void)setLocale:(NSString*)locale
 {
 	TiLocale *l = [TiLocale instance];
-	NSString *var = [[UIDevice currentDevice] systemVersion];
-	if (var.floatValue >= 9.0) {
-		//[TIMOB-19566]:Truncate the current locale for parity between iOS versions
-		locale =[locale substringToIndex:2];
-	}
 	l.currentLocale = locale;
 	NSString *path = [[ NSBundle mainBundle ] pathForResource:locale ofType:@"lproj" ];
 	if (path==nil)
