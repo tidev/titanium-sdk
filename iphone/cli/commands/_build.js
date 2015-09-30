@@ -16,6 +16,7 @@ var appc = require('node-appc'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
+	crypto = require('crypto'),
 	cyan = require('colors').cyan,
 	ejs = require('ejs'),
 	fields = require('fields'),
@@ -3977,7 +3978,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		cssFiles = {},
 		htmlJsFiles = {},
 		appIcons = {},
-		launchImages = {};
+		launchImages = {},
+		imageAssets = {};
 
 	function walk(src, dest, ignore, origSrc) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
@@ -4026,6 +4028,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'css':
 						cssFiles[relPath] = info;
+						break;
+
+					case 'png':
+					case 'jpg':
+						imageAssets[relPath] = info;
 						break;
 
 					case 'html':
@@ -4457,6 +4464,67 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}
 
 			writeAssetContentsFile.call(this, path.join(launchImageDir, 'Contents.json'), launchImageSet);
+		},
+
+		function createAssetImageSets() {
+			this.logger.info(__('Creating assets image set'));
+			var assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
+				imageSets = {},
+				imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+
+			function sha1(value) {
+				var sha = crypto.createHash('sha1');
+				sha.update(value);
+				return sha.digest('hex');
+			};
+
+			Object.keys(imageAssets).forEach(function (file) {
+				var imageName = imageAssets[file].name,
+					imageExt = imageAssets[file].ext,
+					match = file.match(imageNameRegExp),
+					dest,
+					imageSetName,
+					imageSetNameSHA,
+					imageSetRelPath;
+
+				if (match) {
+					imageSetName = match[1];
+					imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
+					imageSetRelPath = imageSetNameSHA + '.imageset';
+
+					// update image file's destination
+					dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
+					imageAssets[file].dest = dest;
+
+					delete this.buildDirFiles[dest];
+
+					if (!imageSets[imageSetRelPath]) {
+						imageSets[imageSetRelPath] = {
+							images: [],
+							name: imageSetName
+						};
+					}
+
+					imageSets[imageSetRelPath].images.push({
+						idiom: !match[3] ? 'universal' : match[3].replace('~', ''),
+						filename: imageName + '.' + imageExt,
+						scale: !match[2] ? '1x' : match[2].replace('@', '')
+					});
+				}
+
+				resourcesToCopy[file] = imageAssets[file];
+			}, this);
+
+			// finally create all the Content.json files
+			Object.keys(imageSets).forEach(function (set) {
+				writeAssetContentsFile.call(this, path.join(assetCatalog, set, 'Contents.json'), {
+					images: imageSets[set].images,
+					info: {
+						version: 1,
+						author: 'xcode'
+					}
+				});
+			}, this);
 		},
 
 		function copyResources() {
