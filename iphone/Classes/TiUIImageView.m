@@ -354,7 +354,7 @@ DEFINE_EXCEPTIONS
 {
 	int position = [TiUtils intValue:pos];
 	NSURL *theurl = [TiUtils toURL:[images objectAtIndex:position] proxy:self.proxy];
-	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl withOriginalImageArg:[images objectAtIndex:position]];
+	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
 	if (theimage==nil)
 	{
 		theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
@@ -465,7 +465,7 @@ DEFINE_EXCEPTIONS
     
     if (defURL!=nil)
     {
-        UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize withOriginalImageArg:@"modules/ui/images/photoDefault.png"];
+        UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
         
         UIImage *imageToUse = [self rotatedImage:poster];
         
@@ -476,7 +476,7 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)loadUrl:(NSURL*)img withOriginalImageArg: (NSString*)arg
+-(void)loadUrl:(NSURL*)img
 {
 	[self cancelPendingImageLoads];
 	
@@ -497,22 +497,29 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
-        unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-        NSData *stringBytes = [arg dataUsingEncoding: NSUTF8StringEncoding]; /* or some other encoding */
-        UIImage *image = nil;
-        if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-            /* SHA-1 hash has been calculated and stored in 'digest'. */
-            NSMutableString *sha = [[NSMutableString alloc] init];
-            for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
-            {
-                [sha appendFormat:@"%02x", digest[i]];
+            UIImage *image = nil;
+            NSString *pathStr = [img absoluteString];
+            NSRange range = [pathStr rangeOfString:@".app"];
+            NSString *imageArg = nil;
+            if (range.location != NSNotFound) {
+                imageArg = [pathStr substringFromIndex:range.location+5];
             }
-            image = [UIImage imageNamed:sha];
-            RELEASE_TO_NIL(sha)
-        }
-        if (image == nil) {
-            image = [UIImage imageWithContentsOfFile:[img path]];
-        }
+            if (imageArg != nil) {
+                unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+                NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+                if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+                    // SHA-1 hash has been calculated and stored in 'digest'.
+                    NSMutableString *sha = [[NSMutableString alloc] init];
+                    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+                        [sha appendFormat:@"%02x", digest[i]];
+                    }
+                    image = [UIImage imageNamed:sha];
+                    RELEASE_TO_NIL(sha)
+                }
+            }
+            if (image == nil) {
+                image = [UIImage imageWithContentsOfFile:[img path]];
+            }
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;
@@ -527,7 +534,7 @@ DEFINE_EXCEPTIONS
         }
         
         
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:img withOriginalImageArg:arg];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:img];
 		if (image==nil)
 		{
             [self loadDefaultImage:imageSize];
@@ -578,7 +585,7 @@ DEFINE_EXCEPTIONS
     else if ([arg isKindOfClass:[TiFile class]]) {
         TiFile *file = (TiFile*)arg;
         NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withOriginalImageArg:[file path]];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
     }
     else if ([arg isKindOfClass:[UIImage class]]) {
 		// called within this class
@@ -704,7 +711,7 @@ DEFINE_EXCEPTIONS
                         location:CODELOCATION];
         }
         
-        [self loadUrl:imageURL withOriginalImageArg:arg];
+        [self loadUrl:imageURL];
 		return;
 	}
 	

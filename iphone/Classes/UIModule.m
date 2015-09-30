@@ -242,7 +242,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalen
 -(void)setBackgroundImage:(id)image
 {
 	TiRootViewController *controller = [[TiApp app] controller];
-	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self] withOriginalImageArg:image];
+	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path

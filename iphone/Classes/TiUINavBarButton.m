@@ -125,7 +125,7 @@ DEFINE_EXCEPTIONS
         }
         else if (image!=nil) {
             NSURL *url = [TiUtils toURL:image proxy:proxy_];
-            UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withOriginalImageArg:image];
+            UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
             self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
         }
         else {

@@ -248,14 +248,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         id rightImage = [self valueForKey:@"rightImage"];
         if (rightImage != nil) {
             NSURL *url = [TiUtils toURL:rightImage proxy:self];
-            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withOriginalImageArg:rightImage];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
             width -= [image size].width;
         }
 		
         id leftImage = [self valueForKey:@"leftImage"];
         if (leftImage != nil) {
             NSURL *url = [TiUtils toURL:leftImage proxy:self];
-            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withOriginalImageArg:leftImage];
+            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
             width -= [image size].width;
         }
     }
@@ -369,7 +369,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (rightImage!=nil)
 	{
 		NSURL *url = [TiUtils toURL:rightImage proxy:self];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withOriginalImageArg:rightImage];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		cell.accessoryView = [[[UIImageView alloc] initWithImage:image] autorelease];
 	}
     else {
@@ -388,7 +388,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (bgImage!=nil)
 	{
 		NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap withOriginalImageArg:bgImage];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
 		if ([cell.backgroundView isKindOfClass:[UIImageView class]]==NO)
 		{
 			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
@@ -407,7 +407,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
     if (selBgImage!=nil) {
         NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
-        UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap withOriginalImageArg:selBgImage];
+        UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
         if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO) {
             UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
             cell.selectedBackgroundView = view_;
@@ -458,7 +458,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (image!=nil)
 	{
 		NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)table.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withOriginalImageArg:image];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		if (cell.imageView.image!=image)
 		{
 			cell.imageView.image = image;

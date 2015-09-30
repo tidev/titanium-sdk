@@ -311,7 +311,7 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[WARN] could not find image: %@",image);
 		return nil;
 	}
-	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap withOriginalImageArg:image];
+	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
 }
 
 -(id)transformMatrix
