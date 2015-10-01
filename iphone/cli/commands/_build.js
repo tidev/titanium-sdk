@@ -4945,6 +4945,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (this.useJSCore) {
 			contents += '\n#define USE_JSCORE_FRAMEWORK';
 		}
+		var infoPlist = this.infoPlist;
+		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
+			contents += '\n#define USE_TI_SILENTPUSH';
+		}
+		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
+			contents += '\n#define USE_TI_FETCH';
+		}
 	} else {
 		// build the defines.h file
 		contents = [
