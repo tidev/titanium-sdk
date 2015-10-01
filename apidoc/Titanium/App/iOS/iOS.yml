@@ -1009,6 +1009,25 @@ events:
     osver: {ios: {min: "8.2"}}
     since: '5.0.0'
 
+  - name: shortcutitemclick
+    summary: Fired when a user taps the Application Shortcut.
+    properties:
+      - name: type
+        summary: The unique identifier for the application shortcut
+        type: String
+
+      - name: title
+        summary: The title of the application shortcut
+        type: String
+
+      - name: subtitle
+        summary: The subtitle of the application shortcut
+        type: String
+
+      - name: userInfo
+        summary: The payload passed by the Application Shortcut.
+        type: Dictionary        
+
 ---
 name: NotificationParams
 summary: |
