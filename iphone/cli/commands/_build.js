@@ -4955,14 +4955,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			return '#define USE_TI_' + s;
 		}));
 
-		var infoPlist = this.infoPlist;
-		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
-			contents.push('#define USE_TI_SILENTPUSH');
-		}
-		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
-			contents.push('#define USE_TI_FETCH');
-		}
-
 		contents.push(
 			'#ifdef USE_TI_UILISTVIEW',
 			'#define USE_TI_UILABEL',
@@ -4984,6 +4976,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			contents.push('#define TI_USE_KROLL_THREAD');
 		}
 		contents = contents.join('\n');
+	}
+	var infoPlist = this.infoPlist;
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
+		contents += '\n#define USE_TI_SILENTPUSH';
+	}
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
+		contents += '\n#define USE_TI_FETCH';
 	}
 
 	if (!destExists || contents !== fs.readFileSync(dest).toString()) {
