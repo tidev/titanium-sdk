@@ -14,7 +14,6 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -23,6 +22,8 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
+import android.util.Base64;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -66,7 +67,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromString(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+				return TiBlob.blobFromString(new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -80,7 +81,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromData(Base64.decodeBase64(data.getBytes("UTF-8")));
+				return TiBlob.blobFromData(Base64.decode(data.getBytes("UTF-8"), Base64.NO_WRAP));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
