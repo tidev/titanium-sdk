@@ -117,6 +117,11 @@ events:
         On iOS, this event does not fire before putting the application in the background.
         The application needs to monitor the <Titanium.App.pause> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+
+    deprecated:
+        since: "5.1.0"
+        notes: Use unselected instead.
+
     properties:
       - name: index
         summary: |
@@ -140,14 +145,49 @@ events:
             the previous tab.
         type: Titanium.UI.Tab
 
-        
+  - name: unselected
+    summary: |
+        Fired when this tab is not currently selected. On Android, fired when a tab in this tab group
+        is unselected.
+    description: |
+        On Android, this event also fires before putting the activity in the background
+        (before the activity enters the pause state).
+
+        On iOS, this event does not fire before putting the application in the background.
+        The application needs to monitor the <Titanium.App.pause> event.
+        See <Titanium.App> for more information on the iOS application lifecycle.
+
+    properties:
+      - name: index
+        summary: |
+            Index of the current active tab. On iOS, a value of `undefined` indicates that the
+            **More** tab was the active tab.
+        type: Number
+
+      - name: previousIndex
+        summary: |
+            Index of the previous active tab. On iOS, a value of `undefined` indicates that the
+            **More** tab was the previous tab.
+        type: Number
+
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
+
+      - name: previousTab
+        summary: |
+            Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was
+            Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was
+            the previous tab.
+        type: Titanium.UI.Tab
+
   - name: close
     summary: Fired when the tab group is closed.
     platforms: [iphone, ipad, mobileweb]
-    
+
   - name: focus
     summary: |
-        Fired when this tab group gains focus. On Android, fired when a tab in this tab group 
+        Fired when this tab group gains focus. On Android, fired when a tab in this tab group
         gains focus.
     description: |
         On Android, this event also fires when the activity enters the foreground
@@ -157,6 +197,11 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
+
+    deprecated:
+        since: "5.1.0"
+        notes: Use selected instead.
+
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -174,7 +219,35 @@ events:
         summary: Previous active tab.
         type: Titanium.UI.Tab
 
-        
+  - name: selected
+    summary: |
+        Fired when this tab is selected. on Android , fired when the tab is
+        currently selected.
+    description: |
+        On Android, this event also fires when the activity enters the foreground
+        (after the activity enters the resume state).
+
+        On iOS, this event does not fire after the application returns to the foreground
+        if it was previously backgrounded.
+        See <Titanium.App> for more information on the iOS application lifecycle.
+
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
+
+      - name: previousTab
+        summary: Previous active tab.
+        type: Titanium.UI.Tab
+
   - name: open
     summary: Fired when the tab group is opened.
 
