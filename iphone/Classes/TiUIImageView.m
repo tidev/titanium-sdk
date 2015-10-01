@@ -498,7 +498,7 @@ DEFINE_EXCEPTIONS
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
             UIImage *image = nil;
-            NSString *pathStr = [img absoluteString];
+            NSString *pathStr = [img path];
             NSRange range = [pathStr rangeOfString:@".app"];
             NSString *imageArg = nil;
             if (range.location != NSNotFound) {

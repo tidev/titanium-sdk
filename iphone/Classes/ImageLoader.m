@@ -505,10 +505,10 @@ DEFINE_EXCEPTIONS
 				scaleUp = YES;
 			}
 			UIImage *resultImage = nil;
-			NSRange range = [urlString rangeOfString:@".app"];
+			NSRange range = [path rangeOfString:@".app"];
 			NSString *imageArg = nil;
 			if (range.location != NSNotFound) {
-				imageArg = [urlString substringFromIndex:range.location+5];
+				imageArg = [path substringFromIndex:range.location+5];
 			}
 			if (imageArg != nil) {
 				unsigned char digest[CC_SHA1_DIGEST_LENGTH];
