@@ -6,9 +6,7 @@ description: |
     app-specific actions from the Home screen by pressing on the app icon. The pressing of an application shortcut
     will then fire the `shortcutitemclick` Titanium.App.iOS event.
 
-
-	To use this feature make sure you have a 3D Touch compatible device running iOS 9 or later.
-
+    To use this feature make sure you have a 3D Touch compatible device running iOS 9 or later.
 extends: Titanium.Proxy
 platforms: [iphone]
 osver: {ios: {min: "9.0"}}
@@ -19,12 +17,12 @@ methods:
   - name: listDynamicShortcuts
     summary: Returns an array of the Application Shortcuts created dynamically. 
     returns:
-        type: Array
+        type: Array<Dictionary>
   
   - name: listStaticShortcuts
     summary: Returns an array of the Application Shortcuts listed in your tiapp.xml file. 
     returns:
-        type: Array
+        type: Array<Dictionary>
 
   - name: removeAllDynamicShortcuts
     summary: Removes all dynamically created application shortcuts.
@@ -65,81 +63,79 @@ methods:
 examples: 
   - title: Example app.js
     example: |
-        The following code excerpt demonstrates  
-        
-			var win = Titanium.UI.createWindow({  
-			    title:'Example', backgroundColor:'#fff', layout:"vertical"
-			});
+        The following code excerpt demonstrates
 
-			var btn1 = Ti.UI.createButton({
-				top: 50, height:45, title:"Add Contact Us Application Shortcut"
-			});
-			win.add(btn1);
+            var win = Titanium.UI.createWindow({  
+                title:'Example', backgroundColor:'#fff', layout:"vertical"
+            });
 
-			btn1.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				appShortcuts.addShortcutItem({
-					type:"contact_us",
-					title:"Contact Us",
-					subtitle:"Tap to reach us",
-					icon: Ti.UI.iOS.SHORTCUT_ICON_TYPE_ADD,
-					userInfo:{
-						infoKey:"contact_us"
-					}
-				});
-			});
+            var btn1 = Ti.UI.createButton({
+            	top: 50, height:45, title:"Add Contact Us Application Shortcut"
+            });
+            win.add(btn1);
 
-			var btn2 = Ti.UI.createButton({
-				top: 10, height:45, title:"Remove Contact Us Application Shortcut"
-			});
-			win.add(btn2);
-			btn2.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				appShortcuts.removeShortcutItem({
-					type:"contact_us"
-				});	
-			});
+            btn1.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	appShortcuts.addShortcutItem({
+            		type:"contact_us",
+            		title:"Contact Us",
+            		subtitle:"Tap to reach us",
+            		icon: Ti.UI.iOS.SHORTCUT_ICON_TYPE_ADD,
+            		userInfo:{
+            			infoKey:"contact_us"
+            		}
+            	});
+            });
 
-			var btn3 = Ti.UI.createButton({
-				top: 10, height:45, title:"Count Dynamic App Shortcuts"
-			});
-			win.add(btn3);
-			btn3.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				var shortcutItems = appShortcuts.listDynamicShortcuts();
-				Ti.API.info("Dynamic App Shortcut as JSON:" + JSON.stringify(shortcutItems));	
-			});
+            var btn2 = Ti.UI.createButton({
+            	top: 10, height:45, title:"Remove Contact Us Application Shortcut"
+            });
+            win.add(btn2);
+            btn2.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	appShortcuts.removeShortcutItem({
+            		type:"contact_us"
+            	});	
+            });
 
-			var btn4 = Ti.UI.createButton({
-				top: 10, height:45, title:"Count Static App Shortcuts"
-			});
-			win.add(btn4);
-			btn4.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				var shortcutItems = appShortcuts.listStaticShortcuts();
-				Ti.API.info("Static App Shortcut as JSON:" + JSON.stringify(shortcutItems));
-			});
+            var btn3 = Ti.UI.createButton({
+            	top: 10, height:45, title:"Count Dynamic App Shortcuts"
+            });
+            win.add(btn3);
+            btn3.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	var shortcutItems = appShortcuts.listDynamicShortcuts();
+            	Ti.API.info("Dynamic App Shortcut as JSON:" + JSON.stringify(shortcutItems));	
+            });
 
-			var btn5 = Ti.UI.createButton({
-				top: 10, height:45, title:"Dynamic Shortcut Exists?"
-			});
-			win.add(btn5);
-			btn5.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				var exists = appShortcuts.dynamicShortcutExists({
-					type:"contact_us"
-				});		
-				var msg = (exists) ? "Icon exists" : "Sorry isn't there";
-				alert(msg);
-			});
+            var btn4 = Ti.UI.createButton({
+            	top: 10, height:45, title:"Count Static App Shortcuts"
+            });
+            win.add(btn4);
+            btn4.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	var shortcutItems = appShortcuts.listStaticShortcuts();
+            	Ti.API.info("Static App Shortcut as JSON:" + JSON.stringify(shortcutItems));
+            });
 
-			var btn6 = Ti.UI.createButton({
-				top: 10, height:45, title:"Remove All Dynamic Shortcuts"
-			});
-			win.add(btn6);
-			btn6.addEventListener("click",function(){
-				var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-				appShortcuts.removeAllDynamicShortcuts();
-			});
+            var btn5 = Ti.UI.createButton({
+            	top: 10, height:45, title:"Dynamic Shortcut Exists?"
+            });
+            win.add(btn5);
+            btn5.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	var exists = appShortcuts.dynamicShortcutExists({
+            		type:"contact_us"
+            	});		
+            	var msg = (exists) ? "Icon exists" : "Sorry isn't there";
+            	alert(msg);
+            });
 
-
+            var btn6 = Ti.UI.createButton({
+            	top: 10, height:45, title:"Remove All Dynamic Shortcuts"
+            });
+            win.add(btn6);
+            btn6.addEventListener("click",function(){
+            	var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            	appShortcuts.removeAllDynamicShortcuts();
+            });
