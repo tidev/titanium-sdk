@@ -9,8 +9,11 @@ description: |
 
 	To use this feature make sure you have a 3D Touch compatible device running iOS 9 or later.
 
-since: "5.1"
-platforms: [iphone, ipad]
+extends: Titanium.Proxy
+platforms: [iphone]
+osver: {ios: {min: "9.0"}}
+since: "5.1.0"
+createable: true
 
 methods:
   - name: listDynamicShortcuts

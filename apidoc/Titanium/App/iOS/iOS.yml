@@ -1013,20 +1013,23 @@ events:
     summary: Fired when a user taps the Application Shortcut.
     properties:
       - name: type
-        summary: The unique identifier for the application shortcut
+        summary: The unique identifier for the application shortcut.
         type: String
 
       - name: title
-        summary: The title of the application shortcut
+        summary: The title of the application shortcut.
         type: String
 
       - name: subtitle
-        summary: The subtitle of the application shortcut
+        summary: The subtitle of the application shortcut.
         type: String
 
       - name: userInfo
         summary: The payload passed by the Application Shortcut.
         type: Dictionary        
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+    since: '5.1.0'
 
 ---
 name: NotificationParams
