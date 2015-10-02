@@ -4166,7 +4166,26 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ], required: true }
 				},
 				deviceFamily = this.deviceFamily,
-				missingIcons = [];
+				missingIcons = [],
+				defaultIcon = path.join(this.projectDir, 'DefaultIcon.png'),
+				defaultIconChanged = false;
+
+			if (fs.existsSync(defaultIcon)) {
+				var defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
+					defaultIconStat = fs.statSync(defaultIcon),
+					defaultIconMtime = JSON.parse(JSON.stringify(defaultIconStat.mtime)),
+					defaultIconHash = this.hash(fs.readFileSync(defaultIcon));
+
+				if (!defaultIconPrev || defaultIconPrev.size !== defaultIconStat.size || defaultIconPrev.mtime !== defaultIconMtime || defaultIconPrev.hash !== defaultIconHash) {
+					defaultIconChanged = true;
+				}
+
+				this.currentBuildManifest.files['DefaultIcon.png'] = {
+					hash: defaultIconHash,
+					mtime: defaultIconMtime,
+					size: defaultIconStat.size
+				};
+			}
 
 			if (deviceFamily !== 'universal') {
 				// remove all unnecessary icons from the lookup
@@ -4308,7 +4327,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				});
 
 				// check if the icon was previously resized
-				if (fs.existsSync(dest)) {
+				if (!defaultIconChanged && fs.existsSync(dest)) {
 					var contents = fs.readFileSync(dest),
 						size = pngSize(contents);
 
@@ -4339,6 +4358,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'Missing %s app icons, generating missing icons',
 					missingIcons.length
 				));
+
+				if (defaultIconChanged && !this.forceRebuild) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', 'DefaultIcon.png'));
+					this.forceRebuild = true;
+				}
 
 				this.generateAppIcons(missingIcons, next);
 			} else {
