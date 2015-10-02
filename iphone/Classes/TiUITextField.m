@@ -19,7 +19,7 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, leadingBarButtonGroups, trailingBarButtonGroups;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
 
 -(void)configure
 {
@@ -32,14 +32,6 @@
 	paddingRight = 0;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
 	[super setRightViewMode:UITextFieldViewModeAlways];
-    
-    // iOS9 QuickType (undo/redo)
-    if([TiUtils isIOS9OrGreater] == YES) {
-#if IS_XCODE_7
-        leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-        trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
-#endif
-    }
 }
 
 -(void)dealloc
@@ -311,9 +303,12 @@
     }
 #if IS_XCODE_7
     TiTextField* tv = (TiTextField*)[self textWidgetView];
+    
+    [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
+
     if([TiUtils boolValue:value] == YES) {
-        tv.inputAssistantItem.leadingBarButtonGroups = [tv leadingBarButtonGroups];
-        tv.inputAssistantItem.trailingBarButtonGroups = [tv trailingBarButtonGroups];
+        tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
     } else {
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];

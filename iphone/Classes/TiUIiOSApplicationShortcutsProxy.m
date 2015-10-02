@@ -16,7 +16,6 @@
     return @"Ti.Ui.iOS.ApplicationShortcuts";
 }
 
-
 -(NSDictionary*) shortcutItemToDictionary:(UIApplicationShortcutItem*) item
 {
     NSMutableDictionary *dict = [NSMutableDictionary
@@ -45,8 +44,8 @@
 {
     NSMutableArray *shortcutsToReturn = [[[NSMutableArray alloc] init] autorelease];
     NSArray *shortcuts = [UIApplication sharedApplication].shortcutItems;
-    UIApplicationShortcutItem *item;
-    for (item in shortcuts) {
+
+    for (UIApplicationShortcutItem *item in shortcuts) {
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:item]];
     }
     return shortcutsToReturn;
@@ -112,9 +111,8 @@
     }
     
     NSMutableArray * shortcuts = (NSMutableArray*)[UIApplication sharedApplication].shortcutItems;
-    UIApplicationShortcutItem *item;
     
-    for (item in shortcuts) {
+    for (UIApplicationShortcutItem *item in shortcuts) {
         if ([item.type isEqualToString:key]) {
             [shortcuts removeObject:item];
         }
