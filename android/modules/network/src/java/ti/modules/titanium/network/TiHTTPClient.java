@@ -1259,7 +1259,7 @@ public class TiHTTPClient
 	    	String fileName = contentBody.getFilename();
 
 	    	printWriter.append("--" + boundary).append(LINE_FEED);
-	    	printWriter.append("Content-Disposition: form-data; name=\"" + name);
+	    	printWriter.append("Content-Disposition: form-data; name=\"" + name + "\"");
 	    	if(fileName != null){
 	    		printWriter.append("\"; filename=\"" + fileName + "\"");
 	    	}
