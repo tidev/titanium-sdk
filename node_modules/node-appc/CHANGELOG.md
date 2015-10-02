@@ -1,3 +1,7 @@
+0.2.32 (10/1/2015)
+------------------
+ * Added PNG info (width, height, alpha) to image lib [TIMOB-19512]
+
 0.2.31 (9/3/2015)
 ------------------
  * Bug fix in JDK detection [TIMOB-19400]

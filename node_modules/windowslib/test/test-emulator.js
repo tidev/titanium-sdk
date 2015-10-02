@@ -72,8 +72,15 @@ describe('emulator', function () {
 				return done(err);
 			}
 
-			var wpsdk = Object.keys(results.emulators)[0],
-				emu = results.emulators[wpsdk][0];
+			var emu, wpsdk;
+			for (wpsdk in results.emulators) {
+				if (results.emulators[wpsdk].length > 0) {
+					emu = results.emulators[wpsdk][0];
+					break;
+				}
+			}
+
+			should(emu).be.an.Object;
 
 			windowslib.emulator.isRunning(emu.udid, function (err, running) {
 				if (!err && running) {
@@ -104,8 +111,15 @@ describe('emulator', function () {
 				return done(err);
 			}
 
-			var wpsdk = Object.keys(results.emulators)[0],
-				emu = results.emulators[wpsdk][0];
+			var emu, wpsdk;
+			for (wpsdk in results.emulators) {
+				if (results.emulators[wpsdk].length > 0) {
+					emu = results.emulators[wpsdk][0];
+					break;
+				}
+			}
+
+			should(emu).be.an.Object;
 
 			windowslib.emulator.isRunning(emu.udid, function (err, running) {
 				if (err) {
@@ -166,8 +180,12 @@ describe('emulator', function () {
 			function (next) {
 				windowslib.emulator.detect(function (err, results) {
 					if (!err) {
-						wpsdk = Object.keys(results.emulators)[0];
-						emu = results.emulators[wpsdk][0];
+						for (wpsdk in results.emulators) {
+							if (results.emulators[wpsdk].length > 0) {
+								emu = results.emulators[wpsdk][0];
+								break;
+							}
+						}
 					}
 					next(err);
 				});
@@ -233,8 +251,12 @@ describe('emulator', function () {
 			function (next) {
 				windowslib.emulator.detect(function (err, results) {
 					if (!err) {
-						wpsdk = Object.keys(results.emulators)[0];
-						emu = results.emulators[wpsdk][0];
+						for (wpsdk in results.emulators) {
+							if (results.emulators[wpsdk].length > 0) {
+								emu = results.emulators[wpsdk][0];
+								break;
+							}
+						}
 					}
 					next(err);
 				});
