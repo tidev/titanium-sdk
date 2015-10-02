@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionProxy.h"
 
 @implementation TiUIiOSPreviewActionProxy
@@ -33,7 +33,7 @@
 -(UIPreviewAction*)action
 {
     action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
-        if([self _hasListeners:@"click"]) {
+        if ([self _hasListeners:@"click"]) {
             [self fireEventWithAction:_action];
         }
     }];

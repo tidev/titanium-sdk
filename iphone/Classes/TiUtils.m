@@ -1929,7 +1929,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(BOOL)forceTouchSupported
 {
 #if IS_XCODE_7
-    if([self isIOS9OrGreater] == NO) {
+    if ([self isIOS9OrGreater] == NO) {
         return NO;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;

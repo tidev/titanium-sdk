@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#ifdef USE_TI_UIIOSPREVIEWACTIONGROUP
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiViewProxy.h"
 #import "TiUIiOSPreviewActionProxy.h"
 

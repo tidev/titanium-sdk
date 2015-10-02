@@ -30,7 +30,7 @@
 @property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_NORMAL;
 #endif
 
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DEFAULT;
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DESTRUCTIVE;
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
@@ -143,8 +143,10 @@
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
 #endif
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(id)createPreviewAction:(id)args;
+-(id)createPreviewActionGroup:(id)args;
+-(id)createPreviewContext:(id)args;
 #endif
 #endif
 @end

@@ -9,7 +9,13 @@
 #import "TiUtils.h"
 #import "Webcolor.h"
 #ifdef USE_TI_UIIOS
- 
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+#import "TiUIiOSPreviewContextProxy.h"
+#import "TiUIiOSPreviewActionProxy.h"
+#import "TiUIiOSPreviewActionGroupProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -46,6 +52,7 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindowProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 #import "TiAnimatorProxy.h"
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
@@ -68,15 +75,6 @@
 #endif
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
 #import "TiDynamicItemBehavior.h"
-#endif
-#ifdef USE_TI_UIIOSPREVIEWACTION
-#import "TiUIiOSPreviewActionProxy.h"
-#endif
-#ifdef USE_TI_UIIOSPREVIEWACTIONGROUP
-#import "TiUIiOSPreviewActionGroupProxy.h"
-#endif
-#ifdef USE_TI_UIIOSPREVIEWCONTEXT
-#import "TiUIiOSPreviewContextProxy.h"
 #endif
 #endif
 
@@ -139,11 +137,11 @@
 }
 #endif
 
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
 {
 #if IS_XCODE_7
-    if([TiUtils isIOS9OrGreater]) {
+    if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDefault);
     }
 #endif
@@ -152,7 +150,7 @@
 -(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
 #if IS_XCODE_7
-    if([TiUtils isIOS9OrGreater]) {
+    if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDestructive);
     }
 #endif
@@ -161,7 +159,7 @@
 -(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
 {
 #if IS_XCODE_7
-    if([TiUtils isIOS9OrGreater]) {
+    if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleSelected);
     }
 #endif
@@ -364,26 +362,22 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 #endif
 
 #if IS_XCODE_7
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(id)createPreviewAction:(id)args
 {
     return [[[TiUIiOSPreviewActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-#endif
 
-#ifdef USE_TI_UIIOSPREVIEWACTIONGROUP
 -(id)createPreviewActionGroup:(id)args
 {
     return [[[TiUIiOSPreviewActionGroupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-#endif
-#endif
 
-#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(id)createPreviewContext:(id)args
 {
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR

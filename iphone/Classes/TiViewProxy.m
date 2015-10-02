@@ -1227,12 +1227,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(void)setPreviewContext:(id)context
 {
 #if IS_XCODE_7
-    if([TiUtils isIOS9OrGreater] == NO) {
-        NSLog(@"[WARN] This API is only available on iOS9 and later.");
-        return;
-    }
-    
-    if([TiUtils forceTouchSupported] == NO) {
+    if ([TiUtils forceTouchSupported] == NO) {
         NSLog(@"[WARN] 3DTouch is not available on this device.");
         return;
     }

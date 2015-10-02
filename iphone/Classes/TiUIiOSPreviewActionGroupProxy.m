@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#ifdef USE_TI_UIIOSPREVIEWACTION
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewActionGroupProxy.h"
 
 @implementation TiUIiOSPreviewActionGroupProxy
@@ -18,7 +18,7 @@
     
     int index = 0;
     
-    for(TiUIiOSPreviewActionProxy *action in [properties valueForKey:@"actions"]) {
+    for (TiUIiOSPreviewActionProxy *action in [properties valueForKey:@"actions"]) {
         [action setActionIndex:index];
         [[self actions] addObject:[action action]];        
         index++;

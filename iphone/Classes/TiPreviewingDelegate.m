@@ -88,25 +88,31 @@
 -(CGRect)createSourceRectWithController:(TiViewController*)controller andLocation:(CGPoint*)location
 {
     UITableView *tableView = nil;
-    
+
+#ifdef USE_TI_UILISTVIEW
     if ([_sourceView isKindOfClass:[TiUIListViewProxy class]] == YES) {
         TiUIListViewProxy* listProxy = (TiUIListViewProxy*)_sourceView;
         TiUIListView *view = (TiUIListView*)[listProxy view];
         tableView = [view tableView];
-    } else if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
+    }
+#endif
+    
+#ifdef USE_TI_UITABLEVIEW
+    if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
         TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)_sourceView;
         TiUITableView *view = (TiUITableView*)[tableProxy view];
         tableView = [view tableView];
     }
+#endif
     
     if (tableView) {
         NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:*location];
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
         
         return cell.frame;
-    } else {
-        return [[controller view] bounds];
     }
+
+    return CGRectZero; // The Frame is detected automatically on normal views
 }
 
 @end
