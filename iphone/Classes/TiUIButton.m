@@ -100,19 +100,6 @@
 - (void)controlAction:(id)sender forEvent:(UIEvent *)event
 {
     UITouch *touch = [[event allTouches] anyObject];
-    
-    // Support 3D-Touch properties
-    if ([self.proxy _hasListeners:@"forcetouch"] && [TiUtils forceTouchSupported] == YES) {
-        CGPoint touchLocation = [touch locationInView:self];
-        NSDictionary *evt = @{
-          @"force" : [NSNumber numberWithFloat:[touch force]],
-          @"maximumForce" : [NSNumber numberWithFloat:[touch maximumPossibleForce]],
-          @"x" : [NSNumber numberWithDouble:touchLocation.x],
-          @"y" : [NSNumber numberWithDouble:touchLocation.y]
-        };
-        [self.proxy fireEvent:@"forcetouch" withObject:evt propagate:YES];
-    }
-    
     NSString *fireEvent;
     NSString * fireActionEvent = nil;
     switch (touch.phase) {

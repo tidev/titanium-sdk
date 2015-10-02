@@ -262,7 +262,6 @@ DEFINE_EXCEPTIONS
 			[proxy _hasListeners:@"touchend"] ||
 			[proxy _hasListeners:@"touchmove"] ||
 			[proxy _hasListeners:@"click"] ||
-			[proxy _hasListeners:@"forcetouch"] ||
 			[proxy _hasListeners:@"dblclick"];
 } 
 
@@ -1286,18 +1285,6 @@ DEFINE_EXCEPTIONS
 	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
-		// Support 3D-Touch properties
-		if ([proxy _hasListeners:@"forcetouch"] && [TiUtils forceTouchSupported] == YES) {
-			CGPoint touchLocation = [touch locationInView:self];
-			NSDictionary *evt = @{
-				@"force" : [NSNumber numberWithFloat:[touch force]],
-				@"maximumForce" : [NSNumber numberWithFloat:[touch maximumPossibleForce]],
-				@"x" : [NSNumber numberWithDouble:touchLocation.x],
-				@"y" : [NSNumber numberWithDouble:touchLocation.y]
-			};
-			[proxy fireEvent:@"forcetouch" withObject:evt propagate:YES];
-		}
-		
 		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
