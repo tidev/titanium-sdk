@@ -71,9 +71,8 @@
 
 -(BOOL)typeContained:(NSString*)type
 {
-    UIApplicationShortcutItem *item;
     NSArray * shortcuts = [UIApplication sharedApplication].shortcutItems;
-    for (item in shortcuts) {
+    for (UIApplicationShortcutItem *item in shortcuts) {
         if ([item.type isEqualToString:type]) {
             return YES;
         }
