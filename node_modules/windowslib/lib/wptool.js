@@ -29,7 +29,7 @@ const
 	// this is a hard coded list of emulators to detect.
 	// when the next windows phone is released, the enumerate()
 	// function will need to detect the new emulators.
-	wpsdks = ['8.0', '8.1'];
+	wpsdks = ['8.0', '8.1', '10'];
 
 var cache;
 
@@ -125,13 +125,31 @@ function enumerate(options, callback) {
 					if (err) {
 						// If there was an error, move on, but record error.
 						// Then later if we have no results for any version, we propagate the error
-						results[wpsdk] = {
-							devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
-							emulators: [],
-						};
+						if (!results[wpsdk]) {
+							results[wpsdk] = {
+								devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
+								emulators: [],
+							};
+						}
 						errors.push(err);
 						next();
 					} else {
+
+						// TIMOB-19576
+						// Windows 10 Mobile Emulators are detected by 8.1 sdk,
+						// which can be used for both 8.1 and 10 project.
+						if (wpsdk == '8.1') {
+							results['10'] = {
+								devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
+								emulators: []
+							}
+							Object.keys(result.emulators).forEach(function(emu) {
+								if (/Mobile\ Emulator\ 10\./.test(result.emulators[emu].name)) {
+									results['10'].emulators.push(result.emulators[emu]);
+								}
+							});
+						}
+
 						results[wpsdk] = result;
 						next();
 					}

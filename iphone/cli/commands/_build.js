@@ -26,7 +26,6 @@ var appc = require('node-appc'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
-	pngSize = require('png-size'),
 	spawn = require('child_process').spawn,
 	ti = require('titanium-sdk'),
 	util = require('util'),
@@ -4168,17 +4167,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				deviceFamily = this.deviceFamily,
 				missingIcons = [],
 				defaultIcon = path.join(this.projectDir, 'DefaultIcon.png'),
-				defaultIconChanged = false;
+				defaultIconChanged = false,
+				defaultIconHasAlpha = false;
 
 			if (fs.existsSync(defaultIcon)) {
 				var defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 					defaultIconStat = fs.statSync(defaultIcon),
 					defaultIconMtime = JSON.parse(JSON.stringify(defaultIconStat.mtime)),
-					defaultIconHash = this.hash(fs.readFileSync(defaultIcon));
+					defaultIconContents = fs.readFileSync(defaultIcon),
+					defaultIconHash = this.hash(defaultIconContents);
 
 				if (!defaultIconPrev || defaultIconPrev.size !== defaultIconStat.size || defaultIconPrev.mtime !== defaultIconMtime || defaultIconPrev.hash !== defaultIconHash) {
 					defaultIconChanged = true;
 				}
+
+				defaultIconHasAlpha = appc.image.pngInfo(defaultIconContents).alpha;
 
 				this.currentBuildManifest.files['DefaultIcon.png'] = {
 					hash: defaultIconHash,
@@ -4218,23 +4221,28 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				var meta = lookup[info.tag],
 					contents = fs.readFileSync(info.src),
-					size = pngSize(contents),
+					pngInfo = appc.image.pngInfo(contents),
 					w = meta.width * meta.scale,
 					h = meta.height * meta.scale;
 
 				// check that the app icon is square
-				if (size.width !== size.height) {
-					this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+				if (pngInfo.width !== pngInfo.height) {
+					this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
 					return;
 				}
 
 				// validate the app icon meets the requirements
-				if (size.width !== w) {
-					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height, w, w));
+				if (pngInfo.width !== w) {
+					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height, w, w));
 					return;
 				}
 
-				this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, size.width, size.height));
+				if (pngInfo.alpha) {
+					this.logger.warn(__('Skipping %s because app icons must not have an alpha channel', info.src.replace(this.projectDir + '/', '').cyan));
+					throw new Error();
+				}
+
+				this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
 
 				// inject images into the app icon set
 				meta.idioms.forEach(function (idiom) {
@@ -4274,10 +4282,15 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						}
 
 						var contents = fs.readFileSync(src),
-							size = pngSize(contents);
+							pngInfo = appc.image.pngInfo(contents);
 
-						if (size.width !== artwork.size || size.height !== artwork.size) {
-							this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename.cyan, size.width, size.height, artwork.size, artwork.size));
+						if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
+							this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename.cyan, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
+							throw new Error();
+						}
+
+						if (pngInfo.alpha) {
+							this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename.cyan));
 							throw new Error();
 						}
 
@@ -4329,9 +4342,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				// check if the icon was previously resized
 				if (!defaultIconChanged && fs.existsSync(dest)) {
 					var contents = fs.readFileSync(dest),
-						size = pngSize(contents);
+						pngInfo = appc.image.pngInfo(contents);
 
-					if (size.width === width && size.height === height) {
+					if (pngInfo.width === width && pngInfo.height === height) {
 						this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
 						// icon looks good, no need to generate it!
 						return;
@@ -4353,6 +4366,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
 			if (missingIcons.length) {
+				if (defaultIconHasAlpha) {
+					return next(new Error(__('DefaultIcon.png cannot be used because it contains an alpha channel')));
+				}
+
 				this.logger.debug(__n(
 					'Missing %s app icon, generating missing icon',
 					'Missing %s app icons, generating missing icons',

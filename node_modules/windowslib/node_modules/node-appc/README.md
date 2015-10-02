@@ -1,9 +1,9 @@
-## Overview [![Build Status](https://travis-ci.org/appcelerator/node-appc.png)](https://travis-ci.org/appcelerator/node-appc)
+## Appcelerator Node Utilities
 
-This is a common library used by Appcelerator Node.js-based software products such as the
+> This is a common library used by Appcelerator Node.js-based software products such as the
 [Titanium CLI](http://github.com/appcelerator/titanium).
 
-[![NPM](https://nodei.co/npm/node-appc.png?downloads=true&stars=true)](https://nodei.co/npm/node-appc/)
+[![Build Status](https://travis-ci.org/appcelerator/node-appc.png)](https://travis-ci.org/appcelerator/node-appc)
 
 ## Prerequisites
 
