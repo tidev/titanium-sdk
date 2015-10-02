@@ -4977,6 +4977,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		}
 		contents = contents.join('\n');
 	}
+
 	var infoPlist = this.infoPlist;
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
 		contents += '\n#define USE_TI_SILENTPUSH';
