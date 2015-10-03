@@ -177,15 +177,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						process.exit(1);
 					}
 
-					// on OS X, we need JDK 1.6 for titanium_prep
-					if (process.platform === 'darwin' && !Object.keys(jdkInfo.jdks).some(function (ver) { return appc.version.satisfies(jdkInfo.jdks[ver].version, '1.6.x'); })) {
-						logger.error(__('Titanium requires JDK 1.6 when building on Mac OS X.'));
-						logger.error(__('You can download it from %s', 'http://appcelerator.com/jdk-osx'));
-						logger.error(__('If you still see this message, then you may need to set the JAVA_HOME to help Titanium locate the JDK.'));
-						logger.error(__('To see which JDKs Titanium finds, run "ti info --types jdk --output json".') + '\n');
-						process.exit(1);
-					}
-
 					_t.jdkInfo = jdkInfo;
 					next();
 				});
@@ -894,7 +885,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
@@ -2634,6 +2625,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			var titaniumPrep = 'titanium_prep';
 			if (process.platform == 'darwin') {
 				titaniumPrep += '.macos';
+				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
+					titaniumPrep += '.jdk16';
+				}
 			} else if (process.platform == 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform == 'linux') {

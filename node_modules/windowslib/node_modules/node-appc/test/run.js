@@ -2,7 +2,7 @@
  * Bootstraps mocha and handles code coverage testing setup.
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -12,7 +12,6 @@
 var fs = require('fs'),
 	path = require('path'),
 	colors = require('colors'),
-	should = require('should'),
 	Mocha = require('../node_modules/mocha/lib/mocha.js'),
 	Base = require('../node_modules/mocha/lib/reporters/base'),
 	mocha = new Mocha,

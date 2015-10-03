@@ -34,11 +34,14 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 
 /**
  * The parent class of view proxies.
@@ -749,6 +752,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected void handleShow(KrollDict options)
 	{
 		if (view != null) {
+			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+				View nativeView = view.getOuterView();
+				int width = nativeView.getWidth();
+				int height = nativeView.getHeight();
+				int radius = Math.max(width, height);
+				Animator anim = ViewAnimationUtils.createCircularReveal(nativeView, width/2, height/2, 0, radius);
+				view.show();
+				anim.start();
+				return;
+			}
 			view.show();
 		}
 	}
@@ -772,6 +785,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (pendingAnimation != null) {
 					handlePendingAnimation(false);
 				}
+			}
+			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+				View nativeView = view.getOuterView();
+				int width = nativeView.getWidth();
+				int height = nativeView.getHeight();
+				int radius = Math.max(width, height);
+				Animator anim = ViewAnimationUtils.createCircularReveal(nativeView, width/2, height/2, radius, 0);
+				anim.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						super.onAnimationEnd(animation);
+						view.hide();
+					}
+				});
+
+				anim.start();
+				return;
 			}
 			view.hide();
 		}

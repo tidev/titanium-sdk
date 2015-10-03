@@ -599,6 +599,12 @@ methods:
         
   - name: hide
     summary: Hides this view.
+    parameters:
+      - name: options
+        summary: |
+            Starting with release 5.1.0, This is an optional dictionary on Android to enable circular reveal animation. 
+            See <AnimationOption> for more info.
+        type: Dictionary
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
@@ -645,6 +651,12 @@ methods:
 
   - name: show
     summary: Makes this view visible.
+    parameters:
+      - name: options
+        summary: |
+            Starting with release 5.1.0, This is an optional dictionary on Android that enables circular reveal animation. 
+            See <AnimationOption> for more info.
+        type: Dictionary
     
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -1613,3 +1625,12 @@ properties:
   - name: y
     summary: The y-axis coordinate of the position.
     type: Number
+
+---
+name: AnimationOption
+summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+properties:
+  - name: animated
+    summary: whether to enable circular reveal animation on Android.
+    type: Boolean
+    default: false

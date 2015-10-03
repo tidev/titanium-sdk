@@ -1126,6 +1126,268 @@ properties:
     permission: read-only
     since: "3.4.0"
 
+  - name: SHORTCUT_ICON_TYPE_COMPOSE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user compose new content.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PLAY
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that plays media.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PAUSE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that pauses media playback.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_ADD
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that adds an item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_LOCATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        Will cause a magnifying glass icon to be displayed at that location in the index.
+        This should generally only be used as the first title in the index.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SEARCH
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that accesses the user’s current location.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SHARE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers content sharing.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PROHIBIT
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that disallows something.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CONTACT
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that chooses a generic contact.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_HOME
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates home.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MARK_LOCATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user mark a location.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_FAVORITE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user designate a favorite item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_LOVE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user designate a loved item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CLOUD
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers cloud access.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_INVITATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates an invitation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CONFIRMATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates confirmation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MAIL
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of mail.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MESSAGE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of messaging.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_DATE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of a calendar.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TIME
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of a clock or timer.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CAPTURE_PHOTO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers photo capture.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CAPTURE_VIDEO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers video capture.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TASK
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers task creation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TASK_COMPLETED
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers task completion.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_ALARM
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers creation of an alarm.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_BOOKMARK
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers creation of a bookmark.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SHUFFLE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers shuffle mode.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_AUDIO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of audio.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+ 
+  - name: SHORTCUT_ICON_TYPE_UPDATE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers updating.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+                                                                                                              
 methods:
   - name: createTransitionAnimation
     summary: |

@@ -294,6 +294,7 @@
 		CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */; };
 		CA0D39E81B7F709E009D534C /* TiAppiOSSearchableItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */; };
 		CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */; };
+		CAC2255B1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CAC2255A1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m */; settings = {ASSET_TAGS = (); }; };
 		CEBC15711A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
@@ -913,6 +914,8 @@
 		CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableItemProxy.m; sourceTree = "<group>"; };
 		CA0D39E91B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableIndexProxy.h; sourceTree = "<group>"; };
 		CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableIndexProxy.m; sourceTree = "<group>"; };
+		CAC225591BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSApplicationShortcutsProxy.h; sourceTree = "<group>"; };
+		CAC2255A1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSApplicationShortcutsProxy.m; sourceTree = "<group>"; };
 		CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserDefaultsProxy.h; sourceTree = "<group>"; };
 		CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserDefaultsProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
@@ -1863,6 +1866,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				CAC225581BB79659008A332B /* ApplicationShortcuts */,
 				3AB9137D1BB61EB00063A4AD /* Preview Action */,
 				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
 				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
@@ -2336,6 +2340,15 @@
 			name = AttributedString;
 			sourceTree = "<group>";
 		};
+		CAC225581BB79659008A332B /* ApplicationShortcuts */ = {
+			isa = PBXGroup;
+			children = (
+				CAC225591BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.h */,
+				CAC2255A1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m */,
+			);
+			name = ApplicationShortcuts;
+			sourceTree = "<group>";
+		};
 		CEFFA0BB1A8A80810078F310 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -2503,6 +2516,7 @@
 				24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */,
 				24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */,
 				24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */,
+				CAC2255B1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m in Sources */,
 				24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */,
 				24CA8B68111161FE0084E2DE /* WebFont.m in Sources */,
 				24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */,
