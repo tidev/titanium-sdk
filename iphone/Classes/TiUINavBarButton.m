@@ -134,6 +134,8 @@ DEFINE_EXCEPTIONS
     }
     proxy = proxy_; // Don't retain
 
+    self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
+    
     self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
     //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
     // we need to listen manually to proxy change events if we want to be

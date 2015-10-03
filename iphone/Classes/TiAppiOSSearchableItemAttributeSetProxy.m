@@ -26,7 +26,7 @@
 -(void)initFieldTypeInformation
 {
     dateFieldTypes = @[@"metadataModificationDate",@"recordingDate",@"downloadedDate",@"lastUsedDate",@"contentCreationDate",@"contentModificationDate",@"addedDate",@"recordingDate",@"downloadedDate",@"lastUsedDate"];
-    urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"URL"];
+    urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"url"];
     unsupportedFieldTypes = @[@"thumbnailData"];
 }
 
@@ -53,10 +53,14 @@
                     [_attributes setValue:[TiUtils dateForUTCDate:object] forKey:key];
                 }else if([urlFieldTypes containsObject:key]){
                     //Use URL logic to add
-                    [_attributes setValue:[NSURL URLWithString:[object stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] forKey:key];
+                    [_attributes setValue:[self sanitizeURL:object] forKey:key];
                 }else{
                     [_attributes setValue:object forKey:key];
                 }
+            }
+            else {
+                //Use blob to add
+                [_attributes setValue:[object data] forKey:key];
             }
         }
         else{
@@ -118,7 +122,7 @@
 {
     ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setContentURL,value);
-    _attributes.contentURL =[NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    _attributes.contentURL = [self sanitizeURL:value];
 }
 
 //Optional file URL pointing to a thumbnail image for this item
@@ -131,7 +135,7 @@
 {
     ENSURE_SINGLE_ARG(value,NSString);
     ENSURE_UI_THREAD(setThumbnailURL,value);
-    _attributes.thumbnailURL = [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    _attributes.thumbnailURL = [self sanitizeURL:value];
 }
 
 //Optional image data for thumbnail for this item
@@ -198,15 +202,15 @@
 
 //Represents keywords associated with this particular item.
 //Example Keywords might be Birthday,Important etc.
--(NSArray*)keyWords
+-(NSArray*)keywords
 {
     return _attributes.keywords;
 }
 
--(void)setKeyWords:(id)words
+-(void)setKeywords:(id)words
 {
     ENSURE_ARRAY(words)
-    ENSURE_UI_THREAD(setKeyWords,words);
+    ENSURE_UI_THREAD(setKeywords,words);
     _attributes.keywords = words;
 }
 
@@ -1303,16 +1307,16 @@
     _attributes.contentRating = value;
 }
 //URL of the item
--(NSString*)URL
+-(NSString*)url
 {
     return [_attributes.URL absoluteString];
 }
 
--(void)setURL:(id)value
+-(void)setUrl:(id)value
 {
     ENSURE_SINGLE_ARG(value,NSString);
-    ENSURE_UI_THREAD(setURL,value);
-    _attributes.URL = [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    ENSURE_UI_THREAD(setUrl,value);
+    _attributes.URL = [self sanitizeURL:value];;
 }
 
 @end

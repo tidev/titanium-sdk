@@ -1,11 +1,14 @@
 /**
  * node-appc - Appcelerator Common Library for Node.js
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 var appc = require('../index');
+
+global.should = null;
+global.should = require('should');
 
 function MockConfig() {
 	this.get = function (s, d) {
@@ -23,27 +26,30 @@ describe('jdk', function () {
 		it('should return valid result without specifying a config or options', function (done) {
 			this.timeout(5000);
 
+			function checkJDK(jdk) {
+				should(jdk).be.an.Object;
+				should(jdk).have.properties('home', 'version', 'build', 'executables', 'architecture');
+				should(jdk.home).be.a.String;
+				should(jdk.version).be.a.String;
+				should(jdk.version).match(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
+				should(jdk.build).be.a.String;
+				should(jdk.build).match(/^\d+$/);
+				should(jdk.executables).be.a.Object;
+				should(jdk.architecture).be.a.String;
+				should(jdk.architecture).match(/^(32|64)bit/);
+			}
+
 			appc.jdk.detect(function (result) {
-				result.should.be.an.Object;
+				should(result).be.an.Object;
 
-				if (result.version !== null) {
-					result.version.should.be.a.String;
-					result.version.should.match(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
-				}
+				should(result).have.keys('jdks', 'home', 'version', 'build', 'executables', 'issues', 'architecture');
 
-				if (result.build !== null) {
-					result.build.should.be.a.String;
-					result.build.should.match(/^\d+$/);
-				}
+				should(result.jdks).be.an.Object;
+				Object.keys(result.jdks).forEach(function (jdk) {
+					checkJDK(result.jdks[jdk]);
+				});
 
-				if (result.architecture !== null) {
-					result.architecture.should.be.a.String;
-					result.architecture.should.match(/^(32|64)bit$/);
-				}
-
-				if (result.executables !== null) {
-					result.executables.should.be.an.Object;
-				}
+				checkJDK(result);
 
 				if (result.issues !== null) {
 					result.issues.should.be.an.Array;

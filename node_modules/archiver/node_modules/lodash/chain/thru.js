@@ -10,11 +10,14 @@
  * @returns {*} Returns the result of `interceptor`.
  * @example
  *
- * _([1, 2, 3])
- *  .last()
- *  .thru(function(value) { return [value]; })
+ * _('  abc  ')
+ *  .chain()
+ *  .trim()
+ *  .thru(function(value) {
+ *    return [value];
+ *  })
  *  .value();
- * // => [3]
+ * // => ['abc']
  */
 function thru(value, interceptor, thisArg) {
   return interceptor.call(thisArg, value);

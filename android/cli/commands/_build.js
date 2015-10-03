@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -23,7 +23,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	archiver = require('archiver'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
+	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('titanium-sdk/lib/emulator'),
@@ -885,7 +885,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// get the javac params
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
@@ -895,6 +895,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		case 'production':
 			this.minifyJS = true;
 			this.encryptJS = true;
+			this.minifyCSS = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
 			this.includeAllTiModules = false;
@@ -904,6 +905,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		case 'test':
 			this.minifyJS = true;
 			this.encryptJS = true;
+			this.minifyCSS = true;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.includeAllTiModules = false;
@@ -914,6 +916,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		default:
 			this.minifyJS = false;
 			this.encryptJS = false;
+			this.minifyCSS = false;
 			this.allowDebugging = true;
 			this.allowProfiling = true;
 			this.includeAllTiModules = true;
@@ -2353,7 +2356,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 							fs.readFile(from, function (err, data) {
 								if (err) throw err;
-								fs.writeFile(to, cleanCSS.process(data.toString()), next);
+								fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
 							});
 						} else {
 							copyFile.call(_t, from, to, next);
@@ -2622,6 +2625,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			var titaniumPrep = 'titanium_prep';
 			if (process.platform == 'darwin') {
 				titaniumPrep += '.macos';
+				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
+					titaniumPrep += '.jdk16';
+				}
 			} else if (process.platform == 'win32') {
 				titaniumPrep += '.win32.exe';
 			} else if (process.platform == 'linux') {

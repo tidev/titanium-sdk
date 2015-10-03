@@ -32,7 +32,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
@@ -58,7 +58,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
-	private WeakReference<ActionBarActivity> tabGroupActivity;
+	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
 	
@@ -360,7 +360,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState) {
-		tabGroupActivity = new WeakReference<ActionBarActivity>(activity);
+		tabGroupActivity = new WeakReference<AppCompatActivity>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
 		setActivity(activity);
@@ -429,7 +429,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		releaseViews();
 		view = null;
 
-		ActionBarActivity activity = tabGroupActivity.get();
+		AppCompatActivity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {
 			activity.finish();
 		}
@@ -578,7 +578,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected ActionBarActivity getWindowActivity()
+	protected AppCompatActivity getWindowActivity()
 	{
 		return (tabGroupActivity != null) ? tabGroupActivity.get() : null;
 	}

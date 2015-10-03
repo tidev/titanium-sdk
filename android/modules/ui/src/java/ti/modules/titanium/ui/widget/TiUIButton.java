@@ -22,7 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
-import android.widget.Button;
+import android.support.v7.widget.AppCompatButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -39,7 +39,7 @@ public class TiUIButton extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		Button btn = new Button(proxy.getActivity())
+		AppCompatButton btn = new AppCompatButton(proxy.getActivity())
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -60,7 +60,7 @@ public class TiUIButton extends TiUIView
 
 		boolean needShadow = false;
 
-		Button btn = (Button) getNativeView();
+		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference drawableRef = null;
@@ -130,7 +130,7 @@ public class TiUIButton extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		Button btn = (Button) getNativeView();
+		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {

@@ -6,14 +6,14 @@
  */
 package ti.modules.titanium.network;
 
+import java.net.CookieHandler;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -40,7 +40,7 @@ import android.webkit.CookieSyncManager;
 public class NetworkModule extends KrollModule {
 
 	private static final String TAG = "TiNetwork";
-	private static CookieStore httpCookieStore;
+	private static java.net.CookieManager cookieManager;
 
 	public static final String EVENT_CONNECTIVITY = "change";
 	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
@@ -299,13 +299,14 @@ public class NetworkModule extends KrollModule {
 		manageConnectivityListener(false);
 		connectivityManager = null;
 	}
-
-	public static CookieStore getHTTPCookieStoreInstance()
+	
+	public static java.net.CookieManager getCookieManagerInstance()
 	{
-		if (httpCookieStore == null) {
-			httpCookieStore = new BasicCookieStore();
+		if (cookieManager == null) {
+			cookieManager = new java.net.CookieManager();
+			CookieHandler.setDefault(cookieManager);
 		}
-		return httpCookieStore;
+		return cookieManager;
 	}
 
 	/**
@@ -318,12 +319,19 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void addHTTPCookie(CookieProxy cookieProxy)
 	{
-		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
+		HttpCookie cookie = cookieProxy.getHTTPCookie();
+		String cookieDomain = cookie.getDomain();
 		if (cookie != null) {
-			getHTTPCookieStoreInstance().addCookie(cookie);
+			URI uriDomain;
+			try {
+				uriDomain = new URI(cookieDomain);
+			} catch (Exception e) {
+				uriDomain = null;
+			}
+			getCookieManagerInstance().getCookieStore().add(uriDomain, cookie);
 		}
 	}
-
+	
 	/**
 	 * Gets all the cookies with the domain, path and name matched with the given values. If name is null, gets all the cookies with
 	 * the domain and path matched.
@@ -345,8 +353,8 @@ public class NetworkModule extends KrollModule {
 			path = "/";
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
-		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		for (Cookie cookie : cookies) {
+		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
+		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
 			String cookieDomain = cookie.getDomain();
 			String cookiePath = cookie.getPath();
@@ -360,7 +368,7 @@ public class NetworkModule extends KrollModule {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Gets all the cookies with the domain matched with the given value.
 	 * @param domain the domain of the cookie to get. It is case-insensitive.
@@ -376,8 +384,8 @@ public class NetworkModule extends KrollModule {
 			return null;
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
-		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		for (Cookie cookie : cookies) {
+		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
+		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
 			if (domainMatch(cookieDomain, domain)) {
 				cookieList.add(new CookieProxy(cookie));
@@ -388,7 +396,7 @@ public class NetworkModule extends KrollModule {
 		}
 		return null;
 	}
-
+	
 	/** Removes the cookie with the domain, path and name exactly the same as the given values.
 	 * @param domain the domain of the cookie to remove. It is case-insensitive.
 	 * @param path the path of the cookie to remove. It is case-sensitive.
@@ -403,19 +411,25 @@ public class NetworkModule extends KrollModule {
 			}
 			return;
 		}
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
-		cookieStore.clear();
-		for (Cookie cookie : cookies) {
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		cookieStore.removeAll();
+		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
 			String cookieDomain = cookie.getDomain();
 			String cookiePath = cookie.getPath();
 			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
-				cookieStore.addCookie(cookie);
+				URI uriDomain;
+				try {
+					uriDomain = new URI(cookieDomain);
+				} catch (URISyntaxException e) {
+					uriDomain = null;
+				}
+				cookieStore.add(uriDomain, cookie);
 			}
 		}
 	}
-
+	
 	/**
 	 * Removes all the cookies with the domain matched with the given value.
 	 * @param domain the domain of the cookie to remove. It is case-insensitive.
@@ -423,36 +437,42 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeHTTPCookiesForDomain(String domain)
 	{
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
-		cookieStore.clear();
-		for (Cookie cookie : cookies) {
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		cookieStore.removeAll();
+		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
 			if (!(domainMatch(cookieDomain, domain))) {
-				cookieStore.addCookie(cookie);
+				URI uriDomain;
+				try {
+					uriDomain = new URI(cookieDomain);
+				} catch (URISyntaxException e) {
+					uriDomain = null;
+				}
+				cookieStore.add(uriDomain, cookie);
 			}
 		}
 	}
-
+	
 	/**
 	 * Removes all the cookies in the HTTPClient cookie store.
 	 */
 	@Kroll.method
 	public void removeAllHTTPCookies()
 	{
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		cookieStore.clear();
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		cookieStore.removeAll();
 	}
-
+	
 	/**
 	 * Adds a cookie to the system cookie store. Any existing cookie with the same domain, path and name will be replaced with
 	 * the new cookie. The cookie being set must not have expired, otherwise it will be ignored.
 	 * @param cookieProxy the cookie to add
 	 */
 	@Kroll.method
-	public void addSystemCookie(CookieProxy cookieProxy)
+	public void addSystemCookie(CookieProxy cookieURLConnectionProxy)
 	{
-		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
+		HttpCookie cookie = cookieURLConnectionProxy.getHTTPCookie();
 		String cookieString = cookie.getName() + "=" + cookie.getValue();
 		String domain = cookie.getDomain();
 		if (domain == null) {
@@ -462,15 +482,17 @@ public class NetworkModule extends KrollModule {
 		cookieString += "; domain=" + domain;
 
 		String path = cookie.getPath();
-		Date expiryDate = cookie.getExpiryDate();
-		boolean secure = cookie.isSecure();
-		boolean httponly = TiConvert.toBoolean(cookieProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
+		//Date expiryDate = cookie.getExpiryDate();
+		boolean secure = cookie.getSecure();
+		boolean httponly = TiConvert.toBoolean(cookieURLConnectionProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
 		if (path != null) {
 			cookieString += "; path=" + path;
 		}
+		/*
 		if (expiryDate != null) {
 			cookieString += "; expires=" + CookieProxy.systemExpiryDateFormatter.format(expiryDate);
 		}
+		*/
 		if (secure) {
 			cookieString += "; secure";
 		}
@@ -481,6 +503,7 @@ public class NetworkModule extends KrollModule {
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setCookie(domain, cookieString);
 		CookieSyncManager.getInstance().sync();
+		
 	}
 
 	/**

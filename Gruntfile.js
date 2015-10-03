@@ -32,8 +32,8 @@ module.exports = function (grunt) {
 			fs = require('fs'),
 			path = require('path');
 
-		if (parseInt(process.versions.modules) < 45) {
-			return done(new Error('You must run this using io.js 3.0. Sorry.'));
+		if (parseInt(process.versions.modules) < 46) {
+			return done(new Error('You must run this using Node.js 4.0. Sorry.'));
 		}
 
 		grunt.log.writeln('Removing old Node modules');
@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 			});
 		}
 
-		rm(path.join(__dirname, 'node_modules'), ['sqlite3', 'titanium-sdk']);
+		rm(path.join(__dirname, 'node_modules'), ['titanium-sdk']);
 
 		grunt.log.writeln('Running npm install');
 		exec('npm install', function (err, stdout, stderr) {

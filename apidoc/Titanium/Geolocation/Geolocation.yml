@@ -802,7 +802,7 @@ properties:
     default: true
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    since: "4.3.0"
+    since: "5.0.0"
 
   - name: activityType
     summary: |

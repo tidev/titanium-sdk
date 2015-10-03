@@ -93,50 +93,69 @@ DEFINE_EXCEPTIONS
         return;
     }
     
-	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
+    NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
-	NSArray * tabArray = [controller viewControllers];
+    NSArray * tabArray = [controller viewControllers];
+   
+    NSInteger previousIndex = 0;
+    NSInteger index = 0;
+    
+    if ([self.proxy valueForKey:@"index"] > 0) {
+        index = -1;
+    }
+    
+    if ([self.proxy valueForKey:@"previousIndex"] > 0) {
+        previousIndex = -1;
+    }
+    
+    if (focusedTabProxy != nil) {
+        [event setObject:focusedTabProxy forKey:@"previousTab"];
+        previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
+    }
 
-	NSInteger previousIndex = -1;
-	NSInteger index = -1;
+    if (newFocus != nil) {
+        [event setObject:newFocus forKey:@"tab"];
+        index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
+    }
 
-	if (focusedTabProxy != nil)
-	{
-		[event setObject:focusedTabProxy forKey:@"previousTab"];
-		previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
-	}
-	
-	if (newFocus != nil)
-	{
-		[event setObject:newFocus forKey:@"tab"];
-		index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
-	}
-
-	[event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
-	[event setObject:NUMINTEGER(index) forKey:@"index"];
-
-	[self.proxy fireEvent:@"blur" withObject:event];
-	[focusedTabProxy handleDidBlur:event];
+    [event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
+    [event setObject:NUMINTEGER(index) forKey:@"index"];
+    
+    if ([self.proxy _hasListeners:@"unselected"]) {
+        [self.proxy fireEvent:@"unselected" withObject:event];
+    }
+    
+    if ([self.proxy _hasListeners:@"blur"]) {
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.blur" ,@"5.1.0",@"UI.TabGroup.Event.unselected")
+        [self.proxy fireEvent:@"blur" withObject:event];
+    }
+    
+    [focusedTabProxy handleDidBlur:event];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
-	RELEASE_TO_NIL(focusedTabProxy);
-	focusedTabProxy = [newFocus retain];
-	[self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
+    RELEASE_TO_NIL(focusedTabProxy);
+    focusedTabProxy = [newFocus retain];
+    [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
     [focusedTabProxy replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
-    // If we're in the middle of opening, the focus happens once the tabgroup is opened
-    if (![(TiWindowProxy*)[self proxy] opening]) {
-        [self.proxy fireEvent:@"focus" withObject:event];
-    }
-    //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
-    if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
+	// If we're in the middle of opening, the focus happens once the tabgroup is opened
+     if (![(TiWindowProxy*)[self proxy] opening]){
+        if ([self.proxy _hasListeners:@"selected"]){
+            [self.proxy fireEvent:@"selected" withObject:event];
+        }
+        
+        if ([self.proxy _hasListeners:@"focus"]){
+            DEPRECATED_REPLACED(@"UI.TabGroup.Event.focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
+            [self.proxy fireEvent:@"focus" withObject:event];
+        }
+	}
+	//TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+	if ([(TiUITabGroupProxy*)[self proxy] canFocusTabs]) {
         [focusedTabProxy handleDidFocus:event];
-    }
+	}
 }
 
-
 #pragma mark More tab delegate
-
 
 -(void)updateMoreBar:(UINavigationController *)moreController
 {
@@ -565,6 +584,7 @@ DEFINE_EXCEPTIONS
 
         [self tabController].viewControllers = nil;
         [self tabController].viewControllers = controllers;
+        
         if ( focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
             if (theActiveTab != nil) {
                 [self setActiveTab_:theActiveTab];
@@ -600,7 +620,14 @@ DEFINE_EXCEPTIONS
 		index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
 	}
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
-	[self.proxy fireEvent:@"focus" withObject:event];
+    if ([self.proxy _hasListeners:@"selected"]){
+        [self.proxy fireEvent:@"selected" withObject:event];
+    }
+
+    if ([self.proxy _hasListeners:@"focus"]){
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
+        [self.proxy fireEvent:@"focus" withObject:event];
+    }
     
     // Tab has already been focused by the tab controller delegate
 	//[focused handleDidFocus:event];

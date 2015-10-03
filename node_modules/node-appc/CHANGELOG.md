@@ -1,3 +1,27 @@
+0.2.32 (10/1/2015)
+------------------
+ * Added PNG info (width, height, alpha) to image lib [TIMOB-19512]
+
+0.2.31 (9/3/2015)
+------------------
+ * Bug fix in JDK detection [TIMOB-19400]
+
+0.2.30 (8/31/2015)
+------------------
+ * Windows specific bug fixes [TIMOB-19400]
+
+0.2.29 (8/28/2015)
+------------------
+ * Improved JDK detection and added ability to find more than one JDK [TIMOB-19400]
+
+0.2.28
+------------------
+ * ?
+
+0.2.27
+------------------
+ * ?
+
 0.2.26 (3/17/2015)
 ------------------
  * Removed authentication from the analytics and anonymized the data [TIMOB-18711]

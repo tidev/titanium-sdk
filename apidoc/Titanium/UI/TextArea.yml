@@ -313,7 +313,7 @@ properties:
     default: true
     platforms: [ipad]
     osver: {ios: {min: "9.0"}}
-    since: 4.3.0
+    since: 5.0.0
 
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
