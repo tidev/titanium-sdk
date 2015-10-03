@@ -12,25 +12,15 @@
 
 @implementation TiAppiOSOnDemandResourcesManagerProxy
 
--(void)_destroy
-{
-    [super _destroy];
-}
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    ENSURE_ARRAY([properties valueForKey:@"tags"]);
-    
-    tags = [properties valueForKey:@"tags"];
-    resourceRequest = [[NSBundleResourceRequest alloc] initWithTags:tags];
-    
-    [resourceRequest.progress addObserver:self
-                              forKeyPath:@"fractionCompleted"
-                              options:NSKeyValueObservingOptionNew
-                              context:NULL
-     ];
-    
     [super _initWithProperties:properties];
+}
+
+-(void)dealloc
+{
+    [super dealloc];
 }
 
 -(NSString*)apiName
@@ -40,78 +30,95 @@
 
 #pragma mark Public API's
 
--(void)beginAccessingResources:(id)args
+-(void)conditionallyBeginAccessingResources:(id)args
 {
-    NSDictionary* statusCallbacks = nil;
-    
-    // Check the method arguments
-    statusCallbacks = [args objectAtIndex:0];
-    ENSURE_TYPE(statusCallbacks, NSDictionary);
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+
+    // Define the tags
+    NSSet<NSString*> *tags = [[NSSet alloc] initWithArray:[args valueForKey:@"tags"]];
     
     // Define the success callback
-    KrollCallback* successCallback = [statusCallbacks valueForKey:@"success"];
+    KrollCallback* successCallback = [args valueForKey:@"success"];
     ENSURE_TYPE_OR_NIL(successCallback, KrollCallback);
     
     // Define the error callback
-    KrollCallback* errorCallback = [statusCallbacks valueForKey:@"error"];
+    KrollCallback* errorCallback = [args valueForKey:@"error"];
     ENSURE_TYPE_OR_NIL(errorCallback, KrollCallback);
     
-    // Add a listener to the current download progress
-    [resourceRequest.progress addObserver:self forKeyPath:@"fractionCompleted" options:NSKeyValueObservingOptionNew context:NULL];
-   
-    // Access the resources
-    [resourceRequest beginAccessingResourcesWithCompletionHandler: ^(NSError * __nullable error) {
-         resourcesLoaded = !error;
-        
-        if (resourcesLoaded == YES) {
-            [successCallback call: [NSArray arrayWithObjects: @{ @"success" : @YES }, nil] thisObject: nil];
-        } else {
-            [errorCallback call: [NSArray arrayWithObjects: @{ @"success" : @NO, @"message": [error localizedDescription] }, nil] thisObject: nil];
-        }
-        
-        // Add the listener of the current download progress
-        [resourceRequest.progress removeObserver:self forKeyPath:@"fractionCompleted"];
-        
-        [successCallback release];
-        [errorCallback release];
-    }];
-}
+    [self setResourceRequest:[[NSBundleResourceRequest alloc] initWithTags:tags]];
 
--(void)conditionallyBeginAccessingResources:(id)args
-{
-    [resourceRequest conditionallyBeginAccessingResourcesWithCompletionHandler: ^(BOOL resourcesAvailable) {
+    [_resourceRequest.progress addObserver:self forKeyPath:@"fractionCompleted" options:NSKeyValueObservingOptionNew context:NULL];
+    
+    [_resourceRequest conditionallyBeginAccessingResourcesWithCompletionHandler: ^(BOOL resourcesAvailable) {
             if(resourcesAvailable) {
-                resourcesLoaded = NO;
+                [self executeCallback:successCallback withCode:0 andMessage:@"Resources already available."];
+                
+                NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(1.0) forKey:@"value"];
+                [self fireEvent:@"progress" withObject:event];
+                
+                // Data available and already downloaded, go to success callback.
+                [self endAccessingResources];
             } else {
-                [self beginAccessingResources:args];
+                // Data available, but not downloaded, begin downloading them.
+                NSLog(@"Resources not available, yet. Downloading ...");
+                
+                [_resourceRequest beginAccessingResourcesWithCompletionHandler: ^(NSError * __nullable error) {
+                    
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^(void) {
+                        
+                        if (error == nil) {
+                            [self executeCallback:successCallback
+                                         withCode:0
+                                       andMessage:@"Resources downloaded successfully."];
+                        } else {
+                            [self executeCallback:errorCallback
+                                         withCode:1
+                                       andMessage:[NSString stringWithFormat:@"Resources cound not be downloaded: %@", [error localizedDescription]]];
+                        }
+                        
+                        // Add the listener of the current download progress
+                        [_resourceRequest.progress removeObserver:self forKeyPath:@"fractionCompleted"];
+                        [self endAccessingResources];
+                        
+                    }];
+                }];
             }
         }
      ];
 }
 
+-(void)executeCallback:(KrollCallback*)callback withCode:(NSInteger)code andMessage:(NSString*)message
+{
+    NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:message];
+    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+    [callback call:invocationArray thisObject:self];
+    [invocationArray release];
+}
+
 -(void)endAccessingResources
 {
-    [resourceRequest endAccessingResources];
+    [_resourceRequest endAccessingResources];
 }
 
 -(double)priority
 {
-    return [resourceRequest loadingPriority];
+    return [_resourceRequest loadingPriority];
 }
 
 -(void)setPriority:(id)_priority
 {
     ENSURE_UI_THREAD_1_ARG(_priority);
-    [resourceRequest setLoadingPriority:[TiUtils doubleValue:_priority]];
+    [_resourceRequest setLoadingPriority:[TiUtils doubleValue:_priority]];
 }
+
+#pragma mark Key-Value observer
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if ((object == resourceRequest.progress) &&([keyPath isEqualToString:@"fractionCompleted"])) {
+    if ((object == _resourceRequest.progress) &&([keyPath isEqualToString:@"fractionCompleted"])) {
         if ([self _hasListeners:@"progress"])
         {
-            double progressSoFar = resourceRequest.progress.fractionCompleted;
-            DebugLog(@"Download progress: %@", progressSoFar);
+            double progressSoFar = _resourceRequest.progress.fractionCompleted;
 
             NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(progressSoFar) forKey:@"value"];
             [self fireEvent:@"progress" withObject:event];

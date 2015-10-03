@@ -8,19 +8,12 @@
 #import <Foundation/Foundation.h>
 #ifdef USE_TI_APPIOS
 
-@interface TiAppiOSOnDemandResourcesManagerProxy : TiProxy<NSProgressReporting> {
-@private
-    NSMutableSet *tags;
-    NSBundle *bundle;
-    NSBundleResourceRequest *resourceRequest;
-    BOOL resourcesLoaded;
-    float priority;
-}
+@interface TiAppiOSOnDemandResourcesManagerProxy : TiProxy<NSProgressReporting>
 
-@property(readonly, strong) NSProgress *progress;
+@property(nonatomic, retain) NSBundleResourceRequest *resourceRequest;
+@property(readonly, retain) NSProgress *progress;
 @property double loadingPriority;
 
--(void)beginAccessingResources:(id)args;
 -(void)conditionallyBeginAccessingResources:(id)args;
 -(void)endAccessingResources;
 -(double)priority;
