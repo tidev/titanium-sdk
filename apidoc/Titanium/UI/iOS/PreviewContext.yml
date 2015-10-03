@@ -54,7 +54,7 @@ properties:
     optional: false
 
 examples:
-  - title: PreviewContext example
+  - title: PreviewContext example using a <Titanium.UI.Button> as receiver.
     example: |
         In the example below, we create a new preview context, assign a `window`, `actions` and a `contentHeight`.
         After that, we assign the preview context to a view which will trigger the "peeking" of it. Note, that this
@@ -129,6 +129,103 @@ examples:
             win.add(button);
             win.open();
 
+  - title: PreviewContext example using a <Titanium.UI.ListView> as receiver.
+    example: |
+        var actions = [];
+        var win = Ti.UI.createWindow({
+            backgroundColor: "white"
+        });
+
+        // The view to be previewed while popping.
+        var previewView = Ti.UI.createView({
+            backgroundColor: "blue"
+        });
+
+        // The window to be opened after popping the preview.
+        var detailWindow = Ti.UI.createWindow({
+            backgroundColor: "yellow"
+        });
+
+        detailWindow.add(Ti.UI.createLabel({
+            text: "You made it!"
+        }));
+
+        // The actions to be added to the preview context.
+        var action = Ti.UI.iOS.createPreviewAction({
+            title: "Preview Action",
+            style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
+        });
+
+        action.addEventListener("click", function(e) {
+            alert(
+                "Title: " + e.title +
+                "\nStyle: " + e.style +
+                "\nIndex: " + e.index +
+                "\nSectionIndex: " + e.sectionIndex +
+                "\nItemIndex: " + e.itemIndex
+            );
+        });
+
+        actions.push(action);
+
+        // Create the preview context
+        var context = Ti.UI.iOS.createPreviewContext({
+            preview: previewView,
+            actions: actions, // Can have both Ti.UI.iOS.PreviewAction + Ti.UI.iOS.PreviewActionGroup
+            contentHeight: 300, // When unspecified, we use the available height
+            pop: function(e) { // Called after popping the preview
+                Ti.API.warn("sectionIndex: " + e.sectionIndex); // Index of the ListView section
+                Ti.API.warn("itemIndex: " + e.itemIndex); // Index of the ListView row
+                detailWindow.open();
+            }
+        });
+
+        // Assign the preview context
+        var listView = Ti.UI.createListView({
+            previewContext: context, // Will be ignored on unsupported devices
+        });
+
+        var section1 = Ti.UI.createListSection({
+            headerTitle: "Section 1"
+        });
+
+        var section2 = Ti.UI.createListSection({
+            headerTitle: "Section 2"
+        });
+
+        var items = [];
+
+        for(var i = 1; i <= 5; i++) {
+            items.push({
+                properties: {
+                    title: "Cell #" + i
+                }
+            });
+        }
+
+        section1.setItems(items);
+        section2.setItems(items);
+        listView.setSections([section1, section2]);
+
+        win.add(listView);
+        win.open();
+
 ---
 name: PreviewPopResponse
-summary: Argument passed to the callback when the user pops the preview.
+summary: Properties passed to the callback when the user pops the preview.
+properties:
+  - name: preview
+    type: Titanium.UI.View
+    summary: The <Titanium.UI.View> of the preview, that is shown on "peeking".
+
+  - name: itemIndex
+    summary: |
+        The index of the clicked row, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+        is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+    type: Number
+
+  - name: sectionIndex
+    summary: |
+        The index of the clicked section, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+        is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+    type: Number

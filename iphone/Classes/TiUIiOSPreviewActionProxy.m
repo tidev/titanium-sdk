@@ -43,11 +43,16 @@
 
 -(void)fireEventWithAction:(UIPreviewAction*)action
 {
-    NSDictionary *event = @{
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"index" : NUMINT([self actionIndex]),
         @"title" : [self title],
         @"style" : NUMINT([self style])
-    };
+    }];
+    
+    if([self tableViewIndexPath] != nil) {        
+        [event setValue:NUMINTEGER([self tableViewIndexPath].section) forKey:@"sectionIndex"];
+        [event setValue:NUMINTEGER([self tableViewIndexPath].row) forKey:@"itemIndex"];
+    }
     
     [self fireEvent:@"click" withObject:event];
 }

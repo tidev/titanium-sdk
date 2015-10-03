@@ -29,6 +29,12 @@
 @property(nonatomic, retain) NSString *title;
 
 /**
+    The indexPath for accessing section and item of
+    the tableView if specified.
+*/
+@property(nonatomic, retain) NSIndexPath *tableViewIndexPath;
+
+/**
     Returns a configured preview action.
     @return The configured UIPreviewAction.
  */

@@ -1295,7 +1295,7 @@ properties:
     summary: The preview context used in the 3D-Touch feature "Peek and Pop".
     description: |
         Preview context to present the "Peek and Pop" of a view. Use an configured instance
-        of <Ti.UI.PreviewContext> here.
+        of <Titanium.UI.iOS.PreviewContext> here.
 
         Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
         It is ignored on older devices and can manually be checked using <Ti.UI.iOS.forceTouchSupported>.

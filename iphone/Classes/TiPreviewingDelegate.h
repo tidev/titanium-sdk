@@ -26,8 +26,10 @@
 @property(nonatomic, retain) NSArray* actions;
 @property(nonatomic, retain) KrollCallback* popCallback;
 @property(nonatomic) int contentHeight;
+@property(nonatomic, retain) NSIndexPath* currentIndexPath;
 
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
+- (CGRect)createSourceRectWithLocation:(CGPoint*)location;
 
 @end
 #endif

@@ -34,3 +34,23 @@ properties:
                  Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DESTRUCTIVE ]
     optional: true
     default: Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
+
+events:
+  - name: click
+    summary: Fired when the device detects a click against a preview action.
+    description: |
+        This event provides different properties depending on the view the <Titanium.UI.iOS.PreviewContext>
+        is assigned to. In this case, the <Titanium.UI.ListView> and <Titanium.UI.TableView> provide the
+        additional properties `itemIndex` and `sectionIndex` to identify the row and section which is previewing.
+    properties:
+      - name: itemIndex
+        summary: |
+            The index of the clicked row, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+        type: Number
+
+      - name: sectionIndex
+        summary: |
+            The index of the clicked section, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+        type: Number

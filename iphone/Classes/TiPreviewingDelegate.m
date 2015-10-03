@@ -36,18 +36,18 @@
     [_preview forgetSelf];
     [_sourceView forgetSelf];
     
-    RELEASE_TO_NIL(_preview);
-    RELEASE_TO_NIL(_sourceView);
-    RELEASE_TO_NIL(_actions);
-    RELEASE_TO_NIL(_popCallback);
-    RELEASE_TO_NIL(_previewContext);
-    
     [super dealloc];
 }
 
 -(void)previewingContext:(id<UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    NSDictionary * propertiesDict = @{ @"preview" : _preview };
+    NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"preview" : _preview }];
+    
+    if([self currentIndexPath] != nil) {
+        [propertiesDict setValue:NUMINTEGER([self currentIndexPath].section) forKey:@"sectionIndex"];
+        [propertiesDict setValue:NUMINTEGER([self currentIndexPath].row) forKey:@"itemIndex"];
+    }
+    
     NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
     
     [_popCallback call:invocationArray thisObject:_previewContext];
@@ -64,9 +64,30 @@
         controller.preferredContentSize = CGSizeMake(0.0, _contentHeight);
     }
     
+    UITableView *tableView = [self ensureTableView];
+    UITableViewCell *cell = nil;
+    
+    // Handle UITableView and touches on non-cells
+    if(tableView != nil) {
+        cell = [tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]];
+        
+        // If the tap was not on a cell, don't continue
+        if(cell == nil) {
+            return nil;
+        }
+    } else {
+        [self setCurrentIndexPath:nil];
+    }
+    
     for (id item in _actions) {
         if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
             [item setActionIndex:actionIndex];
+            
+            if(cell != nil) {
+                [self setCurrentIndexPath:[tableView indexPathForRowAtPoint:location]];
+                [item setTableViewIndexPath:[self currentIndexPath]];
+            }
+            
             [result addObject:[item action]];
 
             actionIndex++;
@@ -78,32 +99,16 @@
         }
     }
 
-    previewingContext.sourceRect = [self createSourceRectWithController:controller andLocation:&location];
+    previewingContext.sourceRect = [self createSourceRectWithLocation:&location];
     [controller setActionItems:result];
     [_preview windowWillOpen];
     
     return controller;
 }
 
--(CGRect)createSourceRectWithController:(TiViewController*)controller andLocation:(CGPoint*)location
+-(CGRect)createSourceRectWithLocation:(CGPoint*)location
 {
-    UITableView *tableView = nil;
-
-#ifdef USE_TI_UILISTVIEW
-    if ([_sourceView isKindOfClass:[TiUIListViewProxy class]] == YES) {
-        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)_sourceView;
-        TiUIListView *view = (TiUIListView*)[listProxy view];
-        tableView = [view tableView];
-    }
-#endif
-    
-#ifdef USE_TI_UITABLEVIEW
-    if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
-        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)_sourceView;
-        TiUITableView *view = (TiUITableView*)[tableProxy view];
-        tableView = [view tableView];
-    }
-#endif
+    UITableView *tableView = [self ensureTableView];
     
     if (tableView) {
         NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:*location];
@@ -113,6 +118,32 @@
     }
 
     return CGRectZero; // The Frame is detected automatically on normal views
+}
+
+-(UITableView*)ensureTableView
+{
+#ifdef USE_TI_UILISTVIEW
+    if ([_sourceView isKindOfClass:[TiUIListViewProxy class]] == YES) {
+        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)_sourceView;
+        TiUIListView *view = (TiUIListView*)[listProxy view];
+        return [view tableView];
+    }
+#endif
+    
+#ifdef USE_TI_UITABLEVIEW
+    if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
+        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)_sourceView;
+        TiUITableView *view = (TiUITableView*)[tableProxy view];
+        return [view tableView];
+    }
+#endif
+    
+    return nil;
+}
+
+-(UITableViewCell*)ensureTableViewCell
+{
+    
 }
 
 @end
