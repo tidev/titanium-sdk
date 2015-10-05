@@ -12,6 +12,7 @@
 #import "TiUIListView.h"
 #import "TiUITableViewProxy.h"
 #import "TiUITableView.h"
+#import "TiUIiOSPreviewViewController.h"
 
 @implementation TiPreviewingDelegate
 
@@ -56,7 +57,10 @@
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
-    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:_preview];
+    TiUIiOSPreviewViewController *controller = [[TiUIiOSPreviewViewController alloc] init];
+    [[_preview view] setFrame:[[controller view] bounds]];
+    [[controller view] addSubview:[_preview view]];
+    
     NSMutableArray *result = [NSMutableArray array];
     int actionIndex = 0;
 
@@ -100,7 +104,7 @@
     }
 
     previewingContext.sourceRect = [self createSourceRectWithLocation:&location];
-    [controller setActionItems:result];
+    [controller setPreviewActions:result];
     [_preview windowWillOpen];
     
     return controller;
@@ -139,11 +143,6 @@
 #endif
     
     return nil;
-}
-
--(UITableViewCell*)ensureTableViewCell
-{
-    
 }
 
 @end

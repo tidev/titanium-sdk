@@ -12,14 +12,9 @@
 
     TiViewProxy* _proxy;
     TiOrientationFlags _supportedOrientations;
-    NSArray *actionItems;
 }
 
 -(id)initWithViewProxy:(TiViewProxy*)window;
 -(TiViewProxy*) proxy;
-
-#if IS_XCODE_7
--(void)setActionItems:(NSArray<id<UIPreviewActionItem>> *)actions;
-#endif
 
 @end

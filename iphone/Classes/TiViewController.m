@@ -20,21 +20,8 @@
     return self;
 }
 
-#if IS_XCODE_7
--(NSArray<id<UIPreviewActionItem>> *)previewActionItems
-{
-    return actionItems;
-}
-
--(void)setActionItems:(NSArray<id<UIPreviewActionItem>> *)actions
-{
-    RELEASE_AND_REPLACE(actionItems, actions);
-}
-#endif
-
 -(void)dealloc
 {
-    RELEASE_TO_NIL(actionItems);
     [super dealloc];
 }
 
