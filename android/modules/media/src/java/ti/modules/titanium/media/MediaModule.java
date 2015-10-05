@@ -289,8 +289,8 @@ public class MediaModule extends KrollModule
 			return true;
 		}
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		} 
 		Log.w(TAG, "Camera permission(s) missing");
@@ -331,7 +331,7 @@ public class MediaModule extends KrollModule
 			return;
 		}
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CAMERA);
+		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CODE_CAMERA);
 		
 	}
 

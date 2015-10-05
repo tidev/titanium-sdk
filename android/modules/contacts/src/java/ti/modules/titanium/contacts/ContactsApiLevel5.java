@@ -533,26 +533,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			}
 		}
 	}
-	
-	private boolean hasPermissions() {
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (currentActivity != null && 
-				currentActivity.checkSelfPermission("android.permission.READ_CONTACTS") == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission("android.permission.WRITE_CONTACTS") == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		Log.w(TAG, "Contact permissions are missing");
-		return false;
-	}
 
 	@SuppressWarnings("rawtypes")
 	protected PersonProxy addContact(KrollDict options) 
 	{
 		
-		if (options == null || !hasPermissions()) {
+		if (options == null || !hasContactsPermissions()) {
 			return null;
 		}
 		
@@ -715,7 +701,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	protected void removePerson(PersonProxy person) 
 	{
-		if (!hasPermissions()) {
+		if (!hasContactsPermissions()) {
 			return;
 		}
 
@@ -743,7 +729,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected PersonProxy getPersonById(long id)
 	{
 
-		if (!hasPermissions()) {
+		if (!hasContactsPermissions()) {
 			return null; 
 		}
 
@@ -805,7 +791,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected Bitmap getInternalContactImage(long id)
 	{
 
-		if (!hasPermissions()) {
+		if (!hasContactsPermissions()) {
 			return null; 
 		}
 
@@ -1048,7 +1034,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected void save(Object people) {
 
-		if (!(people instanceof Object[]) || !hasPermissions()) {
+		if (!(people instanceof Object[]) || !hasContactsPermissions()) {
 			return;
 		}
 		

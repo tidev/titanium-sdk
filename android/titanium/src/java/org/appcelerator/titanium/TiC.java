@@ -16,10 +16,15 @@ public class TiC
 	public static final int API_LEVEL_HONEYCOMB = 11;
 	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
 	public static final int API_LEVEL_JELLY_BEAN = 16;
-	public static final int PERMISSION_CAMERA = 100;
-	public static final int PERMISSION_CONTACTS = 101;
-	public static final int PERMISSION_EXTERNAL_STORAGE = 102;
-	public static final int PERMISSION_CALENDAR = 103;
+	public static final int PERMISSION_CODE_CAMERA = 100;
+	public static final String PERMISSION_CAMERA = "camera";
+	public static final int PERMISSION_CODE_CONTACTS = 101;
+	public static final String PERMISSION_CONTACTS = "contacts";
+	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 102;
+	public static final String PERMISSION_EXTERNAL_STORAGE = "externalstorage";
+	public static final int PERMISSION_CODE_CALENDAR = 103;
+	public static final String PERMISSION_CALENDAR = "calendar";
+
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";

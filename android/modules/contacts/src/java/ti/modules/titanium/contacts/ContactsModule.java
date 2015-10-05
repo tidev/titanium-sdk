@@ -24,8 +24,11 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 @Kroll.module @ContextSpecific
 public class ContactsModule extends KrollModule
@@ -62,6 +65,22 @@ public class ContactsModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public int getContactsAuthorization() {
 		return AUTHORIZATION_AUTHORIZED;
+	}
+	
+	@Kroll.method
+	public boolean hasContactsPermissions() {
+		return contactsApi.hasContactsPermissions();
+	}
+	
+	@Kroll.method
+	public void requestContactsPermissions()
+	{
+		if (hasContactsPermissions()) {
+			return;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
+		
 	}
 
 	@Kroll.method

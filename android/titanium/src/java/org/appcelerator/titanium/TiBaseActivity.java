@@ -413,24 +413,39 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return new TiCompositeLayout(this, arrangement, null);
 	}
 
+	private void firePermissionEvent(int[] grantResults, String permission) {
+		KrollDict data = null;
+		if (window != null && window.hasListeners(TiC.EVENT_ON_REQUEST_PERMISSIONS)) {
+			data = new KrollDict();
+			data.put("permission", permission);
+		}
+		if (data != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			data.put("result", "granted");
+			window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
+		} else if (data != null && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+			data.put("result", "denied");
+			window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
+		}
+	}
+	
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
 		String permissions[], int[] grantResults) {
 		switch (requestCode) {
-			case TiC.PERMISSION_CAMERA: {
-				KrollDict data = null;
-				if (window != null && window.hasListeners(TiC.EVENT_ON_REQUEST_PERMISSIONS)) {
-					data = new KrollDict();
-					data.put("permission", "camera");
-				}
-				if (data != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					data.put("result", "granted");
-					window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
-				} else if (data != null && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-					data.put("result", "denied");
-					window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
-				}
+			case TiC.PERMISSION_CODE_CAMERA: {
+				firePermissionEvent(grantResults, TiC.PERMISSION_CAMERA);
 				return;
+			}
+			case TiC.PERMISSION_CODE_CALENDAR: {
+				firePermissionEvent(grantResults, TiC.PERMISSION_CALENDAR);
+				return;
+			}
+			case TiC.PERMISSION_CODE_EXTERNAL_STORAGE: {
+				firePermissionEvent(grantResults, TiC.PERMISSION_EXTERNAL_STORAGE);
+				return;
+			}
+			case TiC.PERMISSION_CODE_CONTACTS: {
+				firePermissionEvent(grantResults, TiC.PERMISSION_CONTACTS);
 			}
 
 		}
