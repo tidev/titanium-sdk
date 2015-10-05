@@ -369,7 +369,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
-		[self setUrl:[NSURL fileURLWithPath:[media_ path]]];
+		[self setUrl:[NSURL fileURLWithPath:[(TiFile*)media_ path]]];
 	}
 	else if ([media_ isKindOfClass:[TiBlob class]])
 	{

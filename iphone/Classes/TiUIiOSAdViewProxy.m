@@ -60,10 +60,6 @@
     int height = MAX(suggestedHeight,[(TiUIiOSAdView*)[self view] contentHeightForWidth:suggestedHeight]);
     return height;
 }
-
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
-
 -(void)cancelAction:(id)args
 {
 	[self makeViewPerformSelector:@selector(cancelAction:) withObject:args createIfNeeded:YES waitUntilDone:NO];

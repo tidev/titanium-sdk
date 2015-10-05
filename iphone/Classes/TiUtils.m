@@ -1858,7 +1858,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
     }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
+        resultImage = [(TiBlob*)image image];
     }
     return resultImage;
 }

@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 #import "TiUIiOSSplitWindow.h"
 #import "TiUIiOSSplitWindowProxy.h"
 

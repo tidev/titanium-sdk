@@ -86,7 +86,8 @@
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
     if (_viewProxy != nil) {
-        return (UIInterfaceOrientationMask)[_viewProxy orientationFlags];
+        UIInterfaceOrientationMask mask = (UIInterfaceOrientationMask)[_viewProxy orientationFlags];
+        return mask;
     }
     return (UIInterfaceOrientationMask)[[TiApp controller] defaultOrientations];
 }

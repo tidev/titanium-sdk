@@ -8,6 +8,7 @@
 
 #import "TiUIiPadProxy.h"
 #import "TiUtils.h"
+#import "TiUIiOSSplitWindowProxy.h"
 
 @implementation TiUIiPadProxy
 
@@ -39,14 +40,15 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
 #endif
+#endif
 
-#ifdef USE_TI_UIIPADSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 -(id)createSplitWindow:(id)args
 {
 	if ([TiUtils isIPad])
 	{
         DEPRECATED_REPLACED(@"UI.iPad.createSplitWindow", @"3.6.0", @"Ti.UI.iOS.createSplitWindow()")
-		return [[[TiUIiPadSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+		return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
@@ -66,4 +68,3 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
 
 @end
 
-#endif

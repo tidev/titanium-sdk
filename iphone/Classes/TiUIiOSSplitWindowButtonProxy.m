@@ -9,7 +9,7 @@
 #import "TiBase.h"
 #import <objc/runtime.h>
 
-#ifdef USE_TI_UIIOSSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 
 #import "TiUIiOSSplitWindowButtonProxy.h"
 #import "TiUIiOSSplitWindowProxy.h"

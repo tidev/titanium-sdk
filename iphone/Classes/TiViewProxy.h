@@ -212,7 +212,7 @@ enum
 
 -(void)setBackgroundGradient:(id)arg;
 -(TiBlob*)toImage:(id)args;
-
+-(id)zIndex;
 #pragma mark nonpublic accessors not related to Housecleaning
 
 /**

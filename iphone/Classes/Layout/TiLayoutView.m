@@ -832,6 +832,7 @@ DEFINE_EXCEPTIONS
 
 -(CGSize)sizeThatFits:(CGSize)size height:(id)height
 {
+    if (height == nil) height = @"SIZE";
     UIView *parent = [self superview];
     if (CGSizeEqualToSize(size, CGSizeZero)) return size;
     if (parent != nil) {

@@ -178,8 +178,8 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    if([toVC isKindOfClass:[TiViewController class]]) {
-        TiViewController* toViewController = (TiViewController*)toVC;
+    if([toVC isKindOfClass:[TiLayoutViewController class]]) {
+        TiLayoutViewController* toViewController = (TiLayoutViewController*)toVC;
         if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
             TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
             return [windowProxy transitionAnimation];

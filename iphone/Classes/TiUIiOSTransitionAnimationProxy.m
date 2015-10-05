@@ -9,7 +9,7 @@
 #import "TiUIiOSTransitionAnimationProxy.h"
 #import "TiViewController.h"
 #import "TiViewProxy.h"
-
+#import "TiLayoutViewController.h"
 
 @implementation TiUIiOSTransitionAnimationProxy
 
@@ -99,13 +99,14 @@
     
     TiViewProxy *fromProxy = nil;
     TiViewProxy *toProxy = nil;
-    if([fromViewController isKindOfClass:[TiViewController class]]) {
+
+    if([fromViewController isKindOfClass:[TiLayoutViewController class]]) {
         
-        fromProxy = [(TiViewController*)fromViewController proxy];
+        fromProxy = [(TiLayoutViewController*)fromViewController proxy];
     }
-    if([toViewController isKindOfClass:[TiViewController class]]) {
+    if([toViewController isKindOfClass:[TiLayoutViewController class]]) {
         
-        toProxy = [(TiViewController*)toViewController proxy];
+        toProxy = [(TiLayoutViewController*)toViewController proxy];
     }
 
     if([self _hasListeners:@"start"])
@@ -184,11 +185,11 @@
         TiViewProxy *fromProxy = nil;
         TiViewProxy *toProxy = nil;
         
-        if([fromViewController isKindOfClass:[TiViewController class]]) {
-            fromProxy = [(TiViewController*)fromViewController proxy];
+        if([fromViewController isKindOfClass:[TiLayoutViewController class]]) {
+            fromProxy = [(TiLayoutViewController*)fromViewController proxy];
         }
-        if([toViewController isKindOfClass:[TiViewController class]]) {
-            toProxy = [(TiViewController*)toViewController proxy];
+        if([toViewController isKindOfClass:[TiLayoutViewController class]]) {
+            toProxy = [(TiLayoutViewController*)toViewController proxy];
         }
         
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];

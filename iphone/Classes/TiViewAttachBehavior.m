@@ -68,7 +68,7 @@
 {
     CGPoint center = [[_item view] center];
     
-    LayoutConstraint* constraint = [_item layoutProperties];
+    TiLayoutConstraint* constraint = [[_item view] tiLayoutConstraint];
     constraint->centerX = TiDimensionDip(center.x);
     constraint->centerY = TiDimensionDip(center.y);
 }
