@@ -1266,9 +1266,8 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER) {
-						disableHWAcceleration();
-					}
+					
+					// TIMOB-19011: NOT disabling hw acceleration. 
 					borderView.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
@@ -1309,9 +1308,8 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER) {
-				disableHWAcceleration();
-			}
+			
+			// TIMOB-19011: NOT disabling hw acceleration.
 			borderView.setRadius(radius);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
@@ -1808,6 +1806,9 @@ public abstract class TiUIView
 		});
 	}
 
+	@SuppressWarnings("unused")
+	// TIMOB-19011: NOT using this method since this is causing certain views to go blank. 
+	// Retaining code for future reference. 
 	private void disableHWAcceleration()
 	{
 		if (borderView == null) {
