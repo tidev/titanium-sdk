@@ -7,7 +7,7 @@ description: |
 
     Use this class to configure the previewing context which is displayed while "peeking" a view.
 
-    Note: This feature required iOS9 and a 3D-Touch capabile device (such as iPhone 6S or iPhone 6S Plus).
+    Note: This feature required iOS9 and a 3D-Touch capable device (such as iPhone 6S or iPhone 6S Plus).
     To check the current device support, use <Ti.UI.iOS.forceTouchSupported> and consider to use the longpress
     event to provide a fallback to your users.
 

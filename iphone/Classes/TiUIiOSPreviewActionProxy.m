@@ -32,11 +32,13 @@
 
 -(UIPreviewAction*)action
 {
-    action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
-        if ([self _hasListeners:@"click"]) {
-            [self fireEventWithAction:_action];
-        }
-    }];
+    if(action == nil) {
+        action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
+            if ([self _hasListeners:@"click"]) {
+                [self fireEventWithAction:_action];
+            }
+        }];
+    }
     
     return action;
 }

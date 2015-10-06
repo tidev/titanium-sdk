@@ -19,8 +19,11 @@
     int index = 0;
     
     for (TiUIiOSPreviewActionProxy *action in [properties valueForKey:@"actions"]) {
+        [action rememberSelf];
         [action setActionIndex:index];
-        [[self actions] addObject:[action action]];        
+        
+        [[self actions] addObject:[action action]];
+
         index++;
     }
     
@@ -32,6 +35,10 @@
 
 -(void)dealloc
 {
+    for (TiUIiOSPreviewActionProxy *action in self.actions) {
+        [action forgetSelf];
+    }
+    
     RELEASE_TO_NIL(actionGroup);
     
     [super dealloc];

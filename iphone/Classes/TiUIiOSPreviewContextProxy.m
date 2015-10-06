@@ -25,8 +25,30 @@
     [super _initWithProperties:properties];
 }
 
+-(void)setActions:(NSMutableArray *)actions
+{
+    for(TiProxy* proxy in _actions) {
+        if([proxy isKindOfClass:[TiProxy class]]) {
+            [self forgetProxy:proxy];
+        }
+    }
+    
+    for(TiProxy* proxy in _actions) {
+        if([proxy isKindOfClass:[TiProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
+    _actions = [actions retain];
+}
+
 -(void)dealloc
 {
+    for(TiProxy* proxy in _actions) {
+        if([proxy isKindOfClass:[TiProxy class]]) {
+            [self forgetProxy:proxy];
+        }
+    }
+    
     RELEASE_TO_NIL(_preview);
     RELEASE_TO_NIL(_actions);
     RELEASE_TO_NIL(_popCallback);
