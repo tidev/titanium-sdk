@@ -19,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -73,11 +74,16 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void requestContactsPermissions()
+	public void requestContactsPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
 			return;
 		}
+		if (TiBaseActivity.contactsCallbackContext == null) {
+			TiBaseActivity.contactsCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.contactsPermissionCallback = permissionCallback;
+
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
 		

@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -90,6 +91,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
+	public static KrollObject cameraCallbackContext, contactsCallbackContext, calendarCallbackContext, locationCallbackContext;
+	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+	
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
@@ -412,40 +416,41 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// set to null for now, this will get set correctly in setWindowProxy()
 		return new TiCompositeLayout(this, arrangement, null);
 	}
-
-	private void firePermissionEvent(int[] grantResults, String permission) {
-		KrollDict data = null;
-		if (window != null && window.hasListeners(TiC.EVENT_ON_REQUEST_PERMISSIONS)) {
-			data = new KrollDict();
-			data.put("permission", permission);
+	
+	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
+		if (callback == null) {
+			return;
 		}
-		if (data != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			data.put("result", "granted");
-			window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
-		} else if (data != null && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-			data.put("result", "denied");
-			window.fireEvent(TiC.EVENT_ON_REQUEST_PERMISSIONS, data);
+		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			callback.callAsync(context, response);
+		} else {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, permission + " permission denied");
+			callback.callAsync(context, response);
 		}
 	}
-	
+
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
 		String permissions[], int[] grantResults) {
 		switch (requestCode) {
 			case TiC.PERMISSION_CODE_CAMERA: {
-				firePermissionEvent(grantResults, TiC.PERMISSION_CAMERA);
+				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
 				return;
 			}
 			case TiC.PERMISSION_CODE_CALENDAR: {
-				firePermissionEvent(grantResults, TiC.PERMISSION_CALENDAR);
+				permissionCallback(grantResults, calendarPermissionCallback, calendarCallbackContext, "Calendar");
 				return;
 			}
-			case TiC.PERMISSION_CODE_EXTERNAL_STORAGE: {
-				firePermissionEvent(grantResults, TiC.PERMISSION_EXTERNAL_STORAGE);
+			case TiC.PERMISSION_CODE_LOCATION: {
+				permissionCallback(grantResults, locationPermissionCallback, locationCallbackContext, "Location");
 				return;
 			}
 			case TiC.PERMISSION_CODE_CONTACTS: {
-				firePermissionEvent(grantResults, TiC.PERMISSION_CONTACTS);
+				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
+				return;
 			}
 
 		}

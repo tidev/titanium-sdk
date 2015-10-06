@@ -21,6 +21,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -122,6 +123,7 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
+
 	}
 
 	public MediaModule(TiContext tiContext)
@@ -293,7 +295,6 @@ public class MediaModule extends KrollModule
 				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		} 
-		Log.w(TAG, "Camera permission(s) missing");
 		return false;		
 	}
 	
@@ -325,12 +326,18 @@ public class MediaModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void requestCameraPermissions()
+	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasCameraPermissions()) {
 			return;
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+
+		if (TiBaseActivity.cameraCallbackContext == null) {
+			TiBaseActivity.cameraCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CODE_CAMERA);
 		
 	}
