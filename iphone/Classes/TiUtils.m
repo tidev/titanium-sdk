@@ -1325,16 +1325,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return smallerRect;
 }
 
-#define USEFRAME	0
-
 +(void)setView:(UIView *)view positionRect:(CGRect)frameRect
 {
-    LOG_MISSING
-    return;
-#if	USEFRAME
-	[view setFrame:frameRect];
-	return;
-#endif
 	
 	CGPoint anchorPoint = [[view layer] anchorPoint];
 	CGPoint newCenter;

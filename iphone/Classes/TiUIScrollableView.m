@@ -280,12 +280,14 @@
 }
 -(void)setPagingControlOnTop_:(id)args
 {
-    LOG_MISSING
+    NSDictionary* views = NSDictionaryOfVariableBindings(_dotsView);
+    [TiLayoutView removeConstraints:_backgroundView fromChild:_dotsView];
+    [_backgroundView addConstraints:TI_CONSTR(@"V:|-[_dotsView]", views)];
 }
 
 -(void)setOverlayEnabled_:(id)args
 {
-    LOG_MISSING
+
 }
 
 -(void)addView:(TiViewProxy*)viewproxy

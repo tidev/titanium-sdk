@@ -158,8 +158,6 @@
 
 -(void)repaint:(id)unused
 {
-    LOG_MISSING
-//	[self contentsWillChange];
 }
 
 -(void)windowDidClose
@@ -284,17 +282,10 @@ DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);
 #pragma mark - Internal Use Only
 -(void)delayedLoad
 {
-    LOG_MISSING
-    TiThreadPerformOnMainThread(^{
-//        [self contentsWillChange];
-    }, NO);
 }
 
 -(void)webviewDidFinishLoad
 {
-    LOG_MISSING
-//    [self contentsWillChange];
-    //Do a delayed load as well if this one does not go through.
     [self performSelector:@selector(delayedLoad) withObject:nil afterDelay:0.5];
 }
 @end

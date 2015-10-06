@@ -19,4 +19,3 @@
 
 #define TI_USE_KROLL_THREAD
 
-#define LOG_MISSING NSLog(@"Missing %s", __PRETTY_FUNCTION__);

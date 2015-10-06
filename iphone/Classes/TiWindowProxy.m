@@ -60,8 +60,6 @@
 
 -(void)rootViewDidForceFrame:(NSNotification *)notification
 {
-    LOG_MISSING
-    /*
     if (focussed && opened) {
         if ( (controller == nil) || ([controller navigationController] == nil) ) {
             return;
@@ -72,13 +70,12 @@
         [nc setNavigationBarHidden:isHidden animated:NO];
         [[nc view] setNeedsLayout];
     }
-     */
 }
 
 -(TiUIView*)newView
 {
 	TiUIWindow * win = [[TiUIWindow alloc] init];
-	// [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
+	 [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
 	return win;
 }
 
@@ -729,26 +726,22 @@
 
 -(void)animationDidComplete:(TiAnimation *)sender
 {
-    LOG_MISSING
-//    if (sender == openAnimation) {
-//        if (animatedOver != nil) {
-//            if ([animatedOver isKindOfClass:[TiUIView class]]) {
-//                TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
-//                if ([theProxy viewAttached]) {
-//                    [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
-//                    LayoutConstraint* layoutProps = [theProxy layoutProperties];
-//                    ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
-//                    [theProxy layoutChildren:NO];
-//                    RELEASE_TO_NIL(animatedOver);
-//                }
-//            } else {
-//                [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
-//            }
-//        }
-//        [self windowDidOpen];
-//    } else {
-//        [self windowDidClose];
-//    }
+    if (sender == openAnimation) {
+        if (animatedOver != nil) {
+            if ([animatedOver isKindOfClass:[TiUIView class]]) {
+                TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
+                if ([theProxy viewAttached]) {
+                    [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+                    RELEASE_TO_NIL(animatedOver);
+                }
+            } else {
+                [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+            }
+        }
+        [self windowDidOpen];
+    } else {
+        [self windowDidClose];
+    }
 }
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(TiUIiOSTransitionAnimationProxy*)transitionAnimation

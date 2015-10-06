@@ -28,6 +28,9 @@
 {
     self = [super init];
     if (self) {
+        defaultImageView = [[UIImageView alloc] init];
+        [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+        [defaultImageView setContentMode:UIViewContentModeScaleToFill];
         _defaultOrientations = TiOrientationNone;
         [self processInfoPlist];
     }
@@ -36,14 +39,17 @@
 
 -(void)loadView
 {
-//    [super loadView];
-    TiLayoutView* backgroundView = [[TiLayoutView alloc] init];
-    [backgroundView setTranslatesAutoresizingMaskIntoConstraints:YES];
-    [backgroundView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-    [self setView:backgroundView];
+    [super loadView];
     _hostingView = [[TiLayoutView alloc] init];
     [[self view] addSubview:_hostingView];
-    [backgroundView release];
+    if (defaultImageView != nil) {
+        [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        [[self view] addSubview:defaultImageView];
+    }
+    [_hostingView becomeFirstResponder];
+    [_hostingView release];
+    
+    [self updateStatusBar];
 }
 -(void)processInfoPlist
 {
@@ -54,8 +60,8 @@
     id statHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"];
     _statusBarInitiallyHidden = [TiUtils boolValue:statHidden];
 //    //read the value of UIViewControllerBasedStatusBarAppearance
-//    id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
-//    viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
+    id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
+    viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
 //    //read the value of statusBarStyle
     id statusStyle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarStyle"];
     
@@ -108,7 +114,7 @@
     return _defaultOrientations;
 }
 
--(void)forceOrientationChange
+-(void)forceOrientationChange:(BOOL)forceAnyway
 {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     UIInterfaceOrientationMask curr = UIInterfaceOrientationMaskAll;
@@ -125,7 +131,7 @@
     }
     
     UIInterfaceOrientationMask result = curr & selected;
-    if (result == 0 || force) {
+    if (result == 0 || force || forceAnyway) {
         UIApplication *app = [UIApplication sharedApplication];
         UIWindow *window = [app keyWindow];
         UIViewController* root = [window rootViewController];
@@ -136,7 +142,14 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    return [[self topContainerController] supportedInterfaceOrientations];
+    UIInterfaceOrientationMask mask;
+    UIViewController* c = [self topContainerController];
+    if (c == nil) {
+        mask = (UIInterfaceOrientationMask)[self defaultOrientations];
+    } else {
+        mask = [c supportedInterfaceOrientations];
+    }
+    return mask;
 }
 
 - (BOOL)shouldAutorotate
@@ -147,7 +160,6 @@
 
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-
     [self dismissKeyboard];
     
     TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
@@ -163,7 +175,7 @@
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self forceOrientationChange];
+    [self forceOrientationChange:NO];
     [self dismissKeyboard];
     if ([self presentedViewController] == nil) {
         TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
@@ -188,7 +200,7 @@
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboard];
-    [self forceOrientationChange];
+    [self forceOrientationChange:NO];
     if ([self presentedViewController] == nil) {
         TiLayoutViewController* last = (TiLayoutViewController*)[self topContainerController];
         [[last viewProxy] gainFocus];
@@ -204,7 +216,11 @@
 
 -(void)dismissDefaultImage
 {
-    LOG_MISSING
+    if (defaultImageView != nil) {
+        [defaultImageView setHidden:YES];
+        [defaultImageView removeFromSuperview];
+        RELEASE_TO_NIL(defaultImageView);
+    }
 }
 
 -(void)showControllerModal:(UIViewController*)controller animated:(BOOL)animated
@@ -377,26 +393,6 @@
         }];
         return;
     }
-    LOG_MISSING
-    //At this point all modal stuff is done. Go ahead and clean up proxies.
-//    NSArray* modalCopy = [modalWindows copy];
-//    NSArray* windowCopy = [containedWindows copy];
-//    
-//    if(modalCopy != nil) {
-//        for (TiViewProxy* theWindow in [modalCopy reverseObjectEnumerator]) {
-//            [theWindow windowWillClose];
-//            [theWindow windowDidClose];
-//        }
-//        [modalCopy release];
-//    }
-//    if (windowCopy != nil) {
-//        for (TiViewProxy* theWindow in [windowCopy reverseObjectEnumerator]) {
-//            [theWindow windowWillClose];
-//            [theWindow windowDidClose];
-//        }
-//        [windowCopy release];
-//    }
-    
     DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
     if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
         [arg performSelector:@selector(_resumeRestart:) withObject:nil];
@@ -419,7 +415,7 @@
 
 -(void)handleNewKeyboardStatus
 {
-    LOG_MISSING
+
 }
 - (BOOL)prefersStatusBarHidden
 {
@@ -436,6 +432,168 @@
     
     _statusBarVisibilityChanged = (_statusBarIsHidden != oldStatus);
     return _statusBarIsHidden;
+}
+
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
+{
+    UIImage* image;
+    
+    if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+    {
+        *imageOrientation = orientation;
+        *imageIdiom = UIUserInterfaceIdiomPad;
+        // Specific orientation check
+        switch (orientation) {
+            case UIDeviceOrientationPortrait:
+            case UIDeviceOrientationPortraitUpsideDown:
+                image = [UIImage imageNamed:@"LaunchImage-700-Portrait"];
+                break;
+            case UIDeviceOrientationLandscapeLeft:
+            case UIDeviceOrientationLandscapeRight:
+                image = [UIImage imageNamed:@"LaunchImage-700-Landscape"];
+                break;
+            default:
+                image = nil;
+        }
+        if (image != nil) {
+            return image;
+        }
+        
+        // Generic orientation check
+        if (UIDeviceOrientationIsPortrait(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-700-Portrait"];
+        }
+        else if (UIDeviceOrientationIsLandscape(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-700-Landscape"];
+        }
+        
+        if (image != nil) {
+            return image;
+        }
+    }
+    *imageOrientation = UIDeviceOrientationPortrait;
+    *imageIdiom = UIUserInterfaceIdiomPhone;
+    // Default
+    image = nil;
+    if ([TiUtils isRetinaHDDisplay]) {
+        if (UIDeviceOrientationIsPortrait(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
+        }
+        else if (UIDeviceOrientationIsLandscape(orientation)) {
+            image = [UIImage imageNamed:@"LaunchImage-800-Landscape-736h@3x"];
+        }
+        if (image!=nil) {
+            *imageOrientation = orientation;
+            return image;
+        }
+    }
+    if ([TiUtils isRetinaiPhone6]) {
+        image = [UIImage imageNamed:@"LaunchImage-800-667h"];
+        if (image!=nil) {
+            return image;
+        }
+    }
+    if ([TiUtils isRetinaFourInch]) {
+        image = [UIImage imageNamed:@"LaunchImage-700-568h@2x"];
+        if (image!=nil) {
+            return image;
+        }
+    }
+    
+    return [UIImage imageNamed:@"LaunchImage-700@2x"];
+}
+
+-(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
+{
+    if (defaultImageView == nil)
+    {
+        return;
+    }
+    UIDeviceOrientation imageOrientation;
+    UIUserInterfaceIdiom imageIdiom;
+    UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    /*
+     *	This code could stand for some refinement, but it is rarely called during
+     *	an application's lifetime and is meant to recreate the quirks and edge cases
+     *	that iOS uses during application startup, including Apple's own
+     *	inconsistencies between iPad and iPhone.
+     */
+    
+    UIImage * defaultImage = [self defaultImageForOrientation:
+                              (UIDeviceOrientation)newOrientation
+                                         resultingOrientation:&imageOrientation idiom:&imageIdiom];
+    
+    CGFloat imageScale = [defaultImage scale];
+    CGRect newFrame = [[self view] bounds];
+    CGSize imageSize = [defaultImage size];
+    UIViewContentMode contentMode = UIViewContentModeScaleToFill;
+    
+    if (imageOrientation == UIDeviceOrientationPortrait) {
+        if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+            UIImageOrientation imageOrientation;
+            if (deviceIdiom == UIUserInterfaceIdiomPad)
+            {
+                imageOrientation = UIImageOrientationLeft;
+            }
+            else
+            {
+                imageOrientation = UIImageOrientationRight;
+            }
+            defaultImage = [
+                            UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:imageOrientation];
+            imageSize = CGSizeMake(imageSize.height, imageSize.width);
+            if (imageScale > 1.5) {
+                contentMode = UIViewContentModeCenter;
+            }
+        }
+        else if(newOrientation == UIInterfaceOrientationLandscapeRight)
+        {
+            defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+            imageSize = CGSizeMake(imageSize.height, imageSize.width);
+            if (imageScale > 1.5) {
+                contentMode = UIViewContentModeCenter;
+            }
+        }
+        else if((newOrientation == UIInterfaceOrientationPortraitUpsideDown) && (deviceIdiom == UIUserInterfaceIdiomPhone))
+        {
+            defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationDown];
+            if (imageScale > 1.5) {
+                contentMode = UIViewContentModeCenter;
+            }
+        }
+    }
+    
+    if(imageSize.width == newFrame.size.width)
+    {
+        CGFloat overheight;
+        overheight = imageSize.height - newFrame.size.height;
+        if (overheight > 0.0) {
+            newFrame.origin.y -= overheight;
+            newFrame.size.height += overheight;
+        }
+    }
+    [defaultImageView setContentMode:contentMode];
+    [defaultImageView setImage:defaultImage];
+    [defaultImageView setFrame:newFrame];
+}
+
+-(CGRect)resizeView
+{
+    CGRect rect = [TiUtils frameForController:self];
+    [[self view] setFrame:rect];
+    return [[self view]bounds];
+}
+
+
+- (void) updateStatusBar
+{
+    if (viewControllerControlsStatusBar) {
+        [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
+        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];
+        [self resizeView];
+    }
 }
 
 @end

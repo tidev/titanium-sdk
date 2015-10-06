@@ -297,8 +297,8 @@
 {
     if([toVC isKindOfClass:[TiLayoutViewController class]]) {
         TiLayoutViewController* toViewController = (TiLayoutViewController*)toVC;
-        if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
-            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+        if([[toViewController viewProxy] isKindOfClass:[TiWindowProxy class]]) {
+            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController viewProxy];
             return [windowProxy transitionAnimation];
         }
     }
@@ -658,20 +658,6 @@
 
 -(void)willChangeSize
 {
-    LOG_MISSING
-    /*
-	[super willChangeSize];
-	
-	//TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
-	for (UIViewController * thisController in [controller viewControllers])
-	{
-		if ([thisController isKindOfClass:[TiViewController class]])
-		{
-			TiViewProxy * thisProxy = [(TiViewController *)thisController proxy];
-			[thisProxy willChangeSize];
-		}
-	}
-     */
 }
 
 #pragma mark - TiOrientationController

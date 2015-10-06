@@ -460,12 +460,6 @@
 
 -(void) updateBackgroundImageFrameWithPadding
 {
-    LOG_MISSING
-//    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
-//               self.bounds.origin.y - padding.origin.y,
-//               self.bounds.size.width + padding.origin.x + padding.size.width,
-//                                        self.bounds.size.height + padding.origin.y + padding.size.height);
-//    [self backgroundImageLayer].frame = backgroundFrame;
 }
 
 -(void)setAttributedString_:(id)arg

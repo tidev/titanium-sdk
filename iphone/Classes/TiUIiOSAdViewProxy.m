@@ -92,7 +92,6 @@
         [self fireEvent:@"load" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 
-    [self contentsWillChange];
 }
 
 @end

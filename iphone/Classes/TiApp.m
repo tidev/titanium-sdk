@@ -301,7 +301,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 }
 - (void)booted:(id)bridge
 {
-	if ([bridge isKindOfClass:[KrollBridge class]])
+    if ([bridge isKindOfClass:[KrollBridge class]])
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
@@ -323,8 +323,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(UIImageView*)splashScreenImage
 {
-    LOG_MISSING
-    /*
+    
     if(splashScreenImage == nil) {
         splashScreenImage = [[UIImageView alloc] init];
         [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
@@ -359,8 +358,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
     }
     return splashScreenImage;
-     */
-    return nil;
 }
 
 - (void)generateNotification:(NSDictionary*)dict
@@ -893,6 +890,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	
 	// resume any image loading
 	[[ImageLoader sharedLoader] resume];
+    
+    
+
 }
 
 -(void)applicationDidEnterBackground:(UIApplication *)application

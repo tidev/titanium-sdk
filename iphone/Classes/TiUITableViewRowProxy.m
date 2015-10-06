@@ -754,31 +754,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)triggerUpdateIfHeightChanged
 {
-    LOG_MISSING
-    /*
-    TiThreadPerformOnMainThread(^{
-        if ([self viewAttached] && rowContainerView != nil) {
-            CGFloat curHeight = rowContainerView.bounds.size.height;
-            CGSize newSize = [callbackCell computeCellSize];
-            if (newSize.height != curHeight) {
-                DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.",curHeight,newSize.height);
-                [self triggerRowUpdate];
-            } else {
-                DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
-                //TIMOB-13121. Ensure touchdelegate is set if we are not going to reconstruct the row.
-                if ([rowContainerView superview] != nil) {
-                    UIView* contentView = [rowContainerView superview];
-                    [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
-                        [self redelegateViews:proxy toView:contentView];
-                    }];
-                }
-                [callbackCell setNeedsDisplay];
-            }
-        } else {
-            [callbackCell setNeedsDisplay];
-        }
-    }, NO);
-     */
 }
 
 -(void)contentsWillChange

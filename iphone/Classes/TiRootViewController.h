@@ -13,6 +13,8 @@
 @interface TiRootViewController : UIViewController
 {
     NSInteger _activeAlertControllerCount;
+    UIImageView* defaultImageView;
+    BOOL viewControllerControlsStatusBar;
 }
 @property (nonatomic, readonly) TiLayoutView* hostingView;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
@@ -39,7 +41,7 @@
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow;
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow;
 -(TiOrientationFlags)defaultOrientations;
--(void)forceOrientationChange;
+-(void)forceOrientationChange:(BOOL)forceAnyway;
 -(void)dismissKeyboard;
 #if defined(DEBUG) || defined(DEVELOPER)
 -(void)shutdownUi:(id)arg;
@@ -47,5 +49,7 @@
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 -(void)handleNewKeyboardStatus;
+
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom;
 @end
 
