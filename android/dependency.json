@@ -1,8 +1,9 @@
 {
-	"min_api_level": "10",
+	"min_api_level": "13",
 	"dependencies":
 	{
 		"appcompat":[],
+		"cardview":[],
 		"accelerometer":[],
 		"analytics":[],
 		"android":[],
@@ -18,7 +19,7 @@
 		"media":["filesystem"],
 		"network":["xml"],
 		"platform":[],
-		"ui":["filesystem","media","appcompat"],
+		"ui":["filesystem","media","appcompat","cardview"],
 		"utils":[],
 		"xml":[]
 	},
@@ -29,6 +30,7 @@
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["nineoldandroids-appc-2.4.0.jar"],
 		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
+		"cardview":["cardview-v7-23.0.1.jar"],
 		"analytics":["aps-analytics.jar"]
 	},
 	"runtimes":
@@ -39,6 +41,7 @@
 	"modulepackage":
 	{
 		"appcompat":"android.support.v7.appcompat",
+		"cardview":"android.support.v7.cardview",
 		"ui":"ti.modules.titanium.ui"
 	}
 }

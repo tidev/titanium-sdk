@@ -935,6 +935,36 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CARD_BACKGROUND_COLOR = "cardBackgroundColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_CORNER_RADIUS = "cardCornerRadius";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_ELEVATION = "cardElevation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_MAX_ELEVATION = "cardMaxElevation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_PREVENT_CORNER_OVERLAP = "cardPreventCornerOverlap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_USE_COMPAT_PADDING = "cardUseCompatPadding";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
@@ -1016,6 +1046,31 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING = "contentPadding";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_BOTTOM = "contentPaddingBottom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_LEFT = "contentPaddingLeft";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_RIGHT = "contentPaddingRight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_TOP = "contentPaddingTop";
 
 	/**
 	 * @module.api

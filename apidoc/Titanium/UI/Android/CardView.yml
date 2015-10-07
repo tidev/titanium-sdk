@@ -1,0 +1,98 @@
+---
+name: Titanium.UI.Android.CardView
+summary: A Card view with a rounded corner background and shadow.
+description: |
+    `CardView` provides a user with a rounded corner background and shadow.
+
+extends: Titanium.UI.View
+since: "5.1.0"
+platforms: [android]
+
+properties:
+
+  - name: cardBackgroundColor
+    summary: Background color for CardView as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+
+  - name: cardCornerRadius
+    summary: Corner radius for CardView. 
+    type: Number
+
+   - name: cardElevation
+    summary: Elevation for CardView. 
+    type: Number
+
+   - name: cardMaxElevation
+    summary: Maximum Elevation for CardView. 
+    type: Number  
+
+  - name: cardPreventCornerOverlap
+    summary: Add padding to CardView on v20 and before to prevent intersections between the Card content and rounded corners.
+    type: Boolean
+    default: false
+
+  - name: cardUseCompatPadding
+    summary: Add padding in API v21+ as well to have the same measurements with previous versions. 
+    type: Boolean
+    default: false
+
+  - name: contentPadding
+    summary: Inner padding between the edges of the Card and children of the CardView. 
+    type: Number
+
+  - name: contentPaddingBottom
+    summary: Inner padding between the bottom edge of the Card and children of the CardView. 
+    type: Number
+
+  - name: contentPaddingLeft
+    summary: Inner padding between the left edge of the Card and children of the CardView. 
+    type: Number
+
+  - name: contentPaddingRight
+    summary: Inner padding between the right edge of the Card and children of the CardView. 
+    type: Number
+
+  - name: contentPaddingTop
+    summary: Inner padding between the top edge of the Card and children of the CardView. 
+    type: Number
+
+examples:
+
+  - title: CardView used in a ScrollView
+    example: |
+        The following example creates a CardView used in a ScrollView.
+
+        var win = Ti.UI.createWindow({
+            backgroundColor:'white',
+            title: 'Card Demo'
+        });
+
+        function createRow(i) {
+            var card = Ti.UI.Android.createCardView({
+                contentPadding: 20,
+                cardCornerRadius: 10,
+                cardUseCompatPadding: true
+            });
+            var label = Ti.UI.createLabel({
+                color:'black',
+                text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+            });
+            card.add(label);
+
+            return card;
+        }
+
+        var scrollView = Ti.UI.createScrollView({
+            layout: 'vertical'
+        });
+
+        for (var i = 0; i <= 20; i++) {
+            var row = createRow(i);
+            scrollView.add(row);
+        }
+
+        win.add(scrollView);
+        win.open();
+
