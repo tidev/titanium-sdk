@@ -823,7 +823,21 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 	return locationPermissionManager;
 }
 
+-(NSNumber*)hasLocationPermissions:(id)value
+{
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+    
+    return NUMBOOL(currentPermissionLevel == requestedPermissionLevel);
+}
+
 -(void)requestAuthorization:(id)value
+{
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    [self requestLocationPermissions:value];
+}
+
+-(void)requestLocationPermissions:(id)value
 {
     if (![TiUtils isIOS8OrGreater]) {
         return;
