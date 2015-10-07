@@ -184,6 +184,12 @@
     return NUMBOOL(_isValid);
 }
 
+-(NSNumber*)supported
+{
+    DEPRECATED_REPLACED(@"Ti.App.IOS.UserActivity.getSupported()" ,@"5.1.0",@"Ti.App.IOS.UserActivity.isSupported()")
+    return NUMBOOL(_supported);
+}
+
 #pragma mark Delegate methods used to raise events
 
 /* The user activity will be saved (to be continued or persisted). The receiver should update the activity with current activity state.
