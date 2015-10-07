@@ -28,7 +28,7 @@
 #if IS_XCODE_7
 -(NSArray<id<UIPreviewActionItem>> *)previewActionItems
 {
-    if([self previewActions] == nil) {
+    if ([self previewActions] == nil) {
         [self setPreviewActions:[NSArray array]];
     }
     
@@ -204,7 +204,7 @@
 {
     if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
-    } else if([[[TiApp app] controller] topContainerController] != nil) {
+    } else if ([[[TiApp app] controller] topContainerController] != nil) {
         // Prefer the style of the most recent view controller.
         return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
     } else {

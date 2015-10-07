@@ -43,7 +43,7 @@
 {
     NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"preview" : _preview }];
     
-    if([self currentIndexPath] != nil) {
+    if ([self currentIndexPath] != nil) {
         [propertiesDict setValue:NUMINTEGER([self currentIndexPath].section) forKey:@"sectionIndex"];
         [propertiesDict setValue:NUMINTEGER([self currentIndexPath].row) forKey:@"itemIndex"];
     }
@@ -71,11 +71,12 @@
     UITableViewCell *cell = nil;
     
     // Handle UITableView and touches on non-cells
-    if(tableView != nil) {
+    if (tableView != nil) {
         cell = [tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]];
         
         // If the tap was not on a cell, don't continue
-        if(cell == nil) {
+        if (cell == nil) {
+            RELEASE_TO_NIL(controller);
             return nil;
         }
     } else {
@@ -86,7 +87,7 @@
         if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
             [item setActionIndex:actionIndex];
             
-            if(cell != nil) {
+            if (cell != nil) {
                 [self setCurrentIndexPath:[tableView indexPathForRowAtPoint:location]];
                 [item setTableViewIndexPath:[self currentIndexPath]];
             }
@@ -102,7 +103,7 @@
         }
     }
 
-    previewingContext.sourceRect = [self createSourceRectWithLocation:&location];
+    [previewingContext setSourceRect:[self createSourceRectWithLocation:&location]];
     [controller setPreviewActions:result];
     [_preview windowWillOpen];
     

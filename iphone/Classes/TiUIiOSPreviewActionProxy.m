@@ -32,7 +32,7 @@
 
 -(UIPreviewAction*)action
 {
-    if(action == nil) {
+    if (action == nil) {
         action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
             if ([self _hasListeners:@"click"]) {
                 [self fireEventWithAction:_action];
@@ -51,12 +51,13 @@
         @"style" : NUMINT([self style])
     }];
     
-    if([self tableViewIndexPath] != nil) {        
+    if ([self tableViewIndexPath] != nil) {
         [event setValue:NUMINTEGER([self tableViewIndexPath].section) forKey:@"sectionIndex"];
         [event setValue:NUMINTEGER([self tableViewIndexPath].row) forKey:@"itemIndex"];
     }
     
     [self fireEvent:@"click" withObject:event];
+    RELEASE_TO_NIL(event);
 }
 
 @end

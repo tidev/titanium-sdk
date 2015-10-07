@@ -57,9 +57,7 @@
 }
 
 -(NSArray*)listStaticShortcuts:(id)unused
-{
-    NSMutableArray *placeHolder = [[[NSMutableArray alloc] init] autorelease];
-    
+{    
     NSArray *shortcuts = [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
     
     if(shortcuts == nil || [shortcuts count] == 0) {
