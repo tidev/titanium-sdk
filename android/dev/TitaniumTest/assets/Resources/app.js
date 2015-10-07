@@ -62,38 +62,3 @@ tabGroup.addTab(tab2);
 
 // open tab group
 tabGroup.open();
-
-//var stringInstance = Ti.Hyperloop.createProxy({
-//	class: "java.lang.String",
-//	alloc: true,
-//	args: []
-//});
-//var length = stringInstance.callNativeFunction({
-//	func: 'length',
-//	args: []
-//});
-//console.log("Empty string instance length: " + length);
-
-//var stringClass = Ti.Hyperloop.createProxy({
-//	class: "java.lang.String",
-//	alloc: false,
-//	args: []
-//});
-//var boolString = stringClass.callNativeFunction({
-//	func: 'valueOf',
-//	instanceMethod: false,
-//	args: [true]
-//});
-//console.log("String.valueOf(true): " + boolString);
-
-
-var Color = require('android.graphics.Color'),
-	colorInt = Color.argb(1, 2, 3, 4);
-console.log("Color value: " + colorInt);
-console.log("Alpha: " + Color.alpha(colorInt));
-console.log("Red: " + Color.red(colorInt));
-console.log("Green: " + Color.green(colorInt));
-console.log("Blue: " + Color.blue(colorInt));
-
-console.log("parseColor(red): " + Color.parseColor('red'));
-console.log(android.graphics.Color.RED);
