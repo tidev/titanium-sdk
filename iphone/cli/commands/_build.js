@@ -4239,7 +4239,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (pngInfo.alpha) {
 					this.logger.warn(__('Skipping %s because app icons must not have an alpha channel', info.src.replace(this.projectDir + '/', '').cyan));
-					throw new Error();
+					return;
 				}
 
 				this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
