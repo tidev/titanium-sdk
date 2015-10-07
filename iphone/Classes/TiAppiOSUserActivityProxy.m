@@ -51,6 +51,15 @@
     return[supportedActivityTypes containsObject:activityType];
 }
 
+-(id)isSupported:(id)unused
+{
+    if([TiUtils isIOS8OrGreater]){
+        return NUMBOOL(_supported);
+    }else{
+        return NUMBOOL(NO);
+    }
+}
+
 -(BOOL) determineMinRequirements:(NSDictionary *)props
 {
     _isValid = NO;
@@ -173,11 +182,6 @@
 -(NSNumber*)isValid
 {
     return NUMBOOL(_isValid);
-}
-
--(NSNumber*)supported
-{
-    return NUMBOOL(_supported);
 }
 
 #pragma mark Delegate methods used to raise events
