@@ -190,6 +190,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	private PersonProxy[] getPeople(int limit, String additionalCondition, String[] additionalSelectionArgs)
 	{
+		if (!hasContactsPermissions()) {
+			Log.e(TAG, "Contacts permissions missing");
+			return null;
+		}
+		
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
 			return null;
