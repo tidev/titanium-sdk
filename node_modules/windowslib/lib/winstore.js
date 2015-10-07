@@ -344,16 +344,6 @@ function detect(options, callback) {
 					return finalize();
 				}
 
-				if (Object.keys(results.windows).every(function (v) { return !results.windows[v].deployCmd; })) {
-					results.issues.push({
-						id: 'WINDOWS_STORE_SDK_MISSING_DEPLOY_CMD',
-						type: 'error',
-						message: __('Microsoft Windows Store SDK is missing the deploy command.') + '\n' +
-						__('You will be unable to build Windows Store apps.')
-					});
-					return finalize();
-				}
-
 				var preferred = options.preferred;
 				if (!results.windows[preferred] || !results.windows[preferred].supported) {
 					preferred = Object.keys(results.windows).filter(function (v) { return results.windows[v].supported; }).sort().pop();
