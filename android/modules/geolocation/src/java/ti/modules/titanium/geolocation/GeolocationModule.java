@@ -637,7 +637,7 @@ public class GeolocationModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void requestLocationPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	public void requestLocationPermissions(@Kroll.argument(optional=true) Object type, @Kroll.argument(optional=true) KrollFunction permissionCallback)
 	{
 		if (hasLocationPermissions()) {
 			return;
@@ -646,7 +646,12 @@ public class GeolocationModule extends KrollModule
 		if (TiBaseActivity.locationCallbackContext == null) {
 			TiBaseActivity.locationCallbackContext = getKrollObject();
 		}
-		TiBaseActivity.locationPermissionCallback = permissionCallback;
+
+		if (type instanceof KrollFunction && permissionCallback == null) {
+			TiBaseActivity.locationPermissionCallback = (KrollFunction) type;
+		} else {
+			TiBaseActivity.locationPermissionCallback = permissionCallback;
+		}
 
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);		
