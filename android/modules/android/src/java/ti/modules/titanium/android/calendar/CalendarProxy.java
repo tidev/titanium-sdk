@@ -59,7 +59,7 @@ public class CalendarProxy extends KrollProxy {
 		return "content://calendar";
 	}
 	
-	public static boolean hasPermissions() {
+	public static boolean hasCalendarPermissions() {
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
@@ -76,7 +76,7 @@ public class CalendarProxy extends KrollProxy {
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
 	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
-		if (!hasPermissions()) {
+		if (!hasCalendarPermissions()) {
 			return calendars;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();

@@ -89,7 +89,7 @@ public class EventProxy extends KrollProxy {
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query, String[] queryArgs)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
@@ -146,7 +146,7 @@ public class EventProxy extends KrollProxy {
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
@@ -190,7 +190,7 @@ public class EventProxy extends KrollProxy {
 
 	public static EventProxy createEvent(CalendarProxy calendar, KrollDict data)
 	{
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return null;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
@@ -396,7 +396,7 @@ public class EventProxy extends KrollProxy {
 
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getExtendedProperties() {
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return null;
 		}
 
@@ -418,7 +418,7 @@ public class EventProxy extends KrollProxy {
 	@Kroll.method
 	public String getExtendedProperty(String name)
 	{
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return null;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
@@ -438,7 +438,7 @@ public class EventProxy extends KrollProxy {
 	@Kroll.method
 	public void setExtendedProperty(String name, String value)
 	{
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return;
 		}
 		if (!hasExtendedProperties) {

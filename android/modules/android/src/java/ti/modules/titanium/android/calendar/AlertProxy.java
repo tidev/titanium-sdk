@@ -59,7 +59,7 @@ public class AlertProxy extends KrollProxy {
 	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
 	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return alerts;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
@@ -101,7 +101,7 @@ public class AlertProxy extends KrollProxy {
 
 	public static AlertProxy createAlert(EventProxy event, int minutes)
 	{
-		if (!CalendarProxy.hasPermissions()) {
+		if (!CalendarProxy.hasCalendarPermissions()) {
 			return null;
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();

@@ -22,6 +22,8 @@ public class TiC
 	public static final int PERMISSION_CODE_CONTACTS = 102;
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
 	public static final int PERMISSION_CODE_LOCATION= 104;
+	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
+
 	
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
