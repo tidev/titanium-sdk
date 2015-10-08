@@ -4982,7 +4982,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
-		if (this.runOnMainThread && !this.useJSCore) {
+		if (this.runOnMainThread && !this.useJSCore && !this.useAutoLayout) {
 			var contents = fs.readFileSync(definesFile).toString();
 			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
