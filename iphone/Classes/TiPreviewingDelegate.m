@@ -7,6 +7,8 @@
 //
 
 #if IS_XCODE_7
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+
 #import "TiPreviewingDelegate.h"
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
@@ -146,4 +148,5 @@
 }
 
 @end
+#endif
 #endif

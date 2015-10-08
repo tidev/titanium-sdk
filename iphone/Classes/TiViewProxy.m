@@ -1227,6 +1227,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(void)setPreviewContext:(id)context
 {
 #if IS_XCODE_7
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+    
     if ([TiUtils forceTouchSupported] == NO) {
         NSLog(@"[WARN] 3DTouch is not available on this device.");
         return;
@@ -1236,6 +1238,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     
     [context setSourceView:self];
     [context connectToDelegate];
+
+#endif
 #endif
 }
 
