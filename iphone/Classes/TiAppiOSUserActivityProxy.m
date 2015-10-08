@@ -51,6 +51,15 @@
     return[supportedActivityTypes containsObject:activityType];
 }
 
+-(id)isSupported:(id)unused
+{
+    if([TiUtils isIOS8OrGreater]){
+        return NUMBOOL(_supported);
+    }else{
+        return NUMBOOL(NO);
+    }
+}
+
 -(BOOL) determineMinRequirements:(NSDictionary *)props
 {
     _isValid = NO;
@@ -177,6 +186,7 @@
 
 -(NSNumber*)supported
 {
+    DEPRECATED_REPLACED(@"Ti.App.IOS.UserActivity.getSupported()" ,@"5.1.0",@"Ti.App.IOS.UserActivity.isSupported()")
     return NUMBOOL(_supported);
 }
 
