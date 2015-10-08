@@ -1066,7 +1066,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [controller hideControllerModal:modalController animated:animated];
 }
 
-- (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
 {
     if ([self windowIsKeyWindow]) {
         return [controller supportedOrientationsForAppDelegate];

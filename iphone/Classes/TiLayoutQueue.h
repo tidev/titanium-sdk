@@ -4,6 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+
+#ifndef TI_USE_AUTOLAYOUT
+
 #import <Foundation/Foundation.h>
 
 @class TiViewProxy;
@@ -29,3 +33,5 @@
 
 +(void)resetQueue;
 @end
+
+#endif

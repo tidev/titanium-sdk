@@ -1187,7 +1187,7 @@
     return 30;//UIInterfaceOrientationMaskAll
 }
 
-- (NSUInteger)supportedInterfaceOrientations{
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
     //IOS6. If forcing status bar orientation, this must return 0.
     if (forcingStatusBarOrientation) {
         return 0;

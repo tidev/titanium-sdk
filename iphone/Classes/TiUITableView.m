@@ -2493,6 +2493,7 @@ return result;	\
 	CGFloat size = 0.0;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2506,6 +2507,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
     /*
      * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
@@ -2542,6 +2544,7 @@ return result;	\
 	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2555,6 +2558,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
 	else if ([sectionProxy footerTitle]!=nil)
 	{

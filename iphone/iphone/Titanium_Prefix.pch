@@ -16,4 +16,5 @@
 #else
 #define IS_XCODE_7 false
 #endif
-
+#define TI_USE_KROLL_THREAD
+//#define TI_USE_AUTOLAYOUT

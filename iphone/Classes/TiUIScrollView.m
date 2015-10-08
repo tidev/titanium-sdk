@@ -74,11 +74,14 @@
 
 - (void) dealloc
 {
+#ifndef TI_USE_AUTOLAYOUT
 	RELEASE_TO_NIL(wrapperView);
+#endif
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)wrapperView
 {
 	if (wrapperView == nil)
@@ -92,11 +95,34 @@
 	}
 	return wrapperView;
 }
+#endif
 
 -(TiUIScrollViewImpl *)scrollView
 {
 	if(scrollView == nil)
 	{
+#ifdef TI_USE_AUTOLAYOUT
+        scrollView = [[TiUIScrollViewImpl alloc] init];
+        contentView = [[TiLayoutView alloc] init];
+        [contentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [scrollView setDelegate:self];
+        
+        [contentView setBackgroundColor:[UIColor greenColor]];
+        [contentView setViewName:@"TiScrollView.ContentView"];
+        
+        [contentView setDefaultHeight:TiDimensionAutoSize];
+        [contentView setDefaultWidth:TiDimensionAutoSize];
+        
+        [scrollView addSubview:contentView];
+        
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+        
+        [super addSubview:scrollView];
+        
+        [self setHorizontalWrap:NO];
+#else
 		scrollView = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
 		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollView setBackgroundColor:[UIColor clearColor]];
@@ -105,6 +131,7 @@
 		[scrollView setDelegate:self];
         [scrollView setTouchHandler:self];
 		[self addSubview:scrollView];
+#endif
 	}
 	return scrollView;
 }
@@ -114,38 +141,92 @@
 	return [self scrollView];
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)addSubview:(nonnull UIView *)view
+{
+    [contentView addSubview:view];
+}
+
+-(void)insertSubview:(nonnull UIView *)view aboveSubview:(nonnull UIView *)siblingSubview
+{
+    [contentView insertSubview:view aboveSubview:siblingSubview];
+}
+
+-(void)insertSubview:(nonnull UIView *)view atIndex:(NSInteger)index
+{
+    [contentView insertSubview:view atIndex:index];
+}
+
+-(void)insertSubview:(nonnull UIView *)view belowSubview:(nonnull UIView *)siblingSubview
+{
+    [contentView insertSubview:view belowSubview:siblingSubview];
+}
+-(TiLayoutView*)contentView
+{
+    return contentView;
+}
+
+-(void)setLayout_:(id)val
+{
+    [contentView setLayout_:val];
+}
+
+-(void)setContentWidth_:(id)val
+{
+    [contentView setWidth_:val];
+}
+
+-(void)setContentHeight_:(id)val
+{
+    [contentView setHeight_:val];
+}
+
+-(void)setOnContentLayout:(void (^)(TiLayoutView * sender, CGRect rect))onContentLayout
+{
+    [contentView setOnLayout:onContentLayout];
+}
+
+#endif
+
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
         TiDimensionIsAutoSize(contentWidth) || TiDimensionIsAutoSize(contentHeight) ||
         TiDimensionIsUndefined(contentWidth) || TiDimensionIsUndefined(contentHeight))
 	{
 		[self setNeedsHandleContentSize];
 	}
+#endif
 }
 
 -(void)setNeedsHandleContentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (!needsHandleContentSize)
 	{
 		needsHandleContentSize = YES;
 		TiThreadPerformOnMainThread(^{[self handleContentSize];}, NO);
 	}
+#endif
 }
 
 
 -(BOOL)handleContentSizeIfNeeded
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (needsHandleContentSize)
 	{
 		[self handleContentSize];
 		return YES;
 	}
-	return NO;
+#endif
+    return NO;
 }
 
 -(void)handleContentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (!needsHandleContentSize) {
 		return;
 	}
@@ -202,6 +283,7 @@
 	[self scrollViewDidZoom:scrollView];
 	needsHandleContentSize = NO;
 	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
+#endif
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
@@ -238,6 +320,7 @@
 	[[self scrollView] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
@@ -251,6 +334,7 @@
     [self.proxy replaceValue:value forKey:@"contentHeight" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
+#endif
 
 -(void)setShowHorizontalScrollIndicator_:(id)value
 {
@@ -355,10 +439,12 @@
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView_];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
 	return [self wrapperView];
 }
+#endif
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
 {
@@ -368,6 +454,7 @@
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
+#ifndef TI_USE_AUTOLAYOUT
 	CGSize boundsSize = scrollView.bounds.size;
     CGRect frameToCenter = wrapperView.frame;
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
@@ -384,10 +471,11 @@
 			frameToCenter.origin.y = 0;
 		}
 	}
-    wrapperView.frame = frameToCenter;	
+    wrapperView.frame = frameToCenter;
+#endif
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_
 {
 	// Tells the delegate when the scroll view is about to start scrolling the content.
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewWillBeginDragging:scrollView_];
@@ -408,10 +496,12 @@
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+#ifndef TI_USE_AUTOLAYOUT
     if ([scrollView isScrollEnabled]) {
         CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
         OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
     }
+#endif
 }
 
 @end

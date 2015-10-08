@@ -1067,11 +1067,13 @@ loadNativeJS:
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+#ifdef TI_USE_KROLL_THREAD
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];
 			break;
 		}
+#endif
 	}
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
 

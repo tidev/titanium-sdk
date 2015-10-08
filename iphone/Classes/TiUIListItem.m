@@ -111,8 +111,10 @@
 	[super layoutSubviews];
 	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
 		// prevent any crashes that could be caused by unsupported layouts
+#ifndef TI_USE_AUTOLAYOUT
 		_proxy.layoutProperties->layoutStyle = TiLayoutRuleAbsolute;
 		[_proxy layoutChildren:NO];
+#endif
 	}
 }
 
