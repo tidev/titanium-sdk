@@ -916,11 +916,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public TiBlob toImage()
+	public TiBlob toImage(@Kroll.argument(optional=true) KrollFunction callback)
 	{
-		if (TiApplication.isUIThread()) {
-			return handleToImage();
-
+		if (callback != null) {
+			callback.callAsync(getKrollObject(), new Object[] {handleToImage()});
+			return null;
 		} else {
 			return (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
 		}
