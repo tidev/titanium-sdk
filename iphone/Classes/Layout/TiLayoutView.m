@@ -1233,6 +1233,10 @@ DEFINE_EXCEPTIONS
 
 -(void)layoutSubviews
 {
+    if (![self loaded]) {
+        [super layoutSubviews];
+        return;
+    }
     [self checkPercentageMargins];
     [super layoutSubviews];
     

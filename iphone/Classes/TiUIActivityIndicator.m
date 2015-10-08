@@ -20,6 +20,14 @@
 	if (self != nil) {
 		style = UIActivityIndicatorViewStyleWhite;
 		[self setHidden:YES];
+        
+#ifdef TI_USE_AUTOLAYOUT
+        [self setDefaultWidth:TiDimensionAutoSize];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        backgroundView = [[UIView alloc] init];
+        [self addSubview:backgroundView];
+#endif
+
 	}
 	return self;
 }
@@ -32,9 +40,13 @@
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
 	RELEASE_TO_NIL(spinnerColor);
+#ifdef TI_USE_AUTOLAYOUT
+    RELEASE_TO_NIL(backgroundView);
+#endif
 	[super dealloc];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(CGSize)sizeThatFits:(CGSize)testSize;
 {
 	CGSize spinnySize = [[self indicatorView] sizeThatFits:CGSizeZero];
@@ -74,7 +86,7 @@
 	[messageLabel setBounds:CGRectMake(0, 0, messageSize.width, messageSize.height)];
 	[messageLabel setCenter:CGPointMake(centerPoint.x + (fittingWidth - messageSize.width)/2, centerPoint.y)];
 }
-
+#endif
 -(UIActivityIndicatorView*)indicatorView
 {
     if (indicatorView==nil) {
@@ -87,7 +99,12 @@
             [indicatorView setColor:spinnerColor];
         }
         [self setNeedsLayout];
+#ifdef TI_USE_AUTOLAYOUT
+        [backgroundView addSubview:indicatorView];
+        
+#else
         [self addSubview:indicatorView];
+#endif
     }
     return indicatorView;
 }
@@ -98,6 +115,7 @@
 	{
 		messageLabel=[[UILabel alloc] init];
 		[messageLabel setBackgroundColor:[UIColor clearColor]];
+
 		if (fontDesc != nil)
 		{
 			[messageLabel setFont:[fontDesc font]];
@@ -109,8 +127,13 @@
 		}
 		
 		
+#ifdef TI_USE_AUTOLAYOUT
+        [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [backgroundView addSubview:messageLabel];
+#else
 		[self setNeedsLayout];
 		[self addSubview:messageLabel];
+#endif
 	}
 	return messageLabel;
 }
@@ -120,11 +143,13 @@
 	return [self messageLabel];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[self setNeedsLayout];
     [super frameSizeChanged:frame bounds:bounds];
 }
+#endif
 
 #pragma mark View controller stuff
 
@@ -209,6 +234,7 @@
 	
 	style = newStyle;
 	
+#ifndef TI_USE_AUTOLAYOUT
 	if (indicatorView != nil)
 	{
 		[indicatorView setActivityIndicatorViewStyle:style];
@@ -223,7 +249,7 @@
             [indicatorView setColor:spinnerColor];
         }
 	}
-
+#endif
 }
 
 -(void)setIndicatorColor_:(id)value
@@ -234,8 +260,44 @@
     [[self indicatorView] setColor:spinnerColor];
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+- (void)updateConstraints
+{
+    if (!_constraintsAdded) {
+        _constraintsAdded = YES;
+        messageLabel = [self messageLabel];
+        indicatorView = [self indicatorView];
+        NSDictionary* views = NSDictionaryOfVariableBindings(indicatorView, messageLabel, backgroundView);
+        [backgroundView addConstraints:TI_CONSTR(@"H:|[indicatorView]-[messageLabel]|", views)];
+        
+        // Make the backgroundView as small as the biggest of the two
+        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[messageLabel]-(>=0)-|", views)];
+        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[indicatorView]-(>=0)-|", views)];
+        // Center both verically
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                  multiplier:1
+                                                                    constant:0]];
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterY
+                                                                  multiplier:1
+                                                                    constant:0]];
+    }
+    [super updateConstraints];
+}
+#endif
 - (void)didMoveToWindow
 {
+#ifdef TI_USE_AUTOLAYOUT
+    messageLabel = [self messageLabel];
+    indicatorView = [self indicatorView];
+#endif
     //TIMOB-15293
     if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
         BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
@@ -246,6 +308,7 @@
     [super didMoveToWindow];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeThatFits:CGSizeZero].width;
@@ -255,6 +318,7 @@
 {
 	return [self sizeThatFits:CGSizeZero].height;
 }
+#endif
 
 @end
 

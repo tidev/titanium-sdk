@@ -17,6 +17,11 @@
 	CGFloat min;
 	
 	UILabel * messageLabel;
+    
+#ifdef TI_USE_AUTOLAYOUT
+    UIView* backgroundView;
+    BOOL _constraintsAdded;
+#endif
 }
 
 -(id)initWithStyle:(UIProgressViewStyle)style;
