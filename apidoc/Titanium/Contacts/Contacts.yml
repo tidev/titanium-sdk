@@ -199,8 +199,31 @@ methods:
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
 
+  - name: hasContactsPermissions
+    summary: Returns `true` if the app has contacts access
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestContactsPermissions
+    summary: Requests for contacts access
+    description: |
+        This method allows the app to request for contacts access.
+        On Android, the request view will show if the permission is not accepted by user, and user did
+        not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant contacts access.
+        type: Callback<ContactsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
 
   - name: requestAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Please use [requestContactsPermissions]<Titanium.Contacts.requestContactsPermissions>
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |

@@ -59,6 +59,9 @@ public class AlertProxy extends KrollProxy {
 	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
 	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return alerts;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()), new String[] { "_id", "event_id", "begin", "end",
@@ -98,6 +101,9 @@ public class AlertProxy extends KrollProxy {
 
 	public static AlertProxy createAlert(EventProxy event, int minutes)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
 

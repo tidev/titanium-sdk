@@ -21,6 +21,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -122,6 +123,7 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
+
 	}
 
 	public MediaModule(TiContext tiContext)
@@ -283,21 +285,25 @@ public class MediaModule extends KrollModule
 		activity.startActivity(intent);
 	}
 
-	protected boolean hasPermissions() {
+	@Kroll.method
+	public boolean hasCameraPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		} 
-		Log.w(TAG, "Camera and/or Read external storage permission(s) missing");
 		return false;		
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
-		if (!hasPermissions()) {
+		if (!hasCameraPermissions()) {
 			return;
 		}
 		KrollDict cameraOptions = null;
@@ -317,6 +323,23 @@ public class MediaModule extends KrollModule
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
+	}
+	
+	@Kroll.method
+	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasCameraPermissions()) {
+			return;
+		}
+
+		if (TiBaseActivity.cameraCallbackContext == null) {
+			TiBaseActivity.cameraCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
+		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CODE_CAMERA);
+		
 	}
 
 	/*

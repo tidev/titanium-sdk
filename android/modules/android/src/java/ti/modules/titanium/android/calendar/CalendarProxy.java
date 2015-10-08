@@ -14,10 +14,13 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -29,6 +32,7 @@ public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
 	protected boolean selected, hidden;
+	private static final String TAG = "Calendar";
 	private static final long MAX_DATE_RANGE = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
 
 	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
@@ -54,10 +58,27 @@ public class CalendarProxy extends KrollProxy {
 
 		return "content://calendar";
 	}
+	
+	public static boolean hasCalendarPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (currentActivity != null && 
+				currentActivity.checkSelfPermission("android.permission.READ_CALENDAR") == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission("android.permission.WRITE_CALENDAR") == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		} 
+		Log.w(TAG, "Calendar permissions are missing");
+		return false;
+	}
 
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
 	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
+		if (!hasCalendarPermissions()) {
+			return calendars;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		Cursor cursor = null;

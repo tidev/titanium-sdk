@@ -40,7 +40,31 @@ methods:
         type: String
     platforms: [android, iphone, ipad]
 
+  - name: hasCalendarPermissions
+    summary: Returns `true` if the app has calendar access
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestCalendarPermissions
+    summary: Requests for calendar access
+    description: |
+        This method allows the app to request for calendar access.
+        On Android, the request view will show if the permission is not accepted by user, and user did
+        not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant calendar access.
+        type: Callback<EventsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+
   - name: requestEventsAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Please use [requestCalendarPermissions] <Titanium.Calendar.requestCalendarPermissions>.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
