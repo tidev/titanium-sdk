@@ -1178,6 +1178,9 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 iOSBuilder.prototype.validate = function (logger, config, cli) {
 	Builder.prototype.validate.apply(this, arguments);
 
+	// add the ios specific default icon to the list of icons
+	this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
+
 	return function (callback) {
 		this.target = cli.argv.target;
 		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
@@ -4168,11 +4171,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 				deviceFamily = this.deviceFamily,
 				missingIcons = [],
-				defaultIcon = path.join(this.projectDir, 'DefaultIcon.png'),
+				defaultIcon,
 				defaultIconChanged = false,
 				defaultIconHasAlpha = false;
 
-			if (fs.existsSync(defaultIcon)) {
+			this.defaultIcons.some(function (icon) {
+				if (fs.existsSync(icon)) {
+					defaultIcon = icon;
+					return true;
+				}
+			});
+
+			if (defaultIcon) {
 				var defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 					defaultIconStat = fs.statSync(defaultIcon),
 					defaultIconMtime = JSON.parse(JSON.stringify(defaultIconStat.mtime)),
@@ -4235,7 +4245,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				// validate the app icon meets the requirements
 				if (pngInfo.width !== w) {
-					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height, w, w));
+					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, w, h, pngInfo.width, pngInfo.height));
 					return;
 				}
 
@@ -4368,8 +4378,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
 			if (missingIcons.length) {
-				if (defaultIconHasAlpha) {
-					return next(new Error(__('DefaultIcon.png cannot be used because it contains an alpha channel')));
+				if (defaultIcon && defaultIconHasAlpha) {
+					this.logger.error(__('%s cannot be used because it contains an alpha channel', defaultIcon));
+					this.logger.error(__('Create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
+					this.logger.error(__('It is highly recommended that the DefaultIcon.png be 1024x1024') + '\n');
+					process.exit(1);
 				}
 
 				this.logger.debug(__n(
@@ -4378,8 +4391,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					missingIcons.length
 				));
 
-				if (defaultIconChanged && !this.forceRebuild) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', 'DefaultIcon.png'));
+				if (defaultIcon && defaultIconChanged && !this.forceRebuild) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon));
 					this.forceRebuild = true;
 				}
 
