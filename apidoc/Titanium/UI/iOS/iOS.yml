@@ -1175,7 +1175,7 @@ properties:
   - name: SHORTCUT_ICON_TYPE_SEARCH
     summary: Number that represents the icon used for the application shortcut
     description: |
-        An icon for a quick action that accesses the user’s current location.
+        An icon for a quick action that accesses the user's current location.
     type: Number
     permission: read-only
     osver: {ios: {min: "9.0"}}
