@@ -2058,7 +2058,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 
 	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] !== false);
-	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] !== false);
+	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {

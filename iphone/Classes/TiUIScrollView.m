@@ -108,7 +108,6 @@
         [scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [scrollView setDelegate:self];
         
-        [contentView setBackgroundColor:[UIColor greenColor]];
         [contentView setViewName:@"TiScrollView.ContentView"];
         
         [contentView setDefaultHeight:TiDimensionAutoSize];
