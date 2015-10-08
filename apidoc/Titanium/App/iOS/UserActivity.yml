@@ -110,7 +110,7 @@ properties:
     osver: {ios: {min: "8.0"}}
     deprecated:
         since: "5.1.0"
-        notes: Use the [App.iOS.UserActivity.getSupported()](App.iOS.UserActivity.isSupported()) method instead.
+        notes: Use the [Ti.App.iOS.UserActivity.isSupported()](Titanium.App.iOS.UserActivity.isSupported) method instead.
 
   - name: title
     summary: An optional, user-visible title for this activity such as a document name or web page title.
@@ -163,9 +163,10 @@ methods:
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
   - name: isSupported
-    summary: Indicates whether userActivity is supported by the device.
+    summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
     returns:
-            type: Boolean
+        type: Boolean
+        summary: Returns `true` if the device supports user activity.
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.0"}}
 events:

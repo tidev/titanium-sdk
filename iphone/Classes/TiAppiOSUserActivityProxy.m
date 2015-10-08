@@ -53,9 +53,9 @@
 
 -(id)isSupported:(id)unused
 {
-    if([TiUtils isIOS8OrGreater]){
+    if ([TiUtils isIOS8OrGreater] == YES) {
         return NUMBOOL(_supported);
-    }else{
+    } else {
         return NUMBOOL(NO);
     }
 }
