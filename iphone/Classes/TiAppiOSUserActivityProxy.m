@@ -186,7 +186,7 @@
 
 -(NSNumber*)supported
 {
-    DEPRECATED_REPLACED(@"Ti.App.IOS.UserActivity.getSupported()" ,@"5.1.0",@"Ti.App.IOS.UserActivity.isSupported()")
+    DEPRECATED_REPLACED(@"App.IOS.UserActivity.getSupported()" ,@"5.1.0",@"App.IOS.UserActivity.isSupported()")
     return NUMBOOL(_supported);
 }
 

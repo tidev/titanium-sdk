@@ -109,8 +109,8 @@ properties:
     type: Boolean
     osver: {ios: {min: "8.0"}}
     deprecated:
-        since: "3.2.0"
-        notes: Use the [Ti.App.IOS.UserActivity.getSupported()](UserActivity.isSupported()) method instead.
+        since: "5.1.0"
+        notes: Use the [App.iOS.UserActivity.getSupported()](App.iOS.UserActivity.isSupported()) method instead.
 
   - name: title
     summary: An optional, user-visible title for this activity such as a document name or web page title.
