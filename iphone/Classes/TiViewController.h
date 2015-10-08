@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#if 0
 #import <UIKit/UIKit.h>
 #import "TiControllerProtocols.h"
 
@@ -18,3 +19,5 @@
 -(TiViewProxy*) proxy;
 
 @end
+
+#endif

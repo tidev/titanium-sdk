@@ -9,7 +9,7 @@
 #ifdef USE_TI_UIIPAD
 
 // if we use a split window, we need to include the ipad popover
-#ifdef USE_TI_UIIPADSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 #ifndef USE_TI_UIIPADPOPOVER
 #define USE_TI_UIIPADPOPOVER
 #endif
@@ -17,9 +17,6 @@
 
 #ifdef USE_TI_UIIPADPOPOVER
 	#import "TiUIiPadPopoverProxy.h"
-#endif
-#ifdef USE_TI_UIIPADSPLITWINDOW
-	#import "TiUIiPadSplitWindowProxy.h"
 #endif
 #ifdef USE_TI_UIIPADDOCUMENTVIEWER
 	#import "TiUIiOSDocumentViewerProxy.h"
@@ -44,7 +41,7 @@
 -(id)createPopover:(id)args;
 #endif
 
-#ifdef USE_TI_UIIPADSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 -(id)createSplitWindow:(id)args;
 #endif
 

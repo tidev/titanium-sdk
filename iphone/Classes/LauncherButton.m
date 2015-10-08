@@ -95,8 +95,6 @@
 		TiViewProxy *p =(TiViewProxy*) v.proxy;
 		[p windowWillOpen];
 		[p windowDidOpen];
-		[p reposition];
-		[p layoutChildren:NO];
 	}
 }
 

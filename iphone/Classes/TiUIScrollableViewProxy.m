@@ -204,28 +204,6 @@
     [self scrollToView:NUMINT(--index)];
 }
 
--(void) willChangeSize
-{
-    //Ensure the size change signal goes to children 
-    NSArray *curViews = [self views];
-    for (TiViewProxy *child in curViews) {
-        [child parentSizeWillChange];
-    }
-    [super willChangeSize];
-}
-
--(void)childWillResize:(TiViewProxy *)child
-{
-	BOOL hasChild = [[self children] containsObject:child];
-
-	if (!hasChild)
-	{
-		return;
-		//In the case of views added with addView, as they are not part of children, they should be ignored.
-	}
-	[super childWillResize:child];
-}
-
 -(TiViewProxy *)viewAtIndex:(NSInteger)index
 {
 	[self lockViews];
@@ -238,73 +216,6 @@
 	TiViewProxy * result = [viewProxies objectAtIndex:index];
 	[self unlockViews];
 	return result;
-}
-
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-	[self lockViews];
-	NSUInteger index = [viewProxies indexOfObject:child];
-	[self unlockViews];
-	
-	if (index != NSNotFound)
-	{
-		TiUIScrollableView * ourView = (TiUIScrollableView *)[self view];
-		NSArray * scrollWrappers = [[ourView scrollview] subviews];
-		if (index < [scrollWrappers count])
-		{
-			return [scrollWrappers objectAtIndex:index];
-		}
-		//Hideous hack is hideous. This should stave off the bugs until layout is streamlined
-		[ourView refreshScrollView:[[self view] bounds] readd:YES];
-		scrollWrappers = [[ourView scrollview] subviews];
-		if (index < [scrollWrappers count])
-		{
-			return [scrollWrappers objectAtIndex:index];
-		}
-	}
-	//Adding the view to a scrollable view is invalid.
-	return nil;
-}
-
--(CGFloat)autoWidthForSize:(CGSize)size
-{
-    CGFloat result = 0.0;
-    NSArray* theChildren = [self views];
-    for (TiViewProxy * thisChildProxy in theChildren) {
-        CGFloat thisWidth = [thisChildProxy minimumParentWidthForSize:size];
-        if (result < thisWidth) {
-            result = thisWidth;
-        }
-    }
-    return result;
-}
-
--(CGFloat)autoHeightForSize:(CGSize)size
-{
-    CGFloat result = 0.0;
-    NSArray* theChildren = [self views];
-    for (TiViewProxy * thisChildProxy in theChildren) {
-        CGFloat thisHeight = [thisChildProxy minimumParentHeightForSize:size];
-        if (result < thisHeight) {
-            result = thisHeight;
-        }
-    }
-    return result;
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    if ([self viewAttached]) {
-        [(TiUIScrollableView*)[self view] manageRotation];
-    }
-}
-
--(void)willChangeLayout
-{
-    if (layoutProperties.layoutStyle != TiLayoutRuleAbsolute) {
-        layoutProperties.layoutStyle = TiLayoutRuleAbsolute;
-    }
-    [super willChangeLayout];
 }
 
 @end

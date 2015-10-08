@@ -9,6 +9,7 @@
 #import "TiUIScrollView.h"
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 @implementation TiUIScrollViewImpl
 
@@ -74,141 +75,56 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(wrapperView);
+	RELEASE_TO_NIL(contentView);
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
 }
 
--(UIView *)wrapperView
+- (instancetype)init
 {
-	if (wrapperView == nil)
-	{
-		CGRect wrapperFrame;
-		wrapperFrame.size = [[self scrollView] contentSize];
-		wrapperFrame.origin = CGPointZero;
-		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
-		[wrapperView setUserInteractionEnabled:YES];
-		[scrollView addSubview:wrapperView];
-	}
-	return wrapperView;
+    self = [super init];
+    if (self) {
+        scrollView = [[TiUIScrollViewImpl alloc] init];
+        [scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [scrollView setBackgroundColor:[UIColor clearColor]];
+        [scrollView setShowsHorizontalScrollIndicator:NO];
+        [scrollView setShowsVerticalScrollIndicator:NO];
+        [scrollView setDelegate:self];
+        [scrollView setTouchHandler:self];
+
+        contentView = [[TiLayoutView alloc] init];
+        [contentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [contentView setBackgroundColor:[UIColor greenColor]];
+        [contentView setViewName:@"contentView"];
+        
+        [contentView setDefaultHeight:TiDimensionAutoSize];
+        [contentView setDefaultWidth:TiDimensionAutoSize];
+
+        [scrollView addSubview:contentView];
+        
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+        
+        [self setInnerView:scrollView];
+        [self setHorizontalWrap:NO];
+
+    }
+    return self;
+}
+
+-(UIView *)contentView
+{
+	return contentView;
 }
 
 -(TiUIScrollViewImpl *)scrollView
 {
-	if(scrollView == nil)
-	{
-		scrollView = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
-		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[scrollView setBackgroundColor:[UIColor clearColor]];
-		[scrollView setShowsHorizontalScrollIndicator:NO];
-		[scrollView setShowsVerticalScrollIndicator:NO];
-		[scrollView setDelegate:self];
-        [scrollView setTouchHandler:self];
-		[self addSubview:scrollView];
-	}
 	return scrollView;
 }
 
 - (id)accessibilityElement
 {
 	return [self scrollView];
-}
-
--(void)setNeedsHandleContentSizeIfAutosizing
-{
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
-        TiDimensionIsAutoSize(contentWidth) || TiDimensionIsAutoSize(contentHeight) ||
-        TiDimensionIsUndefined(contentWidth) || TiDimensionIsUndefined(contentHeight))
-	{
-		[self setNeedsHandleContentSize];
-	}
-}
-
--(void)setNeedsHandleContentSize
-{
-	if (!needsHandleContentSize)
-	{
-		needsHandleContentSize = YES;
-		TiThreadPerformOnMainThread(^{[self handleContentSize];}, NO);
-	}
-}
-
-
--(BOOL)handleContentSizeIfNeeded
-{
-	if (needsHandleContentSize)
-	{
-		[self handleContentSize];
-		return YES;
-	}
-	return NO;
-}
-
--(void)handleContentSize
-{
-	if (!needsHandleContentSize) {
-		return;
-	}
-	CGSize newContentSize = [self bounds].size;
-	CGFloat scale = [scrollView zoomScale];
-
-	switch (contentWidth.type)
-	{
-		case TiDimensionTypeDip:
-		{
-			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
-			break;
-		}
-        case TiDimensionTypeUndefined:
-        case TiDimensionTypeAutoSize:
-		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
-		{
-			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
-			break;
-		}
-        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
-		default: {
-			break;
-		}
-	}
-
-	switch (contentHeight.type)
-	{
-		case TiDimensionTypeDip:
-		{
-			minimumContentHeight = contentHeight.value;
-			break;
-		}
-        case TiDimensionTypeUndefined:
-        case TiDimensionTypeAutoSize:
-		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"            
-		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
-			break;
-		}
-        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec           
-		default:
-			minimumContentHeight = newContentSize.height;
-			break;
-	}
-	newContentSize.width *= scale;
-	newContentSize.height = scale * MAX(newContentSize.height,minimumContentHeight);
-
-	[scrollView setContentSize:newContentSize];
-	CGRect wrapperBounds;
-	wrapperBounds.origin = CGPointZero;
-	wrapperBounds.size = newContentSize;
-	[wrapperView setFrame:wrapperBounds];
-	[self scrollViewDidZoom:scrollView];
-	needsHandleContentSize = NO;
-	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
-{
-	//Treat this as a size change
-	[(TiViewProxy *)[self proxy] willChangeSize];
-    [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
 -(void)scrollToBottom
@@ -232,6 +148,53 @@
     
 }
 
+-(void)setHorizontalWrap:(BOOL)horizontalWrap
+{
+    [contentView setHorizontalWrap:horizontalWrap];
+    [super setHorizontalWrap:horizontalWrap];
+}
+
+-(BOOL)horizontalWrap
+{
+    return [contentView horizontalWrap];
+}
+
+-(void)addSubview:(nonnull UIView *)view
+{
+    [contentView addSubview:view];
+}
+
+-(void)insertSubview:(nonnull UIView *)view aboveSubview:(nonnull UIView *)siblingSubview
+{
+    [contentView insertSubview:view aboveSubview:siblingSubview];
+}
+
+-(void)insertSubview:(nonnull UIView *)view atIndex:(NSInteger)index
+{
+    [contentView insertSubview:view atIndex:index];
+}
+
+-(void)insertSubview:(nonnull UIView *)view belowSubview:(nonnull UIView *)siblingSubview
+{
+    [contentView insertSubview:view belowSubview:siblingSubview];
+}
+
+-(void)setLayout_:(id)val
+{
+    [contentView setLayout_:val];
+}
+
+-(void)setOnContentLayout:(void (^)(TiLayoutView * sender, CGRect rect))onContentLayout
+{
+    [contentView setOnLayout:onContentLayout];
+}
+
+-(void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    [[self contentView] setBackgroundColor:backgroundColor];
+    [super setBackgroundColor:backgroundColor];
+}
+
 -(void)setDecelerationRate_:(id)value
 {
 	[self.proxy replaceValue:value forKey:@"decelerationRate" notification:NO];
@@ -242,14 +205,14 @@
 {
 	contentWidth = [TiUtils dimensionValue:value];
     [self.proxy replaceValue:value forKey:@"contentWidth" notification:NO];
-	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+    [contentView setWidth_:value];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
     [self.proxy replaceValue:value forKey:@"contentHeight" notification:NO];
-	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+    [contentView setHeight_:value];
 }
 
 -(void)setShowHorizontalScrollIndicator_:(id)value
@@ -357,7 +320,7 @@
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
-	return [self wrapperView];
+	return [self contentView];
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
@@ -368,23 +331,23 @@
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
-	CGSize boundsSize = scrollView.bounds.size;
-    CGRect frameToCenter = wrapperView.frame;
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
-		if (frameToCenter.size.width < boundsSize.width) {
-			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
-		} else {
-			frameToCenter.origin.x = 0;
-		}
-	}
-	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
-		if (frameToCenter.size.height < boundsSize.height) {
-			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
-		} else {
-			frameToCenter.origin.y = 0;
-		}
-	}
-    wrapperView.frame = frameToCenter;	
+//	CGSize boundsSize = scrollView.bounds.size;
+//    CGRect frameToCenter = contentView.frame;
+//	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
+//		if (frameToCenter.size.width < boundsSize.width) {
+//			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
+//		} else {
+//			frameToCenter.origin.x = 0;
+//		}
+//	}
+//	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
+//		if (frameToCenter.size.height < boundsSize.height) {
+//			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
+//		} else {
+//			frameToCenter.origin.y = 0;
+//		}
+//	}
+//    contentView.frame = frameToCenter;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  
@@ -403,13 +366,62 @@
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardTop, 0);
+    [[self scrollView] setContentInset: contentInsets];
+    [[self scrollView] setScrollIndicatorInsets: contentInsets];
+    
+    [NSTimer scheduledTimerWithTimeInterval:0.3 block:^{
+        TiViewProxy* focused = [[TiApp controller] keyboardFocusedProxy];
+        if (focused == nil) return;
+
+        UIView* parent = [[focused view] superview];
+        while (parent) {
+            if (parent == self) {
+                [self scrollToShowView:[focused view] withKeyboardHeight:keyboardTop];
+                return;
+            }
+            parent = [parent superview];
+        }
+    } repeats:NO];
+
+    
+}
+
+-(void)notifyFocusedViews:(UIView*)parent keyboardTop:(CGFloat)keyboardTop
+{
+//    TiViewProxy* focus = [[TiApp controller] keyboardFocusedProxy];
+//    UIView* parent = [[focus view] superview];
+//    
+//    while (parent) {
+//        if (parent == self) {
+//            [self scrollToShowView:(TiUIView*)parent withKeyboardHeight:keyboardTop];
+//            break;
+//        }
+//        parent = [parent superview];
+//    }
+//    
+//    for (UIView* child in [parent subviews]) {
+//        [self notifyFocusedViews:child keyboardTop:keyboardTop];
+//
+//        if ([child isKindOfClass:[TiUIView class]]) {
+//            TiViewProxy* proxy = (TiViewProxy*)[(TiUIView*)child proxy];
+//            if (proxy == focus) {
+//                [self scrollToShowView:(TiUIView*)child withKeyboardHeight:keyboardTop];
+//            }
+//        }
+//    }
+}
+
+-(void)keyboardDidHide
+{
+    [[self scrollView] setContentInset: UIEdgeInsetsZero];
+    [[self scrollView] setScrollIndicatorInsets: UIEdgeInsetsZero];
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([scrollView isScrollEnabled]) {
-        CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        CGRect responderRect = [contentView convertRect:[firstResponderView bounds] fromView:firstResponderView];
         OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
     }
 }

@@ -23,17 +23,21 @@
 	[super dealloc];
 }
 
--(void)layoutSubviews
+- (instancetype)init
 {
-    [super layoutSubviews];
-    [sliderView setFrame:[self bounds]];
+    self = [super init];
+    if (self) {
+        [self setDefaultWidth:TiDimensionAutoFill];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        sliderView = [self sliderView];
+    }
+    return self;
 }
-
 -(UISlider*)sliderView
 {
 	if (sliderView==nil)
 	{
-		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
+		sliderView = [[UISlider alloc] init];
 		
 		// We have to do this to force the slider subviews to appear, in the case where value<=min==0.
 		// If the slider doesn't register a value change (or already have its subviews drawn in a nib) then
@@ -44,7 +48,8 @@
 		[sliderView addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
 		[sliderView addTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
 		[sliderView addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel)];
-		[self addSubview:sliderView];
+        [self setInnerView:sliderView];
+        [self addSubview:sliderView];
 		lastTouchUp = [[NSDate alloc] init];
 		lastTimeInterval = 1.0; // Short-circuit so that we don't ignore the first fire
 		
@@ -262,11 +267,9 @@
     return result;
 }
 
-USE_PROXY_FOR_VERIFY_AUTORESIZING
-
 #pragma mark Delegates 
 
-- (IBAction)sliderChanged:(id)sender
+- (void)sliderChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider *)sender value]];
 	[self.proxy replaceValue:newValue forKey:@"value" notification:NO];
@@ -277,7 +280,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
--(IBAction)sliderBegin:(id)sender
+-(void)sliderBegin:(id)sender
 {
     NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
     if ([[self proxy] _hasListeners:@"touchstart"])
@@ -290,7 +293,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     }
 }
 
--(IBAction)sliderEnd:(id)sender
+-(void)sliderEnd:(id)sender
 {
 	// APPLE BUG: Sometimes in a double-click our 'UIControlEventTouchUpInside' event is fired more than once.  This is
 	// ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.

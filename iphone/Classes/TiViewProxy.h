@@ -49,7 +49,7 @@
 /**
  Returns keyboard accessory height.
  */
-@property(nonatomic,readonly) CGFloat keyboardAccessoryHeight;
+//@property(nonatomic,readonly) CGFloat keyboardAccessoryHeight;
 
 @end
 
@@ -92,14 +92,13 @@ enum
  The class represents a proxy that is attached to a view.
  The class is not intended to be overriden.
  */
-@interface TiViewProxy : TiProxy<LayoutAutosizing> 
+@interface TiViewProxy : TiProxy
 {
 @protected
 //TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
 //For now, for sake of proper value grouping, we're all under one roof.
 
 #pragma mark Layout properties
-	LayoutConstraint layoutProperties;
 	int vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or 
@@ -120,16 +119,11 @@ enum
 	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
 	int lastChildArranged;
 
-	CGRect sandboxBounds;
 	CGPoint positionCache;	//Recomputed and stored when position changes.
 	CGRect sizeCache;	//Recomputed and stored when size changes.
 	UIViewAutoresizing autoresizeCache;	//Changed by repositioning or resizing.
 
 	BOOL parentVisible;
-	//In most cases, this is the same as [parent parentVisible] && ![parent hidden]
-	//However, in the case of windows attached to the root view, the parent is ALWAYS visible.
-	//That is, will be true if and only if all parents are visible or are the root controller.
-	//Use parentWillShow and parentWillHide to set this.
 
 #pragma mark Housecleaning that is set and used
 	NSRecursiveLock *destroyLock;
@@ -149,9 +143,12 @@ enum
     
     id observer;
 	id<TiViewEventOverrideDelegate> eventOverrideDelegate;
+    
 }
 
 #pragma mark public API
+
+@property(nonatomic,readonly) BOOL hasPostLayoutEvent;
 
 @property(nonatomic,readonly) TiRect * size;
 @property(nonatomic,readonly) TiRect * rect;
@@ -169,9 +166,6 @@ enum
  */
 @property(nonatomic,readonly) NSArray *children;
 
--(void)startLayout:(id)arg;//Deprecated since 3.0.0
--(void)finishLayout:(id)arg;//Deprecated since 3.0.0
--(void)updateLayout:(id)arg;//Deprecated since 3.0.0
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
@@ -213,27 +207,12 @@ enum
  */
 -(void)animate:(id)arg;
 
--(void)setTop:(id)value;
--(void)setBottom:(id)value;
--(void)setLeft:(id)value;
--(void)setRight:(id)value;
--(void)setWidth:(id)value;
--(void)setHeight:(id)value;
--(void)setZIndex:(id)value;
--(id)zIndex;
-
-// See the code for setValue:forUndefinedKey: for why we can't have this
-//-(void)setLayout:(id)value;
--(void)setMinWidth:(id)value;
--(void)setMinHeight:(id)value;
-
--(void)setCenter:(id)value;
 -(NSMutableDictionary*)center;
 -(id)animatedCenter;
 
 -(void)setBackgroundGradient:(id)arg;
 -(TiBlob*)toImage:(id)args;
-
+-(id)zIndex;
 #pragma mark nonpublic accessors not related to Housecleaning
 
 /**
@@ -245,23 +224,13 @@ enum
 @property(nonatomic, assign) TiViewProxy *parent;
 //TODO: make this a proper readwrite property declaration.
 
-/**
- Provides access to layout properties of the underlying view.
- */
-@property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
-
-/**
- Provides access to sandbox bounds of the underlying view.
- */
-@property(nonatomic,readwrite,assign) CGRect sandboxBounds;
 	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 -(void)setHidden:(BOOL)newHidden withArgs:(id)args;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
--(TiUIView *)barButtonViewForSize:(CGSize)bounds;
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
-@property(nonatomic,readwrite,retain)TiUIView * view;
+@property(nonatomic,readwrite,retain) TiUIView * view;
 
 @property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
@@ -324,7 +293,6 @@ enum
  @return The parent view
  */
 -(UIView *)parentViewForChild:(TiViewProxy *)child;
-
 #pragma mark Event trigger methods
 
 /**
@@ -465,145 +433,16 @@ enum
  */
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
-#pragma mark Layout events, internal and external
-
-/**
- Tells the view proxy that the attached view size will change.
- */
--(void)willChangeSize;
-
-/**
- Tells the view proxy that the attached view position will change.
- */
--(void)willChangePosition;
-
-/**
- Tells the view proxy that the attached view z-index will change.
- */
--(void)willChangeZIndex;
-
-/**
- Tells the view proxy that the attached view layout will change.
- */
--(void)willChangeLayout;
-
-/**
- Tells the view proxy that the attached view will show.
- */
--(void)willShow;
-
-/**
- Tells the view proxy that the attached view will hide.
- */
--(void)willHide;
-
-/**
- Tells the view proxy that the attached view contents will change.
- */
--(void)contentsWillChange;
-
-/**
- Tells the view proxy that the attached view's parent size will change.
- */
--(void)parentSizeWillChange;
-
-/**
- Tells the view proxy that the attached view's parent will change position and size.
- */
--(void)parentWillRelay;
-
-/**
- Tells the view proxy that the attached view's parent will show.
- */
--(void)parentWillShow;
-
-/**
- Tells the view proxy that the attached view's parent will hide.
- */
--(void)parentWillHide;
-
-#pragma mark Layout actions
-
--(void)refreshView:(TiUIView *)transferView;
-
-/**
- Tells the view proxy to force size refresh of the attached view.
- */
--(void)refreshSize;
-
-/**
- Tells the view proxy to force position refresh of the attached view.
- */
--(void)refreshPosition;
-
-/**
- Puts the view in the layout queue for rendering.
- */
--(void)willEnqueue;
-
 //Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
 //This is the effect of refreshing the Z index via careful view placement.
 -(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy;
 
 
-#pragma mark Layout commands that need refactoring out
-
--(void)determineSandboxBounds;
-
-/**
- Tells the view to layout its children.
- @param optimize Internal use only. Always specify _NO_.
- */
--(void)layoutChildren:(BOOL)optimize;
-
-/**
- Tells the view to layout its children only if there were any layout changes.
- */
--(void)layoutChildrenIfNeeded;
-
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds;
--(NSArray*)measureChildren:(NSArray*)childArray;
--(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds;
-
-/**
- Tells the view to adjust its size and position according to the current layout constraints.
- */
--(void)relayout;
-
--(void)reposition;	//Todo: Replace
-/**
- Tells if the view is enqueued in the LayoutQueue
- */
--(BOOL)willBeRelaying;
-
--(BOOL) widthIsAutoFill;
--(BOOL) widthIsAutoSize;
--(BOOL) heightIsAutoFill;
--(BOOL) heightIsAutoSize;
--(BOOL) belongsToContext:(id<TiEvaluator>) context;
-
-/**
- Tells the view that its child view size will change.
- @param child The child view
- */
--(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
-
 - (void)unarchiveFromTemplate:(id)viewTemplate;
 + (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;
+-(void)setZIndex:(id)value;
 
 @end
-
-
-#define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
--(resultType) methodname: (inputType)value	\
-{	\
-    return [[self view] methodname:value];	\
-}
-
-#define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
-#define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
-#define USE_VIEW_FOR_CONTENT_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,contentWidthForWidth,CGFloat)
-#define USE_VIEW_FOR_CONTENT_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,contentHeightForWidth,CGFloat)
 
 #define DECLARE_VIEW_CLASS_FOR_NEWVIEW(viewClass)	\
 -(TiUIView*)newView	\

@@ -15,7 +15,6 @@
 
 //Toolbar properties that are semi-exposed
 	TiUIView *keyboardTiView;
-	CGFloat keyboardAccessoryHeight;
 	NSArray *keyboardToolbarItems;
 
 //Toolbar properties derived from the exposed ones.

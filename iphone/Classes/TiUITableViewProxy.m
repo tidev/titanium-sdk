@@ -30,8 +30,6 @@ NSArray * tableKeySequence;
 @implementation TiUITableViewProxy
 @synthesize internalSections=sections;
 
-USE_VIEW_FOR_CONTENT_HEIGHT
-
 #pragma mark Internal
 
 - (id) init

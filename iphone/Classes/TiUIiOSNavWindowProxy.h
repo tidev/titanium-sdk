@@ -17,7 +17,5 @@
     BOOL transitionWithGesture;
 }
 
-//Private API
--(void)setFrame:(CGRect)bounds;
 @end
 #endif

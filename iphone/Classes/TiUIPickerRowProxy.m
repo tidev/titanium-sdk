@@ -12,13 +12,20 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(snapshot);
+    RELEASE_TO_NIL(tempView);
+    RELEASE_TO_NIL(imageView);
+    RELEASE_TO_NIL(image);
 	[super dealloc];
 }
 
 -(NSString*)apiName
 {
     return @"Ti.UI.PickerRow";
+}
+
+-(TiUIView*)newView
+{
+    return [super newView];
 }
 
 -(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView
@@ -50,45 +57,27 @@
     }
     else
     {
-        if (snapshot == nil) {
-            UIView* myview = [self barButtonViewForSize:theFrame.size];
-            CGSize size = myview.bounds.size;
-            if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
-            {
-                CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
-                CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
-                if (width > 0 && height > 0)
-                {
-                    size = CGSizeMake(width, height);
-                }
-                if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
-                {
-                    size = [UIScreen mainScreen].bounds.size;
-                }
-                CGRect rect = CGRectMake(0, 0, size.width, size.height);
-                [TiUtils setView:myview positionRect:rect];
-            }
-            UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
-            [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
-            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-            snapshot = [image retain];
+        
+        if (tempView == nil) {
+            tempView = [[UIView alloc] init];
+        }
+        [tempView addSubview:[self view]];
+        [tempView bringSubviewToFront:[self view]];
+        
+        [[self view] setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+            [sender setOnLayout:nil];
+            UIGraphicsBeginImageContextWithOptions(rect.size, false, 0);
+            [[tempView layer] renderInContext:UIGraphicsGetCurrentContext()];
+            image = [UIGraphicsGetImageFromCurrentImageContext() retain];
             UIGraphicsEndImageContext();
+        }];
+        if (image != nil) {
+            RELEASE_TO_NIL(imageView)
+            imageView = [[UIImageView alloc] initWithImage:image];
+            return imageView;
         }
-        
-        UIImageView* pickerImage = nil;
-        if ([theView isMemberOfClass:[UIImageView class]]) {
-            pickerImage = (UIImageView*)theView;
-        }
-        
-        if (pickerImage == nil) {
-            pickerImage = [[[UIImageView alloc] initWithFrame:theFrame] autorelease];
-            [pickerImage setBackgroundColor:[UIColor clearColor]];
-            [pickerImage setContentMode:UIViewContentModeScaleAspectFit];
-        }
-        
-        [pickerImage setImage:snapshot];
-        return pickerImage;
-	}
+        return tempView;
+    }
 }
 
 @end

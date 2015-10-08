@@ -24,13 +24,17 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
     }
 }
 
+@interface TiAppWindow : UIWindow
+
+@end
+
 /**
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 {
-	UIWindow *window;
+	TiAppWindow *window;
 	UIImageView *loadView;
 	UIImageView *splashScreenImage;
 	BOOL loaded;
@@ -47,7 +51,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	
 	int32_t networkActivityCount;
 	
-	TiRootViewController *controller;
+    TiRootViewController *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -76,7 +80,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  
  Convenience method to access the application's primary window
  */
-@property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, retain) UIWindow *window;
 
 @property (nonatomic, assign) id remoteNotificationDelegate;
 

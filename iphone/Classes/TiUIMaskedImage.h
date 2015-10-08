@@ -14,7 +14,8 @@
 	NSURL * imageURL;
 	NSURL * maskURL;
 	UIColor * tint;
-	CGBlendMode mode;	
+	CGBlendMode mode;
+    UIImageView* transparentImageView;
 }
 
 @end

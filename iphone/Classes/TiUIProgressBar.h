@@ -11,12 +11,13 @@
 @class WebFont;
 @interface TiUIProgressBar : TiUIView {
 @private
+    UILabel * messageLabel;
 	UIProgressView *progress;
 	UIProgressViewStyle style;
 	CGFloat max;
 	CGFloat min;
-	
-	UILabel * messageLabel;
+    UIView* backgroundView;
+    BOOL _constraintsAdded;
 }
 
 -(id)initWithStyle:(UIProgressViewStyle)style;

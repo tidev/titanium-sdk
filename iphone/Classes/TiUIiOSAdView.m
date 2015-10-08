@@ -53,15 +53,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     return size.width;
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	if (!CGRectIsEmpty(bounds))
-	{
-		[TiUtils setView:[self adview] positionRect:bounds];
-	}
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 #pragma mark Public APIs
 
 -(void)cancelAction:(id)args

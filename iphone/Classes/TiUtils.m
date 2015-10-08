@@ -6,7 +6,7 @@
  */
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
-
+#import <objc/runtime.h>
 #import "TiBase.h"
 #import "TiUtils.h"
 #import "TiHost.h"
@@ -1325,14 +1325,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return smallerRect;
 }
 
-#define USEFRAME	0
-
 +(void)setView:(UIView *)view positionRect:(CGRect)frameRect
 {
-#if	USEFRAME
-	[view setFrame:frameRect];
-	return;
-#endif
 	
 	CGPoint anchorPoint = [[view layer] anchorPoint];
 	CGPoint newCenter;
@@ -1856,7 +1850,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
     }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
+        resultImage = [(TiBlob*)image image];
     }
     return resultImage;
 }
@@ -1942,4 +1936,153 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return @"Unknown";
 }
 
+
++ (NSString*)string:(NSString*)str betweenString:(NSString*)start andString:(NSString*)end {
+    NSRange startRange = [str rangeOfString:start];
+    if (startRange.location != NSNotFound) {
+        NSRange targetRange;
+        targetRange.location = startRange.location + startRange.length;
+        targetRange.length = [str length] - targetRange.location;
+        NSRange endRange = [str rangeOfString:end options:0 range:targetRange];
+        if (endRange.location != NSNotFound) {
+            targetRange.length = endRange.location - targetRange.location;
+            return [str substringWithRange:targetRange];
+        }
+    }
+    return nil;
+}
+
++(NSArray *) propertyNamesFromClass:(Class)c;
+{
+    unsigned count;
+    objc_property_t *properties = class_copyPropertyList(c, &count);
+    NSMutableArray *currentProperties = [NSMutableArray array];
+    unsigned i;
+    for (i = 0; i < count; i++) {
+        objc_property_t property = properties[i];
+        
+        NSString* attrs = [NSString stringWithUTF8String:property_getAttributes( property )];
+        NSString *name = [NSString stringWithUTF8String:property_getName(property)];
+        NSString* className = [TiUtils string:attrs betweenString:@"\"" andString:@"\""];
+        Class propClass = NSClassFromString(className);
+        if (propClass != nil && (
+                                 [propClass isSubclassOfClass:[TiProxy class]] ||
+                                 [propClass isSubclassOfClass:[NSString class]] ||
+                                 [propClass isSubclassOfClass:[NSDictionary class]] ||
+                                 [propClass isSubclassOfClass:[NSArray class]] ||
+                                 [propClass isSubclassOfClass:[NSNumber class]] ||
+                                 [propClass isSubclassOfClass:[NSDate class]]
+                                 )
+            )
+        {
+            [currentProperties addObject:name];
+        }
+    }
+    
+    free(properties);
+    
+    if (c == [TiProxy class]) {
+        return currentProperties;
+    }
+    if ([c superclass]) {
+        NSArray *superClassProps = [TiUtils propertyNamesFromClass:[c superclass]];
+        for (NSString* prop in superClassProps) {
+            if (![currentProperties containsObject:prop]) {
+                [currentProperties addObject:prop];
+            }
+        }
+    }
+    return currentProperties;
+}
+
++(NSString*)propertyValueToString:(id)value fromJS:(BOOL)fromJS
+{
+    if ([value isKindOfClass:[TiProxy class]]) {
+        return [value description];
+    }
+    if (fromJS) {
+        return value;
+    }
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        return @"[object NSDictionary]";
+    }
+    if ([value isKindOfClass:[NSArray class]]) {
+        return @"[object NSArray]";
+    }
+    if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]]) {
+        return value;
+    }
+    return [value description];
+}
+
++(NSDictionary*)proxyToJSON:(TiProxy*)proxy
+{
+    id<NSFastEnumeration> allKeys = [proxy allKeys];
+    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    for (NSString* prop in allKeys)
+    {
+        
+        [dict setValue:[TiUtils propertyValueToString:[proxy valueForUndefinedKey:prop] fromJS:YES] forKey:prop];
+    }
+    NSArray* classProperties = [TiUtils propertyNamesFromClass:[proxy class]];
+    for (NSString* prop in classProperties)
+    {
+        if (![dict valueForKey:prop]) {
+            id value = [proxy performSelector:NSSelectorFromString(prop)];
+            [dict setValue:[TiUtils propertyValueToString:value fromJS:NO] forKey:prop];
+        }
+    }   
+    return dict;
+}
+
++ (void) dumpViews:(UIView*) view label:(NSString *) text indent:(NSString*) indent detail:(BOOL)flag
+{
+    Class cl = [view class];
+    NSString *classDescription = [cl description];
+    if (flag) {
+        while ([cl superclass]) {
+            cl = [cl superclass];
+            classDescription = [classDescription stringByAppendingFormat:@":%@", [cl description]];
+        }
+    }
+    if ([text compare:@""] == NSOrderedSame) {
+        NSLog(@"%@ %@", classDescription, NSStringFromCGRect(view.frame));
+    } else {
+        NSLog(@"%@ %@ %@", text, classDescription, NSStringFromCGRect(view.frame));
+    }
+    for (NSUInteger i = 0; i < [view.subviews count]; i++)
+    {
+        UIView *subView = [view.subviews objectAtIndex:i];
+        NSString *newIndent = [[NSString alloc] initWithFormat:@"  %@", indent];
+        NSString *msg = [[NSString alloc] initWithFormat:@"%@%lu:", newIndent, (unsigned long)i];
+        [TiUtils dumpViews:subView label:msg indent:newIndent detail:flag];
+    }
+}
+
++ (void) dumpViews:(UIView*) view detail:(BOOL)flag
+{
+    [TiUtils dumpViews:view label:@"" indent:@"" detail:flag];
+}
+
+@end
+
+
+@implementation NSTimer (Blocks)
+
++(id)scheduledTimerWithTimeInterval:(NSTimeInterval)inTimeInterval block:(void (^)())inBlock repeats:(BOOL)inRepeats
+{
+    void (^block)() = [inBlock copy];
+    id ret = [self scheduledTimerWithTimeInterval:inTimeInterval target:self selector:@selector(jdExecuteSimpleBlock:) userInfo:block repeats:inRepeats];
+    return ret;
+}
+
++(void)jdExecuteSimpleBlock:(NSTimer *)inTimer;
+{
+    if([inTimer userInfo])
+    {
+        void (^block)() = (void (^)())[inTimer userInfo];
+        block();
+    }
+}
 @end

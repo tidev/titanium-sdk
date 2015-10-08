@@ -58,6 +58,11 @@
 
 @implementation UIModule
 
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+@synthesize ActivityIndicatorStyle;
+#endif
+
+
 -(void)dealloc
 {
 #ifdef USE_TI_UIIPHONE

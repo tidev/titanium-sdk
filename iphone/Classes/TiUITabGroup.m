@@ -64,14 +64,6 @@ DEFINE_EXCEPTIONS
 	return -1;
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    if ([controller isViewLoaded]) {
-        [[controller view] setFrame:bounds];
-    }
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 #pragma mark Dispatching focus change
 
 - (void)handleWillShowTab:(TiUITabProxy *)newFocus
@@ -213,8 +205,8 @@ DEFINE_EXCEPTIONS
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    if([toVC isKindOfClass:[TiViewController class]]) {
-        TiViewController* toViewController = (TiViewController*)toVC;
+    if([toVC isKindOfClass:[TiLayoutViewController class]]) {
+        TiLayoutViewController* toViewController = (TiLayoutViewController*)toVC;
         if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
             TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
             return [windowProxy transitionAnimation];
@@ -230,8 +222,8 @@ DEFINE_EXCEPTIONS
     NSUInteger stackHeight = [moreViewControllerStack count];
     if (stackHeight > 1) {
         UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
-        if ([rootController respondsToSelector:@selector(proxy)]) {
-            id theProxy = [(id)rootController proxy];
+        if ([rootController respondsToSelector:@selector(viewProxy)]) {
+            id theProxy = [(id)rootController viewProxy];
             if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] ) {
                 TiUITabProxy * tabProxy = (TiUITabProxy *)[(id)theProxy tab];
                 [tabProxy handleWillShowViewController:viewController animated:animated];
@@ -411,7 +403,7 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark Public APIs
-
+/*
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
    [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
@@ -426,7 +418,7 @@ DEFINE_EXCEPTIONS
 {
     [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
-
+*/
 -(void)setTranslucent_:(id)value
 {
     [[self proxy] replaceValue:value forKey:@"translucent" notification:NO];
@@ -608,9 +600,6 @@ DEFINE_EXCEPTIONS
 
 -(void)open:(id)args
 {
-	UIView *view = [self tabController].view;
-	[view setFrame:[self bounds]];
-	[self addSubview:view];
 
 	// on an open, make sure we send the focus event to focused tab
     NSArray * tabArray = [controller viewControllers];

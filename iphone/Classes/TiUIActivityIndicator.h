@@ -9,15 +9,16 @@
 #import "TiUIView.h"
 
 @class WebFont;
-@interface TiUIActivityIndicator : TiUIView<LayoutAutosizing> {
+@interface TiUIActivityIndicator : TiUIView {
 @private
 	UIActivityIndicatorView *indicatorView;
 	UIActivityIndicatorViewStyle style;
-	
+    UIView* backgroundView;
 	WebFont * fontDesc;
 	UIColor * textColor;
 	UIColor * spinnerColor;
 	UILabel * messageLabel;
+    BOOL _constraintsAdded;
 }
 
 -(UIActivityIndicatorView*)indicatorView;

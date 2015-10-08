@@ -15,6 +15,15 @@
 
 @implementation TiUIiOSToolbar
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setDefaultWidth:TiDimensionAutoFill];
+        [self setDefaultHeight:TiDimensionAutoSize];
+    }
+    return self;
+}
 -(void)dealloc
 {
 	[self performSelector:@selector(setItems_:) withObject:nil];
@@ -25,9 +34,8 @@
 -(UIToolbar *)toolBar
 {
     if (toolBar == nil) {
-        toolBar = [[UIToolbar alloc] initWithFrame:[self bounds]];
-        [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin];
-        [self addSubview:toolBar];
+        toolBar = [[UIToolbar alloc] init];
+        [self setInnerView:toolBar];
         id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
         extendsBackground = [TiUtils boolValue:extendVal def:NO];
         if (extendsBackground) {
@@ -40,41 +48,9 @@
     return toolBar;
 }
 
-- (NSInteger)positionForBar:(id)bar
-{
-    if (extendsBackground) {
-#if defined(DEBUG) || defined(DEVELOPER)
-        TiDimension myTop = ((TiViewProxy*)[self proxy]).layoutProperties->top;
-        if (!TiDimensionEqual(myTop, TiDimensionMake(TiDimensionTypeDip, 20))) {
-            NSLog(@"extendBackground is true but top is not 20");
-        }
-#endif
-        return UIBarPositionTopAttached;
-    }
-    return UIBarPositionAny;
-}
-
 - (id)accessibilityElement
 {
 	return [self toolBar];
-}
-
--(void)layoutSubviews
-{
-	CGRect ourBounds = [self bounds];
-	CGFloat height = ourBounds.size.height;	
-	if (height != [self verifyHeight:height])
-	{
-		[(TiViewProxy *)[self proxy] willChangeSize];
-		return;
-	}
-
-
-	CGRect toolBounds;
-	toolBounds.size = [[self toolBar] sizeThatFits:ourBounds.size];
-	toolBounds.origin.x = 0.0;
-	toolBounds.origin.y = hideTopBorder?-1.0:0.0;
-	[toolBar setFrame:toolBounds];
 }
 
 -(void)setItems_:(id)value
@@ -148,33 +124,6 @@
 -(void)setTranslucent_:(id)value
 {
 	[toolBar setTranslucent:[TiUtils boolValue:value]];
-}
-
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[super frameSizeChanged:frame bounds:bounds];
-	CGFloat height = bounds.size.height;
-	
-	if (height != [self verifyHeight:height])
-	{
-		[(TiViewProxy *)[self proxy] willChangeSize];
-	}
-}
-
-
--(CGFloat)verifyHeight:(CGFloat)suggestedHeight
-{
-	CGFloat result = [[self toolBar] sizeThatFits:CGSizeZero].height;
-	if (hideTopBorder)
-	{
-		result -= 1.0;
-	}
-	if (showBottomBorder)
-	{
-		result += 1.0;
-	}
-	return result;
 }
 
 @end

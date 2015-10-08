@@ -22,7 +22,7 @@
 -(id)init
 {
     if (self = [super init]) {
-        padding = CGRectZero;
+//        padding = CGRectZero;
         initialLabelFrame = CGRectZero;
         verticalAlign = UIControlContentVerticalAlignmentFill;
     }
@@ -32,7 +32,7 @@
 -(void)dealloc
 {
     RELEASE_TO_NIL(label);
-    RELEASE_TO_NIL(wrapperView);
+//    RELEASE_TO_NIL(wrapperView);
     [super dealloc];
 }
 
@@ -45,8 +45,10 @@
 }
 
 
+/*
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
+    
 	NSAttributedString *value = [label attributedText];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize shadowOffset = [label shadowOffset];
@@ -69,25 +71,27 @@
 
 	return size;
 }
+*/
 
 
--(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
-{
-    /*
-     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
-     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
-     attributed strings till we move to the new measurement API. Hence take both and return MAX.
-     */
-    CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
-    CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
-    return (MAX(sizeThatFitsResult, fontMeasurementResult));
-}
+//-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
+//{
+//    /*
+//     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
+//     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
+//     attributed strings till we move to the new measurement API. Hence take both and return MAX.
+//     */
+//    CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
+//    CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
+//    return (MAX(sizeThatFitsResult, fontMeasurementResult));
+//}
+//
+//-(CGFloat)contentHeightForWidth:(CGFloat)width
+//{
+//	return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
+//}
 
--(CGFloat)contentHeightForWidth:(CGFloat)width
-{
-	return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
-}
-
+/*
 -(void)padLabel
 {
     CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
@@ -146,7 +150,7 @@
     }
 	return;
 }
-
+*/
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
@@ -155,30 +159,30 @@
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    initialLabelFrame = bounds;
-    [wrapperView setFrame:initialLabelFrame];
-    [self padLabel];
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 -(UILabel*)label
 {
 	if (label==nil)
 	{
         label = [[UILabel alloc] initWithFrame:CGRectZero];
-        label.backgroundColor = [UIColor clearColor];
-        label.numberOfLines = 0;
-        wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
-        [wrapperView addSubview:label];
-        wrapperView.clipsToBounds = YES;
-        [wrapperView setUserInteractionEnabled:NO];
-        [self addSubview:wrapperView];
+        [label setBackgroundColor: [UIColor clearColor]];
+        [label setNumberOfLines: 0];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoSize];
+        [self setInnerView:label];
         minFontSize = 0;
     }
 	return label;
 }
+
+-(void)postLayoutEvent
+{
+    [super postLayoutEvent];
+}
+
+//-(CGSize) intrinsicContentSize
+//{
+//    return [[self label] intrinsicContentSize];
+//}
 
 -(BOOL)proxyHasGestureListeners
 {
@@ -394,14 +398,14 @@
         verticalAlign = UIControlContentVerticalAlignmentFill;
     }
     if (label != nil) {
-        [self padLabel];
+//        [self padLabel];
     }
 }
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
-    [self padLabel];
-	[(TiViewProxy *)[self proxy] contentsWillChange];
+//    [self padLabel];
+//	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setColor_:(id)color
@@ -434,7 +438,6 @@
         CGFloat ratio = minFontSize/label.font.pointSize;
         [label setMinimumScaleFactor:ratio];
     }
-    [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setMinimumFontSize_:(id)size
@@ -457,11 +460,6 @@
 
 -(void) updateBackgroundImageFrameWithPadding
 {
-    CGRect backgroundFrame = CGRectMake(self.bounds.origin.x - padding.origin.x,
-               self.bounds.origin.y - padding.origin.y,
-               self.bounds.size.width + padding.origin.x + padding.size.width,
-                                        self.bounds.size.height + padding.origin.y + padding.size.height);
-    [self backgroundImageLayer].frame = backgroundFrame;
 }
 
 -(void)setAttributedString_:(id)arg
@@ -470,39 +468,37 @@
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];
-    [self padLabel];
-    [(TiViewProxy *)[self proxy] contentsWillChange];
 #endif
 }
 
 -(void)setBackgroundPaddingLeft_:(id)left
 {
-    padding.origin.x = [TiUtils floatValue:left];
+//    padding.origin.x = [TiUtils floatValue:left];
     [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingRight_:(id)right
 {
-    padding.size.width = [TiUtils floatValue:right];
+//    padding.size.width = [TiUtils floatValue:right];
     [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingTop_:(id)top
 {
-    padding.origin.y = [TiUtils floatValue:top];
+//    padding.origin.y = [TiUtils floatValue:top];
     [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setBackgroundPaddingBottom_:(id)bottom
 {
-    padding.size.height = [TiUtils floatValue:bottom];
+//    padding.size.height = [TiUtils floatValue:bottom];
     [self updateBackgroundImageFrameWithPadding];
 }
 
 -(void)setTextAlign_:(id)alignment
 {
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
-    [self padLabel];
+//    [self padLabel];
 }
 
 -(void)setShadowColor_:(id)color

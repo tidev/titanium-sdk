@@ -648,4 +648,15 @@ typedef enum
  */
 + (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
 
+
++(NSDictionary*)proxyToJSON:(TiProxy*)proxy;
++ (void) dumpViews:(UIView*) view label:(NSString *) text indent:(NSString*) indent detail:(BOOL)flag;
++ (void) dumpViews:(UIView*) view detail:(BOOL)flag;
+
+@end
+
+
+@interface NSTimer (Blocks)
++(id)scheduledTimerWithTimeInterval:(NSTimeInterval)inTimeInterval block:(void (^)())inBlock repeats:(BOOL)inRepeats;
++(void)jdExecuteSimpleBlock:(NSTimer *)inTimer;
 @end

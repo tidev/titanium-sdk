@@ -74,10 +74,10 @@
             [controller setViewControllers:[NSArray arrayWithObject:rootController]];
             if (current != nil) {
                 RELEASE_TO_NIL(current);
-                current = [(TiWindowProxy*)[(TiViewController*)rootController proxy] retain];
+                current = [(TiWindowProxy*)[(TiLayoutViewController*)rootController viewProxy] retain];
             }
-            for (TiViewController* doomedVc in doomedVcs) {
-                [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+            for (TiLayoutViewController* doomedVc in doomedVcs) {
+                [self closeWindowProxy:(TiWindowProxy *)[doomedVc viewProxy] animated:NO];
             }
             RELEASE_TO_NIL(doomedVcs);
         }
@@ -295,10 +295,10 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    if([toVC isKindOfClass:[TiViewController class]]) {
-        TiViewController* toViewController = (TiViewController*)toVC;
-        if([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
-            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController proxy];
+    if([toVC isKindOfClass:[TiLayoutViewController class]]) {
+        TiLayoutViewController* toViewController = (TiLayoutViewController*)toVC;
+        if([[toViewController viewProxy] isKindOfClass:[TiWindowProxy class]]) {
+            TiWindowProxy *windowProxy = (TiWindowProxy*)[toViewController viewProxy];
             return [windowProxy transitionAnimation];
         }
     }
@@ -353,7 +353,7 @@
             [current windowWillClose];
         }
     }
-    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
+    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiLayoutViewController*)viewController viewProxy];
     if (theWindow == rootWindow) {
         //This is probably too late for the root view controller.
         //Figure out how to call open before this callback
@@ -377,8 +377,8 @@
             //TIMOB-15188. Tab can switch to rootView anytime by tapping the selected tab again.
             if ((viewController == [self rootController]) && ([controllerStack count] > 1) ) {
                 [controllerStack removeObject:[self rootController]];
-                for (TiViewController* theController in [controllerStack reverseObjectEnumerator]) {
-                    TiWindowProxy* theWindow = (TiWindowProxy*)[theController proxy];
+                for (TiLayoutViewController* theController in [controllerStack reverseObjectEnumerator]) {
+                    TiWindowProxy* theWindow = (TiWindowProxy*)[theController viewProxy];
                     [theWindow setTab:nil];
                     [theWindow setParentOrientationController:nil];
                     [theWindow close:nil];
@@ -389,7 +389,7 @@
         }
     }
     RELEASE_TO_NIL(current);
-    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
+    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiLayoutViewController*)viewController viewProxy];
     current = [theWindow retain];
     [self childOrientationControllerChangedFlags:current];
     if (hasFocus) {
@@ -410,8 +410,8 @@
     hasFocus = NO;
     if (current != nil) {
         UIViewController* topVC = [[[self rootController] navigationController] topViewController];
-        if ([topVC isKindOfClass:[TiViewController class]]) {
-            TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([topVC isKindOfClass:[TiLayoutViewController class]]) {
+            TiViewProxy* theProxy = [(TiLayoutViewController*)topVC viewProxy];
             if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                 [(id<TiWindowProtocol>)theProxy resignFocus];
             }
@@ -434,8 +434,8 @@
     hasFocus = YES;
     if (current != nil) {
         UIViewController* topVC = [[[self rootController] navigationController] topViewController];
-        if ([topVC isKindOfClass:[TiViewController class]]) {
-            TiViewProxy* theProxy = [(TiViewController*)topVC proxy];
+        if ([topVC isKindOfClass:[TiLayoutViewController class]]) {
+            TiViewProxy* theProxy = [(TiLayoutViewController*)topVC viewProxy];
             if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                 [(id<TiWindowProtocol>)theProxy gainFocus];
             }
@@ -658,17 +658,6 @@
 
 -(void)willChangeSize
 {
-	[super willChangeSize];
-	
-	//TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
-	for (UIViewController * thisController in [controller viewControllers])
-	{
-		if ([thisController isKindOfClass:[TiViewController class]])
-		{
-			TiViewProxy * thisProxy = [(TiViewController *)thisController proxy];
-			[thisProxy willChangeSize];
-		}
-	}
 }
 
 #pragma mark - TiOrientationController
@@ -683,8 +672,8 @@
     
     UINavigationController* nc = [[rootWindow hostingController] navigationController];
     UIViewController* topVc = [nc topViewController];
-    if ([topVc isKindOfClass:[TiViewController class]]) {
-        TiViewProxy* theProxy = [(TiViewController*)topVc proxy];
+    if ([topVc isKindOfClass:[TiLayoutViewController class]]) {
+        TiViewProxy* theProxy = [(TiLayoutViewController*)topVc viewProxy];
         if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
             return [(id<TiWindowProtocol>)theProxy hidesStatusBar];
         }
@@ -700,8 +689,8 @@
     
     UINavigationController* nc = [[rootWindow hostingController] navigationController];
     UIViewController* topVc = [nc topViewController];
-    if ([topVc isKindOfClass:[TiViewController class]]) {
-        TiViewProxy* theProxy = [(TiViewController*)topVc proxy];
+    if ([topVc isKindOfClass:[TiLayoutViewController class]]) {
+        TiViewProxy* theProxy = [(TiLayoutViewController*)topVc viewProxy];
         if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
             return [(id<TiWindowProtocol>)theProxy preferredStatusBarStyle];
         }
@@ -720,11 +709,11 @@
 	UINavigationController* nc = [[rootWindow hostingController] navigationController];
 	for (id thisController in [[nc viewControllers] reverseObjectEnumerator])
 	{
-		if (![thisController isKindOfClass:[TiViewController class]])
+		if (![thisController isKindOfClass:[TiLayoutViewController class]])
 		{
 			continue;
 		}
-		TiWindowProxy * thisProxy = (TiWindowProxy *)[(TiViewController *)thisController proxy];
+		TiWindowProxy * thisProxy = (TiWindowProxy *)[(TiLayoutViewController *)thisController viewProxy];
 		if ([thisProxy conformsToProtocol:@protocol(TiOrientationController)])
 		{
 			TiOrientationFlags result = [thisProxy orientationFlags];

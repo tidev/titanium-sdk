@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #if defined(USE_TI_UIIPADPOPOVER) || defined(USE_TI_UIIPADSPLITWINDOW)
 
 #import "TiUIiPadPopoverProxy.h"
@@ -298,7 +299,7 @@ static NSArray* popoverSequence;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [contentViewProxy windowDidClose];
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]] || [TiUtils isIOS8OrGreater]) {
-        UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
+        UIView* topWindowView = [[[[TiApp app] controller] topContainerController] view];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
             TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
             if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -326,7 +327,7 @@ static NSArray* popoverSequence;
     }
     [contentViewProxy setProxyObserver:self];
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-        UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
+        UIView* topWindowView = [[[[TiApp app] controller] topContainerController] view];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
             TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
             if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -339,7 +340,7 @@ static NSArray* popoverSequence;
         [self updatePopoverNow];
     } else {
         [contentViewProxy windowWillOpen];
-        [contentViewProxy reposition];
+//        [contentViewProxy reposition];
         [self updatePopoverNow];
         [contentViewProxy windowDidOpen];
     }
@@ -366,20 +367,25 @@ static NSArray* popoverSequence;
             screenSize = tempSize;
         }
     }
-    
+    CGFloat width = 0;
+    CGFloat height = 0;
     if (poWidth.type != TiDimensionTypeUndefined) {
-        [contentViewProxy layoutProperties]->width.type = poWidth.type;
-        [contentViewProxy layoutProperties]->width.value = poWidth.value;
+        if (poWidth.type = TiDimensionTypeDip) {
+            width = TiDimensionCalculateValue(poWidth, 1);
+        }
         poWidth = TiDimensionUndefined;
     }
-    
     if (poHeight.type != TiDimensionTypeUndefined) {
-        [contentViewProxy layoutProperties]->height.type = poHeight.type;
-        [contentViewProxy layoutProperties]->height.value = poHeight.value;
+        if (poWidth.type = TiDimensionTypeDip) {
+            height = TiDimensionCalculateValue(poHeight, 1);
+        }
         poHeight = TiDimensionUndefined;
     }
     
-    return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
+    if (height == 0) {
+        return [[contentViewProxy view] sizeThatFits:screenSize];
+    }
+    return CGSizeMake(width, height);
 }
 
 -(void)updatePassThroughViews
@@ -404,7 +410,6 @@ static NSArray* popoverSequence;
 {
     CGSize newSize = [self contentSize];
     [[self viewController] setPreferredContentSize:newSize];
-    [contentViewProxy reposition];
 }
 
 -(void)updatePopoverNow
@@ -478,7 +483,8 @@ static NSArray* popoverSequence;
             [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
             viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
         } else {
-            viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
+            viewController = [[UIViewController alloc] init];
+            [[viewController view] addSubview:[contentViewProxy view]];
         }
     }
     return viewController;

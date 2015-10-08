@@ -1088,9 +1088,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	[condition unlock];
 #else
-    dispatch_async(dispatch_get_main_queue(), ^{
+    if ([NSThread isMainThread]) {
         [self invoke:obj];
-    });
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self invoke:obj];
+        });
+    }
 #endif
 }
 

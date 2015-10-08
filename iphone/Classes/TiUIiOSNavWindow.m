@@ -10,11 +10,5 @@
 
 @implementation TiUIiOSNavWindow
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    [(TiUIiOSNavWindowProxy*)[self proxy] setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 @end
 #endif

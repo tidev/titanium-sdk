@@ -15,6 +15,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 @implementation TiUIListItemProxy {
 	TiUIListViewProxy *_listViewProxy; // weak
+    TiLayoutView* wrapperCellView;
 }
 
 @synthesize listItem = _listItem;
@@ -69,7 +70,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		viewInitialized = YES;
 		[self windowWillOpen];
 		[self windowDidOpen];
-		[self willShow];
     }
     return self;
 }
@@ -92,7 +92,15 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
-	return _listItem.contentView;
+    
+    if (wrapperCellView == nil) {
+        wrapperCellView = [[TiLayoutView alloc] init];
+        [wrapperCellView setViewName:@"wrapperCellView"];
+        [_listItem.contentView addSubview:wrapperCellView];
+    }
+    
+    
+	return wrapperCellView;
 }
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_

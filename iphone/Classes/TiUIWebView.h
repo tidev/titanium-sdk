@@ -28,6 +28,9 @@
     BOOL willHandleTouches;
     BOOL willHandleUrl;
     NSString* lastValidLoad;
+    
+    BOOL _constraintsAdded;
+    UIView* _backgroundView;
 }
 
 @property(nonatomic,readonly) id url;

@@ -25,6 +25,7 @@
 	TiGradient * backgroundGradient;
 	TiGradient * selectedBackgroundGradient;
 	CGPoint hitPoint;
+    BOOL constraintsCreated;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
 @property (nonatomic,readwrite,retain) TiUITableViewRowProxy* proxy;
@@ -76,6 +77,7 @@
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
     UIEdgeInsets defaultSeparatorInsets;
+    NSMutableDictionary* offscreenCells;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;

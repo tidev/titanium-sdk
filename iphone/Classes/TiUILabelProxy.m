@@ -7,13 +7,14 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiUILabelProxy.h"
-#import "TiUILabel.h"
 #import "TiUtils.h"
 
 @implementation TiUILabelProxy
 
-USE_VIEW_FOR_CONTENT_WIDTH
-USE_VIEW_FOR_CONTENT_HEIGHT
+-(TiUILabel*)label
+{
+    return (TiUILabel*)[self view];
+}
 
 -(NSString*)apiName
 {
@@ -23,33 +24,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [super _initWithProperties:properties];
-}
-
--(CGFloat) verifyWidth:(CGFloat)suggestedWidth
-{
-	int width = ceil(suggestedWidth);
-	if (width & 0x01)
-	{
-		width ++;
-	}
-	return width;
-}
-
--(CGFloat) verifyHeight:(CGFloat)suggestedHeight
-{
-	int height = ceil(suggestedHeight);
-    if ([self viewInitialized]) {
-        int minHeight = ceil([[[(TiUILabel*)view label] font] lineHeight]);
-        if (height < minHeight) {
-            height = minHeight;
-        }
-    }
-    
-	if (height & 0x01)
-	{
-		height ++;
-	}
-	return height;
 }
 
 -(NSArray *)keySequence
@@ -65,20 +39,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 -(NSMutableDictionary*)langConversionTable
 {
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
-}
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
-
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-	return [[(TiUILabel*)[self view] label] superview];
 }
 
 @end

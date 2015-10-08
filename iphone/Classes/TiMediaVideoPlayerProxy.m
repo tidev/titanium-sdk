@@ -369,7 +369,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
-		[self setUrl:[NSURL fileURLWithPath:[media_ path]]];
+		[self setUrl:[NSURL fileURLWithPath:[(TiFile*)media_ path]]];
 	}
 	else if ([media_ isKindOfClass:[TiBlob class]])
 	{
@@ -413,7 +413,7 @@ NSArray* moviePlayerKeys = nil;
         } else {
             [self ensurePlayer];
         }
-		[video frameSizeChanged:[video frame] bounds:[video bounds]];
+//		[video frameSizeChanged:[video frame] bounds:[video bounds]];
 	}
 	
 	if (restart)
@@ -895,15 +895,6 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
--(void)resizeRootView
-{
-    TiThreadPerformOnMainThread(^{
-        [[[TiApp app] controller] resizeView];
-        [[[TiApp app] controller] repositionSubviews];
-    }, NO);
-}
-
-
 -(void)handleFullscreenEnterNotification:(NSNotification*)note
 {
 	if ([self _hasListeners:@"fullscreen"])
@@ -928,8 +919,6 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 	[[UIApplication sharedApplication] setStatusBarHidden:statusBarWasHidden];
-    //Wait untill the movie player animation is over before calculating the size of the movie player frame.
-    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[TiUtils doubleValue:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey]]];
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note

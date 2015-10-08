@@ -43,7 +43,7 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
     #import "TiUIiOSNavWindowProxy.h"
 #endif
-#ifdef USE_TI_UIIOSSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 #import "TiUIiOSSplitWindowProxy.h"
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
@@ -308,7 +308,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-#ifdef USE_TI_UIIOSSPLITWINDOW
+#if defined(USE_TI_UIIPADSPLITWINDOW) || defined(USE_TI_UIIOSSPLITWINDOW)
 -(id)createSplitWindow:(id)args
 {
     return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];

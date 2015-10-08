@@ -8,13 +8,16 @@
 #import "TiTab.h"
 #import "TiViewController.h"
 
+#import "TiControllerProtocols.h"
+#import "TiLayoutViewController.h"
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
 
 @interface TiWindowProxy : TiViewProxy<TiWindowProtocol, TiAnimationDelegate> {
 @protected
-    TiViewController* controller;
+    TiLayoutViewController* controller;
     id<TiOrientationController> parentController;
     TiOrientationFlags _supportedOrientations;
     BOOL opening;
@@ -23,6 +26,7 @@
     BOOL focussed;
     BOOL isModal;
     BOOL hidesStatusBar;
+    BOOL isLightWeight;
     UIStatusBarStyle barStyle;
     TiViewProxy<TiTab> *tab;
     TiAnimation * openAnimation;

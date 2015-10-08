@@ -13,6 +13,20 @@
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
 
+/*
+@interface TiUITableViewRowContainer : TiLayoutView
+{
+    TiProxy * hitTarget;
+    CGPoint hitPoint;
+    BOOL constraintsAdded;
+}
+@property(nonatomic,retain,readwrite) TiProxy * hitTarget;
+@property(nonatomic,assign,readwrite) CGPoint hitPoint;
+-(void)clearHitTarget;
+
+@end
+*/
+
 @interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
 {
 @private
@@ -24,7 +38,6 @@
 	TiDimension topCap;
 	BOOL configuredChildren;
 	int dirtyRowFlags;
-	UIView * rowContainerView;
 	BOOL modifyingRow;
 	BOOL attaching;
 	NSInteger row;
@@ -52,8 +65,7 @@
 -(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 -(UIView*) currentRowContainerView; //Private method :For internal use only.
--(void)triggerLayout; //Private method :For internal use only. Called from layoutSubviews of the cell.
-
+-(TiDimension)rowHeight;
 @end
 
 #endif

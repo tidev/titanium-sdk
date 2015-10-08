@@ -15,7 +15,6 @@
 #import "TiViewProxy.h"
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
-#import "TiLayoutQueue.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
@@ -170,7 +169,7 @@
     
     // In order to avoid ugly visual behavior, whenever a cell is laid out, we MUST relayout the
     // row concurrently.
-    [proxy triggerLayout];
+//    [proxy triggerLayout];
 }
 
 -(BOOL) selectedOrHighlighted
@@ -329,6 +328,17 @@
 	[super dealloc];
 }
 
+-(CGSize)sizeOfTiUIView:(TiUIView*)view
+{
+    CGSize parentSize = self.bounds.size;
+    if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+        parentSize = [[UIScreen mainScreen] bounds].size;
+    }
+    CGSize newSize = [view sizeThatFits:parentSize];
+    newSize.width = parentSize.width;
+    return newSize;
+}
+
 -(BOOL)isScrollable
 {
 	return [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"scrollable"] def:YES];
@@ -397,15 +407,14 @@
 		tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
 		tableview.delegate = self;
 		tableview.dataSource = self;
-		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		
-		
-		if (TiDimensionIsDip(rowHeight))
+        tableview.translatesAutoresizingMaskIntoConstraints = NO;
+
+        if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
 		} else if ([TiUtils isIOS8OrGreater]) {
-			//TIMOB-17373 rowHeight on iOS8 is -1. Bug??
-			[tableview setRowHeight:44];
+            tableview.estimatedRowHeight = UITableViewAutomaticDimension;
+            tableview.rowHeight = 44;
 		}
 		
         BOOL initBackGround = YES;
@@ -425,6 +434,7 @@
         if ([TiUtils isIOS8OrGreater]) {
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
+        [self setInnerView:tableview];
 	}
 	if ([tableview superview] != self)
 	{
@@ -861,9 +871,18 @@
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
 {
-    CGSize maxSize = CGSizeMake(320, 1000);
+    CGSize maxSize = self.bounds.size;
+    if (CGSizeEqualToSize(maxSize, CGSizeZero)) {
+        if (TiDimensionIsDip([self tiLayoutConstraint]->width)) {
+            maxSize.width = [self tiLayoutConstraint]->width.value;
+            maxSize.height = 10000;
+        } else {
+            maxSize = [[UIScreen mainScreen] bounds].size;
+        }
+    }
+
     UIFont *font = [[WebFont defaultBoldFont] font];
-    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
+    UILabel *headerLabel = [[[UILabel alloc] init] autorelease];
     headerLabel.text = text;
     headerLabel.textColor = [UIColor blackColor];
     headerLabel.shadowColor = [UIColor whiteColor];
@@ -872,23 +891,29 @@
     headerLabel.backgroundColor = [UIColor clearColor];
     headerLabel.numberOfLines = 0;
     
-    NSAttributedString* theString = [headerLabel attributedText];
-    CGSize returnVal = [theString boundingRectWithSize:maxSize
-                                           options:NSStringDrawingUsesLineFragmentOrigin
-                                           context:nil].size;
+    UIView* containerView = [[UIView alloc] initWithFrame:self.bounds];
+    [containerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     
-    
-    CGSize size = CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
-	
+    TiLayoutView* v = [[[TiLayoutView alloc] init] autorelease];
+    [v setDefaultWidth:TiDimensionAutoFill];
+    [v setDefaultHeight:TiDimensionAutoSize];
+    [v setInnerView:headerLabel];
+
     UITableViewStyle style = [[self tableView] style];
     int x = (style==UITableViewStyleGrouped) ? 15 : 10;
-    int y = 10;
-    int y2 = (footer) ? 0 : 10;
-    UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
-    [headerLabel setFrame:CGRectMake(x, y2, size.width, size.height)];
-    [containerView addSubview:headerLabel];
-	
-	return containerView;
+    int y = (footer) ? 0 : 10;
+
+    
+    CGSize size = [v sizeThatFits:maxSize];
+    
+    [containerView setFrame:CGRectMake(0, 0, maxSize.width, size.height+y+y)];
+    [containerView addSubview:v];
+    [TiLayoutView removeConstraints:containerView fromChild:v];
+    [v addConstraints:TI_CONSTR( TI_STRING(@"[v(%f)]", maxSize.width-x-x), NSDictionaryOfVariableBindings(v))];
+    [containerView addConstraints:TI_CONSTR( TI_STRING(@"H:|-(%i)-[v]",x), NSDictionaryOfVariableBindings(v))];
+    [containerView addConstraints:TI_CONSTR( TI_STRING(@"V:|-(%i)-[v]-(%i)-|",y,y), NSDictionaryOfVariableBindings(v))];
+    
+    return [containerView autorelease];
 }
 
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath
@@ -1368,66 +1393,58 @@
 	}
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(void)postLayoutEvent
 {
-	if (searchHidden)
-	{
-		if (searchField!=nil)
-		{
+    [super postLayoutEvent];
+    
+    if (searchHidden)
+    {
+        if (searchField!=nil)
+        {
             animateHide = YES;
             [self hideSearchScreen:nil];
-		}
-	}
-	else 
-	{
-		if (tableview!=nil && searchField!=nil)
-		{
-			[tableview setContentOffset:CGPointMake(0,0)];
-		}
-	}
+        }
+    }
+    else
+    {
+        if (tableview!=nil && searchField!=nil)
+        {
+            [tableview setContentOffset:CGPointMake(0,0)];
+        }
+    }
     
-	if (!searchActivated) {
-		[searchField ensureSearchBarHeirarchy];
-	}
-
-	[super frameSizeChanged:frame bounds:bounds];
-	
-	if (tableHeaderPullView!=nil)
-	{
-		tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
-		[TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
-		[proxy windowWillOpen];
-		[proxy layoutChildren:NO];
-	}
-	
-	if ([[self tableView] tableHeaderView]!=nil)
-	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
-		if (proxy!=nil)
-		{
-			[proxy windowWillOpen];
+    if (!searchActivated) {
+        [searchField ensureSearchBarHeirarchy];
+    }
+    
+    if (tableHeaderPullView!=nil)
+    {
+        tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
+        [TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
+        [proxy windowWillOpen];
+    }
+    
+    if ([[self tableView] tableHeaderView]!=nil)
+    {
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
+        if (proxy!=nil)
+        {
+            [proxy windowWillOpen];
             proxy.parentVisible=YES;
-            [proxy refreshSize];
-            [proxy willChangeSize];
-			[proxy layoutChildren:NO];
-		}
-	}
-
-	if ([tableview tableFooterView]!=nil)
-	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
-		if (proxy!=nil)
-		{
-			[proxy windowWillOpen];
+        }
+    }
+    
+    if ([tableview tableFooterView]!=nil)
+    {
+        TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
+        if (proxy!=nil)
+        {
+            [proxy windowWillOpen];
             proxy.parentVisible=YES;
-            [proxy refreshSize];
-            [proxy willChangeSize];
-			[proxy layoutChildren:NO];
-		}
-	}
+        }
+    }
 }
-
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
@@ -1547,19 +1564,28 @@
 		return;
 	}
 	
-	UIView * searchView = [searchField view];
 
 	if (tableHeaderView == nil)
 	{
-		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
-		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
-		[tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[TiUtils setView:searchView positionRect:wrapperFrame];
-		[tableHeaderView addSubview:searchView];
-		[tableview setTableHeaderView:tableHeaderView];
-		[searchView sizeToFit];
+        UIView * searchView = [searchField view];
+        UISearchBar *bar = [searchField searchBar];
+        
+        CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
+        
+        tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
+        [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+
+        [searchView setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+        [searchView setFrame:[tableHeaderView bounds]];
+        
+        [bar setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [bar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+        
+        [tableHeaderView addSubview:searchView];
+        [tableview setTableHeaderView:tableHeaderView];
+
+        [bar sizeToFit];
 	}
 }
 
@@ -1572,19 +1598,7 @@
     searchActivated = YES;
     [[searchController searchResultsTableView] reloadData];
 }
-/*
- * This is no longer required since we do it from the 
- * searchDisplayControllerDidEndSearch method
- */
-/*
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-    if (searchActivated && ([searchBar.text length] == 0)) {
-        searchActivated = NO;
-        [tableview reloadData];
-    }
-}
-*/
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
@@ -1697,18 +1711,18 @@
 
 -(void)proxyDidRelayout:(id)sender
 {
-    TiThreadPerformOnMainThread(^{
-        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
-            UIView* headerView = [[self tableView] tableHeaderView];
-            [headerView setFrame:[headerView bounds]];
-            [[self tableView] setTableHeaderView:headerView];
-        }
-        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
-            UIView *footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:[footerView bounds]];
-            [[self tableView] setTableFooterView:footerView];
-        }
-    },NO);
+//    TiThreadPerformOnMainThread(^{
+//        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
+//            UIView* headerView = [[self tableView] tableHeaderView];
+//            [headerView setFrame:[headerView bounds]];
+//            [[self tableView] setTableHeaderView:headerView];
+//        }
+//        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
+//            UIView *footerView = [[self tableView] tableFooterView];
+//            [footerView setFrame:[footerView bounds]];
+//            [[self tableView] setTableFooterView:footerView];
+//        }
+//    },NO);
 }
 
 -(void)setHeaderTitle_:(id)args
@@ -1736,9 +1750,19 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
 	if (args!=nil)
 	{
-		TiUIView *view = (TiUIView*) [args view];
-		UITableView *table = [self tableView];
-		[table setTableHeaderView:view];
+        [args windowWillOpen];
+        TiUIView* tiView = (TiUIView*)[args view];
+        
+        CGSize parentSize = self.bounds.size;
+        if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+            parentSize = [[UIScreen mainScreen] bounds].size;
+        }
+        CGSize s = [tiView sizeThatFits:parentSize];
+        
+        UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, parentSize.width, s.height)];
+        [view addSubview:tiView];
+        [[self tableView] setTableHeaderView:view];
+        [view autorelease];
         if (headerViewProxy != nil) {
             [headerViewProxy setProxyObserver:nil];
             [[self proxy] forgetProxy:headerViewProxy];
@@ -1764,8 +1788,18 @@
 	if (args!=nil)
 	{
 		[args windowWillOpen];
-		UIView *view = [args view];
+        TiUIView* tiView = (TiUIView*)[args view];
+        
+        CGSize parentSize = self.bounds.size;
+        if (CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
+            parentSize = [[UIScreen mainScreen] bounds].size;
+        }
+        CGSize s = [tiView sizeThatFits:parentSize];
+        
+        UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, parentSize.width, s.height)];
+        [view addSubview:tiView];
 		[[self tableView] setTableFooterView:view];
+        [view autorelease];
         if (footerViewProxy != nil) {
             [footerViewProxy setProxyObserver:nil];
             [[self proxy] forgetProxy:footerViewProxy];
@@ -1806,6 +1840,9 @@
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
 		[TiUtils configureController:tableController withObject:nil];
+        [[self tableView] setTranslatesAutoresizingMaskIntoConstraints:YES];
+        [[self tableView] setFrame:[self bounds]];
+        [[self tableView] setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
@@ -2004,7 +2041,6 @@
 		[tableHeaderPullView addSubview:view];
 		[TiUtils setView:view positionRect:[tableHeaderPullView bounds]];
 		[value windowWillOpen];
-		[value layoutChildren:NO];
 	}
 }
 
@@ -2096,11 +2132,11 @@ return result;	\
         [row setCallbackCell:(TiUITableViewCell*)cell];
 	}
     [row initializeTableViewCell:cell];
-    
     if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
-	
+    [cell setNeedsUpdateConstraints];
+    [cell updateConstraintsIfNeeded];
 	return cell;
 }
 
@@ -2431,7 +2467,9 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-    
+    if (rowWidth == 0) {
+        rowWidth = [UIScreen mainScreen].bounds.size.width;
+    }
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
     // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
@@ -2456,31 +2494,40 @@ return result;	\
 }
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{    
-	NSIndexPath* index = indexPath;
-	if (ourTableView != tableview) {
-		index = [self indexPathFromSearchIndex:[indexPath row]];
-	}
-	
-	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
+{
     
-
-	CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
-	CGFloat height = [row rowHeight:width];
-	height = [self tableRowHeight:height];
-	return height < 1 ? tableview.rowHeight : height;
+    NSIndexPath* index = indexPath;
+    if (ourTableView != tableview) {
+        index = [self indexPathFromSearchIndex:[indexPath row]];
+    }
+    
+    TiUITableViewRowProxy *row = [self rowForIndexPath:index];
+    CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
+    CGFloat height = [row rowHeight:width];
+    height = [self tableRowHeight:height];
+    return height < 1 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	return [self sectionView:section forLocation:@"headerView" section:nil];
+    TiUIView* headerView = [self sectionView:section forLocation:@"headerView" section:nil];
+    if (headerView == nil) return nil;
+    
+    UIView* view = [[UIView alloc] init];
+    [view addSubview:headerView];
+    return [view autorelease];
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	return [self sectionView:section forLocation:@"footerView" section:nil];
+    TiUIView* footerView = [self sectionView:section forLocation:@"footerView" section:nil];
+    if (footerView == nil) return nil;
+    CGSize size = [self sizeOfTiUIView:footerView];
+    UIView* view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    [view addSubview:footerView];
+    return [view autorelease];
 }
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
@@ -2493,14 +2540,15 @@ return result;	\
 	CGFloat size = 0.0;
 	if (viewProxy!=nil)
 	{
-		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+		TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
-			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForSize:[tableview bounds].size];
+            case TiDimensionTypeAuto:
+            case TiDimensionTypeAutoSize:
+                size += [self sizeOfTiUIView:view].height;
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2542,14 +2590,15 @@ return result;	\
 	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
-		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+		TiLayoutConstraint *viewLayout = [view tiLayoutConstraint];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForSize:[tableview bounds].size];
+            case TiDimensionTypeAutoSize:
+				size += [view sizeThatFits:tableview.bounds.size].height;
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2559,20 +2608,30 @@ return result;	\
 	else if ([sectionProxy footerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableview sectionFooterHeight];
+		size += [tableview sectionFooterHeight];
 	}
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
 		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return size;
+
 }
+
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	CGRect minimumContentRect = [tableview bounds];
-	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardTop, 0);
+    [[self tableView] setContentInset: contentInsets];
+    [[self tableView] setScrollIndicatorInsets: contentInsets];
 }
+
+-(void)keyboardDidHide
+{
+    [[self tableView] setContentInset: UIEdgeInsetsZero];
+    [[self tableView] setScrollIndicatorInsets: UIEdgeInsetsZero];
+}
+
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {

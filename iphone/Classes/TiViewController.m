@@ -5,8 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#if 0
+
 #import "TiViewController.h"
 #import "TiApp.h"
+#import "TiLayoutView.h"
 
 @implementation TiViewController
 
@@ -37,27 +40,6 @@
 -(TiViewProxy*) proxy
 {
     return _proxy;
-}
-
-#ifdef DEVELOPER
-- (void)viewWillLayoutSubviews
-{
-    CGRect bounds = [[self view] bounds];
-    NSLog(@"TIVIEWCONTROLLER WILL LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
-    [super viewWillLayoutSubviews];
-}
-#endif
-
-- (void)viewDidLayoutSubviews
-{
-#ifdef DEVELOPER
-    CGRect bounds = [[self view] bounds];
-    NSLog(@"TIVIEWCONTROLLER DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
-#endif
-    if (!CGRectEqualToRect([_proxy sandboxBounds], [[self view] bounds])) {
-        [_proxy parentSizeWillChange];
-    }
-    [super viewDidLayoutSubviews];
 }
 
 //IOS5 support. Begin Section. Drop in 3.2
@@ -97,7 +79,7 @@
         return [[self navigationController] supportedInterfaceOrientations];
     }
     //This would be for modal.
-    return _supportedOrientations;
+    return (NSUInteger)_supportedOrientations;
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
@@ -115,9 +97,7 @@
     [self setHidesBottomBarWhenPushed:[TiUtils boolValue:[_proxy valueForUndefinedKey:@"tabBarHidden"] def:NO]];
     //Always wrap proxy view with a wrapperView.
     //This way proxy always has correct sandbox when laying out
-    [_proxy parentWillShow];
-    UIView *wrapperView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-    wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    TiLayoutView *wrapperView = [[TiLayoutView alloc] init];
     [wrapperView addSubview:[_proxy view]];
     [wrapperView bringSubviewToFront:[_proxy view]];
     self.view = wrapperView;
@@ -128,7 +108,6 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    [_proxy parentWillShow];
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
     }
@@ -136,7 +115,6 @@
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    [_proxy parentWillHide];
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
     }
@@ -211,3 +189,5 @@
     return NO;
 }
 @end
+
+#endif

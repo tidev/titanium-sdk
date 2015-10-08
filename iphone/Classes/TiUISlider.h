@@ -9,7 +9,7 @@
 #import "TiUIView.h"
 
 
-@interface TiUISlider : TiUIView<LayoutAutosizing> {
+@interface TiUISlider : TiUIView {
 @private
 	UISlider *sliderView;
 	NSDate* lastTouchUp;

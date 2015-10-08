@@ -14,7 +14,7 @@
 
 @implementation TiMediaVideoPlayer
 
--(id)initWithPlayer:(MPMoviePlayerController*)controller_ proxy:(TiProxy*)proxy_ loaded:(BOOL)loaded_
+-(id)initWithPlayer:(MPMoviePlayerController*)controller_ proxy:(TiViewProxy*)proxy_ loaded:(BOOL)loaded_
 {
 	if (self = [super init])
 	{
@@ -66,7 +66,8 @@
     }
     controller = [controller_ retain];
 	
-	[TiUtils setView:[controller view] positionRect:self.bounds];
+//	[TiUtils setView:[controller view] positionRect:self.bounds];
+    [self setInnerView:[controller view]];
 	[self addSubview:[controller view]];
 	[self sendSubviewToBack:[controller view]];
 	
@@ -122,13 +123,6 @@
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(spinner);
 	[super dealloc];
-}
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	self.frame = CGRectIntegral(self.frame);
-	[TiUtils setView:[controller view] positionRect:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
 }
 
 @end

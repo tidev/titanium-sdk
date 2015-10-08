@@ -7,10 +7,13 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiViewProxy.h"
+#import "TiUILabel.h"
 
 @interface TiUILabelProxy : TiViewProxy {
 
 }
+
+-(TiUILabel*)label;
 @end
 
 #endif

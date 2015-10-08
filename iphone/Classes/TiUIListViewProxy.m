@@ -156,7 +156,7 @@
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
-			[self contentsWillChange];
+//			[self contentsWillChange];
 			return;
 		}
 	}
@@ -203,7 +203,7 @@
 - (void)willShow
 {
 	[self.listView deselectAll:YES];
-	[super willShow];
+//	[super willShow];
 }
 
 #pragma mark - Public API
@@ -261,7 +261,7 @@
 			section.sectionIndex = idx;
 		}];
 		[tableView reloadData];
-		[self contentsWillChange];
+//		[self contentsWillChange];
 	}];
 	[insertedSections release];
 }
@@ -593,8 +593,8 @@
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
+//USE_VIEW_FOR_CONTENT_HEIGHT
+//USE_VIEW_FOR_CONTENT_WIDTH
 
 @end
 

@@ -40,11 +40,11 @@ static NSArray* imageKeySequence;
 -(void)propagateLoadEvent:(NSString *)stateString
 {
     //Send out a content change message if we are auto sizing
-    if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
-        TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
-        [self refreshSize];
-        [self willChangeSize];
-    }
+//    if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
+//        TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
+//        [self refreshSize];
+//        [self willChangeSize];
+//    }
     
     if ([self _hasListeners:@"load"]) {
         NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
@@ -166,10 +166,6 @@ static NSArray* imageKeySequence;
 	
 }
 
-USE_VIEW_FOR_CONTENT_WIDTH
-
-USE_VIEW_FOR_CONTENT_HEIGHT
-
 #pragma mark Handling ImageLoader
 
 -(void)setImage:(id)newImage
@@ -232,15 +228,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(void)imageLoadCancelled:(ImageLoaderRequest *)request
 {
-}
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
-}
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
 }
 
 @end

@@ -56,7 +56,7 @@
 {
     CGPoint center = [[_snapItem view] center];
     
-    LayoutConstraint* constraint = [_snapItem layoutProperties];
+    TiLayoutConstraint* constraint = [[_snapItem view] tiLayoutConstraint];
     constraint->centerX = TiDimensionDip(center.x);
     constraint->centerY = TiDimensionDip(center.y);
 }

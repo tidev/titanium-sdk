@@ -24,8 +24,6 @@
 	[super dealloc];
 }
 
-USE_PROXY_FOR_VERIFY_AUTORESIZING
-
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
 	// pickers have a forced height so we use it's height
@@ -47,25 +45,22 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
-        float width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-        float height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:228];
-
-        if (type == -1)
+		if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = (UIControl*)[[UIPickerView alloc] init];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = [[UIDatePicker alloc] init];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
 		[picker setBackgroundColor:[UIColor whiteColor]];
-		[self addSubview:picker];
+		[self setInnerView:picker];
 	}
 	return picker;
 }
@@ -80,16 +75,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return type != -1;
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(void)postLayoutEvent
 {
-	if (picker!=nil && !CGRectIsEmpty(bounds))
-	{
-		[picker setFrame:bounds];
-		if (![self isDatePicker]) {
-			[(UIPickerView*)picker reloadAllComponents];
-		}
-	}
-    [super frameSizeChanged:frame bounds:bounds];
+    [super postLayoutEvent];
+    
+    if (![self isDatePicker]) {
+        [(UIPickerView*)picker reloadAllComponents];
+    }
 }
 
 -(void)didFirePropertyChanges
@@ -335,10 +327,12 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return [rowproxy valueForKey:@"title"];
 }
 
+
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
 {
     TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
     TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+
     CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
 
     //Get the View

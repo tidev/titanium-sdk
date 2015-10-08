@@ -74,29 +74,28 @@
 
 -(TiUIView*)newView
 {
-	CGRect frame = [self appFrame];
-	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
+	TiUIWindow * win = [[TiUIWindow alloc] init];
+	 [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
 	return win;
 }
 
--(BOOL)suppressesRelayout
-{
-    if (controller != nil) {
-        //If controller view is not loaded, sandbox bounds will become zero.
-        //In that case we do not want to mess up our sandbox, which is by default
-        //mainscreen bounds. It will adjust when view loads.
-        return ![controller isViewLoaded];
-    }
-    return [super suppressesRelayout];
-}
+//-(BOOL)suppressesRelayout
+//{
+//    if (controller != nil) {
+//        //If controller view is not loaded, sandbox bounds will become zero.
+//        //In that case we do not want to mess up our sandbox, which is by default
+//        //mainscreen bounds. It will adjust when view loads.
+//        return ![controller isViewLoaded];
+//    }
+//    return [super suppressesRelayout];
+//}
 
 #pragma mark - Utility Methods
 -(void)windowWillOpen
 {
     [super windowWillOpen];
     if (tab == nil && (self.isManaged == NO)) {
-        [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
+        [[[TiApp app] controller] willOpenWindow:self];
     }
 }
 
@@ -116,14 +115,14 @@
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
     if (tab == nil && (self.isManaged == NO)) {
-        [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
+        [[[TiApp app] controller] didOpenWindow:self];
     }
 }
 
 -(void) windowWillClose
 {
     if (tab == nil && (self.isManaged == NO)) {
-        [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
+        [[[TiApp app] controller] willCloseWindow:self];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super windowWillClose];
@@ -139,7 +138,7 @@
     [self forgetProxy:closeAnimation];
     RELEASE_TO_NIL(closeAnimation);
     if (tab == nil && (self.isManaged == NO)) {
-        [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
+        [[[TiApp app] controller] didCloseWindow:self];
     }
     tab = nil;
     self.isManaged = NO;
@@ -150,11 +149,29 @@
 
 -(void)attachViewToTopContainerController
 {
-    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-    TiUIView* theView = [self view];
-    [rootView addSubview:theView];
-    [rootView bringSubviewToFront:theView];
+    TiRootViewController* rootViewController = [[TiApp app] controller];
+    UIViewController* newViewController = [self hostingController];
+
+    UIViewController* topVC = [rootViewController topContainerController];
+    [topVC viewWillDisappear:NO];
+    [rootViewController addChildViewController:newViewController];
+    [[rootViewController view] addSubview:[newViewController view]];
+    [[rootViewController view] bringSubviewToFront:[newViewController view]];
+    [newViewController didMoveToParentViewController:rootViewController];
+    [topVC viewDidDisappear:NO];
+}
+
+-(void)detachViewFromTopContainerController
+{
+    TiRootViewController* rootViewController = [[TiApp app] controller];
+    UIViewController* newViewController = [self hostingController];
+    
+    if ([rootViewController topContainerController] == newViewController) {
+        [newViewController removeFromParentViewController];
+        [[rootViewController topContainerController] viewWillAppear:NO];
+        [[newViewController view] removeFromSuperview];
+        [[rootViewController topContainerController] viewDidAppear:NO];
+    }
 }
 
 -(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
@@ -194,7 +211,7 @@
     if ([[[TiApp app] controller] presentedViewController] != nil) {
         return YES;
     }
-    return ([[[[TiApp app] controller] view] superview]!=nil);
+    return ([[[[TiApp app] controller] view] superview] != nil);
 }
 
 #pragma mark - TiWindowProtocol Base Methods
@@ -279,9 +296,9 @@
     }
     [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
     if(focussed) {
-        TiThreadPerformOnMainThread(^{
-            [[[TiApp app] controller] updateStatusBar];
-        }, YES); 
+//        TiThreadPerformOnMainThread(^{
+//            [[[TiApp app] controller] updateStatusBar];
+//        }, YES); 
     }
 }
 
@@ -424,10 +441,10 @@
     }
 }
 
--(UIViewController*)hostingController;
+-(TiLayoutViewController*)hostingController;
 {
     if (controller == nil) {
-        controller = [[TiViewController alloc] initWithViewProxy:self];
+        controller = [[TiLayoutViewController alloc] initWithViewProxy:self];
     }
     return controller;
 }
@@ -467,7 +484,6 @@
 -(void)openOnUIThread:(NSArray*)args
 {
     if ([self _handleOpen:args]) {
-        [self parentWillShow];
         [self view];
         if (tab != nil) {
             if ([args count] > 0) {
@@ -498,6 +514,7 @@
         } else {
             [self windowWillOpen];
             if ((self.isManaged == NO) && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))){
+                isLightWeight = YES;
                 [self attachViewToTopContainerController];
             }
             if (openAnimation != nil) {
@@ -529,6 +546,7 @@
                 [closeAnimation setDelegate:self];
                 [closeAnimation animate:self];
             } else {
+                [self detachViewFromTopContainerController];
                 [self windowDidClose];
             }
         }
@@ -558,10 +576,12 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-    if ([self isModal]) {
-        return (_supportedOrientations==TiOrientationNone) ? [[[TiApp app] controller] getDefaultOrientations] : _supportedOrientations;
-    }
-    return _supportedOrientations;
+    
+//    if ([self isModal]) {
+        return (_supportedOrientations==TiOrientationNone) ? [[[TiApp app] controller] defaultOrientations] : _supportedOrientations;
+//    }
+//    return _supportedOrientations;
+    
 }
 
 
@@ -595,27 +615,32 @@
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
-    id navBarHidden = [self valueForKey:@"navBarHidden"];
-    if (navBarHidden!=nil) {
-        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
-        if ([TiUtils boolValue:navBarHidden]) {
-            [self hideNavBar:properties];
-        }
-        else {
-            [self showNavBar:properties];
+    if (controller != nil && [controller navigationController] != nil) {
+        id navBarHidden = [self valueForKey:@"navBarHidden"];
+        if (navBarHidden!=nil) {
+            id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
+            if ([TiUtils boolValue:navBarHidden]) {
+                [self hideNavBar:properties];
+            }
+            else {
+                [self showNavBar:properties];
+            }
         }
     }
-    [self willShow];
+    if (hidesStatusBar != [[UIApplication sharedApplication] isStatusBarHidden]) {
+        [[UIApplication sharedApplication] setStatusBarHidden:hidesStatusBar withAnimation:UIStatusBarAnimationNone];
+        [controller setNeedsStatusBarAppearanceUpdate];
+    }
+
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    if (controller != nil) {
-        [self resignFocus];
-    }
-    [self willHide];
+    if (isLightWeight) return;
+    [self resignFocus];
 }
 -(void)viewDidAppear:(BOOL)animated
 {
+    if (isLightWeight) return;
     if (isModal && opening) {
         [self windowDidOpen];
     }
@@ -625,6 +650,7 @@
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
+    if (isLightWeight) return;
     if (isModal && closing) {
         [self windowDidClose];
     }
@@ -660,7 +686,7 @@
     BOOL isOpenAnimation = NO;
     UIView* hostingView = nil;
     if (sender == openAnimation) {
-        hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
+        hostingView = [[[TiApp app] controller] hostingView];
         isOpenAnimation = YES;
     } else {
         hostingView = [[self view] superview];
@@ -706,9 +732,6 @@
                 TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
                 if ([theProxy viewAttached]) {
                     [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
-                    LayoutConstraint* layoutProps = [theProxy layoutProperties];
-                    ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
-                    [theProxy layoutChildren:NO];
                     RELEASE_TO_NIL(animatedOver);
                 }
             } else {

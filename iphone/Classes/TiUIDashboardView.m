@@ -52,16 +52,6 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
 	return [self launcher];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	if (!CGRectIsEmpty(bounds))
-	{
-		[TiUtils setView:launcher positionRect:bounds];
-		[launcher layoutButtons];
-	}
-    [super frameSizeChanged:frame bounds:bounds];
-}
-
 -(void)setEditable_:(id)args
 {
     ENSURE_TYPE(args, NSNumber);

@@ -216,26 +216,27 @@
 
 -(void)setLeftView:(UIView*)value
 {
-	if ((value != nil) && (paddingLeft > 0.5))
-	{
-		CGRect wrapperFrame = [value bounds];
-		wrapperFrame.size.width += paddingLeft;
-		UIView * wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
-		
-		CGPoint valueCenter = [value center];
-		valueCenter.x += paddingLeft;
-		[value setCenter:valueCenter];
-		
-		[wrapperView addSubview:value];
-		value = wrapperView;
-		[wrapperView autorelease];
-	}
+//	if ((value != nil) && (paddingLeft > 0.5))
+//	{
+//		CGRect wrapperFrame = [value bounds];
+//		wrapperFrame.size.width += paddingLeft;
+//		UIView * wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
+//		
+//		CGPoint valueCenter = [value center];
+//		valueCenter.x += paddingLeft;
+//		[value setCenter:valueCenter];
+//		
+//		[wrapperView addSubview:value];
+//		value = wrapperView;
+//		[wrapperView autorelease];
+//	}
 
 	[super setLeftView:value];
 }
 
 -(void)setRightView:(UIView*)value
 {
+    /*
 	if ((value != nil) && (paddingRight > 0.5))
 	{
 		CGRect wrapperFrame = [value bounds];
@@ -246,7 +247,7 @@
 		value = wrapperView;
 		[wrapperView autorelease];
 	}
-
+     */
 	[super setRightView:value];
 }
 
@@ -258,12 +259,6 @@
 @implementation TiUITextField
 
 #pragma mark Internal
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-	[TiUtils setView:textWidgetView positionRect:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
-}
 
 - (void) dealloc
 {
@@ -282,6 +277,7 @@
 		((TiTextField *)textWidgetView).text = @"";
 		((TiTextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+        ((TiTextField *)textWidgetView).backgroundColor = [UIColor clearColor];
 		[(TiTextField *)textWidgetView configure];
 		[(TiTextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
@@ -479,6 +475,11 @@
 }
 
 #pragma mark Public Method
+
+-(void)setInputAccessoryView:(UIView*)arg
+{
+    [(UITextField *)[self textWidgetView] setInputAccessoryView:arg];
+}
 
 -(BOOL)hasText
 {

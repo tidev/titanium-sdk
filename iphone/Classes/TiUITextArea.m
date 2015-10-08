@@ -75,10 +75,14 @@
 
 #pragma mark Internal
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (instancetype)init
 {
-	[[self textWidgetView] sizeToFit];
-	[super frameSizeChanged:frame bounds:bounds];
+    self = [super init];
+    if (self) {
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+    }
+    return self;
 }
 
 -(UIView<UITextInputTraits>*)textWidgetView
@@ -184,6 +188,10 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
+-(void)setInputAccessoryView:(UIView*)arg
+{
+    [(UITextView *)[self textWidgetView] setInputAccessoryView:arg];
+}
 
 //TODO: scrollRangeToVisible
 
