@@ -37,6 +37,8 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -283,16 +285,24 @@ public class MediaModule extends KrollModule
 		activity.startActivity(intent);
 	}
 
+	@SuppressLint("NewApi")
 	protected boolean hasPermissions() {
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			// On and above Android M: Check system permissions.
+			Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+			if (currentActivity.checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED &&
+					currentActivity.checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+				return true;
+			} 
+			Log.w(TAG, "Camera and/or Read external storage permission(s) missing");
+			return false;	
+		} else {
+			// Below Android M: User implicitly accepts all permissions during installation.
+			// So we are good to go. 
 			return true;
-		} 
-		Log.w(TAG, "Camera and/or Read external storage permission(s) missing");
-		return false;		
+		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
