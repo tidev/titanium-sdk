@@ -7,6 +7,8 @@
 //
 
 #if IS_XCODE_7
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+
 #import <Foundation/Foundation.h>
 #import "TiWindowProxy.h"
 #import "TiViewController.h"
@@ -32,4 +34,5 @@
 - (CGRect)createSourceRectWithLocation:(CGPoint*)location;
 
 @end
+#endif
 #endif
