@@ -4380,7 +4380,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			if (missingIcons.length) {
 				if (defaultIcon && defaultIconHasAlpha) {
 					this.logger.error(__('%s cannot be used because it contains an alpha channel', defaultIcon));
-					this.logger.error(__('Create a image named "%s" in the root of your project', 'DefaultIcon-ios.png'));
+					this.logger.error(__('Create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
 					this.logger.error(__('It is highly recommended that the DefaultIcon.png be 1024x1024') + '\n');
 					process.exit(1);
 				}
