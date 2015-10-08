@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.iOS.ApplicationShortcuts
-summary: The Home screen quick action API is for adding shortcuts to your app icon that anticipate and accelerate a user’s interaction with your app.
+summary: The Home screen quick action API is for adding shortcuts to your app icon that anticipate and accelerate a user's interaction with your app.
 description: |
     3D Touch gives iOS 9 users an additional interaction dimension. On supported devices, people can quickly choose 
     app-specific actions from the Home screen by pressing on the app icon. The pressing of an application shortcut

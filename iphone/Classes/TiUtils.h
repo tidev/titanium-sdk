@@ -648,4 +648,10 @@ typedef enum
  */
 + (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
 
+/**
+ Checks the force touch capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)forceTouchSupported;
+
 @end

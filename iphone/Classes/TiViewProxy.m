@@ -14,8 +14,10 @@
 #import "TiStylesheet.h"
 #import "TiLocale.h"
 #import "TiUIView.h"
+#import "TiWindowProxy.h"
 #import "TiApp.h"
-
+#import "TiUIiOSPreviewContextProxy.h"
+#import "TiPreviewingDelegate.h"
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
@@ -1220,6 +1222,21 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(BOOL)windowHasOpened
 {
 	return windowOpened;
+}
+
+-(void)setPreviewContext:(id)context
+{
+#if IS_XCODE_7
+    if ([TiUtils forceTouchSupported] == NO) {
+        NSLog(@"[WARN] 3DTouch is not available on this device.");
+        return;
+    }
+    
+    ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
+    
+    [context setSourceView:self];
+    [context connectToDelegate];
+#endif
 }
 
 -(BOOL)windowIsOpening

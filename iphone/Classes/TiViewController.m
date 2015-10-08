@@ -25,6 +25,17 @@
     [super dealloc];
 }
 
+#if IS_XCODE_7
+-(NSArray<id<UIPreviewActionItem>> *)previewActionItems
+{
+    if ([self previewActions] == nil) {
+        [self setPreviewActions:[NSArray array]];
+    }
+    
+    return [self previewActions];
+}
+#endif
+
 -(void)updateOrientations
 {
     id object = [_proxy valueForUndefinedKey:@"orientationModes"];
@@ -193,6 +204,9 @@
 {
     if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
+    } else if ([[[TiApp app] controller] topContainerController] != nil) {
+        // Prefer the style of the most recent view controller.
+        return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
     } else {
         return UIStatusBarStyleDefault;
     }
