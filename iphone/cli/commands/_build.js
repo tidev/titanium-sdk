@@ -1792,6 +1792,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function toSymlinkOrNotToSymlink() {
+				this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
+				this.symlinkFilesOnCopy = false;
+
+				/*
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
 				this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
@@ -1806,9 +1810,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						this.symlinkFilesOnCopy = false;
 					}
 				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
-				    logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
-				    this.symlinkFilesOnCopy = false;
+					logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
+					this.symlinkFilesOnCopy = false;
 				}
+				*/
 			},
 
 			function determineMinIosVer() {
@@ -3585,20 +3590,17 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 			destStat = destExists && fs.statSync(dest),
 			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
 			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
-			contents = null,
 			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime;
 
 		// note: we're skipping the hash check so that we don't have to read in 36MB of data
 		// this isn't going to be bulletproof, but hopefully the size and mtime will be enough to catch any changes
-
-		if (!fileChanged || !this.copyFileSync(src, dest, { forceCopy: filename === 'libTiCore.a' && this.forceCopyAll, contents: contents || fs.readFileSync(src) })) {
+		if (!fileChanged || !this.copyFileSync(src, dest, { forceSymlink: filename === 'libTiCore.a' ? !this.forceCopyAll : this.symlinkLibrariesOnCopy, forceCopy: filename === 'libTiCore.a' && this.forceCopyAll })) {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
-
 		this.currentBuildManifest.files[rel] = {
 			hash:  null,
-			mtime: contents === null && prev ? prev.mtime : srcMtime,
-			size:  contents === null && prev ? prev.size  : srcStat.size
+			mtime: srcMtime,
+			size:  srcStat.size
 		};
 
 		delete this.buildDirFiles[dest];
