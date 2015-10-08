@@ -54,6 +54,7 @@
 
 @property (nonatomic,readonly) NSNumber* contactsAuthorization;
 -(void) requestAuthorization:(id)args;
+-(void) requestContactsPermissions:(id)args;
 
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_PERSON;
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_ORGANIZATION;
