@@ -92,14 +92,16 @@ enum
  The class represents a proxy that is attached to a view.
  The class is not intended to be overriden.
  */
-@interface TiViewProxy : TiProxy<LayoutAutosizing> 
+@interface TiViewProxy : TiProxy<LayoutAutosizing>
 {
 @protected
 //TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
 //For now, for sake of proper value grouping, we're all under one roof.
 
+#ifndef TI_USE_AUTOLAYOUT
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
+#endif
 	int vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or 
@@ -213,21 +215,23 @@ enum
  */
 -(void)animate:(id)arg;
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)setTop:(id)value;
 -(void)setBottom:(id)value;
 -(void)setLeft:(id)value;
 -(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
+#endif
 -(void)setZIndex:(id)value;
 -(id)zIndex;
 
 // See the code for setValue:forUndefinedKey: for why we can't have this
-//-(void)setLayout:(id)value;
+#ifndef TI_USE_AUTOLAYOUT
 -(void)setMinWidth:(id)value;
 -(void)setMinHeight:(id)value;
-
 -(void)setCenter:(id)value;
+#endif
 -(NSMutableDictionary*)center;
 -(id)animatedCenter;
 
@@ -245,10 +249,12 @@ enum
 @property(nonatomic, assign) TiViewProxy *parent;
 //TODO: make this a proper readwrite property declaration.
 
+#ifndef TI_USE_AUTOLAYOUT
 /**
  Provides access to layout properties of the underlying view.
  */
 @property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
+#endif
 
 /**
  Provides access to sandbox bounds of the underlying view.

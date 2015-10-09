@@ -155,6 +155,23 @@
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
+    
+    // TODO: Revisit
+    /*
+    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
+    UIView *rootView = [topContainerController hostingView];
+
+    UIViewController* thisViewController = [self hostingController];
+    UIView* theView = [thisViewController view];
+    [theView setFrame:[rootView bounds]];
+    
+    [thisViewController willMoveToParentViewController:topContainerController];
+    [topContainerController addChildViewController:thisViewController];
+    
+    [rootView addSubview:theView];
+    [rootView bringSubviewToFront:theView];
+    [thisViewController didMoveToParentViewController:topContainerController];
+     */
 }
 
 -(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
@@ -706,8 +723,10 @@
                 TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
                 if ([theProxy viewAttached]) {
                     [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+#ifndef TI_USE_AUTOLAYOUT
                     LayoutConstraint* layoutProps = [theProxy layoutProperties];
                     ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
+#endif
                     [theProxy layoutChildren:NO];
                     RELEASE_TO_NIL(animatedOver);
                 }

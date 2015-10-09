@@ -99,6 +99,7 @@ static NSArray* scrollViewKeySequence;
 
 -(CGFloat)autoWidthForSize:(CGSize)size
 {
+#ifndef TI_USE_AUTOLAYOUT
     BOOL flexibleContentWidth = YES;
     BOOL flexibleContentHeight = YES;
     CGSize contentSize = CGSizeMake(size.width,size.height);
@@ -158,10 +159,14 @@ static NSArray* scrollViewKeySequence;
         result = [super autoWidthForSize:contentSize];
     }
     return result;
+#else
+    return 0.0;
+#endif
 }
 
 -(CGFloat)autoHeightForSize:(CGSize)size
 {
+#ifndef TI_USE_AUTOLAYOUT
     BOOL flexibleContentWidth = YES;
     BOOL flexibleContentHeight = YES;
     CGSize contentSize = CGSizeMake(size.width,size.height);
@@ -236,10 +241,14 @@ static NSArray* scrollViewKeySequence;
         result = [super autoHeightForSize:contentSize];
     }
     return result;
+#else
+    return 0.0;
+#endif
 }
 
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGRect viewBounds = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
     CGRect contentSize = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
     if ([self viewAttached]) {
@@ -307,6 +316,7 @@ static NSArray* scrollViewKeySequence;
         }
         
     }
+#endif
 }
 
 -(void)childWillResize:(TiViewProxy *)child
@@ -320,11 +330,12 @@ static NSArray* scrollViewKeySequence;
     return YES;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	return [(TiUIScrollView *)[self view] wrapperView];
 }
-
+#endif
 -(void)scrollTo:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);

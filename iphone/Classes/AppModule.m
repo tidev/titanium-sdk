@@ -45,8 +45,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     UIApplication * app = [UIApplication sharedApplication];
     TiApp * appDelegate = [TiApp app];
+#ifndef TI_USE_AUTOLAYOUT
     [TiLayoutQueue resetQueue];
-    
+#endif
     /* Begin backgrounding simulation */
     [appDelegate applicationWillResignActive:app];
     [appDelegate applicationDidEnterBackground:app];

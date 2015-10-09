@@ -99,7 +99,7 @@
     return YES;
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     /*
      If we are in a navigation controller, let us match so it doesn't get freaked 
      out in when pushing/popping. We are going to force orientation anyways.
@@ -108,7 +108,7 @@
         return [[self navigationController] supportedInterfaceOrientations];
     }
     //This would be for modal.
-    return _supportedOrientations;
+    return (UIInterfaceOrientationMask)_supportedOrientations;
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation

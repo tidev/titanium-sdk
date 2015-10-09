@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
 #import <UIKit/UIKit.h>
 #import "TiDimension.h"
 #import "TiUtils.h"
@@ -32,6 +33,7 @@
 -(TiDimension)defaultAutoHeightBehavior:(id)unused;
 
 @end
+#ifndef TI_USE_AUTOLAYOUT
 
 typedef enum {
 	TiLayoutRuleAbsolute,
@@ -109,3 +111,5 @@ CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint,CGFloat view
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize referenceSize, UIViewAutoresizing * resultResizing);
 CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, TiViewProxy* viewProxy, CGSize viewSize, CGPoint anchorPoint, CGSize referenceSize, CGSize sandboxSize, UIViewAutoresizing * resultResizing);
 BOOL IsLayoutUndefined(LayoutConstraint *constraint);
+
+#endif

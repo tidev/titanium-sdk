@@ -88,6 +88,8 @@ function iOSBuilder() {
 	this.useJSCore = false;
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = true;
+
+	this.useAutoLayout = false;
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
 
@@ -2064,6 +2066,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 
 	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] !== false);
+	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -2339,6 +2342,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
 			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
+			return true;
+		}
+
+		// check if the use UserAutoLayout flag has changed
+		if (this.useAutoLayout !== manifest.useAutoLayout) {
+			this.logger.info(__('Forcing rebuild: use UserAutoLayout flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useAutoLayout));
+			this.logger.info('  ' + __('Now: %s', this.useAutoLayout));
 			return true;
 		}
 
@@ -4986,7 +4997,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
-		if (this.runOnMainThread && !this.useJSCore) {
+		if (this.runOnMainThread && !this.useJSCore && !this.useAutoLayout) {
 			var contents = fs.readFileSync(definesFile).toString();
 			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -4997,6 +5008,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		contents = fs.readFileSync(definesFile).toString();
 		if (!this.runOnMainThread) {
 			contents += '\n#define TI_USE_KROLL_THREAD';
+		}
+		if (this.useAutoLayout) {
+			contents += '\n#define TI_USE_AUTOLAYOUT';
 		}
 		if (this.useJSCore) {
 			contents += '\n#define USE_JSCORE_FRAMEWORK';
@@ -5031,6 +5045,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (!this.runOnMainThread) {
 			contents.push('#define TI_USE_KROLL_THREAD');
 		}
+		if (this.useAutoLayout) {
+			contents.push('#define TI_USE_AUTOLAYOUT');
+		}
+
 		contents = contents.join('\n');
 	}
 
