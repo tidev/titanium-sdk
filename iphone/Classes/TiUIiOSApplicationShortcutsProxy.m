@@ -34,9 +34,6 @@
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     
-    if (item.userInfo != nil) {
-        [dict setObject:item.userInfo forKey:@"userInfo"];
-    }
     return dict;
 }
 
