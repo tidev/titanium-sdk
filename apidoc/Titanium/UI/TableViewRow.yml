@@ -313,7 +313,7 @@ properties:
 
   - name: header
     summary: The header title of the row.
-    discription: |
+    description: |
         The `header` property is used to assign a header title to a row. It has the same effect as setting
         the `headerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
