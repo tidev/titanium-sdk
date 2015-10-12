@@ -164,7 +164,7 @@ NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
 NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString * const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString * const kTiContinueActivity = @"TiContinueActivity";
-NSString * const kTiApplicationShortcut = @"kTiContinueActivity";
+NSString * const kTiApplicationShortcut = @"TiApplicationShortcut";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString* const kTiBehaviorSize = @"SIZE";

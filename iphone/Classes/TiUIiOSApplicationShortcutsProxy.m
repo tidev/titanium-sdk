@@ -9,6 +9,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #import "TiUtils.h"
+#import <CommonCrypto/CommonDigest.h>
+
 @implementation TiUIiOSApplicationShortcutsProxy
 
 -(NSString*)apiName
@@ -19,7 +21,7 @@
 -(NSDictionary*) shortcutItemToDictionary:(UIApplicationShortcutItem*) item
 {
     NSMutableDictionary *dict = [NSMutableDictionary
-                                  dictionaryWithObjectsAndKeys:item.type,@"type",
+                                  dictionaryWithObjectsAndKeys:item.type,@"itemtype",
                                  nil];
     
     if (item.localizedTitle != nil) {
@@ -34,20 +36,18 @@
         [dict setObject:item.userInfo forKey:@"userInfo"];
     }
     
-    if (item.userInfo != nil) {
-        [dict setObject:item.userInfo forKey:@"userInfo"];
-    }
     return dict;
 }
 
 -(NSArray*)listDynamicShortcuts:(id)unused
 {
-    NSMutableArray *shortcutsToReturn = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *shortcutsToReturn = [NSMutableArray array];
     NSArray *shortcuts = [UIApplication sharedApplication].shortcutItems;
 
     for (UIApplicationShortcutItem *item in shortcuts) {
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:item]];
     }
+    
     return shortcutsToReturn;
 }
 
@@ -58,16 +58,34 @@
 
 -(NSArray*)listStaticShortcuts:(id)unused
 {    
+    NSMutableArray *shortcutsToReturn = [NSMutableArray array];
     NSArray *shortcuts = [NSBundle mainBundle].infoDictionary[@"UIApplicationShortcutItems"];
     
-    if(shortcuts == nil || [shortcuts count] == 0) {
+    if (shortcuts == nil || [shortcuts count] == 0) {
         return @[];
     }
     
-    return shortcuts;
+    for (id item in shortcuts) {
+        // We need to map the plist-keys manually for static shortcuts
+        NSString *type = [item valueForKey:@"UIApplicationShortcutItemType"];
+        NSString *title = [item valueForKey:@"UIApplicationShortcutItemTitle"];
+        NSString *subtitle = [item valueForKey:@"UIApplicationShortcutItemSubtitle"];
+        UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:[TiUtils intValue:[item valueForKey:@"UIApplicationShortcutItemIconType"]]];
+        NSDictionary *userInfo = [item valueForKey:@"UIApplicationShortcutItemUserInfo"];
+        
+        UIApplicationShortcutItem *shortcut = [[UIApplicationShortcutItem alloc] initWithType:type
+                                                                               localizedTitle:title
+                                                                            localizedSubtitle:subtitle
+                                                                                         icon:icon
+                                                                                     userInfo:userInfo];
+        
+        [shortcutsToReturn addObject:[self shortcutItemToDictionary:shortcut]];
+    }
+    
+    return shortcutsToReturn;
 }
 
--(BOOL)typeContained:(NSString*)type
+-(BOOL)typeExists:(NSString*)type
 {
     NSArray * shortcuts = [UIApplication sharedApplication].shortcutItems;
     for (UIApplicationShortcutItem *item in shortcuts) {
@@ -79,31 +97,44 @@
     return NO;
 }
 
--(NSNumber*) dynamicShortcutExists:(id)args
+-(NSNumber*)dynamicShortcutExists:(id)itemtype
 {
-    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_SINGLE_ARG(itemtype,NSString);
     
-    if ([args objectForKey:@"type"] == nil) {
-        NSLog(@"[ERROR] The type property required");
+    if ([TiUtils stringValue:itemtype] == nil) {
+        NSLog(@"[ERROR] The itemtype property is required.");
         return;
     }
     
-    return NUMBOOL([self typeContained:[args objectForKey:@"type"]]);
+    return NUMBOOL([self typeExists:[TiUtils stringValue:itemtype]]);
 }
 
--(void)removeShortcutItem:(id) args
+-(NSDictionary*)getDynamicShortcut:(id)itemtype
 {
-    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_SINGLE_ARG(itemtype,NSString);
+
+    NSArray * shortcuts = [UIApplication sharedApplication].shortcutItems;
+    for (UIApplicationShortcutItem *item in shortcuts) {
+        if ([item.type isEqualToString:[TiUtils stringValue:itemtype]]) {
+            return [self shortcutItemToDictionary:item];
+        }
+    }
     
-    if ([args objectForKey:@"type"] == nil) {
-        NSLog(@"[ERROR] The shortcutType property required");
+    return nil;
+}
+
+-(void)removeDynamicShortcut:(id)itemtype
+{
+    ENSURE_SINGLE_ARG(itemtype,NSString);
+    
+    NSString *key = [TiUtils stringValue:itemtype];
+    
+    if (key == nil) {
+        NSLog(@"[ERROR] The itemtype property is required.");
         return;
     }
     
-    
-    NSString* key = [TiUtils stringValue:@"type" properties:args];
-    
-    if ([self typeContained:key] == NO) {
+    if ([self typeExists:key] == NO) {
         return;
     }
     
@@ -119,23 +150,23 @@
 }
 
 
--(void)addShortcutItem:(id)args
+-(void)addDynamicShortcut:(id)args
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
-    if ([args objectForKey:@"type"] == nil) {
-        NSLog(@"[ERROR] The type property required");
+    if ([args objectForKey:@"itemtype"] == nil) {
+        NSLog(@"[ERROR] The itemtype property is required.");
         return;
     }
     
     if ([args objectForKey:@"title"] == nil) {
-        NSLog(@"[ERROR] The title property required");
+        NSLog(@"[ERROR] The title property is required.");
         return;
     }
     
-    if ([self typeContained:[args objectForKey:@"type"]]) {
-        NSLog(@"[ERROR] The shortcutitem type %@ already exists. This field must be unique.",
-              [args objectForKey:@"type"]);
+    if ([self typeExists:[args objectForKey:@"itemtype"]]) {
+        NSLog(@"[ERROR] The itemtype for the shortcut %@ already exists. This field must be unique.",
+              [args objectForKey:@"itemtype"]);
         return;
     }
     
@@ -143,10 +174,10 @@
     
     if ([args objectForKey:@"subtitle"] != nil) {
         if ([args objectForKey:@"icon"] == nil) {
-            NSLog(@"[ERROR] You have defined a subtitle without defining an icon");
+            NSLog(@"[ERROR] You have defined a subtitle without defining an icon.");
             return;
         } else {
-            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"type"]
+            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
                                                          localizedTitle:[args objectForKey:@"title"]
                                                       localizedSubtitle:[args objectForKey:@"subtitle"]
                                                                    icon: [self findIcon:[args objectForKey:@"icon"]]
@@ -155,10 +186,10 @@
     } else {
         if ([args objectForKey:@"icon"] != nil ||
            [args objectForKey:@"userInfo"] != nil) {
-            NSLog(@"[ERROR] You have defined icon or userInfo without defining subTitle. You must defined subTitle if you haved defined icon or userInfo");
+            NSLog(@"[ERROR] You have defined an icon or userInfo without defining a subtitle. You must define a subtitle if you have defined an icon or userInfo.");
             return;
         } else {
-            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"type"]
+            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
                                                          localizedTitle:[args objectForKey:@"title"]]autorelease];
         }
     }
@@ -173,17 +204,42 @@
 
 -(UIApplicationShortcutIcon*)findIcon:(id)value
 {
+    if ([value isKindOfClass:[UIApplicationShortcutIcon class]]) {
+        return (UIApplicationShortcutIcon*)value;
+    }
+    
     if ([value isKindOfClass:[NSNumber class]]) {
         NSInteger iconIndex = [value integerValue];
         return [UIApplicationShortcutIcon iconWithType:iconIndex];
     }
     
     if ([value isKindOfClass:[NSString class]]) {
-        return [UIApplicationShortcutIcon iconWithTemplateImageName:(NSString*)value];
+        return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
     }
     
-    NSLog(@"[ERROR] Invalid icon selection provided, defaulting to SHORTCUT_ICON_TYPE_COMPOSE");
+    NSLog(@"[ERROR] Invalid icon provided, defaulting to SHORTCUT_ICON_TYPE_COMPOSE.");
     return UIApplicationShortcutIconTypeCompose;
+}
+
+-(NSString*)urlInAssetCatalog:(NSString*)url
+{
+    NSString *resultUrl = nil;
+    
+    unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+    NSData *stringBytes = [url dataUsingEncoding: NSUTF8StringEncoding];
+    if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+        // SHA-1 hash has been calculated and stored in 'digest'.
+        NSMutableString *sha = [[NSMutableString alloc] init];
+        for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+            [sha appendFormat:@"%02x", digest[i]];
+        }
+        [sha appendString:@"."];
+        [sha appendString:[url pathExtension]];
+        resultUrl = sha;
+        RELEASE_TO_NIL(sha)
+    }
+    
+    return resultUrl;
 }
 
 @end

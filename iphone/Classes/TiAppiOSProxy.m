@@ -167,7 +167,14 @@
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
-    [self fireEvent:@"shortcutitemclick" withObject:[info userInfo]];
+    NSDictionary *event = @{
+        @"title" : [[info userInfo] valueForKey:@"title"],
+        @"subtitle" : [[info userInfo] valueForKey:@"subtitle"],
+        @"itemtype" : [[info userInfo] valueForKey:@"type"],
+        @"userInfo" : [[info userInfo] objectForKey:@"userInfo"],
+    };
+    
+    [self fireEvent:@"shortcutitemclick" withObject:event];
 }
 
 -(id)createSearchableIndex:(id)unused

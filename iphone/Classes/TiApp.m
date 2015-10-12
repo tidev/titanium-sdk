@@ -413,10 +413,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
     
 #if IS_XCODE_7
-    UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-    
-    if(shortcut !=nil) {
-        launchedShortcutItem = shortcut;
+    if ([TiUtils isIOS9OrGreater] == YES) {
+        UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+        
+        if (shortcut != nil) {
+            launchedShortcutItem = shortcut;
+        }
     }
 #endif
     
