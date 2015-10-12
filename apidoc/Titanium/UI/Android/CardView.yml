@@ -20,11 +20,11 @@ properties:
     summary: Corner radius for CardView. 
     type: Number
 
-   - name: cardElevation
+  - name: cardElevation
     summary: Elevation for CardView. 
     type: Number
 
-   - name: cardMaxElevation
+  - name: cardMaxElevation
     summary: Maximum Elevation for CardView. 
     type: Number  
 

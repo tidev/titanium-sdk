@@ -230,7 +230,7 @@ methods:
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
-        constants: Ti.Geolocation.AUTHORIZATION_*
+        constants: Titanium.Geolocation.AUTHORIZATION_*
         type: Number 
     returns:
         type: Boolean 
@@ -247,7 +247,7 @@ methods:
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
-        constants: Ti.Geolocation.AUTHORIZATION_*
+        constants: Titanium.Geolocation.AUTHORIZATION_*
         type: Number
       - name: callback
         summary: Function to call upon user decision to grant location access.
