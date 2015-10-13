@@ -62,7 +62,7 @@ methods:
         type: String
 
 examples:
-  - title: Example app.js
+  - title: Full example (get shortcuts, add shortcuts, remove shortcuts, check shortcuts).
     example: |
         The following code excerpt demonstrates
 
@@ -162,6 +162,68 @@ examples:
 
             win.open();
 
+  - title: Add a <Titianium.Contact.Person> as icon.
+    example: |
+            Ti.App.iOS.addEventListener("shortcutitemclick", function(e){
+                Ti.API.info("shortcutitemclick Event Fired");
+                Ti.API.info("person:" + JSON.stringify(e.userInfo.person));
+            });
+
+            var win = Titanium.UI.createWindow({
+                title:'Test', backgroundColor:'#fff', layout:"vertical"
+            });
+
+            var btn1 = Ti.UI.createButton({
+                top: 50, height:45, title:"Add Ti.Contacts Application Shortcut"
+            });
+            win.add(btn1);
+
+            btn1.addEventListener("click", function() {
+                if(!Ti.Contacts.hasContactsPermissions()) {
+                    Ti.Contacts.requestContactsPermissions(function(e) {
+                        if(e.success) {
+                            createShortcut();
+                        }
+                    })
+                } else {
+                    createShortcut();
+                }
+            });
+
+            var btn2 = Ti.UI.createButton({
+                top: 10, height:45, title:"Remove Ti.Contacts Application Shortcut"
+            });
+            win.add(btn2);
+
+            btn2.addEventListener("click", function(){
+                var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+                appShortcuts.removeDynamicShortcut("contact_us");
+            });
+
+            function createShortcut() {
+                Ti.Contacts.showContacts({
+                    selectedPerson: function(e) {
+                        var person = e.person;
+
+                        var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+                        appShortcuts.addDynamicShortcut({
+                            itemtype:"contact_us",
+                            title: person.fullName,
+                            subtitle: "Tap to call",
+                            icon: person,
+                            userInfo: {
+                                person: {
+                                    firstName: person.firstName,
+                                    lastName: person.lastName
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            win.open();
+
 ---
 name: ShortcutParams
 summary: Dictionary of options for <Titanium.UI.iOS.addDynamicShortcut>.
@@ -185,8 +247,9 @@ properties:
 
   - name: icon
     summary: |
-        The icon to be displayed on the application shortcut, for example <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE>.
-        Note: You can also use a local image specified by the image path.
-    type: Number
+        The icon to be displayed on the application shortcut. You can either use one of the contastants like
+        <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE>, a local image specified by the image path or a reference to a
+        <Titanium.Contacts.Person>.
+    type: [Number,String,Titanium.Contacts.Person]
     constants: Titanium.UI.iOS.SHORTCUT_ICON_TYPE_*
     optional: true

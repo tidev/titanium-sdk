@@ -43,6 +43,7 @@
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group;
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group;
 -(void)updateiOS9ContactProperties;
+-(CNMutableContact*)nativePerson;
 #endif
 -(id)valueForUndefinedKey:(NSString *)key;
 -(NSString*)fullName;
