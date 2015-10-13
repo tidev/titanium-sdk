@@ -18,6 +18,16 @@ describe('winstore', function () {
 		should(windowslib.winstore).be.an.Object;
 	});
 
+	it.skip('launch should launch Windows Store App', function (done) {
+		this.timeout(10000);
+		this.slow(2000);
+
+		var appid = 'com.appcelerator.launch.test',
+			opts  = { windowsAppId: 'App' };
+
+		windowslib.winstore.launch(appid, opts, done);
+	});
+
 	(process.platform === 'win32' ? it : it.skip)('detect should find Windows Store SDK installations', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
