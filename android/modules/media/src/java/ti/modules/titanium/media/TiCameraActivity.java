@@ -551,13 +551,13 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					// add previewRect to response
 					KrollDict previewRect = new KrollDict();
 					if (optimalPreviewSize!=null){
-						previewRect.put("width",optimalPreviewSize.width);
-						previewRect.put("height",optimalPreviewSize.height);
+						previewRect.put(TiC.PROPERTY_WIDTH, optimalPreviewSize.width);
+						previewRect.put(TiC.PROPERTY_HEIGHT, optimalPreviewSize.height);
 					} else {
-						previewRect.put("width",0);
-						previewRect.put("height",0);
+						previewRect.put(TiC.PROPERTY_WIDTH, 0);
+						previewRect.put(TiC.PROPERTY_HEIGHT, 0);
 					}
-					response.put("previewRect",previewRect);
+					response.put("previewRect", previewRect);
 					
 					successCallback.callAsync(callbackContext, response);
 				}				
