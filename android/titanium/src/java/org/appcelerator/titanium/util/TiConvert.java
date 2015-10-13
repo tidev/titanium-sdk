@@ -368,7 +368,11 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key, boolean def)
 	{
-		return toBoolean(hashMap.get(key), def);
+		if (hashMap != null && key != null){
+			return toBoolean(hashMap.get(key), def);
+		}
+		
+		return def;
 	}
 
 	/**
