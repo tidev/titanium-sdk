@@ -54,6 +54,7 @@ methods:
 
   - name: getDynamicShortcut
     summary: Gets the dynamic application shortcut item identified by the `itemtype`.
+
     parameters:
       - name: itemtype
         summary: |
@@ -64,14 +65,6 @@ examples:
   - title: Example app.js
     example: |
         The following code excerpt demonstrates
-
-            Ti.App.addEventListener("resume", function(){
-                Ti.API.info("Resume Event Fired");
-            });
-
-            Ti.App.addEventListener("resumed", function(){
-                Ti.API.info("Resumed Event Fired");
-            });
 
             Ti.App.iOS.addEventListener("shortcutitemclick", function(e){
                 Ti.API.info("shortcutitemclick Event Fired");
@@ -175,7 +168,7 @@ summary: Dictionary of options for <Titanium.UI.iOS.addDynamicShortcut>.
 description: |
     The parameters used when creating the dynamic shortcut.  Must include the `itemtype` and `title` properties.
 properties:
-  - name: type
+  - name: itemtype
     summary: The unique key for the application shortcut.
     type: String
     optional: false

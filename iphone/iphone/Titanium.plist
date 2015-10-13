@@ -57,23 +57,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-    <key>UIApplicationShortcutItems</key>
-    <array>
-        <dict>
-            <key>UIApplicationShortcutItemIconType</key>
-            <string>UIApplicationShortcutIconTypeAdd</string>
-            <key>UIApplicationShortcutItemSubtitle</key>
-            <string>Take a brand new photo</string>
-            <key>UIApplicationShortcutItemTitle</key>
-            <string>Take photo</string>
-            <key>UIApplicationShortcutItemType</key>
-            <string>NewPhoto</string>
-            <key>UIApplicationShortcutItemUserInfo</key>
-            <dict>
-                <key>myCustomKey</key>
-                <string>myCustomValue</string>
-            </dict>
-        </dict>
-    </array>
 </dict>
 </plist>

@@ -217,13 +217,17 @@
         return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
     }
     
-    NSLog(@"[ERROR] Invalid icon provided, defaulting to SHORTCUT_ICON_TYPE_COMPOSE.");
+    NSLog(@"[ERROR] Invalid icon provided, defaulting to Ti.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE.");
     return UIApplicationShortcutIconTypeCompose;
 }
 
 -(NSString*)urlInAssetCatalog:(NSString*)url
 {
     NSString *resultUrl = nil;
+    
+    if ([url hasPrefix:@"/"] == YES) {
+        url = [url substringFromIndex:1];
+    }
     
     unsigned char digest[CC_SHA1_DIGEST_LENGTH];
     NSData *stringBytes = [url dataUsingEncoding: NSUTF8StringEncoding];
@@ -235,7 +239,7 @@
         }
         [sha appendString:@"."];
         [sha appendString:[url pathExtension]];
-        resultUrl = sha;
+        resultUrl = [NSMutableString stringWithString: sha];
         RELEASE_TO_NIL(sha)
     }
     
