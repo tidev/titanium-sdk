@@ -289,7 +289,7 @@ function build(options, callback) {
 				callback: callback
 			} ];
 
-			appc.subprocess.run(vsInfo.vcvarsall, [
+			appc.subprocess.run(vsInfo.vcvarsall.replace(/\ /g, '^ '), [
 				'&&', 'MSBuild', '/m', '/t:rebuild', '/p:configuration=' + (options.buildConfiguration || 'Release'), options.project
 			], function (code, out, err) {
 				var queue = runningBuilds[options.project];

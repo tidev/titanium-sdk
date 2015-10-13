@@ -1,3 +1,7 @@
+0.1.20 (10/13/2015)
+-------------------
+  * [Windows: windowslib wstool doesn't launch on Windows 10](https://jira.appcelerator.org/browse/TIMOB-19693)
+
 0.1.19 (10/7/2015)
 -------------------
   * Line up dependencies to match titanium_mobile's dependencies.

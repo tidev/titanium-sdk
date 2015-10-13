@@ -176,9 +176,17 @@ function launch(appId, options, callback) {
 		var wstool = path.resolve(__dirname, '..', 'bin', 'wstool.exe');
 
 		function runTool() {
-			var args = ['launch', appId];
+			var args = ['launch', '--appid', appId];
 
-			options.version && args.push(options.version);
+			if (options.version) {
+				args.push('--version');
+				args.push(options.version);
+			}
+
+			if (options.windowsAppId) {
+				args.push('--windowsAppId');
+				args.push(options.windowsAppId);
+			}
 
 			appc.subprocess.run(wstool, args, function (code, out, err) {
 				if (code) {
