@@ -85,7 +85,7 @@ function create(appid, certificateFile, options, callback) {
 				}
 
 				// first lets create the cert
-				appc.subprocess.run(vsInfo.vcvarsall, [
+				appc.subprocess.run(vsInfo.vcvarsall.replace(/\ /g, '^ '), [
 					'&&',
 					options.powershell || 'powershell',
 					'-ExecutionPolicy', 'Bypass', '-NoLogo', '-NonInteractive', '-NoProfile',
