@@ -4988,16 +4988,25 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
 		destExists = fs.existsSync(dest),
+		hasRemoteNotification = false,
+		hasFetch = false,
+		infoPlist = this.infoPlist,
 		contents;
 
 	delete this.buildDirFiles[dest];
 
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
+		hasRemoteNotification = true;
+	}
+	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
+		hasFetch = true;
+	}
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		var definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
-		if (this.runOnMainThread && !this.useJSCore && !this.useAutoLayout) {
+		if (this.runOnMainThread && !this.useJSCore && !this.useAutoLayout && !hasRemoteNotification && !hasFetch) {
 			var contents = fs.readFileSync(definesFile).toString();
 			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
@@ -5052,11 +5061,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		contents = contents.join('\n');
 	}
 
-	var infoPlist = this.infoPlist;
-	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
+	if (hasRemoteNotification) {
 		contents += '\n#define USE_TI_SILENTPUSH';
 	}
-	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
+	if (hasFetch) {
 		contents += '\n#define USE_TI_FETCH';
 	}
 
