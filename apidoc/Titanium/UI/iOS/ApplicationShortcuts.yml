@@ -247,7 +247,7 @@ properties:
 
   - name: icon
     summary: |
-        The icon to be displayed on the application shortcut. You can either use one of the contastants like
+        The icon to be displayed on the application shortcut. You can either use one of the constants like
         <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE>, a local image specified by the image path or a reference to a
         <Titanium.Contacts.Person>.
     type: [Number,String,Titanium.Contacts.Person]
