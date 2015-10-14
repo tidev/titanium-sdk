@@ -1012,7 +1012,7 @@ events:
   - name: shortcutitemclick
     summary: Fired when a user taps the Application Shortcut.
     properties:
-      - name: type
+      - name: itemtype
         summary: The unique identifier for the application shortcut.
         type: String
 
@@ -1025,7 +1025,7 @@ events:
         type: String
 
       - name: userInfo
-        summary: The payload passed by the Application Shortcut.
+        summary: The payload passed by the application shortcut.
         type: Dictionary        
     platforms: [iphone]
     osver: {ios: {min: "9.0"}}
