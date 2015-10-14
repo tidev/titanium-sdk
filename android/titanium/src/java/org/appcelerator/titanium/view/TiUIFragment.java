@@ -51,10 +51,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			transaction.add(container.getId(), fragment);
 			transaction.commitAllowingStateLoss();
 		}
-		// initialize handler
-		//handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
-		// send a msg to skip a cycle to make sure the fragment's view is created and initialized
-		//sendMessage();
 
 	}
 
