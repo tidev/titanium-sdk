@@ -206,10 +206,12 @@
 
 -(UIApplicationShortcutIcon*)findIcon:(id)value
 {
+#ifdef USE_TI_CONTACTS
     if([value isKindOfClass:[TiContactsPerson class]]) {
         ENSURE_TYPE(value, TiContactsPerson);
         return [UIApplicationShortcutIcon iconWithContact: [(TiContactsPerson*)value nativePerson]];
     }
+#endif
     
     if ([value isKindOfClass:[UIApplicationShortcutIcon class]]) {
         return (UIApplicationShortcutIcon*)value;
