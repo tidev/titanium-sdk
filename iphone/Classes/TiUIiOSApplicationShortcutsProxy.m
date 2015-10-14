@@ -9,6 +9,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #import "TiUtils.h"
+#import "TiContactsPerson.h"
+#import <ContactsUI/ContactsUI.h>
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation TiUIiOSApplicationShortcutsProxy
@@ -204,6 +206,11 @@
 
 -(UIApplicationShortcutIcon*)findIcon:(id)value
 {
+    if([value isKindOfClass:[TiContactsPerson class]]) {
+        ENSURE_TYPE(value, TiContactsPerson);
+        return [UIApplicationShortcutIcon iconWithContact: [(TiContactsPerson*)value nativePerson]];
+    }
+    
     if ([value isKindOfClass:[UIApplicationShortcutIcon class]]) {
         return (UIApplicationShortcutIcon*)value;
     }

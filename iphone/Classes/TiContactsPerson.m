@@ -72,6 +72,13 @@ static NSDictionary* iOS9propertyKeys;
 }
 
 #if IS_XCODE_7
+-(CNMutableContact*)nativePerson
+{
+    return person;
+}
+#endif
+
+#if IS_XCODE_7
 -(NSDictionary*)getiOS9ContactProperties: (CNMutableContact*) contact
 {
 	if (contact == nil) {
