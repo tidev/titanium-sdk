@@ -215,6 +215,8 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
+    since: 5.1.0
+    platforms: [iphone, ipad]
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
 
@@ -224,7 +226,7 @@ properties:
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
 
   - name: message
@@ -258,7 +260,7 @@ properties:
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
 
   - name: placeholder
@@ -268,7 +270,7 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
 
   - name: persistent
@@ -288,6 +290,8 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
+    since: 5.1.0
+    platforms: [iphone, ipad]
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
 
