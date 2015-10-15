@@ -238,11 +238,10 @@ methods:
     since: "5.1.0"
   
   - name: requestLocationPermissions
-    summary: Requests for location access
+    summary: Requests for location access.
     description: |
-        This method allows the app to request for location access.
-        On Android, the request view will show if the permission is not accepted by user, and user did
-        not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
     parameters:
       - name: authorizationType
