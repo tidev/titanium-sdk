@@ -63,6 +63,7 @@
 @property(nonatomic,readonly) NSNumber *RETURNKEY_YAHOO;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_DONE;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_EMERGENCY_CALL;
+@property(nonatomic,readonly) NSNumber *RETURNKEY_CONTINUE;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_ASCII;

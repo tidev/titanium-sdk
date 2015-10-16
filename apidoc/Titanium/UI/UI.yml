@@ -1690,7 +1690,21 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
+  - name: RETURNKEY_CONTINUE
+    summary: Set the return key text to "Continue".
+    description: |
+        Use with the <Titanium.UI.TextField.returnKeyType> and
+        <Titanium.UI.TextArea.returnKeyType> properties.
+
+        Note: This constant is only available on iOS devices running iOS 9 or later. Older iOS
+        devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.2.0"
+
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
     description: |
