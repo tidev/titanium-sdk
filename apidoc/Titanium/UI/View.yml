@@ -602,9 +602,9 @@ methods:
     parameters:
       - name: options
         summary: |
-            Starting with release 5.1.0, This is an optional dictionary on Android to enable circular reveal animation. 
-            See <AnimationOption> for more info.
-        type: Dictionary
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
@@ -654,9 +654,9 @@ methods:
     parameters:
       - name: options
         summary: |
-            Starting with release 5.1.0, This is an optional dictionary on Android that enables circular reveal animation. 
-            See <AnimationOption> for more info.
-        type: Dictionary
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
     
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -1310,7 +1310,7 @@ properties:
         of <Titanium.UI.iOS.PreviewContext> here.
 
         Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
-        It is ignored on older devices and can manually be checked using <Ti.UI.iOS.forceTouchSupported>.
+        It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
     platforms: [iphone]
     since: "5.1.0"
     osver: {ios: {min: "9.0"}}
@@ -1629,8 +1629,11 @@ properties:
 ---
 name: AnimationOption
 summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+since: 5.1.0
+platforms: [android]
 properties:
   - name: animated
-    summary: whether to enable circular reveal animation on Android.
+    summary: Determines whether to enable a circular reveal animation.
     type: Boolean
     default: false
+    osver: {android: {min: 5.0}}

@@ -214,6 +214,8 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
+    since: 5.1.0
+    platforms: [iphone, ipad]
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
 
@@ -327,6 +329,8 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
+    since: 5.1.0
+    platforms: [iphone, ipad]
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
 

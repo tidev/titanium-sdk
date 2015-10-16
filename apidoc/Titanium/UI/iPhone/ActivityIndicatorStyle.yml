@@ -1,6 +1,9 @@
 ---
 name: Titanium.UI.iPhone.ActivityIndicatorStyle
 summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
+deprecated:
+    since: 5.1.0
+    notes: Use the <Titanium.UI.ActivityIndicatorStyle> constants instead (without the iPhone namespace).
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]

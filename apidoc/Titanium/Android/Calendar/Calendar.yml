@@ -20,25 +20,6 @@ deprecated:
     notes: Use the [Titanium.Calendar](Titanium.Calendar) class instead.
 
 methods:
-  - name: hasCalendarPermissions
-    summary: Returns `true` if the app has calendar access
-    returns:
-        type: Boolean 
-    since: "5.1.0"  
-
-  - name: requestCalendarPermissions
-    summary: Requests for calendar access
-    description: |
-        This method allows the app to request for calendar access.
-        The request view will show if the permission is not accepted by user, and user did
-        not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
-        the user has to manually enable the permission in device settings.
-    parameters:
-      - name: callback
-        summary: Function to call upon user decision to grant calendar access.
-        type: Callback<CalendarPermissionResponse>
-    since: "5.1.0"
-
   - name: getCalendarById
     summary: Gets the calendar with the specified identifier.
     returns:
