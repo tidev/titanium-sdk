@@ -38,21 +38,20 @@ description: |
     a single button to allow it to be dismissed.
     
     Buttons are defined using the `buttonNames` property and are rendered vertically below 
-    the message.
-
-    On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
+    the message. Alert dialogs are automatically cancelled when the application is
     paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
     to be `true`.
 
-    On iOS 5.0 and later, `style` property can be used to allow the user to enter plain text, 
+    The `style` property can be used to allow the user to enter plain text,
     obscured text or login identifier and password. Entered values can be captured with listening
     `cancel` event.
 
-    Starting at Titanium SDK 5.0, you can also specify the `placeholder`, `keyboardType` and `returnKeyType`
+    Starting at Titanium SDK 5.1.0, you can also specify the `placeholder`, `keyboardType` and `returnKeyType`
     properties when using the alert dialog style <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
     <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     When using the alert dialog style <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>, you can
-    specify the `loginPlaceholder` and `passwordPlaceholder` properties.
+    specify the `loginPlaceholder`, `loginKeyboardType` and `loginReturnKeyType` properties for the login field,
+    as well as the `passwordPlaceholder`, `passwordKeyboardType` and `passwordReturnKeyType` properties for the password field.
     
     #### Global Alias
     
@@ -224,8 +223,28 @@ properties:
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
+
+  - name: loginReturnKeyType
+    summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
+    description: |
+    Note that this property is only available if dialog `style` property is defined as
+    <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: Number
+    since: 5.1.0
+    constants: Titanium.UI.RETURNKEY_*
+    default: <Titanium.UI.RETURNKEY_NEXT>
+
+  - name: loginKeyboardType
+    summary: Keyboard type to display when this text field inside the dialog is focused.
+    description: |
+    Note that this property is only available if dialog `style` property is defined as
+    <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: Number
+    since: 5.1.0
+    constants: Titanium.UI.KEYBOARD_*
+    default: <Titanium.UI.KEYBOARD_DEFAULT>
 
   - name: message
     summary: Dialog message.
@@ -258,8 +277,28 @@ properties:
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
+
+  - name: passwordReturnKeyType
+    summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: Number
+    since: 5.1.0
+    constants: Titanium.UI.RETURNKEY_*
+    default: <Titanium.UI.RETURNKEY_DONE>
+
+  - name: passwordKeyboardType
+    summary: Keyboard type to display when this text field inside the dialog is focused.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: Number
+    since: 5.1.0
+    constants: Titanium.UI.KEYBOARD_*
+    default: <Titanium.UI.KEYBOARD_DEFAULT>
 
   - name: placeholder
     summary: Placeholder of the text field inside the dialog.
@@ -268,7 +307,7 @@ properties:
         <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
-    since: 5.0.1
+    since: 5.1.0
     platforms: [iphone, ipad]
 
   - name: persistent
