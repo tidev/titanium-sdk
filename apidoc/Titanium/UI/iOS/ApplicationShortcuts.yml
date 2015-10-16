@@ -162,7 +162,7 @@ examples:
 
             win.open();
 
-  - title: Add a <Titianium.Contact.Person> as icon.
+  - title: Add a <Titanium.Contact.Person> as icon.
     example: |
             Ti.App.iOS.addEventListener("shortcutitemclick", function(e){
                 Ti.API.info("shortcutitemclick Event Fired");
