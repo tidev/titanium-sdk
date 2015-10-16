@@ -229,8 +229,8 @@ properties:
   - name: loginReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
-    Note that this property is only available if dialog `style` property is defined as
-    <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.RETURNKEY_*
@@ -239,8 +239,8 @@ properties:
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
-    Note that this property is only available if dialog `style` property is defined as
-    <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.KEYBOARD_*
