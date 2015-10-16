@@ -1587,7 +1587,7 @@ properties:
   - name: previewRect
     summary: Simple object defining the preview image size.
     type: PreviewRectType
-    platforms: [andorid]
+    platforms: [android]
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
     description: Returns `true`.
