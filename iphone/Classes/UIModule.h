@@ -73,6 +73,7 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_TWITTER;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_ALERT;
