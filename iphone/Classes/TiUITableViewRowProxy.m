@@ -206,6 +206,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     }
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 // Special handling to try and avoid Apple's detection of private API 'layout'
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
@@ -226,7 +227,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     }
     [super setValue:value forUndefinedKey:key];
 }
-
+#endif
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
     CGFloat width = oldWidth;
@@ -274,6 +275,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		return height.value;
 	}
 	CGFloat result = 0;
+#ifndef TI_USE_AUTOLAYOUT
 	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
 		result = [self minimumParentHeightForSize:CGSizeMake(width, [self table].bounds.size.height)];
@@ -281,6 +283,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);
     }
+#endif
 	return (result == 0) ? [table tableRowHeight:0] : result;
 }
 
@@ -543,7 +546,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         return;
     }
     modifyingRow = YES;
+#ifndef TI_USE_AUTOLAYOUT
     [TiLayoutQueue layoutProxy:self];
+#endif
     modifyingRow = NO;
     
 }

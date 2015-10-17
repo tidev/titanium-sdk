@@ -225,6 +225,35 @@ methods:
         type: Callback<LocationResults>
     platforms: [android, iphone, ipad, mobileweb]
 
+  - name: hasLocationPermissions
+    summary: Returns `true` if the app has location access.
+    parameters:
+      - name: authorizationType
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
+        constants: Titanium.Geolocation.AUTHORIZATION_*
+        type: Number 
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+  
+  - name: requestLocationPermissions
+    summary: Requests for location access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: authorizationType
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
+        constants: Titanium.Geolocation.AUTHORIZATION_*
+        type: Number
+      - name: callback
+        summary: Function to call upon user decision to grant location access.
+        type: Callback<LocationAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
     description: |
@@ -1256,4 +1285,8 @@ properties:
     summary: Full address.
     type: String
     platforms: [android, iphone, ipad]
+---
+name: LocationAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
 

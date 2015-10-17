@@ -357,8 +357,8 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
-				[this.manifest.moduleid, this.assetsDir],
-				{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset'},
+				[ this.manifest.moduleid, this.assetsDir, this.manifest.guid ],
+				{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset' },
 				cb
 			);
 		},
@@ -380,8 +380,8 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 			} else {
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'),
-					[this.manifest.moduleid, this.assetsDir],
-					{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets'},
+					[ this.manifest.moduleid, this.assetsDir, this.manifest.guid ],
+					{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets' },
 					cb
 				);
 			}

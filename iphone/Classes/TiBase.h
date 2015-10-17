@@ -595,7 +595,9 @@ extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
 extern NSString * const kTiWatchKitExtensionRequest;
 extern NSString * const kTiContinueActivity;
+extern NSString * const kTiApplicationShortcut;
     
+#ifndef TI_USE_AUTOLAYOUT
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;
 extern NSString* const kTiBehaviorAuto;
@@ -607,7 +609,7 @@ extern NSString* const kTiUnitDip;
 extern NSString* const kTiUnitDipAlternate;
 extern NSString* const kTiUnitSystem;
 extern NSString* const kTiUnitPercent;
-
+#endif
 extern NSString* const kTiExceptionSubreason;
 extern NSString* const kTiExceptionLocation;
 

@@ -175,7 +175,7 @@ methods:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS 9 and later.
+            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
     summary: Marks the end of an `openParentApplication:reply` execution by a WatchKit extension.
     description: |
         This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
@@ -288,21 +288,26 @@ properties:
 
   - name: USER_NOTIFICATION_BEHAVIOR_DEFAULT
     summary: |
-        There will not appear a text input.
+        Default action behavior with no additional action support.
+    description: |
         Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    since: "5.0.1"
+    since: "5.1.0"
 
   - name: USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
     summary: |
-        There will appear a text input to answer an action outside the application.
+        Provides a textfield with the notification for the user to enter a text response.
+    description: |
+        The user input will be passed to the `typedText` field of the object passed to the callback
+        handling the `localnotification` event.
+
         Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
     type: Number
     permission: read-only
     osver: {ios: {min: "9.0"}}
-    since: "5.0.1"
+    since: "5.1.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -694,6 +699,10 @@ events:
         summary: Timezone of the date when the notification was configured to fire.
         type: String
 
+      - name: typedText
+        summary: User input if the notification used the `USER_NOTIFICATION_BEHAVIOR_TEXTINPUT` behavior.
+        type: String
+
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
@@ -942,7 +951,7 @@ events:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.App.iOS.WatchConnectivity> instead, which is supported on iOS9 and later.
+            Use <Titanium.WatchSession> instead, which is supported on iOS9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
         Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
@@ -1008,6 +1017,28 @@ events:
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.2"}}
     since: '5.0.0'
+
+  - name: shortcutitemclick
+    summary: Fired when a user taps the Application Shortcut.
+    properties:
+      - name: itemtype
+        summary: The unique identifier for the application shortcut.
+        type: String
+
+      - name: title
+        summary: The title of the application shortcut.
+        type: String
+
+      - name: subtitle
+        summary: The subtitle of the application shortcut.
+        type: String
+
+      - name: userInfo
+        summary: The payload passed by the application shortcut.
+        type: Dictionary        
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+    since: '5.1.0'
 
 ---
 name: NotificationParams

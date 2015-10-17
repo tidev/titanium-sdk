@@ -35,6 +35,8 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+
+
 @end
 
 #endif

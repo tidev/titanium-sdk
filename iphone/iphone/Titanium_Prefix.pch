@@ -16,4 +16,3 @@
 #else
 #define IS_XCODE_7 false
 #endif
-

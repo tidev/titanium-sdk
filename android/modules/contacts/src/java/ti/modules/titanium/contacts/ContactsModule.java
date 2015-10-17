@@ -19,13 +19,17 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 @Kroll.module @ContextSpecific
 public class ContactsModule extends KrollModule
@@ -62,6 +66,27 @@ public class ContactsModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public int getContactsAuthorization() {
 		return AUTHORIZATION_AUTHORIZED;
+	}
+	
+	@Kroll.method
+	public boolean hasContactsPermissions() {
+		return contactsApi.hasContactsPermissions();
+	}
+	
+	@Kroll.method
+	public void requestContactsPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasContactsPermissions()) {
+			return;
+		}
+		if (TiBaseActivity.contactsCallbackContext == null) {
+			TiBaseActivity.contactsCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.contactsPermissionCallback = permissionCallback;
+
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
+		
 	}
 
 	@Kroll.method

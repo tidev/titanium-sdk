@@ -9,7 +9,13 @@
 #import "TiUtils.h"
 #import "Webcolor.h"
 #ifdef USE_TI_UIIOS
- 
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+#import "TiUIiOSPreviewContextProxy.h"
+#import "TiUIiOSPreviewActionProxy.h"
+#import "TiUIiOSPreviewActionGroupProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -46,6 +52,7 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindowProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 #import "TiAnimatorProxy.h"
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
@@ -71,11 +78,20 @@
 #endif
 #endif
 
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+#import "TiUIiOSApplicationShortcutsProxy.h"
+#endif
+
 @implementation TiUIiOSProxy
 
 -(NSString*)apiName
 {
     return @"Ti.UI.iOS";
+}
+
+-(NSNumber*)forceTouchSupported
+{
+    return NUMBOOL([TiUtils forceTouchSupported]);
 }
 
 -(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
@@ -124,6 +140,37 @@
     return nil;
 }
 #endif
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+-(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleDefault);
+    }
+#endif
+    return nil;
+}
+-(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleDestructive);
+    }
+#endif
+    return nil;
+}
+-(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater]) {
+        return NUMINTEGER(UIPreviewActionStyleSelected);
+    }
+#endif
+    return nil;
+}
+#endif
+
 
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
@@ -317,6 +364,26 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSTransitionAnimationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#if IS_XCODE_7
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+-(id)createPreviewAction:(id)args
+{
+    return [[[TiUIiOSPreviewActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+-(id)createPreviewActionGroup:(id)args
+{
+    return [[[TiUIiOSPreviewActionGroupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+-(id)createPreviewContext:(id)args
+{
+    return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+#endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {
@@ -454,6 +521,52 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED,UIWebViewNavigationType
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 
 #endif
+
+#if IS_XCODE_7
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+
+-(id)createApplicationShortcuts:(id)args
+{
+    return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE,UIApplicationShortcutIconTypeCompose);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY,UIApplicationShortcutIconTypePlay);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE,UIApplicationShortcutIconTypePause);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ADD,UIApplicationShortcutIconTypeAdd);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOCATION,UIApplicationShortcutIconTypeLocation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SEARCH,UIApplicationShortcutIconTypeSearch);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHARE,UIApplicationShortcutIconTypeShare);
+
+#ifdef __IPHONE_9_1
+
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PROHIBIT,UIApplicationShortcutIconTypeProhibit);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONTACT,UIApplicationShortcutIconTypeContact);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_HOME,UIApplicationShortcutIconTypeHome);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MARK_LOCATION,UIApplicationShortcutIconTypeMarkLocation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_FAVORITE,UIApplicationShortcutIconTypeFavorite);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOVE,UIApplicationShortcutIconTypeLove);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CLOUD,UIApplicationShortcutIconTypeCloud);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_INVITATION,UIApplicationShortcutIconTypeInvitation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONFIRMATION,UIApplicationShortcutIconTypeConfirmation);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MAIL,UIApplicationShortcutIconTypeMail);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_MESSAGE,UIApplicationShortcutIconTypeMessage);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_DATE,UIApplicationShortcutIconTypeDate);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TIME,UIApplicationShortcutIconTypeTime);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CAPTURE_PHOTO,UIApplicationShortcutIconTypeCapturePhoto);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CAPTURE_VIDEO,UIApplicationShortcutIconTypeCaptureVideo);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TASK,UIApplicationShortcutIconTypeTask);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_TASK_COMPLETED,UIApplicationShortcutIconTypeTaskCompleted);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ALARM,UIApplicationShortcutIconTypeAlarm);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_BOOKMARK,UIApplicationShortcutIconTypeBookmark);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHUFFLE,UIApplicationShortcutIconTypeShuffle);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO,UIApplicationShortcutIconTypeAudio);
+MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
+
+#endif
+#endif
+#endif
+
 @end
 
 #endif

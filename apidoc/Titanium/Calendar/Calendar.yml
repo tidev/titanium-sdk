@@ -40,7 +40,30 @@ methods:
         type: String
     platforms: [android, iphone, ipad]
 
+  - name: hasCalendarPermissions
+    summary: Returns `true` if the app has calendar access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestCalendarPermissions
+    summary: Requests for calendar access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant calendar access.
+        type: Callback<EventsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+
   - name: requestEventsAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Use [requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
@@ -618,27 +641,27 @@ examples:
                     Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name:' + calendar.name);
                     
                     function printReminder(r) {
-                    	if (osname === 'android') {
-                    		var typetext = '[method unknown]';
-                    		if (r.method == Ti.Calendar.METHOD_EMAIL) {
-                    			typetext = 'Email';
-                    		} else if (r.method == Ti.Calendar.METHOD_SMS) {
-                    			typetext = 'SMS';
-                    		} else if (r.method == Ti.Calendar.METHOD_ALERT) {
-                    			typetext = 'Alert';
-                    		} else if (r.method == Ti.Calendar.METHOD_DEFAULT) {
-                    			typetext = '[default reminder method]';
-                    		}
-                    		print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
-                    	}
-                	}
+                        if (osname === 'android') {
+                            var typetext = '[method unknown]';
+                            if (r.method == Ti.Calendar.METHOD_EMAIL) {
+                                typetext = 'Email';
+                            } else if (r.method == Ti.Calendar.METHOD_SMS) {
+                                typetext = 'SMS';
+                            } else if (r.method == Ti.Calendar.METHOD_ALERT) {
+                                typetext = 'Alert';
+                            } else if (r.method == Ti.Calendar.METHOD_DEFAULT) {
+                                typetext = '[default reminder method]';
+                            }
+                            print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
+                        }
+                    }
                     
                     function printAlert(a) {
-                    	if (osname === 'android') {
-                      		print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
-                    	} else if (osname === 'iphone' || osname === 'ipad') {
-                    		print('Alert absoluteDate ' + a.absoluteDate + ' relativeOffset ' + a.relativeOffset);
-                    	}
+                        if (osname === 'android') {
+                              print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+                        } else if (osname === 'iphone' || osname === 'ipad') {
+                            print('Alert absoluteDate ' + a.absoluteDate + ' relativeOffset ' + a.relativeOffset);
+                        }
                     }
                     
                     function printEvent(event) {
@@ -650,10 +673,10 @@ examples:
                       
                       var reminders = event.reminders;
                       if (reminders && reminders.length) {
-                      	print('There is/are ' + reminders.length + ' reminder(s)');
-                      	for (var i = 0; i < reminders.length; i++) {
-                      		printReminder(reminders[i]);
-                      	}
+                          print('There is/are ' + reminders.length + ' reminder(s)');
+                          for (var i = 0; i < reminders.length; i++) {
+                              printReminder(reminders[i]);
+                          }
                       }
                       print('hasAlarm? ' + event.hasAlarm);
                       var alerts = event.alerts;
@@ -702,29 +725,26 @@ examples:
               layout: 'vertical',
               title: 'Calendar Demo'
             });
-            
-            if (osname === 'android') {
-            	performCalendarReadFunctions();
-            } else if (osname === 'iphone' || osname === 'ipad') {
-            	if (Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-                	performCalendarReadFunctions();
-            	} else {
-                	Ti.Calendar.requestEventsAuthorization(function(e){
-                    	if (e.success) {
-                        	performCalendarReadFunctions();
-                    	} else {
-                        	alert('Access to calendar is not allowed');
-                    	}
-                	});
-            	}
+
+            if (Ti.Calendar.hasCalendarPermissions()) {
+                performCalendarReadFunctions();
+            } else {
+                Ti.Calendar.requestCalendarPermissions(function(e) {
+                    if (e.success) {
+                        performCalendarReadFunctions();
+                    } else {
+                        Ti.API.error(e.error);
+                        alert('Access to calendar is not allowed');
+                    }
+                });
             }
-            
+
             win.open();
 
   - title: Create a Recurring Event with Alerts on iOS
     example: |
         Create a recurring event with alerts.
-        
+
             function printEventDetails(eventID) {
                 Ti.API.info('eventID:' + eventID);
                 var defCalendar = Ti.Calendar.defaultCalendar;
@@ -837,17 +857,18 @@ examples:
                         });
             win.add(label);
             
-            if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-                performCalendarWriteFunctions();
+            if (Ti.Calendar.hasCalendarPermissions()) {
+                performCalendarReadFunctions();
             } else {
-                Ti.Calendar.requestEventsAuthorization(function(e){
-                        if (e.success) {
-                            performCalendarWriteFunctions();
-                        } else {
-                            alert('Access to calendar is not allowed');
-                        }
-                    });
+                Ti.Calendar.requestCalendarPermissions(function(e) {
+                    if (e.success) {
+                        performCalendarReadFunctions();
+                    } else {
+                        alert('Access to calendar is not allowed');
+                    }
+                });
             }
+
             win.open();
 ---
 name: EventsAuthorizationResponse

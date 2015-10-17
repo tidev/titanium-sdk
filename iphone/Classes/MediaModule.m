@@ -547,7 +547,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 /**
  Check if camera is authorized, only available for >= iOS 7
  **/
-
 -(NSNumber*)cameraAuthorizationStatus
 {
     if (![TiUtils isIOS7OrGreater]) {
@@ -594,7 +593,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
--(void) requestAuthorization:(id)args
+-(void)requestAuthorization:(id)args
+{
+    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
+    [self requestAudioPermissions:args];
+}
+
+-(void)requestAudioPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;
@@ -947,8 +952,15 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return NUMINT(UIImagePickerControllerCameraDeviceRear);
 }
 
-//request camera access. for >= IOS7
 -(void)requestCameraAccess:(id)arg
+{
+    DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
+
+    [self requestCameraPermissions:arg];
+}
+
+//request camera access. for >= IOS7
+-(void)requestCameraPermissions:(id)arg
 {
     if (![TiUtils isIOS7OrGreater]) {
         return;
@@ -965,6 +977,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }];
     }, NO);
 }
+
+-(NSNumber*)hasCameraPermissions:(id)unused
+{
+    return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized);
+}
+
 /**
  End Camera Support
  **/

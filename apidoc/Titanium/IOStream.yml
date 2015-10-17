@@ -97,11 +97,11 @@ methods:
         optional: true
         default: Length of the supplied buffer.
 
-  - name: isWriteable
-    summary: Indicates whether this stream is writeable.
+  - name: isWritable
+    summary: Indicates whether this stream is writable.
     returns:
         type: Boolean
-        summary: True if stream is writeable, false otherwise.
+        summary: True if stream is writable, false otherwise.
 
   - name: isReadable
     summary: Indicates whether this stream is readable.

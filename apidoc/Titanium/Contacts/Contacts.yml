@@ -199,8 +199,30 @@ methods:
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
 
+  - name: hasContactsPermissions
+    summary: Returns `true` if the app has contacts access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestContactsPermissions
+    summary: Requests for contacts access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant contacts access.
+        type: Callback<ContactsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
 
   - name: requestAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Use [requestContactsPermissions](Titanium.Contacts.requestContactsPermissions).
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
@@ -318,23 +340,20 @@ properties:
 examples:
   - title: Request access to the address book
     example: |
-        To safely access the address book given iOS 6's new security model:
-        
-            var performAddressBookFunction = function(){...};
-            var addressBookDisallowed = function(){...};
-            if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_AUTHORIZED){
-                performAddressBookFunction();
-            } else if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_UNKNOWN){
-                Ti.Contacts.requestAuthorization(function(e){
-                    if (e.success) {
-                        performAddressBookFunction();
-                    } else {
-                        addressBookDisallowed();
-                    }
-                });
-            } else {
-                addressBookDisallowed();
-            }
+
+        var performAddressBookFunction = function(){...};
+        var addressBookDisallowed = function(){...};
+        if (Ti.Contacts.hasContactsPermissions()) {
+            performAddressBookFunction();
+        } else {
+            Ti.Contacts.requestContactsPermissions(function(e) {
+                if (e.success) {
+                    performAddressBookFunction();
+                } else {
+                    addressBookDisallowed();
+                }
+            });
+        }
 
   - title: Query Existing System Address Book Records
     example: |

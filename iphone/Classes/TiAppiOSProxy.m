@@ -95,6 +95,13 @@
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
         }
     }
+    
+    if([TiUtils isIOS9OrGreater]){
+        if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
+             (didReceiveApplicationShortcutNotification:) name:kTiApplicationShortcut object:nil];
+        }
+    }
 
 }
 
@@ -146,10 +153,30 @@
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
         }
     }
+    
+    if([TiUtils isIOS9OrGreater]){
+        if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
+        }
+    }
+    
 }
 
 #pragma mark Public
 #if IS_XCODE_7
+
+-(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
+{
+    NSDictionary *event = @{
+        @"title" : [[info userInfo] valueForKey:@"title"],
+        @"subtitle" : [[info userInfo] valueForKey:@"subtitle"],
+        @"itemtype" : [[info userInfo] valueForKey:@"type"],
+        @"userInfo" : [[info userInfo] objectForKey:@"userInfo"],
+    };
+    
+    [self fireEvent:@"shortcutitemclick" withObject:event];
+}
+
 -(id)createSearchableIndex:(id)unused
 {
     if (![TiUtils isIOS9OrGreater]) {

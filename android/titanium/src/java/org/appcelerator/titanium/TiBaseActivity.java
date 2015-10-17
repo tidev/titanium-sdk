@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -90,6 +91,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
+	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
+	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+	
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
@@ -411,6 +415,49 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		// set to null for now, this will get set correctly in setWindowProxy()
 		return new TiCompositeLayout(this, arrangement, null);
+	}
+	
+	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
+		if (callback == null) {
+			return;
+		}
+		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			callback.callAsync(context, response);
+		} else {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, permission + " permission denied");
+			callback.callAsync(context, response);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,
+		String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case TiC.PERMISSION_CODE_CAMERA: {
+				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
+				return;
+			}
+			case TiC.PERMISSION_CODE_OLD_CALENDAR: {
+				permissionCallback(grantResults, oldCalendarPermissionCallback, oldCalendarCallbackContext, "Calendar");
+				return;
+			}
+			case TiC.PERMISSION_CODE_CALENDAR: {
+				permissionCallback(grantResults, calendarPermissionCallback, calendarCallbackContext, "Calendar");
+				return;
+			}
+			case TiC.PERMISSION_CODE_LOCATION: {
+				permissionCallback(grantResults, locationPermissionCallback, locationCallbackContext, "Location");
+				return;
+			}
+			case TiC.PERMISSION_CODE_CONTACTS: {
+				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
+				return;
+			}
+
+		}
 	}
 
 	protected void setFullscreen(boolean fullscreen)

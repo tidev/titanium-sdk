@@ -1,0 +1,44 @@
+---
+name: Titanium.UI.iOS.PreviewActionGroup
+summary: |
+    A PreviewActionGroup provides options to configure a group of actions used by the iOS9 3D-Touch
+    feature "Peek and Pop".
+description: |
+    The PreviewActionGroup is created by the <Titanium.UI.iOS.createPreviewActionGroup> method. You
+    need to set the `title` property when creating a PreviewActionGroup object.
+
+    Use this class to configure a group of preview actions used in the <Titanium.UI.iOS.PreviewContext>.
+    The actions are of the type <Titanium.UI.iOS.PreviewAction>.
+
+    For an example, see <Titanium.UI.iOS.PreviewContext>.
+
+    See also:
+
+    * [iOS Developer Library: Adopting 3D Touch on iPhone](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Adopting3DTouchOniPhone/3DTouchAPIs.html)
+
+platforms: [iphone]
+since: "5.1.0"
+extends: Titanium.Proxy
+osver: {ios: {min: "9.0"}}
+
+properties:
+  - name: title
+    summary: The title of the action group.
+    description: |
+        Provides a title to be shown when "peeking" a view referenced in the <Titanium.UI.iOS.PreviewContext>.
+    type: String
+
+  - name: style
+    summary: The style of the action group.
+    type: Number
+    constants: [ Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT, Titanium.UI.iOS.PREVIEW_ACTION_STYLE_SELECTED,
+                 Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DESTRUCTIVE ]
+    default: Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
+
+  - name: actions
+    summary: The preview actions assigned to this preview action group.
+    description: |
+        Provides an array with elements of the type [Titanium.UI.iOS.PreviewAction](Titanium.UI.iOS.PreviewAction).
+        Note: Apple does not allow adding a preview group to another preview group, so only
+        one hirarchie level is allowed.
+    type: Array<Titanium.UI.iOS.PreviewAction>

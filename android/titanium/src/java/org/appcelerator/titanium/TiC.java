@@ -16,6 +16,22 @@ public class TiC
 	public static final int API_LEVEL_HONEYCOMB = 11;
 	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
 	public static final int API_LEVEL_JELLY_BEAN = 16;
+	
+	public static final int PERMISSION_CODE_CALENDAR = 100;
+	public static final int PERMISSION_CODE_CAMERA = 101;
+	public static final int PERMISSION_CODE_CONTACTS = 102;
+	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
+	public static final int PERMISSION_CODE_LOCATION= 104;
+	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
+
+	
+	public static final String PERMISSION_CALENDAR = "calendar";
+	public static final String PERMISSION_CAMERA = "camera";
+	public static final String PERMISSION_CONTACTS = "contacts";
+	public static final String PERMISSION_EXTERNAL_STORAGE = "externalstorage";
+	public static final String PERMISSION_LOCATION = "location";
+
+
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -221,6 +237,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_NO_RESULTS = "noresults";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_ON_REQUEST_PERMISSIONS = "onrequestpermissions";
 
 	/**
 	 * @module.api
@@ -935,6 +956,36 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CARD_BACKGROUND_COLOR = "cardBackgroundColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_CORNER_RADIUS = "cardCornerRadius";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_ELEVATION = "cardElevation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_MAX_ELEVATION = "cardMaxElevation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_PREVENT_CORNER_OVERLAP = "cardPreventCornerOverlap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CARD_USE_COMPAT_PADDING = "cardUseCompatPadding";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
@@ -1016,6 +1067,31 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING = "contentPadding";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_BOTTOM = "contentPaddingBottom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_LEFT = "contentPaddingLeft";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_RIGHT = "contentPaddingRight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_PADDING_TOP = "contentPaddingTop";
 
 	/**
 	 * @module.api

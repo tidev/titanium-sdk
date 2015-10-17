@@ -18,7 +18,8 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"min", "max",
 	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_MESSAGE
+	TiC.PROPERTY_MESSAGE,
+	TiC.PROPERTY_COLOR
 })
 public class ProgressBarProxy extends TiViewProxy
 {

@@ -258,13 +258,25 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 #pragma mark - Public API
 
+-(NSNumber*) hasCalendarPermissions:(id)unused
+{
+    return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);
+}
+
 -(void) requestEventsAuthorization:(id)args
+{
+    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization", @"5.1.0", @"Calendar.requestCalendarPermissions");
+    [self requestCalendarPermissions:args];
+}
+
+-(void) requestCalendarPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     [self requestAuthorization:args forEntityType:EKEntityTypeEvent];
 }
 
--(void) requestRemindersAuthorization:(id)args
+// Not documented + used, yet. Part of the 5.2.0 release.
+-(void) requestRemindersPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     [self requestAuthorization:args forEntityType:EKEntityTypeReminder];

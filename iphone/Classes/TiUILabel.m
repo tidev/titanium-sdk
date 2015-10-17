@@ -90,6 +90,7 @@
 
 -(void)padLabel
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
     UIControlContentVerticalAlignment alignment = verticalAlign;
     if (alignment == UIControlContentVerticalAlignmentFill) {
@@ -145,6 +146,7 @@
         [self updateBackgroundImageFrameWithPadding];
     }
 	return;
+#endif
 }
 
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
@@ -157,8 +159,10 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     initialLabelFrame = bounds;
     [wrapperView setFrame:initialLabelFrame];
+#endif
     [self padLabel];
     [super frameSizeChanged:frame bounds:bounds];
 }
@@ -170,11 +174,15 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
+#ifndef TI_USE_AUTOLAYOUT
         wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
         [wrapperView addSubview:label];
         wrapperView.clipsToBounds = YES;
         [wrapperView setUserInteractionEnabled:NO];
         [self addSubview:wrapperView];
+#else
+        [self addSubview:label];
+#endif
         minFontSize = 0;
     }
 	return label;

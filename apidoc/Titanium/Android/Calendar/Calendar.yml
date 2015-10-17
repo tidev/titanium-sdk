@@ -427,3 +427,23 @@ examples:
                 method: Ti.Android.Calendar.METHOD_EMAIL
             };
             event.createReminder(reminderDetails);
+---
+name: CalendarPermissionResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+since: "5.1.0"
+platforms: [android]
+properties:
+  - name: success
+    summary: Indicates whether the request succeeded.
+    description: Returns `true` if request succeeded.
+    type: Boolean
+    
+  - name: error
+    summary: Error message, if any returned.
+    description: May be undefined if `success` is `true`.
+    type: String
+    
+  - name: code
+    summary: Error code, if any returned.
+    description: May be undefined if `success` is `true`.
+    type: Number

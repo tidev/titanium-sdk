@@ -164,7 +164,9 @@ NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
 NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString * const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString * const kTiContinueActivity = @"TiContinueActivity";
+NSString * const kTiApplicationShortcut = @"TiApplicationShortcut";
 
+#ifndef TI_USE_AUTOLAYOUT
 NSString* const kTiBehaviorSize = @"SIZE";
 NSString* const kTiBehaviorFill = @"FILL";
 NSString* const kTiBehaviorAuto = @"auto";
@@ -176,6 +178,7 @@ NSString* const kTiUnitDip = @"dip";
 NSString* const kTiUnitDipAlternate = @"dp";
 NSString* const kTiUnitSystem = @"system";
 NSString* const kTiUnitPercent = @"%";
+#endif
 
 NSString* const kTiExceptionSubreason = @"TiExceptionSubreason";
 NSString* const kTiExceptionLocation = @"TiExceptionLocation";

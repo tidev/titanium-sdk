@@ -1,0 +1,57 @@
+---
+name: Titanium.UI.iOS.PreviewAction
+summary: |
+    A PreviewAction provides options to configure actions used by the iOS 9 3D-Touch "Peek and Pop"
+    feature.
+description: |
+    The PreviewAction is created by the <Titanium.UI.iOS.createPreviewAction> method. Set the
+    `title` property when creating a PreviewAction object.
+
+    Use this class to configure preview actions used in the <Titanium.UI.iOS.PreviewContext>. The actions
+    can also be part of the <Titanium.UI.iOS.PreviewActionGroup.actions> property.
+
+    For an example, see <Titanium.UI.iOS.PreviewContext>.
+
+    See also:
+
+    * [iOS Developer Library: Adopting 3D Touch on iPhone](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Adopting3DTouchOniPhone/3DTouchAPIs.html)
+
+platforms: [iphone]
+since: "5.1.0"
+extends: Titanium.Proxy
+osver: {ios: {min: "9.0"}}
+
+properties:
+  - name: title
+    summary: The title of the action.
+    description: |
+        Provides a title to be shown when "peeking" a view referenced in the <Titanium.UI.iOS.PreviewContext>.
+    type: String
+
+  - name: style
+    summary: The style of the action.
+    type: Number
+    constants: [ Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT, Titanium.UI.iOS.PREVIEW_ACTION_STYLE_SELECTED,
+                 Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DESTRUCTIVE ]
+    default: Titanium.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
+
+events:
+  - name: click
+    summary: Fired when the device detects a click against a preview action.
+    description: |
+        This event provides different properties depending on the view the <Titanium.UI.iOS.PreviewContext>
+        is assigned to. For example, the <Titanium.UI.ListView> and <Titanium.UI.TableView> provide the
+        additional properties `itemIndex` and `sectionIndex` to identify the previewed row and
+        section, respectively.
+    properties:
+      - name: itemIndex
+        summary: |
+            The index of the clicked row, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+        type: Number
+
+      - name: sectionIndex
+        summary: |
+            The index of the clicked section, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+        type: Number
