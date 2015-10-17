@@ -551,8 +551,11 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy.
-        type: Titanium.UI.View
+        summary: |
+            View to add to this view's hierarchy.
+
+            On the iOS and Windows platforms, you may pass an array of views.
+        type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
     summary: Animates this view.
