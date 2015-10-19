@@ -8,8 +8,9 @@ description: |
         <td><img src="images/picker/picker_android.png" height="150" /></td>
         <td><img src="images/picker/picker_ios.png" height="75" style="border: 1px solid black;"/></td>
         <td><img src="images/picker/picker_mobileweb.png" height="75" style="border: 1px solid black;"/></td>
+        <td><img src="images/picker/picker_wp.gif" height="150" style="border: 1px solid black;"/></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
