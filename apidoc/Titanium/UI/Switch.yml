@@ -7,8 +7,9 @@ description: |
         <td><img src="images/switch/switch_android.png" height="75" /></td>
         <td><img src="images/switch/switch_ios.png" height="75" /></td>
         <td><img src="images/switch/switch_mobileweb.png" height="75" /></td>
+        <td><img src="images/switch/switch_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
     
     The appearance of a `Switch` control varies by platform: 
