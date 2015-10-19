@@ -841,6 +841,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BAR_COLOR = "barColor";
 
 	/**

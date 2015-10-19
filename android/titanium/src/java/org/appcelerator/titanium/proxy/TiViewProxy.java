@@ -66,7 +66,10 @@ import android.view.ViewAnimationUtils;
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
-	"translationX", "translationY", "translationZ"
+	"translationX", "translationY", "translationZ",
+	
+	// touch feedback properties
+	TiC.PROPERTY_TOUCH_FEEDBACK, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
@@ -916,11 +919,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public TiBlob toImage()
+	public TiBlob toImage(@Kroll.argument(optional=true) KrollFunction callback)
 	{
-		if (TiApplication.isUIThread()) {
-			return handleToImage();
-
+		if (callback != null) {
+			callback.callAsync(getKrollObject(), new Object[] {handleToImage()});
+			return null;
 		} else {
 			return (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
 		}
