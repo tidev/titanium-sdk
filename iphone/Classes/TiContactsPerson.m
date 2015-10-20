@@ -366,8 +366,8 @@ static NSDictionary* iOS9propertyKeys;
 	for (CNLabeledValue *genericProperty in property) {
 		NSString *key = [[TiContactsPerson iOS9multiValueLabels] valueForKey:genericProperty.label];
 		if (key == nil) {
-			DebugLog(@"Unable to find key for property");
-			return nil;
+			//must be a custom label
+			key = [NSString stringWithString:genericProperty.label];
 		}
 		NSMutableArray *labels = nil;
 		if ([multiValueDict objectForKey:key] == nil) {
