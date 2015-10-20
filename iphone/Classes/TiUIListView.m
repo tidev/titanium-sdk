@@ -1748,7 +1748,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] suspend];
+    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+    
     [self fireScrollStart: (UITableView*)scrollView];
 }
 
@@ -1768,7 +1771,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] resume];
+    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     if(isScrollingToTop) {
         isScrollingToTop = NO;
     } else {
@@ -1778,7 +1784,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] suspend];
+    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+
     isScrollingToTop = YES;
     [self fireScrollStart:(UITableView*) scrollView];
     return YES;
@@ -1786,7 +1795,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] resume];
+    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     [self fireScrollEnd:(UITableView *)scrollView];
     //Events none (maybe scroll later)
 }
