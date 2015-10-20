@@ -302,12 +302,14 @@
 -(void)addContentAttributeSet:(id)contentAttributeSet
 {
 #if IS_XCODE_7
+#if defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
     ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
     ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
     _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy*)contentAttributeSet).attributes;
+#endif
 #endif
 }
 

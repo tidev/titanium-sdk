@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
+#ifdef USE_TI_APPIOS
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
-
-#ifdef USE_TI_APPIOSUSERACTIVITY
 
 @implementation TiAppiOSSearchableItemProxy
 
