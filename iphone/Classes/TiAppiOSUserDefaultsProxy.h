@@ -6,7 +6,7 @@
  */
 #import "TiProxy.h"
 
-#ifdef USE_TI_APPIOSUSERACTIVITY
+#ifdef USE_TI_APPIOS
 
 @interface TiAppiOSUserDefaultsProxy : TiProxy
 {
