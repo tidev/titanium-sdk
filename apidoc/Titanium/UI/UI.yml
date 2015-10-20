@@ -1512,7 +1512,7 @@ properties:
     summary: Use a keyboard optimized for web search terms and URL entry.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties. This type features the space and “.” characters prominently.
+        properties. This type features the space and . characters prominently.
 
         Note: This keyboard automatically sets the return key to "Go" (localized).
     type: Number
