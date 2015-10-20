@@ -9,7 +9,7 @@
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiUtils.h"
 
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSUSERACTIVITY
 @implementation TiAppiOSSearchableIndexProxy
 
 -(NSString*)apiName

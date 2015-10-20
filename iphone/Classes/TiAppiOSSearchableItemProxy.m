@@ -9,7 +9,7 @@
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSUSERACTIVITY
 
 @implementation TiAppiOSSearchableItemProxy
 
