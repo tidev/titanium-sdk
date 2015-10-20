@@ -13,6 +13,10 @@
 // an explicit compile time dependency to UI
 #import "TiUIAlertDialogProxy.h"
 
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
 @private
@@ -27,9 +31,6 @@
 #endif
 #ifdef USE_TI_UICLIPBOARD
     TiProxy *clipboard;
-#endif
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-    TiProxy *ActivityIndicatorStyle;
 #endif
 }
 
@@ -275,7 +276,7 @@
 #endif
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-@property (nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
+@property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
 #endif
 
 @end

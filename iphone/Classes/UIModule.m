@@ -47,9 +47,6 @@
 #if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
 #endif
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-#import "TiUIActivityIndicatorStyleProxy.h"
-#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"
@@ -83,6 +80,13 @@
 {
     return @"Ti.UI";
 }
+
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+-(TiUIActivityIndicatorStyleProxy*)ActivityIndicatorStyle
+{
+    return [[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]];
+}
+#endif
 
 #pragma mark Public Constants
 
