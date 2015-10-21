@@ -1748,7 +1748,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+    
+    if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] suspend];
     }
     
@@ -1758,7 +1759,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (!decelerate) {
-        if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+        if ([self isLazyLoadingEnabled]) {
             [[ImageLoader sharedLoader] resume];
         }
         [self fireScrollEnd:(UITableView *)scrollView];
@@ -1774,7 +1775,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+    if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] resume];
     }
     
@@ -1787,7 +1788,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+    if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] suspend];
     }
 
@@ -1798,7 +1799,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+    if ([self isLazyLoadingEnabled]) {
         [[ImageLoader sharedLoader] resume];
     }
     
@@ -1904,6 +1905,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 
 #pragma mark - Internal Methods
+
+-(BOOL)isLazyLoadingEnabled
+{
+    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+}
 
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {

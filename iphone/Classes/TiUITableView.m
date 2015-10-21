@@ -2596,10 +2596,8 @@ return result;	\
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView 
 {
-	// suspend image loader while we're scrolling to improve performance
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
-        [[ImageLoader sharedLoader] suspend];
-    }
+   // suspend image loader while we're scrolling to improve performance
+   [[ImageLoader sharedLoader] suspend];
 
     return YES;
 }
@@ -2632,19 +2630,15 @@ return result;	\
 {
   [self fireScrollEvent:scrollView];
   
-	// resume image loader when we're done scrolling
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
-        [[ImageLoader sharedLoader] resume];
-    }
-
+  // resume image loader when we're done scrolling
+  [[ImageLoader sharedLoader] resume];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView 
 {
-	// suspend image loader while we're scrolling to improve performance
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
-        [[ImageLoader sharedLoader] suspend];
-    }
+    // suspend image loader while we're scrolling to improve performance
+    [[ImageLoader sharedLoader] suspend];
+
     if([self.proxy _hasListeners:@"dragStart"])
     {	//TODO: Deprecate old event.
         [self.proxy fireEvent:@"dragStart" withObject:nil];
@@ -2659,10 +2653,8 @@ return result;	\
 {
 	if (decelerate==NO)
 	{
-		// resume image loader when we're done scrolling
-        if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
-            [[ImageLoader sharedLoader] resume];
-        }
+        // resume image loader when we're done scrolling
+        [[ImageLoader sharedLoader] resume];
     }
 	if ([self.proxy _hasListeners:@"dragEnd"])
 	{	//TODO: Deprecate old event
@@ -2683,10 +2675,9 @@ return result;	\
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
 {
-	// resume image loader when we're done scrolling
-    if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
-        [[ImageLoader sharedLoader] resume];
-    }
+    // resume image loader when we're done scrolling
+    [[ImageLoader sharedLoader] resume];
+
     if ([self.proxy _hasListeners:@"scrollEnd"])
 	{	//TODO: Deprecate old event.
 		[self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollView:scrollView]];
