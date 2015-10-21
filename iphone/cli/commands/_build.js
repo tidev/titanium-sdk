@@ -874,7 +874,8 @@ iOSBuilder.prototype.configOptionOutputDir = function configOptionOutputDir(orde
 iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 	var _t = this,
 		cli = this.cli,
-		iosInfo = this.iosInfo;
+		iosInfo = this.iosInfo,
+		logger = this.logger;
 
 	return {
 		abbr: 'P',
