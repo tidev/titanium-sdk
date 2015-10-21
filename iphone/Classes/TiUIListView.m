@@ -1757,8 +1757,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if(!decelerate) {
-        [[ImageLoader sharedLoader] resume];
+    if (!decelerate) {
+        if([TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES] == YES) {
+            [[ImageLoader sharedLoader] resume];
+        }
         [self fireScrollEnd:(UITableView *)scrollView];
     }
     if (![self.proxy _hasListeners:@"pullend"]) {
