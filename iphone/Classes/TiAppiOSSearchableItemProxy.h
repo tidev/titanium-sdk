@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSSEARCHABLEITEM
 #import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 
