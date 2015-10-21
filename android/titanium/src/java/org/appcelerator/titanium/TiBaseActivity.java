@@ -64,6 +64,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 
 import com.appcelerator.analytics.APSAnalytics;
 
@@ -113,6 +114,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
+
+    private boolean overridenLayout;
 
 	public class DialogWrapper {
 		boolean isPersistent;
@@ -502,6 +505,25 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 	}
 
+	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	@Override
+	public void setContentView(View view) {
+	    overridenLayout = true;
+	    super.setContentView(view);
+	}
+
+	@Override
+	public void setContentView(int layoutResID) {
+	    overridenLayout = true;
+	    super.setContentView(layoutResID);
+	}
+
+	@Override
+	public void setContentView(View view, LayoutParams params) {
+	    overridenLayout = true;
+	    super.setContentView(view, params);
+	}
+
 	@Override
 	/**
 	 * When the activity is created, this method adds it to the activity stack and
@@ -593,7 +615,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		windowCreated(savedInstanceState);
 
-
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
@@ -602,7 +623,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
-		setContentView(layout);
+		// If user changed the layout during app.js load, keep that
+		if (!overridenLayout) {
+		    setContentView(layout);
+		}
 
 		// Set the title of the activity after setContentView.
 		// On 2.3 devices, if the title is set before setContentView, the app will crash when a NoTitleBar theme is used.
