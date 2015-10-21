@@ -565,6 +565,17 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: lazyLoadingEnabled
+    summary: Determines if the list view should use lazy loading to load remote images.
+    description: |
+        Lazy loading is used to load remote images only if they are in the visible view area. It is enabled
+        by default. If you disable it, images will be loaded even if they are currently not visible. Disabling
+        improves the loading of images, but can also cause trouble in list views having a lot of
+        remote images, because every remote image opens a new HTTP request.
+    default: true
+    since: 5.1.0
+    platforms: [iphone, ipad]
+
   - name: pruneSectionsOnEdit
     summary: Determines if empty sections are retained when the user completes editing the list view.
     description: |
