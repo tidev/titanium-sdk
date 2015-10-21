@@ -783,8 +783,10 @@ public class TiHTTPClient
 		final String password = ((HTTPClientProxy)proxy).getPassword();
 		final String domain = ((HTTPClientProxy)proxy).getDomain();	
 
-		Authenticator.setDefault(new TiAuthenticator(domain, username, password));
-
+		if ((username != null) && (password != null)) {
+		    Authenticator.setDefault(new TiAuthenticator(domain, username, password));
+		}
+		
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
@@ -1209,12 +1211,10 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-
 				
 				if (getStatus() >= 400) {
 					throw new IOException(getStatus() + " : " + getStatusText());
 				}
-				
 
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
@@ -1236,9 +1236,8 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
+				data.putCodeAndMessage((getStatus() >= 400)? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
 			} finally {
 				deleteTmpFiles();

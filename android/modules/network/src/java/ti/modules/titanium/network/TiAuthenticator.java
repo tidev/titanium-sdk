@@ -26,7 +26,10 @@ public class TiAuthenticator extends Authenticator {
     public PasswordAuthentication getPasswordAuthentication() {
         if (domain != null && !domain.isEmpty()) {
             user = domain + "\\" + user;
-        }        
-        return new PasswordAuthentication(user, password.toCharArray());
+        }
+        if (password != null) {
+            return new PasswordAuthentication(user, password.toCharArray());
+        }
+        return new PasswordAuthentication(user, null);
     }
 }
