@@ -64,6 +64,7 @@
 @property(nonatomic,readonly) NSNumber *RETURNKEY_YAHOO;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_DONE;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_EMERGENCY_CALL;
+@property(nonatomic,readonly) NSNumber *RETURNKEY_CONTINUE;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_ASCII;
@@ -74,6 +75,8 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_WEBSEARCH;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_TWITTER;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_ALERT;
