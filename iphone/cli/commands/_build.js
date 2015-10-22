@@ -4056,7 +4056,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					case 'png':
 					case 'jpg':
 						if (useAppThinning) {
-							imageAssets[relPath] = info
+							imageAssets[relPath] = info;
 						} else {
 							resourcesToCopy[relPath] = info;
 						}
