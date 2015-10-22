@@ -150,6 +150,8 @@
 
 #pragma mark Public
 #if IS_XCODE_7
+
+#ifdef USE_TI_APPIOSSEARCHABLEINDEX
 -(id)createSearchableIndex:(id)unused
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -159,7 +161,9 @@
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
     return proxy;
 }
+#endif
 
+#ifdef USE_TI_APPIOSSEARCHABLEITEM
 -(id)createSearchableItem:(id)args
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -188,7 +192,9 @@
                                            withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
 }
+#endif
 
+#ifdef USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET
 -(id)createSearchableItemAttributeSet:(id)args
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -210,8 +216,11 @@
 
     return proxy;
 }
+#endif
 
 #endif
+
+#ifdef USE_TI_APPIOSUSERACTIVITY
 -(id)createUserActivity:(id)args
 {
     if (![NSThread isMainThread]) {
@@ -227,6 +236,7 @@
 
     return userActivityProxy;
 }
+#endif
 
 -(id)createUserDefaults:(id)args
 {
