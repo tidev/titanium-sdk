@@ -665,12 +665,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     
     __block BOOL validView = NO;
     __block CGPoint p;
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
         if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
             validView = YES;
             p = [self.view convertPoint:oldPoint toView:arg2.view];
         }
-    });
+    }, YES);
     if (!validView) {
         return (TiPoint*)[NSNull null];
     }

@@ -971,7 +971,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 #ifndef TI_USE_KROLL_THREAD
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
 #endif
         TiBindingEvent ourEvent;
         ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
@@ -986,7 +986,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         TiBindingEventSetBubbles(ourEvent, propagate);
         TiBindingEventFire(ourEvent);
 #ifndef TI_USE_KROLL_THREAD
-    });
+    }, NO);
 #endif
 }
 
@@ -998,7 +998,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
         TiBindingEvent ourEvent;
         
         ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
@@ -1011,7 +1011,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         }
         TiBindingEventSetBubbles(ourEvent, propagate);
         TiBindingEventFire(ourEvent);
-    });
+    }, NO);
 }
 
 

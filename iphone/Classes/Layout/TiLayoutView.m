@@ -192,7 +192,7 @@ DEFINE_EXCEPTIONS
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     // make it async, so that layout finishes before this is called
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
         
         CGRect newRect = self.frame;
         
