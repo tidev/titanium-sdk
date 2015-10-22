@@ -131,8 +131,6 @@ if ([self propertyExists:key] && [ [self.defaultsObject objectForKey:key] isEqua
     return;\
 }\
 
-
-
 -(void)setBool:(id)args
 {
 	SETPROP
