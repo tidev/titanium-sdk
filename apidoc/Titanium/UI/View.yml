@@ -1071,13 +1071,15 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+    since: "5.2.0"
 
     
   - name: touchFeedbackColor
-    summary: Optional touch feedback ripple color. 
+    summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true. 
     type: String
     default: Theme provided color. 
     platforms: [android]
+    since: "5.2.0"
 
     
   - name: bottom
