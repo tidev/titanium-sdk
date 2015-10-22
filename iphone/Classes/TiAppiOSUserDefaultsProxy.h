@@ -8,7 +8,6 @@
 
 #ifdef USE_TI_APPIOS
 
-
 @interface TiAppiOSUserDefaultsProxy : TiProxy
 {
 }
