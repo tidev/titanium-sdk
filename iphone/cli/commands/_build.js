@@ -4055,7 +4055,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'png':
 					case 'jpg':
-						useAppThinning ? imageAssets[relPath] = info : resourcesToCopy[relPath] = info;
+						if (useAppThinning) {
+							imageAssets[relPath] = info
+						} else {
+							resourcesToCopy[relPath] = info;
+						}
 						break;
 
 					case 'html':
@@ -4542,13 +4546,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function createAssetImageSets() {
-			if (this.useAppThinning) {
-				this.logger.info(__('Creating assets image set'));
-			} else {
-				this.logger.info(__('Skip creating assets image set'));
+			if (!this.useAppThinning) {
+				this.logger.info(__('App thinning disabled, skipping asset image sets'));
 				return;
 			}
 
+			this.logger.info(__('Creating assets image set'));
 			var assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 				imageSets = {},
 				imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
