@@ -1048,7 +1048,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
 	return (cachedThreadId == [NSThread currentThread] ? YES : NO);
 #else
-    return [[NSThread currentThread] isEqual:[NSThread mainThread]];
+    return [NSThread isMainThread];
 #endif
 }
 
@@ -1088,9 +1088,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	[condition unlock];
 #else
-    TiThreadPerformOnMainThread( ^{
-        [self invoke:obj];
-    }, NO);
+    [self invoke:obj];
 #endif
 }
 

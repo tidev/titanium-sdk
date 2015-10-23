@@ -271,14 +271,22 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			{
 				continue;
 			}
-			TiValueRef exception = NULL;
-			TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
-			if (exception!=NULL)
-			{
-				id excm = TiBindingTiValueToNSObject(context, exception);
-				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
-			}
-			
+#ifndef TI_USE_KROLL_THREAD
+            TiThreadPerformOnMainThread( ^{
+#endif
+                TiValueRef exception = NULL;
+                TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
+                if (exception!=NULL)
+                {
+                    id excm = TiBindingTiValueToNSObject(context, exception);
+                    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+                }
+#ifndef TI_USE_KROLL_THREAD
+            }, [NSThread isMainThread]);
+            if (![NSThread isMainThread]) {
+                NSLog(@"Break here");
+            }
+#endif
 			// Note cancel bubble
 			cancelBubbleValue = TiObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
 			if(TiValueToBoolean(context,cancelBubbleValue)){

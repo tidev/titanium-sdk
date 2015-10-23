@@ -157,7 +157,9 @@
 -(void)setValue_:(id)value
 {
 	CGFloat newValue = ([TiUtils floatValue:value] - min) / (max-min);
-	[[self progress] setProgress:newValue];
+    TiThreadPerformOnMainThread(^{
+        [[self progress] setProgress:newValue];
+    }, NO);
 }
 
 
