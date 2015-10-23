@@ -2094,6 +2094,11 @@ iOSBuilder.prototype.initialize = function initialize() {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
 		this.whitelistAppceleratorDotCom = false;
 	}
+
+	this.useAppThinning = false;
+	if (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('use-app-thinning') && this.tiapp.properties['use-app-thinning'].value === true) {
+		this.useAppThinning = true;
+	}
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -3979,6 +3984,8 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
+		useAppThinning = this.useAppThinning,
+
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
@@ -4048,7 +4055,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'png':
 					case 'jpg':
-						imageAssets[relPath] = info;
+						if (useAppThinning) {
+							imageAssets[relPath] = info;
+						} else {
+							resourcesToCopy[relPath] = info;
+						}
 						break;
 
 					case 'html':
@@ -4559,6 +4570,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function createAssetImageSets() {
+			if (!this.useAppThinning) {
+				this.logger.info(__('App thinning disabled, skipping asset image sets'));
+				return;
+			}
+
 			this.logger.info(__('Creating assets image set'));
 			var assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 				imageSets = {},
