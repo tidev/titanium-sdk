@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
+	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
 	ti = require('titanium-sdk'),
 	util = require('util'),
@@ -4389,29 +4390,53 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
-			if (missingIcons.length) {
-				if (defaultIcon && defaultIconHasAlpha) {
-					this.logger.error(__('%s cannot be used because it contains an alpha channel', defaultIcon));
-					this.logger.error(__('Create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
-					this.logger.error(__('It is highly recommended that the DefaultIcon.png be 1024x1024') + '\n');
-					process.exit(1);
-				}
+			if (!missingIcons.length) {
+				return next();
+			}
 
-				this.logger.debug(__n(
-					'Missing %s app icon, generating missing icon',
-					'Missing %s app icons, generating missing icons',
-					missingIcons.length
-				));
+			this.logger.debug(__n(
+				'Missing %s app icon, generating missing icon',
+				'Missing %s app icons, generating missing icons',
+				missingIcons.length
+			));
 
+			var generate = function generate() {
 				if (defaultIcon && defaultIconChanged && !this.forceRebuild) {
 					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon));
 					this.forceRebuild = true;
 				}
 
 				this.generateAppIcons(missingIcons, next);
-			} else {
-				next();
+			}.bind(this);
+
+			if (!defaultIcon || !defaultIconChanged || !defaultIconHasAlpha) {
+				return generate();
 			}
+
+			// strip alpha
+			this.logger.warn(__('The default icon "%s" contains an alpha channel which is not supported by iOS', defaultIcon));
+			this.logger.warn(__('The image will be flattened against a white background'));
+			this.logger.warn(__('You may create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
+			this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
+
+			var flattenedImage = path.join(this.buildDir, 'DefaultIcon.png');
+			this.defaultIcons = [ flattenedImage ];
+
+			this.logger.debug(__('Stripping alpha channel: %s => %s', defaultIcon.cyan, flattenedImage.cyan));
+			fs.createReadStream(defaultIcon)
+				.pipe(new PNG({
+					colorType: 2,
+					bgColor: {
+						red: 255,
+						green: 255,
+						blue: 255
+					}
+				}))
+				.on('parsed', function() {
+					this.pack()
+						.on('end', generate)
+						.pipe(fs.createWriteStream(flattenedImage));
+				});
 		},
 
 		function createLaunchImageSet() {
