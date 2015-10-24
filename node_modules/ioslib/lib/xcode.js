@@ -213,120 +213,135 @@ exports.detect = function detect(options, callback) {
 			},
 
 			function loadXcodeInfo(next) {
-				xcodes.forEach(function (dir) {
+				async.eachSeries(xcodes, function (dir, cb) {
 					var p = new appc.plist(path.join(path.dirname(dir), 'version.plist')),
 						selected = dir == selectedXcodePath,
 						supported = options.supportedVersions ? appc.version.satisfies(p.CFBundleShortVersionString, options.supportedVersions, true) : true,
 						ver = p.CFBundleShortVersionString + ':' + p.ProductBuildVersion,
 						f;
 
-					if (!results.xcode[ver] || selected || dir <= results.xcode[ver].path) {
-						var watchos = null;
-						if (appc.version.gte(p.CFBundleShortVersionString, '7.0')) {
-							watchos = {
-								sdks: findSDKs(path.join(dir, 'Platforms', 'WatchOS.platform', 'Developer', 'SDKs'), /^WatchOS(.+)\.sdk$/, options.minWatchosVersion),
-								sims: findSDKs(path.join(dir, 'Platforms', 'WatchSimulator.platform', 'Developer', 'SDKs'), /^WatchSimulator(.+)\.sdk$/, options.minWatchosVersion)
-							};
-						} else if (appc.version.gte(p.CFBundleShortVersionString, '6.2')) {
-							watchos = {
-								sdks: ['1.0'],
-								sims: ['1.0']
-							};
-						}
-
-						var xc = results.xcode[ver] = {
-							xcodeapp:       dir.replace(/\/Contents\/Developer\/?$/, ''),
-							path:           dir,
-							selected:       selected,
-							version:        p.CFBundleShortVersionString,
-							build:          p.ProductBuildVersion,
-							supported:      supported,
-							sdks:           findSDKs(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs'), /^iPhoneOS(.+)\.sdk$/, options.minIosVersion),
-							sims:           findIosSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), p.CFBundleShortVersionString),
-							simDeviceTypes: {},
-							simRuntimes:    appc.util.mix({}, globalSimRuntimes),
-							watchos:        watchos,
-							teams:          {},
-							executables: {
-								xcodebuild:     fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,
-								clang:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang')) ? f : null,
-								clang_xx:       fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang++')) ? f : null,
-								libtool:        fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'libtool')) ? f : null,
-								lipo:           fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'lipo')) ? f : null,
-								otool:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'otool')) ? f : null,
-								pngcrush:       fs.existsSync(f = path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'pngcrush')) ? f : null,
-								simulator:      null,
-								watchsimulator: null,
-								simctl:         fs.existsSync(f = path.join(dir, 'usr', 'bin', 'simctl')) ? f : null
-							}
-						};
-
-						['iPhoneSimulator.platform', 'WatchSimulator.platform'].forEach(function (platform) {
-							// read in the device types
-							var deviceTypesDir = path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'DeviceTypes');
-							fs.existsSync(deviceTypesDir) && fs.readdirSync(deviceTypesDir).forEach(function (name) {
-								var plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Info.plist')),
-									devId = plist && plist.CFBundleIdentifier;
-								if (plist) {
-									var deviceType = xc.simDeviceTypes[devId] = {
-										name: plist.CFBundleName,
-										model: 'unknown',
-										supportsWatch: false
-									};
-
-									plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'profile.plist'));
-									if (plist) {
-										deviceType.model = plist.modelIdentifier;
-									}
-
-									plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'capabilities.plist'));
-									if (plist) {
-										deviceType.supportsWatch = !!plist.capabilities['watch-companion'];
-									}
-								}
-							});
-
-							// read in the runtimes
-							appc.util.mix(xc.simRuntimes, findSimRuntimes(path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'Runtimes')));
-						});
-
-						['Simulator', 'iOS Simulator'].some(function (name) {
-							var p = path.join(dir, 'Applications', name + '.app', 'Contents', 'MacOS', name);
-							if (fs.existsSync(p)) {
-								xc.executables.simulator = p;
-								return true;
-							}
-						});
-
-						var watchsim = path.join(dir, 'Applications', 'Simulator (Watch).app', 'Contents', 'MacOS', 'Simulator (Watch)');
-						if (fs.existsSync(watchsim)) {
-							xc.executables.watchsimulator = watchsim;
-						}
-
-						selected && (results.selectedXcode = xc);
-
-						if (supported === false) {
-							results.issues.push({
-								id: 'IOS_XCODE_TOO_OLD',
-								type: 'warning',
-								message: __('Xcode %s is too old and is no longer supported.', '__' + p.CFBundleShortVersionString + '__') + '\n' +
-									__('The minimum supported Xcode version is Xcode %s.', appc.version.parseMin(options.supportedVersions)),
-								xcodeVer: p.CFBundleShortVersionString,
-								minSupportedVer: appc.version.parseMin(options.supportedVersions)
-							});
-						} else if (supported === 'maybe') {
-							results.issues.push({
-								id: 'IOS_XCODE_TOO_NEW',
-								type: 'warning',
-								message: __('Xcode %s may or may not work as expected.', '__' + p.CFBundleShortVersionString + '__') + '\n' +
-									__('The maximum supported Xcode version is Xcode %s.', appc.version.parseMax(options.supportedVersions, true)),
-								xcodeVer: p.CFBundleShortVersionString,
-								maxSupportedVer: appc.version.parseMax(options.supportedVersions, true)
-							});
-						}
+					if (results.xcode[ver] && !selected && dir > results.xcode[ver].path) {
+						return cb();
 					}
-				});
-				next();
+
+					var watchos = null;
+					if (appc.version.gte(p.CFBundleShortVersionString, '7.0')) {
+						watchos = {
+							sdks: findSDKs(path.join(dir, 'Platforms', 'WatchOS.platform', 'Developer', 'SDKs'), /^WatchOS(.+)\.sdk$/, options.minWatchosVersion),
+							sims: findSDKs(path.join(dir, 'Platforms', 'WatchSimulator.platform', 'Developer', 'SDKs'), /^WatchSimulator(.+)\.sdk$/, options.minWatchosVersion)
+						};
+					} else if (appc.version.gte(p.CFBundleShortVersionString, '6.2')) {
+						watchos = {
+							sdks: ['1.0'],
+							sims: ['1.0']
+						};
+					}
+
+					var xc = results.xcode[ver] = {
+						xcodeapp:       dir.replace(/\/Contents\/Developer\/?$/, ''),
+						path:           dir,
+						selected:       selected,
+						version:        p.CFBundleShortVersionString,
+						build:          p.ProductBuildVersion,
+						supported:      supported,
+						eulaAccepted:   false,
+						sdks:           findSDKs(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs'), /^iPhoneOS(.+)\.sdk$/, options.minIosVersion),
+						sims:           findIosSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), p.CFBundleShortVersionString),
+						simDeviceTypes: {},
+						simRuntimes:    appc.util.mix({}, globalSimRuntimes),
+						watchos:        watchos,
+						teams:          {},
+						executables: {
+							xcodebuild:     fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,
+							clang:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang')) ? f : null,
+							clang_xx:       fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'clang++')) ? f : null,
+							libtool:        fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'libtool')) ? f : null,
+							lipo:           fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'lipo')) ? f : null,
+							otool:          fs.existsSync(f = path.join(dir, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'bin', 'otool')) ? f : null,
+							pngcrush:       fs.existsSync(f = path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'pngcrush')) ? f : null,
+							simulator:      null,
+							watchsimulator: null,
+							simctl:         fs.existsSync(f = path.join(dir, 'usr', 'bin', 'simctl')) ? f : null
+						}
+					};
+
+					['iPhoneSimulator.platform', 'WatchSimulator.platform'].forEach(function (platform) {
+						// read in the device types
+						var deviceTypesDir = path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'DeviceTypes');
+						fs.existsSync(deviceTypesDir) && fs.readdirSync(deviceTypesDir).forEach(function (name) {
+							var plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Info.plist')),
+								devId = plist && plist.CFBundleIdentifier;
+							if (plist) {
+								var deviceType = xc.simDeviceTypes[devId] = {
+									name: plist.CFBundleName,
+									model: 'unknown',
+									supportsWatch: false
+								};
+
+								plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'profile.plist'));
+								if (plist) {
+									deviceType.model = plist.modelIdentifier;
+								}
+
+								plist = readPlist(path.join(deviceTypesDir, name, 'Contents', 'Resources', 'capabilities.plist'));
+								if (plist) {
+									deviceType.supportsWatch = !!plist.capabilities['watch-companion'];
+								}
+							}
+						});
+
+						// read in the runtimes
+						appc.util.mix(xc.simRuntimes, findSimRuntimes(path.join(xc.path, 'Platforms', platform, 'Developer', 'Library', 'CoreSimulator', 'Profiles', 'Runtimes')));
+					});
+
+					['Simulator', 'iOS Simulator'].some(function (name) {
+						var p = path.join(dir, 'Applications', name + '.app', 'Contents', 'MacOS', name);
+						if (fs.existsSync(p)) {
+							xc.executables.simulator = p;
+							return true;
+						}
+					});
+
+					var watchsim = path.join(dir, 'Applications', 'Simulator (Watch).app', 'Contents', 'MacOS', 'Simulator (Watch)');
+					if (fs.existsSync(watchsim)) {
+						xc.executables.watchsimulator = watchsim;
+					}
+
+					selected && (results.selectedXcode = xc);
+
+					if (supported === false) {
+						results.issues.push({
+							id: 'IOS_XCODE_TOO_OLD',
+							type: 'warning',
+							message: __('Xcode %s is too old and is no longer supported.', '__' + p.CFBundleShortVersionString + '__') + '\n' +
+								__('The minimum supported Xcode version is Xcode %s.', appc.version.parseMin(options.supportedVersions)),
+							xcodeVer: p.CFBundleShortVersionString,
+							minSupportedVer: appc.version.parseMin(options.supportedVersions)
+						});
+					} else if (supported === 'maybe') {
+						results.issues.push({
+							id: 'IOS_XCODE_TOO_NEW',
+							type: 'warning',
+							message: __('Xcode %s may or may not work as expected.', '__' + p.CFBundleShortVersionString + '__') + '\n' +
+								__('The maximum supported Xcode version is Xcode %s.', appc.version.parseMax(options.supportedVersions, true)),
+							xcodeVer: p.CFBundleShortVersionString,
+							maxSupportedVer: appc.version.parseMax(options.supportedVersions, true)
+						});
+					}
+
+					appc.subprocess.run(xc.executables.xcodebuild, [ '-checkFirstLaunchStatus' ], function (code, out, err) {
+						xc.eulaAccepted = (code === 0);
+						if (!xc.eulaAccepted && !results.issues.some(function (i) { return i.id === 'IOS_XCODE_EULA_NOT_ACCEPTED'; })) {
+							results.issues.push({
+								id: 'IOS_XCODE_EULA_NOT_ACCEPTED',
+								type: 'error',
+								message: __('Xcode EULA has not been accepted.') + '\n' +
+									__('Launch Xcode and accept the license.')
+							});
+						}
+						cb();
+					});
+				}, next);
 			},
 
 			function findTeams(next) {
