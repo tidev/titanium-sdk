@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,22 +30,25 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments)
 {
-	ENTER_V8(V8Runtime::globalContext);
+	HandleScope scope(V8Runtime::v8_isolate);
 	titanium::JNIScope jniScope(env);
 
-	Local<Object> thisObject = Local<Object>((Object *) thisPointer);
+	// construct this from pointer
+	Persistent<Object>* persistentJSObject = (Persistent<Object>*) thisPointer;
+	Local<Object> thisObject = persistentJSObject->Get(V8Runtime::v8_isolate);
 
 	// construct function from pointer
-	Function *jsFunction = (Function *) functionPointer;
+	Persistent<Function>* persistentJSFunction = (Persistent<Function>*) functionPointer;
+	Local<Function> jsFunction = persistentJSFunction->Get(V8Runtime::v8_isolate);
 
 	// create function arguments
 	int length;
-	v8::Handle<v8::Value> *jsFunctionArguments =
-		TypeConverter::javaObjectArrayToJsArguments(env, functionArguments, &length);
+	v8::Local<v8::Value> *jsFunctionArguments =
+		TypeConverter::javaObjectArrayToJsArguments(V8Runtime::v8_isolate, env, functionArguments, &length);
 
 	// call into the JS function with the provided argument
-	TryCatch tryCatch;
-	v8::Local<v8::Value> object = jsFunction->Call(thisObject, length, jsFunctionArguments);
+	TryCatch tryCatch(V8Runtime::v8_isolate);
+	v8::Local<v8::Value> object = jsFunction->Call(V8Runtime::v8_isolate->GetCurrentContext(), thisObject, length, jsFunctionArguments).ToLocalChecked();
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {
@@ -53,14 +56,14 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	}
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(tryCatch);
-		V8Util::reportException(tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
 
 		return NULL;
 	}
-	
+
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(env, object, &isNew);
+	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, object, &isNew);
 }
 
 JNIEXPORT void JNICALL
@@ -68,14 +71,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong ptr)
 {
 	ASSERT(ptr != 0);
-	Persistent<Function> function = Persistent<Function>((Function*) ptr);
 
 	// Release the JS function so it can be collected.
-	function.Dispose();
-	function.Clear();
+	Persistent<Function>* persistentJSFunction = (Persistent<Function>*) ptr;
+	persistentJSFunction->Reset();
 }
 
 #ifdef __cplusplus
 }
 #endif
-

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@
 namespace titanium {
 
 namespace bindings {
-	typedef void (*BindCallback)(v8::Handle<v8::Object> exports);
+	typedef void (*BindCallback)(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
 	typedef void (*DisposeCallback)();
 
 	struct BindEntry {
@@ -41,24 +41,24 @@ private:
 	static std::map<std::string, bindings::BindEntry*> externalLookupBindings;
 
 public:
-	static void initFunctions(v8::Handle<v8::Object> exports);
+	static void initFunctions(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
 
-	static void initNatives(v8::Handle<v8::Object> exports);
-	static void initTitanium(v8::Handle<v8::Object> exports);
+	static void initNatives(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
+	static void initTitanium(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
 	static void disposeTitanium();
 
-	static v8::Handle<v8::String> getMainSource();
+	static v8::Local<v8::String> getMainSource(v8::Isolate* isolate);
 
-	static v8::Handle<v8::Value> getBinding(const v8::Arguments& args);
-	static v8::Handle<v8::Object> getBinding(v8::Handle<v8::String> binding);
+	static void getBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static v8::Local<v8::Object> getBinding(v8::Isolate* isolate, v8::Local<v8::String> binding);
 
-	static v8::Handle<v8::Value> getExternalBinding(const v8::Arguments& args);
+	static void getExternalBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void addExternalBinding(const char *name, bindings::BindEntry *binding);
 	static void addExternalLookup(LookupFunction lookup);
 
 	static void addExternalCommonJsModule(const char *name, jobject sourceProvider, jmethodID sourceRetrievalMethod);
-	static v8::Handle<v8::Value> isExternalCommonJsModule(const v8::Arguments& args);
-	static v8::Handle<v8::Value> getExternalCommonJsModule(const v8::Arguments& args);
+	static void isExternalCommonJsModule(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getExternalCommonJsModule(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	static void dispose();
 };
