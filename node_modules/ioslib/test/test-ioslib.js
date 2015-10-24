@@ -162,7 +162,7 @@ describe('ioslib', function () {
 
 			function checkXcode(xcode) {
 				should(xcode).be.an.Object;
-				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
+				should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'eulaAccepted', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
 
 				should(xcode.xcodeapp).be.a.String;
 				should(xcode.xcodeapp).not.equal('');
