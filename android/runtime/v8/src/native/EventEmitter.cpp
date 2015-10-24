@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -27,67 +27,65 @@ Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 static Persistent<String> eventsSymbol;
 Persistent<String> EventEmitter::emitSymbol;
 
-Handle<Value> EventEmitter::eventEmitterConstructor(const Arguments& args)
+void EventEmitter::eventEmitterConstructor(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope;
-
+	HandleScope scope(args.GetIsolate());
 	EventEmitter *emitter = new EventEmitter();
 	emitter->Wrap(args.This());
-
-	return args.This();
 }
 
-void EventEmitter::initTemplate()
+void EventEmitter::initTemplate(Local<Context> context)
 {
-	HandleScope scope;
-	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(eventEmitterConstructor));
-	constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
-	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
+	Isolate* isolate = context->GetIsolate();
+	HandleScope scope(isolate);
+	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate, eventEmitterConstructor);
+	constructor->InstanceTemplate()->SetInternalFieldCount(1);
+	constructor->SetClassName(NEW_SYMBOL(isolate, "EventEmitter"));
+	constructorTemplate.Reset(isolate, constructor);
 
-	eventsSymbol = SYMBOL_LITERAL("_events");
-	emitSymbol = SYMBOL_LITERAL("emit");
+	eventsSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_events"));
+	emitSymbol.Reset(isolate, NEW_SYMBOL(isolate, "emit"));
 }
 
 void EventEmitter::dispose()
 {
-	constructorTemplate.Dispose();
-	constructorTemplate = Persistent<FunctionTemplate>();
-
-	eventsSymbol.Dispose();
-	eventsSymbol = Persistent<String>();
-
-	emitSymbol.Dispose();
-	emitSymbol = Persistent<String>();
+	constructorTemplate.Reset();
+	eventsSymbol.Reset();
+	emitSymbol.Reset();
 }
 
-bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
+bool EventEmitter::emit(Local<String> event, int argc, Local<Value> *argv)
 {
-	HandleScope scope;
-	Handle<Value> events_v = handle_->Get(eventsSymbol);
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+
+	Local<Object> self = handle();
+
+	Local<Value> events_v = self->Get(eventsSymbol.Get(isolate));
 	if (!events_v->IsObject()) return false;
 
-	Handle<Object> events = events_v->ToObject();
+	Local<Object> events = events_v.As<Object>();
 
-	Handle<Value> listeners_v = events->Get(event);
+	Local<Value> listeners_v = events->Get(event);
 	TryCatch try_catch;
 
 	if (listeners_v->IsFunction()) {
 		// Optimized one-listener case
-		Handle<Function> listener = Handle<Function>::Cast(listeners_v);
-		listener->Call(handle_, argc, argv);
+		Local<Function> listener = listeners_v.As<Function>();
+		listener->Call(isolate->GetCurrentContext(), self, argc, argv);
 		if (try_catch.HasCaught()) {
-			V8Util::fatalException(try_catch);
+			V8Util::fatalException(isolate, try_catch);
 			return false;
 		}
 	} else if (listeners_v->IsArray()) {
-		Handle<Array> listeners = Handle<Array>::Cast(listeners_v->ToObject()->Clone());
+		Local<Array> listeners = listeners_v.As<Array>()->Clone().As<Array>();
 		for (uint32_t i = 0; i < listeners->Length(); ++i) {
-			Handle<Value> listener_v = listeners->Get(i);
+			Local<Value> listener_v = listeners->Get(i);
 			if (!listener_v->IsFunction()) continue;
-			Handle<Function> listener = Handle<Function>::Cast(listener_v);
-			listener->Call(handle_, argc, argv);
+			Local<Function> listener = listener_v.As<Function>();
+			listener->Call(isolate->GetCurrentContext(), self, argc, argv);
 			if (try_catch.HasCaught()) {
-				V8Util::fatalException(try_catch);
+				V8Util::fatalException(isolate, try_catch);
 				return false;
 			}
 		}
@@ -99,4 +97,3 @@ bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
 }
 
 } // namespace titanium
-

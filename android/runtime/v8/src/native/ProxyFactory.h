@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,21 +27,21 @@ class ProxyFactory
 public:
 
 	// Creates a proxy on the V8 side given an existing Java proxy.
-	static v8::Handle<v8::Object> createV8Proxy(jclass javaClass, jobject javaProxy);
+	static v8::Local<v8::Object> createV8Proxy(v8::Isolate* isolate, jclass javaClass, jobject javaProxy);
 
 	// Creates a proxy on the Java side given an existing V8 proxy.
-	static jobject createJavaProxy(jclass javaClass, v8::Local<v8::Object> v8Proxy, const v8::Arguments& args);
+	static jobject createJavaProxy(jclass javaClass, v8::Local<v8::Object> v8Proxy, const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	// Used by createV8Proxy() which invokes the ProxyBinding::Constructor
 	// callback to create a new V8 object. We need a way to pass the Java proxy
 	// jobject. This is done by passing it as an External value argument.
-	static jobject unwrapJavaProxy(const v8::Arguments& args);
+	static jobject unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	// Setup a new proxy pair for some Kroll type.
 	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory, bool createDeprecated = false);
 
 	// The generic constructor for all proxies
-	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
+	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	static void dispose();
 };

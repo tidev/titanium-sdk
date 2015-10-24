@@ -4,7 +4,7 @@
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
-# 
+#
 # Top level kroll-v8 runtime Makefile
 
 LOCAL_PATH := $(call my-dir)
@@ -25,7 +25,7 @@ LOCAL_SRC_FILES := $(SRC_FILES)
 
 LOCAL_JS_FILES := $(JS_FILES)
 
-LOCAL_STATIC_LIBRARIES := libv8
+LOCAL_STATIC_LIBRARIES := libv8_base libv8_libbase libv8_libplatform libv8_nosnapshot libicui18n libicuuc libicudata
 
 include $(BUILD_SHARED_LIBRARY)
 

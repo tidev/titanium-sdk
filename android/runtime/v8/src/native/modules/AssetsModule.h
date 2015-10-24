@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,10 +17,10 @@ namespace titanium {
 class AssetsModule
 {
 public:
-	static void Initialize(Handle<Object> target);
+	static void Initialize(Local<Object> target, Local<Context> context);
 
-	static Handle<Value> readAsset(const Arguments& args);
-	static Handle<Value> readFile(const Arguments& args);
+	static void readAsset(const FunctionCallbackInfo<Value>& args);
+	static void readFile(const FunctionCallbackInfo<Value>& args);
 
 };
 

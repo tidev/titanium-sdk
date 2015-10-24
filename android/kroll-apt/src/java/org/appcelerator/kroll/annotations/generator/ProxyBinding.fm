@@ -169,13 +169,13 @@
 
 <#macro openModuleNamespace>
 	<#list moduleId?split(".") as ns>
-		namespace ${ns?lower_case} {
+namespace ${ns?lower_case} {
 	</#list>
 </#macro>
 
 <#macro closeModuleNamespace>
 	<#list moduleId?split(".")?reverse as ns>
-		} // ${ns?lower_case}
+} // ${ns?lower_case}
 	</#list>
 </#macro>
 
@@ -183,7 +183,7 @@
 <@openModuleNamespace/>
 	<#list proxyAttrs.fullAPIName?split(".") as ns>
 		<#if ns_has_next && ns?lower_case != moduleId?lower_case>
-			namespace ${ns?lower_case} {
+	namespace ${ns?lower_case} {
 		</#if>
 	</#list>
 </#macro>
@@ -191,7 +191,7 @@
 <#macro closeNamespace>
 	<#list proxyAttrs.fullAPIName?split(".")?reverse as ns>
 		<#if ns_index != 0 && ns?lower_case != moduleId?lower_case>
-			} // namespace ${ns?lower_case}
+	} // namespace ${ns?lower_case}
 		</#if>
 	</#list>
 <@closeModuleNamespace/>
@@ -426,7 +426,7 @@
 	<#if type?ends_with("Proxy")>
 		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
 	</#if>
-	
+
 	<#if type?ends_with("Exception")>
 		<#return typeInfo["org.appcelerator.kroll.KrollException"]>
 	</#if>
@@ -485,7 +485,8 @@ fails, a JS exception is returned.
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
 		<#if !(logOnly!false)>
-		return titanium::JSException::Error(error);
+		titanium::JSException::Error(isolate, error);
+		return;
 		</#if>
 	}
 	</#if>
@@ -510,23 +511,24 @@ fails, a JS exception is returned.
 		<#local valueExpr = expr>
 	<#elseif info.jsType == "Number">
 		<#local type = "Local<Number>">
-		<#local valueExpr = expr + "->ToNumber()">
-		<#local stringExpr = expr + "->ToString()">
+		<#local valueExpr = expr + "->ToNumber(isolate)">
+		<#local stringExpr = expr + "->ToString(isolate)">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
-		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
+		<#local valueExpr = expr + ".As<" + info.jsType + ">()">
 	<#else>
 		<#local type = "Local<" + info.jsType + ">">
-		<#local valueExpr = expr + "->To" + info.jsType + "()">
+		<#local valueExpr = expr + "->To" + info.jsType + "(isolate)">
 	</#if>
-	
+
 <#t>
 	<#if info.jsType == "Number">
-		if ((titanium::V8Util::isNaN(${expr}) && !${expr}->IsUndefined()) || ${stringExpr}->Length() == 0) {
+		if ((titanium::V8Util::isNaN(isolate, ${expr}) && !${expr}->IsUndefined()) || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-			return titanium::JSException::Error(error);
+			titanium::JSException::Error(isolate, error);
+			return;
 			</#if>
 		}
 	</#if>
@@ -534,7 +536,12 @@ fails, a JS exception is returned.
 	if (!${expr}->IsNull()) {
 		${type} ${current_arg} = ${valueExpr};
 		jArguments[${index}].${info.jvalue} =
-			titanium::TypeConverter::${info.jsToJavaConverter}(env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
+			titanium::TypeConverter::${info.jsToJavaConverter}(
+		<#if info.jsToJavaConverter?matches("^js(Number|Date|String|Boolean)To.+")>
+		<#else>
+				isolate,
+		</#if>
+				env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
 	} else {
 		jArguments[${index}].${info.jvalue} = NULL;
 	}
@@ -553,7 +560,7 @@ fails, a JS exception is returned.
 	jobjectArray varArgs = env->NewObjectArray(length, titanium::JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
 		bool isNew;
-		jobject arg = titanium::TypeConverter::jsValueToJavaObject(env, args[i+${start}], &isNew);
+		jobject arg = titanium::TypeConverter::jsValueToJavaObject(isolate, env, args[i+${start}], &isNew);
 		env->SetObjectArrayElement(varArgs, i, arg);
 		if (isNew) {
 			env->DeleteLocalRef(arg);
@@ -570,7 +577,8 @@ fails, a JS exception is returned.
 	if (args.Length() < ${requiredCount}) {
 		char errorStringBuffer[100];
 		sprintf(errorStringBuffer, "${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got %d", args.Length());
-		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
+		titanium::JSException::Error(isolate, errorStringBuffer);
+		return;
 	}
 	</#if>
 	</@Proxy.getRequiredArgumentCount>
@@ -586,9 +594,9 @@ fails, a JS exception is returned.
 	</#list>
 
 	<#if method.hasInvocation>
-	Handle<Object> scopeVars = args[0]->ToObject();
-	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(env, 
-		scopeVars->Get(Proxy::sourceUrlSymbol));
+	Local<Object> scopeVars = args[0]->ToObject(isolate);
+	jstring sourceUrl = titanium::TypeConverter::jsValueToJavaString(isolate, env,
+		scopeVars->Get(Proxy::sourceUrlSymbol.Get(isolate)));
 	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
 		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
 	env->DeleteLocalRef(sourceUrl);
@@ -666,21 +674,22 @@ beprovided to handle the result.
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 
 	if (env->ExceptionCheck()) {
-		<#if hasResult>Handle<Value> jsException = </#if>titanium::JSException::fromJavaException();
+		<#if hasResult>Local<Value> jsException = </#if>titanium::JSException::fromJavaException(isolate);
 		env->ExceptionClear();
 		<#if hasResult>
-		return jsException;
+		return;
 		</#if>
 	}
 
 	<#if hasResult && info.javaValidation!false>
 	if (jResult == NULL) {
-		return Null();
+		args.GetReturnValue().Set(Null(isolate));
+		return;
 	}
 	</#if>
 
 	<#if hasResult>
-	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(env, jResult);
+	Local<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(isolate, env, jResult);
 
 	<#if info.javaDeleteLocalRef!false>
 	env->DeleteLocalRef(jResult);
@@ -693,7 +702,8 @@ beprovided to handle the result.
 <#macro initJNIEnv>
 	JNIEnv *env = titanium::JNIScope::getEnv();
 	if (!env) {
-		return titanium::JSException::GetJNIEnvironmentError();
+		titanium::JSException::GetJNIEnvironmentError(isolate);
+		return;
 	}
 </#macro>
 
@@ -706,7 +716,8 @@ beprovided to handle the result.
 			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-				return titanium::JSException::Error(error);
+				titanium::JSException::Error(isolate, error);
+				return;
 			</#if>
 		}
 	}

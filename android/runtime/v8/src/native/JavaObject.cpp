@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,9 +40,9 @@ static struct {
 // Callback for V8 letting us know the JavaScript object is no longer reachable.
 // Once we receive this callback we can safely release our strong reference
 // on the wrapped Java object so it can become eligible for collection.
-static void DetachCallback(v8::Persistent<v8::Value> value, void *data)
+static void DetachCallback(const v8::WeakCallbackData<v8::Object, JavaObject>& data)
 {
-	JavaObject *javaObject = static_cast<JavaObject*>(data);
+	JavaObject* javaObject = data.GetParameter();
 	javaObject->detach();
 }
 
@@ -75,9 +75,9 @@ void JavaObject::newGlobalRef()
 		}
 		javaObject_ = globalRef;
 	} else {
-		ASSERT(refTableKey_ == 0);
-		refTableKey_ = ReferenceTable::createReference(javaObject_);
-		javaObject_ = NULL;
+		ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
+		refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
+		javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
 	}
 }
 
@@ -99,14 +99,23 @@ jobject JavaObject::getJavaObject()
 
 		return javaObject_;
 	} else {
-		if (isWeakRef_) {
-			UPDATE_STATS(0, -1);
+		if (isWeakRef_) { // Did JS side try to collect our object already?
+			// OH SNAP, DON'T KILL OUR OBJECT YET JVM!
+			// make reference strong again on Java side if we can...
 			jobject javaObject = ReferenceTable::clearWeakReference(refTableKey_);
+			UPDATE_STATS(0, -1);
 			if (javaObject == NULL) {
+				// SHIT! Java collected it. ummmm, not much we can do here.
+				// Maybe we can... Nope. It's gone. Live with it.
 				LOGE(TAG, "Java object reference has been invalidated.");
 			}
-			isWeakRef_ = false;
-			handle_.MakeWeak(this, DetachCallback);
+
+			isWeakRef_ = false; // not weak on Java side anymore
+
+			// tell V8 to let us know when it thinks the JS object can be collected again
+			persistent().SetWeak(this, DetachCallback);
+			persistent().MarkIndependent();
+
 			return javaObject;
 		}
 		return ReferenceTable::getReference(refTableKey_);
@@ -128,10 +137,12 @@ void JavaObject::weakGlobalRef()
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = weakRef;
 	} else {
+		// Make our strong reference weak on Java side
+		// Dead man walking
 		ReferenceTable::makeWeakReference(refTableKey_);
 	}
 
-	isWeakRef_ = true;
+	isWeakRef_ = true; // remember that our ref on Java side is weak
 }
 
 // Deletes the reference to the wrapped Java object.
@@ -151,8 +162,8 @@ void JavaObject::deleteGlobalRef()
 		}
 		javaObject_ = NULL;
 	} else {
-		ReferenceTable::destroyReference(refTableKey_);
-		refTableKey_ = 0;
+		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
+		refTableKey_ = 0; // throw away the key
 	}
 }
 
@@ -163,14 +174,20 @@ JavaObject::~JavaObject()
 	if (javaObject_ || refTableKey_ > 0) {
 		deleteGlobalRef();
 	}
+
+	if (persistent().IsEmpty())
+		return;
+	assert(persistent().IsNearDeath());
+	persistent().ClearWeak();
+	persistent().Reset();
 }
 
-void JavaObject::wrap(Handle<Object> jsObject)
+void JavaObject::wrap(Isolate* isolate, Local<Object> jsObject)
 {
-	ASSERT(handle_.IsEmpty());
+	ASSERT(persistent().IsEmpty());
 	ASSERT(jsObject->InternalFieldCount() > 0);
-	handle_ = v8::Persistent<v8::Object>::New(jsObject);
-	handle_->SetPointerInInternalField(0, this);
+	jsObject->SetAlignedPointerInInternalField(0, this);
+	persistent().Reset(isolate, jsObject);
 }
 
 // Attaches the Java object to this native wrapper.
@@ -182,25 +199,30 @@ void JavaObject::attach(jobject javaObject)
 	ASSERT((javaObject && javaObject_ == NULL) || javaObject == NULL);
 	UPDATE_STATS(0, -1);
 
-	handle_.MakeWeak(this, DetachCallback);
-	handle_.MarkIndependent();
-
 	if (javaObject) {
 		javaObject_ = javaObject;
 	}
+	// make strong ref to Java object in JVM
 	newGlobalRef();
+
+	// So let's mark this JS object as independent and weak so V8 can tell us
+	// when the JS object is ready to be GCed, which is first step in it's death
+	persistent().SetWeak(this, DetachCallback);
+	persistent().MarkIndependent();
 }
 
 void JavaObject::detach()
 {
-	handle_.MakeWeak(this, DetachCallback);
+	// WAIT A SECOND V8!!! DON'T KILL MY OBJECT YET! THE JVM MAY STILL WANT IT!
+	persistent().ClearWeak();
 
 	if (isDetached()) {
 		return;
 	}
 
+	// V8 says we don't need the object on the JS side
+	// Let's make the object weak in the JVM now...
 	UPDATE_STATS(0, 1);
-
 	weakGlobalRef();
 }
 
@@ -210,4 +232,3 @@ bool JavaObject::isDetached()
 }
 
 }
-
