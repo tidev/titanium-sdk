@@ -115,7 +115,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
-    private boolean overridenLayout;
+	private boolean overridenLayout;
 
 	public class DialogWrapper {
 		boolean isPersistent;
@@ -508,20 +508,20 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	// Record if user has set a content view manually from hyperloop code during require of app.js!
 	@Override
 	public void setContentView(View view) {
-	    overridenLayout = true;
-	    super.setContentView(view);
+		overridenLayout = true;
+		super.setContentView(view);
 	}
 
 	@Override
 	public void setContentView(int layoutResID) {
-	    overridenLayout = true;
-	    super.setContentView(layoutResID);
+		overridenLayout = true;
+		super.setContentView(layoutResID);
 	}
 
 	@Override
 	public void setContentView(View view, LayoutParams params) {
-	    overridenLayout = true;
-	    super.setContentView(view, params);
+		overridenLayout = true;
+		super.setContentView(view, params);
 	}
 
 	@Override
@@ -625,7 +625,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		// If user changed the layout during app.js load, keep that
 		if (!overridenLayout) {
-		    setContentView(layout);
+			setContentView(layout);
 		}
 
 		// Set the title of the activity after setContentView.
