@@ -32,7 +32,7 @@
     "markdown": "0.5.0",
     "node-appc": "0.2.32",
     "node-uuid": "1.4.3",
-    "pngjs": "git+https://git@github.com:cb1kenobi/pngjs.git#flatten-bgcolor",
+    "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
     "request": "2.64.0",
     "sprintf": "0.1.5",
     "temp": "0.8.3",
