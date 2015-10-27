@@ -2097,10 +2097,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.whitelistAppceleratorDotCom = false;
 	}
 
-	this.useAppThinning = false;
-	if (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('use-app-thinning') && this.tiapp.properties['use-app-thinning'].value === true) {
-		this.useAppThinning = true;
-	}
+	this.useAppThinning = this.tiapp.ios && (this.tiapp.ios['use-app-thinning'] === true);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
