@@ -1269,8 +1269,6 @@ public class TiHTTPClient
 	    	    printWriter.append("Content-Type: " + contentBody.getMimeType());
 	    	    if (contentBody.getCharset() != null) {
 	    	        printWriter.append("; charset=" + contentBody.getCharset());
-	    	    } else {
-	    	        printWriter.append(";");
 	    	    }
 	    	    printWriter.append(LINE_FEED);
 	    	}
