@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	path = require('path'),
+	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
 	ti = require('titanium-sdk'),
 	util = require('util'),
@@ -87,7 +88,7 @@ function iOSBuilder() {
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
 	this.useJSCore = false;
 	// when false, JavaScript will run on its own thread - the Kroll Thread
-	this.runOnMainThread = true;
+	this.runOnMainThread = false;
 
 	this.useAutoLayout = false;
 	// populated the first time getDeviceInfo() is called
@@ -267,6 +268,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
+		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_EULA_NOT_ACCEPTED');
 
 		callback();
 	}.bind(this));
@@ -2066,7 +2068,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 
-	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] !== false);
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] === true);
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -2093,6 +2095,11 @@ iOSBuilder.prototype.initialize = function initialize() {
 	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
 		this.whitelistAppceleratorDotCom = false;
+	}
+
+	this.useAppThinning = false;
+	if (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('use-app-thinning') && this.tiapp.properties['use-app-thinning'].value === true) {
+		this.useAppThinning = true;
 	}
 };
 
@@ -3979,6 +3986,8 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
+		useAppThinning = this.useAppThinning,
+
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
@@ -4048,7 +4057,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'png':
 					case 'jpg':
-						imageAssets[relPath] = info;
+						if (useAppThinning) {
+							imageAssets[relPath] = info;
+						} else {
+							resourcesToCopy[relPath] = info;
+						}
 						break;
 
 					case 'html':
@@ -4389,29 +4402,53 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
-			if (missingIcons.length) {
-				if (defaultIcon && defaultIconHasAlpha) {
-					this.logger.error(__('%s cannot be used because it contains an alpha channel', defaultIcon));
-					this.logger.error(__('Create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
-					this.logger.error(__('It is highly recommended that the DefaultIcon.png be 1024x1024') + '\n');
-					process.exit(1);
-				}
+			if (!missingIcons.length) {
+				return next();
+			}
 
-				this.logger.debug(__n(
-					'Missing %s app icon, generating missing icon',
-					'Missing %s app icons, generating missing icons',
-					missingIcons.length
-				));
+			this.logger.debug(__n(
+				'Missing %s app icon, generating missing icon',
+				'Missing %s app icons, generating missing icons',
+				missingIcons.length
+			));
 
+			var generate = function generate() {
 				if (defaultIcon && defaultIconChanged && !this.forceRebuild) {
 					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon));
 					this.forceRebuild = true;
 				}
 
 				this.generateAppIcons(missingIcons, next);
-			} else {
-				next();
+			}.bind(this);
+
+			if (!defaultIcon || !defaultIconChanged || !defaultIconHasAlpha) {
+				return generate();
 			}
+
+			// strip alpha
+			this.logger.warn(__('The default icon "%s" contains an alpha channel which is not supported by iOS', defaultIcon));
+			this.logger.warn(__('The image will be flattened against a white background'));
+			this.logger.warn(__('You may create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
+			this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
+
+			var flattenedImage = path.join(this.buildDir, 'DefaultIcon.png');
+			this.defaultIcons = [ flattenedImage ];
+
+			this.logger.debug(__('Stripping alpha channel: %s => %s', defaultIcon.cyan, flattenedImage.cyan));
+			fs.createReadStream(defaultIcon)
+				.pipe(new PNG({
+					colorType: 2,
+					bgColor: {
+						red: 255,
+						green: 255,
+						blue: 255
+					}
+				}))
+				.on('parsed', function() {
+					this.pack()
+						.on('end', generate)
+						.pipe(fs.createWriteStream(flattenedImage));
+				});
 		},
 
 		function createLaunchImageSet() {
@@ -4535,6 +4572,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function createAssetImageSets() {
+			if (!this.useAppThinning) {
+				this.logger.info(__('App thinning disabled, skipping asset image sets'));
+				return;
+			}
+
 			this.logger.info(__('Creating assets image set'));
 			var assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 				imageSets = {},

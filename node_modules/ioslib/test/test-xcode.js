@@ -15,7 +15,7 @@ const
 
 function checkXcode(xcode) {
 	should(xcode).be.an.Object;
-	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
+	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'eulaAccepted', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
 
 	should(xcode.xcodeapp).be.a.String;
 	should(xcode.xcodeapp).not.equal('');
@@ -28,6 +28,7 @@ function checkXcode(xcode) {
 	should(fs.statSync(xcode.path).isDirectory()).be.true;
 
 	should(xcode.selected).be.a.Boolean;
+	should(xcode.eulaAccepted).be.a.Boolean;
 
 	should(xcode.version).be.a.String;
 	should(xcode.version).not.equal('');
