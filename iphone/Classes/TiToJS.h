@@ -57,6 +57,7 @@
 #define TiObjectSetPrivate JSObjectSetPrivate
 #define TiObjectSetProperty JSObjectSetProperty
 #define TiObjectSetPropertyAtIndex JSObjectSetPropertyAtIndex
+#define TiObjectGetPrototype JSObjectGetPrototype
 #define TiPropertyNameAccumulatorAddName JSPropertyNameAccumulatorAddName
 #define TiPropertyNameAccumulatorRef JSPropertyNameAccumulatorRef
 #define TiPropertyNameArrayGetCount JSPropertyNameArrayGetCount

@@ -165,6 +165,12 @@ static NSArray* touchEventsArray;
 		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
 	} else if([arg isKindOfClass:[TiViewProxy class]]) {
 		childView = arg;
+	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:@selector(nativeObject)]) {
+		Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
+		if (hyperloopViewProxy != nil) {
+			childView = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+			[childView performSelector:@selector(setNativeView:) withObject:arg];
+		}
 	}
 
 	if(childView == nil) {
