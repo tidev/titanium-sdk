@@ -718,8 +718,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     [url release];
     url = [[[webview request] URL] retain];
     NSString* urlAbs = [url absoluteString];
-    [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
-	
+    NSString* appPath = [[[NSBundle mainBundle] resourceURL] absoluteString];
+    if (![urlAbs isEqualToString: appPath]) {
+        [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
+    }
+    
     if ([self.proxy _hasListeners:@"load"]) {
         if (![urlAbs isEqualToString:lastValidLoad]) {
             NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
