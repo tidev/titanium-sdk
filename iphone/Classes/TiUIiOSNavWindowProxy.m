@@ -91,8 +91,17 @@
         navController.delegate = self;
         [TiUtils configureController:navController withObject:self];
         [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+        [[navController interactivePopGestureRecognizer] setDelegate:self];
     }
     return navController;
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (current != nil) {
+        return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
+    }
+    return YES;
 }
 
 -(void)openWindow:(NSArray*)args

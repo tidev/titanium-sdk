@@ -220,9 +220,17 @@
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
 		[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-
+        [[controller interactivePopGestureRecognizer] setDelegate:self];
 	}
 	return controller;
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (current != nil) {
+        return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
+    }
+    return YES;
 }
 
 -(TiProxy<TiTabGroup>*)tabGroup
