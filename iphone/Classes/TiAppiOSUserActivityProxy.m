@@ -197,7 +197,7 @@
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywillsave"]){
-		DebugLog(@"[WARN] Titanium.App.IOS.UserActivity.useractivitywillsave event is deprecated. Update user activity by setting Titanium.App.IOS.UserActivity.needsSave property to true instead.");
+        DebugLog(@"[WARN] Titanium.App.IOS.UserActivity.useractivitywillsave event is deprecated. Update user activity by setting Titanium.App.IOS.UserActivity.needsSave property to true instead.");
         [self fireEvent:@"useractivitywillsave" withObject:[[self copyActivity] autorelease]];
     }
 }
