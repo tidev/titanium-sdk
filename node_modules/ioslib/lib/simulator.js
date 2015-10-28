@@ -600,7 +600,7 @@ function findSimulators(options, callback) {
 
 					// loop through each xcode simulators
 					for (var j = 0; !simHandle && j < simVers.length; j++) {
-						if (!options.simVersion || simVers[j] === options.simVersion) {
+						if ((!options.simVersion || simVers[j] === options.simVersion) && simInfo.simulators.ios[simVers[j]]) {
 							var sims = simInfo.simulators.ios[simVers[j]].sort(compareSims).reverse();
 
 							// loop through each simulator
@@ -780,6 +780,12 @@ function launch(simHandleOrUDID, options, callback) {
 			if (err) {
 				emitter.emit('error', err);
 				return callback(err);
+			}
+
+			if (!selectedXcode.eulaAccepted) {
+				var eulaErr = new Error(__('Xcode must be launched and the EULA must be accepted before a simulator can be launched.'));
+				emitter.emit('error', eulaErr);
+				return callback(eulaErr);
 			}
 
 			var crashFileRegExp,
