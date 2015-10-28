@@ -252,6 +252,18 @@ properties:
         The icon to be displayed on the application shortcut. You can either use one of the constants like
         <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE>, a local image specified by the image path or a reference to a
         <Titanium.Contacts.Person>.
+    description: |
+        If you are using an image file, enable slicing (adding the image to an asset catalog) for
+        the project.  To enable slicing, add the `use-app-thinning` element to the `ios` element in the
+        `tiapp.xml` file and set the value to `true`. If you do not enable slicing, the image will
+        not be displayed.
+
+            <ti:app>
+              <ios>
+                <use-app-thinning>true</use-app-thinning>
+              </ios>
+            </ti:app>
+
     type: [Number,String,Titanium.Contacts.Person]
     constants: Titanium.UI.iOS.SHORTCUT_ICON_TYPE_*
     optional: true
