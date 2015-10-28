@@ -929,6 +929,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return [TiUtils boolValue:editValue def:NO];
 }
 
+-(BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
+    //canInsert if undefined is false
+    return [TiUtils boolValue:insertValue def:NO];
+}
+
 
 -(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1002,9 +1009,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return NO;
     }
     
-    if ([self canEditRowAtIndexPath:indexPath]) {
+    if ([self canEditRowAtIndexPath:indexPath] || [self canInsertRowAtIndexPath:indexPath]) {
         return YES;
     }
+    
     if (editing) {
         return [self canMoveRowAtIndexPath:indexPath];
     }
@@ -1013,32 +1021,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
+
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
-        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
         
         //Delete Data
         [theSection deleteItemAtIndex:indexPath.row];
         
-        //Fire the delete Event if required
-        NSString *eventName = @"delete";
-        if ([self.proxy _hasListeners:eventName]) {
-        
-            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                theSection, @"section",
-                                                NUMINTEGER(indexPath.section), @"sectionIndex",
-                                                NUMINTEGER(indexPath.row), @"itemIndex",
-                                                nil];
-            id propertiesValue = [theItem objectForKey:@"properties"];
-            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-            id itemId = [properties objectForKey:@"itemId"];
-            if (itemId != nil) {
-                [eventObject setObject:itemId forKey:@"itemId"];
-            }
-            [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            [eventObject release];
-        }
-        [theItem release];
+        [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
         
         BOOL emptySection = NO;
         
@@ -1112,20 +1102,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
         }
         [tableView endUpdates];
-        [theSection release];
+    } else if(editingStyle == UITableViewCellEditingStyleInsert) {
+        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
     }
+    [theSection release];
 }
 
 #pragma mark - Editing Support Delegate Methods.
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //No support for insert style yet
-    if ([self canEditRowAtIndexPath:indexPath]) {
-        return UITableViewCellEditingStyleDelete;
-    } else {
-        return UITableViewCellEditingStyleNone;
+    if ([self canEditRowAtIndexPath:indexPath] == YES && [self canInsertRowAtIndexPath:indexPath] == YES) {
+        DebugLog(@"[WARN] The row at sectionIndex=%i and itemIndex=%i has both 'canEdit' and 'canInsert'. Please use either 'canEdit' for deleting or 'canInsert' for inserting a row.", indexPath.section, indexPath.row);
     }
+
+    if ([self canEditRowAtIndexPath:indexPath] == YES) {
+        return UITableViewCellEditingStyleDelete;
+    } else if([self canInsertRowAtIndexPath:indexPath] == YES) {
+        return UITableViewCellEditingStyleInsert;
+    }
+    
+    return UITableViewCellEditingStyleNone;
 }
 
 - (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1998,6 +1995,30 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchController.searchResultsDelegate = self;
         searchController.delegate = self;
     }
+}
+
+-(void)fireEditEventWithName:(NSString*)name andSection:(TiUIListSectionProxy*)section atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *theItem = [[section itemAtIndex:indexPath.row] retain];
+
+    //Fire the delete Event if required
+    if ([self.proxy _hasListeners:name]) {
+        
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            section, @"section",
+                                            NUMINTEGER(indexPath.section), @"sectionIndex",
+                                            NUMINTEGER(indexPath.row), @"itemIndex",
+                                            nil];
+        id propertiesValue = [theItem objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+            [eventObject setObject:itemId forKey:@"itemId"];
+        }
+        [self.proxy fireEvent:name withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [eventObject release];
+    }
+    [theItem release];
 }
 
 #pragma mark - UITapGestureRecognizer

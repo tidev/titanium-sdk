@@ -161,24 +161,32 @@ description: |
 
     #### Editing Support (iOS)
 
-    Editing a list view through user initiated actions is supported through the following properties.
+    Editing a ListView through user initiated actions is supported through the following properties.
 
     - **ListItem properties**:
 
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
-          from the List View through a user initiated action. The item can only be deleted when the List View is 
+          from the ListView through a user initiated action. The item can only be deleted when the ListView is 
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
           property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
           is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
-          property of the listItem. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
-          In this scenario the listview does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
-          and the developer is free to update the listview as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+          property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
+          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
+          and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+
+        - [canInsert](Titanium.UI.ListItem.canInsert) - When this is set to true, it allows the item to insert a new item to the
+          ListView through a user initiated action. A new item can only be inserted when the ListView is
+          in editing mode. The ListView can enter 'editing' mode by explicitly setting the [editing](Titanium.UI.ListView.editing)
+          property to true. When the user clicks on the '+' sign of the item, an [insert](Titanium.UI.ListView.insert) event is fired.
+          Note: A new item is not inserted automatically when clicking on the '+' sign to let you decide the way to insert a new item.
+          You can use any inserting method of [Ti.UI.ListSection](Titanium.UI.ListSection), for example [insertItemsAt](Titanium.UI.ListSection.insertItemsAt)
+          and [appendItemsAt](Titanium.UI.ListSection.appendItemsAt).
 
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
-          to a different location within the List View. The item can only be moved when the List View is put in 
+          to a different location within the ListView. The item can only be moved when the ListView is put in 
           editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
           user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
 
