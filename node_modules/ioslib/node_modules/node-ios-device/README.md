@@ -49,7 +49,7 @@ iosDevice.devices(function (err, devices) {
 	console.log(devices);
 });
 
-// continuously watch for devices to be conected or disconnected
+// continuously watch for devices to be connected or disconnected
 iosDevice.trackDevices(function (err, devices) {
 	console.log('Connected devices:');
 	console.log(devices);

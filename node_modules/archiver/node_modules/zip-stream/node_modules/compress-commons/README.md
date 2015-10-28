@@ -1,4 +1,4 @@
-# Compress Commons v0.2.9 [![Build Status](https://travis-ci.org/archiverjs/node-compress-commons.svg?branch=master)](https://travis-ci.org/archiverjs/node-compress-commons)
+# Compress Commons v0.3.0 [![Build Status](https://travis-ci.org/archiverjs/node-compress-commons.svg?branch=master)](https://travis-ci.org/archiverjs/node-compress-commons)
 
 Compress Commons is a library that defines a common interface for working with archive formats within node.
 
