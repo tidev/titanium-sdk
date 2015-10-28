@@ -686,6 +686,17 @@ properties:
                  Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
+
+  - name: swipeToClose
+    summary: Boolean value indicating if the user should be able to close a window using a swipe gesture.
+    description: |
+        If `false` the user will not be able to swipe from the left edge of the window to close it. 
+        Note: This property is only used for a window being embedded in a [Ti.UI.Tab](Titanium.UI.Tab) or
+        [Ti.UI.iOS.NavigationWindow](Titanium.UI.iOS.NavigationWindow). It is enabled by default.
+    type: Boolean
+    since: "5.2.0"
+    platforms: [iphone,ipad]
+    default: true
     
   - name: tabBarHidden
     summary: |
