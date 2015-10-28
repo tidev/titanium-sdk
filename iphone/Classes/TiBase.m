@@ -323,7 +323,7 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
 	};
     
-    TiThreadPerformOnMainThread( dispatchedMainBlock);
+    dispatch_async(dispatch_get_main_queue(), dispatchedMainBlock);
     
     if (waitForFinish)
     {
