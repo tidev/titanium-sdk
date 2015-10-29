@@ -27,16 +27,27 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.widget.TiView;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Message;
 import android.os.Bundle;
+import android.os.Message;
+import android.support.annotation.Nullable;
+import android.transition.ChangeBounds;
+import android.transition.ChangeClipBounds;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -147,7 +158,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.overridePendingTransition(TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_ENTER_ANIMATION), 0),
 				TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_EXIT_ANIMATION), 0));
 		} else {
-			topActivity.startActivity(intent);
+			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 		}
 	}
 
@@ -204,6 +215,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (background != null) {
 			win.setBackgroundDrawable(background);
+		}
+		
+		// Handle activity transitions
+		if (LOLLIPOP_OR_GREATER) {
+		    applyActivityTransitions(win, properties);
 		}
 
 		// Handle the width and height of the window.
@@ -455,7 +471,116 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 	}
+	
+	/**
+	 * Helper method to apply activity transitions.
+	 * @param win The window holding the activity.
+	 * @param props The property dictionary. 
+	 */
+	private void applyActivityTransitions(Window win, KrollDict props) {
+		if (LOLLIPOP_OR_GREATER) {
+			// Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
+		    // And setting a null transition makes the view unaccounted from transition. 
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
+				win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
+			} 
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
+				win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
+				win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
+				win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
+				win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
+				win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
+				win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
+			}
+			
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
+				win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
+			}
+		} 
+	}
 
+	/**
+	 * Creates a transition for the supplied transition type. 
+	 * @param props The property dictionary.
+	 * @param key The transition type
+	 * @return A Transition or null if UIModule.TRANSITION_NONE or unknown transition is specified. 
+	 */
+	@SuppressLint({ "InlinedApi", "RtlHardcoded" })
+	@Nullable
+	private Transition createTransition(KrollDict props, String key) {
+		if (LOLLIPOP_OR_GREATER) {
+			Transition t = null;
+			final int transitionType = props.getInt(key);
+			switch (transitionType) {
+    			case TiUIView.TRANSITION_EXPLODE:
+    				t = new Explode();
+    				break;
+    
+    			case TiUIView.TRANSITION_FADE_IN:
+    				t = new Fade(Fade.IN);
+    				break;
+    				
+    			case TiUIView.TRANSITION_FADE_OUT:
+    				t = new Fade(Fade.OUT);
+    				break;
+    
+    			case TiUIView.TRANSITION_SLIDE_TOP:
+    				t = new Slide(Gravity.TOP);
+    				break;
+    
+    			case TiUIView.TRANSITION_SLIDE_RIGHT:
+    				t = new Slide(Gravity.RIGHT);
+    				break;
+    
+    			case TiUIView.TRANSITION_SLIDE_BOTTOM:
+    				t = new Slide(Gravity.BOTTOM);
+    				break;
+    
+    			case TiUIView.TRANSITION_SLIDE_LEFT:
+    				t = new Slide(Gravity.LEFT);
+    				break;
+    
+    			case TiUIView.TRANSITION_CHANGE_BOUNDS:
+    				t = new ChangeBounds();
+    				break;
+    				
+    			case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
+    				t = new ChangeClipBounds();
+    				break;
+    				
+    			case TiUIView.TRANSITION_CHANGE_TRANSFORM:
+    				t = new ChangeTransform();
+    				break;
+    
+    			case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
+    				t = new ChangeImageTransform();
+    				break;
+    
+    			default:
+    				break;
+			}
+			return t;
+		} else {
+			return null;
+		}
+	}
+	
 	@Override
 	public String getApiName()
 	{

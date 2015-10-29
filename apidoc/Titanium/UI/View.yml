@@ -1424,6 +1424,14 @@ properties:
     since: 5.0.0
     osver: {android: {min: 5.0}}
     
+  - name: transitionName
+    summary: A name to identify this view in activity transition. 
+    description: Name should be unique in the View hierarchy.
+    type: String
+    platforms: [android]
+    since: "5.0.2"
+    osver: {android: {min: 5.0}}
+    
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
     type: Number

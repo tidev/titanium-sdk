@@ -66,7 +66,9 @@ import android.view.ViewAnimationUtils;
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
-	"translationX", "translationY", "translationZ"
+	"translationX", "translationY", "translationZ",
+	
+	TiC.PROPERTY_TRANSITION_NAME
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {

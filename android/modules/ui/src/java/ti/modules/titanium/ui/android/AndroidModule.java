@@ -81,10 +81,19 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ONLY = WebSettings.LOAD_CACHE_ONLY;
 	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ELSE_NETWORK = WebSettings.LOAD_CACHE_ELSE_NETWORK;
 
-
-
-
-
+    @Kroll.constant public static final int TRANSITION_NONE                     =   TiUIView.TRANSITION_NONE;
+    @Kroll.constant public static final int TRANSITION_EXPLODE                  =   TiUIView.TRANSITION_EXPLODE;
+    @Kroll.constant public static final int TRANSITION_FADE_IN                  =   TiUIView.TRANSITION_FADE_IN;
+    @Kroll.constant public static final int TRANSITION_FADE_OUT                 =   TiUIView.TRANSITION_FADE_OUT;
+    @Kroll.constant public static final int TRANSITION_SLIDE_TOP                =   TiUIView.TRANSITION_SLIDE_TOP;
+    @Kroll.constant public static final int TRANSITION_SLIDE_RIGHT              =   TiUIView.TRANSITION_SLIDE_RIGHT;
+    @Kroll.constant public static final int TRANSITION_SLIDE_BOTTOM             =   TiUIView.TRANSITION_SLIDE_BOTTOM;
+    @Kroll.constant public static final int TRANSITION_SLIDE_LEFT               =   TiUIView.TRANSITION_SLIDE_LEFT;
+    @Kroll.constant public static final int TRANSITION_CHANGE_BOUNDS            =   TiUIView.TRANSITION_CHANGE_BOUNDS;
+    @Kroll.constant public static final int TRANSITION_CHANGE_CLIP_BOUNDS       =   TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS;
+    @Kroll.constant public static final int TRANSITION_CHANGE_TRANSFORM         =   TiUIView.TRANSITION_CHANGE_TRANSFORM;
+    @Kroll.constant public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM   =   TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM;
+	
 	@Kroll.constant public static final int PROGRESS_INDICATOR_STATUS_BAR = TiUIProgressIndicator.STATUS_BAR;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DIALOG = TiUIProgressIndicator.DIALOG;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_INDETERMINANT = TiUIProgressIndicator.INDETERMINANT;
