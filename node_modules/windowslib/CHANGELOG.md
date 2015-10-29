@@ -1,3 +1,7 @@
+0.1.21 (10/29/2015)
+-------------------
+  * Fix: escape vcvarsall before subprocess.run #25
+
 0.1.20 (10/13/2015)
 -------------------
   * [Windows: windowslib wstool doesn't launch on Windows 10](https://jira.appcelerator.org/browse/TIMOB-19693)
