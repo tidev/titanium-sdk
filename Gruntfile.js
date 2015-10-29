@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 			});
 		}
 
-		rm(path.join(__dirname, 'node_modules'), ['sqlite3', 'titanium-sdk']);
+		rm(path.join(__dirname, 'node_modules'), ['titanium-sdk']);
 
 		grunt.log.writeln('Running npm install');
 		exec('npm install', function (err, stdout, stderr) {
