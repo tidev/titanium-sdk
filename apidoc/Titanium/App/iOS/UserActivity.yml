@@ -85,7 +85,7 @@ properties:
 
   - name: needsSave
     summary: |
-        Set to true everytime the user activity needs to be updated before handing it off to another device.
+        Set to true everytime you have updated the user activity and need the changes to be saved before handing it off to another device.
     type: Boolean
     osver: {ios: {min: "8.0"}}
 
