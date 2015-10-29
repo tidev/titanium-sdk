@@ -54,6 +54,8 @@
 		[options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 
+    NSMutableArray *imagesOptions = [self valueForKey:@"imagesOptions"];
+
     forceOpaqueBackground = [TiUtils boolValue:[self valueForKey:@"opaquebackground"] def:NO];
     persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:YES];
     cancelButtonIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
@@ -64,7 +66,7 @@
     if (destructiveButtonIndex >= [options count]) {
         destructiveButtonIndex = -1;
     }
-    
+
 
     [self setDialogView:[args objectForKey:@"view"]];
     animated = [TiUtils boolValue:@"animated" properties:args def:YES];
@@ -77,14 +79,14 @@
     {
         dialogRect = CGRectZero;
     }
-    
+
     if ([TiUtils isIOS8OrGreater]) {
         RELEASE_TO_NIL(alertController);
         [[[TiApp app] controller] incrementActiveAlertControllerCount];
         alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                         preferredStyle:UIAlertControllerStyleActionSheet] retain];
-        
+
         int curIndex = 0;
         //Configure the Buttons
         for (id btn in options) {
@@ -99,17 +101,22 @@
             }
             curIndex++;
         }
-        
+
         if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
             UIAlertAction* theAction = [UIAlertAction actionWithTitle:@"Cancel"
                                                                 style:UIAlertActionStyleCancel
                                                               handler:^(UIAlertAction * action){
                                                                   [self fireClickEventWithAction:action];
                                                               }];
+            if (!IS_NULL_OR_NIL(imagesOptions)) {
+                UIImage *image = [ [UIImage imageNamed:[imagesOptions objectAtIndex:curIndex]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+                [theAction setValue:image forKey:@"image"];
+            }
+
             [alertController addAction:theAction];
         }
         BOOL isPopover = NO;
-        
+
         if ([TiUtils isIPad]) {
             UIViewController* topVC = [[[TiApp app] controller] topPresentedController];
             isPopover = ( (topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]) );
@@ -131,10 +138,10 @@
             presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
             presentationController.delegate = self;
         }
-        
+
         [self retain];
         [[TiApp app] showModalController:alertController animated:animated];
-        
+
     } else {
         if (actionSheet != nil) {
             [actionSheet setDelegate:nil];
@@ -142,21 +149,21 @@
         }
         actionSheet = [[UIActionSheet alloc] init];
         [actionSheet setDelegate:self];
-        
+
         [actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-        
+
         for (id thisOption in options)
         {
             NSString * thisButtonName = [TiUtils stringValue:thisOption];
             [actionSheet addButtonWithTitle:thisButtonName];
         }
-        
-        
+
+
         [actionSheet setCancelButtonIndex:cancelButtonIndex];
         [actionSheet setDestructiveButtonIndex:destructiveButtonIndex];
-        
+
         [self retain];
-        
+
         if ([TiUtils isIPad])
         {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
@@ -216,7 +223,7 @@
                 return;
             }
         }
-        
+
         if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
         {
             UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
@@ -226,7 +233,7 @@
                 return;
             }
         }
-        
+
         if ([dialogView conformsToProtocol:@protocol(TiTab)])
         {
             id<TiTab> tab = (id<TiTab>)dialogView;
@@ -245,7 +252,7 @@
             return;
         }
     }
-    
+
     //Fell through.
     UIViewController* presentingController = [alertController presentingViewController];
     popoverPresentationController.permittedArrowDirections = 0;
@@ -259,7 +266,7 @@
     BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, dialogRect);
     UIView* theSourceView = *view;
     BOOL shouldUseViewBounds = ([theSourceView isKindOfClass:[UIToolbar class]] || [theSourceView isKindOfClass:[UITabBar class]]);
-    
+
     if (shouldUseViewBounds) {
         rect->origin = CGPointMake(theSourceView.bounds.origin.x, theSourceView.bounds.origin.y);
         rect->size = CGSizeMake(theSourceView.bounds.size.width, theSourceView.bounds.size.height);
@@ -267,7 +274,7 @@
         rect->origin = CGPointMake(theSourceView.bounds.size.width/2, theSourceView.bounds.size.height/2);
         rect->size = CGSizeMake(1, 1);
     }
-    
+
     popoverPresentationController.sourceRect = *rect;
 }
 
@@ -283,7 +290,7 @@
     //TIMOB-15939. Workaround rendering issue on iPAD on iOS7
     if (actionSheet_ == actionSheet && forceOpaqueBackground && [TiUtils isIPad]) {
         NSArray* subviews = [actionSheet subviews];
-        
+
         for (UIView* subview in subviews) {
             [subview setBackgroundColor:[UIColor whiteColor]];
         }
@@ -308,18 +315,18 @@
     if ([self _hasListeners:@"click"]) {
         NSArray *actions = [alertController actions];
         NSInteger indexOfAction = [actions indexOfObject:theAction];
-        
+
         if ([TiUtils isIPad] && (cancelButtonIndex == -1) && (indexOfAction == ([actions count]-1)) ) {
             indexOfAction = cancelButtonIndex;
         }
-        
+
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       NUMINTEGER(indexOfAction),@"index",
                                       NUMINT(cancelButtonIndex),@"cancel",
                                       NUMINT(destructiveButtonIndex),@"destructive",
                                       nil];
-        
-        
+
+
         [self fireEvent:@"click" withObject:event];
     }
     [self cleanup];
@@ -384,24 +391,24 @@
 	{
 		view = [[[[TiApp app] window] subviews] lastObject];
 	}
-	else 
+	else
 	{
 		//TODO: need to deal with button in a Toolbar which will have a nil view
-		
+
 		if ([dialogView supportsNavBarPositioning] && [dialogView isUsingBarButtonItem])
 		{
 			UIBarButtonItem *button = [dialogView barButtonItem];
 			[actionSheet showFromBarButtonItem:button animated:animated];
 			return;
 		}
-		
+
 		if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
 		{
 			UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
 			[actionSheet showFromToolbar:toolbar];
 			return;
 		}
-		
+
 		if ([dialogView conformsToProtocol:@protocol(TiTab)])
 		{
 			id<TiTab> tab = (id<TiTab>)dialogView;
@@ -409,7 +416,7 @@
 			[actionSheet showFromTabBar:tabbar];
 			return;
 		}
-		
+
 		view = [dialogView view];
 		CGRect rect;
 		if (CGRectIsEmpty(dialogRect))
