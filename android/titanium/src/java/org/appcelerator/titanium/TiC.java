@@ -559,6 +559,14 @@ public class TiC
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
 	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
+	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
+	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
+	public static final String PROPERTY_RETURN_TRANSITION = "activityReturnTransition";
+	public static final String PROPERTY_REENTER_TRANSITION = "activityReenterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION = "activitySharedElementEnterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION = "activitySharedElementExitTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION = "activitySharedElementReenterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION = "activitySharedElementReturnTransition";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -837,6 +845,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	
 	/**
 	 * @module.api

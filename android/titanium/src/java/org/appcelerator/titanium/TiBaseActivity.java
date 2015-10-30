@@ -610,7 +610,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		    this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+		}
 		super.onCreate(savedInstanceState);
 
 		windowCreated(savedInstanceState);
