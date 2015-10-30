@@ -45,6 +45,7 @@ var common = require('./lib/common.js'),
 	searchPlatform = null,
 	argc = 0,
 	path = '',
+	metadataFile = null,
 	templateStr = '';
 
 /**
@@ -710,6 +711,14 @@ if ((argc = process.argv.length) > 2) {
 					}
 				});
 				break;
+			case '-m':
+			case '--metadata':
+				metadataFile = process.argv[++x];
+				if (!fs.existsSync(metadataFile)) {
+					common.log(common.LOG_WARN, 'File does not exist: %s', metadataFile);
+					metadataFile = null;
+				}
+				break;
 			case '--output' :
 			case '-o' :
 				if (++x > argc) {
@@ -869,6 +878,14 @@ formats.forEach(function (format) {
 	if (searchPlatform) {
 		processedData.__platform = searchPlatform;
 	}
+	if (format === 'alloy') {
+		if (metadataFile) {
+			processedData.__alloyMetadata = JSON.parse(fs.readFileSync(metadataFile, 'utf8'));
+		} else {
+			common.log(common.LOG_ERROR, 'No metadata file. Skipping alloy.');
+			return;
+		}
+	}
 	exportData = exporter.exportData(processedData);
 	templatePath = apidocPath + '/templates/';
 	output = outputPath;
@@ -902,6 +919,11 @@ formats.forEach(function (format) {
 				});
 			});
 			common.log('Generated output at %s', output);
+			break;
+		case 'alloy' :
+			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
+			render = ejs.render(templateStr, {doc: exportData});
+			output = output + 'alloy.js';
 			break;
 		case 'changes' :
 			if (exportData.noResults) {
