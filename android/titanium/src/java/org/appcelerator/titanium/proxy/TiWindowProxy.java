@@ -502,28 +502,28 @@ public abstract class TiWindowProxy extends TiViewProxy
 	        }
 	    }
 	}
-	
+
 	@Kroll.method
-    public void removeAllSharedElements() {
-        if (LOLLIPOP_OR_GREATER) {
-            sharedElementPairs.clear();
-        }
-    }
-	
+	public void removeAllSharedElements() {
+	    if (LOLLIPOP_OR_GREATER) {
+	        sharedElementPairs.clear();
+	    }
+	}
+
 	/**
-     * Helper method to create an activity options bundle. 
-     * @param activity The activity on which options bundle should be created. 
-     * @return The Bundle or null.  
-    */
-    @SuppressWarnings("unchecked")
-    @Nullable
-    protected Bundle createActivityOptionsBundle(Activity activity) {
-        if (LOLLIPOP_OR_GREATER) {
-            Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
-                    sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
-            return b;
-        } else {
-            return null;
-        }
-    }
+	 * Helper method to create an activity options bundle. 
+	 * @param activity The activity on which options bundle should be created. 
+	 * @return The Bundle or null.  
+	 */
+	@SuppressWarnings("unchecked")
+	@Nullable
+	protected Bundle createActivityOptionsBundle(Activity activity) {
+	    if (LOLLIPOP_OR_GREATER) {
+	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
+	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
+	        return b;
+	    } else {
+	        return null;
+	    }
+	}
 }

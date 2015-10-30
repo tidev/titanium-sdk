@@ -846,10 +846,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	
-    /**
-     * @module.api
-     */
-    public static final String PROPERTY_TRANSITION_NAME = "transitionName";
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	
 	/**
 	 * @module.api

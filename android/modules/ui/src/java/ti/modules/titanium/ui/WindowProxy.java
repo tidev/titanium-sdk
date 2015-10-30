@@ -478,41 +478,41 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	 * @param props The property dictionary. 
 	 */
 	private void applyActivityTransitions(Window win, KrollDict props) {
-		if (LOLLIPOP_OR_GREATER) {
-			// Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
-		    // And setting a null transition makes the view unaccounted from transition. 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
-				win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
-			} 
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
-				win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
-				win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
-				win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
-				win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
-				win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
-				win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
-			}
-			
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
-				win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
-			}
-		} 
+	    if (LOLLIPOP_OR_GREATER) {
+	        // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
+	        // And setting a null transition makes the view unaccounted from transition. 
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
+	            win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
+	        } 
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
+	            win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
+	            win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
+	            win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
+	            win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
+	            win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
+	            win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
+	        }
+
+	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
+	            win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
+	        }
+	    } 
 	}
 
 	/**
