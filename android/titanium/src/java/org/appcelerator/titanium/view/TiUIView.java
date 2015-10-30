@@ -94,18 +94,18 @@ public abstract class TiUIView
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
 	
-	public static final int TRANSITION_NONE                     =   0;
-	public static final int TRANSITION_EXPLODE                  =   1;
-	public static final int TRANSITION_FADE_IN                  =   2;
-	public static final int TRANSITION_FADE_OUT                 =   3;
-	public static final int TRANSITION_SLIDE_TOP                =   4;
-	public static final int TRANSITION_SLIDE_RIGHT              =   5;
-	public static final int TRANSITION_SLIDE_BOTTOM             =   6;
-	public static final int TRANSITION_SLIDE_LEFT               =   7;
-	public static final int TRANSITION_CHANGE_BOUNDS            =   8;
-	public static final int TRANSITION_CHANGE_CLIP_BOUNDS       =   9;
-	public static final int TRANSITION_CHANGE_TRANSFORM         =   10;
-	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM   =   11;
+	public static final int TRANSITION_NONE = 0;
+	public static final int TRANSITION_EXPLODE = 1;
+	public static final int TRANSITION_FADE_IN = 2;
+	public static final int TRANSITION_FADE_OUT = 3;
+	public static final int TRANSITION_SLIDE_TOP = 4;
+	public static final int TRANSITION_SLIDE_RIGHT = 5;
+	public static final int TRANSITION_SLIDE_BOTTOM = 6;
+	public static final int TRANSITION_SLIDE_LEFT = 7;
+	public static final int TRANSITION_CHANGE_BOUNDS = 8;
+	public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
+	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
+	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
 
 	protected View nativeView; // Native View object
 
@@ -910,8 +910,8 @@ public abstract class TiUIView
 		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) { 
 		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
 		    }
-        } else if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+		} else if (Log.isDebugModeEnabled()) {
+		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
