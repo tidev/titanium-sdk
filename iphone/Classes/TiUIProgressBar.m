@@ -193,6 +193,12 @@
 	[self setNeedsLayout];
 }
 
+-(void)setTrackTintColor_:(id)value
+{
+    UIColor * newColor = [[TiUtils colorValue:value] _color];
+    [[self progress] setTrackTintColor:newColor];
+}
+
 #ifdef TI_USE_AUTOLAYOUT
 -(void)updateConstraints
 {
