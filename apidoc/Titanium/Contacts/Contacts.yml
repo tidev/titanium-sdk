@@ -331,7 +331,7 @@ properties:
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
+    constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad, android]
     since: 2.1.3
