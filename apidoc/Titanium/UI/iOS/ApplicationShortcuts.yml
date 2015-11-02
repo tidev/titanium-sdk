@@ -238,12 +238,18 @@ properties:
     optional: false
 
   - name: title
-    summary: The title of the application shortcut
+    summary: The title of the application shortcut.
+    description: |
+        The title can be localized, see [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        for more infos. 
     type: String
     optional: false
 
   - name: subtitle
-    summary: The subtitle displayed on the application shortcut
+    summary: The subtitle displayed on the application shortcut.
+    description: |
+        The subtitle can be localized, see [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        for more infos. 
     type: String
     optional: true
 
@@ -253,6 +259,9 @@ properties:
         <Titanium.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE>, a local image specified by the image path or a reference to a
         <Titanium.Contacts.Person>.
     description: |
+
+        If you are using one of the pre-defined constants, you can reference to the list of icons from Apple [here](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html#//apple_ref/c/tdef/UIApplicationShortcutIconType).
+
         If you are using an image file, enable slicing (adding the image to an asset catalog) for
         the project.  To enable slicing, add the `use-app-thinning` element to the `ios` element in the
         `tiapp.xml` file and set the value to `true`. If you do not enable slicing, the image will
