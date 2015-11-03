@@ -40,9 +40,8 @@ events:
     summary: Fired when the device detects a click against a preview action.
     description: |
         This event provides different properties depending on the view the <Titanium.UI.iOS.PreviewContext>
-        is assigned to. For example, the <Titanium.UI.ListView> and <Titanium.UI.TableView> provide the
-        additional properties `itemIndex` and `sectionIndex` to identify the previewed row and
-        section, respectively.
+        is assigned to. For example, the <Titanium.UI.ListView> provides the
+        additional properties `itemIndex` and `sectionIndex` to identify the previewed row and section, respectively.
     properties:
       - name: itemIndex
         summary: |

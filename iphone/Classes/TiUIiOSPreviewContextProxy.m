@@ -20,7 +20,6 @@
     [self setPreview:[properties valueForKey:@"preview"]];
     [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
     [self setActions:[NSMutableArray arrayWithArray:[properties valueForKey:@"actions"]]];
-    [self setPopCallback:[properties objectForKey:@"pop"]];
         
     [super _initWithProperties:properties];
 }
@@ -51,7 +50,6 @@
     
     RELEASE_TO_NIL(_preview);
     RELEASE_TO_NIL(_actions);
-    RELEASE_TO_NIL(_popCallback);
     
     [super dealloc];
 }
