@@ -1142,7 +1142,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			nil];
 }
 
-+(NSDictionary*)touchPropertysToDictionary:(UITouch*)touch:(CGPoint)point
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch:(CGPoint)point
 {
     if ([self forceTouchSupported]) {
         return [NSDictionary dictionaryWithObjectsAndKeys:

@@ -460,7 +460,7 @@ typedef enum
 
 +(NSDictionary*)sizeToDictionary:(CGSize)size;
 
-+(NSDictionary*)touchPropertysToDictionary:(UITouch*)touch:(CGPoint)point;
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch:(CGPoint)point;
 
 +(UIEdgeInsets)contentInsets:(id)value;
 
