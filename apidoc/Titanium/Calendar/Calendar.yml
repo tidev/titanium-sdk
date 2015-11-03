@@ -7,7 +7,7 @@ description: |
     Modifying or deleting existing events and creating recurring events are only supported on iOS.
 
     Currently, on Android, both read and write calendar permissions must be explicitly configured in
-    `tiapp.xml` in order to access the calendar. See "Common Requirements" in
+    `tiapp.xml` in order to access the calendar:
     
         <android xmlns:android="http://schemas.android.com/apk/res/android">
             <manifest>
