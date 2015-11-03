@@ -1,10 +1,12 @@
 ---
 name: Titanium.UI.iOS.ApplicationShortcuts
-summary: The Home screen quick action API is for adding shortcuts to your app icon that anticipate and accelerate a user's interaction with your app.
+summary: |
+    The Home screen quick actions API is for adding shortcuts to your app icon that anticipate and accelerate a 
+    user's interaction with your app.
 description: |
     3D Touch gives iOS 9 users an additional interaction dimension. On supported devices, people can quickly choose 
     app-specific actions from the Home screen by pressing on the app icon. The pressing of an application shortcut
-    will then fire the `shortcutitemclick` Titanium.App.iOS event.
+    will then fire the `shortcutitemclick` <Titanium.App.iOS> event.
 
     There are static and dynamic shortcuts to differentiate:
       * Static: Can be set in the `<ios>` section of the `tiapp.xml` before launching the app.
@@ -52,20 +54,20 @@ createable: true
 
 methods:
   - name: listDynamicShortcuts
-    summary: Returns an array of the Application Shortcuts created dynamically. 
+    summary: Returns an array of the application shortcuts created dynamically. 
     returns:
-        type: Array<Dictionary>
+        type: Array<ShortcutParams>
 
   - name: listStaticShortcuts
-    summary: Returns an array of the Application Shortcuts listed in your tiapp.xml file. 
+    summary: Returns an array of the application shortcuts listed in your tiapp.xml file. 
     returns:
-        type: Array<Dictionary>
+        type: Array<ShortcutParams>
 
   - name: removeAllDynamicShortcuts
     summary: Removes all dynamically created application shortcuts.
 
   - name: dynamicShortcutExists
-    summary: Returns true or false depending if the provided shortcut dictionary already exists.
+    summary: Returns true or false depending if the provided shortcut object already exists.
     parameters:
       - name: itemtype
         summary: Checks if the dynamic application shortcut item identified by the `itemtype` exists.
@@ -261,11 +263,12 @@ examples:
 
 ---
 name: ShortcutParams
-summary: Dictionary of options for <Titanium.UI.iOS.ApplicationShortcuts.addDynamicShortcut>.
+summary: Object of options for <Titanium.UI.iOS.ApplicationShortcuts.addDynamicShortcut>.
 platforms: [iphone]
 since: 5.1.0
 description: |
-    The parameters used when creating the dynamic shortcut.  Must include the `itemtype` and `title` properties.
+    The parameters used when creating and receiving a shortcut. When used for creation, it must include 
+    at least the `itemtype` and `title` properties.
 properties:
   - name: itemtype
     summary: The unique key for the application shortcut.
@@ -298,7 +301,7 @@ properties:
         If you are using one of the pre-defined constants, you can reference to the list of icons from Apple [here](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html#//apple_ref/c/tdef/UIApplicationShortcutIconType).
 
         If you are using an image file, enable slicing (adding the image to an asset catalog) for
-        the project.  To enable slicing, add the `use-app-thinning` element to the `ios` element in the
+        the project. To enable slicing, add the `use-app-thinning` element to the `ios` element in the
         `tiapp.xml` file and set the value to `true`. If you do not enable slicing, the image will
         not be displayed.
 
@@ -308,6 +311,16 @@ properties:
               </ios>
             </ti:app>
 
+        The recommended size for custom images is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html)  
+        for more information on shortcut icons.
+
     type: [Number,String,Titanium.Contacts.Person]
     constants: Titanium.UI.iOS.SHORTCUT_ICON_TYPE_*
+    optional: true
+
+  - name: userInfo
+    summary: The userInfo of the application shortcut.
+    description: |
+        The userInfo is an object containing information about the shortcut like an ID or details about it.
+    type: Object
     optional: true
