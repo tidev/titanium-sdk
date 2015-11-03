@@ -114,7 +114,7 @@
         {
             UITouch *touch = [touches anyObject];
             CGPoint point = [touch locationInView:self];
-            NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+            NSDictionary *evt = [TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]];
             [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
         }
     }
@@ -129,7 +129,7 @@
         if ([proxy _hasListeners:@"touchmove"])
         {
             UITouch *touch = [touches anyObject];
-            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]]];
+            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]]];
             [proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
         }
     }
@@ -144,8 +144,8 @@
         {
             UITouch *touch = [touches anyObject];
             CGPoint point = [touch locationInView:self];
-            NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
-            [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
+            NSDictionary *evt = [TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]];
+            [proxy fireEvent:@"touchend" withObject:evt propagate:YES];
         }
     }
     [super touchesEnded:touches withEvent:event];
@@ -157,8 +157,8 @@
         
         UITouch *touch = [touches anyObject];
         CGPoint point = [touch locationInView:self];
-        NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
-        [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
+        NSDictionary *evt = [TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]];
+        [proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
     }
     [super touchesCancelled:touches withEvent:event];
 }
