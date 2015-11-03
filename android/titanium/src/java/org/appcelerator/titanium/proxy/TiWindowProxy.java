@@ -518,7 +518,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity) {
-	    if (LOLLIPOP_OR_GREATER) {
+	    if (LOLLIPOP_OR_GREATER && !sharedElementPairs.isEmpty()) {
 	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
 	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
 	        return b;
