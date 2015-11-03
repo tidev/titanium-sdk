@@ -112,7 +112,10 @@
         || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchstart"])
         {
-            [proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
+            UITouch *touch = [touches anyObject];
+            CGPoint point = [touch locationInView:self];
+            NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+            [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
         }
     }
         
@@ -126,7 +129,7 @@
         if ([proxy _hasListeners:@"touchmove"])
         {
             UITouch *touch = [touches anyObject];
-            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]]];
             [proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
         }
     }
@@ -139,7 +142,10 @@
         || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchend"])
         {
-            [proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
+            UITouch *touch = [touches anyObject];
+            CGPoint point = [touch locationInView:self];
+            NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+            [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
         }
     }
     [super touchesEnded:touches withEvent:event];
@@ -148,7 +154,11 @@
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ([proxy _hasListeners:@"touchcancel"]) {
-        [proxy fireEvent:@"touchcancel" withObject:[proxy createEventObject:nil] propagate:YES];
+        
+        UITouch *touch = [touches anyObject];
+        CGPoint point = [touch locationInView:self];
+        NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+        [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
     }
     [super touchesCancelled:touches withEvent:event];
 }
