@@ -64,6 +64,13 @@
     UITableView *tableView = [self ensureTableView];
     
     if (tableView != nil) {
+        
+        // If the tap was not on a cell, don't continue
+        if ([tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]] == nil) {
+            RELEASE_TO_NIL(controller);
+            return nil;
+        }
+        
         [self setListViewEvent:[self receiveListViewEventFromIndexPath:[tableView indexPathForRowAtPoint:location]]];
         [[self previewContext] fireEvent:@"peek" withObject:[self listViewEvent]];
     } else {
