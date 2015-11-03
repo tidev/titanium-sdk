@@ -1116,12 +1116,11 @@ DEFINE_EXCEPTIONS
 	return longPressRecognizer;
 }
 
-
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
 	CGPoint tapPoint = [recognizer locationInView:self];
 	NSDictionary *event = [TiUtils pointToDictionary:tapPoint];
-	
+
 	if ([recognizer numberOfTouchesRequired] == 2) {
 		[proxy fireEvent:@"twofingertap" withObject:event];
 	}
@@ -1262,16 +1261,18 @@ DEFINE_EXCEPTIONS
 }
 
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    UITouch *touch = [touches anyObject];
-	
+{	 
 	if (handlesTouches)
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
+        UITouch *touch = [touches anyObject];
+        NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+
 		if ([proxy _hasListeners:@"touchstart"])
 		{
+
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchDown];
+            
 		}
 	}
 }
@@ -1286,13 +1287,15 @@ DEFINE_EXCEPTIONS
 
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
+		UITouch *touch = [touches anyObject];
+		NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+        
 		if ([proxy _hasListeners:@"touchmove"])
 		{
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
+            
 		}
 	}
 }
@@ -1310,7 +1313,8 @@ DEFINE_EXCEPTIONS
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
+		NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
+
 		if ([proxy _hasListeners:@"touchend"])
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
@@ -1347,7 +1351,7 @@ DEFINE_EXCEPTIONS
 	{
 		UITouch *touch = [touches anyObject];
 		CGPoint point = [touch locationInView:self];
-		NSDictionary *evt = [TiUtils pointToDictionary:point];
+		NSDictionary *evt = [TiUtils touchPropertysToDictionary:touch:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];

@@ -1114,6 +1114,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return [self dimensionValue:name properties:properties def:TiDimensionUndefined exists:NULL];
 }
 
+#pragma mark Touch Propertys
+
 +(NSDictionary*)pointToDictionary:(CGPoint)point
 {
 	return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -1139,6 +1141,24 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			[NSNumber numberWithDouble:size.height],@"height",
 			nil];
 }
+
++(NSDictionary*)touchPropertysToDictionary:(UITouch*)touch:(CGPoint)point
+{
+    if ([self forceTouchSupported]) {
+        return [NSDictionary dictionaryWithObjectsAndKeys:
+                [NSNumber numberWithDouble:point.x],@"x",
+                [NSNumber numberWithDouble:point.y],@"y",
+                [NSNumber numberWithFloat:touch.force],@"force",
+                [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+                [NSNumber numberWithFloat:touch.altitudeAngle],@"altitudeAngle",
+                [NSNumber numberWithDouble:touch.timestamp],@"timeStamp",
+                nil];
+    } else {
+        return [self pointToDictionary:point];
+    }
+}
+
+#pragma end
 
 +(CGRect)contentFrame:(BOOL)window
 {
