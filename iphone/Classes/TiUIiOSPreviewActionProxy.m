@@ -52,9 +52,10 @@
         @"style" : NUMINT([self style])
     }];
     
-    if ([self tableViewIndexPath] != nil) {
-        [event setValue:NUMINTEGER([self tableViewIndexPath].section) forKey:@"sectionIndex"];
-        [event setValue:NUMINTEGER([self tableViewIndexPath].row) forKey:@"itemIndex"];
+    if ([self listViewEvent] != nil) {
+        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"sectionIndex"]]) forKey:@"sectionIndex"];
+        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"itemIndex"]]) forKey:@"itemIndex"];
+        [event setValue:[[self listViewEvent] valueForKey:@"itemId"] forKey:@"itemId"];
     }
     
     [self fireEvent:@"click" withObject:event];

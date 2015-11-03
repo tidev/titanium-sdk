@@ -33,7 +33,7 @@
     The indexPath for accessing section and item of
     the tableView if specified.
 */
-@property(nonatomic, retain) NSIndexPath *tableViewIndexPath;
+@property(nonatomic, retain) NSDictionary *listViewEvent;
 
 /**
     Returns a configured preview action.
