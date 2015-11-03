@@ -62,7 +62,7 @@ function lockAndLoad(fn) {
 			initialized = true;
 		}
 
-		fn.apply(null, args);
+		return fn.apply(null, args);
 	};
 }
 

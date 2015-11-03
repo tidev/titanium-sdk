@@ -27,15 +27,16 @@
     "ejs": "2.3.4",
     "fields": "0.1.24",
     "humanize": "0.0.9",
-    "ioslib": "0.8.1",
-    "moment": "2.10.6",
+    "ioslib": "0.9.1",
     "markdown": "0.5.0",
+    "moment": "2.10.6",
     "node-appc": "0.2.32",
     "node-uuid": "1.4.3",
     "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
     "request": "2.64.0",
     "sprintf": "0.1.5",
     "temp": "0.8.3",
+    "titanium-sdk": "file:./node_modules/titanium-sdk",
     "uglify-js": "2.4.24",
     "windowslib": "0.1.20",
     "wrench": "1.5.8",
@@ -43,10 +44,10 @@
     "xmldom": "0.1.19"
   },
   "devDependencies": {
+    "grunt-appc-js": "*",
+    "grunt-clang-format": "*",
     "grunt-cli": "*",
     "grunt-contrib-clean": "^0.6.0",
-    "grunt-clang-format": "*",
-    "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.12.7",
     "mocha": "*",
     "optimist": "~0.6.1",
@@ -60,7 +61,7 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=0.10.0 <=4.1.x"
+    "node": ">=0.10.0 <=5.x"
   },
   "engines": {
     "node": ">=0.10.13"
