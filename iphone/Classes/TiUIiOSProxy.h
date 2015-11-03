@@ -148,6 +148,9 @@
 -(id)createPreviewActionGroup:(id)args;
 -(id)createPreviewContext:(id)args;
 #endif
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args;
+#endif
 #endif
 
 #if IS_XCODE_7

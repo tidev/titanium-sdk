@@ -16,6 +16,10 @@
 #import "TiUIiOSPreviewActionGroupProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+#import "TiUIiOSMenuPopupProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -382,6 +386,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args
+{
+    return [[[TiUIiOSMenuPopupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR
