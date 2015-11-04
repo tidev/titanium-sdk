@@ -311,7 +311,7 @@ properties:
               </ios>
             </ti:app>
 
-        The recommended size for custom images is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html)  
+        The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UIApplicationShortcutIcon_Class/index.html)  
         for more information on shortcut icons.
 
     type: [Number,String,Titanium.Contacts.Person]
