@@ -203,7 +203,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     if ([TiUtils isIOS9OrGreater]) {
-        _tableView.cellLayoutMarginsFollowReadableWidth = false;
+        _tableView.cellLayoutMarginsFollowReadableWidth = NO;
     }
     
     return _tableView;
