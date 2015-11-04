@@ -568,6 +568,12 @@ typedef enum
 +(BOOL)isIOS9OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 9.0.
+ @return _YES_ if the current OS version is equal to or greater thann 9.0, _NO_ otherwise.
+ */
++(BOOL)isIOS9_1OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
@@ -656,5 +662,11 @@ typedef enum
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)forceTouchSupported;
+
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
 
 @end

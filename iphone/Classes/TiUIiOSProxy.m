@@ -16,6 +16,10 @@
 #import "TiUIiOSPreviewActionGroupProxy.h"
 #endif
 
+#if IS_XCODE_7_1
+#import "TiUIiOSLivePhotoViewProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -170,6 +174,26 @@
     return nil;
 }
 #endif
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_FULL
+{
+#if IS_XCODE_7_1
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
+    }
+#endif
+    return nil;
+}
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_HINT
+{
+#if IS_XCODE_7_1
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
+    }
+#endif
+    return nil;
+}
 
 
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
@@ -382,6 +406,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#endif
+
+#if IS_XCODE_7_1
+-(id)createLivePhotoView:(id)args
+{
+    return [[[TiUIiOSLivePhotoViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR

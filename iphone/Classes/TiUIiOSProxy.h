@@ -36,6 +36,9 @@
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
 #endif
 
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
@@ -147,6 +150,9 @@
 -(id)createPreviewAction:(id)args;
 -(id)createPreviewActionGroup:(id)args;
 -(id)createPreviewContext:(id)args;
+#endif
+#if IS_XCODE_7_1
+-(id)createLivePhotoView:(id)args;
 #endif
 #endif
 

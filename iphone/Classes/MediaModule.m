@@ -31,6 +31,11 @@
 #import <AVFoundation/AVFoundation.h>
 
 #import <UIKit/UIPopoverController.h>
+
+#if IS_XCODE_7_1
+#import <Photos/Photos.h>
+#import "TiUIiOSLivePhoto.h"
+#endif
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
 
@@ -317,6 +322,16 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 //Constants for mediaTypes in showCamera
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO,kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
+#if IS_XCODE_7_1
+-(NSString*)MEDIA_TYPE_LIVE_PHOTO
+{
+    if ([TiUtils isIOS9_1OrGreater] == YES) {
+        return (NSString*)kUTTypeLivePhoto;
+    }
+    
+    return @"";
+}
+#endif
 
 //Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
@@ -1449,6 +1464,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         
         BOOL movieRequired = NO;
         BOOL imageRequired = NO;
+        BOOL livePhotoRequired = NO;
         
         if ([types isKindOfClass:[NSArray class]])
         {
@@ -1462,6 +1478,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 {
                     imageRequired = YES;
                 }
+#if IS_XCODE_7_1
+                else if ([TiUtils isIOS9_1OrGreater] == YES && [[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeLivePhoto])
+                {
+                    livePhotoRequired = YES;
+                }
+#endif
             }
             picker.mediaTypes = [NSArray arrayWithArray:types];
         }
@@ -1485,16 +1507,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             return ;
         }
         
-        // introduced in 3.1
-        id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
-        if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
+        double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
+        double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
+        
+        if (videoMaximumDuration != 0.0)
         {
-            [picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
+            [picker setVideoMaximumDuration:videoMaximumDuration/1000];
         }
-        id videoQuality = [args objectForKey:@"videoQuality"];
-        if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])
+
+        if (videoQuality != 0.0)
         {
-            [picker setVideoQuality:[videoQuality doubleValue]];
+            [picker setVideoQuality:videoQuality];
         }
     }
 
@@ -1576,7 +1599,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
 	NSDictionary* saveCallbacks = (NSDictionary*)contextInfo;
 	TiBlob* blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-	
+    
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
@@ -1713,11 +1736,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         mediaType = (NSString*)kUTTypeImage; // default to in case older OS
     }
     BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
+    BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
     
     NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
+    TiUIiOSLivePhoto *livePhoto = nil;
     TiBlob *thumbnail = nil;
 
     BOOL imageWrittenToAlbum = NO;
@@ -1779,6 +1804,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             NSString *tempFilePath = [mediaURL path];
             UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
         }
+    }
+    else if(isLivePhoto) {
+        livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
+        media = [[TiBlob alloc] initWithImage:[[UIImage alloc] init]];
     }
     else {
         UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
@@ -1845,8 +1874,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [dictionary setObject:mediaType forKey:@"mediaType"];
     [dictionary setObject:media forKey:@"media"];
 
-    if (thumbnail!=nil) {
+    if (thumbnail != nil) {
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
+    }
+    
+    if (livePhoto != nil) {
+        [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
 
     if (cropRect != nil) {

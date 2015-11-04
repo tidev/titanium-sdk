@@ -196,6 +196,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
 }
 
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -1933,6 +1938,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         return NO;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+#else
+    return NO;
+#endif
+}
+
++(BOOL)livePhotoSupported
+{
+#if IS_XCODE_7_1
+    return [self isIOS9_1OrGreater] == YES;
 #else
     return NO;
 #endif

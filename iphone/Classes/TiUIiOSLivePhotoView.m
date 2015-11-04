@@ -1,0 +1,112 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+#import "TiUIiOSLivePhotoView.h"
+#import "TiUIiOSLivePhotoViewProxy.h"
+
+@implementation TiUIiOSLivePhotoView
+
+@synthesize livePhotoView = _livePhotoView;
+
+- (TiUIiOSLivePhotoViewProxy *)livePhotoViewProxy
+{
+    return (TiUIiOSLivePhotoViewProxy *)self.proxy;
+}
+
+
+-(PHLivePhotoView*)livePhotoView
+{
+    if (_livePhotoView == nil) {
+        CGRect bounds = [self livePhotoViewProxy].view.bounds;
+        _livePhotoView = [[PHLivePhotoView alloc] initWithFrame:self.bounds];
+        
+        autoWidth = self.livePhotoView.livePhoto.size.width;
+        autoHeight = self.livePhotoView.livePhoto.size.height;
+        
+        [self addSubview:_livePhotoView];
+    }
+    
+    return _livePhotoView;
+}
+
+-(void)initializeState
+{
+    TiUIiOSLivePhoto *livePhoto = [[self livePhotoViewProxy] valueForKey:@"livePhoto"];
+    ENSURE_TYPE(livePhoto, TiUIiOSLivePhoto);
+    
+    [[self livePhotoView] setLivePhoto:[livePhoto livePhoto]];
+    [super initializeState];
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(self.livePhotoView);
+    
+    [super dealloc];
+}
+
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    for (UIView *child in [self subviews])
+    {
+        [TiUtils setView:child positionRect:bounds];
+    }
+    
+    [super frameSizeChanged:frame bounds:bounds];
+}
+
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
+{
+    if (autoWidth > 0)
+    {
+        //If height is DIP returned a scaled autowidth to maintain aspect ratio
+        if (TiDimensionIsDip(height) && autoHeight > 0) {
+            return roundf(autoWidth*height.value/autoHeight);
+        }
+        return autoWidth;
+    }
+    
+    CGFloat calculatedWidth = TiDimensionCalculateValue(width, autoWidth);
+    if (calculatedWidth > 0)
+    {
+        return calculatedWidth;
+    }
+    
+    return 0;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)width_
+{
+    if (width_ != autoWidth && autoWidth>0 && autoHeight > 0) {
+        return (width_*autoHeight/autoWidth);
+    }
+    
+    if (autoHeight > 0)
+    {
+        return autoHeight;
+    }
+    
+    CGFloat calculatedHeight = TiDimensionCalculateValue(height, autoHeight);
+    if (calculatedHeight > 0)
+    {
+        return calculatedHeight;
+    }
+    
+    return 0;
+}
+
+-(UIViewContentMode)contentMode
+{
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) ||
+        TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+        return UIViewContentModeScaleAspectFit;
+    } else {
+        return UIViewContentModeScaleToFill;
+    }
+}
+
+@end
