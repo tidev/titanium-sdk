@@ -1264,8 +1264,8 @@ DEFINE_EXCEPTIONS
 {	 
 	if (handlesTouches)
 	{
-        UITouch *touch = [touches anyObject];
-        NSDictionary *evt = [TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]];
+		UITouch *touch = [touches anyObject];
+		NSDictionary *evt = [TiUtils touchPropertiesToDictionary:touch:[touch locationInView:self]];
 
 		if ([proxy _hasListeners:@"touchstart"])
 		{
