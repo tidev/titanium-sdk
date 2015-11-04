@@ -313,7 +313,7 @@ public class MediaModule extends KrollModule
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
 	    }
-	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
 	    } 
@@ -367,7 +367,7 @@ public class MediaModule extends KrollModule
 		}
 		
 
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 		
 	}
