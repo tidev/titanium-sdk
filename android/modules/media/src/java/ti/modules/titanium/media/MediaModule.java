@@ -298,6 +298,27 @@ public class MediaModule extends KrollModule
 		return false;		
 	}
 	
+	private boolean hasCameraPermission() {
+	    if (Build.VERSION.SDK_INT < 23) {
+	        return true;
+	    }
+	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+	    if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+	        return true;
+	    } 
+	    return false;
+	}
+
+	private boolean hasStoragePermission() {
+	    if (Build.VERSION.SDK_INT < 23) {
+	        return true;
+	    }
+	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+	        return true;
+	    } 
+	    return false;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Kroll.method
@@ -336,9 +357,18 @@ public class MediaModule extends KrollModule
 			TiBaseActivity.cameraCallbackContext = getKrollObject();
 		}
 		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+		String[] permissions = null;
+		if (!hasCameraPermission() && !hasStoragePermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+		} else if (!hasCameraPermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA};
+		} else {
+	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+		}
+		
 
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
-		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CODE_CAMERA);
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 		
 	}
 
