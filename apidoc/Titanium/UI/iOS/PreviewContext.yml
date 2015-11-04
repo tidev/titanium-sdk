@@ -42,8 +42,8 @@ properties:
     summary: The preview view.
     description: |
         Provides the preview for "peeking". This view is independent from the window which can be openend after
-        "popping" the preview to give you the change to provide different layouts for the preview and the full
-        window.
+        "popping" the preview to give you the ability to provide different layouts for the preview and the full
+        window. If you want to adjust the preview inside the `peek` event, change the view assigned to this property.
     type: Titanium.UI.View
 
 events:
