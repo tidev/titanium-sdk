@@ -34,11 +34,6 @@
 @property(nonatomic) int contentHeight;
 
 /**
-    The callback to be triggered after "popping" the window.
- */
-@property(nonatomic,retain) KrollCallback *popCallback;
-
-/**
     Connectes the collected preview data to the iOS delegates.
  */
 -(void)connectToDelegate;
