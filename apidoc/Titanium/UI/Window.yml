@@ -14,7 +14,7 @@ methods:
     parameters:
       - name: view
         summary: The shared view from the current window. 
-        type: View
+        type: Titanium.UI.View
       - name: transitionName
         summary: The assigned common transition name of UI elements in both windows. 
         type: String
