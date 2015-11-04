@@ -581,6 +581,7 @@ properties:
         improves the loading of images, but can also cause trouble in list views having a lot of
         remote images, because every remote image opens a new HTTP request.
     default: true
+    type: Boolean
     since: 5.1.0
     platforms: [iphone, ipad]
 
