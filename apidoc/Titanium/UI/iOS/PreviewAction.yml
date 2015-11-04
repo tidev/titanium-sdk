@@ -40,17 +40,29 @@ events:
     summary: Fired when the device detects a click against a preview action.
     description: |
         This event provides different properties depending on the view the <Titanium.UI.iOS.PreviewContext>
-        is assigned to. For example, the <Titanium.UI.ListView> provides the
-        additional properties `itemIndex` and `sectionIndex` to identify the previewed row and section, respectively.
+        is assigned to. Every event has the `index` property to identify the clicked action. If the <Titanium.UI.iOS.PreviewContext>
+        is assigned to a <Titanium.UI.ListView>, the event provides the additional properties `itemIndex`, `sectionIndex` 
+        and `itemId` to identify the previewed row and section, respectively.
     properties:
+      - name: index
+        summary: |
+            The index of the clicked action.
+        type: Number
+
       - name: itemIndex
         summary: |
             The index of the clicked row, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
-            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+            is a <Titanium.UI.ListView>.
         type: Number
 
       - name: sectionIndex
         summary: |
             The index of the clicked section, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
-            is either a <Titanium.UI.ListView> or a <Titanium.UI.TableView>.
+            is a <Titanium.UI.ListView>.
         type: Number
+
+      - name: itemId
+        summary: |
+            The item ID of cell, if the `previewContext` property of the <Titanium.UI.iOS.PreviewContext>
+            is a <Titanium.UI.ListView>.
+        type: String
