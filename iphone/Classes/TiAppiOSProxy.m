@@ -167,12 +167,18 @@
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
-    NSDictionary *event = @{
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary: @{
         @"title" : [[info userInfo] valueForKey:@"title"],
-        @"subtitle" : [[info userInfo] valueForKey:@"subtitle"],
-        @"itemtype" : [[info userInfo] valueForKey:@"type"],
-        @"userInfo" : [[info userInfo] objectForKey:@"userInfo"],
-    };
+        @"itemtype" : [[info userInfo] valueForKey:@"type"]
+    }];
+    
+    if ([[info userInfo] valueForKey:@"subtitle"] != nil) {
+        [event setValue:[[info userInfo] valueForKey:@"subtitle"] forKey:@"subtitle"];
+    }
+    
+    if ([[info userInfo] objectForKey:@"userInfo"] != nil) {
+        [event setValue:[[info userInfo] objectForKey:@"userInfo"] forKey:@"userInfo"];
+    }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
 }

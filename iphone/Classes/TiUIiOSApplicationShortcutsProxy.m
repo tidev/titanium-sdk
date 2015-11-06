@@ -104,7 +104,7 @@
     ENSURE_SINGLE_ARG(itemtype,NSString);
     
     if ([TiUtils stringValue:itemtype] == nil) {
-        NSLog(@"[ERROR] The itemtype property is required.");
+        NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
         return;
     }
     
@@ -157,55 +157,38 @@
     ENSURE_SINGLE_ARG(args,NSDictionary);
     
     if ([args objectForKey:@"itemtype"] == nil) {
-        NSLog(@"[ERROR] The itemtype property is required.");
+        NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
         return;
     }
     
     if ([args objectForKey:@"title"] == nil) {
-        NSLog(@"[ERROR] The title property is required.");
+        NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The title property is required.");
         return;
     }
     
     if ([self typeExists:[args objectForKey:@"itemtype"]]) {
-        NSLog(@"[ERROR] The itemtype for the shortcut %@ already exists. This field must be unique.",
+        NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype for the shortcut %@ already exists. This field must be unique.",
               [args objectForKey:@"itemtype"]);
         return;
     }
     
-    UIApplicationShortcutItem *shortcut = nil;
+    UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
+                                                     localizedTitle:[args objectForKey:@"title"]
+                                                  localizedSubtitle:[args objectForKey:@"subtitle"]
+                                                               icon: [self findIcon:[args objectForKey:@"icon"]]
+                                                           userInfo:[args objectForKey:@"userInfo"]] autorelease];
     
-    if ([args objectForKey:@"subtitle"] != nil) {
-        if ([args objectForKey:@"icon"] == nil) {
-            NSLog(@"[ERROR] You have defined a subtitle without defining an icon.");
-            return;
-        } else {
-            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
-                                                         localizedTitle:[args objectForKey:@"title"]
-                                                      localizedSubtitle:[args objectForKey:@"subtitle"]
-                                                                   icon: [self findIcon:[args objectForKey:@"icon"]]
-                                                               userInfo:[args objectForKey:@"userInfo"]]autorelease];
-        }
-    } else {
-        if ([args objectForKey:@"icon"] != nil ||
-           [args objectForKey:@"userInfo"] != nil) {
-            NSLog(@"[ERROR] You have defined an icon or userInfo without defining a subtitle. You must define a subtitle if you have defined an icon or userInfo.");
-            return;
-        } else {
-            shortcut = [[[UIApplicationShortcutItem alloc] initWithType:[args objectForKey:@"itemtype"]
-                                                         localizedTitle:[args objectForKey:@"title"]]autorelease];
-        }
-    }
-    
-    if (shortcut!=nil) {
-        NSMutableArray *shortcuts = (NSMutableArray*) [UIApplication sharedApplication].shortcutItems;
-        [shortcuts addObject:shortcut];
-        [UIApplication sharedApplication].shortcutItems = shortcuts;
-    }
-    
+    NSMutableArray *shortcuts = (NSMutableArray*) [UIApplication sharedApplication].shortcutItems;
+    [shortcuts addObject:shortcut];
+    [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
 -(UIApplicationShortcutIcon*)findIcon:(id)value
 {
+    if(value == nil) {
+        return nil;
+    }
+    
 #ifdef USE_TI_CONTACTS
     if([value isKindOfClass:[TiContactsPerson class]]) {
         ENSURE_TYPE(value, TiContactsPerson);
@@ -226,7 +209,7 @@
         return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
     }
     
-    NSLog(@"[ERROR] Invalid icon provided, defaulting to Ti.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to Ti.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE.");
     return UIApplicationShortcutIconTypeCompose;
 }
 

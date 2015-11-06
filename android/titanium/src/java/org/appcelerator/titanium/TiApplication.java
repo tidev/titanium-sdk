@@ -340,7 +340,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
-	private void loadAppProperties() {
+	public void loadAppProperties() {
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -422,8 +422,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postOnCreate()
 	{
-		loadAppProperties();
-
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
 			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
