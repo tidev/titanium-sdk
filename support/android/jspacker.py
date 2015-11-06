@@ -108,7 +108,7 @@ class Crypt(object):
     output = open(os.path.join(target_dir, 'AssetCryptImpl.java'), 'w')
 
     sys.stdout.flush()
-    cmdargs = [titanium_prep, package, asset_dir]
+    cmdargs = [titanium_prep, "-v", package, asset_dir]
     cmdargs.extend(self.files)
     so, process = run.run(cmdargs, return_process=True)
     retcode = process.returncode
