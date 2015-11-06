@@ -7,53 +7,86 @@
 
 #ifdef USE_TI_UIIOSMENUPOPUP
 #import "TiUIiOSMenuPopupProxy.h"
+#import "TiUIiOSMenuPopup.h"
 #import "TiUtils.h"
 #import "TiApp.h"
+
+@interface TiUIiOSMenuPopupProxy()
+@property(nonatomic,assign) TiUIiOSMenuPopup *menuPopup;
+@end
 
 @implementation TiUIiOSMenuPopupProxy
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    ENSURE_TYPE([properties objectForKey:@"items"], NSArray);
-    
     [self setMenuItems:[NSMutableArray array]];
-    
-    for(NSString *item in [properties objectForKey:@"items"]) {
-        [[self menuItems] addObject:[[UIMenuItem alloc] initWithTitle:[TiUtils stringValue:item] action:@selector(handleMenuItemClick:)]];
-    }
+    [self registerNotificationCenter];
     
     [super _initWithProperties:properties];
 }
 
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
+}
+
+-(TiUIiOSMenuPopup*)menuPopup
+{
+    return (TiUIiOSMenuPopup*)self.view;
+}
+
 -(void)show:(id)args
 {
-    ENSURE_TYPE([[args objectAtIndex:0] valueForKey:@"view"], TiViewProxy);
-    
-    TiViewProxy *sourceView = (TiViewProxy*)[[args objectAtIndex:0] valueForKey:@"view"];
-    UIView *view = [sourceView view];
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-    
-    [[[[TiApp app] controller] view] becomeFirstResponder];
-    
-    [[UIMenuController sharedMenuController] setMenuItems:[self menuItems]];
-    [[UIMenuController sharedMenuController] setTargetRect:[view bounds] inView:view];
-    [[UIMenuController sharedMenuController] setMenuVisible:YES animated:animated];
+    [[self menuPopup] show:args];
 }
 
 -(void)hide:(id)args
 {
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-
-    [[UIMenuController sharedMenuController] setMenuVisible:NO animated:animated];
+    [[self menuPopup] hide:args];
 }
 
--(void)handleMenuItemClick:(id)sender
+-(void)menuPopupWillShow:(NSNotification*)notification
 {
-    NSLog(@"Clicked");
+    [self rememberSelf];
+}
 
-    if ([self _hasListeners:@"click"]) {
-        [self fireEvent:@"click" withObject:nil];
+-(void)menuPopupWillHide:(NSNotification*)notification
+{
+    [self forgetSelf];
+    [[self menuPopup] removeFromSuperview];
+}
+
+-(void)setItems:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args, NSArray);
+    
+    [self replaceValue:args forKey:@"items" notification:NO];
+    [self setMenuItems:[NSMutableArray array]];
+    
+    if(args != nil) {
+        for(NSString *item in args) {
+            NSString *identifier = [NSString stringWithFormat:@"menuItem-%lu", (unsigned long)[args indexOfObject:item]];
+            
+            UIMenuItem *menuItem = [[[UIMenuItem alloc] initWithTitle:[TiUtils stringValue:item] action:NSSelectorFromString(identifier)] autorelease];
+            [[self menuItems] addObject:menuItem];
+        }
     }
+}
+
+-(void)registerNotificationCenter
+{
+    // Will show
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuPopupWillShow:) name:UIMenuControllerWillShowMenuNotification object:nil];
+    
+    // Did show - Not used, yet
+    // [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuPopupDidShow:) name:UIMenuControllerDidShowMenuNotification object:nil];
+
+    // Will hide
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuPopupWillHide:) name:UIMenuControllerWillHideMenuNotification object:nil];
+    
+    // Did hide - Not used, yet
+    // [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuPopupDidHide:) name:UIMenuControllerDidHideMenuNotification object:nil];
 }
 
 @end

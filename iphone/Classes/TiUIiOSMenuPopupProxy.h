@@ -5,9 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSMENUPOPUP
-#import "TiProxy.h"
+#import "TiViewProxy.h"
+@class TiUIiOSMenuPopup;
 
-@interface TiUIiOSMenuPopupProxy : TiProxy
+@interface TiUIiOSMenuPopupProxy : TiViewProxy
 
 /*
  *  The menu items to be presented inside the menu.
