@@ -492,7 +492,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	}
 
 	public void setTintColor(String color){
-		tintColor = TiColorHelper.parseColor(color);
+		this.tintColor = TiColorHelper.parseColor(color);
 		imageView.setColorFilter(TiColorHelper.parseColor(color), Mode.MULTIPLY);
 	}
 
