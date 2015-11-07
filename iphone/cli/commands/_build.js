@@ -2060,6 +2060,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.description        = this.tiapp.description,
 	this.currentBuildManifest.copyright          = this.tiapp.copyright,
 	this.currentBuildManifest.guid               = this.tiapp.guid,
+	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
 
@@ -2096,8 +2097,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
 		this.whitelistAppceleratorDotCom = false;
 	}
-
-	this.useAppThinning = this.tiapp.ios && (this.tiapp.ios['use-app-thinning'] === true);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2174,7 +2173,7 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 	// becomes incomplete, the next build will be a full rebuild
 	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 
-	delete this.buildDirFiles[this.buildManifestFile];
+	this.unmarkBuildDirFile(this.buildManifestFile);
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
@@ -2355,6 +2354,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: use UserAutoLayout flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAutoLayout));
 			this.logger.info('  ' + __('Now: %s', this.useAutoLayout));
+			return true;
+		}
+
+		// check if the use use-app-thinning flag has changed
+		if (this.useAppThinning !== manifest.useAppThinning) {
+			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
+			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
 			return true;
 		}
 
@@ -3038,7 +3045,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 
 		done();
 	});
@@ -3062,7 +3069,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 		}
 	});
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	// write the entitlements.plist
 	var contents = plist.toString('xml');
@@ -3262,6 +3269,8 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			}
 		});
 	});
+
+	plist.UILaunchStoryboardName = 'LaunchScreen';
 
 	function merge(src, dest) {
 		Object.keys(src).forEach(function (prop) {
@@ -3476,7 +3485,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.writeMain = function writeMain() {
@@ -3515,7 +3524,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
@@ -3546,7 +3555,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', this.xcodeProjectConfigFile.cyan));
 	}
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	// write the module.xcconfig
 	var variables = {};
@@ -3591,7 +3600,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
@@ -3622,7 +3631,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 			size:  srcStat.size
 		};
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}, this);
 };
 
@@ -3689,7 +3698,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 					changed = false;
 
-				delete this.buildDirFiles[destFile];
+				this.unmarkBuildDirFile(destFile);
 
 				this.currentBuildManifest.files[rel] = {
 					hash: srcHash,
@@ -3776,7 +3785,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			size:  contents === null && prev ? prev.size  : srcStat.size
 		};
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}
 
 	copyAndReplaceFile.call(
@@ -3789,6 +3798,14 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
+
+	if (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
+		this.defaultLaunchScreenStoryboard = false;
+	} else {
+		this.defaultLaunchScreenStoryboard = true;
+		this.logger.info(__('Installing default LaunchScreen.storyboard'));
+		copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'LaunchScreen.storyboard'), path.join(this.buildDir, 'LaunchScreen.storyboard'));
+	}
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
@@ -3808,7 +3825,7 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: this.ignoreFiles,
 			beforeCopy: function (srcFile, destFile, srcStat) {
-				delete this.buildDirFiles[destFile];
+				this.unmarkBuildDirFile(destFile);
 
 				if (path.basename(srcFile) === 'Info.plist') {
 					// validate the info.plist
@@ -3973,7 +3990,7 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 			this.logger.debug(__('Skipping %s', dest.cyan));
 		}
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}
 
 	processPlist.call(this, 'debugger.plist', this.debugHost);
@@ -3994,6 +4011,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/,
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'),
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
+		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
 
 		resourcesToCopy = {},
 		jsFiles = {},
@@ -4001,6 +4019,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		htmlJsFiles = {},
 		appIcons = {},
 		launchImages = {},
+		launchLogos = {},
 		imageAssets = {};
 
 	function walk(src, dest, ignore, origSrc) {
@@ -4054,8 +4073,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'png':
 					case 'jpg':
-						if (useAppThinning) {
+						// if the image is the LaunchLogo.png, then let that pass so we can use it
+						// in the LaunchScreen.storyboard
+						var m = name.match(launchLogoRegExp);
+						if (m) {
+							info.scale = m[1];
+							info.device = m[2];
+							launchLogos[relPath] = info;
+
+						// if we are using app thinning, then don't copy the image, instead mark the
+						// image to be injected into the asset catalog
+						} else if (useAppThinning) {
 							imageAssets[relPath] = info;
+
 						} else {
 							resourcesToCopy[relPath] = info;
 						}
@@ -4142,7 +4172,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		var parent = path.dirname(dest),
 			contents = JSON.stringify(json, null, '  ');
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 
 		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
 			if (!this.forceRebuild) {
@@ -4320,7 +4350,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					var src = path.join(this.projectDir, artwork.filename),
 						dest = path.join(this.xcodeAppDir, artwork.filename);
 
-					delete this.buildDirFiles[dest];
+					this.unmarkBuildDirFile(dest);
 
 					try {
 						if (!fs.existsSync(src)) {
@@ -4355,146 +4385,248 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				}, this);
 			}
 
-			if (!Object.keys(lookup).length) {
-				// wow, we had all of the icons! amazing!
-				if (this.target === 'dist-adhoc') {
-					this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
-				} else {
-					this.logger.debug(__('All app icons are present and are correct'));
-				}
-				writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
-				return next();
-			}
+			series(this, [
+				function (next) {
+					if (!Object.keys(lookup).length) {
+						// wow, we had all of the icons! amazing!
+						if (this.target === 'dist-adhoc') {
+							this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
+						} else {
+							this.logger.debug(__('All app icons are present and are correct'));
+						}
+						writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+						return next();
+					}
 
-			Object.keys(lookup).forEach(function (key) {
-				var meta = lookup[key],
-					width = meta.width * meta.scale,
-					height = meta.height * meta.scale,
-					filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
-					dest = path.join(appIconSetDir, filename);
+					Object.keys(lookup).forEach(function (key) {
+						var meta = lookup[key],
+							width = meta.width * meta.scale,
+							height = meta.height * meta.scale,
+							filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
+							dest = path.join(appIconSetDir, filename);
 
-				delete this.buildDirFiles[dest];
+						this.unmarkBuildDirFile(dest);
 
-				// inject images into the app icon set
-				meta.idioms.forEach(function (idiom) {
-					appIconSet.images.push({
-						size:     meta.width + 'x' + meta.height,
-						idiom:    idiom,
-						filename: filename,
-						scale:    meta.scale + 'x'
+						// inject images into the app icon set
+						meta.idioms.forEach(function (idiom) {
+							appIconSet.images.push({
+								size:     meta.width + 'x' + meta.height,
+								idiom:    idiom,
+								filename: filename,
+								scale:    meta.scale + 'x'
+							});
+						});
+
+						// check if the icon was previously resized
+						if (!defaultIconChanged && fs.existsSync(dest)) {
+							var contents = fs.readFileSync(dest),
+								pngInfo = appc.image.pngInfo(contents);
+
+							if (pngInfo.width === width && pngInfo.height === height) {
+								this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
+								// icon looks good, no need to generate it!
+								return;
+							}
+						}
+
+						missingIcons.push({
+							description: __('%s - Used for %s',
+								'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
+								meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
+							),
+							file: dest,
+							width: width,
+							height: height,
+							required: !!meta.required
+						});
+					}, this);
+
+					writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+
+					next();
+				},
+
+				function processLaunchScreenImages(next) {
+					if (!this.defaultLaunchScreenStoryboard) {
+						return next();
+					}
+
+					var assetCatalogDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchLogo.imageset'),
+						images = [],
+						lookup = {
+							'LaunchLogo~iphone':    { idiom: 'iphone', scale: 1, size: 320 },
+							'LaunchLogo@2x~iphone': { idiom: 'iphone', scale: 2, size: 374 },
+							'LaunchLogo@3x~iphone': { idiom: 'iphone', scale: 3, size: 621 },
+							'LaunchLogo~ipad':      { idiom: 'ipad', scale: 1, size: 384 },
+							'LaunchLogo@2x~ipad':   { idiom: 'ipad', scale: 2, size: 1024 }
+						};
+
+					fs.existsSync(assetCatalogDir) || wrench.mkdirSyncRecursive(assetCatalogDir);
+
+					if (!Object.keys(launchLogos).length) {
+						this.logger.warn(__('Didn\'t find any LaunchLogo images'));
+
+						if (!defaultIcon) {
+							this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
+
+							// copy the default launch logos
+							var defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset');
+							fs.readdirSync(defaultLaunchLogosDir).forEach(function (name) {
+								resourcesToCopy[name] = {
+									src: path.join(defaultLaunchLogosDir, name),
+									dest: path.join(assetCatalogDir, name)
+								};
+							});
+							return next();
+						}
+
+						this.logger.warn(__('Generating LaunchLogo images from DefaultIcon.png'));
+
+						Object.keys(lookup).forEach(function (name) {
+							var spec = lookup[name],
+								filename = name + '.png',
+								dest = path.join(assetCatalogDir, filename);
+							missingIcons.push({
+								description: __('%s - Used for %s',
+									'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
+									spec.idiom
+								),
+								file: dest,
+								width: spec.size,
+								height: spec.size,
+								required: false
+							});
+							images.push({
+								size: spec.size + 'x' + spec.size,
+								idiom: spec.idiom,
+								filename: filename,
+								scale: spec.scale + 'x'
+							});
+							this.unmarkBuildDirFile(dest);
+						}, this);
+					} else {
+						Object.keys(launchLogos).forEach(function (file) {
+							if (!lookup[file]) {
+								return;
+							]
+							delete lookup[file];
+
+							var img = launchLogos[file];
+
+							images.push({
+								// size?
+								idiom: img.device || 'universal',
+								filename: img.name + '.' + img.ext,
+								scale: (img.scale || 1) + 'x'
+							});
+
+							dest = path.join(assetCatalogDir, img.name + '.' + img.ext);
+							img.dest = dest;
+							resourcesToCopy[file] = img;
+						}, this);
+					}
+
+					if (Object.keys(lookup).length) {
+						dump(lookup);
+						// WARN!!
+					}
+
+					writeAssetContentsFile.call(this, path.join(assetCatalogDir, 'Contents.json'), {
+						images: images,
+						info: {
+							version: 1,
+							author: 'xcode'
+						}
 					});
-				});
 
-				// check if the icon was previously resized
-				if (!defaultIconChanged && fs.existsSync(dest)) {
-					var contents = fs.readFileSync(dest),
-						pngInfo = appc.image.pngInfo(contents);
+					next();
+				}
+			], function () {
+				if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+					this.defaultIcons = [ flattenedDefaultIconDest ];
+					flattenIcons.push({
+						name: path.basename(defaultIcon),
+						src: defaultIcon,
+						dest: flattenedDefaultIconDest
+					});
+					this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
+					this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
+					this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
+				}
 
-					if (pngInfo.width === width && pngInfo.height === height) {
-						this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
-						// icon looks good, no need to generate it!
+				async.eachLimit(flattenIcons, 5, function (icon, next) {
+					this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
+					var _t = this;
+					fs.createReadStream(icon.src)
+						.pipe(new PNG({
+							colorType: 2,
+							bgColor: {
+								red: 255,
+								green: 255,
+								blue: 255
+							}
+						}))
+						.on('parsed', function() {
+							if (icon.dest === flattenedDefaultIconDest) {
+								// if the icon we just flattened is the DefaultIcon, then we need to
+								// update the currentBuildManifest which means we can't just pipe the
+								// the flattened icon to disk, we need to compute the hash and stat it
+								var buf = [];
+								this.pack()
+									.on('data', function (bytes) {
+										buf.push(new Buffer(bytes));
+									})
+									.on('end', function (err) {
+										if (err) {
+											return next(err);
+										}
+
+										var contents = Buffer.concat(buf);
+										fs.writeFileSync(icon.dest, contents);
+
+										var stat = fs.statSync(icon.dest);
+										_t.currentBuildManifest.files['DefaultIcon.png'] = {
+											hash: _t.hash(contents),
+											mtime: JSON.parse(JSON.stringify(stat.mtime)),
+											size: stat.size
+										};
+
+										next();
+									});
+								return;
+							}
+
+							this.pack()
+								.on('end', next)
+								.pipe(fs.createWriteStream(icon.dest));
+						});
+				}.bind(this), function (err) {
+					if (!missingIcons.length) {
+						return next();
+					}
+
+					if (!defaultIcon) {
+						// we're going to fail, but we let generateAppIcons() do the dirty work
+						this.generateAppIcons(missingIcons, next);
 						return;
 					}
-				}
 
-				missingIcons.push({
-					description: __('%s - Used for %s',
-						'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
-						meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
-					),
-					file: dest,
-					width: width,
-					height: height,
-					required: !!meta.required
-				});
-			}, this);
+					if (!defaultIconChanged) {
+						// we have missing icons, but the default icon hasn't changed
+						// call generateAppIcons() and have it deal with determining if the icons need
+						// to be generated or if it needs to error out
+						this.generateAppIcons(missingIcons, next);
+						return;
+					}
 
-			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
+						this.forceRebuild = true;
+					}
 
-			if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
-				this.defaultIcons = [ flattenedDefaultIconDest ];
-				flattenIcons.push({
-					name: path.basename(defaultIcon),
-					src: defaultIcon,
-					dest: flattenedDefaultIconDest
-				});
-				this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
-				this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
-				this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
-			}
-
-			async.eachLimit(flattenIcons, 5, function (icon, next) {
-				this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
-				var _t = this;
-				fs.createReadStream(icon.src)
-					.pipe(new PNG({
-						colorType: 2,
-						bgColor: {
-							red: 255,
-							green: 255,
-							blue: 255
-						}
-					}))
-					.on('parsed', function() {
-						if (icon.dest === flattenedDefaultIconDest) {
-							// if the icon we just flattened is the DefaultIcon, then we need to
-							// update the currentBuildManifest which means we can't just pipe the
-							// the flattened icon to disk, we need to compute the hash and stat it
-							var buf = [];
-							this.pack()
-								.on('data', function (bytes) {
-									buf.push(new Buffer(bytes));
-								})
-								.on('end', function (err) {
-									if (err) {
-										return next(err);
-									}
-
-									var contents = Buffer.concat(buf);
-									fs.writeFileSync(icon.dest, contents);
-
-									var stat = fs.statSync(icon.dest);
-									_t.currentBuildManifest.files['DefaultIcon.png'] = {
-										hash: _t.hash(contents),
-										mtime: JSON.parse(JSON.stringify(stat.mtime)),
-										size: stat.size
-									};
-
-									next();
-								});
-							return;
-						}
-
-						this.pack()
-							.on('end', next)
-							.pipe(fs.createWriteStream(icon.dest));
-					});
-			}.bind(this), function (err) {
-				if (!missingIcons.length) {
-					return next();
-				}
-
-				if (!defaultIcon) {
-					// we're going to fail, but we let generateAppIcons() do the dirty work
 					this.generateAppIcons(missingIcons, next);
-					return;
-				}
-
-				if (!defaultIconChanged) {
-					// we have missing icons, but the default icon hasn't changed
-					// call generateAppIcons() and have it deal with determining if the icons need
-					// to be generated or if it needs to error out
-					this.generateAppIcons(missingIcons, next);
-					return;
-				}
-
-				if (!this.forceRebuild) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
-					this.forceRebuild = true;
-				}
-
-				this.generateAppIcons(missingIcons, next);
-			}.bind(this));
+				}.bind(this));
+			});
 		},
 
 		function createLaunchImageSet() {
@@ -4652,7 +4784,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
 					imageAssets[file].dest = dest;
 
-					delete this.buildDirFiles[dest];
+					this.unmarkBuildDirFile(dest);
 
 					if (!imageSets[imageSetRelPath]) {
 						imageSets[imageSetRelPath] = {
@@ -4707,7 +4839,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					size:  contents === null && prev ? prev.size  : srcStat.size
 				};
 
-				delete this.buildDirFiles[info.dest];
+				this.unmarkBuildDirFile(info.dest);
 			}, this);
 		},
 
@@ -4723,7 +4855,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 				}
-				delete this.buildDirFiles[info.dest];
+				this.unmarkBuildDirFile(info.dest);
 			}, this);
 		},
 
@@ -4758,7 +4890,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						delete this.buildDirFiles[to];
+						this.unmarkBuildDirFile(to);
 
 						if (this.minifyJS) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
@@ -4804,7 +4936,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
 			}
 
-			delete this.buildDirFiles[appPropsFile];
+			this.unmarkBuildDirFile(appPropsFile);
 		}
 	], next);
 };
@@ -4817,7 +4949,7 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		existingContent = destExists && fs.readFileSync(dest).toString(),
 		prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	if (!this.encryptJS || !this.jsFilesToEncrypt.length) {
 		var srcFile = path.join(this.platformPath, 'Classes', 'ApplicationRouting.m'),
@@ -4923,7 +5055,7 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 							this.logger.trace(__('No change, skipping %s', dest.cyan));
 						}
 
-						delete this.buildDirFiles[dest];
+						this.unmarkBuildDirFile(dest);
 						completed = true;
 					} else {
 						// failure, maybe it was a fluke, try again
@@ -4980,7 +5112,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
 
-			delete this.buildDirFiles[dest];
+			this.unmarkBuildDirFile(dest);
 		}
 	}
 
@@ -5071,7 +5203,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 				size:  contents === null && prev ? prev.size  : srcStat.size
 			};
 
-			delete this.buildDirFiles[dest];
+			this.unmarkBuildDirFile(dest);
 		}, this);
 	}, this);
 
@@ -5082,7 +5214,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		infoPlist = this.infoPlist,
 		contents;
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
 		hasRemoteNotification = true;
@@ -5183,10 +5315,10 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'LaunchImage-*'));
 
 	// mark a few files that would be generated by xcodebuild
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, this.tiapp.name)];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'Info.plist')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'PkgInfo')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'embedded.mobileprovision')];
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, this.tiapp.name));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'Info.plist'));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'PkgInfo'));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'embedded.mobileprovision'));
 
 	this.logger.info(__('Removing files'));
 
