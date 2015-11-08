@@ -76,6 +76,10 @@ for video tutorials on Titanium.
 
 Titanium developers regularly visit `#titanium_app` on irc.freenode.net.
 
+### Slack
+
+Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
+
 ### Twitter
 
 Please consider following the [@Appcelerator Twitter](http://www.twitter.com/appcelerator)
