@@ -969,6 +969,32 @@ properties:
     since: "5.1.0"
     osver: {ios: {min: "9.0"}}
 
+  - name: MENU_POPUP_ARROW_DIRECTION_UP
+    summary: An arrow that points upward.
+
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_DOWN
+    summary: An arrow that points downward.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_LEFT
+    summary: An arrow that points toward the left.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_RIGHT
+    summary: An arrow that points toward the right.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_DEFAULT
+    summary: An arrow that is automatically aligned.
+    type: Number
+    permission: read-only
+
   - name: PUSH_MODE_CONTINUOUS
     summary: |
         Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.

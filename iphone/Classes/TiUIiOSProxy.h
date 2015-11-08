@@ -36,6 +36,14 @@
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_UP;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DOWN;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_LEFT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_RIGHT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
+#endif
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;

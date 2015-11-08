@@ -6,24 +6,33 @@
  */
 #ifdef USE_TI_UIIOSMENUPOPUP
 #import "TiViewProxy.h"
-@class TiUIiOSMenuPopup;
 
 @interface TiUIiOSMenuPopupProxy : TiViewProxy
 
-/*
- *  The menu items to be presented inside the menu.
+/**
+ The menu items to be presented inside the menu.
  */
 @property(nonatomic,retain) NSMutableArray<UIMenuItem*> *menuItems;
 
-/*
- *  Shows the menu.
+/**
+ Shows the menu popup.
  */
 -(void)show:(id)args;
 
-/*
- *  Hides the menu.
+/**
+ Hides the menu popup.
  */
 -(void)hide:(id)args;
+
+/*
+ Sets the items of the menu.
+ */
+-(void)setItems:(id)args;
+
+/*
+ Determines if the menu is currenty visible.
+ */
+-(NSNumber*)isVisible:(id)unused;
 
 @end
 #endif

@@ -19,9 +19,7 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self setMenuItems:[NSMutableArray array]];
     [self registerNotificationCenter];
-    
     [super _initWithProperties:properties];
 }
 
@@ -36,6 +34,8 @@
     return (TiUIiOSMenuPopup*)self.view;
 }
 
+#pragma mark Public APIs
+
 -(void)show:(id)args
 {
     [[self menuPopup] show:args];
@@ -44,17 +44,6 @@
 -(void)hide:(id)args
 {
     [[self menuPopup] hide:args];
-}
-
--(void)menuPopupWillShow:(NSNotification*)notification
-{
-    [self rememberSelf];
-}
-
--(void)menuPopupWillHide:(NSNotification*)notification
-{
-    [self forgetSelf];
-    [[self menuPopup] removeFromSuperview];
 }
 
 -(void)setItems:(id)args
@@ -72,6 +61,24 @@
             [[self menuItems] addObject:menuItem];
         }
     }
+}
+
+-(NSNumber*)isVisible:(id)unused
+{
+    return NUMBOOL([[UIMenuController sharedMenuController] isMenuVisible]);
+}
+
+#pragma mark Notifications
+
+-(void)menuPopupWillShow:(NSNotification*)notification
+{
+    [self rememberSelf];
+}
+
+-(void)menuPopupWillHide:(NSNotification*)notification
+{
+    [self forgetSelf];
+    [[self menuPopup] removeFromSuperview];
 }
 
 -(void)registerNotificationCenter

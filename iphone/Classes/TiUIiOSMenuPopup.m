@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UIIOSMENUPOPUP
 #import "TiUIiOSMenuPopup.h"
 #import "TiApp.h"
 
@@ -53,19 +54,27 @@
 
 -(void)show:(id)args
 {
-    [self becomeFirstResponder];
-
-    ENSURE_TYPE([[args objectAtIndex:0] valueForKey:@"view"], TiViewProxy);
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    ENSURE_TYPE([args objectForKey:@"view"], TiViewProxy);
     ENSURE_UI_THREAD_1_ARG(args);
     
-    UIMenuController* controller = [UIMenuController sharedMenuController];
+    TiViewProxy *sourceView = [args objectForKey:@"view"];
+    UIMenuControllerArrowDirection arrowDirection = [TiUtils intValue:@"arrowDirection" properties:args def:UIMenuControllerArrowDefault];
+    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     
-    TiViewProxy *sourceView = (TiViewProxy*)[[args objectAtIndex:0] valueForKey:@"view"];
-    UIView *view = [sourceView view];
-    BOOL animated = [TiUtils boolValue:[args valueForKey:@"animated"] def:YES];
+    if (sourceView == nil) {
+        NSLog(@"[ERROR] The Ti.UI.iOS.MenuPopup.show method must contain the 'view' property.");
+        return;
+    }
+
+    [self becomeFirstResponder];
     
     [[[[[TiApp app] controller] topPresentedController] view] addSubview:self];
     
+    UIMenuController* controller = [UIMenuController sharedMenuController];
+    UIView *view = [sourceView view];
+
+    [controller setArrowDirection:arrowDirection];
     [controller setMenuItems:[self.menuPopupProxy menuItems]];
     [controller setTargetRect:view.bounds inView:view];
     [controller setMenuVisible:YES animated:animated];
@@ -73,7 +82,7 @@
 
 -(void)hide:(id)args
 {
-    BOOL animated = [TiUtils boolValue:[args valueForKey:@"animated"] def:YES];
+    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     
     [[UIMenuController sharedMenuController] setMenuVisible:NO animated:animated];
 }
@@ -90,3 +99,4 @@
 }
 
 @end
+#endif

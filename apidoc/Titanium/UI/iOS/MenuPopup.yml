@@ -37,9 +37,12 @@ methods:
         type: MenuPopupHideParams
         optional: true
 
+  - name: isVisible
+    summary: Indicates whether the menu popup is currently visible.
+
 events:
   - name: click
-    summary: Fired when the user clicks at one of the menu popover items.
+    summary: Fired when the user clicks at one of the menu popup items.
     description: |
         This event provides the properties `title` and `index` which relate to the name and position
         of the clicked item inside the `items` property.
@@ -51,27 +54,6 @@ events:
       - name: title
         summary: The title of the clicked item.
         type: String
-
----
-name: MenuPopupShowParams
-summary: Dictionary of options for showing a menu popup with <Titanium.UI.iOS.MenuPopup.show>.
-platforms: [iphone,ipad]
-since: "5.2.0"
-description: |
-    The parameters used when showing a menu popup. Must include the `view` property to tell the menu popup
-    at which view it should be shown. Also set the `animated` property to `false` if you want to show the
-    menu popup without an animation.
-properties:
-  - name: view
-    summary: The view where the menu pop is shown at.
-    type: Titanium.UI.View
-    optional: false
-
-  - name: animated
-    summary: Determines whether the menu popup should be opened or closed animated.
-    type: Boolean
-    default: true
-    optional: true
 
 examples:
   - title: Example using multiple `items` and a `click` event.
@@ -103,6 +85,35 @@ examples:
             });
 
             win.open();
+
+---
+name: MenuPopupShowParams
+summary: Dictionary of options for showing a menu popup with <Titanium.UI.iOS.MenuPopup.show>.
+platforms: [iphone,ipad]
+since: "5.2.0"
+description: |
+    The parameters used when showing a menu popup. Must include the `view` property to tell the menu popup
+    at which view it should be shown. Also set the `animated` property to `false` if you want to show the
+    menu popup without an animation.
+properties:
+  - name: view
+    summary: The view where the menu pop is shown at.
+    type: Titanium.UI.View
+    optional: false
+
+  - name: animated
+    summary: Determines whether the menu popup should be opened or closed animated.
+    type: Boolean
+    default: true
+    optional: true
+
+  - name: arrowDirection
+    summary: Indicates the arrow direction of the menu popup.
+    description: Use this property to indicate the menu popups arrow to use. 
+    type: Number
+    constants: [Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_UP,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DOWN,
+                Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_LEFT,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_RIGHT,
+                Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DEFAULT]
 
 ---
 name: MenuPopupHideParams
