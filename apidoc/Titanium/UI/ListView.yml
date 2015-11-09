@@ -292,6 +292,30 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: dragstart
+    summary: Fired when the user starts dragging the list view.
+    description: |
+        Different to the `pull` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
+        is specified and the user drags inside the list view.
+    platforms: [iphone, ipad]
+    since: 5.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: dragend
+    summary: Fired when the user stops dragging the list view.
+    description: |
+        Different to the `pullend` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
+        is specified and the user drags inside the list view.
+    platforms: [iphone, ipad]
+    since: 5.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
   - name: marker
     summary: Fired when the list view displays the reference item.
     description: |
