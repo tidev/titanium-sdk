@@ -18,6 +18,7 @@ var appc = require('node-appc'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
+	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -33,7 +34,8 @@ var appc = require('node-appc'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
 	xcode = require('xcode'),
-	xcodeParser = require('xcode/lib/parser/pbxproj')
+	xcodeParser = require('xcode/lib/parser/pbxproj'),
+	xml = appc.xml,
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
 	__n = i18n.__n,
@@ -143,6 +145,10 @@ function iOSBuilder() {
 	// we default to true, but if "ios.whitelist.appcelerator.com" tiapp.xml property is
 	// set to false, then we'll force appcelerator.com to NOT be whitelisted
 	this.whitelistAppceleratorDotCom = true;
+
+	// launch screen storyboard settings
+	this.defaultLaunchScreenStoryboard = true;
+	this.defaultBackgroundColor = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2097,6 +2103,32 @@ iOSBuilder.prototype.initialize = function initialize() {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
 		this.whitelistAppceleratorDotCom = false;
 	}
+
+	if (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
+		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	var defaultColor = this.defaultLaunchScreenStoryboard ? 'ffffff' : null,
+		color = this.tiapp.ios['default-background-color'] || defaultColor;
+	if (color) {
+		var m = color.match(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
+			c = m && m[1];
+		if (c && (c.length === 3 || c.length === 6)) {
+			if (c.length === 3) {
+				c = c.split('').map(function (b) { return String(b) + String(b); }).join('');
+			}
+			this.defaultBackgroundColor = {
+				red: parseInt(c.substr(0, 2), 16) / 255,
+				green: parseInt(c.substr(2, 2), 16) / 255,
+				blue: parseInt(c.substr(4, 2), 16) / 255
+			};
+		} else {
+			this.logger.warn(__('Invalid default background color "%s" in the <ios> section of the tiapp.xml', color));
+			if (defaultColor) {
+				this.logger.warn(__('Using default background color "%s"', '#' + defaultColor));
+			}
+		}
+	}
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2581,6 +2613,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
 		gccDefs.push('KROLL_COVERAGE=1');
+	}
+
+	if (this.defaultBackgroundColor) {
+		gccDefs.push(
+			'DEFAULT_BGCOLOR_RED=' + this.defaultBackgroundColor.red,
+			'DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green,
+			'DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue
+		);
 	}
 
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
@@ -3755,7 +3795,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		});
 	}, this);
 
-	function copyAndReplaceFile(src, dest) {
+	function copyAndReplaceFile(src, dest, processContent) {
 		var srcStat = fs.statSync(src),
 			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
@@ -3764,17 +3804,14 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			destDir = path.dirname(dest),
 			destExists = fs.existsSync(dest),
 			destStat = destExists && fs.statSync(dest),
-			contents = null,
-			hash = null,
-			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== (hash = this.hash(contents = fs.readFileSync(src)));
+			contents = typeof processContent === 'function' ? processContent(fs.readFileSync(src).toString()) : fs.readFileSync(src).toString(),
+			hash = this.hash(contents),
+			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== hash;
 
 		if (fileChanged) {
-			if (contents === null) {
-				contents = fs.readFileSync(src);
-			}
 			this.logger.debug(__('Writing %s', dest.cyan));
 			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-			fs.writeFileSync(dest, contents.toString().replace(/Titanium/g, this.tiapp.name));
+			fs.writeFileSync(dest, contents.replace(/Titanium/g, this.tiapp.name));
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
@@ -3799,12 +3836,42 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
 
-	if (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
-		this.defaultLaunchScreenStoryboard = false;
-	} else {
-		this.defaultLaunchScreenStoryboard = true;
-		this.logger.info(__('Installing default LaunchScreen.storyboard'));
-		copyAndReplaceFile.call(this, path.join(this.platformPath, 'iphone', 'LaunchScreen.storyboard'), path.join(this.buildDir, 'LaunchScreen.storyboard'));
+	if (this.defaultLaunchScreenStoryboard) {
+		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
+		copyAndReplaceFile.call(
+			this,
+			path.join(this.platformPath, 'iphone', 'LaunchScreen.storyboard'),
+			path.join(this.buildDir, 'LaunchScreen.storyboard'),
+			function (contents) {
+				var bgColor = this.defaultBackgroundColor;
+				if (!bgColor) {
+					return contents;
+				}
+
+				function findNode(node, tags) {
+					var child = node.firstChild;
+					while (child) {
+						if (child.nodeType === 1 && child.tagName === tags[0]) {
+							return findNode(child, tags.slice(1));
+						}
+						child = child.nextSibling;
+					}
+					return null;
+				}
+
+				var dom = new DOMParser({ errorHandler: function(){} }).parseFromString(contents, 'text/xml'),
+					colorNode = findNode(dom.documentElement, ['scenes', 'scene', 'objects', 'viewController', 'view', 'color']);
+
+				if (colorNode) {
+					colorNode.setAttribute('red', bgColor.red);
+					colorNode.setAttribute('green', bgColor.green);
+					colorNode.setAttribute('blue', bgColor.blue);
+					colorNode.setAttribute('alpha', 1);
+				}
+
+				return '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString();
+			}.bind(this)
+		);
 	}
 };
 
@@ -4343,7 +4410,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				var artworkFiles = [
 					{ filename: 'iTunesArtwork', size: 512 },
-					{ filename: 'iTunesArtwork@2x', size: 1024 },
+					{ filename: 'iTunesArtwork@2x', size: 1024 }
 				];
 
 				artworkFiles.forEach(function (artwork) {
@@ -4463,55 +4530,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					fs.existsSync(assetCatalogDir) || wrench.mkdirSyncRecursive(assetCatalogDir);
 
-					if (!Object.keys(launchLogos).length) {
-						this.logger.warn(__('Didn\'t find any LaunchLogo images'));
-
-						if (!defaultIcon) {
-							this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
-
-							// copy the default launch logos
-							var defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset');
-							fs.readdirSync(defaultLaunchLogosDir).forEach(function (name) {
-								resourcesToCopy[name] = {
-									src: path.join(defaultLaunchLogosDir, name),
-									dest: path.join(assetCatalogDir, name)
-								};
-							});
-							return next();
-						}
-
-						this.logger.warn(__('Generating LaunchLogo images from DefaultIcon.png'));
-
-						Object.keys(lookup).forEach(function (name) {
-							var spec = lookup[name],
-								filename = name + '.png',
-								dest = path.join(assetCatalogDir, filename);
-							missingIcons.push({
-								description: __('%s - Used for %s',
-									'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
-									spec.idiom
-								),
-								file: dest,
-								width: spec.size,
-								height: spec.size,
-								required: false
-							});
-							images.push({
-								size: spec.size + 'x' + spec.size,
-								idiom: spec.idiom,
-								filename: filename,
-								scale: spec.scale + 'x'
-							});
-							this.unmarkBuildDirFile(dest);
-						}, this);
-					} else {
+					if (Object.keys(launchLogos).length) {
 						Object.keys(launchLogos).forEach(function (file) {
-							if (!lookup[file]) {
-								return;
-							]
-							delete lookup[file];
-
 							var img = launchLogos[file];
+
+							if (!lookup[img.name]) {
+								return;
+							}
+							delete lookup[img.name];
 
 							images.push({
 								// size?
@@ -4524,11 +4550,59 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							img.dest = dest;
 							resourcesToCopy[file] = img;
 						}, this);
+
+						if (Object.keys(lookup).length === 1) {
+							this.logger.warn(__('Missing a LaunchLogo image'));
+						} else if (Object.keys(lookup).length > 1) {
+							this.logger.warn(__('Missing LaunchLogo images'));
+						}
+					} else {
+						this.logger.warn(__('Didn\'t find any LaunchLogo images'));
 					}
 
 					if (Object.keys(lookup).length) {
-						dump(lookup);
-						// WARN!!
+						if (!defaultIcon) {
+							this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
+
+							// copy the default launch logos
+							var defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset');
+							Object.keys(lookup).forEach(function (name) {
+								var filename = name + '.png';
+								resourcesToCopy[filename] = {
+									src: path.join(defaultLaunchLogosDir, filename),
+									dest: path.join(assetCatalogDir, filename)
+								};
+							});
+							return next();
+						}
+
+						this.logger.warn(__('Generating LaunchLogo images from DefaultIcon.png'));
+
+						Object.keys(lookup).forEach(function (name) {
+							var spec = lookup[name],
+								filename = name + '.png',
+								dest = path.join(assetCatalogDir, filename);
+
+							missingIcons.push({
+								description: __('%s - Used for %s',
+									'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
+									spec.idiom
+								),
+								file: dest,
+								width: spec.size,
+								height: spec.size,
+								required: false
+							});
+
+							images.push({
+								size: spec.size + 'x' + spec.size,
+								idiom: spec.idiom,
+								filename: filename,
+								scale: spec.scale + 'x'
+							});
+
+							this.unmarkBuildDirFile(dest);
+						}, this);
 					}
 
 					writeAssetContentsFile.call(this, path.join(assetCatalogDir, 'Contents.json'), {
