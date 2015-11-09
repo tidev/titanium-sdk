@@ -3804,14 +3804,14 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			destDir = path.dirname(dest),
 			destExists = fs.existsSync(dest),
 			destStat = destExists && fs.statSync(dest),
-			contents = typeof processContent === 'function' ? processContent(fs.readFileSync(src).toString()) : fs.readFileSync(src).toString(),
+			contents = (typeof processContent === 'function' ? processContent(fs.readFileSync(src).toString()) : fs.readFileSync(src).toString()).replace(/Titanium/g, this.tiapp.name),
 			hash = this.hash(contents),
 			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== hash;
 
 		if (fileChanged) {
 			this.logger.debug(__('Writing %s', dest.cyan));
 			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-			fs.writeFileSync(dest, contents.replace(/Titanium/g, this.tiapp.name));
+			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
@@ -3852,7 +3852,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					var child = node.firstChild;
 					while (child) {
 						if (child.nodeType === 1 && child.tagName === tags[0]) {
-							return findNode(child, tags.slice(1));
+							return tags.length === 1 ? child : findNode(child, tags.slice(1));
 						}
 						child = child.nextSibling;
 					}
