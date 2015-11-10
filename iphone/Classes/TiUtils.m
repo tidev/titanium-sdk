@@ -196,6 +196,12 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
 }
 
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -1114,7 +1120,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return [self dimensionValue:name properties:properties def:TiDimensionUndefined exists:NULL];
 }
 
-#pragma mark Touch Propertys
 
 +(NSDictionary*)pointToDictionary:(CGPoint)point
 {
@@ -1142,23 +1147,31 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			nil];
 }
 
-+(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch:(CGPoint)point
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
     if ([self forceTouchSupported]) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [NSNumber numberWithDouble:point.x],@"x",
-                [NSNumber numberWithDouble:point.y],@"y",
-                [NSNumber numberWithFloat:touch.force],@"force",
-                [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
-                [NSNumber numberWithFloat:touch.altitudeAngle],@"altitudeAngle",
-                [NSNumber numberWithDouble:touch.timestamp],@"timeStamp",
-                nil];
+        
+         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+         [NSNumber numberWithDouble:point.x],@"x",
+         [NSNumber numberWithDouble:point.y],@"y",
+         [NSNumber numberWithFloat:touch.force],@"force",
+         [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+         [NSNumber numberWithDouble:touch.timestamp],@"timeStamp",
+         nil];
+            
+
+        if ([self isIOS9_1OrGreater]) {
+            [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
+        }
+        
+        return dict;
+    
     } else {
+        NSLog(@"[Warn]:3D Touch is not supported on this device");
         return [self pointToDictionary:point];
     }
 }
 
-#pragma end
 
 +(CGRect)contentFrame:(BOOL)window
 {
