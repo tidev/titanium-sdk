@@ -1266,8 +1266,8 @@ DEFINE_EXCEPTIONS
 	{
 		if ([proxy _hasListeners:@"touchstart"])
 		{
-            UITouch *touch = [touches anyObject];
-            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchDown];
 		}
@@ -1288,8 +1288,8 @@ DEFINE_EXCEPTIONS
 	{
 		if ([proxy _hasListeners:@"touchmove"])
 		{
-            UITouch *touch = [touches anyObject];
-            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
@@ -1346,8 +1346,8 @@ DEFINE_EXCEPTIONS
 	{
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
-            UITouch *touch = [touches anyObject];
-            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
