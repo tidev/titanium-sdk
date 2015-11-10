@@ -410,4 +410,3 @@ if (Ti.App.Properties.getBool('showNotice', true)){
 		}
 	});
 }
-
