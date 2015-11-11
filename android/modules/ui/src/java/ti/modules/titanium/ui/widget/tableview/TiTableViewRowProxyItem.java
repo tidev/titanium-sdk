@@ -506,21 +506,26 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 
 				if (height == null) {
-					h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
-					h = Math.max(h, minRowHeight);
+				    // If measure spec is not specified, height should behave as Ti.UI.SIZE
+				    if (hMode == 0) {
+				        h = Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight));
+				    } else {
+				        h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
+				    }
+				    h = Math.max(h, minRowHeight);
 				} else {
-					h = Math.max(minRowHeight, height.getAsPixels(this));
+				    h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
 				// Make sure the height is greater than 1 (not 0 since image views default to 1)
 				if (hasChildView && h > 1) {
-					content.getLayoutParams().height = h;
+				    content.getLayoutParams().height = h;
 				}
 
 				if (Log.isDebugModeEnabled()) {
-					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
+				    Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
 				}
 				measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode),
-					MeasureSpec.makeMeasureSpec(h, hMode));
+				        MeasureSpec.makeMeasureSpec(h, hMode));
 			}
 		}
 
