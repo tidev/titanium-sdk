@@ -16,6 +16,10 @@
 #import "TiUIiOSPreviewActionGroupProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+#import "TiUIiOSMenuPopupProxy.h"
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -171,6 +175,13 @@
 }
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_UP, UIMenuControllerArrowUp);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DOWN, UIMenuControllerArrowDown);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_LEFT, UIMenuControllerArrowLeft);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_RIGHT, UIMenuControllerArrowRight);
+MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefault);
+#endif
 
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
@@ -382,6 +393,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args
+{
+    return [[[TiUIiOSMenuPopupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR
