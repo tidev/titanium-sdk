@@ -400,7 +400,25 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: The current force value of the touch event.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: The maximum possible value the force property can be.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
+            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+        type: Number
+
+      - name: timeStamp
+        summary: The time in seconds, of when the touch was used in corolation with the system start up.
+        type: Number
+
   - name: touchend
     summary: Fired when a touch event is completed.
     description: |
@@ -414,7 +432,25 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: The current force value of the touch event.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: The maximum possible value the force property can be.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
+            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+        type: Number
+
+      - name: timeStamp
+        summary: The time in seconds, of when the touch was used in corolation with the system start up.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -427,7 +463,25 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: The current force value of the touch event.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: The maximum possible value the force property can be.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
+            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+        type: Number
+
+      - name: timeStamp
+        summary: The time in seconds, of when the touch was used in corolation with the system start up.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -438,7 +492,25 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: The current force value of the touch event.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: The maximum possible value the force property can be.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
+            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+        type: Number
+
+      - name: timeStamp
+        summary: The time in seconds, of when the touch was used in corolation with the system start up.
+        type: Number
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     since: { android: "3.0.0" }
