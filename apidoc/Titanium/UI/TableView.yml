@@ -581,21 +581,28 @@ events:
         type: Number
 
       - name: force
-        summary: The current force value of the touch event.
+        summary: |
+            The current force value of the touch event.This property is only available for iOS devices that support 3D
+            touch and run 9.0 or higher.
         type: Number
 
       - name: maximumPossibleForce
-        summary: The maximum possible value the force property can be.
+        summary: |
+            The maximum possible value the force property can be.This property is only available for iOS devices that support
+            3D touch and run 9.0 or higher.
         type: Number
 
       - name: altitudeAngle
         summary: |
-            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
-            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            This property is only available for iOS devices that support 3D touch and run 9.1 or higher.
         type: Number
 
       - name: timeStamp
-        summary: The time in seconds, of when the touch was used, in correlation with the system startup.
+        summary: |
+            The time in seconds, of when the touch was used, in correlation with the system startup.This property is only available
+            for iOS devices that support 3D touch and run 9.0 or higher.
         type: Number
 
   - name: touchend
@@ -639,21 +646,28 @@ events:
         type: Number
 
       - name: force
-        summary: The current force value of the touch event.
+        summary: |
+            The current force value of the touch event.This property is only available for iOS devices that support 3D
+            touch and run 9.0 or higher.
         type: Number
 
       - name: maximumPossibleForce
-        summary: The maximum possible value the force property can be.
+        summary: |
+            The maximum possible value the force property can be.This property is only available for iOS devices that support
+            3D touch and run 9.0 or higher.
         type: Number
 
       - name: altitudeAngle
         summary: |
-            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
-            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            This property is only available for IOS devices that support 3D touch and are 9.1 or higher.
         type: Number
 
       - name: timeStamp
-        summary: The time in seconds, of when the touch was used, in correlation with the system startup.
+        summary: |
+            The time in seconds, of when the touch was used in corolation with the system start up.This property is only available
+            for iOS devices that support 3D touch and run 9.0 or higher.
         type: Number
 
   - name: touchmove
@@ -671,27 +685,34 @@ events:
         type: Number
 
       - name: force
-        summary: The current force value of the touch event.
+        summary: |
+            The current force value of the touch event.This property is only available for iOS devices that support 3D
+            touch and run 9.0 or higher.
         type: Number
 
       - name: maximumPossibleForce
-        summary: The maximum possible value the force property can be.
+        summary: |
+            The maximum possible value the force property can be.This property is only available for iOS devices that support
+            3D touch and run 9.0 or higher.
         type: Number
 
       - name: altitudeAngle
         summary: |
-            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
-            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            This property is only available for IOS devices that support 3D touch and are 9.1 or higher.
         type: Number
 
       - name: timeStamp
-        summary: The time in seconds, of when the touch was used, in correlation with the system startup.
+        summary: |
+            The time in seconds, of when the touch was used in corolation with the system start up.This property is only available
+            for iOS devices that support 3D touch and run 9.0 or higher.
         type: Number
 
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
     description: |
-        On Android and iOS, be aware that a row or table touch event and a table 
+        On Android and iOS, be aware that a row or table touch event and a table
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
@@ -730,21 +751,28 @@ events:
         type: Number
 
       - name: force
-        summary: The current force value of the touch event.
+        summary: |
+            The current force value of the touch event.This property is only available for iOS devices that support 3D
+            touch and run 9.0 or higher.
         type: Number
 
       - name: maximumPossibleForce
-        summary: The maximum possible value the force property can be.
+        summary: |
+            The maximum possible value the force property can be.This property is only available for iOS devices that support
+            3D touch and run 9.0 or higher.
         type: Number
 
       - name: altitudeAngle
         summary: |
-            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen
-            or no stylus is being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            This property is only available for IOS devices that support 3D touch and are 9.1 or higher.
         type: Number
 
       - name: timeStamp
-        summary: The time in seconds, of when the touch was used, in correlation with the system startup.
+        summary: |
+            The time in seconds, of when the touch was used in corolation with the system start up.This property is only available
+            for iOS devices that support 3D touch and run 9.0 or higher.
         type: Number
 
   - name: twofingertap
