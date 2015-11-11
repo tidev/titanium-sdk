@@ -1157,10 +1157,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
          [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
          nil];
         
+#if IS_XCODE_7_1
         if ([self isIOS9_1OrGreater]) {
             [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
         }
-        
+#endif
         return dict;
 
     } else {
