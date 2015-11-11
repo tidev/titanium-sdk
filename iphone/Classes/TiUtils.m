@@ -1154,7 +1154,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
          [NSNumber numberWithDouble:point.y],@"y",
          [NSNumber numberWithFloat:touch.force],@"force",
          [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
-         [NSNumber numberWithDouble:touch.timestamp],@"timeStamp",
+         [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
          nil];
         
         if ([self isIOS9_1OrGreater]) {
