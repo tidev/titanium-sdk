@@ -4180,16 +4180,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}
 				},
 				lookup = {
-					'-Small':       { height: 29, width: 29, scale: 1, idioms: [ 'ipad' ] },
-					'-Small@2x':    { height: 29, width: 29, scale: 2, idioms: [ 'iphone', 'ipad' ] },
-					'-Small@3x':    { height: 29, width: 29, scale: 3, idioms: [ 'iphone' ] },
-					'-Small-40':    { height: 40, width: 40, scale: 1, idioms: [ 'ipad' ] },
-					'-Small-40@2x': { height: 40, width: 40, scale: 2, idioms: [ 'iphone', 'ipad' ] },
-					'-Small-40@3x': { height: 40, width: 40, scale: 3, idioms: [ 'iphone' ] },
-					'-60@2x':       { height: 60, width: 60, scale: 2, idioms: [ 'iphone' ], required: true },
-					'-60@3x':       { height: 60, width: 60, scale: 3, idioms: [ 'iphone' ], required: true },
-					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ], required: true },
-					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ], required: true }
+					'-Small':       { height: 29,   width: 29,   scale: 1, idioms: [ 'ipad' ] },
+					'-Small@2x':    { height: 29,   width: 29,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small@3x':    { height: 29,   width: 29,   scale: 3, idioms: [ 'iphone' ] },
+					'-Small-40':    { height: 40,   width: 40,   scale: 1, idioms: [ 'ipad' ] },
+					'-Small-40@2x': { height: 40,   width: 40,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small-40@3x': { height: 40,   width: 40,   scale: 3, idioms: [ 'iphone' ] },
+					'-60@2x':       { height: 60,   width: 60,   scale: 2, idioms: [ 'iphone' ], required: true },
+					'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
+					'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
+					'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
+					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ] }
 				},
 				deviceFamily = this.deviceFamily,
 				flattenIcons = [],
