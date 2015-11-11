@@ -2475,6 +2475,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xcodeProject.hash = xcodeParser.parse(fs.readFileSync(srcFile).toString());
 	xobjs = xcodeProject.hash.project.objects;
 
+	if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+		this.logger.info(__('LaunchScreen.storyboard is not supported with Xcode %s, removing from Xcode project', this.xcodeEnv.version));
+	}
+
 	// we need to replace all instances of "Titanium" with the app name
 	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
 		var obj = xobjs.PBXFileReference[id];
@@ -2489,15 +2493,41 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
+			} else if (obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+				delete xobjs.PBXFileReference[id];
+
+				// remove the LaunchScreen.storyboard BuildFile and BuildPhase records
+				Object.keys(xobjs.PBXBuildFile).some(function (bfid) {
+					if (typeof xobjs.PBXBuildFile[bfid] === 'object' && xobjs.PBXBuildFile[bfid].fileRef === id) {
+						delete xobjs.PBXBuildFile[bfid];
+						delete xobjs.PBXBuildFile[bfid + '_comment'];
+
+						if (xobjs.PBXResourcesBuildPhase) {
+							Object.keys(xobjs.PBXResourcesBuildPhase).some(function (bpid) {
+								var files = xobjs.PBXResourcesBuildPhase[bpid].files;
+								if (Array.isArray(files)) {
+									for (var i = 0; i < files.length; i++) {
+										if (files[i].value === bfid) {
+											files.splice(i, 1);
+											return true;
+										}
+									}
+								}
+							});
+						}
+						return true;
+					}
+				});
 			}
 		}
-	});
+	}, this);
 
 	Object.keys(xobjs.PBXGroup).forEach(function (id) {
 		var obj = xobjs.PBXGroup[id];
 		if (obj && typeof obj === 'object') {
 			if (obj.children) {
-				obj.children.forEach(function (child) {
+				for (var i = 0; i < obj.children.length; i++) {
+					var child = obj.children[i];
 					if (child.comment === 'Titanium_Prefix.pch') {
 						child.comment = scrubbedAppName + '_Prefix.pch';
 					} else if (child.comment === 'Titanium.plist') {
@@ -2506,14 +2536,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = '"' + appName + '.app"';
 					} else if (child.comment === 'Titanium.entitlements') {
 						child.comment = '"' + appName + '.entitlements"';
+					} else if (child.comment === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+						obj.children.splice(i--, 1);
 					}
-				});
+				}
 			}
 			if (obj.path && relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			}
 		}
-	});
+	}, this);
 
 	Object.keys(xobjs.PBXNativeTarget).forEach(function (id) {
 		var obj = xobjs.PBXNativeTarget[id];
@@ -3310,7 +3342,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		});
 	});
 
-	plist.UILaunchStoryboardName = 'LaunchScreen';
+	if (appc.version.gte(this.xcodeEnv.version, '7.0.0')) {
+		plist.UILaunchStoryboardName = 'LaunchScreen';
+	} else {
+		delete plist.UILaunchStoryboardName;
+	}
 
 	function merge(src, dest) {
 		Object.keys(src).forEach(function (prop) {
@@ -3836,7 +3872,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
 
-	if (this.defaultLaunchScreenStoryboard) {
+	if (this.defaultLaunchScreenStoryboard && appc.version.gte(this.xcodeEnv.version, '7.0.0')) {
 		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
 		copyAndReplaceFile.call(
 			this,
