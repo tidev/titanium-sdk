@@ -17,6 +17,7 @@
 #import "TiFile.h"
 #import "UIImage+Resize.h"
 #import "TiUIImageViewProxy.h"
+#import <CommonCrypto/CommonDigest.h>
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -496,7 +497,31 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
+            UIImage *image = nil;
+            NSString *pathStr = [img path];
+            NSRange range = [pathStr rangeOfString:@".app"];
+            NSString *imageArg = nil;
+            if (range.location != NSNotFound) {
+                imageArg = [pathStr substringFromIndex:range.location+5];
+            }
+            if (imageArg != nil) {
+                unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+                NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+                if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+                    // SHA-1 hash has been calculated and stored in 'digest'.
+                    NSMutableString *sha = [[NSMutableString alloc] init];
+                    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+                        [sha appendFormat:@"%02x", digest[i]];
+                    }
+					[sha appendString:@"."];
+                    [sha appendString:[img pathExtension]];
+                    image = [UIImage imageNamed:sha];
+                    RELEASE_TO_NIL(sha)
+                }
+            }
+            if (image == nil) {
+                image = [UIImage imageWithContentsOfFile:[img path]];
+            }
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;

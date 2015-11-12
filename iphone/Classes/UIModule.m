@@ -81,6 +81,13 @@
     return @"Ti.UI";
 }
 
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+-(TiUIActivityIndicatorStyleProxy*)ActivityIndicatorStyle
+{
+    return [[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]];
+}
+#endif
+
 #pragma mark Public Constants
 
 MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN_OUT,UIViewAnimationOptionCurveEaseInOut);
@@ -92,6 +99,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_START, NSLineBreakByTruncatingHead);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_MIDDLE, NSLineBreakByTruncatingMiddle);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_END, NSLineBreakByTruncatingTail);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,NSTextAlignmentLeft);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,NSTextAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,NSTextAlignmentRight);
@@ -108,26 +118,27 @@ MAKE_SYSTEM_PROP(RETURNKEY_YAHOO,UIReturnKeyYahoo);
 MAKE_SYSTEM_PROP(RETURNKEY_DONE,UIReturnKeyDone);
 MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL,UIReturnKeyEmergencyCall);
 
+-(NSNumber*)RETURNKEY_CONTINUE
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater] == YES) {
+        return [NSNumber numberWithInt:UIReturnKeyContinue];
+    }
+#endif
+    return UIReturnKeyDefault;
+}
+
 MAKE_SYSTEM_PROP(KEYBOARD_DEFAULT,UIKeyboardTypeDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_ASCII,UIKeyboardTypeASCIICapable);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBERS_PUNCTUATION,UIKeyboardTypeNumbersAndPunctuation);
 MAKE_SYSTEM_PROP(KEYBOARD_URL,UIKeyboardTypeURL);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBER_PAD,UIKeyboardTypeNumberPad);
-
-/* Because this is a new feature in 4.1, we have to guard against it in both compiling AND runtime.*/
--(NSNumber*)KEYBOARD_DECIMAL_PAD
-{
-#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
-	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.1){
-		return [NSNumber numberWithInt:UIKeyboardTypeDecimalPad];
-	}
-#endif
-	return [NSNumber numberWithInt:UIKeyboardTypeNumbersAndPunctuation];
-}
-
+MAKE_SYSTEM_PROP(KEYBOARD_DECIMAL_PAD,UIKeyboardTypeDecimalPad);
 MAKE_SYSTEM_PROP(KEYBOARD_PHONE_PAD,UIKeyboardTypePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_NAMEPHONE_PAD,UIKeyboardTypeNamePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_EMAIL,UIKeyboardTypeEmailAddress);
+MAKE_SYSTEM_PROP(KEYBOARD_WEBSEARCH, UIKeyboardTypeWebSearch);
+MAKE_SYSTEM_PROP(KEYBOARD_TWITTER, UIKeyboardTypeTwitter);
 
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT,UIKeyboardAppearanceDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_ALERT,UIKeyboardAppearanceAlert);
@@ -540,6 +551,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -605,7 +617,30 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 {
     return NSTextEffectLetterpressStyle;
 }
-
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByWordWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByCharWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+{
+    return NUMINTEGER(NSLineBreakByClipping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+{
+    return NUMINTEGER(NSLineBreakByTruncatingHead);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+{
+    return NUMINTEGER(NSLineBreakByTruncatingTail);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+{
+    return NUMINTEGER(NSLineBreakByTruncatingMiddle);
+}
 #endif
 
 @end

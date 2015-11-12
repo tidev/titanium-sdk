@@ -55,8 +55,14 @@
             CGSize size = myview.bounds.size;
             if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
             {
+#ifndef TI_USE_AUTOLAYOUT
                 CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
                 CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
+#else
+                CGSize s = [[self view] sizeThatFits:CGSizeMake(1000,1000)];
+                CGFloat width = s.width;
+                CGFloat height = s.height;
+#endif
                 if (width > 0 && height > 0)
                 {
                     size = CGSizeMake(width, height);

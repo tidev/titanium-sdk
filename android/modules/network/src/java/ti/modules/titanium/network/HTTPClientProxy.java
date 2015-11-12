@@ -6,11 +6,11 @@
  */
 package ti.modules.titanium.network;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -23,7 +23,12 @@ import ti.modules.titanium.xml.DocumentProxy;
 import android.os.Build;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
-	TiC.PROPERTY_FILE
+	TiC.PROPERTY_FILE,
+	TiC.PROPERTY_ONSENDSTREAM,
+	TiC.PROPERTY_ONLOAD,
+	TiC.PROPERTY_ONERROR,
+	TiC.PROPERTY_ONREADYSTATECHANGE,
+	TiC.PROPERTY_ONDATASTREAM
 })
 public class HTTPClientProxy extends KrollProxy
 {
@@ -52,6 +57,7 @@ public class HTTPClientProxy extends KrollProxy
 	public void handleCreationDict(KrollDict dict)
 	{
 		super.handleCreationDict(dict);
+
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
 			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
 		}
@@ -63,20 +69,24 @@ public class HTTPClientProxy extends KrollProxy
 		if (hasProperty(TiC.PROPERTY_AUTO_ENCODE_URL)) {
 			client.setAutoEncodeUrl(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_ENCODE_URL)),true));
 		}
-
+		
 		//Set the securityManager on the client if it is defined as a valid value
 		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
 			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
-			if (prop instanceof SecurityManagerProtocol) {
-				this.client.securityManager = (SecurityManagerProtocol)prop;
-			} else {
-				throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
+			if (prop != null) {
+				if (prop instanceof SecurityManagerProtocol) {
+					this.client.securityManager = (SecurityManagerProtocol)prop;
+				} else {
+					throw new IllegalArgumentException("Invalid argument passed to securityManager property. Does not conform to SecurityManagerProtocol");
+				}
 			}
 		}
+		
 		client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION), NetworkModule.TLS_DEFAULT));
+		
 
 	}
-
+	
 	@Kroll.method
 	public void abort()
 	{
@@ -130,7 +140,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getStatusText();
 	}
-
+	
 	@Kroll.method
 	public void open(String method, String url)
 	{
@@ -139,7 +149,7 @@ public class HTTPClientProxy extends KrollProxy
 
 	@Kroll.method
 	public void send(@Kroll.argument(optional=true) Object data) 
-		throws MethodNotSupportedException
+		throws UnsupportedEncodingException
 	{
 		client.send(data);
 	}
@@ -261,6 +271,8 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 	
+	// This uses Apache
+	/*
 	@Kroll.method
 	public void addAuthFactory(String scheme, Object factory)
 	{
@@ -271,6 +283,7 @@ public class HTTPClientProxy extends KrollProxy
 		
 		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
 	}
+	*/
 	
 	@Kroll.method
 	public void addTrustManager(Object manager)

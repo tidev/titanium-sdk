@@ -256,6 +256,12 @@
 
 -(TiCalendarRecurrenceRule*) createRecurenceRule:(id)arg
 {
+    DEPRECATED_REPLACED(@"Calendar.createRecurenceRule()", @"5.0.0",@"Calendar.createRecurrenceRule()");
+    return [self createRecurrenceRule:arg];
+}
+
+-(TiCalendarRecurrenceRule*) createRecurrenceRule:(id)arg
+{
     ENSURE_ARRAY(arg);
     NSDictionary *args = [arg objectAtIndex:0];
     EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
@@ -436,11 +442,17 @@
 
 -(void) removeRecurenceRule:(id)arg
 {
+    DEPRECATED_REPLACED(@"Calendar.removeRecurenceRule()", @"5.0.0",@"Calendar.removeRecurrenceRule()");
+    [self removeRecurrenceRule:arg];
+}
+
+-(void) removeRecurrenceRule:(id)arg
+{
     TiCalendarRecurrenceRule* ruleProxy = nil;
     ENSURE_ARG_AT_INDEX(ruleProxy, arg, 0, TiCalendarRecurrenceRule);
         
     if (![NSThread isMainThread]) {
-        TiThreadPerformOnMainThread(^{[self removeRecurenceRule:arg];}, YES);
+        TiThreadPerformOnMainThread(^{[self removeRecurrenceRule:arg];}, YES);
         return;
     }
         

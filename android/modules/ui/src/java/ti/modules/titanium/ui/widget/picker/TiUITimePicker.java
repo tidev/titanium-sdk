@@ -14,10 +14,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.os.Build;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
@@ -39,15 +42,36 @@ public class TiUITimePicker extends TiUIView
 		this(proxy);
 		Log.d(TAG, "Creating a time picker", Log.DEBUG_MODE);
 		
-		TimePicker picker = new TimePicker(activity)
-		{
-			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		TimePicker picker;
+		// If it is not API Level 21 (Android 5.0), create picker normally.
+		// If not, it will inflate a spinner picker to address a bug.
+		if (Build.VERSION.SDK_INT != Build.VERSION_CODES.LOLLIPOP) {
+			picker = new TimePicker(activity)
 			{
-				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(proxy);
+				@Override
+				protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+				{
+					super.onLayout(changed, left, top, right, bottom);
+					TiUIHelper.firePostLayoutEvent(proxy);
+				}
+			};
+		} else {
+			// A bug where PickerCalendarDelegate does not send events to the
+			// listener on API Level 21 (Android 5.0) for TIMOB-19192
+			// https://code.google.com/p/android/issues/detail?id=147657
+			// Work around is to use spinner view instead of calendar view in
+			// in Android 5.0
+			int timePickerSpinner;
+			try {
+				timePickerSpinner = TiRHelper.getResource("layout.titanium_ui_time_picker_spinner");
+			} catch (ResourceNotFoundException e) {
+				if (Log.isDebugModeEnabled()) {
+					Log.e(TAG, "XML resources could not be found!!!");
+				}
+				return;
 			}
-		};
+			picker = (TimePicker) activity.getLayoutInflater().inflate(timePickerSpinner, null);
+		}
 		picker.setIs24HourView(false);
 		picker.setOnTimeChangedListener(this);
 		setNativeView(picker);

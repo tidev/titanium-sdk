@@ -117,9 +117,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(TiViewProxy*)initWrapperProxy
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
+#ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
+#endif
     return theProxy;
 }
 
@@ -148,8 +150,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)configureHeaders
 {
     _headerViewProxy = [self initWrapperProxy];
+#ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
     viewLayout->layoutStyle = TiLayoutRuleVertical;
+#endif
     [self setHeaderFooter:_headerViewProxy isHeader:YES];
     
     _searchWrapper = [self initWrapperProxy];
@@ -204,6 +208,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (![searchController isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
+#ifndef TI_USE_AUTOLAYOUT
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_tableView];
             if (rowWidth > 0) {
@@ -211,6 +216,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
             }
         }
+#endif
     } else {
         [_tableView reloadData];
     }
@@ -282,6 +288,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     },NO);
 }
 
+-(void)setContentOffset_:(id)value withObject:(id)args
+{
+    CGPoint offset = [TiUtils pointValue:value];
+    BOOL animated = [TiUtils boolValue: [args valueForKey:@"animated"] def:NO];
+    [_tableView setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -334,12 +347,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     TiViewProxy* viewproxy = [proxy valueForKey:location];
     if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]]) {
+#ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *viewLayout = [viewproxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
             viewLayout->height = TiDimensionAutoSize;
         }
-        
+#endif
         TiUIView* theView = [viewproxy view];
         if (![viewproxy viewAttached]) {
             [viewproxy windowWillOpen];
@@ -673,6 +687,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _pullViewProxy = [args retain];
         TiColor* pullBgColor = [TiUtils colorValue:[_pullViewProxy valueForUndefinedKey:@"pullBackgroundColor"]];
         _pullViewWrapper.backgroundColor = ((pullBgColor == nil) ? [UIColor lightGrayColor] : [pullBgColor color]);
+#ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
@@ -685,7 +700,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         //Remove other vertical positioning constraints
         viewLayout->top = TiDimensionUndefined;
         viewLayout->centerY = TiDimensionUndefined;
-        
+#endif
         [_pullViewProxy setProxyObserver:self];
         [_pullViewProxy windowWillOpen];
         [_pullViewWrapper addSubview:[_pullViewProxy view]];
@@ -794,18 +809,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)cleanup:(id)unused
 {
-    if ([searchController isActive]) {
-        [searchController setActive:NO animated:NO];
-    }
-
     if (_headerViewProxy != nil) {
         [_headerViewProxy windowWillClose];
-        [_headerViewProxy windowDidClose];
     }
     
     if (_footerViewProxy != nil) {
         [_footerViewProxy windowWillClose];
-        [_footerViewProxy windowDidClose];
     }
 }
 
@@ -837,8 +846,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (searchActive) {
             [self buildResultsForSearchText];
         }
-        [_tableView reloadSectionIndexTitles];
     }
+    [_tableView reloadSectionIndexTitles];
 }
 
 #pragma mark - SectionIndexTitle Support Datasource methods.
@@ -878,6 +887,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
             NSUInteger index = [filteredTitles indexOfObject:title];
+
+            if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+                [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+            }
+
             if (index > 0 && (index < [filteredIndices count]) ) {
                 return [[filteredIndices objectAtIndex:index] intValue];
             }
@@ -890,8 +905,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
         NSUInteger index = [sectionTitles indexOfObject:title];
+        int sectionIndex = [[sectionIndices objectAtIndex:index] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
+
         if (index > 0 && (index < [sectionIndices count]) ) {
-            return [[sectionIndices objectAtIndex:index] intValue];
+            return sectionIndex;
         }
         return 0;
     }
@@ -907,6 +929,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return [TiUtils boolValue:editValue def:NO];
 }
 
+-(BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
+    //canInsert if undefined is false
+    return [TiUtils boolValue:insertValue def:NO];
+}
+
 
 -(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -920,13 +949,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_ARRAY(value);
     NSArray* propArray = (NSArray*)value;
     NSMutableArray* returnArray = nil;
+    
     for (id prop in propArray) {
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
         int actionStyle = [TiUtils intValue:@"style" properties:prop];
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+    
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
-            NSString* eventName = @"rowAction";
+            NSString* eventName = @"editaction";
+            
             if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
                 TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
                 NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
@@ -947,6 +979,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 [theItem release];
                 [theSection release];
             }
+            
+            // Hide editActions after selection
+            [[self tableView] setEditing:NO];
 
         }];
         if (theColor != nil) {
@@ -974,9 +1009,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return NO;
     }
     
-    if ([self canEditRowAtIndexPath:indexPath]) {
+    if ([self canEditRowAtIndexPath:indexPath] || [self canInsertRowAtIndexPath:indexPath]) {
         return YES;
     }
+    
     if (editing) {
         return [self canMoveRowAtIndexPath:indexPath];
     }
@@ -985,32 +1021,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
+
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
-        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
         
         //Delete Data
         [theSection deleteItemAtIndex:indexPath.row];
         
-        //Fire the delete Event if required
-        NSString *eventName = @"delete";
-        if ([self.proxy _hasListeners:eventName]) {
-        
-            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                theSection, @"section",
-                                                NUMINTEGER(indexPath.section), @"sectionIndex",
-                                                NUMINTEGER(indexPath.row), @"itemIndex",
-                                                nil];
-            id propertiesValue = [theItem objectForKey:@"properties"];
-            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-            id itemId = [properties objectForKey:@"itemId"];
-            if (itemId != nil) {
-                [eventObject setObject:itemId forKey:@"itemId"];
-            }
-            [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            [eventObject release];
-        }
-        [theItem release];
+        [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
         
         BOOL emptySection = NO;
         
@@ -1084,20 +1102,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         
         }
         [tableView endUpdates];
-        [theSection release];
+    } else if(editingStyle == UITableViewCellEditingStyleInsert) {
+        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
     }
+    [theSection release];
 }
 
 #pragma mark - Editing Support Delegate Methods.
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //No support for insert style yet
-    if ([self canEditRowAtIndexPath:indexPath]) {
-        return UITableViewCellEditingStyleDelete;
-    } else {
-        return UITableViewCellEditingStyleNone;
+    if ([self canEditRowAtIndexPath:indexPath] == YES && [self canInsertRowAtIndexPath:indexPath] == YES) {
+        DebugLog(@"[WARN] The row at sectionIndex=%i and itemIndex=%i has both 'canEdit' and 'canInsert'. Please use either 'canEdit' for deleting or 'canInsert' for inserting a row.", indexPath.section, indexPath.row);
     }
+
+    if ([self canEditRowAtIndexPath:indexPath] == YES) {
+        return UITableViewCellEditingStyleDelete;
+    } else if([self canInsertRowAtIndexPath:indexPath] == YES) {
+        return UITableViewCellEditingStyleInsert;
+    }
+    
+    return UITableViewCellEditingStyleNone;
 }
 
 - (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1452,7 +1477,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return [self sectionView:section forLocation:@"footerView" section:nil];
 }
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -1476,6 +1501,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat size = 0.0;
     if (view!=nil) {
         TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+#ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *viewLayout = [viewProxy layoutProperties];
         switch (viewLayout->height.type)
         {
@@ -1490,6 +1516,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
                 break;
         }
+#endif
     }
     /*
      * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
@@ -1536,6 +1563,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat size = 0.0;
     if (view!=nil) {
         TiViewProxy* viewProxy = (TiViewProxy*) [view proxy];
+#ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *viewLayout = [viewProxy layoutProperties];
         switch (viewLayout->height.type)
         {
@@ -1550,6 +1578,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
                 break;
         }
+#endif
     }
     /*
      * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
@@ -1616,8 +1645,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                     }
                     if (maxWidth > 0) {
                         TiUIListItemProxy* theProxy = [theCell proxy];
+#ifndef TI_USE_AUTOLAYOUT
                         [theProxy layoutProperties]->height = TiDimensionAutoSize;
                         [theProxy layoutProperties]->width = TiDimensionAutoFill;
+#endif
                         CGFloat result =  [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
                         return result;
                     }
@@ -1668,19 +1699,29 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
     {
         NSArray* indexPaths = [tableView indexPathsForVisibleRows];
-        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-
-        NSUInteger visibleItemCount = [indexPaths count];
-        
-        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
         NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
-
-        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-        [eventArgs setValue:section forKey:@"firstVisibleSection"];
-        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-
+        TiUIListSectionProxy* section;
+        
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            NSUInteger visibleItemCount = [indexPaths count];
+            section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        } else {
+            section = [[self listViewProxy] sectionForIndex: 0];
+            
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
+    
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
@@ -1704,13 +1745,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] suspend];
+    
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+    
     [self fireScrollStart: (UITableView*)scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if(!decelerate) {
+    if (!decelerate) {
+        if ([self isLazyLoadingEnabled]) {
+            [[ImageLoader sharedLoader] resume];
+        }
         [self fireScrollEnd:(UITableView *)scrollView];
     }
     if (![self.proxy _hasListeners:@"pullend"]) {
@@ -1724,7 +1772,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] resume];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     if(isScrollingToTop) {
         isScrollingToTop = NO;
     } else {
@@ -1734,7 +1785,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] suspend];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
+
     isScrollingToTop = YES;
     [self fireScrollStart:(UITableView*) scrollView];
     return YES;
@@ -1742,7 +1796,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    [[ImageLoader sharedLoader] resume];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
+    
     [self fireScrollEnd:(UITableView *)scrollView];
     //Events none (maybe scroll later)
 }
@@ -1751,7 +1808,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
     if (_searchWrapper != nil) {
+#ifndef TI_USE_AUTOLAYOUT
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
+#endif
         [_searchWrapper refreshView:nil];
         [self initSearchController:self];
     }
@@ -1807,7 +1866,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
             CGFloat right = _tableView.bounds.size.width - rowWidth;
+#ifndef TI_USE_AUTOLAYOUT
             [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+#endif
             [_searchWrapper refreshView:nil];
         }
     }
@@ -1841,6 +1902,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 
 #pragma mark - Internal Methods
+
+-(BOOL)isLazyLoadingEnabled
+{
+    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+}
 
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
@@ -1931,6 +1997,30 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
+-(void)fireEditEventWithName:(NSString*)name andSection:(TiUIListSectionProxy*)section atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *theItem = [[section itemAtIndex:indexPath.row] retain];
+
+    //Fire the delete Event if required
+    if ([self.proxy _hasListeners:name]) {
+        
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            section, @"section",
+                                            NUMINTEGER(indexPath.section), @"sectionIndex",
+                                            NUMINTEGER(indexPath.row), @"itemIndex",
+                                            nil];
+        id propertiesValue = [theItem objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+            [eventObject setObject:itemId forKey:@"itemId"];
+        }
+        [self.proxy fireEvent:name withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [eventObject release];
+    }
+    [theItem release];
+}
+
 #pragma mark - UITapGestureRecognizer
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
@@ -1973,6 +2063,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [titleProxy setValue:@"white" forKey:@"shadowColor"];
     [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"0",@"x",@"1",@"y", nil] forKey:@"shadowOffset"];
     
+#ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint *viewLayout = [titleProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
@@ -1980,7 +2071,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     viewLayout->bottom = TiDimensionDip(10.0);
     viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
     viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-
+#endif
     return [titleProxy autorelease];
 }
 
@@ -1999,26 +2090,27 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point)
 {
-	if (!CGRectContainsPoint([view bounds], point)) {
-		return nil;
-	}
-	for (UIView *subview in [view subviews]) {
-		TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
-		if (viewProxy != nil) {
-			id bindId = [viewProxy valueForKey:@"bindId"];
-			if (bindId != nil) {
-				return viewProxy;
-			}
-		}
-	}
-	if ([view isKindOfClass:[TiUIView class]]) {
-		TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-		id bindId = [viewProxy valueForKey:@"bindId"];
-		if (bindId != nil) {
-			return viewProxy;
-		}
-	}
-	return nil;
+    if (!CGRectContainsPoint([view bounds], point)) {
+        return nil;
+    }
+    for (int i = (int)[view.subviews count]-1; i >=0; i--){
+        UIView *subview = [view.subviews objectAtIndex:i];
+        TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
+        if (viewProxy != nil) {
+            id bindId = [viewProxy valueForKey:@"bindId"];
+            if (bindId != nil) {
+                return viewProxy;
+            }
+        }
+    }
+    if ([view isKindOfClass:[TiUIView class]]) {
+        TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
+        id bindId = [viewProxy valueForKey:@"bindId"];
+        if (bindId != nil) {
+            return viewProxy;
+        }
+    }
+    return nil;
 }
 
 #endif

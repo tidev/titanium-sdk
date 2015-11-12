@@ -236,6 +236,43 @@ events:
     platforms: [iphone, android]
     since: {android: "3.3.0"}
     
+  - name: uncaughtException
+    summary: Fired when an uncaught JavaScript exception occurs.
+    description: |
+        This event will occur in both production and development builds, allowing you to warn the
+        user that an error has occured, and log more information to help you fix any bugs.
+    properties:
+      - name: message
+        summary: The error message.
+      - name: line
+        summary: The line where the error occurred.
+      - name: sourceId
+        summary: A unique identification for the source file.
+        platforms: [iphone, ipad]
+      - name: type
+        summary: The type of error.
+        platforms: [iphone, ipad]
+      - name: sourceURL
+        summary: The URL to the source file.
+        platforms: [iphone, ipad]
+      - name: backtrace
+        summary: The backtrace of function calls when the error occurred.
+        platforms: [iphone, ipad]
+      - name: title
+        summary: The title for the error.
+        platforms: [android]
+      - name: sourceName
+        summary: The name of the source file.
+        platforms: [android]
+      - name: lineSource
+        summary: The line source reference.
+        platforms: [android]
+      - name: lineOffset
+        summary: The offset on the line where the error occurred.
+        platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: '4.1.0'
+    
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |

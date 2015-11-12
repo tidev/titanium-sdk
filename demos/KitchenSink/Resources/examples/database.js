@@ -113,8 +113,7 @@ Titanium.API.info('JUST INSERTED, lastInsertRowId = ' + db.lastInsertRowId);
 
 var rows = db.execute('SELECT * FROM DATABASETEST');
 Titanium.API.info('ROW COUNT = ' + rows.getRowCount());
-Titanium.API.info('ROW COUNT = ' + rows.getRowCount());
-Titanium.API.info('ROW COUNT = ' + rows.getRowCount());
+Titanium.API.info('FIELD COUNT = ' + rows.getFieldCount());
 
 while (rows.isValidRow())
 {

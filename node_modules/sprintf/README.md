@@ -3,12 +3,21 @@
 ## Disclaimer
 
 This was originally just an adoption of a browser library to node.js.  
-Since that library is now itself a node.js module, you should check that out: [alexei/sprintf.js](https://github.com/alexei/sprintf.js)  
+Since that library is now itself a node.js module, you should use that one: [alexei/sprintf.js](https://github.com/alexei/sprintf.js)
+
+Or just install it via npm:
+
+    npm install sprintf-js
+
 
 There is also a [built-in util.format](http://nodejs.org/api/util.html#util_util_format_format).
 
 
+
+
 ## Install
+
+**This package is not maintained anymore. See Disclaimer above.**
 
     npm install sprintf
 

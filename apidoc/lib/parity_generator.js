@@ -86,6 +86,9 @@ exports.exportData = function exportHTML(apis) {
 		// Add property, method, and event data into proxy object
 		for (i in api.properties) {
 			var property = api.properties[i];
+			if (property.__hide) {
+				continue;
+			}
 			proxy.properties.push({name:property.name, platforms:property.platforms});
 			if (!pseudo) {
 				updateCoverage(rv.coverage, property.platforms);
@@ -93,6 +96,9 @@ exports.exportData = function exportHTML(apis) {
 		}
 		for (i in api.methods) {
 			var method = api.methods[i];
+			if (method.__hide) {
+				continue;
+			}
 			proxy.methods.push({name:method.name, platforms:method.platforms});
 			if (!pseudo) {
 				updateCoverage(rv.coverage, method.platforms);
@@ -100,6 +106,9 @@ exports.exportData = function exportHTML(apis) {
 		}
 		for (i in api.events) {
 			var event = api.events[i];
+			if (event.__hide) {
+				continue;
+			}
 			proxy.events.push({name:event.name, platforms:event.platforms});
 			if (!pseudo) {
 				updateCoverage(rv.coverage, event.platforms);

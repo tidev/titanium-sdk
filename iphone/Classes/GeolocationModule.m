@@ -13,6 +13,7 @@
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
+#import "AnalyticsModule.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -47,8 +48,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)start:(NSDictionary*)params
 {
-	// http://api.appcelerator.net/p/v1/geo
-	NSString *kGeolocationURL = stringWithHexString(@"687474703a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
+	// https://api.appcelerator.net/p/v1/geo
+	NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
 	
 	NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
 	[url appendString:kGeolocationURL];
@@ -274,6 +275,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// pauseLocationupdateAutomatically by default NO
 	pauseLocationUpdateAutomatically  = NO;
 
+	//Set the default based on if the user has defined a background location mode
+	NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+	allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+
 	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
@@ -301,21 +306,26 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		locationManager.headingFilter = heading;
 
         if ([TiUtils isIOS8OrGreater]) {
-            if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]){
+            if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
                 [locationManager requestAlwaysAuthorization];
-            }else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]){
+            } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
                 [locationManager requestWhenInUseAuthorization];
-            }else{
-                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml.  Starting with iOS8 this is required.");
+            } else {
+                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
             }
-        }else{
-            if (purpose!=nil)
-            {
+        } else {
+            if (purpose != nil) {
                 DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
                 if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
                     [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
                 }
             }
+        }
+        //This is set to NO by default for > iOS9.
+        if ([TiUtils isIOS9OrGreater]) {
+#if IS_XCODE_7
+            locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+#endif
         }
 
         locationManager.activityType = activityType;
@@ -524,12 +534,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)reverseGeocoder:(id)args
 {
 	ENSURE_ARG_COUNT(args,3);
-	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
-	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	KrollCallback *callback = [args objectAtIndex:2];
 	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
+	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:rcb];
+#endif
 }
 
 -(void)forwardGeocoder:(id)args
@@ -537,8 +549,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,2);
 	KrollCallback *callback = [args objectAtIndex:1];
 	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
 	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
+#endif
 }
 
 -(void)getCurrentHeading:(id)callback 
@@ -646,6 +660,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		[locationManager setHeadingFilter:heading];
 	}
+}
+
+-(NSNumber*)allowsBackgroundLocationUpdates
+{
+	return NUMBOOL(allowsBackgroundLocationUpdates);
+}
+
+-(void)setAllowsBackgroundLocationUpdates:(NSNumber *)value
+{
+	allowsBackgroundLocationUpdates = [TiUtils boolValue:value];
 }
 
 -(NSNumber*)showCalibration
@@ -798,44 +822,94 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 	return locationPermissionManager;
 }
 
+-(NSNumber*)hasLocationPermissions:(id)args
+{
+    id value = [args objectAtIndex:0];
+    
+    ENSURE_TYPE(value, NSNumber);
+
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+    BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
+    
+    return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+}
+
 -(void)requestAuthorization:(id)value
+{
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    [self requestLocationPermissions:@[value, [NSNull null]]];
+}
+
+-(void)requestLocationPermissions:(id)args
 {
     if (![TiUtils isIOS8OrGreater]) {
         return;
     }
-    ENSURE_SINGLE_ARG(value, NSNumber);
-   
+    
+    id value = [args objectAtIndex:0];
+    ENSURE_TYPE(value, NSNumber);
+    
+    // Store the authorization callback for later usage
+    if([args count] == 2) {
+        RELEASE_TO_NIL(authorizationCallback);
+        ENSURE_TYPE([args objectAtIndex:1], KrollCallback);
+        authorizationCallback = [[args objectAtIndex:1] retain];
+    }
+    
     CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
     
-    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){
+    NSString *errorMessage = nil;
+    
+    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            if((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
+            if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
-                NSLog(@"[WARN] cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE");
-            }else{
+                errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
+            } else {
                 [[self locationPermissionManager] requestWhenInUseAuthorization];
             }
-        }else{
-            NSLog(@"[ERROR] the NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        } else {
+            errorMessage = @"The NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission";
         }
     }
     if ((requested == kCLAuthorizationStatusAuthorizedAlways) ||
         (requested == kCLAuthorizationStatusAuthorized)) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
             if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
-                NSLog(@"[ERROR] cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS");
+                errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
             } else {
                 [[self locationPermissionManager] requestAlwaysAuthorization];
             }
-            [[self locationPermissionManager] requestAlwaysAuthorization];
-        }else{
-            NSLog(@"[ERROR] the NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        } else {
+            errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
         }
+    }
+    
+    if (errorMessage != nil) {
+        NSLog(@"[ERROR] %@", errorMessage);
+        [self executeAndReleaseCallbackWithCode:1 andMessage:errorMessage];
+        RELEASE_TO_NIL(errorMessage);
     }
 }
 
 #pragma mark Internal
+
+-(void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString*)message
+{
+    if(authorizationCallback == nil) {
+        return;
+    }
+    
+    NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:message];
+    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+    [authorizationCallback call:invocationArray thisObject:self];
+    
+    [invocationArray release];
+    RELEASE_TO_NIL(message);
+    RELEASE_TO_NIL(authorizationCallback);
+}
 
 -(NSDictionary*)locationDictionary:(CLLocation*)newLocation;
 {
@@ -955,7 +1029,11 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #pragma mark Geolacation Analytics
 
--(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations{
+-(void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
+{
+    if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
+        return;
+    }
     static BOOL analyticsSend = NO;
 	[lastLocationDict release];
 	lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
@@ -992,9 +1070,35 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                            NUMINT([CLLocationManager authorizationStatus]),@"authorizationStatus",nil];
 
-    if ([self _hasListeners:@"authorization"])
-    {
+    // Still using this event for changes being made outside the app (e.g. disable all location services on the device).
+    if ([self _hasListeners:@"authorization"]) {
         [self fireEvent:@"authorization" withObject:event];
+    }
+    
+    // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
+    if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
+        
+        int code = 0;
+        NSString* errorStr = @"";
+        
+        switch (status) {
+            case kCLAuthorizationStatusAuthorizedAlways:
+            case kCLAuthorizationStatusAuthorizedWhenInUse:
+                break;
+            default:
+                code = 1;
+                errorStr = @"The user is unable to allow access to location.";
+        }
+        
+        NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
+        [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
+        
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        
+        [authorizationCallback call:invocationArray thisObject:self];
+        [invocationArray release];
+        RELEASE_TO_NIL(errorStr);
+        RELEASE_TO_NIL(authorizationCallback);
     }
 }
 

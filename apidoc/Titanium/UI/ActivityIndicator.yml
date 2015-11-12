@@ -7,8 +7,9 @@ description:  |
         <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_mobileweb.png" height="75" /></td>
+        <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     An activity indicator can be used to show the progress of an operation in the UI to let the 
@@ -31,8 +32,21 @@ description:  |
 
     In SDK 3.0, use `ActivityIndicator` for a view that can be added as a child of another view.
     Use `ProgressIndicator` to display a progress indicator in a modal dialog or window title bar.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "0.8"
+excludes:
+    events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [animate, convertPointToView, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,center,
+                 children,clipMode,focusable,horizontalWrap,keepScreenOn,layout,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,size,softKeyboardOnFocus,tintColor,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,zIndex]
+
 methods:
   - name: add
     summary: Adds a child to this activity indicator's hierarchy.
@@ -116,25 +130,20 @@ properties:
     description: |
         One of the activity indicator style constants.
 
-        For iOS, use one of the constants with `iPhone` in the namespace.
-
-        For Android and Mobile Web, use a constant without `iPhone` in the namespace.
-
         On Mobile Web, setting the style automatically sets the indicator color and diameter.
 
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-    constants: [Titanium.UI.iPhone.ActivityIndicatorStyle.*, Titanium.UI.ActivityIndicatorStyle.*]
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Android and Mobile Web)
-
+    constants: Titanium.UI.ActivityIndicatorStyle.*
+    default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>
 
   - name: indicatorColor
     summary: Color of the animated indicator.
     since: "2.1.0"
     type: String
     default: <pre>#fff</pre>
-    platforms: [mobileweb]
+    platforms: [mobileweb,iphone,ipad]
     
   - name: indicatorDiameter
     summary: Diameter of the indicator.
@@ -177,18 +186,11 @@ examples:
               fullscreen: true
             });
 
-            var style;
-            if (Ti.Platform.name === 'iPhone OS'){
-              style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-            }
-            else {
-              style = Ti.UI.ActivityIndicatorStyle.DARK;
-            }
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
               font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
               message: 'Loading...',
-              style:style,
+              style: Ti.UI.ActivityIndicatorStyle.DARK,
               top:10,
               left:10,
               height:Ti.UI.SIZE,

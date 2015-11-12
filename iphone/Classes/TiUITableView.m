@@ -17,7 +17,7 @@
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
 
 @interface TiUIView(eventHandler);
@@ -694,7 +694,17 @@
 			TiUITableViewRowProxy *oldrow = [[row.section rows] objectAtIndex:index];
 			[self insertRow:row before:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
+            
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
+            
 			break;
 		}
         case TiUITableViewActionInsertSectionBefore:
@@ -757,7 +767,17 @@
 			}
 			[self insertRow:row after:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
+            
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
+            
 			break;
 		}
         case TiUITableViewActionInsertSectionAfter:
@@ -1550,8 +1570,10 @@
 	// called when text starts editing
 	[self showSearchScreen:nil];
     searchActivated = YES;
-    [[searchController searchResultsTableView] reloadData];
+    // Dont reload here since user started editing but not yet started typing.
+    // Also if a previous search string exists this reload results in blank cells.
 }
+
 /*
  * This is no longer required since we do it from the 
  * searchDisplayControllerDidEndSearch method
@@ -1988,6 +2010,13 @@
 	}
 }
 
+-(void)setContentOffset_:(id)args withObject:(id)obj
+{
+    CGPoint offset = [TiUtils pointValue:args];
+    BOOL animated = [TiUtils boolValue: [obj objectForKey:@"animated"] def:NO];
+    [tableview setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -2265,6 +2294,11 @@ return result;	\
 	{
 		// get the section for the row index
 		int index = [[sectionIndexMap objectForKey:title] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys:title, @"title", NUMINT(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
 		return [self sectionIndexForIndex:index];
 	}
 	return 0;
@@ -2461,6 +2495,7 @@ return result;	\
 	CGFloat size = 0.0;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2474,6 +2509,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
     /*
      * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
@@ -2510,6 +2546,7 @@ return result;	\
 	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2523,6 +2560,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
 	else if ([sectionProxy footerTitle]!=nil)
 	{
@@ -2662,6 +2700,9 @@ return result;	\
     [searchField ensureSearchBarHeirarchy];
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
+    // Since we clear the searchbar, the search string and indexes can be cleared as well.
+    [self setSearchString:nil];
+    RELEASE_TO_NIL(searchResultIndexes);
 }
 @end
 

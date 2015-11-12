@@ -551,8 +551,11 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy.
-        type: Titanium.UI.View
+        summary: |
+            View to add to this view's hierarchy.
+
+            On the iOS and Windows platforms, you may pass an array of views.
+        type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
     summary: Animates this view.
@@ -599,7 +602,29 @@ methods:
         
   - name: hide
     summary: Hides this view.
-    
+    parameters:
+      - name: options
+        summary: |
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
+
+  - name: insertAt
+    summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array to
+               insert the view. If omitted, inserts the view to the end of the array.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
+
   - name: remove
     summary: Removes a child view from this view's hierarchy.
     parameters:
@@ -611,8 +636,30 @@ methods:
     summary: Removes all child views from this view's hierarchy.
     since: {android: "3.1.0",  iphone: "3.1.0", ipad: "3.1.0"}
 
+  - name: replaceAt
+    summary: Replaces a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
+               the view elment to replace.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
+
   - name: show
     summary: Makes this view visible.
+    parameters:
+      - name: options
+        summary: |
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
     
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -1057,6 +1104,21 @@ properties:
     platforms: [iphone, ipad]
     since: "3.3.0"
 
+  - name: elevation
+    summary: Base elevation of the view relative to its parent in pixels.
+    description: |
+        The elevation of a view determines the appearance of its shadow.
+        Higher elevations produce larger and softer shadows.
+
+        **Note:** The `elevation` property only works on `Titanium.UI.View` objects.
+        Many Android components have a default elevation that cannot be modified.
+        For more information, see
+        [Google design guidelines: Elevation and shadows](https://www.google.com/design/spec/what-is-material/elevation-shadows.html).
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    osver: {android: {min: 5.0}}
+  
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean
@@ -1244,6 +1306,18 @@ properties:
     since: "3.3.0"
     platforms: [iphone,ipad]
 
+  - name: previewContext
+    summary: The preview context used in the 3D-Touch feature "Peek and Pop".
+    description: |
+        Preview context to present the "Peek and Pop" of a view. Use an configured instance
+        of <Titanium.UI.iOS.PreviewContext> here.
+
+        Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
+        It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
+    platforms: [iphone]
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
   - name: right
     summary: View's right position, in platform-specific units.
     description: |
@@ -1331,6 +1405,35 @@ properties:
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
 
+  - name: translationX
+    summary: Horizontal location of the view relative to its left position in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    
+  - name: translationY
+    summary: Vertical location of the view relative to its top position in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    
+  - name: translationZ
+    summary: Depth of the view relative to its elevation in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    osver: {android: {min: 5.0}}
+    
+  - name: transitionName
+    summary: A name to identify this view in activity transition. 
+    description: Name should be unique in the View hierarchy.
+    type: String
+    platforms: [android]
+    since: "5.0.2"
+    osver: {android: {min: 5.0}}
     
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
@@ -1533,3 +1636,15 @@ properties:
   - name: y
     summary: The y-axis coordinate of the position.
     type: Number
+
+---
+name: AnimationOption
+summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+since: 5.1.0
+platforms: [android]
+properties:
+  - name: animated
+    summary: Determines whether to enable a circular reveal animation.
+    type: Boolean
+    default: false
+    osver: {android: {min: 5.0}}

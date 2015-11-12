@@ -21,6 +21,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -36,9 +37,11 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -120,6 +123,7 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
+
 	}
 
 	public MediaModule(TiContext tiContext)
@@ -144,7 +148,6 @@ public class MediaModule extends KrollModule
 	    final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
 	    final String imageWhere = null;
 	    final String[] imageArguments = null;
-	    
 	    Cursor imageCursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, imageWhere, imageArguments, imageOrderBy);
 	    if (imageCursor == null) {
 	    	return -1;
@@ -282,10 +285,27 @@ public class MediaModule extends KrollModule
 		activity.startActivity(intent);
 	}
 
+	@Kroll.method
+	public boolean hasCameraPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		} 
+		return false;		
+	}
+	
+
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
+		if (!hasCameraPermissions()) {
+			return;
+		}
 		KrollDict cameraOptions = null;
 		if ( (options == null) || !(options instanceof HashMap<?, ?>) ) {
 			if (Log.isDebugModeEnabled()) {
@@ -303,6 +323,23 @@ public class MediaModule extends KrollModule
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
+	}
+	
+	@Kroll.method
+	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasCameraPermissions()) {
+			return;
+		}
+
+		if (TiBaseActivity.cameraCallbackContext == null) {
+			TiBaseActivity.cameraCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
+		currentActivity.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, TiC.PERMISSION_CODE_CAMERA);
+		
 	}
 
 	/*
@@ -370,7 +407,7 @@ public class MediaModule extends KrollModule
 			} else {
 				try {
 					String mimetype = theBlob.getMimeType();
-					extension = TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
+					extension = '.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
 				} catch(Throwable t) {
 					extension = null;
 				}

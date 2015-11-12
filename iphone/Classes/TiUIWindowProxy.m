@@ -110,10 +110,17 @@
         TiThreadPerformOnMainThread(^{[self close:nil];}, YES);
     }
     
+#ifdef TI_USE_KROLL_THREAD
 	TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
 	TiThreadReleaseOnMainThread(barImageView, NO);
 	barImageView = nil;
-	if (context!=nil)
+#else
+    TiThreadPerformOnMainThread(^{
+        [barImageView removeFromSuperview];
+        RELEASE_TO_NIL(barImageView);
+    }, YES);
+#endif
+    if (context!=nil)
 	{
 		[context shutdown:nil];
 		RELEASE_TO_NIL(context);
@@ -200,7 +207,8 @@
 	
 	if (url!=nil)
 	{
-		// Window based JS can only be loaded from local filesystem within app resources
+        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
+        // Window based JS can only be loaded from local filesystem within app resources
 		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
 		{
 			// since this function is recursive, only do this if we haven't already created the context
@@ -758,8 +766,9 @@
             //relayout titleControl
             CGRect barBounds;
             barBounds.origin = CGPointZero;
+#ifndef TI_USE_AUTOLAYOUT
             barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
-            
+#endif
             [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
             [oldView setAutoresizingMask:UIViewAutoresizingNone];
             

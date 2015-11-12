@@ -10,8 +10,17 @@
 
 @interface TiUIScrollableView : TiUIView<UIScrollViewDelegate> {
 @private
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* _scrollView;
+    UIView* _contentView;
+    BOOL _constraintAdded;
+    NSUInteger _childrenCount;
+    NSInteger _currentPage;
+    UIPageControl* _dotsView;
+#else
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;
+#endif
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
@@ -29,12 +38,13 @@
     BOOL enforceCacheRecalculation;
     NSInteger cacheSize;
     BOOL pageChanged;
+    
+    
 }
 
 #pragma mark - Titanium Internal Use Only
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
--(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
 -(void)setCurrentPage:(id)page animated:(NSNumber*)animate;
 -(void)addView:(id)viewproxy;
 -(void)removeView:(id)args;

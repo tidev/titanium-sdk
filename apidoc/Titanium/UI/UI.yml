@@ -452,6 +452,19 @@ properties:
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LINE_BREAK
+    summary: |
+        Use with <Attribute.type> to wrap and truncate the text.
+    description: |
+        Set <Attribute.value> to a `Titanium.UI.ATTRIBUTE_LINE_BREAK_*` constant.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
         Use with <Attribute.value> to not draw a line.
@@ -671,6 +684,90 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+    summary: |
+        Use with <Attribute.value> to set lines to not draw past the edge of the text container.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the beginning of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the middle of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the end of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
@@ -1118,7 +1215,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
@@ -1127,7 +1224,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_END
@@ -1136,7 +1233,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
     
   - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
@@ -1410,9 +1507,31 @@ properties:
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
-    
+
+  - name: KEYBOARD_WEBSEARCH
+    summary: Use a keyboard optimized for web search terms and URL entry.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties. This type features the space and . characters prominently.
+
+        Note: This keyboard automatically sets the return key to "Go" (localized).
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TWITTER
+    summary: Use a keyboard optimized for twitter text entry, with easy access to the @ and # characters.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
   - name: KEYBOARD_URL
-    summary: Use an keyboard optimized for entering URLs, with the standard keyboard layout.
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -1593,7 +1712,21 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
+  - name: RETURNKEY_CONTINUE
+    summary: Set the return key text to "Continue".
+    description: |
+        Use with the <Titanium.UI.TextField.returnKeyType> and
+        <Titanium.UI.TextArea.returnKeyType> properties.
+
+        Note: This constant is only available on iOS devices running iOS 9 or later. Older iOS
+        devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.2.0"
+
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
     description: |

@@ -13,6 +13,10 @@
 // an explicit compile time dependency to UI
 #import "TiUIAlertDialogProxy.h"
 
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
 @private
@@ -25,8 +29,8 @@
 #ifdef USE_TI_UIIOS
 	TiProxy *ios;
 #endif
-#ifdef USE_TI_UICLIPBOARD	
-	TiProxy *clipboard;
+#ifdef USE_TI_UICLIPBOARD
+    TiProxy *clipboard;
 #endif
 }
 
@@ -40,6 +44,10 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_LEFT;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
+
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_START;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_END;
 
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_TOP;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_CENTER;
@@ -56,6 +64,7 @@
 @property(nonatomic,readonly) NSNumber *RETURNKEY_YAHOO;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_DONE;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_EMERGENCY_CALL;
+@property(nonatomic,readonly) NSNumber *RETURNKEY_CONTINUE;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_ASCII;
@@ -66,6 +75,8 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_WEBSEARCH;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_TWITTER;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_ALERT;
@@ -257,7 +268,18 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CLIPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
+
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+#endif
+
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+@property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
 #endif
 
 @end

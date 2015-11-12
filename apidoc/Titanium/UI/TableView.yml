@@ -9,8 +9,9 @@ description: |
         <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_wp.png" height="200" style="border: 1px solid black;" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
@@ -263,6 +264,22 @@ events:
         type: Number
 
     
+  - name: indexclick
+    summary: Fired when the index bar is clicked by the user.
+    description: |
+        If the tabe view contains the [index](Titanium.UI.TableView.index) array of indices the index bar will appear on the side.
+        This event will fire when this bar is clicked 
+    properties:
+      - name: title
+        summary: The title of the index clicked.
+        type: String
+
+      - name: index
+        summary: The index number clicked.
+        type: Number
+    platforms: [iphone, ipad]
+    since: 3.4.0
+
   - name: longpress
     summary: Fired when the device detects a long press.
     description: |
@@ -970,6 +987,18 @@ methods:
     platforms: [iphone, ipad]
     since: "2.1.0"
     
+  - name: setContentOffset
+    summary: Sets the value of the content offset of the table view without animation by default.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: contentOffset
+        summary: |
+            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
+            reposition the top-left point of the scrollable region of the table view.
+            The `animated` property is optional and set to `false` by default. 
+        type: Dictionary
+    since: 3.4.0
+
   - name: selectRow
     summary: | 
         Programmatically selects a row. In Android, it sets the currently selected item. If in touch mode,
@@ -1265,7 +1294,8 @@ properties:
     description: |
         If an index array is specified, an index bar is displayed on the right-hand side of the 
         table view. Clicking on a title in the index bar scrolls the table view to the row 
-        index associated with that title.
+        index associated with that title. If the index is -1 the table view will scroll to the top.
+
     type: Array<TableViewIndexEntry>
     platforms: [iphone, ipad]
     

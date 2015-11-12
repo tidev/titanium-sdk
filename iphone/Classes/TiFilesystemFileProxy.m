@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -151,6 +151,29 @@ FILENOOP(setHidden:(id)x);
 	NSDictionary * resultDict = [fm attributesOfFileSystemForPath:path error:&error];
 	if (error!=nil) return NUMBOOL(NO);
 	return [resultDict objectForKey:NSFileSystemFreeSize];
+}
+
+-(NSString *)getProtectionKey:(id)args
+{
+	NSError *error = nil;
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+	if (error != nil) {
+		NSLog(@"[ERROR] Error getting protection key: %@", [TiUtils messageFromError:error]);
+		return nil;
+	}
+	return [resultDict objectForKey:NSFileProtectionKey];
+}
+
+-(NSNumber *)setProtectionKey:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSString);
+	NSError *error = nil;
+	[fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
+	if (error != nil) {
+		NSLog(@"[ERROR] Error setting protection key: %@", [TiUtils messageFromError:error]);
+		return NUMBOOL(NO);
+	}
+	return NUMBOOL(YES);
 }
 
 -(id)createDirectory:(id)args

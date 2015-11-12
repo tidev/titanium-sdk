@@ -1,11 +1,11 @@
 name: Modules.Cloud.GeoFences
-summary: Provides methods for accessing Arrow DB geo-fence objects.
+summary: Provides methods for accessing ArrowDB geo-fence objects.
 description: |
     This feature is only available for **enterprise users**, and the current user must be an **application
     admin** to create, update or remove geo-fence objects.
 
-    The Arrow DB GeoFences API lets you manage geographic regions with an associated JSON data payload.
-    Use this API to have the device query the Arrow DB server to retrieve data based on a location.
+    The ArrowDB GeoFences API lets you manage geographic regions with an associated JSON data payload.
+    Use this API to have the device query the ArrowDB server to retrieve data based on a location.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "3.2.1"

@@ -7,8 +7,9 @@ description: |
         <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
         <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
         <td><img src="images/progressbar/progressbar_mobileweb.png" height="25" /></td>
+        <td><img src="images/progressbar/progressbar_wp.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A progress bar is used for displaying an ongoing activity with a defined progression. 
@@ -70,6 +71,12 @@ properties:
   - name: message
     summary: Progress bar text.
     type: String
+
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: String
+    platforms: [iphone, ipad]
+    since: "5.2.0"
 
   - name: min
     summary: Minimum value of the progress bar.

@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -41,25 +42,29 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 
 import com.appcelerator.analytics.APSAnalytics;
 
@@ -67,12 +72,13 @@ import com.appcelerator.analytics.APSAnalytics;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
-public abstract class TiBaseActivity extends ActionBarActivity 
+public abstract class TiBaseActivity extends AppCompatActivity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
+	private static OrientationEventListener orientationListener;
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -86,6 +92,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
+	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
+	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+	
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
@@ -106,12 +115,15 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
+	private boolean overridenLayout;
+
 	public class DialogWrapper {
 		boolean isPersistent;
-		AlertDialog dialog;
+		Dialog dialog;
+
 		WeakReference<TiBaseActivity> dialogActivity;
 		
-		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+		public DialogWrapper(Dialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
@@ -131,11 +143,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			dialogActivity = da;
 		}
 
-		public AlertDialog getDialog() {
+		public Dialog getDialog() {
 			return dialog;
 		}
 		
-		public void setDialog(AlertDialog d) {
+		public void setDialog(Dialog d) {
 			dialog = d;
 		}
 		
@@ -407,6 +419,49 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// set to null for now, this will get set correctly in setWindowProxy()
 		return new TiCompositeLayout(this, arrangement, null);
 	}
+	
+	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
+		if (callback == null) {
+			return;
+		}
+		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			callback.callAsync(context, response);
+		} else {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, permission + " permission denied");
+			callback.callAsync(context, response);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,
+		String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case TiC.PERMISSION_CODE_CAMERA: {
+				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
+				return;
+			}
+			case TiC.PERMISSION_CODE_OLD_CALENDAR: {
+				permissionCallback(grantResults, oldCalendarPermissionCallback, oldCalendarCallbackContext, "Calendar");
+				return;
+			}
+			case TiC.PERMISSION_CODE_CALENDAR: {
+				permissionCallback(grantResults, calendarPermissionCallback, calendarCallbackContext, "Calendar");
+				return;
+			}
+			case TiC.PERMISSION_CODE_LOCATION: {
+				permissionCallback(grantResults, locationPermissionCallback, locationCallbackContext, "Location");
+				return;
+			}
+			case TiC.PERMISSION_CODE_CONTACTS: {
+				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
+				return;
+			}
+
+		}
+	}
 
 	protected void setFullscreen(boolean fullscreen)
 	{
@@ -414,8 +469,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 	}
-	
-
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	@SuppressWarnings("deprecation")
@@ -450,6 +503,25 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
 			TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
 		}
+	}
+
+	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	@Override
+	public void setContentView(View view) {
+		overridenLayout = true;
+		super.setContentView(view);
+	}
+
+	@Override
+	public void setContentView(int layoutResID) {
+		overridenLayout = true;
+		super.setContentView(layoutResID);
+	}
+
+	@Override
+	public void setContentView(View view, LayoutParams params) {
+		overridenLayout = true;
+		super.setContentView(view, params);
 	}
 
 	@Override
@@ -538,11 +610,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		    this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+		}
 		super.onCreate(savedInstanceState);
 
 		windowCreated(savedInstanceState);
-
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -552,7 +625,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
-		setContentView(layout);
+		// If user changed the layout during app.js load, keep that
+		if (!overridenLayout) {
+			setContentView(layout);
+		}
 
 		// Set the title of the activity after setContentView.
 		// On 2.3 devices, if the title is set before setContentView, the app will crash when a NoTitleBar theme is used.
@@ -565,6 +641,27 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// store off the original orientation for the activity set in the AndroidManifest.xml
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
+
+		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+			@Override
+			public void onOrientationChanged(int orientation) {
+				int rotation = getWindowManager().getDefaultDisplay().getRotation();
+				if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+						&& rotation != previousOrientation) {
+					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
+				} else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+						&& rotation != previousOrientation) {
+					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
+				}
+			}
+		};
+
+		if (orientationListener.canDetectOrientation() == true) {
+			orientationListener.enable();
+		} else {
+			Log.w(TAG, "Cannot detect orientation");
+			orientationListener.disable();
+		}
 
 		if (window != null) {
 			window.onWindowActivityCreated();
@@ -606,7 +703,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		});
 	}
-
+	
 	protected void handleSendMessage(int messageId)
 	{
 		try {
@@ -904,11 +1001,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
 	}
 
-	public static void callOrientationChangedListener(Configuration newConfig) 
+	public static void callOrientationChangedListener(Activity activity)
 	{
-		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
-			previousOrientation = newConfig.orientation;
-			orientationChangedListener.onOrientationChanged (newConfig.orientation);
+		int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
+		if (orientationChangedListener != null && previousOrientation != currentOrientation) {
+			previousOrientation = currentOrientation;
+			orientationChangedListener.onOrientationChanged (currentOrientation);
 		}
 	}
 
@@ -922,8 +1020,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
 		}
-
-		callOrientationChangedListener(newConfig);
 	}
 
 	@Override
@@ -1204,7 +1300,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 		// store current configuration orientation
 		// This fixed bug with double orientation chnage firing when activity starts in landscape 
-		previousOrientation = getResources().getConfiguration().orientation;
+		previousOrientation = getWindowManager().getDefaultDisplay().getRotation();
 	}
 
 	@Override
@@ -1342,6 +1438,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				}
 			}
 		}
+
+		orientationListener.disable();
 
 		super.onDestroy();
 

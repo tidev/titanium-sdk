@@ -20,6 +20,7 @@
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
 #import "TiExceptionHandler.h"
+#import "TiApp.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -188,6 +189,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS8OrGreater
 {
     return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
+}
+
++(BOOL)isIOS9OrGreater
+{
+    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
 }
 
 +(BOOL)isIPad
@@ -1918,6 +1924,18 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSLog(@"Could not parse JSON. Error: %@", error);
     }
     return r;
+}
+
++(BOOL)forceTouchSupported
+{
+#if IS_XCODE_7
+    if ([self isIOS9OrGreater] == NO) {
+        return NO;
+    }
+    return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+#else
+    return NO;
+#endif
 }
 
 +(NSString*)currentArchitecture

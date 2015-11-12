@@ -64,6 +64,19 @@ description: |
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
 
+    #### Virtual Private Cloud Configuration
+
+    If you are using a virtual private cloud (VPC), you need to configure your Arrow Push dispatcher
+    URL in order to send push notifications with GCM.  In the `tiapp.xml` file, add the `acs-push-api-url`
+    application property and set the node text to the push dispatcher URL provided to you.  The URL may
+    be the same as your custom ArrowDB endpoint and have deployment-specific settings, that is, two
+    URLs--one for production and another for the development environment.
+
+        <ti:app>
+            <property name="acs-push-api-url-production">https://api-prod.fooinc.com</property>
+            <property name="acs-push-api-url-development">https://api-dev.fooinc.com</property>
+        </ti:app>
+
     #### Grouped Notifications
 
     If the device receives multiple push notifications from the application, Android can group these

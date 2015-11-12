@@ -7,8 +7,9 @@ description: |
         <td><img src="images/slider/slider_android.png" height="25" /></td>
         <td><img src="images/slider/slider_ios.png" height="25" /></td>
         <td><img src="images/slider/slider_mobileweb.png" height="25" /></td>
+        <td><img src="images/slider/slider_wp.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A slider lets the user select from a range of values by dragging the slider thumb. 

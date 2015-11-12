@@ -16,7 +16,7 @@ const
 	ioslib = require('..'),
 	path = require('path');
 
-function build(provisioningProfileUUID, certName, defs, done){
+function build(app, provisioningProfileUUID, certName, defs, done){
 	if (typeof defs === 'function') {
 		done = defs;
 		defs = [];
@@ -46,10 +46,10 @@ function build(provisioningProfileUUID, certName, defs, done){
 		].join(' ');
 
 		exec(cmd, {
-			cwd: path.join(__dirname, 'TestApp')
+			cwd: path.join(__dirname, app)
 		}, function (code, out, err) {
 			should(out).match(/BUILD SUCCEEDED/);
-			var appPath = path.join(__dirname, 'TestApp', 'build', 'Debug-iphoneos', 'TestApp.app');
+			var appPath = path.join(__dirname, app, 'build', 'Debug-iphoneos', app + '.app');
 			should(fs.existsSync(appPath)).be.true;
 			done(null, appPath);
 		});
@@ -159,7 +159,7 @@ describe('device', function () {
 				return done(new Error('No valid device/cert/provisioning profile combos found'));
 			}
 
-			build(results[0].ppUUID, results[0].certName, ['TEST_BASIC_LOGGING'], function (err, appPath) {
+			build('TestApp', results[0].ppUUID, results[0].certName, ['TEST_BASIC_LOGGING'], function (err, appPath) {
 				should(err).not.be.ok;
 				should(appPath).be.a.String;
 				should(fs.existsSync(appPath)).be.ok;

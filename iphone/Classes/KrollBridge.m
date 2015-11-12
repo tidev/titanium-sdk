@@ -438,17 +438,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	const char *urlCString = [[url_ absoluteString] UTF8String];
-	
-	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
+
+    TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-//  TIMOB-18152. There is no need to check syntax since TiEvalScript
-//  will check syntax before evaluation of the script.
-//	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-//		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-//	}
-	
-	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
 #ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode]) {
@@ -464,6 +457,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #endif
         if (exception == NULL) {
             evaluationError = NO;
+        } else {
+            evaluationError = YES;
         }
 	}
 	if (exception != NULL) {
@@ -474,7 +469,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
-    
     [pool release];
 }
 
@@ -550,6 +544,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)willStartNewContext:(KrollContext*)kroll
 {
+	// Start Hyperloop engine if present
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(willStartNewContext:bridge:) withObject:kroll withObject:self];
+	}
 	[self retain]; // Hold onto ourselves as long as the context needs us
 }
 
@@ -614,12 +613,23 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		TiBindingRunLoopAnnounceStart(kroll);
 		[self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 	}
-    
+
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(didStartNewContext:bridge:) withObject:kroll withObject:self];
+	}
+
     [pool release];
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll
 {
+	// Stop Hyperloop engine if present
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(willStopNewContext:bridge:) withObject:kroll withObject:self];
+	}
+
 	if (shutdown==NO)
 	{
 		shutdown = YES;
@@ -647,6 +657,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(didStopNewContext:bridge:) withObject:kroll withObject:self];
+	}
 	[self autorelease]; // Safe to release now that the context is done
 }
 
@@ -1073,11 +1087,13 @@ loadNativeJS:
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+#ifdef TI_USE_KROLL_THREAD
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];
 			break;
 		}
+#endif
 	}
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
 

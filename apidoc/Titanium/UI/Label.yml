@@ -32,6 +32,36 @@ properties:
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        element inside a `<Label>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <Label>
+                    <AttributedString>
+                        Alloy is great!
+                    </AttributedString>
+                  </Label>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -84,9 +114,9 @@ properties:
     summary: |
         Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
-    type: Number | Boolean
+    type: [Number, Boolean]
     default: false
-    platforms: [android, mobileweb]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: font
     summary: Font to use for the label text.
@@ -114,6 +144,18 @@ properties:
     default: undefined but behaves as true
     since: "3.3.0"
 
+  - name: lines
+    summary: Makes the label be exactly this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "4.1.0"
+    
+  - name: maxLines
+    summary: Makes the label at most this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "4.1.0"
+    
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |

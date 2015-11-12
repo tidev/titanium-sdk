@@ -189,7 +189,33 @@ methods:
         android: 3.2.0
         iphone: 1.8.1
         ipad: 1.8.1
+  - name: hasCameraPermissions
+    summary: Returns `true` if the app has camera access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"    
+  - name: requestCameraPermissions
+    summary: Requests for camera access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+
+        On iOS, the request view will only show if user has not yet made a decision.
+        If the user has, the callback will return the earlier decision. To change the permission
+        the user needs to change it in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant camera access.
+        type: Callback<RequestCameraAccessResult>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+    osver: {ios: {min: "7.0"}}
   - name: requestCameraAccess
+    deprecated:
+       since: "5.1.0"
+       notes: Please use [requestCameraPermissions]<Titanium.Media.requestCameraPermissions>
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting

@@ -85,7 +85,7 @@ methods:
         type: Number
     
   - name: getGroupByID
-    summary: Gets the group with the specified identifier.
+    summary: Gets the group with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getGroupByIdentifier> instead.
     returns:
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad]
@@ -93,6 +93,19 @@ methods:
       - name: id
         summary: Group identifier.
         type: Number
+    osver: {ios: {max: "8.0"}}
+
+  - name: getGroupByIdentifier
+    summary: Gets the group with the specified identifier. 
+    returns:
+        type: Titanium.Contacts.Group
+    platforms: [iphone, ipad]
+    parameters:
+      - name: id
+        summary: Group identifier.
+        type: String
+    since: "5.0.0"
+    osver: {ios: {min: "9.0"}}
     
   - name: getPeopleWithName
     summary: |
@@ -107,6 +120,16 @@ methods:
         type: String
         
   - name: getPersonByID
+    summary: Gets the person with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getPersonByIdentifier> instead.
+    returns:
+        type: Titanium.Contacts.Person
+    parameters:
+      - name: id
+        summary: Contact identifier.
+        type: Number
+    osver: {ios: {max: "8.0"}}
+        
+  - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
     returns:
         type: Titanium.Contacts.Person
@@ -114,7 +137,9 @@ methods:
       - name: id
         summary: Contact identifier.
         type: Number
-        
+    since: "5.0.0"      
+    osver: {ios: {min: "9.0"}}
+
   - name: removeGroup
     summary: Removes a group from the address book.
     description: |
@@ -147,8 +172,10 @@ methods:
         type: Titanium.Contacts.Person
         
   - name: revert
-    summary: Reverts all changes made by the previous save to the address book.
+    summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
+
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
@@ -172,8 +199,30 @@ methods:
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
 
+  - name: hasContactsPermissions
+    summary: Returns `true` if the app has contacts access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestContactsPermissions
+    summary: Requests for contacts access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant contacts access.
+        type: Callback<ContactsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
 
   - name: requestAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Use [requestContactsPermissions](Titanium.Contacts.requestContactsPermissions).
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
@@ -282,7 +331,7 @@ properties:
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
+    constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad, android]
     since: 2.1.3
@@ -291,23 +340,20 @@ properties:
 examples:
   - title: Request access to the address book
     example: |
-        To safely access the address book given iOS 6's new security model:
-        
-            var performAddressBookFunction = function(){...};
-            var addressBookDisallowed = function(){...};
-            if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_AUTHORIZED){
-                performAddressBookFunction();
-            } else if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_UNKNOWN){
-                Ti.Contacts.requestAuthorization(function(e){
-                    if (e.success) {
-                        performAddressBookFunction();
-                    } else {
-                        addressBookDisallowed();
-                    }
-                });
-            } else {
-                addressBookDisallowed();
-            }
+
+        var performAddressBookFunction = function(){...};
+        var addressBookDisallowed = function(){...};
+        if (Ti.Contacts.hasContactsPermissions()) {
+            performAddressBookFunction();
+        } else {
+            Ti.Contacts.requestContactsPermissions(function(e) {
+                if (e.success) {
+                    performAddressBookFunction();
+                } else {
+                    addressBookDisallowed();
+                }
+            });
+        }
 
   - title: Query Existing System Address Book Records
     example: |

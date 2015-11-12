@@ -271,6 +271,13 @@ properties:
     type: Font
     default: System default font.
 
+  - name: footer
+    summary: The footer title of the row.
+    description: |
+        The `footer` property is used to assign a footer title to a row. It has the same effect as setting
+        the `footerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android]
     
   - name: hasCheck
     summary: |
@@ -310,7 +317,15 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone,ipad]
-    
+
+  - name: header
+    summary: The header title of the row.
+    description: |
+        The `header` property is used to assign a header title to a row. It has the same effect as setting
+        the `headerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android]
+
   - name: indentionLevel
     summary: Indention level for the row.
     description: Indentation values greater than 0 indent the row text.
@@ -424,7 +439,7 @@ examples:
               
               var disabledWrapperView = Ti.UI.createView({
                 backgroundColor:'#A2E0FF',
-                objName: 'disabledWarpperView',
+                objName: 'disabledWrapperView',
                 touchEnabled: false,
                 width: 300, height: '80%'
               });

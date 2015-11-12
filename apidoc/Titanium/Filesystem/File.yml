@@ -188,6 +188,16 @@ methods:
       - type: String
       - type: Titanium.Filesystem.File
 
+  - name: getProtectionKey
+    summary: |
+        Returns the protection key value of this file object.
+        Returns `null` if there's an error.
+    returns:
+        type: String
+        constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
   - name: isDirectory
     summary: Returns `true` if this file object represents a directory. 
     returns:
@@ -270,6 +280,21 @@ methods:
         [nativePath](Titanium.Filesystem.File.nativePath) property.
     returns:
         type: String
+
+  - name: setProtectionKey
+    summary: Sets the protection key as an attribute to the file identified by this file object.
+    description: |
+        Returns `true` if successfully set. Returns `false` if failed.
+    returns:
+        type: Boolean
+    parameters:
+      - name: fileProtectionType
+        summary: |
+            File protection type.
+        constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
+        type: String
+    platforms: [iphone, ipad]
+    since: "4.1.0"  
 
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file

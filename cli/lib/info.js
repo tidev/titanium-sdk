@@ -68,6 +68,11 @@ exports.detect = function (types, config, callback) {
 					return next(err);
 				}
 
+				// TIMOB-19076: Windows Phone 8.0 is not supported
+				winInfo.windowsphone && delete winInfo.windowsphone['8.0'];
+				winInfo.windows && delete winInfo.windows['8.0'];
+				winInfo.emulators && delete winInfo.emulators['8.0'];
+
 				results.tisdk = tisdk;
 				results.windows = winInfo;
 

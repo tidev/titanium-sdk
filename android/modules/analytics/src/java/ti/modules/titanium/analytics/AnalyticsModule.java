@@ -74,6 +74,18 @@ public class AnalyticsModule extends KrollModule
 	}
 
 	@Kroll.method
+	public void filterEvents(Object eventsObj) {
+		if (eventsObj instanceof Object[]) {
+			Object[] events = (Object[])eventsObj;
+			String[] temp = new String[events.length];
+			for (int i = 0; i < events.length; ++i) {
+				temp[i] = TiConvert.toString(events[i]);
+			}
+			TiApplication.getInstance().setFilterAnalyticsEvents(temp);
+		}
+	}
+
+	@Kroll.method
 	public void featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {

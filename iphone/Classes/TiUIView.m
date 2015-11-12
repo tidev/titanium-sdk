@@ -373,6 +373,7 @@ DEFINE_EXCEPTIONS
 {
 	[super setFrame:frame];
 	
+#ifndef TI_USE_AUTOLAYOUT
 	// this happens when a view is added to another view but not
 	// through the framework (such as a tableview header) and it
 	// means we need to force the layout of our children
@@ -383,10 +384,12 @@ DEFINE_EXCEPTIONS
 		childrenInitialized=YES;
 		[(TiViewProxy*)self.proxy layoutChildren:NO];
 	}
+#endif
 }
 
 -(void)checkBounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGRect newBounds = [self bounds];
     if(!CGSizeEqualToSize(oldSize, newBounds.size)) {
         oldSize = newBounds.size;
@@ -406,6 +409,7 @@ DEFINE_EXCEPTIONS
         }
         [self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
     }
+#endif
 }
 
 -(void)setBounds:(CGRect)bounds
@@ -417,9 +421,9 @@ DEFINE_EXCEPTIONS
 -(void)layoutSubviews
 {
 	[super layoutSubviews];
+    
 	[self checkBounds];
 }
-
 -(void)updateTransform
 {
 #ifdef USE_TI_UI2DMATRIX	

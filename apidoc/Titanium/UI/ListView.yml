@@ -8,8 +8,9 @@ description: |
       <tr>
         <td><img src="images/listview/listview_android.png" height="200" style="border: 1px solid black;"/></td>
         <td><img src="images/listview/listview_ios.png" height="200" style="border: 1px solid black;"/></td>
+        <td><img src="images/listview/listview_wp.png" height="200" style="border: 1px solid black;"/></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
@@ -160,24 +161,32 @@ description: |
 
     #### Editing Support (iOS)
 
-    Editing a list view through user initiated actions is supported through the following properties.
+    Editing a ListView through user initiated actions is supported through the following properties.
 
     - **ListItem properties**:
 
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
-          from the List View through a user initiated action. The item can only be deleted when the List View is 
+          from the ListView through a user initiated action. The item can only be deleted when the ListView is 
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
           property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
           is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
-          property of the listItem. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
-          In this scenario the listview does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
-          and the developer is free to update the listview as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+          property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
+          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
+          and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+
+        - [canInsert](Titanium.UI.ListItem.canInsert) - When this is set to true, it allows the item to insert a new item to the
+          ListView through a user initiated action. A new item can only be inserted when the ListView is
+          in editing mode. The ListView can enter 'editing' mode by explicitly setting the [editing](Titanium.UI.ListView.editing)
+          property to true. When the user clicks on the '+' sign of the item, an [insert](Titanium.UI.ListView.insert) event is fired.
+          Note: A new item is not inserted automatically when clicking on the '+' sign to let you decide the way to insert a new item.
+          You can use any inserting method of [Ti.UI.ListSection](Titanium.UI.ListSection), for example [insertItemsAt](Titanium.UI.ListSection.insertItemsAt)
+          and [appendItemsAt](Titanium.UI.ListSection.appendItemsAt).
 
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
-          to a different location within the List View. The item can only be moved when the List View is put in 
+          to a different location within the ListView. The item can only be moved when the ListView is put in 
           editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
           user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
 
@@ -198,6 +207,22 @@ excludes:
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
 events:
+  - name: indexclick
+    summary: Fired when the index bar is clicked by the user.
+    description: |
+        If the list view contains the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) array of indices the index bar will appear on the side.
+        This event will fire when this bar is clicked 
+    properties:
+      - name: title
+        summary: The title of the index clicked.
+        type: String
+
+      - name: index
+        summary: The index number clicked.
+        type: Number
+    platforms: [iphone, ipad]
+    since: "3.4.0"
+
   - name: itemclick
     summary: Fired when a list row is clicked by the user.
     description: |
@@ -339,8 +364,11 @@ events:
 
         While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
         Developers can listen to this event and perform appropriate actions when the search result set is empty.
-    platforms: [iphone, ipad]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: 4.2.0
+        iphone: 3.3.0
+        ipad: 3.3.0
     properties:
       - name: bubbles
         summary: false. This event does not bubble.
@@ -368,14 +396,55 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-  - name: rowAction
-    summary: Fired when the user interacts with one of the custom row actions defined by <Titanium.UI.ListItem.editActions>.
+  - name: editaction
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
         `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event, and use the `bindId` to check which child control fired the event. 
+        the event.
 
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 5.0.0
+    osver: {ios: {min: "8.0"}}
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: section
+        summary: List section from which the event was generated.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: rowAction
+    deprecated:
+        since: 5.0.0
+        removed: 5.0.0
+        notes: Renamed to [editaction](Titanium.UI.ListView.editaction).
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event.
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
     platforms: [iphone, ipad]
     since: 4.1.0
@@ -386,7 +455,7 @@ events:
         type: String
 
       - name: section
-        summary: List section from which the item is deleted.
+        summary: List section from which the event was generated.
         type: Titanium.UI.ListSection
 
       - name: sectionIndex
@@ -426,11 +495,15 @@ events:
         type: Titanium.UI.ListSection
 
       - name: firstVisibleItemIndex
-        summary: The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+        summary: |
+            The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: firstVisibleSectionIndex
-        summary: The index of the first visible section in the list view when the event fires.
+        summary: |
+            The index of the first visible section in the list view when the event fires.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
       - name: bubbles
@@ -500,6 +573,17 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: lazyLoadingEnabled
+    summary: Determines if the list view should use lazy loading to load remote images.
+    description: |
+        Lazy loading is used to load remote images only if they are in the visible view area. It is enabled
+        by default. If you disable it, images will be loaded even if they are currently not visible. Disabling
+        improves the loading of images, but can also cause trouble in list views having a lot of
+        remote images, because every remote image opens a new HTTP request.
+    default: true
+    since: 5.1.0
+    platforms: [iphone, ipad]
+
   - name: pruneSectionsOnEdit
     summary: Determines if empty sections are retained when the user completes editing the list view.
     description: |
@@ -529,10 +613,10 @@ properties:
     type: [String, Number]
     default: Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT
 
-  - name: dividerHeight
-    summary: height of the ListView divider.
+  - name: separatorHeight
+    summary: height of the ListView separator.
     description: |
-        Height of the ListView divider, in platform-specific units. If undefined, default native height will be used.
+        Height of the ListView separator, in platform-specific units. If undefined, default native height will be used.
         Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
     type: [String, Number]
     since: "4.1.0"
@@ -902,10 +986,22 @@ methods:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: setContentOffset
+    summary: Sets the value of the content offset of the list view without animation by default.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: contentOffset
+        summary: |
+            Dictionary with the properties `x`, `y`. Pass in `animated` `true` as a second dictionary parameter.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the list view.
+            The `animated` property is optional and set to `false` by default. 
+        type: Dictionary
+    since: 3.4.0
+
   - name: setMarker
     summary: Sets a reference item in the list view.
     description: |
-        This method replace previous reference items with the current one.
+        This method replaces previous reference items with the current one.
         See [marker](Titanium.UI.ListView.marker) event for details. 
     parameters:
       - name: markerProps

@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -34,7 +34,7 @@ fields.setup({
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
-exports.extendedDesc = 'Builds an existing app or module project.';
+exports.extendedDesc = __('Builds an existing app or module project.');
 
 exports.config = function (logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
@@ -306,15 +306,23 @@ exports.run = function (logger, config, cli, finished) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta));
-				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-					logger.error(msg);
-				});
+				logger.error(__('An error occurred during build after %s', delta));
+				if (err instanceof appc.exception) {
+					err.dump(logger.error);
+				} else if (err !== true) {
+					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+						logger.error(msg);
+					});
+				}
 				logger.log();
 				logger.log.end();
 				process.exit(1);
 			} else {
-				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				// eventually all platforms will just show how long the build took since they
+				// are responsible for showing the own logging
+				if (platform !== 'iphone' || cli.argv['build-only']) {
+					logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				}
 				logger.log.end();
 			}
 

@@ -66,13 +66,14 @@ methods:
         summary: Event name, displayed in Analytics UI.
         type: String
 
-      - name: data
-        summary: |
-            Extra data related to the event, **not displayed in Analytics UI**. 
-            The object must be serializable as JSON.
-        type: Object
-        optional: true
-        default: null
+  - name: filterEvents
+    summary: Sets a list of events that will not be sent to the analytics server.
+    parameters:
+      - name: events
+        summary: List of events to be filtered.
+        type: Array<String>
+    since: 4.1.0
+    platforms: [android, iphone, ipad]
 
   - name: navEvent
     summary: |
@@ -172,7 +173,6 @@ methods:
         optional: true
         default: null
 
-
 properties:
   - name: lastEvent
     summary: JSON representation of the last analytics event generated.
@@ -191,8 +191,8 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature.blah');
+            Titanium.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
-        'app.feature.blah' event was generated. 
+        'app.feature' event was generated.
 
