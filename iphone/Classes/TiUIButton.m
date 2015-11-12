@@ -128,7 +128,7 @@
             return;
     }
     [self setHighlighting:button.highlighted];
-    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
     if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
         [self.proxy fireEvent:fireActionEvent withObject:evt];
     }

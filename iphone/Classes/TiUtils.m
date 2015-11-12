@@ -196,6 +196,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
 }
 
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -1138,6 +1143,31 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			[NSNumber numberWithDouble:size.width],@"width",
 			[NSNumber numberWithDouble:size.height],@"height",
 			nil];
+}
+
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
+{
+    if ([self forceTouchSupported]) {
+        
+         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+         [NSNumber numberWithDouble:point.x],@"x",
+         [NSNumber numberWithDouble:point.y],@"y",
+         [NSNumber numberWithFloat:touch.force],@"force",
+         [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+         [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
+         nil];
+        
+#if IS_XCODE_7_1
+        if ([self isIOS9_1OrGreater]) {
+            [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
+        }
+#endif
+        return dict;
+
+    } else {
+        NSLog(@"[WARN] 3D Touch is not supported on this device.");
+        return [self pointToDictionary:point];
+    }
 }
 
 +(CGRect)contentFrame:(BOOL)window

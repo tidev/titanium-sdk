@@ -424,13 +424,20 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (callback == null) {
 			return;
 		}
-		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+		boolean granted = true;
+		for (int i = 0; i < grantResults.length; ++i) {
+		    if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+		        granted = false;
+		        break;
+		    }
+		}
+		if (granted) {
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(0, null);
 			callback.callAsync(context, response);
 		} else {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, permission + " permission denied");
+			response.putCodeAndMessage(-1, permission + "One or more permission(s) were denied");
 			callback.callAsync(context, response);
 		}
 	}

@@ -1283,6 +1283,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     
     ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
     
+    if([context preview] == nil) {
+        NSLog(@"[ERROR] The 'preview' property of your preview context is not existing or invalid. Please provide a valid view to use peek and pop.");
+        RELEASE_TO_NIL(context);
+        return;
+    }
+    
     [context setSourceView:self];
     [context connectToDelegate];
 

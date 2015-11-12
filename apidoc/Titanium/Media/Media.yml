@@ -1610,6 +1610,10 @@ properties:
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
     type: CropRectType
+  - name: previewRect
+    summary: Simple object defining the preview image size.
+    type: PreviewRectType
+    platforms: [android]
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
     description: Returns `true`.
@@ -1642,6 +1646,16 @@ properties:
     type: Number
   - name: height
     summary: Height of the crop rectangle, in pixels.
+    type: Number
+---
+name: PreviewRectType
+summary: Simple object for describing the preview image rectangle.
+properties:
+  - name: width
+    summary: Width preview image, in pixels.
+    type: Number
+  - name: height
+    summary: Height preview image, in pixels.
     type: Number
 ---
 name: PreviewImageOptions
