@@ -481,13 +481,13 @@ events:
       - name: force
         summary: |
             The current force value of the touch event.
-        Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
       - name: maximumPossibleForce
         summary: |
-        The maximum possible value the force property can be.
-        Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+            The maximum possible value the force property can be.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
       - name: altitudeAngle
