@@ -1412,6 +1412,24 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+
+  - name: INPUT_TYPE_CLASS_NUMBER
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout. Accepts only numbers.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: INPUT_TYPE_CLASS_TEXT
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
     
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.

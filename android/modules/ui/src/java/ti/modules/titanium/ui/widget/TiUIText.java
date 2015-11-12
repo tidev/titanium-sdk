@@ -193,7 +193,7 @@ public class TiUIText extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
 			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)
-			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
+			|| d.containsKey(TiC.PROPERTY_EDITABLE) || d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
 			handleKeyboard(d);
 		}
 		
@@ -266,7 +266,7 @@ public class TiUIText extends TiUIView
 				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE)
+		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_INPUT_TYPE))
 			|| (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION)
 				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
@@ -534,6 +534,10 @@ public class TiUIText extends TiUIView
 				case KEYBOARD_EMAIL_ADDRESS:
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 					break;
+			}
+
+			if (d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
+			    textTypeAndClass = TiConvert.toInt(d.get(TiC.PROPERTY_INPUT_TYPE));
 			}
 
 			if (passwordMask) {

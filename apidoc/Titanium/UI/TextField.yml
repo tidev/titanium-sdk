@@ -291,7 +291,17 @@ properties:
         Another way to change the hint text color is to use this property and specify a color.
     type: String
     default: Default Android theme's hint text color.
-    
+
+  - name: inputType
+    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    description: |
+        When asking for a specific kind of user input, such as a phone number or email 
+        address, you should always specify the input type that is accepted. This overrides
+        any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
+    type: Number
+    constants: Titanium.UI.INPUT_TYPE_*
+    platforms: [android]
+
   - name: keyboardToolbar
     summary: |
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 

@@ -1574,7 +1574,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INPUT_TYPE = "inputType";
+
 	/**
 	 * @module.api
 	 */
