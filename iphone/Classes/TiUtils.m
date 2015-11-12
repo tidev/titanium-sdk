@@ -1165,7 +1165,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return dict;
 
     } else {
-        NSLog(@"[WARN] 3D Touch is not supported on this device.");
         return [self pointToDictionary:point];
     }
 }
