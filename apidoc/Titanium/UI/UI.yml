@@ -1418,13 +1418,27 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
+  - name: KEYBOARD_APPEARANCE_DARK
+    summary: Use the platform-specific dark keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 5.2.0
+
+  - name: KEYBOARD_APPEARANCE_LIGHT
+    summary: Use the platform-specific light keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 5.2.0
+
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
     description: |
