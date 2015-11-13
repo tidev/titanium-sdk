@@ -1147,8 +1147,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
+#if IS_XCODE_7
     if ([self forceTouchSupported]) {
-        
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1163,10 +1163,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
         }
 #endif
         return dict;
-
-    } else {
-        return [self pointToDictionary:point];
     }
+#endif
+    
+    return [self pointToDictionary:point];
 }
 
 +(CGRect)contentFrame:(BOOL)window

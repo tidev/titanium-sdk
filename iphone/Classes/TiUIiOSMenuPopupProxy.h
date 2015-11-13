@@ -12,7 +12,7 @@
 /**
  The menu items to be presented inside the menu.
  */
-@property(nonatomic,retain) NSMutableArray<UIMenuItem*> *menuItems;
+@property(nonatomic,retain) NSMutableArray *menuItems;
 
 /**
  Shows the menu popup.
