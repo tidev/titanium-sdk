@@ -24,7 +24,7 @@ methods:
         `platform/android/res/xml/preferences.xml` and `platform/android/res/values/array/array.xml`.
         
         See the example for a demonstration, and the official Android Developer documentation for 
-        the [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
+        the [preferences.xml](http://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
         
 properties:
