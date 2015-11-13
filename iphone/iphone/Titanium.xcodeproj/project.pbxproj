@@ -224,6 +224,8 @@
 		2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
 		312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 312E36C0190B06D9008EAB8D /* libAPSAnalytics.a */; };
 		3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3186097E192BDB4E00093482 /* AnalyticsModule.m */; };
+		3A0E54371BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0E54361BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m */; };
+		3A1E40511BEAC73D00943233 /* TiUIiOSMenuPopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */; };
 		3A275F3E1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */; };
 		3A5AD7261BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */; };
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
@@ -752,6 +754,10 @@
 		3186097D192BDB4E00093482 /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		3186097E192BDB4E00093482 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
+		3A0E54351BE811CD003EE654 /* TiUIiOSMenuPopupProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSMenuPopupProxy.h; sourceTree = "<group>"; };
+		3A0E54361BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSMenuPopupProxy.m; sourceTree = "<group>"; };
+		3A1E404F1BEAC73D00943233 /* TiUIiOSMenuPopup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSMenuPopup.h; sourceTree = "<group>"; };
+		3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSMenuPopup.m; sourceTree = "<group>"; };
 		3A275F3C1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIActivityIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIActivityIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		3A5AD7241BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionGroupProxy.h; sourceTree = "<group>"; };
@@ -1875,6 +1881,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				3A0E54341BE81111003EE654 /* MenuPopup */,
 				CAC225581BB79659008A332B /* ApplicationShortcuts */,
 				3AB9137D1BB61EB00063A4AD /* PreviewActions */,
 				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
@@ -2142,6 +2149,17 @@
 			);
 			name = APSAnalytics;
 			path = ../Classes/APSAnalytics;
+			sourceTree = "<group>";
+		};
+		3A0E54341BE81111003EE654 /* MenuPopup */ = {
+			isa = PBXGroup;
+			children = (
+				3A0E54351BE811CD003EE654 /* TiUIiOSMenuPopupProxy.h */,
+				3A0E54361BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m */,
+				3A1E404F1BEAC73D00943233 /* TiUIiOSMenuPopup.h */,
+				3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */,
+			);
+			name = MenuPopup;
 			sourceTree = "<group>";
 		};
 		3AB9137D1BB61EB00063A4AD /* PreviewActions */ = {
@@ -2550,6 +2568,7 @@
 				24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */,
 				24CA8B74111161FE0084E2DE /* TiUIWebViewProxy.m in Sources */,
 				24CA8B75111161FE0084E2DE /* TiUIViewProxy.m in Sources */,
+				3A1E40511BEAC73D00943233 /* TiUIiOSMenuPopup.m in Sources */,
 				84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				24CA8B76111161FE0084E2DE /* TiUIView.m in Sources */,
 				24CA8B79111161FE0084E2DE /* TiUITextFieldProxy.m in Sources */,
@@ -2721,6 +2740,7 @@
 				B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */,
 				B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */,
 				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
+				3A0E54371BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m in Sources */,
 				24F29E2F12209C920099351D /* TiStylesheet.m in Sources */,
 				24F29E711220CE0A0099351D /* TiLocale.m in Sources */,
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,

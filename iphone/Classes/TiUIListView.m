@@ -197,10 +197,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
         }
         
+#if IS_XCODE_7
+        if ([TiUtils isIOS9OrGreater]) {
+            _tableView.cellLayoutMarginsFollowReadableWidth = NO;
+        }
+#endif
+        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
     }
+    
     return _tableView;
 }
 
@@ -1751,6 +1758,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     [self fireScrollStart: (UITableView*)scrollView];
+
+    if ([self.proxy _hasListeners:@"dragstart"]) {
+        [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -1761,12 +1772,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         [self fireScrollEnd:(UITableView *)scrollView];
     }
-    if (![self.proxy _hasListeners:@"pullend"]) {
-        return;
+    
+    if ([self.proxy _hasListeners:@"dragend"]) {
+        [self.proxy fireEvent:@"dragend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
-    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
-        pullActive = NO;
-        [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+
+    if ([self.proxy _hasListeners:@"pullend"]) {
+        if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+            pullActive = NO;
+            [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        }
     }
 }
 
