@@ -30,7 +30,7 @@
 @property(nonatomic, retain) NSDictionary* listViewEvent;
 
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
-- (CGRect)createSourceRectWithLocation:(CGPoint*)location;
+- (CGRect)createSourceRectWithLocation:(CGPoint)location;
 
 @end
 #endif
