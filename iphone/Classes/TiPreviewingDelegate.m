@@ -12,6 +12,9 @@
 #import "TiPreviewingDelegate.h"
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
+#import "TiUITableViewProxy.h"
+#import "TiUITableView.h"
+#import "TiUIScrollView.h"
 
 @implementation TiPreviewingDelegate
 
@@ -50,6 +53,21 @@
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
+    UITableView *tableView = [self ensureTableView];
+    
+    if (tableView != nil) {
+        
+        // If the tap was not on a cell, don't continue
+        if ([tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]] == nil) {
+            return nil;
+        }
+        
+        [self setListViewEvent:[self receiveListViewEventFromIndexPath:[tableView indexPathForRowAtPoint:location]]];
+        [[self previewContext] fireEvent:@"peek" withObject:[self listViewEvent]];
+    } else {
+        [[self previewContext] fireEvent:@"peek" withObject:@{@"preview": _preview}];
+    }
+    
     TiViewController *controller = [[TiViewController alloc] initWithViewProxy:_preview];
     [[_preview view] setFrame:[[controller view] bounds]];
     [[controller view] addSubview:[_preview view]];
@@ -59,22 +77,6 @@
 
     if (_contentHeight > 0) {
         controller.preferredContentSize = CGSizeMake(0.0, _contentHeight);
-    }
-    
-    UITableView *tableView = [self ensureTableView];
-    
-    if (tableView != nil) {
-        
-        // If the tap was not on a cell, don't continue
-        if ([tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]] == nil) {
-            RELEASE_TO_NIL(controller);
-            return nil;
-        }
-        
-        [self setListViewEvent:[self receiveListViewEventFromIndexPath:[tableView indexPathForRowAtPoint:location]]];
-        [[self previewContext] fireEvent:@"peek" withObject:[self listViewEvent]];
-    } else {
-        [[self previewContext] fireEvent:@"peek" withObject:@{@"preview": _preview}];
     }
     
     for (id item in _actions) {
@@ -95,23 +97,22 @@
             actionIndex++;
         }
     }
-
-    [previewingContext setSourceRect:[self createSourceRectWithLocation:&location]];
+    
     [controller setPreviewActions:result];
     [_preview windowWillOpen];
+    [previewingContext setSourceRect:[self createSourceRectWithLocation:location]];
     
     return controller;
 }
 
--(CGRect)createSourceRectWithLocation:(CGPoint*)location
+-(CGRect)createSourceRectWithLocation:(CGPoint)location
 {
     UITableView *tableView = [self ensureTableView];
     
     if (tableView) {
-        NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:*location];
-        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:location];
+        return [[tableView cellForRowAtIndexPath:indexPath] frame];
         
-        return cell.frame;
     }
 
     return CGRectZero; // The Frame is detected automatically on normal views
@@ -127,7 +128,15 @@
         return [view tableView];
     }
 #endif
-
+#ifdef USE_TI_UITABLEVIEW
+    if ([_sourceView isKindOfClass:[TiUITableView class]] == YES) {
+        TiUITableViewProxy* listProxy = (TiUITableViewProxy*)_sourceView;
+        TiUITableView *view = (TiUITableView*)[listProxy view];
+        
+        return [view tableView];
+    }
+#endif
+    
     return nil;
 }
 
