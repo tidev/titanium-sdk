@@ -1166,6 +1166,25 @@ properties:
     default: 0
 
     
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        This is an opt-in feature available from Android Lollipop. 
+        Touch feedback is applied only if the backgroundColor is a solid color.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "5.2.0"
+
+    
+  - name: touchFeedbackColor
+    summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true. 
+    type: String
+    default: Theme provided color. 
+    platforms: [android]
+    since: "5.2.0"
+
+    
   - name: bottom
     summary: View's bottom position, in platform-specific units.
     description: |
@@ -1177,6 +1196,7 @@ properties:
         represent the view's calculated position.
     type: [Number,String]
     default: undefined
+
     
   - name: center
     summary: View's center position, in the parent view's coordinates. 
