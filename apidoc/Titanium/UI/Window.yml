@@ -1395,13 +1395,14 @@ description: |
     the same scene. This seamless animation is called shared element transition and can be achieved by the following steps. 
 
     Say window A is opening window B.
-    1. Specify a unique `transitionName` to the common UI elements between the two windows. 
-    2. Use `addSharedElement` method on window B passing the window A common UI element and the transition name. This tells the system
+    Firstly, specify a unique `transitionName` to the common UI elements between the two windows. 
+    Next use `addSharedElement` method on window B passing the window A common UI element and the transition name. This tells the system
     which views are shared between windows and performs the transition between them. Note that we specify the UI elements of window A
     since the system needs the source element and connects the destination element from the shared transition name once window B is created 
     and shown. 
 
     For example to transition a title label in window A to a title label in window B. 
+
         // Create label in window A with a unique transitionName.
         var titleInWinA = new Ti.UI.createLabel({
             text:'Top 10 pics from Mars!',
@@ -1410,8 +1411,7 @@ description: |
             transitionName: 'title'
         });
         windowA.add(titleInWinA);
-        ...
-
+        
         // Creating label in window B, note that the same transitionName is used.
         var titleInWinB = new Ti.UI.createLabel({
             text:'Top 10 pics from Mars!',
