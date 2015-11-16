@@ -395,7 +395,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
             }
 		}
     }
+#ifdef TI_USE_AUTOLAYOUT
 	[[self pagecontrol] setCurrentPage:result];
+#endif	
     return result;
 }
 

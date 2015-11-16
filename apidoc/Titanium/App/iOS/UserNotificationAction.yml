@@ -22,7 +22,7 @@ properties:
         background to respond to the action unless the application is already in the foreground.
 
         Set to `Titanium.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND` to launch the application in the
-        foreground to respond to the action.
+        foreground to respond to the action. These actions won't be displayed on Apple Watch.
     constants: Titanium.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_*
     type: Number
     availability: creation
@@ -37,7 +37,7 @@ properties:
     since: "5.1.0"
 
   - name: authenticationRequired
-    summary: Set to true if the action requires the device to be unlocked.
+    summary: Set to true if the action requires the device to be unlocked. On the Apple Watch actions never require authentication.
     type: Boolean
     accessors: false
     availability: creation
