@@ -301,6 +301,8 @@ properties:
     type: Number
     constants: Titanium.UI.INPUT_TYPE_*
     platforms: [android]
+    default: If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
+    since: 5.2.0
 
   - name: keyboardToolbar
     summary: |
