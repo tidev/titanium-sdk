@@ -88,7 +88,7 @@
 		pageControl = [[UIPageControl alloc] initWithFrame:[self pageControlRect]];
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
 		[pageControl addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
-		[pageControl setBackgroundColor:pageControlBackgroundColor];
+		[pageControl setBackgroundColor:[UIColor clearColor]];
 		[self addSubview:pageControl];
 	}
 	return pageControl;
