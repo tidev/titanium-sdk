@@ -298,10 +298,10 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the input type that is accepted. This overrides
         any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
-    type: Number
-    constants: Titanium.UI.INPUT_TYPE_*
+    type: Array<Number>
+    constants: [Titanium.UI.INPUT_TYPE_*]
     platforms: [android]
-    default: If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
+    default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
     since: 5.2.0
 
   - name: keyboardToolbar

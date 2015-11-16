@@ -537,7 +537,25 @@ public class TiUIText extends TiUIView
 			}
 
 			if (d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
-			    textTypeAndClass = TiConvert.toInt(d.get(TiC.PROPERTY_INPUT_TYPE));
+			    Object obj = d.get(TiC.PROPERTY_INPUT_TYPE);
+			    boolean combineInput = false;
+			    int[] inputTypes = null;
+			    int combinedInputType = 0;
+
+			    if (obj instanceof Object[]) {
+			        inputTypes = TiConvert.toIntArray((Object[]) obj);
+			    }
+
+			    if (inputTypes != null) {
+			        combineInput = true;
+			        for (int inputType: inputTypes) {
+			            combinedInputType |= inputType;
+			        }
+			    }
+
+			    if (combineInput) {
+			        textTypeAndClass = combinedInputType;
+			    }
 			}
 
 			if (passwordMask) {
