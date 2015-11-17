@@ -236,17 +236,17 @@ examples:
                 }
             });
 
-            if(!activity.supported){
-                alert('activity not supported');
-                return;
-            }
-            activity.becomeCurrent();
+            if(!activity.isSupported()){
+                alert('User Activities are not supported on this device!');
+            } else {
+                activity.becomeCurrent();
 
-            Ti.App.iOS.addEventListener('continueactivity', function(e) {
-                if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
-                    alert(e.userInfo.msg);
-                }
-            });
+                Ti.App.iOS.addEventListener('continueactivity', function(e) {
+                    if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
+                        alert(e.userInfo.msg);
+                    }
+                });
+            }
 
         #### tiapp.xml
 
