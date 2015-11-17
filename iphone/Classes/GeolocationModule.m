@@ -1080,7 +1080,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
         
         int code = 0;
-        NSString* errorStr = @"";
+        NSString* errorStr = nil;
         
         switch (status) {
             case kCLAuthorizationStatusAuthorizedAlways:
@@ -1088,7 +1088,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                 break;
             default:
                 code = 1;
-                errorStr = @"The user is unable to allow access to location.";
+                errorStr = @"The user denied access to use location services.";
         }
         
         NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
