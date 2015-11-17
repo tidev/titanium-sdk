@@ -887,9 +887,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         }
     }
     
+    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+
     if (errorMessage != nil) {
         NSLog(@"[ERROR] %@", errorMessage);
-        [self executeAndReleaseCallbackWithCode:1 andMessage:errorMessage];
         RELEASE_TO_NIL(errorMessage);
     }
 }
