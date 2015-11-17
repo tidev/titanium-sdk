@@ -923,8 +923,8 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-    CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] retain];
-    [saveRequest deleteContact:[person mutableCopy]];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] retain];
+	[saveRequest deleteContact:[person mutableCopy]];
 	return saveRequest;
 }
 
