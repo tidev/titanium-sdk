@@ -45,11 +45,13 @@ before_script:
   - echo yes | emulator -avd test -no-skin -no-audio -no-window &
 
 script:
+  - df -h
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
   - npm install
+  - df -h
   - npm test
   - ls dist
   - cd dist
