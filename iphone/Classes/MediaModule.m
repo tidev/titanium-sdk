@@ -969,8 +969,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
+            
+            NSString *errorMessage = granted ? @"The user denied access to use the camera." : nil;
             KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                      thisObject:self];
             [[callback context] enqueue:invocationEvent];
             RELEASE_TO_NIL(invocationEvent);
