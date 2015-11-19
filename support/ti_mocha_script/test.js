@@ -16,7 +16,7 @@ var path = require('path'),
 	androidTestResults,
 	iosJsonResults,
 	androidJsonResults,
-	maxFailedTestCount = 4;
+	maxFailedTestCount = 2;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
@@ -361,9 +361,8 @@ if (module.id === ".") {
 			console.log('\nIOS: passed %d / skipped %d / failed %d', iosPassedTestsCount,iosSkippedTestsCount, iosFailedTestsCount);
 			console.log('Android: passed %d / skipped %d, / failed %d', androidPassedTestsCount,androidSkippedTestsCount, androidFailedTestsCount);
 			console.log('Total: passed %d / skipped %d / failed %d',iosPassedTestsCount + androidPassedTestsCount,iosSkippedTestsCount + androidSkippedTestsCount, iosFailedTestsCount + androidFailedTestsCount);
-			console.log("Health: %d", health);
 			//need something here to put the failed tests and the health somewhere visible outside of travis
-			if(androidFailedTestsCount + iosFailedTestsCount >= maxFailedTestCount) {
+			if(androidFailedTestsCount + iosFailedTestsCount > maxFailedTestCount) {
 				console.log('\nToo many unit tests failed. Only maximum of %d tolerated, failing travis build.', maxFailedTestCount);
 				process.exit(1);
 			}
