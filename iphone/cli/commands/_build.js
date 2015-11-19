@@ -2448,6 +2448,20 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
 };
 
+iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
+	// normally we would want truly unique ids, but we want predictability so that we
+	// can detect when the project has changed and if we need to rebuild the app
+	if (!this.xcodeUuidIndex) {
+		this.xcodeUuidIndex = 1;
+	}
+	var id = appc.string.lpad(this.xcodeUuidIndex++, 24, '0');
+	if (xcodeProject && xcodeProject.allUuids().indexOf(id) >= 0) {
+		return this.generateXcodeUuid(xcodeProject);
+	} else {
+		return id;
+	}
+};
+
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
@@ -2458,19 +2472,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
 		xobjs,
-		uuidIndex = 1,
 		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
-
-	// normally we would want truly unique ids, but we want predictability so that we
-	// can detect when the project has changed and if we need to rebuild the app
-	function generateUuid() {
-		var id = appc.string.lpad(uuidIndex++, 24, '0');
-		if (xcodeProject.allUuids().indexOf(id) >= 0) {
-			return generateUuid();
-		} else {
-			return id;
-		}
-	}
 
 	xcodeProject.hash = xcodeParser.parse(fs.readFileSync(srcFile).toString());
 	xobjs = xcodeProject.hash.project.objects;
@@ -2719,8 +2721,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
 		this.nativeLibModules.forEach(function (lib) {
-			var fileRefUuid = generateUuid(),
-				buildFileUuid = generateUuid();
+			var fileRefUuid = this.generateXcodeUuid(xcodeProject),
+				buildFileUuid = this.generateXcodeUuid(xcodeProject);
 
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
@@ -2758,7 +2760,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
 				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
-		});
+		}, this);
 	} else {
 		this.logger.trace(__('No native module libraries to add'));
 	}
@@ -2772,7 +2774,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				extPBXProject = ext.project;
 
 			// create a group in the Extensions group for all the extension's groups
-			var groupUuid = generateUuid();
+			var groupUuid = this.generateXcodeUuid(xcodeProject);
 			extensionsGroup.children.push({
 				value: groupUuid,
 				comment: ext.projectName
@@ -2970,7 +2972,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
 
 						// create the file reference
-						var entFileRefUuid = generateUuid();
+						var entFileRefUuid = this.generateXcodeUuid(xcodeProject);
 						xobjs.PBXFileReference[entFileRefUuid] = {
 							isa: 'PBXFileReference',
 							lastKnownFileType: 'text.xml',
@@ -2995,7 +2997,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer) {
 					// add this target as a dependency of the titanium app's project
-					var proxyUuid = generateUuid();
+					var proxyUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
 					xobjs.PBXContainerItemProxy[proxyUuid] = {
 						isa: 'PBXContainerItemProxy',
@@ -3007,7 +3009,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					};
 					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
 
-					var depUuid = generateUuid();
+					var depUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
 					xobjs.PBXTargetDependency[depUuid] = {
 						isa: 'PBXTargetDependency',
@@ -3028,7 +3030,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						embedUuid = embedExtPhase && embedExtPhase.value;
 
 						if (!embedUuid) {
-							embedUuid = generateUuid();
+							embedUuid = this.generateXcodeUuid(xcodeProject);
 							xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
 								value: embedUuid,
 								comment: name
@@ -3049,7 +3051,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
 
 						// add the copy files build phase
-						var copyFilesUuid = generateUuid();
+						var copyFilesUuid = this.generateXcodeUuid(xcodeProject);
 
 						xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
 							value: copyFilesUuid,
@@ -3066,9 +3068,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 
 					if (targetInfo.isWatchAppV1Extension) {
-						addEmbedBuildPhase('Embed App Extensions', null, 13 /* type "plugin" */);
+						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
 					} else if (targetInfo.isWatchAppV2orNewer) {
-						addEmbedBuildPhase('Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
+						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
 					}
 				}
 			}, this);
@@ -4996,7 +4998,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						}
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[info.dest] = r.symbols;
+						this.tiSymbols[to] = r.symbols;
 
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
