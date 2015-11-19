@@ -189,7 +189,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Calendar.requestAuthorization", @"5.1.0", @"Calendar.requestContactsPermissions");
+    DEPRECATED_REPLACED(@"Calendar.requestAuthorization()", @"5.1.0", @"Calendar.requestContactsPermissions()");
     [self requestContactsPermissions:args];
 }
 
