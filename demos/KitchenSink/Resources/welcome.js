@@ -26,8 +26,8 @@
 			color:'#fff',
 			textAlign:'center',
 			font:{fontSize:18,fontWeight:'bold'},
-			height:'auto',
-			width:'auto'
+			height:Ti.UI.SIZE,
+			width:Ti.UI.SIZE
 		});
 		welcomeWindow.add(message);
 		welcomeWindow.open();

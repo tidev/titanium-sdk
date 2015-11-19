@@ -4,34 +4,103 @@
         <target device="mobileweb">true</target>
         <target device="iphone">true</target>
         <target device="ipad">true</target>
-        <target device="blackberry">false</target>
         <target device="android">true</target>
     </deployment-targets>
-    <id>com.appcelerator.titanium</id>
+    <guid>961bcc7c-cf26-4f4f-9ddd-abb674de9ab4</guid>
+    <property name="ti.android.useLegacyWindow" type="bool">true</property>
+    <property name="ti.ui.defaultunit" type="string">dp</property>
+    <sdk-version>5.2.0.v20151021171225</sdk-version>
+    <id>com.appcelerator.kitchensink</id>
     <name>KitchenSink</name>
-    <version>1.0</version>
-    <publisher>nwright</publisher>
-    <url>http://www.appcelerator.com</url>
-    <copyright>2009 by nwright</copyright>
-    <description>No description provided</description>
+    <version>4.1.0</version>
+    <publisher>Appcelerator</publisher>
+    <url>http://appcelerator.com</url>
+    <description>not specified</description>
+    <copyright>2014-2015 by Appcelerator</copyright>
     <icon>appicon.png</icon>
     <persistent-wifi>false</persistent-wifi>
     <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
     <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
     <analytics>true</analytics>
-    <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
-    <property name="ti.android.debug" type="bool">false</property>
-    <property name="ti.facebook.appid">134793934930</property>
-    <!-- this will only work with our dev keystore and not on a production device! -->
-    <property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
-    <!-- get yours at http://code.google.com/android/maps-api-signup.html -->
-    <property name="ti.android.google.map.api.key.production">GET_ME_FROM_GOOGLE</property>
-    <plugins>
-        <plugin version="0.1">ti.log</plugin>
-    </plugins>
+    <ios>
+        <use-autolayout>true</use-autolayout>
+        <plist>
+            <dict>
+                <key>NSLocationWhenInUseUsageDescription</key>
+                <string>
+                Specify the reason for accessing the user’s location information.
+                This appears in the alert dialog when asking the user for permission to
+                access their location.
+                </string>
+                <key>NSLocationUsageDescription</key>
+                <string>AR Demo</string>
+                <key>UISupportedInterfaceOrientations~iphone</key>
+                <array>
+                    <string>UIInterfaceOrientationPortrait</string>
+                </array>
+                <key>UISupportedInterfaceOrientations~ipad</key>
+                <array>
+                    <string>UIInterfaceOrientationPortrait</string>
+                    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+                    <string>UIInterfaceOrientationLandscapeLeft</string>
+                    <string>UIInterfaceOrientationLandscapeRight</string>
+                </array>
+                <key>UIRequiresPersistentWiFi</key>
+                <false/>
+                <key>UIPrerenderedIcon</key>
+                <false/>
+                <key>UIStatusBarHidden</key>
+                <false/>
+                <key>UIStatusBarStyle</key>
+                <string>UIStatusBarStyleDefault</string>
+                <key>FacebookAppID</key>
+                <string>1511403295849049</string>
+                <key>FacebookDisplayName</key>
+                <string>KitchenSink</string>
+                <key>CFBundleURLTypes</key>
+                <array>
+                    <dict>
+                        <key>CFBundleURLName</key>
+                        <string>com.appcelerator.kitchensink</string>
+                        <key>CFBundleURLSchemes</key>
+                        <array>
+                            <string>kitchensink</string>
+                            <string>fb1511403295849049</string>
+                        </array>
+                    </dict>
+                </array>
+                <key>LSApplicationQueriesSchemes</key>
+                <array>
+                    <string>fbapi</string>
+                    <string>fb-messenger-api</string>
+                    <string>fbauth2</string>
+                    <string>fbshareextension</string>
+                </array>
+                <key>UIBackgroundModes</key>
+                <array>
+                    <string>audio</string>
+                </array>
+                <key>UIViewControllerBasedStatusBarAppearance</key>
+                <false/>
+            </dict>
+        </plist>
+    </ios>
+    <iphone>
+        <orientations device="iphone">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+        </orientations>
+        <orientations device="ipad">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+            <orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
+        </orientations>
+    </iphone>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest>
-            <supports-screens android:anyDensity="false"/>
             <application>
                 <activity android:alwaysRetainTaskState="true"
                     android:configChanges="keyboardHidden|orientation"
@@ -42,11 +111,21 @@
                         <category android:name="android.intent.category.LAUNCHER"/>
                     </intent-filter>
                 </activity>
+                <activity android:label="KitchenSinkFacebook"
+                    android:name="com.facebook.LoginActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+                <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
             </application>
+            <uses-sdk android:targetSdkVersion="23"/>
         </manifest>
         <activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
         <services>
             <service type="interval" url="testservice.js"/>
         </services>
     </android>
+    <modules>
+        <module platform="android">facebook</module>
+        <module platform="iphone" version="5.0.0">facebook</module>
+    </modules> 
+    <guid>d1cc60a8-588a-4c31-9555-abb674de9ab4</guid>
+    <property name="appc-app-id" type="string">56252671b09607c5248b3695</property>
 </ti:app>

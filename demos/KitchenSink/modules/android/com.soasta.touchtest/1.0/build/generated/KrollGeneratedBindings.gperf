@@ -1,0 +1,16 @@
+%define lookup-function-name lookupGeneratedInit
+%define class-name TouchtestmoduleBindings
+%{
+
+#include <string.h>
+#include <v8.h>
+#include <KrollBindings.h>
+
+#include "com.soasta.touchtest.TouchtestmoduleModule.h"
+
+
+%}
+struct titanium::bindings::BindEntry;
+%%
+com.soasta.touchtest.TouchtestmoduleModule, ::com::soasta::touchtest::TouchtestmoduleModule::bindProxy, ::com::soasta::touchtest::TouchtestmoduleModule::dispose
+%%

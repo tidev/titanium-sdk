@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<manifest android:versionCode="1" android:versionName="1" 
+        package="com.appcelerator.kitchensink" 
+        xmlns:android="http://schemas.android.com/apk/res/android">
+	<supports-screens android:anyDensity="false"/>
+    <uses-sdk android:minSdkVersion="8"/>
+
+	<!-- TI_MANIFEST -->
+
+	<application android:debuggable="false" 
+                 android:icon="@drawable/appicon" 
+                 android:label="KitchenSink" 
+                 android:name="KitchensinkApplication">
+
+		<activity android:alwaysRetainTaskState="true" 
+				  android:configChanges="keyboardHidden|orientation" 
+				  android:label="KitchenSink" 
+				  android:name=".KitchensinkActivity" 
+				  android:theme="@style/Theme.Titanium">
+                    
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN"/>
+                    <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+        </activity>
+	
+		<activity android:configChanges="keyboardHidden|orientation" 
+				  android:launchMode="singleTask" 
+				  android:name="ti.modules.titanium.media.TiVideoActivity" 
+				  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+
+		<activity android:name="ti.modules.titanium.facebook.FBActivity" 
+				  android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+		<activity android:configChanges="keyboardHidden|orientation" 
+				  android:name="ti.modules.titanium.media.TiCameraActivity" 
+				  android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+
+		<activity android:configChanges="keyboardHidden|orientation" 
+			 	  android:name="org.appcelerator.titanium.TiActivity"/>
+				
+		<activity android:configChanges="keyboardHidden|orientation" 
+				  android:name="org.appcelerator.titanium.TiTranslucentActivity" 
+				  android:theme="@android:style/Theme.Translucent"/>
+				
+		<activity android:configChanges="keyboardHidden|orientation" 
+				  android:name="org.appcelerator.titanium.TiModalActivity" 
+				  android:theme="@android:style/Theme.Translucent"/>
+				
+		<activity android:configChanges="keyboardHidden|orientation" 
+				  android:name="ti.modules.titanium.ui.TiTabActivity"/>
+				
+		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
+
+		<service android:exported="false" 
+				 android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"/>
+				
+		<service android:name="com.appcelerator.kitchensink.TestserviceService"/>
+
+
+	</application>
+
+	
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<!--<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.CAMERA"/>
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+	<uses-permission android:name="android.permission.WRITE_CONTACTS"/>-->
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	
+
+</manifest> 

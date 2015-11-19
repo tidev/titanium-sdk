@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+apiversion: 2
+description: SOASTA TouchTest module for Appcelerator
+author: SOASTA, Inc.
+license: All rights reserved.
+copyright: Copyright 2012 SOASTA, Inc.
+
+
+# these should not be edited
+name: touchtestmodule
+moduleid: com.soasta.touchtest
+guid: 15398fdc-8297-407d-b0e9-2bb8fd241966
+platform: android
+minsdk: 3.0.2.GA
