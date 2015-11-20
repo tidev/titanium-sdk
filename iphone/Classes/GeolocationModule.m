@@ -837,7 +837,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)requestAuthorization:(id)value
 {
-    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization()", @"5.1.0", @"Geolocation.requestLocationPermissions()");
     [self requestLocationPermissions:@[value, [NSNull null]]];
 }
 
