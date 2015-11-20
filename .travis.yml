@@ -1,5 +1,5 @@
 language: objective-c
-
+osx_image: xcode7
 jdk:
   - oraclejdk7
 install:
