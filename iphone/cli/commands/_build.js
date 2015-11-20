@@ -2104,7 +2104,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.whitelistAppceleratorDotCom = false;
 	}
 
-	if (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
+	if (!tiapp.ios['enable-launch-screen-storyboard']) || fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
 		this.defaultLaunchScreenStoryboard = false;
 	}
 
