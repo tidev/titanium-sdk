@@ -437,7 +437,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			callback.callAsync(context, response);
 		} else {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, permission + "One or more permission(s) were denied");
+			response.putCodeAndMessage(-1, "One or more permission(s) were denied");
 			callback.callAsync(context, response);
 		}
 	}

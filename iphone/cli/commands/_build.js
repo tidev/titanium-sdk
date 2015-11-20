@@ -5019,7 +5019,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								cb2();
 							})(r, from, to, cb);
 						} else {
-							if (!this.copyFileSync(from, to)) {
+							if (this.copyFileSync(from, to)) {
+								this.jsFilesChanged = true;
+							} else {
 								this.logger.trace(__('No change, skipping %s', to.cyan));
 							}
 							cb();
