@@ -7,9 +7,7 @@
 #import "TiProxy.h"
 #import <Photos/Photos.h>
 
-@interface TiUIiOSLivePhoto : TiProxy {
-
-}
+@interface TiUIiOSLivePhoto : TiProxy
 
 @property(nonatomic,retain) PHLivePhoto *livePhoto;
 

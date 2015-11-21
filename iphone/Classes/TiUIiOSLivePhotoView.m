@@ -17,20 +17,50 @@
     return (TiUIiOSLivePhotoViewProxy *)self.proxy;
 }
 
-
 -(PHLivePhotoView*)livePhotoView
 {
     if (_livePhotoView == nil) {
-        CGRect bounds = [self livePhotoViewProxy].view.bounds;
         _livePhotoView = [[PHLivePhotoView alloc] initWithFrame:self.bounds];
+        [_livePhotoView setDelegate:self];
         
-        autoWidth = self.livePhotoView.livePhoto.size.width;
-        autoHeight = self.livePhotoView.livePhoto.size.height;
+        [_livePhotoView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+        [_livePhotoView setContentMode:[self contentModeForLivePhotoView]];
         
         [self addSubview:_livePhotoView];
     }
     
     return _livePhotoView;
+}
+
+
+-(void)setWidth_:(id)width_
+{
+    width = TiDimensionFromObject(width_);
+    [self updateContentMode];
+}
+
+-(void)setHeight_:(id)height_
+{
+    height = TiDimensionFromObject(height_);
+    [self updateContentMode];
+}
+
+-(void)updateContentMode
+{
+    if (_livePhotoView != nil) {
+        [_livePhotoView setContentMode:[self contentModeForLivePhotoView]];
+    }
+}
+
+-(UIViewContentMode)contentModeForLivePhotoView
+{
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) ||
+        TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+        return UIViewContentModeScaleAspectFit;
+    }
+    else {
+        return UIViewContentModeScaleToFill;
+    }
 }
 
 -(void)initializeState
@@ -58,6 +88,7 @@
     
     [super frameSizeChanged:frame bounds:bounds];
 }
+
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
@@ -91,8 +122,7 @@
     }
     
     CGFloat calculatedHeight = TiDimensionCalculateValue(height, autoHeight);
-    if (calculatedHeight > 0)
-    {
+    if (calculatedHeight > 0) {
         return calculatedHeight;
     }
     
@@ -106,6 +136,25 @@
         return UIViewContentModeScaleAspectFit;
     } else {
         return UIViewContentModeScaleToFill;
+    }
+}
+
+
+#pragma mark Delegates
+
+-(void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle
+{
+    if([[self livePhotoViewProxy] _hasListeners:@"start"]) {
+        NSDictionary *event = @{@"playbackStyle": NUMINT(playbackStyle)};
+        [[self livePhotoViewProxy] fireEvent:@"start" withObject:event];
+    }
+}
+
+-(void)livePhotoView:(PHLivePhotoView *)livePhotoView didEndPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle
+{
+    if([[self livePhotoViewProxy] _hasListeners:@"stop"]) {
+        NSDictionary *event = @{@"playbackStyle": NUMINT(playbackStyle)};
+        [[self livePhotoViewProxy] fireEvent:@"complete" withObject:event];
     }
 }
 

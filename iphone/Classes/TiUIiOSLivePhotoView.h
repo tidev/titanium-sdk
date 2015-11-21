@@ -8,7 +8,7 @@
 #import "TiUIiOSLivePhoto.h"
 #import <PhotosUI/PhotosUI.h>
 
-@interface TiUIiOSLivePhotoView : TiUIView {
+@interface TiUIiOSLivePhotoView : TiUIView<PHLivePhotoViewDelegate> {
     TiDimension width;
     TiDimension height;
     CGFloat autoHeight;

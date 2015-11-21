@@ -9,9 +9,16 @@
 #import "TiUIiOSLivePhotoView.h"
 #import <PhotosUI/PhotosUI.h>
 
-@interface TiUIiOSLivePhotoViewProxy : TiViewProxy {}
+@interface TiUIiOSLivePhotoViewProxy : TiViewProxy
 
+/**
+ *  Starts the playback of the live photo view.
+ */
 -(void)startPlaybackWithStyle:(id)style;
+
+/**
+ *  Stops the current playback of the live photo view.
+ */
 -(void)stopPlayback;
 
 @end

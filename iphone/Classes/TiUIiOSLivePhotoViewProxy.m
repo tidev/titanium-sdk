@@ -10,6 +10,8 @@
 
 @implementation TiUIiOSLivePhotoViewProxy
 
+#pragma mark Proxy lifecycle
+
 -(NSString*)apiName
 {
     return @"Ti.UI.iOS.LivePhotoView";
@@ -19,6 +21,8 @@
 {
     [super dealloc];
 }
+
+#pragma mark Public APIs
 
 - (TiUIiOSLivePhotoView *)livePhotoView
 {
@@ -35,6 +39,23 @@
 {
     [[[self livePhotoView] livePhotoView] stopPlayback];
 }
+
+-(void)setMuted:(NSNumber*)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[[self livePhotoView] livePhotoView] setMuted:[TiUtils boolValue:value]];
+}
+
+-(NSNumber*)muted
+{
+    return NUMBOOL([[[self livePhotoView] livePhotoView] isMuted]);
+}
+
+#pragma mark Helper
+
+USE_VIEW_FOR_CONTENT_WIDTH
+
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
