@@ -112,7 +112,7 @@ FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
 {
 	// Note: Despite previous incarnations claiming writeable is the proper API,
 	// writable is the correct spelling.
-	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"Ti.Filesystem.FileProxy.writable");
+	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"Filesystem.FileProxy.writable");
 	return [self writable];
 }
 

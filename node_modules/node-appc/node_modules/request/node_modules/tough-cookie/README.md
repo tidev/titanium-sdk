@@ -237,15 +237,15 @@ if (cookie.validate() === true) {
 
 Exported via `tough.CookieJar`.
 
-### `CookieJar([store],[rejectPublicSuffixes])`
+### `CookieJar([store],[options])`
 
 Simply use `new CookieJar()`.  If you'd like to use a custom store, pass that to the constructor otherwise a `MemoryCookieStore` will be created and used.
 
-### Properties
+The `options` object can be omitted and can have the following properties:
 
-CookieJar object properties:
-
-  * _rejectPublicSuffixes_ - boolean - reject cookies with domains like "com" and "co.uk" (default: `true`)
+  * _rejectPublicSuffixes_ - boolean - default `true` - reject cookies with domains like "com" and "co.uk"
+  * _looseMode_ - boolean - default `false` - accept malformed cookies like `bar` and `=bar`, which have an implied empty name.
+    This is not in the standard, but is used sometimes on the web and is accepted by (most) browsers.
 
 Since eventually this module would like to support database/remote/etc. CookieJars, continuation passing style is used for CookieJar methods.
 

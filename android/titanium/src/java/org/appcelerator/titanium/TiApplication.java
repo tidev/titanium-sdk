@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -340,7 +340,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
-	private void loadAppProperties() {
+	public void loadAppProperties() {
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -422,8 +422,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postOnCreate()
 	{
-		loadAppProperties();
-
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
 			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
@@ -649,6 +647,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isAnalyticsEnabled()
 	{
 		return getAppInfo().isAnalyticsEnabled();
+	}
+	
+	public boolean runOnMainThread()
+	{
+		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
 	
 	public void setFilterAnalyticsEvents(String[] events)

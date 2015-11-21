@@ -75,6 +75,10 @@ function build(app, iosVersion, defs, done){
 			return done(new Error('No selected Xcode'));
 		}
 
+		if (!xc.eulaAccepted) {
+			return done(new Error('Xcode must be launched and the EULA must be accepted before the iOS app can be compiled.'));
+		}
+
 		var args = [
 			xc.executables.xcodebuild,
 			'clean', 'build',
@@ -702,7 +706,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it.only)('should be able to launch simulator and log basic logs', function (done) {
+	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and log basic logs', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 

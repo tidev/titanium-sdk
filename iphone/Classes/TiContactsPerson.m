@@ -366,8 +366,22 @@ static NSDictionary* iOS9propertyKeys;
 	for (CNLabeledValue *genericProperty in property) {
 		NSString *key = [[TiContactsPerson iOS9multiValueLabels] valueForKey:genericProperty.label];
 		if (key == nil) {
-			DebugLog(@"Unable to find key for property");
-			return nil;
+			if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPhoneNumber class]]) {
+				//For case where phone number is added via phone dialog. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"phone";
+			}
+			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[NSString class]]) {
+				//For case where email is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"email";
+			}
+			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPostalAddress class]]) {
+				//For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"address";
+			}
+			else {
+				//must be a custom label
+				key = [NSString stringWithString:genericProperty.label];
+			}
 		}
 		NSMutableArray *labels = nil;
 		if ([multiValueDict objectForKey:key] == nil) {
@@ -916,27 +930,27 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteContact:person];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }

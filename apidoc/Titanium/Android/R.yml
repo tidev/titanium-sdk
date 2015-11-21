@@ -12,6 +12,9 @@ description: |
     See also: [android.R](http://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
 
+    Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided drawables can be 
+    removed across Android versions. Prefer to copy the images to application res folder. 
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
@@ -67,6 +70,8 @@ properties:
         Drawable resources. See 
         [R.drawable](http://developer.android.com/reference/android/R.drawable.html)
         in the Android Developer Reference.
+        Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided 
+        drawables can be removed across Android versions. Prefer to copy the images to application res folder. 
     type: Object
     accessors: false
     permission: read-only

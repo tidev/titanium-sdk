@@ -6,7 +6,7 @@
  */
 #import "TiProxy.h"
 
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSUSERACTIVITY
 
 @interface TiAppiOSUserActivityProxy : TiProxy<NSUserActivityDelegate> {
     @private

@@ -165,6 +165,12 @@ static NSArray* touchEventsArray;
 		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
 	} else if([arg isKindOfClass:[TiViewProxy class]]) {
 		childView = arg;
+	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:@selector(nativeObject)]) {
+		Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
+		if (hyperloopViewProxy != nil) {
+			childView = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+			[childView performSelector:@selector(setNativeView:) withObject:arg];
+		}
 	}
 
 	if(childView == nil) {
@@ -1276,6 +1282,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     }
     
     ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
+    
+    if([context preview] == nil) {
+        NSLog(@"[ERROR] The 'preview' property of your preview context is not existing or invalid. Please provide a valid view to use peek and pop.");
+        RELEASE_TO_NIL(context);
+        return;
+    }
     
     [context setSourceView:self];
     [context connectToDelegate];

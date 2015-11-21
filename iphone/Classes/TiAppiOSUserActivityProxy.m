@@ -11,7 +11,7 @@
 #endif
 #import "TiUtils.h"
 
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSUSERACTIVITY
 
 @implementation TiAppiOSUserActivityProxy
 
@@ -186,7 +186,7 @@
 
 -(NSNumber*)supported
 {
-    DEPRECATED_REPLACED(@"App.IOS.UserActivity.getSupported()" ,@"5.1.0",@"App.IOS.UserActivity.isSupported()")
+    DEPRECATED_REPLACED(@"App.iOS.UserActivity.getSupported()" ,@"5.1.0",@"App.iOS.UserActivity.isSupported()")
     return NUMBOOL(_supported);
 }
 
@@ -197,6 +197,7 @@
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywillsave"]){
+        DebugLog(@"[WARN] Titanium.App.iOS.UserActivity.useractivitywillsave event is deprecated. Update user activity and then set Titanium.App.iOS.UserActivity.needsSave property to true if you need it to be saved before handing it off to another device.");
         [self fireEvent:@"useractivitywillsave" withObject:[[self copyActivity] autorelease]];
     }
 }
@@ -302,12 +303,14 @@
 -(void)addContentAttributeSet:(id)contentAttributeSet
 {
 #if IS_XCODE_7
+#if defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
     ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
     ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
     _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy*)contentAttributeSet).attributes;
+#endif
 #endif
 }
 

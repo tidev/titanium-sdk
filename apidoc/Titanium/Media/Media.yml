@@ -190,22 +190,21 @@ methods:
         iphone: 1.8.1
         ipad: 1.8.1
   - name: hasCameraPermissions
-    summary: Returns `true` if the app has camera access
+    summary: Returns `true` if the app has camera access.
     returns:
         type: Boolean 
     platforms: [iphone, ipad, android]
     since: "5.1.0"    
   - name: requestCameraPermissions
-    summary: Requests for camera access
+    summary: Requests for camera access.
     description: |
-       This method allows the app to request for camera access, before or without the user granting
-       it in <Titanium.Media.showCamera>.
-       On iOS, The request view will only show if user has not yet made 
-       a decision. If he has, the callback will return his earlier decision, and if any changes has
-       to be made, the user has to change it in the device settings.
-       On Android, the request view will show if the permission is not accepted by user, and user did
-       not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
-       the user has to manually enable the permission in device settings.
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+
+        On iOS, the request view will only show if user has not yet made a decision.
+        If the user has, the callback will return the earlier decision. To change the permission
+        the user needs to change it in device settings.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -1611,6 +1610,10 @@ properties:
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
     type: CropRectType
+  - name: previewRect
+    summary: Simple object defining the preview image size.
+    type: PreviewRectType
+    platforms: [android]
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
     description: Returns `true`.
@@ -1643,6 +1646,16 @@ properties:
     type: Number
   - name: height
     summary: Height of the crop rectangle, in pixels.
+    type: Number
+---
+name: PreviewRectType
+summary: Simple object for describing the preview image rectangle.
+properties:
+  - name: width
+    summary: Width preview image, in pixels.
+    type: Number
+  - name: height
+    summary: Height preview image, in pixels.
     type: Number
 ---
 name: PreviewImageOptions

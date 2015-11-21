@@ -7,6 +7,9 @@
 #if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiUIiOSPreviewContextProxy.h"
+#import "TiUIListView.h"
+#import "TiUITableView.h"
+#import "TiUIScrollView.h"
 
 @implementation TiUIiOSPreviewContextProxy
 
@@ -20,7 +23,6 @@
     [self setPreview:[properties valueForKey:@"preview"]];
     [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
     [self setActions:[NSMutableArray arrayWithArray:[properties valueForKey:@"actions"]]];
-    [self setPopCallback:[properties objectForKey:@"pop"]];
         
     [super _initWithProperties:properties];
 }
@@ -51,16 +53,39 @@
     
     RELEASE_TO_NIL(_preview);
     RELEASE_TO_NIL(_actions);
-    RELEASE_TO_NIL(_popCallback);
     
     [super dealloc];
 }
 
 -(void)connectToDelegate
 {
+    UIView *nativeSourceView = nil;
+    
+#ifdef USE_TI_UILISTVIEW
+    if ([[_sourceView view] isKindOfClass:[TiUIListView class]]) {
+        nativeSourceView = [(TiUIListView*)[_sourceView view] tableView];
+    }
+#else
+#ifdef USE_TI_UITABLEVIEW
+    if([[_sourceView view] isKindOfClass:[TiUITableView class]]) {
+        nativeSourceView = [(TiUITableView*)[_sourceView view] tableView];
+    }
+#else
+#ifdef USE_TI_UISCROLLVIEW
+    if([[_sourceView view] isKindOfClass:[TiUIScrollView class]]) {
+        nativeSourceView = [(TiUIScrollView*)[_sourceView view] scrollView];
+    }
+#endif
+#endif
+#endif
+    
+    if (nativeSourceView == nil) {
+        nativeSourceView = [_sourceView view];
+    }
+    
     UIViewController *controller = [[[TiApp app] controller] topPresentedController];
     [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
-                                       sourceView:[_sourceView view]];
+                                       sourceView:nativeSourceView];
 }
 
 @end

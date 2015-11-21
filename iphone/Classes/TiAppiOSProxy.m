@@ -167,16 +167,23 @@
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
-    NSDictionary *event = @{
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary: @{
         @"title" : [[info userInfo] valueForKey:@"title"],
-        @"subtitle" : [[info userInfo] valueForKey:@"subtitle"],
-        @"itemtype" : [[info userInfo] valueForKey:@"type"],
-        @"userInfo" : [[info userInfo] objectForKey:@"userInfo"],
-    };
+        @"itemtype" : [[info userInfo] valueForKey:@"type"]
+    }];
+    
+    if ([[info userInfo] valueForKey:@"subtitle"] != nil) {
+        [event setValue:[[info userInfo] valueForKey:@"subtitle"] forKey:@"subtitle"];
+    }
+    
+    if ([[info userInfo] objectForKey:@"userInfo"] != nil) {
+        [event setValue:[[info userInfo] objectForKey:@"userInfo"] forKey:@"userInfo"];
+    }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
 }
 
+#ifdef USE_TI_APPIOSSEARCHABLEINDEX
 -(id)createSearchableIndex:(id)unused
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -186,7 +193,9 @@
     TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
     return proxy;
 }
+#endif
 
+#ifdef USE_TI_APPIOSSEARCHABLEITEM
 -(id)createSearchableItem:(id)args
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -215,7 +224,9 @@
                                            withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
 }
+#endif
 
+#ifdef USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET
 -(id)createSearchableItemAttributeSet:(id)args
 {
     if (![TiUtils isIOS9OrGreater]) {
@@ -237,8 +248,11 @@
 
     return proxy;
 }
+#endif
 
 #endif
+
+#ifdef USE_TI_APPIOSUSERACTIVITY
 -(id)createUserActivity:(id)args
 {
     if (![NSThread isMainThread]) {
@@ -254,6 +268,7 @@
 
     return userActivityProxy;
 }
+#endif
 
 -(id)createUserDefaults:(id)args
 {

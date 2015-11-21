@@ -150,7 +150,29 @@ timodule.xml.
 		<mkdir dir="${dist}"/>
 	</target>
 
-	<target name="process.annotations" depends="init"
+	<target name="process.aidl" depends="init">
+		<echo>Generating java files from the .aidl files</echo>
+
+		<path id="aidlexe">
+			<last>
+				<fileset dir="${android.platform}/../../build-tools">
+					<include name="**/*/aidl"/>
+				</fileset>
+			</last>
+		</path>
+		<echo message="${toString:aidlexe}" />
+
+		<apply executable="${toString:aidlexe}" failonerror="true">
+			<arg value="-p${android.platform}/framework.aidl" />
+			<arg value="-I${src}" />
+			<fileset dir="${src}" id="aidlfiles">
+				<include name="**/*.aidl"/>
+			</fileset>
+		</apply>
+		<echo message="${toString:aidlfiles}" />
+	</target>
+
+	<target name="process.annotations" depends="process.aidl, init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${genjson}"/>
 

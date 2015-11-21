@@ -26,12 +26,11 @@
 @property(nonatomic, assign) TiViewProxy* preview;
 @property(nonatomic, assign) TiViewProxy* sourceView;
 @property(nonatomic, retain) NSArray* actions;
-@property(nonatomic, retain) KrollCallback* popCallback;
 @property(nonatomic) int contentHeight;
-@property(nonatomic, retain) NSIndexPath* currentIndexPath;
+@property(nonatomic, retain) NSDictionary* listViewEvent;
 
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
-- (CGRect)createSourceRectWithLocation:(CGPoint*)location;
+- (CGRect)createSourceRectWithLocation:(CGPoint)location;
 
 @end
 #endif

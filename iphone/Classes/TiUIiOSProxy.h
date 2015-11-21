@@ -36,6 +36,14 @@
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_UP;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DOWN;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_LEFT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_RIGHT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
+#endif
+
 @property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
 @property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
@@ -151,8 +159,8 @@
 -(id)createPreviewActionGroup:(id)args;
 -(id)createPreviewContext:(id)args;
 #endif
-#if IS_XCODE_7_1
--(id)createLivePhotoView:(id)args;
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args;
 #endif
 #endif
 

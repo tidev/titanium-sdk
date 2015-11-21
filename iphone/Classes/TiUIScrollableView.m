@@ -395,7 +395,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
             }
 		}
     }
+#ifdef TI_USE_AUTOLAYOUT
 	[[self pagecontrol] setCurrentPage:result];
+#endif	
     return result;
 }
 
@@ -576,7 +578,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 -(void)setPageControlHeight_:(id)arg
 {
 	// for 0.8 backwards compat, renamed all for consistency
-    DEPRECATED_REPLACED(@"ScrollableView.PageControlHeight()", @"2.1.0", @"Ti.ScrollableView.PagingControlHeight()");
+    DEPRECATED_REPLACED(@"UI.ScrollableView.pageControlHeight", @"2.1.0", @"UI.ScrollableView.pagingControlHeight");
 	[self setPagingControlHeight_:arg];
 }
 

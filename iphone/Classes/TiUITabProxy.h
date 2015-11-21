@@ -12,7 +12,7 @@
 
 @class TiUITabGroupProxy;
 
-@interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,TiOrientationController> {
+@interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,UIGestureRecognizerDelegate,TiOrientationController> {
 @private
 	UINavigationController *controller;
 	TiWindowProxy *rootWindow;

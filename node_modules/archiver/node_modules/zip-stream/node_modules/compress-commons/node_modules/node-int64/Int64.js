@@ -76,6 +76,9 @@ Int64.MAX_INT = Math.pow(2, 53);
 Int64.MIN_INT = -Math.pow(2, 53);
 
 Int64.prototype = {
+
+  constructor: Int64,
+
   /**
    * Do in-place 2's compliment.  See
    * http://en.wikipedia.org/wiki/Two's_complement
@@ -223,6 +226,37 @@ Int64.prototype = {
    */
   copy: function(targetBuffer, targetOffset) {
     this.buffer.copy(targetBuffer, targetOffset || 0, this.offset, this.offset + 8);
+  },
+
+  /**
+   * Returns a number indicating whether this comes before or after or is the
+   * same as the other in sort order.
+   *
+   * @param {Int64} other  Other Int64 to compare.
+   */
+  compare: function(other) {
+
+    // If sign bits differ ...
+    if ((this.buffer[this.offset] & 0x80) != (other.buffer[other.offset] & 0x80)) {
+      return other.buffer[other.offset] - this.buffer[this.offset];
+    }
+
+    // otherwise, compare bytes lexicographically
+    for (var i = 0; i < 8; i++) {
+      if (this.buffer[this.offset+i] !== other.buffer[other.offset+i]) {
+        return this.buffer[this.offset+i] - other.buffer[other.offset+i];
+      }
+    }
+    return 0;
+  },
+
+  /**
+   * Returns a boolean indicating if this integer is equal to other.
+   *
+   * @param {Int64} other  Other Int64 to compare.
+   */
+  equals: function(other) {
+    return this.compare(other) === 0;
   },
 
   /**

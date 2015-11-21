@@ -79,6 +79,8 @@ public abstract class TiUIView
 {
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
+	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+	
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
 
@@ -91,6 +93,19 @@ public abstract class TiUIView
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
+	
+	public static final int TRANSITION_NONE = 0;
+	public static final int TRANSITION_EXPLODE = 1;
+	public static final int TRANSITION_FADE_IN = 2;
+	public static final int TRANSITION_FADE_OUT = 3;
+	public static final int TRANSITION_SLIDE_TOP = 4;
+	public static final int TRANSITION_SLIDE_RIGHT = 5;
+	public static final int TRANSITION_SLIDE_BOTTOM = 6;
+	public static final int TRANSITION_SLIDE_LEFT = 7;
+	public static final int TRANSITION_CHANGE_BOUNDS = 8;
+	public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
+	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
+	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
 
 	protected View nativeView; // Native View object
 
@@ -891,8 +906,12 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) { 
+		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) { 
+		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
+		    }
 		} else if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -993,6 +1012,11 @@ public abstract class TiUIView
 		
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_Z) && !nativeViewNull){
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
+		}
+		
+		if (LOLLIPOP_OR_GREATER && !nativeViewNull 
+		        && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+		    ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
 
@@ -1266,9 +1290,8 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER) {
-						disableHWAcceleration();
-					}
+					
+					// TIMOB-19011: NOT disabling hw acceleration. 
 					borderView.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
@@ -1309,9 +1332,8 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER) {
-				disableHWAcceleration();
-			}
+			
+			// TIMOB-19011: NOT disabling hw acceleration.
 			borderView.setRadius(radius);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
@@ -1808,6 +1830,9 @@ public abstract class TiUIView
 		});
 	}
 
+	@SuppressWarnings("unused")
+	// TIMOB-19011: NOT using this method since this is causing certain views to go blank. 
+	// Retaining code for future reference. 
 	private void disableHWAcceleration()
 	{
 		if (borderView == null) {

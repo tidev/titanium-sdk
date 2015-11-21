@@ -306,16 +306,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		locationManager.headingFilter = heading;
 
         if ([TiUtils isIOS8OrGreater]) {
-            if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]){
+            if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
                 [locationManager requestAlwaysAuthorization];
-            }else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]){
+            } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
                 [locationManager requestWhenInUseAuthorization];
-            }else{
-                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml.  Starting with iOS8 this is required.");
+            } else {
+                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
             }
-        }else{
-            if (purpose!=nil)
-            {
+        } else {
+            if (purpose != nil) {
                 DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
                 if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
                     [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
@@ -838,7 +837,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)requestAuthorization:(id)value
 {
-    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization()", @"5.1.0", @"Geolocation.requestLocationPermissions()");
     [self requestLocationPermissions:@[value, [NSNull null]]];
 }
 
@@ -861,34 +860,57 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
     
-    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){
+    NSString *errorMessage = nil;
+    
+    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            if((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
+            if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
-                NSLog(@"[WARN] cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE");
-            }else{
+                errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
+            } else {
                 [[self locationPermissionManager] requestWhenInUseAuthorization];
             }
-        }else{
-            NSLog(@"[ERROR] the NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        } else {
+            errorMessage = @"The NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission";
         }
     }
     if ((requested == kCLAuthorizationStatusAuthorizedAlways) ||
         (requested == kCLAuthorizationStatusAuthorized)) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
             if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
-                NSLog(@"[ERROR] cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS");
+                errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
             } else {
                 [[self locationPermissionManager] requestAlwaysAuthorization];
             }
-            [[self locationPermissionManager] requestAlwaysAuthorization];
-        }else{
-            NSLog(@"[ERROR] the NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission");
+        } else {
+            errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
         }
+    }
+    
+    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+
+    if (errorMessage != nil) {
+        NSLog(@"[ERROR] %@", errorMessage);
+        RELEASE_TO_NIL(errorMessage);
     }
 }
 
 #pragma mark Internal
+
+-(void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString*)message
+{
+    if(authorizationCallback == nil) {
+        return;
+    }
+    
+    NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:message];
+    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+    [authorizationCallback call:invocationArray thisObject:self];
+    
+    [invocationArray release];
+    RELEASE_TO_NIL(message);
+    RELEASE_TO_NIL(authorizationCallback);
+}
 
 -(NSDictionary*)locationDictionary:(CLLocation*)newLocation;
 {
@@ -1058,7 +1080,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
         
         int code = 0;
-        NSString* errorStr = @"";
+        NSString* errorStr = nil;
         
         switch (status) {
             case kCLAuthorizationStatusAuthorizedAlways:
@@ -1066,7 +1088,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                 break;
             default:
                 code = 1;
-                errorStr = @"The user is unable to allow access to location.";
+                errorStr = @"The user denied access to use location services.";
         }
         
         NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
