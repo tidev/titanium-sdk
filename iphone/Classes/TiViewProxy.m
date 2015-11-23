@@ -646,7 +646,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		if (!viewIsAttached) {
 			[self layoutChildren:NO];
 		}
-        UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
