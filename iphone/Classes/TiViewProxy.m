@@ -595,7 +595,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
-    BOOL honorScale = NO;
+    BOOL honorScale = YES;
     
     NSObject *obj = nil;
     if( [args count] > 0) {
@@ -606,7 +606,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }
         
         if( [args count] > 1) {
-            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
+            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:YES];
         }
     }
     callback = (KrollCallback*)obj;
