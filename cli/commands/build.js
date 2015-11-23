@@ -154,6 +154,8 @@ exports.config = function (logger, config, cli) {
 									return;
 								}
 
+								cli.scanHooks(path.join(projectDir, 'hooks'));
+
 								return projectDir;
 							},
 							desc: __('the directory containing the project'),

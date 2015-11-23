@@ -147,6 +147,7 @@ function iOSBuilder() {
 	this.whitelistAppceleratorDotCom = true;
 
 	// launch screen storyboard settings
+	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
 	this.defaultBackgroundColor = null;
 }
@@ -2104,7 +2105,12 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.whitelistAppceleratorDotCom = false;
 	}
 
-	if (!tiapp.ios['enable-launch-screen-storyboard']) || fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard'))) {
+	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+		this.enableLaunchScreenStoryboard = false;
+		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
 		this.defaultLaunchScreenStoryboard = false;
 	}
 
@@ -2625,6 +2631,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
 		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
 		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value],
+		resourcesBuildPhase = xobjs.PBXResourcesBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXResourcesBuildPhase[phase.value]; })[0].value],
 		keychains = this.iosInfo.certs.keychains,
 		teamId = this.tiapp.ios['team-id'],
 		caps = this.tiapp.ios.capabilities,
@@ -2716,6 +2723,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 	});
+
+	// if the storyboard launch screen is disabled, remove it from the resources build phase
+	if (!this.enableLaunchScreenStoryboard) {
+		for (var i = 0; i < resourcesBuildPhase.files.length; i++) {
+			if (xobjs.PBXBuildFile[resourcesBuildPhase.files[i].value].fileRef_comment === 'LaunchScreen.storyboard') {
+				resourcesBuildPhase.files.splice(i, 1);
+				break;
+			}
+		}
+	}
 
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
@@ -3344,7 +3361,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		});
 	});
 
-	if (appc.version.gte(this.xcodeEnv.version, '7.0.0')) {
+	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
 	} else {
 		delete plist.UILaunchStoryboardName;
@@ -3874,7 +3891,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
 
-	if (this.defaultLaunchScreenStoryboard && appc.version.gte(this.xcodeEnv.version, '7.0.0')) {
+	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
 		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
 		copyAndReplaceFile.call(
 			this,
@@ -4223,14 +4240,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	});
 
 	this.logger.info(__('Analyzing platform files'));
-	walk(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir);
-	walk(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir);
+	walk(path.join(this.projectDir, 'platform', 'iphone'), this.buildDir);
+	walk(path.join(this.projectDir, 'platform', 'ios'), this.buildDir);
 
 	this.logger.info(__('Analyzing module files'));
 	this.modules.forEach(function (module) {
 		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase()));
-		walk(path.join(module.modulePath, 'platform', 'iphone'), this.xcodeAppDir);
-		walk(path.join(module.modulePath, 'platform', 'ios'), this.xcodeAppDir);
+		walk(path.join(module.modulePath, 'platform', 'iphone'), this.buildDir);
+		walk(path.join(module.modulePath, 'platform', 'ios'), this.buildDir);
 	}, this);
 
 	this.logger.info(__('Analyzing localized launch images'));
@@ -4553,7 +4570,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				},
 
 				function processLaunchScreenImages(next) {
-					if (!this.defaultLaunchScreenStoryboard) {
+					if (!this.enableLaunchScreenStoryboard || !this.defaultLaunchScreenStoryboard) {
 						return next();
 					}
 
