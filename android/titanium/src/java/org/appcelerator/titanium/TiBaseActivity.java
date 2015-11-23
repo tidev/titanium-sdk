@@ -56,6 +56,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -211,7 +212,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	// forwarded, create a separate interface in order to limit scope and maintain clarity
 	public static interface OrientationChangedListener
 	{
-		public void onOrientationChanged (int configOrientationMode);
+		public void onOrientationChanged (int configOrientationMode, int width, int height);
 	}
 
 	public static void registerOrientationListener (OrientationChangedListener listener)
@@ -652,14 +653,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
 			@Override
 			public void onOrientationChanged(int orientation) {
-				int rotation = getWindowManager().getDefaultDisplay().getRotation();
-				if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
-						&& rotation != previousOrientation) {
-					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
-				} else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
-						&& rotation != previousOrientation) {
-					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
-				}
+			    DisplayMetrics dm = new DisplayMetrics();
+			    getWindowManager().getDefaultDisplay().getMetrics(dm);
+			    int width = dm.widthPixels;
+			    int height = dm.heightPixels;
+			    int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+			    if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+			            && rotation != previousOrientation) {
+			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+			    } else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+			            && rotation != previousOrientation) {
+			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+			    }
 			}
 		};
 
@@ -1008,12 +1014,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
 	}
 
-	public static void callOrientationChangedListener(Activity activity)
+	public static void callOrientationChangedListener(Activity activity, int width, int height, int rotation)
 	{
 		int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
 		if (orientationChangedListener != null && previousOrientation != currentOrientation) {
 			previousOrientation = currentOrientation;
-			orientationChangedListener.onOrientationChanged (currentOrientation);
+			orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
 		}
 	}
 
