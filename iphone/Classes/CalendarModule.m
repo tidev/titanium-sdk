@@ -265,7 +265,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(void) requestEventsAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization", @"5.1.0", @"Calendar.requestCalendarPermissions");
+    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization()", @"5.1.0", @"Calendar.requestCalendarPermissions()");
     [self requestCalendarPermissions:args];
 }
 

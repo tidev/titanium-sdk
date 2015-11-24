@@ -811,10 +811,12 @@ static NSDictionary* iOS9propertyKeys;
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
 			for (NSString *key in keys) {
-				NSString *object = [value objectForKey:key];
-				CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
-					CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
-					[newObjects addObject:labeledValue];
+				NSArray *objects = [value objectForKey:key];
+				for (NSString *object in objects) {
+					CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
+						CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
+						[newObjects addObject:labeledValue];
+				}
 			}
 			[person setContactRelations:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
@@ -930,27 +932,27 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteContact:person];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }

@@ -225,27 +225,27 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 //Constants for AudioSessions
 -(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
 }
 
@@ -343,7 +343,7 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 // Deprecated old-school video control modes, mapped to the new values
 -(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
+    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Media.VIDEO_CONTROL_EMBEDDED");
     return [self VIDEO_CONTROL_EMBEDDED];
 }
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
@@ -969,8 +969,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
+            
+            NSString *errorMessage = granted ? @"The user denied access to use the camera." : nil;
             KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                      thisObject:self];
             [[callback context] enqueue:invocationEvent];
             RELEASE_TO_NIL(invocationEvent);
