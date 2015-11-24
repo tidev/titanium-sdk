@@ -27,6 +27,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebViewClient;
@@ -168,6 +169,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int ATTRIBUTE_UNDERLINES_STYLE = 4;
 	@Kroll.constant public static final int ATTRIBUTE_LINK = 5;
 	@Kroll.constant public static final int ATTRIBUTE_UNDERLINE_COLOR = 6;
+
+	@Kroll.constant public static final int INPUT_TYPE_CLASS_NUMBER = InputType.TYPE_CLASS_NUMBER;
+	@Kroll.constant public static final int INPUT_TYPE_CLASS_TEXT = InputType.TYPE_CLASS_TEXT;
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
