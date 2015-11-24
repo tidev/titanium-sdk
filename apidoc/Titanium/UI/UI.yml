@@ -1483,7 +1483,7 @@ properties:
         properties.
         
         Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
-        overridden with `KEYBOARD_DEFAULT`.
+        overridden with `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
     deprecated:
@@ -1523,7 +1523,7 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
     deprecated:
@@ -1539,7 +1539,7 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
     deprecated:
@@ -1553,7 +1553,7 @@ properties:
         properties.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
     deprecated:
