@@ -1447,6 +1447,9 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_ASCII instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1458,6 +1461,9 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_DECIMAL_PAD instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1466,7 +1472,10 @@ properties:
         properties.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_DEFAULT instead.
+
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
     description: |
@@ -1474,10 +1483,13 @@ properties:
         properties.
         
         Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
-        overridden with `KEYBOARD_DEFAULT`.
+        overridden with `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_EMAIL instead.
+
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
     description: |
@@ -1486,7 +1498,10 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_NAMEPHONE_PAD instead.
+
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
     description: |
@@ -1495,7 +1510,10 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_NUMBERS_PUNCTUATION instead.
+
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
     description: |
@@ -1505,10 +1523,13 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_NUMBER_PAD instead.
+
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
     description: |
@@ -1518,11 +1539,111 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_PHONE_PAD instead.
+
+  - name: KEYBOARD_URL
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        properties.
+        
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    deprecated:
+        since: "5.2.0"
+        notes: Use KEYBOARD_TYPE_URL instead.
+
+  - name: KEYBOARD_TYPE_DECIMAL_PAD
+    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_DEFAULT>.
+        type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: KEYBOARD_TYPE_ASCII
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: KEYBOARD_TYPE_DEFAULT
+    summary: Use the default keyboard, depending on the platform.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
     type: Number
     permission: read-only
 
-  - name: KEYBOARD_WEBSEARCH
+  - name: KEYBOARD_TYPE_EMAIL
+    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
+        overridden with `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+
+  - name: KEYBOARD_TYPE_NAMEPHONE_PAD
+    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
+    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: KEYBOARD_TYPE_NUMBER_PAD
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+
+  - name: KEYBOARD_TYPE_PHONE_PAD
+    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+
+  - name: KEYBOARD_TYPE_WEBSEARCH
     summary: Use a keyboard optimized for web search terms and URL entry.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
@@ -1534,7 +1655,7 @@ properties:
     platforms: [iphone, ipad]
     since: "5.2.0"
 
-  - name: KEYBOARD_TWITTER
+  - name: KEYBOARD_TYPE_TWITTER
     summary: Use a keyboard optimized for twitter text entry, with easy access to the @ and # characters.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
@@ -1544,27 +1665,27 @@ properties:
     platforms: [iphone, ipad]
     since: "5.2.0"
 
-  - name: KEYBOARD_URL
+  - name: KEYBOARD_TYPE_URL
     summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
     description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
         properties.
-        
+
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only

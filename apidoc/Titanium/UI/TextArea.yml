@@ -72,9 +72,19 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use keyboardAppearance instead
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard displayed when this text area is focused.
+    type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: attributedString
-    summary: TextArea attributed string. 
+    summary: TextArea attributed string.
     description: |
         The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
         in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
