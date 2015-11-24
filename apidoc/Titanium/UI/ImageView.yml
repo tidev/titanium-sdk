@@ -213,6 +213,23 @@ properties:
         for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
+  - name: cacheImage
+    summary: Image to cache.
+    description: |
+        Image to cache, defined using a local filesystem path, a `File` object, a remote URL,
+        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on
+        Mobile Web.
+
+        This cache is to prevent any flickering that occurs when the image is changed.
+
+        For Android, if there is a redirect and change in protocol, it will not follow. For example,
+        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        for more information.
+    type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
+    platforms: [android]
+    since: "5.2.0"
+    availability: creation
+
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
