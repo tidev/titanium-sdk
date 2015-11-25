@@ -1559,23 +1559,32 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (cli.argv.target !== 'simulator') {
 							// check that all target provisioning profile uuids are valid
 							if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
-								logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
-								logger.log();
-								logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-								logger.log('    <ios>'.grey);
-								logger.log('        <extensions>'.grey);
-								logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
-								logger.log(('                <target name="' + targetName + '">').grey);
-								logger.log('                    <provisioning-profiles>'.grey);
-								logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
-								logger.log('                    </provisioning-profiles>'.grey);
-								logger.log('                </target>'.grey);
-								logger.log('            </extension>'.grey);
-								logger.log('        </extensions>'.grey);
-								logger.log('    </ios>'.grey);
-								logger.log('</ti:app>'.grey);
-								logger.log();
-								process.exit(1);
+								if (cli.argv['pp-uuid']) {
+									if (!tiappTargets[targetName].ppUUIDs) {
+										tiappTargets[targetName].ppUUIDs = {};
+									}
+									tiappTargets[targetName].ppUUIDs[cli.argv.target] = cli.argv['pp-uuid'];
+									logger.warn(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+									logger.warn(__('Using the iOS app provisioning profile UUID "%s"', cli.argv['pp-uuid']));
+								} else {
+									logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+									logger.log();
+									logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+									logger.log('    <ios>'.grey);
+									logger.log('        <extensions>'.grey);
+									logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
+									logger.log(('                <target name="' + targetName + '">').grey);
+									logger.log('                    <provisioning-profiles>'.grey);
+									logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
+									logger.log('                    </provisioning-profiles>'.grey);
+									logger.log('                </target>'.grey);
+									logger.log('            </extension>'.grey);
+									logger.log('        </extensions>'.grey);
+									logger.log('    </ios>'.grey);
+									logger.log('</ti:app>'.grey);
+									logger.log();
+									process.exit(1);
+								}
 							}
 
 							// check that the PP UUID is correct
