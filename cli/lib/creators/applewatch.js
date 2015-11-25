@@ -65,7 +65,7 @@ AppleWatchCreator.prototype.init = function init() {
 		options: {
 			'project-dir': this.configOptionProjectDir(130),
 			'name':        this.configOptionAppName(140),
-			'template':    this.configOptionTemplate(160, 'watchos1')
+			'template':    this.configOptionTemplate(160, 'watchos2-swift')
 		}
 	};
 };
@@ -218,8 +218,8 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			extName = this.cli.argv.name,
 			dest = path.join(projectDir, 'extensions', extName),
 			isWatchOSv1 = this.cli.argv.template === 'watchos1',
-			watchkitExtName = extName + (isWatchOSv1 ? ' WatchKit Extension' : ' WatchApp Extension'),
-			watchkitAppName = extName + (isWatchOSv1 ? ' WatchKit App' : ' WatchApp'),
+			watchkitExtName = extName + ' WatchKit Extension',
+			watchkitAppName = extName + ' WatchKit App',
 			watchkitExtId = this.tiapp.id + (isWatchOSv1 ? '' : '.watchkitapp') + '.watchkitextension',
 			watchkitAppId = this.tiapp.id + '.watchkitapp';
 

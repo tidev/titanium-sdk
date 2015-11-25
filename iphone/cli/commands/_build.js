@@ -1488,16 +1488,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						// check if this target contains any swift code
-						if (sourcesBuildPhase.length && (!buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT || /^NO$/i.test(buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT))) {
-							var files = ext.objs.PBXSourcesBuildPhase[sourcesBuildPhase[0].value].files;
-							if (files.some(function (f) { return swiftRegExp.test(ext.objs.PBXBuildFile[f.value].fileRef_comment); })) {
-								// oh no, error
-								logger.error(__('iOS extension "%s" target "%s" contains Swift code, but "Embedded Content Contains Swift Code" is not enabled.', projectName, targetName) + '\n');
-								process.exit(1);
-							}
-						}
-
 						if (targetInfo.isWatchAppV1) {
 							this.hasWatchAppV1 = true;
 						} else if (targetInfo.isWatchAppV2orNewer) {
@@ -1532,12 +1522,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 										}
 
 										if (plist.WKWatchKitApp) {
-											if (plist.CFBundleIdentifier.indexOf(appId) !== 0) {
+											var CFBundleIdentifier = plist.CFBundleIdentifier.replace('$(PRODUCT_BUNDLE_IDENTIFIER)', buildSettings.PRODUCT_BUNDLE_IDENTIFIER);
+											if (CFBundleIdentifier.indexOf(appId) !== 0) {
 												logger.error(__('iOS extension "%s" WatchKit App bundle identifier is "%s", but must be prefixed with "%s".', ext.projectName, plist.CFBundleIdentifier, appId) + '\n');
 												process.exit(1);
 											}
 
-											if (plist.CFBundleIdentifier.toLowerCase() === appId.toLowerCase()) {
+											if (CFBundleIdentifier.toLowerCase() === appId.toLowerCase()) {
 												logger.error(__('iOS extension "%s" WatchKit App bundle identifier must be different from the Titanium app\'s id "%s".', ext.projectName, appId) + '\n');
 												process.exit(1);
 											}
