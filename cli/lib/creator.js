@@ -453,8 +453,8 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 		}
 
 		// check if the project already exists
-		if (cli.argv.name && !cli.argv.force && workspaceDir) {
-			var projectDir = path.join(workspaceDir, cli.argv.name);
+		if (cli.argv.name && !cli.argv.force && dir) {
+			var projectDir = path.join(dir, cli.argv.name);
 			if (fs.existsSync(projectDir)) {
 				logger.error(__('Project already exists: %s', projectDir));
 				logger.error(__('Either change the project name, workspace directory, or re-run this command with the --force flag.') + '\n');
