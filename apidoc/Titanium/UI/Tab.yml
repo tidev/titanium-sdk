@@ -280,6 +280,9 @@ properties:
 events: 
   - name: blur
     summary: Fired when the tab loses focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use unselected instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -294,6 +297,21 @@ events:
         summary: Previous active tab object.
         type: Titanium.UI.Tab
 
+  - name: unselected
+    summary: Fired when the tab is no longer selected.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
@@ -307,6 +325,26 @@ events:
 
   - name: focus
     summary: Fired when the tab gains focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use selected instead.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: selected
+    summary: Fired when the tab is selected.
     properties:
       - name: index
         summary: Index of the current active tab.

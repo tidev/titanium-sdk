@@ -113,8 +113,7 @@ events:
     description: |
         On Android, this event also fires before putting the activity in the background
         (before the activity enters the pause state).
-
-        On iOS, the <Titanium.UI.TabGroup.unselected> event deprecates this event since Release 5.1.0.
+    platforms: [iphone, ipad,android]
     properties:
       - name: index
         summary: |
@@ -149,8 +148,7 @@ events:
     description: |
         On Android, this event also fires when the activity enters the foreground
         (after the activity enters the resume state).
-
-        On iOS, the <Titanium.UI.TabGroup.selected> event deprecates this event since Release 5.1.0.
+    platforms: [iphone, ipad,android]
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -176,6 +174,9 @@ events:
         Fired when a tab is selected.
     since: 5.1.0
     platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use focus instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -198,6 +199,9 @@ events:
         Fired when a tab is unselected.
     since: 5.1.0
     platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use blur instead.
     properties:
       - name: index
         summary: |

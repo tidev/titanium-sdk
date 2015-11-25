@@ -426,7 +426,12 @@
         }
     }
     if ([self _hasListeners:@"blur"]) {
-        [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        DEPRECATED_REPLACED(@"UI.Tab.Event.blur",@"5.2.0", @"UI.Tab.Event.unselected");
+        [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    
+    if ([self _hasListeners:@"unselected"]) {
+        [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
@@ -450,7 +455,12 @@
         }
     }
     if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        DEPRECATED_REPLACED(@"UI.Tab.Event.focus",@"5.2.0", @"UI.Tab.Event.selected");
+        [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    
+    if ([self _hasListeners:@"selected"]) {
+        [self fireEvent:@"selected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
