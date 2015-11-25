@@ -1,0 +1,13 @@
+---
+name: Titanium.UI.iOS.LivePhoto
+summary: Abstract object representing a live photo used in <Titanium.UI.iOS.LivePhotoView>.
+description: |
+    Use the <Titanium.UI.iOS.createLivePhotoView> to assign the `livePhoto` property. 
+    You can receive a LivePhoto either by using [openPhotoGallery](Titanium.Media.openPhotoGallery)
+    to select a photo from the gallery or [showCamera](Titanium.Media.showCamera) to take
+    a new live photo.
+
+    Note: This object only represents the proxy to hold a live photo and can not be created manually.
+
+since: "5.2.0"
+createable: false

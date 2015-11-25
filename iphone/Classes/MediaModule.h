@@ -108,7 +108,7 @@
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
 #if IS_XCODE_7_1
-@property(nonatomic,readonly) NSString* MEDIA_TYPE_LIVE_PHOTO;
+@property(nonatomic,readonly) NSString* MEDIA_TYPE_LIVEPHOTO;
 #endif
 
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_LINEAR_PCM;

@@ -323,7 +323,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO,kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
 #if IS_XCODE_7_1
--(NSString*)MEDIA_TYPE_LIVE_PHOTO
+-(NSString*)MEDIA_TYPE_LIVEPHOTO
 {
     if ([TiUtils isIOS9_1OrGreater] == YES) {
         return (NSString*)kUTTypeLivePhoto;
