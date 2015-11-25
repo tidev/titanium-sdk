@@ -29,13 +29,16 @@
     return (TiUIiOSLivePhotoView *)self.view;
 }
 
--(void)startPlaybackWithStyle:(id)style
+-(void)startPlaybackWithStyle:(id)args
 {
-    ENSURE_TYPE_OR_NIL(style, NSNumber);
-    [[[self livePhotoView] livePhotoView] startPlaybackWithStyle:[TiUtils intValue:style def:PHLivePhotoViewPlaybackStyleFull]];
+    ENSURE_TYPE_OR_NIL(args, NSArray);
+    id value = [args objectAtIndex:0];
+    ENSURE_TYPE_OR_NIL(value, NSNumber);
+
+    [[[self livePhotoView] livePhotoView] startPlaybackWithStyle:[TiUtils intValue:value def:PHLivePhotoViewPlaybackStyleFull]];
 }
 
--(void)stopPlayback
+-(void)stopPlayback:(id)unused
 {
     [[[self livePhotoView] livePhotoView] stopPlayback];
 }
@@ -43,6 +46,8 @@
 -(void)setMuted:(NSNumber*)value
 {
     ENSURE_TYPE(value, NSNumber);
+    [self replaceValue:value forKey:@"muted" notification:YES];
+
     [[[self livePhotoView] livePhotoView] setMuted:[TiUtils boolValue:value]];
 }
 

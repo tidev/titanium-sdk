@@ -14,11 +14,21 @@
 /**
  *  Starts the playback of the live photo view.
  */
--(void)startPlaybackWithStyle:(id)style;
+-(void)startPlaybackWithStyle:(id)args;
 
 /**
  *  Stops the current playback of the live photo view.
  */
--(void)stopPlayback;
+-(void)stopPlayback:(id)unused;
+
+/**
+ *  Mutes/unmutes the current playback.
+ */
+-(void)setMuted:(id)value;
+
+/**
+ *  Returns wheather or not the current playback is muted.
+ */
+-(NSNumber*)muted;
 
 @end

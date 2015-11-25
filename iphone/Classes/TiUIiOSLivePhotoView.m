@@ -10,8 +10,6 @@
 
 @implementation TiUIiOSLivePhotoView
 
-@synthesize livePhotoView = _livePhotoView;
-
 - (TiUIiOSLivePhotoViewProxy *)livePhotoViewProxy
 {
     return (TiUIiOSLivePhotoViewProxy *)self.proxy;
@@ -20,7 +18,7 @@
 -(PHLivePhotoView*)livePhotoView
 {
     if (_livePhotoView == nil) {
-        _livePhotoView = [[PHLivePhotoView alloc] initWithFrame:self.bounds];
+        _livePhotoView = [[PHLivePhotoView alloc] initWithFrame:[self bounds]];
         [_livePhotoView setDelegate:self];
         
         [_livePhotoView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
@@ -32,6 +30,29 @@
     return _livePhotoView;
 }
 
+#pragma mark Cleanup
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_livePhotoView);
+    
+    [super dealloc];
+}
+
+#pragma mark Public APIs
+
+-(void)setLivePhoto_:(id)arg
+{
+    ENSURE_UI_THREAD(setLivePhoto_, arg);
+    ENSURE_TYPE(arg, TiUIiOSLivePhoto);
+    
+    PHLivePhoto *livePhoto = [arg livePhoto];
+    
+    autoWidth = livePhoto.size.width;
+    autoHeight = livePhoto.size.height;
+    
+    [[self livePhotoView] setLivePhoto:livePhoto];
+}
 
 -(void)setWidth_:(id)width_
 {
@@ -44,6 +65,8 @@
     height = TiDimensionFromObject(height_);
     [self updateContentMode];
 }
+
+#pragma mark Layout helper
 
 -(void)updateContentMode
 {
@@ -61,22 +84,6 @@
     else {
         return UIViewContentModeScaleToFill;
     }
-}
-
--(void)initializeState
-{
-    TiUIiOSLivePhoto *livePhoto = [[self livePhotoViewProxy] valueForKey:@"livePhoto"];
-    ENSURE_TYPE(livePhoto, TiUIiOSLivePhoto);
-    
-    [[self livePhotoView] setLivePhoto:[livePhoto livePhoto]];
-    [super initializeState];
-}
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(self.livePhotoView);
-    
-    [super dealloc];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -139,7 +146,6 @@
     }
 }
 
-
 #pragma mark Delegates
 
 -(void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle
@@ -154,7 +160,7 @@
 {
     if([[self livePhotoViewProxy] _hasListeners:@"stop"]) {
         NSDictionary *event = @{@"playbackStyle": NUMINT(playbackStyle)};
-        [[self livePhotoViewProxy] fireEvent:@"complete" withObject:event];
+        [[self livePhotoViewProxy] fireEvent:@"stop" withObject:event];
     }
 }
 
