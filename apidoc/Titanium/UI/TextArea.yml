@@ -309,7 +309,7 @@ properties:
     since: 2.1.2
 
   - name: showUndoRedoActions
-    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. This property can only be set upon creation.
     type: Boolean
     default: true
     platforms: [ipad]

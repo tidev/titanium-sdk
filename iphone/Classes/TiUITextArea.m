@@ -123,19 +123,25 @@
 
 #pragma mark Public APIs
 
--(void)setShowUndoRedoActions_:(id)value
+-(void)setShowUndoRedoActions:(id)value
 {
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
+    
 #if IS_XCODE_7
-    if([TiUtils boolValue:value] == YES) {
-        textWidgetView.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-        textWidgetView.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
-    } else {
-        textWidgetView.inputAssistantItem.leadingBarButtonGroups = @[];
-        textWidgetView.inputAssistantItem.trailingBarButtonGroups = @[];
-    }
+    
+        UITextView *tv = (UITextView *)[self textWidgetView];
+        if([TiUtils boolValue:value] == YES) {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+            tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+            
+        } else {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = @[];
+            tv.inputAssistantItem.trailingBarButtonGroups = @[];
+        }
 #endif
 }
 
