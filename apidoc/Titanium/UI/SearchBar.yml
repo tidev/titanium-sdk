@@ -173,7 +173,16 @@ properties:
     summary: Keyboard type constant to use when the field is focused.
     type: Number
     platforms: [iphone, ipad]
-    default: System default keyboard.
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard to be displayed the field is focused.
+    type: Number
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
