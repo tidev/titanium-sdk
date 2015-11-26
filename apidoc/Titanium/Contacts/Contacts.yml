@@ -538,6 +538,8 @@ properties:
       property.
       Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
       by Apple.
+      Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property 
+      is selected on certain device models.
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true
