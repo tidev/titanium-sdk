@@ -372,7 +372,6 @@ properties:
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android, mobileweb]
 
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
