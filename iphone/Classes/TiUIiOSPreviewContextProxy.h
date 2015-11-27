@@ -14,24 +14,24 @@
 @interface TiUIiOSPreviewContextProxy : TiViewProxy
 
 /**
-    The window to preview and open.
+    The proxy to be displayed on peek.
  */
-@property(nonatomic,retain) TiViewProxy *preview;
+@property(nonatomic, retain) TiViewProxy *preview;
 
 /**
     The source view which triggered the peek.
  */
-@property(nonatomic,retain) TiViewProxy *sourceView;
+@property(nonatomic, retain) TiViewProxy *sourceView;
 
 /**
     The preview actions.
  */
-@property(nonatomic,retain) NSMutableArray *actions;
+@property(nonatomic, retain) NSMutableArray *actions;
 
 /**
-    The height of the preview
+    The height of the preview.
  */
-@property(nonatomic) int contentHeight;
+@property(nonatomic, assign) int contentHeight;
 
 /**
     Connectes the collected preview data to the iOS delegates.

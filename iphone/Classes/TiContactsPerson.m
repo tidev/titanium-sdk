@@ -811,10 +811,12 @@ static NSDictionary* iOS9propertyKeys;
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
 			for (NSString *key in keys) {
-				NSString *object = [value objectForKey:key];
-				CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
-					CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
-					[newObjects addObject:labeledValue];
+				NSArray *objects = [value objectForKey:key];
+				for (NSString *object in objects) {
+					CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
+						CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
+						[newObjects addObject:labeledValue];
+				}
 			}
 			[person setContactRelations:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)

@@ -216,8 +216,8 @@ properties:
     type: Number
     since: 5.1.0
     platforms: [iphone, ipad]
-    constants: Titanium.UI.KEYBOARD_*
-    default: <Titanium.UI.KEYBOARD_DEFAULT>
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
 
   - name: keyboardAppearance
     summary: Keyboard appearance to be displayed when the text field inside the dialog is focused.
