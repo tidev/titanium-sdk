@@ -21,7 +21,9 @@
 #endif
 
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoViewProxy.h"
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -428,10 +430,12 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 #endif
 
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 -(id)createLivePhotoView:(id)args
 {
     return [[[TiUIiOSLivePhotoViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR

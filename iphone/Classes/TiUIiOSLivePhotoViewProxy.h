@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiViewProxy.h"
 #import "TiUIiOSLivePhoto.h"
 #import "TiUIiOSLivePhotoView.h"
@@ -33,4 +34,5 @@
 -(NSNumber*)muted;
 
 @end
+#endif
 #endif

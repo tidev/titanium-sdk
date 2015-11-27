@@ -6,6 +6,7 @@
  */
 
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIView.h"
 #import "TiUIiOSLivePhoto.h"
 #import <PhotosUI/PhotosUI.h>
@@ -20,4 +21,5 @@
 @property(nonatomic,retain) PHLivePhotoView *livePhotoView;
 
 @end
+#endif
 #endif
