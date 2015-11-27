@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#if IS_XCODE_7_1
 #import "TiViewProxy.h"
 #import "TiUIiOSLivePhoto.h"
 #import "TiUIiOSLivePhotoView.h"
@@ -32,3 +33,4 @@
 -(NSNumber*)muted;
 
 @end
+#endif

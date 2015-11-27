@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#if IS_XCODE_7_1
 #import "TiUIiOSLivePhoto.h"
 
 @implementation TiUIiOSLivePhoto
@@ -19,3 +20,4 @@
 }
 
 @end
+#endif

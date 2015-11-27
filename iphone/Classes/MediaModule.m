@@ -1738,13 +1738,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         mediaType = (NSString*)kUTTypeImage; // default to in case older OS
     }
     BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
-    BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
+    
+    BOOL isLivePhoto = NO;
+#if IS_XCODE_7_1
+    isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
+#endif
     
     NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
+#if IS_XCODE_7_1
     TiUIiOSLivePhoto *livePhoto = nil;
+#endif
     TiBlob *thumbnail = nil;
 
     BOOL imageWrittenToAlbum = NO;
@@ -1807,10 +1813,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
         }
     }
+#if IS_XCODE_7_1
     else if(isLivePhoto) {
         livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         media = [[TiBlob alloc] initWithImage:[[UIImage alloc] init]];
     }
+#endif
     else {
         UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
         if ((mediaURL!=nil) && (editedImage == nil)) {
@@ -1879,11 +1887,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (thumbnail != nil) {
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
-    
+#if IS_XCODE_7_1
     if (livePhoto != nil) {
         [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
-
+#endif
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }
