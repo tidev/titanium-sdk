@@ -22,6 +22,18 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     return @"Ti.UI.TextArea";
 }
 
+-(void)_initWithProperties:(NSDictionary*)props
+{
+    if ([props valueForKey:@"showUndoRedoActions"])
+    {
+        TiUITextArea* textArea = (TiUITextArea*)[self view];
+        [textArea setShowUndoRedoActions: [props valueForKey:@"showUndoRedoActions"]];
+    }
+    
+    [super _initWithProperties:props];
+}
+
+
 @end
 
 #endif

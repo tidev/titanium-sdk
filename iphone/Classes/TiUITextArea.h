@@ -24,6 +24,8 @@
     NSRange lastSelectedRange;
 }
 
+-(void)setShowUndoRedoActions:(id)value;
+
 @end
 
 #endif
