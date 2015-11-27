@@ -33,13 +33,10 @@
     [super _initWithProperties:properties];
 }
 
-
 -(void)dealloc
 {
-    for (TiUIiOSPreviewActionProxy *action in self.actions) {
-        [action forgetSelf];
-    }
-    
+    RELEASE_TO_NIL(_title);
+    RELEASE_TO_NIL(_actions);
     RELEASE_TO_NIL(actionGroup);
     
     [super dealloc];
@@ -50,7 +47,7 @@
     return @"Ti.UI.iOS.PreviewActionGroup";
 }
 
--(UIPreviewActionGroup*)group
+-(UIPreviewActionGroup*)actionGroup
 {
     return actionGroup;
 }
