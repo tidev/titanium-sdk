@@ -1480,12 +1480,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 {
                     imageRequired = YES;
                 }
-#if IS_XCODE_7_1
-                else if ([TiUtils isIOS9_1OrGreater] == YES && [[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeLivePhoto])
-                {
-                    livePhotoRequired = YES;
-                }
-#endif
             }
             picker.mediaTypes = [NSArray arrayWithArray:types];
         }
@@ -1737,9 +1731,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (mediaType==nil) {
         mediaType = (NSString*)kUTTypeImage; // default to in case older OS
     }
-    BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
     
+    BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
     BOOL isLivePhoto = NO;
+    
 #if IS_XCODE_7_1
     isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
 #endif
@@ -1749,7 +1744,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
     TiUIiOSLivePhoto *livePhoto = nil;
+#endif
 #endif
     TiBlob *thumbnail = nil;
 
@@ -1813,12 +1810,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
         }
     }
-#if IS_XCODE_7_1
-    else if(isLivePhoto) {
-        livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
-        media = [[TiBlob alloc] initWithImage:[[UIImage alloc] init]];
-    }
-#endif
     else {
         UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
         if ((mediaURL!=nil) && (editedImage == nil)) {
@@ -1878,6 +1869,15 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
         }
+        
+#if IS_XCODE_7_1
+#ifdef  USE_TI_UIIOSLIVEPHOTOVIEW
+        if(isLivePhoto) {
+            livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
+        }
+#endif
+#endif
+        
     }
 	
     NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
@@ -1888,9 +1888,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
 #if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+
     if (livePhoto != nil) {
         [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
+#endif
 #endif
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
