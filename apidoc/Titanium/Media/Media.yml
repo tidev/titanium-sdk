@@ -753,6 +753,16 @@ properties:
     platforms: [iphone, ipad]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
+    deprecated:
+        since: "5.2.0"
+        notes: Use [CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
+  - name: CAMERA_AUTHORIZATION_UNKNOWN
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
