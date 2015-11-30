@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 5.0.0
+apiversion: 2
+description: Allows facebook integration for Titanium apps
+author: Mark Mokryn and Ng Chee Kiat
+license: Apache License Version 2.0
+copyright: Copyright (c) 2009-2015 by Appcelerator, Inc.
+
+# these should not be edited
+name: Facebook
+moduleid: facebook
+guid: da8acc57-8673-4692-9282-e3c1a21f5d83
+platform: iphone
+minsdk: 5.0.0
+architectures: armv7 arm64 i386 x86_64
