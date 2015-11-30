@@ -85,7 +85,7 @@ DEFINE_EXCEPTIONS
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
     // Do nothing if no tabs are being focused or blurred (or the window is opening)
-    if ((focusedTabProxy == nil && newFocus == nil) || (focusedTabProxy == newFocus)) {
+    if (focusedTabProxy == nil && newFocus == nil) {
         //TIMOB-10796. Ensure activeTab is set to focused on early return
         if (focusedTabProxy != nil) {
             [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
