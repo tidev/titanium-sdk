@@ -576,13 +576,8 @@ typedef enum
 +(BOOL)isIOS9OrGreater;
 
 /**
-<<<<<<< HEAD
- Whether or not the current OS version is equal to or greater than 9.0.
- @return _YES_ if the current OS version is equal to or greater thann 9.0, _NO_ otherwise.
-=======
  Whether or not the current OS version is equal to or greater than 9.1.
  @return _YES_ if the current OS version is equal to or greater thann 9.1, _NO_ otherwise.
->>>>>>> 94c017f26feac7567f4532889aae6a296d931b6c
  */
 +(BOOL)isIOS9_1OrGreater;
 
