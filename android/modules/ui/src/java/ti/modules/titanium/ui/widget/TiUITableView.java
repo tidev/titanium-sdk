@@ -39,7 +39,7 @@ public class TiUITableView extends TiUIView
 	implements OnItemClickedListener, OnItemLongClickedListener, OnLifecycleEvent
 {
 	private static final String TAG = "TitaniumTableView";
-	
+
 	private static final int SEARCHVIEW_ID = 102;
 
 	protected TiTableView tableView;
@@ -67,7 +67,7 @@ public class TiUITableView extends TiUIView
 	{
 		tableView.getTableViewModel().setDirty();
 	}
-	
+
 	public TableViewModel getModel()
 	{
 		return tableView.getTableViewModel();
@@ -87,7 +87,7 @@ public class TiUITableView extends TiUIView
 	{
 		tableView.getListView().setSelectionFromTop(index, 0);
 	}
-	
+
 	public void selectRow(final int row_id)
 	{
 		tableView.getListView().setSelection(row_id);
@@ -102,7 +102,7 @@ public class TiUITableView extends TiUIView
 	{
 		return tableView.getListView();
 	}
-	
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -124,7 +124,7 @@ public class TiUITableView extends TiUIView
 			tableView.setOnItemLongClickListener(this);
 
 		}
-		
+
 		ListView list = getListView();
 		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
@@ -132,14 +132,14 @@ public class TiUITableView extends TiUIView
 		} else {
 			list.setFooterDividersEnabled(false);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
 			list.setHeaderDividersEnabled(enabled);
 		} else {
 			list.setHeaderDividersEnabled(false);
 		}
-	
+
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUIView search = searchView.getOrCreateView();
@@ -277,11 +277,18 @@ public class TiUITableView extends TiUIView
 				tableView.setOnItemClickListener(null);
 				tableView.setOnItemLongClickListener(null);
 			}
-
 		}
 
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
+		} else if(TiC.PROPERTY_SEPARATOR_STYLE.equals(key)) {
+			if(TiConvert.toInt(newValue) == TiTableView.SEPARATOR_STYLE_NONE) {
+				getListView().setDividerHeight(0);
+			} else {
+				TiDimension dHeight = TiConvert.toTiDimension(1, -1);
+				int height = dHeight.getAsPixels(getListView());
+				getListView().setDividerHeight(height);
+			}
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));

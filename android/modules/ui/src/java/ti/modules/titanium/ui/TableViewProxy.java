@@ -27,7 +27,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
+@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
 	TiC.PROPERTY_FILTER_ANCHORED,
 	TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
@@ -37,6 +37,7 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_VIEW,
 	TiC.PROPERTY_SEARCH,
 	TiC.PROPERTY_SEPARATOR_COLOR,
+	TiC.PROPERTY_SEPARATOR_STYLE,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_MIN_ROW_HEIGHT,
 	TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
@@ -101,8 +102,8 @@ public class TableViewProxy extends TiViewProxy
 				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
 			}
 		}
-		// Treat sections in the creation dict just like data. Unlike the setter, we don't 
-		// check whether the items are sections first. This is consistent with the handling 
+		// Treat sections in the creation dict just like data. Unlike the setter, we don't
+		// check whether the items are sections first. This is consistent with the handling
 		// of the data property--a bad object is dropped silently.
 		if (dict.containsKey(TiC.PROPERTY_SECTIONS)) {
 			Object o = dict.get(TiC.PROPERTY_SECTIONS);
@@ -253,7 +254,7 @@ public class TableViewProxy extends TiViewProxy
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
-	
+
 	private void handleAppendRow(Object rows)
 	{
 		Object[] rowList = null;
@@ -643,7 +644,7 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 	}
-	
+
 	private void cleanupSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
@@ -715,7 +716,7 @@ public class TableViewProxy extends TiViewProxy
 		if (row instanceof TableViewRowProxy) {
 			rowProxy = (TableViewRowProxy) row;
 			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, new KrollDict(rowProxy.getProperties()));
-			
+
 		} else {
 			KrollDict rowDict = null;
 			if (row instanceof KrollDict) {
@@ -837,7 +838,7 @@ public class TableViewProxy extends TiViewProxy
 		message.arg1 = index;
 		message.sendToTarget();
 	}
-	
+
 	@Kroll.method
 	public void selectRow(int row_id)
 	{
