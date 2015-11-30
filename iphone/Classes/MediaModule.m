@@ -820,6 +820,18 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             UISaveVideoAtPathToSavedPhotosAlbum(filePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
         }
+        else
+        {
+            KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
+            if (errorCallback != nil) {
+                NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Invalid mime type: Expected either image/* or video/*, was: %@",mime]];
+                [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+            } else {
+                [self throwException:@"Invalid mime type"
+                           subreason:[NSString stringWithFormat:@"Invalid mime type: Expected either image/* or video/*, was: %@",mime]
+                            location:CODELOCATION];
+            }
+        }
     }
     else if ([image isKindOfClass:[TiFile class]])
     {
@@ -840,11 +852,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
         if (errorCallback != nil) {
-            NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
+            NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Invalid media type: Expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
             [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
         } else {
-            [self throwException:@"invalid media type"
-                       subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
+            [self throwException:@"Invalid media type"
+                       subreason:[NSString stringWithFormat:@"Expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
                         location:CODELOCATION];
         }
     }
