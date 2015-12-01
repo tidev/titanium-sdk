@@ -385,12 +385,6 @@ public class TiUICardView extends TiUIView
             if (key.equals(TiC.PROPERTY_CARD_ELEVATION)) {
                 Log.w(TAG, "The cardElevation property is deprecated, use elevation instead.");
             }
-        } else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION) || key.equals(TiC.PROPERTY_MAX_ELEVATION)) {
-            cardview.setMaxCardElevation(TiConvert.toFloat(newValue));
-            cardview.requestLayout();
-            if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
-                Log.w(TAG, "The cardMaxElevation property is deprecated, use maxElevation instead.");
-            }
         } else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP) || key.equals(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
             cardview.setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
             cardview.requestLayout();

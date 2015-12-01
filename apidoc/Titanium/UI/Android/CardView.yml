@@ -66,6 +66,7 @@ properties:
   - name: cardMaxElevation
     summary: Maximum Elevation for CardView. 
     type: Number
+    availability: creation
     deprecated:
       since: 5.2.0
       notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.maxElevation>
@@ -73,6 +74,7 @@ properties:
   - name: maxElevation
     summary: Maximum Elevation for CardView.
     type: Number
+    availability: creation
     since: 5.2.0
 
   - name: cardPreventCornerOverlap
