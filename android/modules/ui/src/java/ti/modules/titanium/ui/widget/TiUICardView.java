@@ -432,7 +432,7 @@ public class TiUICardView extends TiUIView
             }
             paddingTop = (int) radiusTop;
 
-            cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+            cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING)) {
                 Log.w(TAG, "The contentPadding property is deprecated, use padding instead.");
@@ -444,7 +444,7 @@ public class TiUICardView extends TiUIView
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
             paddingBottom = (int) radiusBottom;
-            cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+            cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
                 Log.w(TAG, "The contentPaddingBottom property is deprecated, use paddingBottom instead.");
@@ -456,7 +456,7 @@ public class TiUICardView extends TiUIView
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
             paddingLeft = (int) radiusLeft;
-            cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+            cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
                 Log.w(TAG, "The contentPaddingLeft property is deprecated, use paddingLeft instead.");
@@ -468,7 +468,7 @@ public class TiUICardView extends TiUIView
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
             paddingRight = (int) radiusRight;
-            cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+            cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
                 Log.w(TAG, "The contentPaddingRight property is deprecated, use paddingRight instead.");
@@ -480,7 +480,7 @@ public class TiUICardView extends TiUIView
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
             paddingTop = (int) radiusTop;
-            cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+            cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
                 Log.w(TAG, "The contentPaddingTop property is deprecated, use paddingTop instead.");
