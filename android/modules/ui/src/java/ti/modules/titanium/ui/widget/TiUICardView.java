@@ -155,6 +155,11 @@ public class TiUICardView extends TiUIView
 
         if (d.containsKey(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
             cardview.setUseCompatPadding(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_USE_COMPAT_PADDING, false));
+            Log.w(TAG, "The cardUseCompatPadding property of is deprecated, use preventCornerOverlap instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_USE_COMPAT_PADDING)) {
+            cardview.setUseCompatPadding(TiConvert.toBoolean(d, TiC.PROPERTY_USE_COMPAT_PADDING, false));
         }
 
         if (d.containsKey(TiC.PROPERTY_CARD_ELEVATION)) {
@@ -167,6 +172,11 @@ public class TiUICardView extends TiUIView
 
         if (d.containsKey(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
             cardview.setPreventCornerOverlap(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP, false));
+            Log.w(TAG, "The cardPreventCornerOverlap property of is deprecated, use preventCornerOverlap instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
+            cardview.setPreventCornerOverlap(TiConvert.toBoolean(d, TiC.PROPERTY_PREVENT_CORNER_OVERLAP, false));
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING)) {
@@ -219,12 +229,18 @@ public class TiUICardView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
 			cardview.setMaxCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
+		} else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP) || key.equals(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
 			cardview.setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
+			if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
+			    Log.w(TAG, "The cardPreventCornerOverlap property of is deprecated, use preventCornerOverlap instead.");
+			}
+		} else if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING) || key.equals(TiC.PROPERTY_USE_COMPAT_PADDING)) {
 			cardview.setUseCompatPadding(TiConvert.toBoolean(newValue, false));
 			cardview.requestLayout();
+			if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
+			    Log.w(TAG, "The cardUseCompatPadding property of is deprecated, use preventCornerOverlap instead.");
+			}
 		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING)) {
 			contentPaddingBottom = TiConvert.toInt(newValue);
 			contentPaddingLeft = contentPaddingBottom;

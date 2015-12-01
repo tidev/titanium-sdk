@@ -47,11 +47,31 @@ properties:
         the Card content and rounded corners.
     type: Boolean
     default: false
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.preventCornerOverlap>
+
+  - name: preventCornerOverlap
+    summary: |
+        Add padding to CardView on API level 20 and before to prevent intersections between
+        the Card content and rounded corners.
+    type: Boolean
+    default: false
+    since: 5.2.0
 
   - name: cardUseCompatPadding
     summary: Add padding on API level 21 and above to have the same measurements with previous versions.
     type: Boolean
     default: false
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.useCompatPadding>
+
+  - name: useCompatPadding
+    summary: Add padding on API level 21 and above to have the same measurements with previous versions.
+    type: Boolean
+    default: false
+    since: 5.2.0
 
   - name: contentPadding
     summary: Inner padding between the edges of the Card and children of the CardView. 
