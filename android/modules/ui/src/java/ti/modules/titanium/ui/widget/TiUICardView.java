@@ -24,7 +24,7 @@ import android.widget.FrameLayout;
 
 public class TiUICardView extends TiUIView
 {
-    public int contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom;
+    public int paddingLeft, paddingTop, paddingRight, paddingBottom;
 
     private static final String TAG = "TiUICardView";
 
@@ -147,15 +147,25 @@ public class TiUICardView extends TiUIView
         
         if (d.containsKey(TiC.PROPERTY_CARD_BACKGROUND_COLOR)) {
             cardview.setCardBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_CARD_BACKGROUND_COLOR));
+            Log.w(TAG, "The cardBackgroundColor property is deprecated, use backgroundColor instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+            cardview.setCardBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR));
         }
 
         if (d.containsKey(TiC.PROPERTY_CARD_CORNER_RADIUS)) {
             cardview.setRadius(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_CORNER_RADIUS)));
+            Log.w(TAG, "The cardCornerRadius property is deprecated, use borderRadius instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+            cardview.setRadius(TiConvert.toFloat(d.get(TiC.PROPERTY_BORDER_RADIUS)));
         }
 
         if (d.containsKey(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
             cardview.setUseCompatPadding(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_USE_COMPAT_PADDING, false));
-            Log.w(TAG, "The cardUseCompatPadding property of is deprecated, use preventCornerOverlap instead.");
+            Log.w(TAG, "The cardUseCompatPadding property is deprecated, use useCompatPadding instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_USE_COMPAT_PADDING)) {
@@ -164,15 +174,25 @@ public class TiUICardView extends TiUIView
 
         if (d.containsKey(TiC.PROPERTY_CARD_ELEVATION)) {
             cardview.setCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_ELEVATION)));
+            Log.w(TAG, "The cardElevation property is deprecated, use elevation instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_ELEVATION)) {
+            cardview.setCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_ELEVATION)));
         }
 
         if (d.containsKey(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
             cardview.setMaxCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_MAX_ELEVATION)));
+            Log.w(TAG, "The cardMaxElevation property is deprecated, use maxElevation instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_MAX_ELEVATION)) {
+            cardview.setMaxCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_MAX_ELEVATION)));
         }
 
         if (d.containsKey(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
             cardview.setPreventCornerOverlap(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP, false));
-            Log.w(TAG, "The cardPreventCornerOverlap property of is deprecated, use preventCornerOverlap instead.");
+            Log.w(TAG, "The cardPreventCornerOverlap property is deprecated, use preventCornerOverlap instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
@@ -180,29 +200,57 @@ public class TiUICardView extends TiUIView
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING)) {
-            contentPaddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING);
-            contentPaddingLeft = contentPaddingBottom;
-            contentPaddingRight = contentPaddingBottom;
-            contentPaddingTop = contentPaddingBottom;
+            paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING);
+            paddingLeft = paddingBottom;
+            paddingRight = paddingBottom;
+            paddingTop = paddingBottom;
+            Log.w(TAG, "The contentPadding property is deprecated, use padding instead.");
+        }
+
+        if (d.containsKey(TiC.PROPERTY_PADDING)) {
+            paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_PADDING);
+            paddingLeft = paddingBottom;
+            paddingRight = paddingBottom;
+            paddingTop = paddingBottom;
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
-            contentPaddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_BOTTOM);
+            paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_BOTTOM);
+            Log.w(TAG, "The contentPaddingBottom property is deprecated, use paddingBottom instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
-            contentPaddingLeft = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_LEFT);
+            paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_LEFT);
+            Log.w(TAG, "The contentPaddingLeft property is deprecated, use paddingLeft instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
-            contentPaddingRight = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_RIGHT);
+            paddingRight = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_RIGHT);
+            Log.w(TAG, "The contentPaddingRight property is deprecated, use paddingRight instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
-            contentPaddingTop = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_TOP);
+            paddingTop = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_TOP);
+            Log.w(TAG, "The contentPaddingTop property is deprecated, use paddingTop instead.");
         }
 
-        cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+        if (d.containsKey(TiC.PROPERTY_PADDING_BOTTOM)) {
+            paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_PADDING_BOTTOM);
+        }
+
+        if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
+            paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT);
+        }
+
+        if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
+            paddingRight = TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT);
+        }
+
+        if (d.containsKey(TiC.PROPERTY_PADDING_TOP)) {
+            paddingTop = TiConvert.toInt(d, TiC.PROPERTY_PADDING_TOP);
+        }
+
+        cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 
         setNativeView(view);
 
@@ -217,55 +265,82 @@ public class TiUICardView extends TiUIView
         
         TiCardView cardview = ((TiCardView) getNativeView());
         
-		if (key.equals(TiC.PROPERTY_CARD_BACKGROUND_COLOR)) {
+		if (key.equals(TiC.PROPERTY_CARD_BACKGROUND_COLOR) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			cardview.setCardBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_CORNER_RADIUS)) {
+			if (key.equals(TiC.PROPERTY_CARD_BACKGROUND_COLOR)) {
+			    Log.w(TAG, "The cardBackgroundColor property is deprecated, use backgroundColor instead.");
+			}
+		} else if (key.equals(TiC.PROPERTY_CARD_CORNER_RADIUS) || key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
 			cardview.setRadius(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_ELEVATION)) {
+			if (key.equals(TiC.PROPERTY_CARD_CORNER_RADIUS)) {
+                Log.w(TAG, "The cardCornerRadius property is deprecated, use borderRadius instead.");
+            }
+		} else if (key.equals(TiC.PROPERTY_CARD_ELEVATION) || key.equals(TiC.PROPERTY_ELEVATION)) {
 			cardview.setCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
+			if (key.equals(TiC.PROPERTY_CARD_ELEVATION)) {
+                Log.w(TAG, "The cardElevation property is deprecated, use elevation instead.");
+            }
+		} else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION) || key.equals(TiC.PROPERTY_MAX_ELEVATION)) {
 			cardview.setMaxCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
+			if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
+			    Log.w(TAG, "The cardMaxElevation property is deprecated, use maxElevation instead.");
+			}
 		} else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP) || key.equals(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
 			cardview.setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
 			cardview.requestLayout();
 			if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
-			    Log.w(TAG, "The cardPreventCornerOverlap property of is deprecated, use preventCornerOverlap instead.");
+			    Log.w(TAG, "The cardPreventCornerOverlap property is deprecated, use preventCornerOverlap instead.");
 			}
 		} else if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING) || key.equals(TiC.PROPERTY_USE_COMPAT_PADDING)) {
-			cardview.setUseCompatPadding(TiConvert.toBoolean(newValue, false));
-			cardview.requestLayout();
-			if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
-			    Log.w(TAG, "The cardUseCompatPadding property of is deprecated, use preventCornerOverlap instead.");
-			}
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING)) {
-			contentPaddingBottom = TiConvert.toInt(newValue);
-			contentPaddingLeft = contentPaddingBottom;
-			contentPaddingRight = contentPaddingBottom;
-			contentPaddingTop = contentPaddingBottom;
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
-			contentPaddingBottom = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
-			contentPaddingLeft = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
-			contentPaddingRight = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
-			contentPaddingTop = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
+		    cardview.setUseCompatPadding(TiConvert.toBoolean(newValue, false));
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
+		        Log.w(TAG, "The cardUseCompatPadding property is deprecated, use useCompatPadding instead.");
+		    }
+		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING) || key.equals(TiC.PROPERTY_PADDING)) {
+		    paddingBottom = TiConvert.toInt(newValue);
+		    paddingLeft = paddingBottom;
+		    paddingRight = paddingBottom;
+		    paddingTop = paddingBottom;
+		    cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CONTENT_PADDING)) {
+		        Log.w(TAG, "The contentPadding property is deprecated, use padding instead.");
+		    }
+		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM) || key.equals(TiC.PROPERTY_PADDING_BOTTOM)) {
+		    paddingBottom = TiConvert.toInt(newValue);
+		    cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
+		        Log.w(TAG, "The contentPaddingBottom property is deprecated, use paddingBottom instead.");
+		    }
+		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT) || key.equals(TiC.PROPERTY_PADDING_LEFT)) {
+		    paddingLeft = TiConvert.toInt(newValue);
+		    cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
+		        Log.w(TAG, "The contentPaddingLeft property is deprecated, use paddingLeft instead.");
+		    }
+		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT) || key.equals(TiC.PROPERTY_PADDING_RIGHT)) {
+		    paddingRight = TiConvert.toInt(newValue);
+		    cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
+		        Log.w(TAG, "The contentPaddingRight property is deprecated, use paddingRight instead.");
+		    }
+		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP) || key.equals(TiC.PROPERTY_PADDING_TOP)) {
+		    paddingTop = TiConvert.toInt(newValue);
+		    cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		    cardview.requestLayout();
+		    if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
+		        Log.w(TAG, "The contentPaddingTop property is deprecated, use paddingTop instead.");
+		    }
 		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
+		    super.propertyChanged(key, oldValue, newValue, proxy);
 		}
     }
 
