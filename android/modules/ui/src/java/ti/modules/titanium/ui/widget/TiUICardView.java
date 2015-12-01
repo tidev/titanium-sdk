@@ -25,7 +25,7 @@ import android.widget.FrameLayout;
 
 public class TiUICardView extends TiUIView
 {
-    public int contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom;
+    public int paddingLeft, paddingTop, paddingRight, paddingBottom;
 
     private static final String TAG = "TiUICardView";
 
@@ -176,7 +176,7 @@ public class TiUICardView extends TiUIView
 
         if (d.containsKey(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
             cardview.setUseCompatPadding(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_USE_COMPAT_PADDING, false));
-            Log.w(TAG, "The cardUseCompatPadding property is deprecated, use preventCornerOverlap instead.");
+            Log.w(TAG, "The cardUseCompatPadding property is deprecated, use useCompatPadding instead.");
         }
 
         if (d.containsKey(TiC.PROPERTY_USE_COMPAT_PADDING)) {
@@ -216,29 +216,28 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
 
             float radiusBottom = 0;
             TiDimension radiusDimBottom = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_CONTENT_PADDING)), TiDimension.TYPE_BOTTOM);
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
 
             float radiusLeft = 0;
             TiDimension radiusDimLeft = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_CONTENT_PADDING)), TiDimension.TYPE_LEFT);
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
 
             float radiusTop = 0;
             TiDimension radiusDimTop = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_CONTENT_PADDING)), TiDimension.TYPE_TOP);
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
-
+            paddingTop = (int) radiusTop;
             Log.w(TAG, "The contentPadding property is deprecated, use padding instead.");
         }
 
@@ -248,28 +247,28 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
 
             float radiusBottom = 0;
             TiDimension radiusDimBottom = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_PADDING)), TiDimension.TYPE_BOTTOM);
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
 
             float radiusLeft = 0;
             TiDimension radiusDimLeft = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_PADDING)), TiDimension.TYPE_LEFT);
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
 
             float radiusTop = 0;
             TiDimension radiusDimTop = TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_PADDING)), TiDimension.TYPE_TOP);
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
+            paddingTop = (int) radiusTop;
         }
 
         if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
@@ -278,7 +277,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
             Log.w(TAG, "The contentPaddingBottom property is deprecated, use paddingBottom instead.");
         }
 
@@ -288,7 +287,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
             Log.w(TAG, "The contentPaddingLeft property is deprecated, use paddingLeft instead.");
         }
 
@@ -298,7 +297,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
             Log.w(TAG, "The contentPaddingRight property is deprecated, use paddingRight instead.");
         }
 
@@ -308,7 +307,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
+            paddingTop = (int) radiusTop;
             Log.w(TAG, "The contentPaddingTop property is deprecated, use paddingTop instead.");
         }
 
@@ -318,7 +317,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
         }
 
         if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
@@ -327,7 +326,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
         }
 
         if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
@@ -336,7 +335,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
         }
 
         if (d.containsKey(TiC.PROPERTY_PADDING_TOP)) {
@@ -345,10 +344,10 @@ public class TiUICardView extends TiUIView
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
+            paddingTop = (int) radiusTop;
         }
 
-        cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
+        cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 
         setNativeView(view);
 
@@ -410,28 +409,28 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
 
             float radiusBottom = 0;
             TiDimension radiusDimBottom = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_BOTTOM);
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
 
             float radiusLeft = 0;
             TiDimension radiusDimLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
 
             float radiusTop = 0;
             TiDimension radiusDimTop = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_TOP);
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
+            paddingTop = (int) radiusTop;
 
             cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
             cardview.requestLayout();
@@ -444,7 +443,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimBottom != null) {
                 radiusBottom = (float) radiusDimBottom.getPixels(cardview);
             }
-            contentPaddingBottom = (int) radiusBottom;
+            paddingBottom = (int) radiusBottom;
             cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
@@ -456,7 +455,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimLeft != null) {
                 radiusLeft = (float) radiusDimLeft.getPixels(cardview);
             }
-            contentPaddingLeft = (int) radiusLeft;
+            paddingLeft = (int) radiusLeft;
             cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
@@ -468,7 +467,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimRight != null) {
                 radiusRight = (float) radiusDimRight.getPixels(cardview);
             }
-            contentPaddingRight = (int) radiusRight;
+            paddingRight = (int) radiusRight;
             cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
@@ -480,7 +479,7 @@ public class TiUICardView extends TiUIView
             if (radiusDimTop != null) {
                 radiusTop = (float) radiusDimTop.getPixels(cardview);
             }
-            contentPaddingTop = (int) radiusTop;
+            paddingTop = (int) radiusTop;
             cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
             cardview.requestLayout();
             if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP)) {

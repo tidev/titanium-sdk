@@ -1967,6 +1967,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 #endif
 }
 
++(BOOL)livePhotoSupported
+{
+#if IS_XCODE_7_1
+    return [self isIOS9_1OrGreater] == YES;
+#else
+    return NO;
+#endif
+}
+
 +(NSString*)currentArchitecture
 {
 #ifdef __arm64__

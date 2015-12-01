@@ -44,6 +44,9 @@
 @property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
 #endif
 
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;

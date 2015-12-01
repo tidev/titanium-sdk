@@ -383,13 +383,13 @@ return map;\
 }\
 
 #define DEPRECATED_REMOVED(api,in,removed) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@: REMOVED in %@",api,in,removed);
     
 #define DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@, in favor of Ti.%@: REMOVED in %@",api,in,newapi,removed);
 
 #define DEPRECATED_REPLACED(api,in,newapi) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@, in favor of Ti.%@",api,in,newapi);
     
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\

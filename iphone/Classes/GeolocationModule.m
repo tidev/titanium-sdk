@@ -837,7 +837,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)requestAuthorization:(id)value
 {
-    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization()", @"5.1.0", @"Geolocation.requestLocationPermissions()");
     [self requestLocationPermissions:@[value, [NSNull null]]];
 }
 
@@ -887,9 +887,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         }
     }
     
+    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+
     if (errorMessage != nil) {
         NSLog(@"[ERROR] %@", errorMessage);
-        [self executeAndReleaseCallbackWithCode:1 andMessage:errorMessage];
         RELEASE_TO_NIL(errorMessage);
     }
 }
@@ -1079,7 +1080,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
         
         int code = 0;
-        NSString* errorStr = @"";
+        NSString* errorStr = nil;
         
         switch (status) {
             case kCLAuthorizationStatusAuthorizedAlways:
@@ -1087,7 +1088,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                 break;
             default:
                 code = 1;
-                errorStr = @"The user is unable to allow access to location.";
+                errorStr = @"The user denied access to use location services.";
         }
         
         NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
