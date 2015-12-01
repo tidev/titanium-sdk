@@ -216,9 +216,6 @@ public class TiUICardView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_CARD_ELEVATION)) {
 			cardview.setCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
-			cardview.setMaxCardElevation(TiConvert.toFloat(newValue));
-			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
 			cardview.setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
 			cardview.requestLayout();

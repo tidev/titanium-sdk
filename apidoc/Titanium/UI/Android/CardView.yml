@@ -38,7 +38,8 @@ properties:
     type: Number
 
   - name: cardMaxElevation
-    summary: Maximum Elevation for CardView. 
+    summary: Maximum Elevation for CardView.
+    availability: creation
     type: Number  
 
   - name: cardPreventCornerOverlap
