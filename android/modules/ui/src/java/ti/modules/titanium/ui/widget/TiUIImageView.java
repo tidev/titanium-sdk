@@ -761,6 +761,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
+	private void cacheImage(TiDrawableReference imageRef) {
+	    synchronized(releasedLock) {
+            int hash = imageRef.hashCode();
+            Bitmap b = mMemoryCache.get(hash);
+            if (b == null) {
+                Log.i(TAG, "Image isn't cached");
+                b = imageRef.getBitmap(true);
+                mMemoryCache.put(hash, b);
+            }
+	    }
+	}
+
 	private void setDefaultImage()
 	{
 		if (defaultImageSource == null) {
@@ -811,6 +823,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
+		}
+		if (d.containsKey(TiC.PROPERTY_CACHE_IMAGE)) {
+		    TiDrawableReference source = makeImageSource(d.get(TiC.PROPERTY_CACHE_IMAGE));
+		    cacheImage(source);
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
