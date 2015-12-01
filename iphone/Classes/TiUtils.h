@@ -671,4 +671,10 @@ typedef enum
  */
 + (BOOL)forceTouchSupported;
 
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
+
 @end

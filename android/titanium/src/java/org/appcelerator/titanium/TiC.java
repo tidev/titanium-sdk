@@ -966,34 +966,46 @@ public class TiC
 	 */
 	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
 
+	// Deprecating PROPERTY_CARD_BACKGROUND_COLOR in 5.2.0. Please use PROPERTY_BACKGROUND_COLOR. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_BACKGROUND_COLOR = "cardBackgroundColor";
 
+	// Deprecating PROPERTY_CARD_CORNER_RADIUS in 5.2.0. Please use PROPERTY_BORDER_RADIUS. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_CORNER_RADIUS = "cardCornerRadius";
 
+	// Deprecating PROPERTY_CARD_ELEVATION in 5.2.0. Please use PROPERTY_ELEVATION. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_ELEVATION = "cardElevation";
 
+	// Deprecating PROPERTY_CARD_MAX_ELEVATION in 5.2.0. Please use PROPERTY_MAX_ELEVATION. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_MAX_ELEVATION = "cardMaxElevation";
 
+	// Deprecating PROPERTY_CARD_PREVENT_CORNER_OVERLAP in 5.2.0. Please use PROPERTY_PREVENT_CORNER_OVERLAP. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_PREVENT_CORNER_OVERLAP = "cardPreventCornerOverlap";
 
+	// Deprecating PROPERTY_CARD_USE_COMPAT_PADDING in 5.2.0. Please use PROPERTY_USE_COMPAT_PADDING. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CARD_USE_COMPAT_PADDING = "cardUseCompatPadding";
 
 	/**
@@ -1084,26 +1096,61 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PADDING = "padding";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_BOTTOM = "paddingBottom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_LEFT = "paddingLeft";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_RIGHT = "paddingRight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PADDING_TOP = "paddingTop";
+
+	// Deprecating PROPERTY_CONTENT_PADDING in 5.2.0. Please use PROPERTY_PADDING. Will remove this in 6.0.0.
+	/**
+	 * @module.api
+	 */
+	@Deprecated
 	public static final String PROPERTY_CONTENT_PADDING = "contentPadding";
 
+	// Deprecating PROPERTY_CONTENT_PADDING_BOTTOM in 5.2.0. Please use PROPERTY_PADDING_BOTTOM. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CONTENT_PADDING_BOTTOM = "contentPaddingBottom";
 
+	// Deprecating PROPERTY_CONTENT_PADDING_LEFT in 5.2.0. Please use PROPERTY_PADDING_LEFT. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CONTENT_PADDING_LEFT = "contentPaddingLeft";
 
+	// Deprecating PROPERTY_CONTENT_PADDING_RIGHT in 5.2.0. Please use PROPERTY_PADDING_RIGHT. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CONTENT_PADDING_RIGHT = "contentPaddingRight";
 
+	// Deprecating PROPERTY_CONTENT_PADDING_TOP in 5.2.0. Please use PROPERTY_PADDING_TOP. Will remove this in 6.0.0.
 	/**
 	 * @module.api
 	 */
+	@Deprecated
 	public static final String PROPERTY_CONTENT_PADDING_TOP = "contentPaddingTop";
 
 	/**
@@ -1755,6 +1802,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 
 	/**
@@ -2089,6 +2141,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREVENT_CORNER_OVERLAP = "preventCornerOverlap";
 
 	/**
 	 * @module.api
@@ -2625,6 +2682,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USE_COMPAT_PADDING = "useCompatPadding";
 
 	/**
 	 * @module.api

@@ -20,6 +20,12 @@
 #import "TiUIiOSMenuPopupProxy.h"
 #endif
 
+#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+#import "TiUIiOSLivePhotoViewProxy.h"
+#endif
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -81,9 +87,13 @@
 #import "TiDynamicItemBehavior.h"
 #endif
 #endif
-
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
+#endif
+#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+#import <PhotosUI/PhotosUI.h>
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -182,6 +192,27 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_LEFT, UIMenuControllerArrowLeft);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_RIGHT, UIMenuControllerArrowRight);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefault);
 #endif
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_FULL
+{
+#if IS_XCODE_7_1
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
+    }
+#endif
+    return nil;
+}
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_HINT
+{
+#if IS_XCODE_7_1
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
+    }
+#endif
+    return nil;
+}
+
 
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
@@ -400,6 +431,59 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ATTRIBUTE_EXPANSION, AttributeNameExpansion
 {
     return [[[TiUIiOSMenuPopupProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
+
+#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+-(id)createLivePhotoView:(id)args
+{
+    return [[[TiUIiOSLivePhotoViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+-(TiBlob*)createLivePhotoBadge:(id)value
+{
+    if ([TiUtils isIOS9_1OrGreater] == NO) {
+        return nil;
+    }
+    
+    ENSURE_ARG_COUNT(value, 1);
+    ENSURE_ARRAY(value);
+    id option = [value objectAtIndex:0];
+    
+    UIImage *badge = [PHLivePhotoView livePhotoBadgeImageWithOptions:[TiUtils intValue:option def:PHLivePhotoBadgeOptionsOverContent]];
+    
+    // Badges only work on devices.
+    if (badge == nil) {
+        return nil;
+    }
+    
+    TiBlob *image = [[TiBlob alloc] initWithImage:badge];
+    
+    return image;
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+-(NSNumber*)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
+    }
+    return NUMINT(0);
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+-(NSNumber*)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
+    }
+    return NUMINT(0);
+}
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR

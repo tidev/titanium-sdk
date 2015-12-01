@@ -1,0 +1,115 @@
+---
+name: Titanium.UI.iOS.LivePhotoView
+summary: |
+    A view to display a [Live Photo](Titanium.UI.iOS.LivePhoto) object introduced in iOS 9.1.
+description: |    
+    Use the <Titanium.UI.createLivePhotoView> method to create an new `LivePhotoView`.
+    
+    Specifying either a `width` or `height` property for this view will scale its `livePhoto` with 
+    the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
+    
+    For more infos on Live Photo's, refer to the official [Apple documentation](https://developer.apple.com/library/prerelease/ios/documentation/PhotosUI/Reference/PHLivePhotoView_Class/index.html).
+
+extends: Titanium.UI.View
+platforms: [iphone,ipad]
+since: "5.2.0"
+osver: {ios:{min: "9.1"}}
+
+properties:
+  - name: muted
+    summary: | 
+        A Boolean value that determines whether the view plays the audio content of its Live Photo.
+    description: | 
+        The default value is `false`, indicating that the view plays audio content along with the motion 
+        content of its Live Photo. Change this value to `true` to play motion content but not audio content.
+    type: Boolean
+    default: false
+
+methods:   
+  - name: startWithPlaybackStyle
+    summary: Begins playback of Live Photo content in the view.
+    description: | 
+        Use the `playbackStyle` parameter to choose whether to play the full motion and sound content of the 
+        Live Photo or only a brief section.
+
+        Typically, an app does not need to directly control playback, because a Live Photo view provides interactive 
+        playback control. Use this method only when non-interactive playback is appropriate-for example, to briefly 
+        animate the content to indicate that a view contains a Live Photo rather than a still image.
+    parameters:
+      - name: playbackStyle
+        summary: An option for how much of the Live Photo's motion and sound content to play.
+        type: Number
+        constants: [Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL, Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_HINT]
+        default: Titanium.UI.iOS. LIVEPHOTO_PLAYBACK_STYLE_FULL
+
+  - name: stopPlayback
+    summary: Ends playback of Live Photo content in the view.
+
+events:
+  - name: start
+    summary: Fired when the Live Photo playback starts.
+    properties:
+      - name: playbackStyle
+        summary: Returns the `playbackStyle` that was provided to start the playback.
+        type: Number
+
+  - name: stop
+    summary: Fired when the Live Photo playback stops.
+    properties:
+      - name: playbackStyle
+        summary: Returns the `playbackStyle` that was provided to start the playback.
+        type: Number
+
+properties:
+  - name: livePhoto
+    summary: The Live Photo displayed in the view.
+    description: |
+        You receive a new live photo object either by taking a new photo or
+        by selecting an existing photo from the photo gallery.
+    type: [Titanium.UI.iOS.LivePhoto]
+
+examples:
+  - title: Basic LivePhotoView
+    example: |
+        // The following example shows how to create a simple Ti.UI.iOS.LivePhotoView:
+        
+        var window = Ti.UI.createWindow({
+            backgroundColor: "white"
+        });
+
+        var btn1 = Ti.UI.createButton({
+            title: "Select live photo!",
+            top: 30
+        });
+
+        btn1.addEventListener("click", openGallery);
+        window.add(btn1);
+        window.open();
+
+        function openGallery() {
+            Ti.Media.openPhotoGallery({
+                mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO, Ti.Media.MEDIA_TYPE_LIVEPHOTO],
+                success: function(e) {
+                    var livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
+
+                    if (livePhoto) {
+                        var livePhotoView = Ti.UI.iOS.createLivePhotoView({
+                            livePhoto: livePhoto,
+                            muted: true,
+                            width: 300
+                        });
+
+                        livePhotoView.addEventListener("start", function(e) {
+                            Ti.API.warn("-- Start playback --");
+                            Ti.API.warn(e);
+                        });
+
+                        livePhotoView.addEventListener("stop", function(e) {
+                            Ti.API.warn("-- Stop playback --");
+                            Ti.API.warn(e);
+                        });
+                     window.add(livePhotoView);
+                    }
+                }
+            });
+        }
