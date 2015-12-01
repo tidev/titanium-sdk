@@ -595,6 +595,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
+    BOOL honorScale = YES;
     
     NSObject *obj = nil;
     if( [args count] > 0) {
@@ -602,6 +603,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         
         if (obj == [NSNull null]) {
             obj = nil;
+        }
+        
+        if( [args count] > 1) {
+            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:YES];
         }
     }
     callback = (KrollCallback*)obj;
@@ -641,7 +646,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		if (!viewIsAttached) {
 			[self layoutChildren:NO];
 		}
-		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];

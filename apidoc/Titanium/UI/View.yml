@@ -813,9 +813,6 @@ methods:
             
             When set to true, image is scale factor is honored. When set to false, the image in the 
             blob has the same dimensions for retina and non-retina devices.
-
-            Starting with version 3.5.0 of the Titanium SDK, this value is no longer checked and always 
-            behaves as true.
         type: Boolean
         default: false
         optional: true

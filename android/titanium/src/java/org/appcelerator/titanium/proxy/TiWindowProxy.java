@@ -34,7 +34,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.Display;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
@@ -475,7 +477,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (activity != null)
 		{
-			return TiOrientationHelper.convertRotationToTiOrientationMode(activity.getWindowManager().getDefaultDisplay().getRotation());
+		    DisplayMetrics dm = new DisplayMetrics();
+		    Display display = activity.getWindowManager().getDefaultDisplay();
+		    display.getMetrics(dm);
+		    int width = dm.widthPixels;
+		    int height = dm.heightPixels;
+		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
