@@ -540,6 +540,9 @@ properties:
       by Apple.
       Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property 
       is selected on certain device models.
+      The callback contains the selected property and a 'person' object of type <Titanium.Contacts.Person>.
+      Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to 
+      at least contain the selected property and fullName. 
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true
