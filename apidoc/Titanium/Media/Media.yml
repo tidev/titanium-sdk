@@ -1314,11 +1314,23 @@ properties:
   - name: cameraAuthorizationStatus
     summary: |
         Returns the authorization status for the camera.
+    deprecated:
+        since: "5.2.0"
+        notes: Use cameraAuthorization instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
     permission: read-only
     since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: cameraAuthorization
+    summary: |
+        Returns the authorization status for the camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "5.2.0"
     osver: {ios: {min: "7.0"}}
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.

@@ -485,7 +485,20 @@ properties:
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+    deprecated:
+        since: "5.2.0"
+        notes: Use calendarAuthorization instead.
     type: Number
+    constants: Titanium.Calendar.AUTHORIZATION_*
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: calendarAuthorization
+    summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
+    description: |
+        Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+        type: Number
+    since: "5.2.0"
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad]
