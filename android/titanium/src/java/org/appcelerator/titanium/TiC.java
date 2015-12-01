@@ -2089,12 +2089,17 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
-	
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PREVENT_CORNER_OVERLAP = "preventCornerOverlap";
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_PROMPT = "prompt";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2620,6 +2625,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USE_COMPAT_PADDING = "useCompatPadding";
 
 	/**
 	 * @module.api
