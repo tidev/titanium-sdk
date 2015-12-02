@@ -376,21 +376,31 @@ public class TiDrawableReference
 				}
 				// If decoding fails, we try to get it from httpclient.
 				if (b == null) {
-                    HttpURLConnection connection = null;
-                    try {
-                        URL mURL = new URL(url);
-                        connection = (HttpURLConnection) mURL.openConnection();
-                        connection.setInstanceFollowRedirects(true);
-                        connection.setDoInput(true);
-                        connection.connect();
-                        int responseCode = connection.getResponseCode();
-                        if (responseCode == 200) {
-                            b = BitmapFactory.decodeStream(connection.getInputStream());
-                        } else
-                            b = null;
-                    } catch (Exception e) {
-                        b = null;
-                    } finally {
+				    HttpURLConnection connection = null;
+				    try {
+				        URL mURL = new URL(url);
+				        connection = (HttpURLConnection) mURL.openConnection();
+				        connection.setInstanceFollowRedirects(true);
+				        connection.setDoInput(true);
+				        connection.connect();
+				        int responseCode = connection.getResponseCode();
+				        if (responseCode == 200) {
+				            b = BitmapFactory.decodeStream(connection.getInputStream());
+				        } else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+				            URL nURL = connection.getURL();
+				            String prevProtocol = mURL.getProtocol();
+				            //HttpURLConnection doesn't handle http to https redirects so we do it manually.
+				            if (prevProtocol != null && !prevProtocol.equals(nURL.getProtocol())) {
+				                b = BitmapFactory.decodeStream(nURL.openStream());
+				            } else {
+				                b = BitmapFactory.decodeStream(connection.getInputStream());
+				            }
+				        } else {
+				            b = null;
+				        }
+				    } catch (Exception e) {
+				        b = null;
+				    } finally {
                         if (connection != null) {
                             connection.disconnect();
                         }
