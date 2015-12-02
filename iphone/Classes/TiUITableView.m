@@ -300,7 +300,7 @@
 		filterAnchored = NO; // defaults to false on search
 		searchString = @"";
 		defaultSeparatorInsets = UIEdgeInsetsZero;
-        rowSeparatorInsets = UIEdgeInsetsZero;
+		rowSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
