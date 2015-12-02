@@ -859,7 +859,8 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     
     CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    
+    // Corelocation shows permission alert only in undetermined case.
+    BOOL userDidApproveOrReject = (currentPermissionLevel != kCLAuthorizationStatusNotDetermined);
     NSString *errorMessage = nil;
     
     if(requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
@@ -867,7 +868,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
-            } else {
+            } else if (!userDidApproveOrReject) {
                 [[self locationPermissionManager] requestWhenInUseAuthorization];
             }
         } else {
@@ -879,18 +880,23 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
             if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
-            } else {
+            } else if(!userDidApproveOrReject) {
                 [[self locationPermissionManager] requestAlwaysAuthorization];
             }
         } else {
             errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
         }
     }
-    
-    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
-
-    if (errorMessage != nil) {
-        NSLog(@"[ERROR] %@", errorMessage);
+	
+    if (userDidApproveOrReject &&
+        (currentPermissionLevel == kCLAuthorizationStatusRestricted ||
+         currentPermissionLevel == kCLAuthorizationStatusDenied)) {
+        errorMessage = @"The user denied access to use location services.";
+    }
+	
+    if (errorMessage != nil || userDidApproveOrReject) {
+        NSLog(@"%@", (errorMessage)?(errorMessage):(@"User already approved access to location services."));
+        [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
         RELEASE_TO_NIL(errorMessage);
     }
 }
