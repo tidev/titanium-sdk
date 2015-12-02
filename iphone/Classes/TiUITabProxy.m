@@ -602,10 +602,10 @@
 
 -(void)setIconInsets:(id)args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-    [self replaceValue:args forKey:@"iconInsets" notification:NO];
-    
-    [self updateTabBarItem];
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        [self replaceValue:args forKey:@"iconInsets" notification:NO];
+        [self updateTabBarItem];
+    }
 }
 
 -(void)setIconIsMask:(id)value
