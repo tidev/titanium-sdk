@@ -104,6 +104,11 @@
 	[[self searchBar] setKeyboardType:[TiUtils intValue:value]];
 }
 
+-(void)setKeyboardAppearance_:(id)value
+{
+    [[self searchBar] setKeyboardAppearance:[TiUtils intValue:value]];
+}
+
 -(void)setPrompt_:(id)value
 {
 	[[self searchBar] setPrompt:[TiUtils stringValue:value]];

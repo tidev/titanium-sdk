@@ -22,8 +22,7 @@
     
     [self setPreview:[properties valueForKey:@"preview"]];
     [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
-    [self setActions:[NSMutableArray arrayWithArray:[properties valueForKey:@"actions"]]];
-        
+    
     [super _initWithProperties:properties];
 }
 
@@ -35,12 +34,13 @@
         }
     }
     
+    RELEASE_AND_REPLACE(_actions, actions);
+    
     for (TiProxy* proxy in _actions) {
         if ([proxy isKindOfClass:[TiProxy class]]) {
             [self rememberProxy:proxy];
         }
     }
-    _actions = [actions retain];
 }
 
 -(void)dealloc
@@ -52,6 +52,7 @@
     }
     
     RELEASE_TO_NIL(_preview);
+    RELEASE_TO_NIL(_sourceView);
     RELEASE_TO_NIL(_actions);
     
     [super dealloc];
@@ -67,12 +68,12 @@
     }
 #else
 #ifdef USE_TI_UITABLEVIEW
-    if([[_sourceView view] isKindOfClass:[TiUITableView class]]) {
+    if ([[_sourceView view] isKindOfClass:[TiUITableView class]]) {
         nativeSourceView = [(TiUITableView*)[_sourceView view] tableView];
     }
 #else
 #ifdef USE_TI_UISCROLLVIEW
-    if([[_sourceView view] isKindOfClass:[TiUIScrollView class]]) {
+    if ([[_sourceView view] isKindOfClass:[TiUIScrollView class]]) {
         nativeSourceView = [(TiUIScrollView*)[_sourceView view] scrollView];
     }
 #endif
