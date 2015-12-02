@@ -878,9 +878,17 @@ Cookie.prototype.canonicalizedDomain = function canonicalizedDomain() {
   return canonicalDomain(this.domain);
 };
 
-function CookieJar(store, rejectPublicSuffixes) {
-  if (rejectPublicSuffixes != null) {
-    this.rejectPublicSuffixes = rejectPublicSuffixes;
+function CookieJar(store, options) {
+  if (typeof options === "boolean") {
+    options = {rejectPublicSuffixes: options};
+  } else if (options == null) {
+    options = {};
+  }
+  if (options.rejectPublicSuffixes != null) {
+    this.rejectPublicSuffixes = options.rejectPublicSuffixes;
+  }
+  if (options.looseMode != null) {
+    this.enableLooseMode = options.looseMode;
   }
 
   if (!store) {
@@ -890,6 +898,7 @@ function CookieJar(store, rejectPublicSuffixes) {
 }
 CookieJar.prototype.store = null;
 CookieJar.prototype.rejectPublicSuffixes = true;
+CookieJar.prototype.enableLooseMode = false;
 var CAN_BE_SYNC = [];
 
 CAN_BE_SYNC.push('setCookie');
@@ -902,10 +911,14 @@ CookieJar.prototype.setCookie = function(cookie, url, options, cb) {
   }
 
   var host = canonicalDomain(context.hostname);
+  var loose = this.enableLooseMode;
+  if (options.loose != null) {
+    loose = options.loose;
+  }
 
   // S5.3 step 1
   if (!(cookie instanceof Cookie)) {
-    cookie = Cookie.parse(cookie, { loose: options.loose });
+    cookie = Cookie.parse(cookie, { loose: loose });
   }
   if (!cookie) {
     err = new Error("Cookie failed to parse");

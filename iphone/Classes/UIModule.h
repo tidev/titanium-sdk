@@ -13,6 +13,10 @@
 // an explicit compile time dependency to UI
 #import "TiUIAlertDialogProxy.h"
 
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
 @private
@@ -27,9 +31,6 @@
 #endif
 #ifdef USE_TI_UICLIPBOARD
     TiProxy *clipboard;
-#endif
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-    TiProxy *ActivityIndicatorStyle;
 #endif
 }
 
@@ -63,6 +64,7 @@
 @property(nonatomic,readonly) NSNumber *RETURNKEY_YAHOO;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_DONE;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_EMERGENCY_CALL;
+@property(nonatomic,readonly) NSNumber *RETURNKEY_CONTINUE;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_ASCII;
@@ -73,6 +75,8 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_WEBSEARCH;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_TWITTER;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_ALERT;
@@ -275,7 +279,7 @@
 #endif
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-@property (nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
+@property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
 #endif
 
 @end

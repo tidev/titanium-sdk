@@ -7,8 +7,9 @@ description: |
         <td><img src="images/textarea/textarea_android.png" height="50" /></td>
         <td><img src="images/textarea/textarea_ios.png" height="50" /></td>
         <td><img src="images/textarea/textarea_mobileweb.png" height="50" /></td>
+        <td><img src="images/textarea/textarea_wp.png" height="50" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
@@ -71,9 +72,19 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use keyboardAppearance instead
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard displayed when this text area is focused.
+    type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: attributedString
-    summary: TextArea attributed string. 
+    summary: TextArea attributed string.
     description: |
         The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
         in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
@@ -308,7 +319,7 @@ properties:
     since: 2.1.2
 
   - name: showUndoRedoActions
-    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. This property can only be set upon creation.
     type: Boolean
     default: true
     platforms: [ipad]

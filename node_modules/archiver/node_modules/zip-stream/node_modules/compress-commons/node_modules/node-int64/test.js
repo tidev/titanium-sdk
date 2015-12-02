@@ -81,3 +81,40 @@ exports.testBufferOffsets = function(test) {
 
   test.done();
 };
+
+exports.testInstanceOf = function(test) {
+  var x = new Int64();
+  assert(x instanceof Int64, 'Variable is not instance of Int64');
+  var y = {};
+  assert(!(y instanceof Int64), 'Object is an instance of Int64');
+  test.done();
+};
+
+exports.testCompare = function(test) {
+  var intMin = new Int64(2147483648, 0);
+  var intMinPlusOne = new Int64(2147483648, 1);
+  var zero = new Int64(0, 0);
+  var intMaxMinusOne = new Int64(2147483647, 4294967294);
+  var intMax = new Int64(2147483647, 4294967295);
+  assert(intMin.compare(intMinPlusOne) < 0, "INT64_MIN is not less than INT64_MIN+1");
+  assert(intMin.compare(zero) < 0, "INT64_MIN is not less than 0");
+  assert(intMin.compare(zero) < intMax, "INT64_MIN is not less than INT64_MAX");
+  assert(intMax.compare(intMaxMinusOne) > 0, "INT64_MAX is not greater than INT64_MAX-1");
+  assert(intMax.compare(zero) > 0, "INT64_MAX is not greater than 0");
+  assert(intMax.compare(intMin) > 0, "INT64_MAX is not greater than INT_MIN");
+  test.done();
+};
+
+exports.testEquals = function(test) {
+  var intMin = new Int64(2147483648, 0);
+  var zero = new Int64(0, 0);
+  var intMax = new Int64(2147483647, 4294967295);
+  assert(intMin.equals(intMin), "INT64_MIN !== INT64_MIN");
+  assert(intMax.equals(intMax), "INT64_MAX !== INT64_MAX");
+  assert(zero.equals(zero), "0 !== 0");
+  assert(!intMin.equals(zero), "INT64_MIN === 0");
+  assert(!intMin.equals(intMax), "INT64_MIN === INT64_MAX");
+  assert(!intMax.equals(zero), "INT64_MAX === 0");
+  assert(!intMax.equals(intMin), "INT64_MAX === INT64_MIN");
+  test.done();
+};

@@ -2,7 +2,7 @@ NODE_GYP=node node_modules/node-gyp/bin/node-gyp
 
 all: node iojs
 
-node: node_v1 node_v11 node_v14 node_v46
+node: node_v1 node_v11 node_v14 node_v46 node_v47
 
 iojs: iojs_v42 iojs_v43 iojs_v44 iojs_v45
 
@@ -30,9 +30,13 @@ node_v11:
 node_v14:
 	$(call build,node,nodejs.org,0.12.7)
 
-# Node.js 4.0.x
+# Node.js 4.x
 node_v46:
-	$(call build,node,nodejs.org,4.0.0)
+	$(call build,node,nodejs.org,4.2.1)
+
+# Node.js 5.0
+node_v47:
+	$(call build,node,nodejs.org,5.0.0)
 
 # io.js 1.0.x
 iojs_v42:
@@ -54,4 +58,4 @@ clean:
 	$(NODE_GYP) clean
 	rm -rf out
 
-.PHONY: clean node_v1 node_v11 node_v14 node_v46 iojs_v42 iojs_v43 iojs_v44 iojs_v45
+.PHONY: clean node_v1 node_v11 node_v14 node_v46 node_v47 iojs_v42 iojs_v43 iojs_v44 iojs_v45

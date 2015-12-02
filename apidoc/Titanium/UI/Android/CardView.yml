@@ -1,9 +1,22 @@
 ---
 name: Titanium.UI.Android.CardView
-summary: A Card view with a rounded corner background and shadow.
+summary: An elevated view with rounded corners.
 description: |
-    `CardView` provides a user with a rounded corner background and shadow.
+    CardView provides a layout container with rounded corners and a shadow indicating the
+    view is elevated.
 
+    Use a CardView to layout content that:
+
+      * Comprises multiple data types
+      * Does not require direct comparison
+      * Supports variable length content or displays more than three lines of text
+      * Contains rich content or interactive elements, such as comments or a favorite button
+
+    If you are displaying a collection of the same type in a uniform layout without many actions,
+    use a [ListView](Titanium.UI.ListView) or [TableView](Titanium.UI.TableView) instead.
+
+    For design guidelines, see
+    [Google Design Guidelines: Cards](http://www.google.com/design/spec/components/cards.html)
 extends: Titanium.UI.View
 since: "5.1.0"
 platforms: [android]
@@ -15,48 +28,146 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.backgroundColor>
+
+  - name: backgroundColor
+    summary: Background color for CardView as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    since: 5.2.0
 
   - name: cardCornerRadius
-    summary: Corner radius for CardView. 
+    summary: Corner radius for CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.borderRadius>
 
-   - name: cardElevation
+  - name: borderRadius
+    summary: Corner radius for CardView.
+    type: Number
+    since: 5.2.0
+
+  - name: cardElevation
+    summary: Elevation for CardView.
+    type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.elevation>
+
+  - name: elevation
     summary: Elevation for CardView. 
     type: Number
+    since: 5.2.0
 
-   - name: cardMaxElevation
+  - name: cardMaxElevation
     summary: Maximum Elevation for CardView. 
-    type: Number  
+    type: Number
+    availability: creation
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.maxElevation>
+
+  - name: maxElevation
+    summary: Maximum Elevation for CardView.
+    type: Number
+    availability: creation
+    since: 5.2.0
 
   - name: cardPreventCornerOverlap
-    summary: Add padding to CardView on v20 and before to prevent intersections between the Card content and rounded corners.
+    summary: |
+        Add padding to CardView on API level 20 and before to prevent intersections between
+        the Card content and rounded corners.
     type: Boolean
     default: false
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.preventCornerOverlap>
+
+  - name: preventCornerOverlap
+    summary: |
+        Add padding to CardView on API level 20 and before to prevent intersections between
+        the Card content and rounded corners.
+    type: Boolean
+    default: false
+    since: 5.2.0
 
   - name: cardUseCompatPadding
-    summary: Add padding in API v21+ as well to have the same measurements with previous versions. 
+    summary: Add padding on API level 21 and above to have the same measurements with previous versions.
     type: Boolean
     default: false
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.useCompatPadding>
+
+  - name: useCompatPadding
+    summary: Add padding on API level 21 and above to have the same measurements with previous versions.
+    type: Boolean
+    default: false
+    since: 5.2.0
 
   - name: contentPadding
-    summary: Inner padding between the edges of the Card and children of the CardView. 
+    summary: Inner padding between the edges of the Card and children of the CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.padding>
+
+  - name: padding
+    summary: Inner padding between the edges of the Card and children of the CardView.
+    type: Number
+    since: 5.2.0
 
   - name: contentPaddingBottom
-    summary: Inner padding between the bottom edge of the Card and children of the CardView. 
+    summary: Inner padding between the bottom edge of the Card and children of the CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingBottom>
+
+  - name: paddingBottom
+    summary: Inner padding between the bottom edge of the Card and children of the CardView.
+    type: Number
+    since: 5.2.0
 
   - name: contentPaddingLeft
-    summary: Inner padding between the left edge of the Card and children of the CardView. 
+    summary: Inner padding between the left edge of the Card and children of the CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingLeft>
+
+  - name: paddingLeft
+    summary: Inner padding between the left edge of the Card and children of the CardView.
+    type: Number
+    since: 5.2.0
 
   - name: contentPaddingRight
-    summary: Inner padding between the right edge of the Card and children of the CardView. 
+    summary: Inner padding between the right edge of the Card and children of the CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingRight>
+
+  - name: paddingRight
+    summary: Inner padding between the right edge of the Card and children of the CardView.
+    type: Number
+    since: 5.2.0
 
   - name: contentPaddingTop
-    summary: Inner padding between the top edge of the Card and children of the CardView. 
+    summary: Inner padding between the top edge of the Card and children of the CardView.
     type: Number
+    deprecated:
+      since: 5.2.0
+      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingTop>
+
+  - name: paddingTop
+    summary: Inner padding between the top edge of the Card and children of the CardView.
+    type: Number
+    since: 5.2.0
 
 examples:
 
@@ -64,35 +175,34 @@ examples:
     example: |
         The following example creates a CardView used in a ScrollView.
 
-        var win = Ti.UI.createWindow({
-            backgroundColor:'white',
-            title: 'Card Demo'
-        });
-
-        function createRow(i) {
-            var card = Ti.UI.Android.createCardView({
-                contentPadding: 20,
-                cardCornerRadius: 10,
-                cardUseCompatPadding: true
+            var win = Ti.UI.createWindow({
+                backgroundColor:'white',
+                title: 'Card Demo'
             });
-            var label = Ti.UI.createLabel({
-                color:'black',
-                text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+
+            function createRow(i) {
+                var card = Ti.UI.Android.createCardView({
+                    contentPadding: 20,
+                    cardCornerRadius: 10,
+                    cardUseCompatPadding: true
+                });
+                var label = Ti.UI.createLabel({
+                    color:'black',
+                    text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+                });
+                card.add(label);
+
+                return card;
+            }
+
+            var scrollView = Ti.UI.createScrollView({
+                layout: 'vertical'
             });
-            card.add(label);
 
-            return card;
-        }
+            for (var i = 0; i <= 20; i++) {
+                var row = createRow(i);
+                scrollView.add(row);
+            }
 
-        var scrollView = Ti.UI.createScrollView({
-            layout: 'vertical'
-        });
-
-        for (var i = 0; i <= 20; i++) {
-            var row = createRow(i);
-            scrollView.add(row);
-        }
-
-        win.add(scrollView);
-        win.open();
-
+            win.add(scrollView);
+            win.open();

@@ -138,7 +138,6 @@ properties:
     constants: Titanium.UI.ActivityIndicatorStyle.*
     default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>
 
-
   - name: indicatorColor
     summary: Color of the animated indicator.
     since: "2.1.0"

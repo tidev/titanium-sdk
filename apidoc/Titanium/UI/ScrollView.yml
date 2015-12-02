@@ -98,6 +98,13 @@ events:
   - name: scroll
     summary: Fired when the scrollable region is scrolled.
     properties:
+
+      - name: contentSize
+        summary: |
+            The current content size of the scroll view defined by its `width` and `height` properties.
+        type: Dictionary
+        platforms: [iphone, ipad]
+
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean

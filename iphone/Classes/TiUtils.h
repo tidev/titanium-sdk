@@ -460,6 +460,14 @@ typedef enum
 
 +(NSDictionary*)sizeToDictionary:(CGSize)size;
 
+/**
+ Converts input values in to a NSDictionary.
+ @param touch The UITouch object. Containing all the UITouch attributes.
+ @param point The point on the view , before the touch even is triggered.
+ @return NSDictionary containing the point coordinates and UITouch properties.
+ */
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point;
+
 +(UIEdgeInsets)contentInsets:(id)value;
 
 +(CGRect)contentFrame:(BOOL)window;
@@ -568,6 +576,12 @@ typedef enum
 +(BOOL)isIOS9OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 9.1.
+ @return _YES_ if the current OS version is equal to or greater thann 9.1, _NO_ otherwise.
+ */
++(BOOL)isIOS9_1OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
@@ -656,5 +670,11 @@ typedef enum
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)forceTouchSupported;
+
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
 
 @end

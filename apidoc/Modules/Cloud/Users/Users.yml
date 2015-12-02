@@ -46,6 +46,11 @@ methods:
         
         Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        optional: true
+
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>

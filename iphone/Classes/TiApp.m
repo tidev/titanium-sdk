@@ -413,10 +413,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
     
 #if IS_XCODE_7
-    UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-    
-    if(shortcut !=nil) {
-        launchedShortcutItem = shortcut;
+    if ([TiUtils isIOS9OrGreater] == YES) {
+        UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+        
+        if (shortcut != nil) {
+            launchedShortcutItem = shortcut;
+        }
     }
 #endif
     
@@ -950,6 +952,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark Handoff Delegates
 
+#if defined(USE_TI_APPIOSUSERACTIVITY) || defined (USE_TI_APPIOSSEARCHABLEINDEX)
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
@@ -988,6 +991,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     
     return YES;
 }
+#endif
 
 #pragma mark Push Notification Delegates
 

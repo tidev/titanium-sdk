@@ -72,6 +72,12 @@ properties:
     summary: Progress bar text.
     type: String
 
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: String
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
   - name: min
     summary: Minimum value of the progress bar.
     type: Number

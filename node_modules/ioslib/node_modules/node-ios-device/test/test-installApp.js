@@ -11,7 +11,7 @@ iosDevice.devices(function (err, devices) {
 	if (devices.length) {
 		//console.log("Waiting 25 seconds to install the app to device " + devices[0].udid);
 
-		iosDevice.log(devices[0].udid, function (msg) {
+		var off = iosDevice.log(devices[0].udid, function (msg) {
 			console.log(msg);
 		});
 
@@ -23,6 +23,8 @@ iosDevice.devices(function (err, devices) {
 				if (err) {
 					console.error('ERROR!!!');
 					console.error(err);
+					off();
+					process.exit(1);
 				} else {
 					console.log('=====================================================');
 					console.log('App installed successfully');

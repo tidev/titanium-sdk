@@ -547,6 +547,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
 					TiBlob theBlob = TiBlob.blobFromFile(theFile);
 					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					
+					// add previewRect to response
+					KrollDict previewRect = new KrollDict();
+					if (optimalPreviewSize!=null){
+						previewRect.put(TiC.PROPERTY_WIDTH, optimalPreviewSize.width);
+						previewRect.put(TiC.PROPERTY_HEIGHT, optimalPreviewSize.height);
+					} else {
+						previewRect.put(TiC.PROPERTY_WIDTH, 0);
+						previewRect.put(TiC.PROPERTY_HEIGHT, 0);
+					}
+					response.put("previewRect", previewRect);
+					
 					successCallback.callAsync(callbackContext, response);
 				}				
 			} catch (Throwable t) {

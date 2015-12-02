@@ -256,6 +256,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.pre.compile', this, next);
 		},
 
+		'compileAidlFiles',
 		'compileModuleJavaSrc',
 		'generateRuntimeBindings',
 		'generateV8Bindings',
@@ -417,6 +418,54 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
 
 	next();
+};
+
+AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
+	this.logger.log(__('Generating java files from the .aidl files'));
+
+	if (!this.androidTargetSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+		return next();
+	}
+
+	var aidlRegExp = /\.aidl$/,
+		aidlFiles = (function scan(dir) {
+			var f = [];
+			fs.readdirSync(dir).forEach(function (name) {
+				var file = path.join(dir, name);
+				if (fs.existsSync(file)) {
+					if (fs.statSync(file).isDirectory()) {
+						f = f.concat(scan(file));
+					} else if (aidlRegExp.test(name)) {
+						f.push(file);
+					}
+				}
+			});
+			return f;
+	}(this.javaSrcDir));
+
+	if (!aidlFiles.length) {
+		this.logger.info(__('No aidl files to compile'));
+		return next();
+	}
+
+	appc.async.series(this, aidlFiles.map(function (file) {
+		return function (callback) {
+			this.logger.info(__('Compiling aidl file: %s', file));
+
+			var aidlHook = this.cli.createHook('build.android.aidl', this, function (exe, args, opts, done) {
+					this.logger.info('Running aidl: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+					appc.subprocess.run(exe, args, opts, done);
+				});
+
+			aidlHook(
+				this.androidInfo.sdk.executables.aidl,
+				['-p' + this.androidTargetSDK.aidl, '-I' + this.javaSrcDir, file],
+				{},
+				callback
+			);
+		};
+	}), next);
 };
 
 AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {

@@ -191,7 +191,6 @@ exports.encode = function(opts) {
 
 exports.decode = function(buf) {
   var typeflag = buf[156] === 0 ? 0 : buf[156] - ZERO_OFFSET
-  var type = toType(typeflag)
 
   var name = decodeStr(buf, 0, 100)
   var mode = decodeOct(buf, 100)
@@ -206,6 +205,9 @@ exports.decode = function(buf) {
   var devminor = decodeOct(buf, 337)
 
   if (buf[345]) name = decodeStr(buf, 345, 155)+'/'+name
+
+  // to support old tar versions that use trailing / to indicate dirs
+  if (typeflag === 0 && name && name[name.length - 1] === '/') typeflag = 5
 
   var c = cksum(buf)
 

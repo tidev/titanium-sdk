@@ -230,7 +230,7 @@ methods:
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
-        constants: Ti.Geolocation.AUTHORIZATION_*
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
         type: Number 
     returns:
         type: Boolean 
@@ -238,16 +238,15 @@ methods:
     since: "5.1.0"
   
   - name: requestLocationPermissions
-    summary: Requests for location access
+    summary: Requests for location access.
     description: |
-        This method allows the app to request for location access.
-        On Android, the request view will show if the permission is not accepted by user, and user did
-        not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
-        constants: Ti.Geolocation.AUTHORIZATION_*
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
         type: Number
       - name: callback
         summary: Function to call upon user decision to grant location access.

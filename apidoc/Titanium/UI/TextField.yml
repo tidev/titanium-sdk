@@ -75,7 +75,17 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use keyboardAppearance instead.
+
+  - name: keyeyboardAppearance
+    summary: Determines the appearance of the keyboard displayed when this field is focused.
+    type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: attributedString
     summary: TextField attributed string. 
     description: |
@@ -291,7 +301,19 @@ properties:
         Another way to change the hint text color is to use this property and specify a color.
     type: String
     default: Default Android theme's hint text color.
-    
+
+  - name: inputType
+    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    description: |
+        When asking for a specific kind of user input, such as a phone number or email 
+        address, you should always specify the input type that is accepted. This overrides
+        any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
+    type: Array<Number>
+    constants: [Titanium.UI.INPUT_TYPE_*]
+    platforms: [android]
+    default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
+    since: 5.2.0
+
   - name: keyboardToolbar
     summary: |
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
@@ -341,8 +363,8 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
-    constants: Titanium.UI.KEYBOARD_*
-    default: <Titanium.UI.KEYBOARD_DEFAULT>
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
     
   - name: leftButton
     summary: Left button view to display in the `TextField`.

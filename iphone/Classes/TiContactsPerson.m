@@ -55,7 +55,7 @@ static NSDictionary* iOS9propertyKeys;
 	if (self = [super _initWithPageContext:context]) {
 		person = [person_ retain];
 		module = module_;
-		iOS9contactProperties = [self getiOS9ContactProperties: person_];
+		iOS9contactProperties = [[self getiOS9ContactProperties: person_] retain];
 	}
 	return self;
 }
@@ -72,38 +72,38 @@ static NSDictionary* iOS9propertyKeys;
 }
 
 #if IS_XCODE_7
+-(CNMutableContact*)nativePerson
+{
+    return person;
+}
+#endif
+
+#if IS_XCODE_7
 -(NSDictionary*)getiOS9ContactProperties: (CNMutableContact*) contact
 {
 	if (contact == nil) {
 		return nil;
 	}
-	return [[NSDictionary alloc] initWithObjectsAndKeys:contact.givenName, @"firstName",
-		contact.familyName, @"lastName",
-		contact.middleName, @"middleName",
-		contact.namePrefix, @"prefix",
-		contact.nameSuffix, @"suffix",
-		contact.nickname, @"nickname",
-		contact.phoneticGivenName, @"firstPhonetic",
-		contact.phoneticFamilyName, @"lastPhonetic",
-		contact.phoneticMiddleName, @"middlePhonetic",
-		contact.organizationName, @"organization",
-		contact.jobTitle, @"jobTitle",
-		contact.departmentName, @"department",
-		contact.emailAddresses, @"email",
-		contact.note, @"note",
-//		contact.birthday, @"birthday", birthday property has some problems in iOS9 Beta, have to be exclusively handled
-		[NSNumber numberWithInteger:contact.contactType], @"kind",
-		contact.postalAddresses, @"address",
-		contact.phoneNumbers, @"phone",
-		contact.socialProfiles, @"socialProfile",
-		contact.instantMessageAddresses, @"instantMessage",
-		contact.dates, @"date",
-		contact.urlAddresses, @"url",
-		contact.contactRelations, @"relatedNames",
-		contact.nonGregorianBirthday, @"alternateBirthday",
-		nil];
+	
+	// iOS9 contacts framework by default returns partial contact.
+	// For ex: Email is returned nil when phone is selected and vice-versa.
+	// So check and add.
+	NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+	NSDictionary* supportedProperties = [TiContactsPerson iOS9propertyKeys];
+	for (NSString* property in supportedProperties) {
+		if ([contact isKeyAvailable:property]) {
+			id value = [contact valueForKey:property];
+			NSString* key = [supportedProperties objectForKey:property];
+			[dict setValue:value forKey:key];
+		}
+	}
+	
+	NSDictionary *result = [NSDictionary dictionaryWithDictionary:dict];
+	RELEASE_TO_NIL(dict);
+	return result;
 }
 #endif
+
 #pragma mark Property dictionaries
 
 // -kABPerson non-multi properties
@@ -359,8 +359,22 @@ static NSDictionary* iOS9propertyKeys;
 	for (CNLabeledValue *genericProperty in property) {
 		NSString *key = [[TiContactsPerson iOS9multiValueLabels] valueForKey:genericProperty.label];
 		if (key == nil) {
-			DebugLog(@"Unable to find key for property");
-			return nil;
+			if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPhoneNumber class]]) {
+				//For case where phone number is added via phone dialog. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"phone";
+			}
+			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[NSString class]]) {
+				//For case where email is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"email";
+			}
+			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPostalAddress class]]) {
+				//For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				key = @"address";
+			}
+			else {
+				//must be a custom label
+				key = [NSString stringWithString:genericProperty.label];
+			}
 		}
 		NSMutableArray *labels = nil;
 		if ([multiValueDict objectForKey:key] == nil) {
@@ -597,7 +611,7 @@ static NSDictionary* iOS9propertyKeys;
 #if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		//birthday property managed seperately
-		if ([key isEqualToString:@"birthday"]) {
+		if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
 			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
 			return [TiUtils UTCDateForDate:date];
 		}
@@ -790,10 +804,12 @@ static NSDictionary* iOS9propertyKeys;
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
 			for (NSString *key in keys) {
-				NSString *object = [value objectForKey:key];
-				CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
-					CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
-					[newObjects addObject:labeledValue];
+				NSArray *objects = [value objectForKey:key];
+				for (NSString *object in objects) {
+					CNContactRelation *relation = [CNContactRelation contactRelationWithName:object];
+						CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:relation];
+						[newObjects addObject:labeledValue];
+				}
 			}
 			[person setContactRelations:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
@@ -909,27 +925,27 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteContact:person];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
+	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }

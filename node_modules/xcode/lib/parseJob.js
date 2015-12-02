@@ -6,11 +6,10 @@ var fs = require('fs'),
     fileContents, obj;
 
 try {
-    fileContents = fs.readFileSync(path, 'utf-8'),
-    obj = parser.parse(fileContents)
-    process.send(obj)
-    process.exit()
+    fileContents = fs.readFileSync(path, 'utf-8');
+    obj = parser.parse(fileContents);
+    process.send(obj);
 } catch (e) {
-    process.send(e)
-    process.exit(1)
+    process.send(e);
+    process.exitCode = 1;
 }

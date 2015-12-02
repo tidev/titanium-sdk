@@ -400,7 +400,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            The maximum possible value the force property can be.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for IOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time in seconds, of when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchend
     summary: Fired when a touch event is completed.
     description: |
@@ -414,7 +439,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            The maximum possible value the force property can be.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for IOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time in seconds, of when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -427,7 +477,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            The maximum possible value the force property can be.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for IOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time in seconds, of when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -438,7 +513,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            The maximum possible value the force property can be.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for IOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time in seconds, of when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     since: { android: "3.0.0" }
@@ -551,8 +651,11 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy.
-        type: Titanium.UI.View
+        summary: |
+            View to add to this view's hierarchy.
+
+            On the iOS and Windows platforms, you may pass an array of views.
+        type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
     summary: Animates this view.
@@ -602,9 +705,9 @@ methods:
     parameters:
       - name: options
         summary: |
-            Starting with release 5.1.0, This is an optional dictionary on Android to enable circular reveal animation. 
-            See <AnimationOption> for more info.
-        type: Dictionary
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
@@ -654,9 +757,9 @@ methods:
     parameters:
       - name: options
         summary: |
-            Starting with release 5.1.0, This is an optional dictionary on Android that enables circular reveal animation. 
-            See <AnimationOption> for more info.
-        type: Dictionary
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
     
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -710,9 +813,6 @@ methods:
             
             When set to true, image is scale factor is honored. When set to false, the image in the 
             blob has the same dimensions for retina and non-retina devices.
-
-            Starting with version 3.5.0 of the Titanium SDK, this value is no longer checked and always 
-            behaves as true.
         type: Boolean
         default: false
         optional: true
@@ -1310,9 +1410,10 @@ properties:
         of <Titanium.UI.iOS.PreviewContext> here.
 
         Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
-        It is ignored on older devices and can manually be checked using <Ti.UI.iOS.forceTouchSupported>.
+        It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
     platforms: [iphone]
     since: "5.1.0"
+    type: Titanium.UI.View
     osver: {ios: {min: "9.0"}}
 
   - name: right
@@ -1422,6 +1523,14 @@ properties:
     type: Number
     platforms: [android]
     since: 5.0.0
+    osver: {android: {min: 5.0}}
+    
+  - name: transitionName
+    summary: A name to identify this view in activity transition. 
+    description: Name should be unique in the View hierarchy.
+    type: String
+    platforms: [android]
+    since: "5.0.2"
     osver: {android: {min: 5.0}}
     
   - name: viewShadowRadius
@@ -1629,8 +1738,11 @@ properties:
 ---
 name: AnimationOption
 summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+since: 5.1.0
+platforms: [android]
 properties:
   - name: animated
-    summary: whether to enable circular reveal animation on Android.
+    summary: Determines whether to enable a circular reveal animation.
     type: Boolean
     default: false
+    osver: {android: {min: 5.0}}

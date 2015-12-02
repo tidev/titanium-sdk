@@ -597,6 +597,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
+    BOOL honorScale = YES;
     
     NSObject *obj = nil;
     if( [args count] > 0) {
@@ -604,6 +605,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         
         if (obj == [NSNull null]) {
             obj = nil;
+        }
+        
+        if( [args count] > 1) {
+            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:YES];
         }
     }
     callback = (KrollCallback*)obj;
@@ -643,7 +648,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		if (!viewIsAttached) {
 			[self layoutChildren:NO];
 		}
-		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], 0);
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
@@ -1284,6 +1289,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     }
     
     ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
+    
+    if([context preview] == nil) {
+        NSLog(@"[ERROR] The 'preview' property of your preview context is not existing or invalid. Please provide a valid view to use peek and pop.");
+        RELEASE_TO_NIL(context);
+        return;
+    }
     
     [context setSourceView:self];
     [context connectToDelegate];

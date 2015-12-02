@@ -54,6 +54,8 @@ var tail = new Tail(filename, separator, options);
 
 `options.start` - optional start byte to start reading from 
 
+`options.blockSize` - maximum reading block size (default is 1 MB)
+
 ## Credits
 
 Code is heavily modified from the node-tail module (https://github.com/forward/node-tail)

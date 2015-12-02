@@ -391,6 +391,7 @@ static NSArray* scrollViewKeySequence;
                 NUMBOOL([scrollView isZooming]),@"zooming",
                 NUMBOOL([scrollView isDecelerating]),@"decelerating",
                 NUMBOOL([scrollView isDragging]),@"dragging",
+                [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
                 nil]];
     }
 }

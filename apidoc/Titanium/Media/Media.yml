@@ -190,22 +190,21 @@ methods:
         iphone: 1.8.1
         ipad: 1.8.1
   - name: hasCameraPermissions
-    summary: Returns `true` if the app has camera access
+    summary: Returns `true` if the app has camera access.
     returns:
         type: Boolean 
     platforms: [iphone, ipad, android]
     since: "5.1.0"    
   - name: requestCameraPermissions
-    summary: Requests for camera access
+    summary: Requests for camera access.
     description: |
-       This method allows the app to request for camera access, before or without the user granting
-       it in <Titanium.Media.showCamera>.
-       On iOS, The request view will only show if user has not yet made 
-       a decision. If he has, the callback will return his earlier decision, and if any changes has
-       to be made, the user has to change it in the device settings.
-       On Android, the request view will show if the permission is not accepted by user, and user did
-       not check the box "Never ask again" when denying the request. If user checks the box "Never ask again",
-       the user has to manually enable the permission in device settings.
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+
+        On iOS, the request view will only show if user has not yet made a decision.
+        If the user has, the callback will return the earlier decision. To change the permission
+        the user needs to change it in device settings.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -754,6 +753,16 @@ properties:
     platforms: [iphone, ipad]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
+    deprecated:
+        since: "5.2.0"
+        notes: Use [CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
+  - name: CAMERA_AUTHORIZATION_UNKNOWN
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
@@ -763,6 +772,13 @@ properties:
     summary: Media type constant for photo media.
     type: String
     permission: read-only
+  - name: MEDIA_TYPE_LIVEPHOTO
+    summary: Media type constant for live photo media.
+    type: String
+    permission: read-only
+    since: "5.2.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.1"}}
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
     type: String
@@ -1481,7 +1497,10 @@ properties:
     platforms: [iphone, ipad]
     default: false
   - name: mediaTypes 
-    summary: Array of media type constants to allow.
+    summary: | 
+        Array of media type constants to allow. If you want to allow live photos with
+        Titanium.Media.MEDIA_TYPE_LIVEPHOTO on iOS 9.1 and later, you also need to specify
+        at least Titanium.Media.MEDIA_TYPE_PHOTO as a fallback.
     constants: Titanium.Media.MEDIA_TYPE_*
     type: Array<String>
     default: Both photo and video allowed.
@@ -1557,7 +1576,7 @@ summary: |
     [openPhotoGallery](Titanium.Media.openPhotoGallery).
 properties:
   - name: success 
-    summary: Function to call when the photogallery is closed after a successful selection.
+    summary: Function to call when the photo gallery is closed after a successful selection.
     type: Callback<CameraMediaItemType>
   - name: error 
     summary: Function to call upon receiving an error.
@@ -1606,11 +1625,15 @@ properties:
     summary: The media object, as a [Blob](Titanium.Blob).
     type: Titanium.Blob
   - name: mediaType
-    summary: The type of media, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
+    summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
     type: String
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
     type: CropRectType
+  - name: previewRect
+    summary: Simple object defining the preview image size.
+    type: PreviewRectType
+    platforms: [android]
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
     description: Returns `true`.
@@ -1626,6 +1649,13 @@ properties:
     description: Error code will be 0.
     type: Number
     since: "3.1.0"
+  - name: livePhoto
+    description: |
+        The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
+        `undefined` if no live photo is selected.
+    type: Titanium.UI.iOS.LivePhoto
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
 
 # Arguably we might need a global Rect pseudotype. For now, define locally
 ---
@@ -1643,6 +1673,16 @@ properties:
     type: Number
   - name: height
     summary: Height of the crop rectangle, in pixels.
+    type: Number
+---
+name: PreviewRectType
+summary: Simple object for describing the preview image rectangle.
+properties:
+  - name: width
+    summary: Width preview image, in pixels.
+    type: Number
+  - name: height
+    summary: Height preview image, in pixels.
     type: Number
 ---
 name: PreviewImageOptions
