@@ -244,10 +244,10 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                                  completion:^(BOOL granted, NSError *error){
                                      NSDictionary* propertiesDict;
                                      if (error == nil) {
-                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
+                                         NSString* errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
+                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
                                      } else {
-                                         propertiesDict = [TiUtils dictionaryWithCode:[error code]
-                                                                              message:[TiUtils messageFromError:error]];
+                                         propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                      }
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                      [[callback context] enqueue:invocationEvent];
