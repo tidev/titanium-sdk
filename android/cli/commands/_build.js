@@ -999,7 +999,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// check that the proguard config exists
-	var proguardConfigFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'proguard.cfg');
+	var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
 	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
 		logger.error(__('Missing ProGuard configuration file'));
 		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
@@ -1024,7 +1024,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	try {
-		var customAndroidManifestFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'AndroidManifest.xml');
+		var customAndroidManifestFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
 		this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
 	} catch (ex) {
 		logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
@@ -2498,7 +2498,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	this.modules.forEach(function (module) {
 		platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
 	});
-	platformPaths.push(path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'android'));
+	platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
 	platformPaths.forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			tasks.push(function (cb) {
