@@ -14,7 +14,8 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "node support/ti_mocha_script/test.js",
+    "posttest": "grunt"
   },
   "dependencies": {
     "adm-zip": "0.4.7",

@@ -16,7 +16,8 @@ var path = require('path'),
 	androidTestResults,
 	iosJsonResults,
 	androidJsonResults,
-	maxFailedTestCount = 2;
+	maxFailedTestCount = 0,
+	runningOnTravis = false;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
@@ -148,19 +149,21 @@ function runAndroidBuild(next, count) {
 		inResults = false,
 		done = false;
 
-	//unlock android emulator before ti build
-	androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
-	androidUnlock.stdout.on('data', function(data) {
-		console.log(data.toString());
-	});
-	androidUnlock.stderr.on('data', function(data) {
-		console.log('Android emulator error');
-		console.log(data.toString());
-	});
-	androidUnlock.on('close', function(code) {
-		console.log('Android emulator code');
-		console.log(code);
-	});	
+	//unlock android emulator before ti build (needed for travis)
+	if (runningOnTravis == true) {
+		androidUnlock = spawn('adb', ['shell','input','keyevent','82', '&']);
+		androidUnlock.stdout.on('data', function(data) {
+			console.log(data.toString());
+		});
+		androidUnlock.stderr.on('data', function(data) {
+			console.log('Android emulator error');
+			console.log(data.toString());
+		});
+		androidUnlock.on('close', function(code) {
+			console.log('Android emulator code');
+			console.log(code);
+		});
+	}
 	prc = spawn('titanium', ['build', '--project-dir', path.join(__dirname, 'testApp'), '--platform', 'android', '--target', 'emulator', '--no-prompt', '--no-colors','--log-level', 'info']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
@@ -260,6 +263,13 @@ function parseAndroidTestResults(testResults, next) {
  * the CLi, which takes them, and compared to the minimum health threshold. If it falls below the threshold, process exits with a fail.
  */
 function test(callback) {
+
+	process.argv.forEach(function(val, index, array) {
+		if (val == 'run-on-travis') {
+			runningOnTravis = true;
+			console.log('Running Automated Tests on Travis');
+		};
+	});
 	async.series([
 		function (next) {
 			getSDKInstallDir(next);
@@ -363,7 +373,7 @@ if (module.id === ".") {
 			console.log('Total: passed %d / skipped %d / failed %d',iosPassedTestsCount + androidPassedTestsCount,iosSkippedTestsCount + androidSkippedTestsCount, iosFailedTestsCount + androidFailedTestsCount);
 			//need something here to put the failed tests and the health somewhere visible outside of travis
 			if(androidFailedTestsCount + iosFailedTestsCount > maxFailedTestCount) {
-				console.log('\nToo many unit tests failed. Only maximum of %d tolerated, failing travis build.', maxFailedTestCount);
+				console.log('\n%d unit tests failed. Failing travis build.', androidFailedTestsCount + iosFailedTestsCount);
 				process.exit(1);
 			}
 			process.exit(0);

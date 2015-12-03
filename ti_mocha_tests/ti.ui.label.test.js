@@ -62,42 +62,6 @@ describe("Titanium.UI.Label", function () {
         finish();
     });
 
-    // Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
-    // Default: false
-    if (Ti.Platform.osname == 'android') {    
-        it.skip("ellipsize", function (finish) {
-            var label = Ti.UI.createLabel({
-                text: "this is some text"
-            });
-            should(label.ellipsize).be.a.Boolean;
-            should(label.getEllipsize).be.a.Function;
-            should(label.ellipsize).eql(false);
-            should(label.getEllipsize()).eql(false);
-            label.ellipsize = true;
-            should(label.getEllipsize()).eql(true);
-            should(label.ellipsize).eql(true);
-            finish();
-        });
-    }
-
-    // Enable or disable word wrapping in the label.
-    // Defaults: true
-    if (Ti.Platform.osname == 'android') {
-        it("wordWrap", function (finish) {
-            var label = Ti.UI.createLabel({
-                text: "this is some text"
-            });
-            should(label.wordWrap).be.a.Boolean;
-            should(label.getWordWrap).be.a.Function;
-            should(label.wordWrap).eql(true);
-            should(label.getWordWrap()).eql(true);
-            label.wordWrap = false;
-            should(label.getWordWrap()).eql(false);
-            should(label.wordWrap).eql(false);
-            finish();
-        });
-    }
-
     it.skip("width", function (finish) {
         this.timeout(1000);
         var label = Ti.UI.createLabel({

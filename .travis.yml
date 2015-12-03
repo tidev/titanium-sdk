@@ -52,13 +52,11 @@ script:
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
   - npm install
   - df -h
-  - npm test
   - ls dist
   - cd dist
   - ti sdk install *osx.zip
-  - cd ../support/ti_mocha_script
-  - npm install .
-  - node test.js
+  - cd ..
+  - npm test -- run-on-travis
 
 after_success:
   - #upload test results somewhere
