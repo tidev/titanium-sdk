@@ -24,6 +24,8 @@
     NSRange lastSelectedRange;
 }
 
+-(UIView<UITextInputTraits>*)textWidgetView;
+
 @end
 
 #endif

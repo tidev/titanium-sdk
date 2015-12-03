@@ -161,7 +161,6 @@ void TiBindingEventClearError(TiBindingEvent event)
 	event->reportError = false;
 }
 
-
 void TiBindingEventFire(TiBindingEvent event)
 {
 	pthread_once(&jsBindingRunOnce,TiBindingInitialize);
@@ -283,9 +282,6 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
                 }
 #ifndef TI_USE_KROLL_THREAD
             }, [NSThread isMainThread]);
-            if (![NSThread isMainThread]) {
-                NSLog(@"Break here");
-            }
 #endif
 			// Note cancel bubble
 			cancelBubbleValue = TiObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
