@@ -5069,6 +5069,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				resourcesToCopy[file] = imageAssets[file];
+				resourcesToCopy[file].isImage = true;
 			}, this);
 
 			// finally create all the Content.json files
@@ -5097,7 +5098,16 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					hash = null,
 					fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
 
-				if (!fileChanged || !this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
+				if (!fileChanged) {
+					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+				}
+
+				if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
+					if (this.useAppThinning && info.isImage && !this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+						this.forceRebuild = true;
+					}
+				} else {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 				}
 
