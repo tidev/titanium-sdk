@@ -4787,6 +4787,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						this.forceRebuild = true;
 					}
 
+					if (!this.buildOnly && (this.target === 'device' || this.target === 'simulator')) {
+						this.logger.warn(__('If this app has been previously installed on this %s, you may need restart it to see the latest launch logo', this.target));
+						this.logger.warn(__('iOS renders and caches the launch screen to a PNG image that seems to only be invalidated by restarting iOS'));
+					}
+
 					if (!launchLogo) {
 						// just use the DefaultIcon.png to generate the missing LaunchLogos
 						Array.prototype.push.apply(missingIcons, missingLaunchLogos);
