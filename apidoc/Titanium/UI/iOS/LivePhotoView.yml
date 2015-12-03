@@ -71,45 +71,45 @@ properties:
 examples:
   - title: Basic LivePhotoView
     example: |
-        // The following example shows how to create a simple Ti.UI.iOS.LivePhotoView:
+        The following example shows how to create a simple Ti.UI.iOS.LivePhotoView:
         
-        var window = Ti.UI.createWindow({
-            backgroundColor: "white"
-        });
-
-        var btn1 = Ti.UI.createButton({
-            title: "Select live photo!",
-            top: 30
-        });
-
-        btn1.addEventListener("click", openGallery);
-        window.add(btn1);
-        window.open();
-
-        function openGallery() {
-            Ti.Media.openPhotoGallery({
-                mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO, Ti.Media.MEDIA_TYPE_LIVEPHOTO],
-                success: function(e) {
-                    var livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
-
-                    if (livePhoto) {
-                        var livePhotoView = Ti.UI.iOS.createLivePhotoView({
-                            livePhoto: livePhoto,
-                            muted: true,
-                            width: 300
-                        });
-
-                        livePhotoView.addEventListener("start", function(e) {
-                            Ti.API.warn("-- Start playback --");
-                            Ti.API.warn(e);
-                        });
-
-                        livePhotoView.addEventListener("stop", function(e) {
-                            Ti.API.warn("-- Stop playback --");
-                            Ti.API.warn(e);
-                        });
-                     window.add(livePhotoView);
-                    }
-                }
+            var window = Ti.UI.createWindow({
+                backgroundColor: "white"
             });
-        }
+
+            var btn1 = Ti.UI.createButton({
+                title: "Select live photo!",
+                top: 30
+            });
+
+            btn1.addEventListener("click", openGallery);
+            window.add(btn1);
+            window.open();
+
+            function openGallery() {
+                Ti.Media.openPhotoGallery({
+                    mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO, Ti.Media.MEDIA_TYPE_LIVEPHOTO],
+                    success: function(e) {
+                        var livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
+
+                        if (livePhoto) {
+                            var livePhotoView = Ti.UI.iOS.createLivePhotoView({
+                                livePhoto: livePhoto,
+                                muted: true,
+                                width: 300
+                            });
+
+                            livePhotoView.addEventListener("start", function(e) {
+                                Ti.API.warn("-- Start playback --");
+                                Ti.API.warn(e);
+                            });
+
+                            livePhotoView.addEventListener("stop", function(e) {
+                                Ti.API.warn("-- Stop playback --");
+                                Ti.API.warn(e);
+                            });
+                         window.add(livePhotoView);
+                        }
+                    }
+                });
+            }
