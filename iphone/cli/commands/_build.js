@@ -2097,10 +2097,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.whitelistAppceleratorDotCom = false;
 	}
 
-	this.useAppThinning = false;
-	if (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('use-app-thinning') && this.tiapp.properties['use-app-thinning'].value === true) {
-		this.useAppThinning = true;
-	}
+	this.useAppThinning = this.tiapp.ios && (this.tiapp.ios['use-app-thinning'] === true);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -4183,18 +4180,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}
 				},
 				lookup = {
-					'-Small':       { height: 29, width: 29, scale: 1, idioms: [ 'ipad' ] },
-					'-Small@2x':    { height: 29, width: 29, scale: 2, idioms: [ 'iphone', 'ipad' ] },
-					'-Small@3x':    { height: 29, width: 29, scale: 3, idioms: [ 'iphone' ] },
-					'-Small-40':    { height: 40, width: 40, scale: 1, idioms: [ 'ipad' ] },
-					'-Small-40@2x': { height: 40, width: 40, scale: 2, idioms: [ 'iphone', 'ipad' ] },
-					'-Small-40@3x': { height: 40, width: 40, scale: 3, idioms: [ 'iphone' ] },
-					'-60@2x':       { height: 60, width: 60, scale: 2, idioms: [ 'iphone' ], required: true },
-					'-60@3x':       { height: 60, width: 60, scale: 3, idioms: [ 'iphone' ], required: true },
-					'-76':          { height: 76, width: 76, scale: 1, idioms: [ 'ipad' ], required: true },
-					'-76@2x':       { height: 76, width: 76, scale: 2, idioms: [ 'ipad' ], required: true }
+					'-Small':       { height: 29,   width: 29,   scale: 1, idioms: [ 'ipad' ] },
+					'-Small@2x':    { height: 29,   width: 29,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small@3x':    { height: 29,   width: 29,   scale: 3, idioms: [ 'iphone' ] },
+					'-Small-40':    { height: 40,   width: 40,   scale: 1, idioms: [ 'ipad' ] },
+					'-Small-40@2x': { height: 40,   width: 40,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
+					'-Small-40@3x': { height: 40,   width: 40,   scale: 3, idioms: [ 'iphone' ] },
+					'-60@2x':       { height: 60,   width: 60,   scale: 2, idioms: [ 'iphone' ], required: true },
+					'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
+					'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
+					'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
+					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ] }
 				},
 				deviceFamily = this.deviceFamily,
+				flattenIcons = [],
+				flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png'),
 				missingIcons = [],
 				defaultIcon,
 				defaultIconChanged = false,
@@ -4209,16 +4209,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			if (defaultIcon) {
 				var defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
-					defaultIconStat = fs.statSync(defaultIcon),
-					defaultIconMtime = JSON.parse(JSON.stringify(defaultIconStat.mtime)),
 					defaultIconContents = fs.readFileSync(defaultIcon),
+					defaultIconInfo = appc.image.pngInfo(defaultIconContents),
+					defaultIconExists = !defaultIconInfo.alpha || fs.existsSync(flattenedDefaultIconDest),
+					defaultIconStat = defaultIconExists && fs.statSync(defaultIconInfo.alpha ? flattenedDefaultIconDest : defaultIcon),
+					defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
 					defaultIconHash = this.hash(defaultIconContents);
 
-				if (!defaultIconPrev || defaultIconPrev.size !== defaultIconStat.size || defaultIconPrev.mtime !== defaultIconMtime || defaultIconPrev.hash !== defaultIconHash) {
+				if (!defaultIconExists || !defaultIconPrev || defaultIconPrev.size !== defaultIconStat.size || defaultIconPrev.mtime !== defaultIconMtime || defaultIconPrev.hash !== defaultIconHash) {
 					defaultIconChanged = true;
 				}
 
-				defaultIconHasAlpha = appc.image.pngInfo(defaultIconContents).alpha;
+				defaultIconHasAlpha = defaultIconInfo.alpha;
 
 				this.currentBuildManifest.files['DefaultIcon.png'] = {
 					hash: defaultIconHash,
@@ -4260,26 +4262,31 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					contents = fs.readFileSync(info.src),
 					pngInfo = appc.image.pngInfo(contents),
 					w = meta.width * meta.scale,
-					h = meta.height * meta.scale;
+					h = meta.height * meta.scale,
+					flatten = false;
 
 				// check that the app icon is square
 				if (pngInfo.width !== pngInfo.height) {
-					this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
+					this.logger.warn(__('Skipping app icon %s because dimensions (%sx%s) are not equal', info.src.replace(this.projectDir + '/', ''), pngInfo.width, pngInfo.height));
 					return;
 				}
 
 				// validate the app icon meets the requirements
 				if (pngInfo.width !== w) {
-					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', '').cyan, w, h, pngInfo.width, pngInfo.height));
+					this.logger.warn(__('Expected app icon %s to be %sx%s, but was %sx%s, skipping', info.src.replace(this.projectDir + '/', ''), w, h, pngInfo.width, pngInfo.height));
 					return;
 				}
 
 				if (pngInfo.alpha) {
-					this.logger.warn(__('Skipping %s because app icons must not have an alpha channel', info.src.replace(this.projectDir + '/', '').cyan));
-					return;
-				}
+					if (defaultIcon && !defaultIconHasAlpha) {
+						this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
+						return;
+					}
 
-				this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
+					this.logger.warn(__('%s contains an alpha channel and will be flattened against a white background', info.src.replace(this.projectDir + '/', '')));
+					flatten = true;
+					flattenIcons.push(info);
+				}
 
 				// inject images into the app icon set
 				meta.idioms.forEach(function (idiom) {
@@ -4294,9 +4301,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				delete lookup[info.tag];
 
 				info.dest = path.join(appIconSetDir, filename);
-				info.contents = contents;
 
-				resourcesToCopy[filename] = info;
+				if (!flatten) {
+					this.logger.debug(__('Found valid app icon %s (%sx%s)', info.src.replace(this.projectDir + '/', '').cyan, pngInfo.width, pngInfo.height));
+					info.contents = contents;
+					resourcesToCopy[filename] = info;
+				}
 			}, this);
 
 			if (this.target === 'dist-adhoc') {
@@ -4322,12 +4332,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							pngInfo = appc.image.pngInfo(contents);
 
 						if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
-							this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename.cyan, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
+							this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
 							throw new Error();
 						}
 
 						if (pngInfo.alpha) {
-							this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename.cyan));
+							this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename));
 							throw new Error();
 						}
 
@@ -4402,53 +4412,90 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
 
-			if (!missingIcons.length) {
-				return next();
+			if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+				this.defaultIcons = [ flattenedDefaultIconDest ];
+				flattenIcons.push({
+					name: path.basename(defaultIcon),
+					src: defaultIcon,
+					dest: flattenedDefaultIconDest
+				});
+				this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
+				this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
+				this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
 			}
 
-			this.logger.debug(__n(
-				'Missing %s app icon, generating missing icon',
-				'Missing %s app icons, generating missing icons',
-				missingIcons.length
-			));
+			async.eachLimit(flattenIcons, 5, function (icon, next) {
+				this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
+				var _t = this;
+				fs.createReadStream(icon.src)
+					.pipe(new PNG({
+						colorType: 2,
+						bgColor: {
+							red: 255,
+							green: 255,
+							blue: 255
+						}
+					}))
+					.on('parsed', function() {
+						if (icon.dest === flattenedDefaultIconDest) {
+							// if the icon we just flattened is the DefaultIcon, then we need to
+							// update the currentBuildManifest which means we can't just pipe the
+							// the flattened icon to disk, we need to compute the hash and stat it
+							var buf = [];
+							this.pack()
+								.on('data', function (bytes) {
+									buf.push(new Buffer(bytes));
+								})
+								.on('end', function (err) {
+									if (err) {
+										return next(err);
+									}
 
-			var generate = function generate() {
-				if (defaultIcon && defaultIconChanged && !this.forceRebuild) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon));
+									var contents = Buffer.concat(buf);
+									fs.writeFileSync(icon.dest, contents);
+
+									var stat = fs.statSync(icon.dest);
+									_t.currentBuildManifest.files['DefaultIcon.png'] = {
+										hash: _t.hash(contents),
+										mtime: JSON.parse(JSON.stringify(stat.mtime)),
+										size: stat.size
+									};
+
+									next();
+								});
+							return;
+						}
+
+						this.pack()
+							.on('end', next)
+							.pipe(fs.createWriteStream(icon.dest));
+					});
+			}.bind(this), function (err) {
+				if (!missingIcons.length) {
+					return next();
+				}
+
+				if (!defaultIcon) {
+					// we're going to fail, but we let generateAppIcons() do the dirty work
+					this.generateAppIcons(missingIcons, next);
+					return;
+				}
+
+				if (!defaultIconChanged) {
+					// we have missing icons, but the default icon hasn't changed
+					// call generateAppIcons() and have it deal with determining if the icons need
+					// to be generated or if it needs to error out
+					this.generateAppIcons(missingIcons, next);
+					return;
+				}
+
+				if (!this.forceRebuild) {
+					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
 					this.forceRebuild = true;
 				}
 
 				this.generateAppIcons(missingIcons, next);
-			}.bind(this);
-
-			if (!defaultIcon || !defaultIconChanged || !defaultIconHasAlpha) {
-				return generate();
-			}
-
-			// strip alpha
-			this.logger.warn(__('The default icon "%s" contains an alpha channel which is not supported by iOS', defaultIcon));
-			this.logger.warn(__('The image will be flattened against a white background'));
-			this.logger.warn(__('You may create an image named "%s" that does not have an alpha channel in the root of your project', 'DefaultIcon-ios.png'));
-			this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
-
-			var flattenedImage = path.join(this.buildDir, 'DefaultIcon.png');
-			this.defaultIcons = [ flattenedImage ];
-
-			this.logger.debug(__('Stripping alpha channel: %s => %s', defaultIcon.cyan, flattenedImage.cyan));
-			fs.createReadStream(defaultIcon)
-				.pipe(new PNG({
-					colorType: 2,
-					bgColor: {
-						red: 255,
-						green: 255,
-						blue: 255
-					}
-				}))
-				.on('parsed', function() {
-					this.pack()
-						.on('end', generate)
-						.pipe(fs.createWriteStream(flattenedImage));
-				});
+			}.bind(this));
 		},
 
 		function createLaunchImageSet() {
@@ -4728,7 +4775,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								cb2();
 							})(r, from, to, cb);
 						} else {
-							if (!this.copyFileSync(from, to)) {
+							if (this.copyFileSync(from, to)) {
+								this.jsFilesChanged = true;
+							} else {
 								this.logger.trace(__('No change, skipping %s', to.cyan));
 							}
 							cb();

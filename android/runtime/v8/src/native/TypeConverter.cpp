@@ -473,7 +473,7 @@ jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray
 	}
     return TypeConverter::jsArrayToJavaFloatArray(env, jsArray);
 }
-  
+
 jfloatArray TypeConverter::jsArrayToJavaFloatArray(JNIEnv *env, v8::Handle<v8::Array> jsArray)
 {
 	int arrayLength = jsArray->Length();
@@ -482,14 +482,14 @@ jfloatArray TypeConverter::jsArrayToJavaFloatArray(JNIEnv *env, v8::Handle<v8::A
 		LOGE(TAG, "unable to create new jfloatArray");
 		return NULL;
 	}
-    
+
 	jfloat* floatBuffer = new jfloat[arrayLength];
 	for (int i = 0; i < arrayLength; i++) {
 		v8::Local<v8::Value> element = jsArray->Get(i);
 		floatBuffer[i] = TypeConverter::jsNumberToJavaFloat(element->ToNumber());
 	}
 	env->SetFloatArrayRegion(javaFloatArray, 0, arrayLength, floatBuffer);
-    
+
 	return javaFloatArray;
 }
 
@@ -620,12 +620,23 @@ jobject TypeConverter::jsValueToJavaObject(JNIEnv *env, v8::Local<v8::Value> jsV
 
 	} else if (jsValue->IsObject()) {
 		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
-
 		if (JavaObject::isJavaObject(jsObject)) {
 			*isNew = JavaObject::useGlobalRefs ? false : true;
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 			return javaObject->getJavaObject();
 		} else {
+			// Unwrap hyperloop JS wrappers to get native java proxy
+			Handle<String> nativeString = String::New("$native");
+			if (jsObject->HasOwnProperty(nativeString)) {
+				v8::Local<v8::Value> nativeObject = jsObject->GetRealNamedProperty(nativeString);
+				jsObject = nativeObject->ToObject();
+				if (JavaObject::isJavaObject(jsObject)) {
+					*isNew = JavaObject::useGlobalRefs ? false : true;
+					JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
+					return javaObject->getJavaObject();
+				}
+			}
+
 			v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
 			int numKeys = objectKeys->Length();
 			*isNew = true;
@@ -748,7 +759,7 @@ jobject TypeConverter::jsValueToJavaError(JNIEnv *env, v8::Local<v8::Value> jsVa
 		*isNew = true;
 		return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
 			TypeConverter::jsValueToJavaString(env, jsValue), NULL);
-	} 
+	}
 
 	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
 		LOGW(TAG, "jsValueToJavaObject returning null.");
@@ -921,8 +932,8 @@ jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(JNIEnv *env, v8::Handl
 
 /****************************** private methods ******************************/
 
-// used mainly by the array conversion methods when converting java numeric types 
-// arrays to to the generic js number type 
+// used mainly by the array conversion methods when converting java numeric types
+// arrays to to the generic js number type
 v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -956,10 +967,10 @@ v8::Handle<v8::Array> TypeConverter::javaLongArrayToJsNumberArray(jlongArray jav
 }
 
 v8::Handle<v8::Array> TypeConverter::javaLongArrayToJsNumberArray(JNIEnv *env, jlongArray javaLongArray)
-{    
+{
 	int arrayLength = env->GetArrayLength(javaLongArray);
 	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
-    
+
 	jlong *arrayElements = env->GetLongArrayElements(javaLongArray, 0);
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set((uint32_t) i, v8::Number::New(arrayElements[i]));
@@ -980,7 +991,7 @@ v8::Handle<v8::Array> TypeConverter::javaFloatArrayToJsNumberArray(JNIEnv *env, 
 {
 	int arrayLength = env->GetArrayLength(javaFloatArray);
 	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
-    
+
 	jfloat *arrayElements = env->GetFloatArrayElements(javaFloatArray, 0);
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set((uint32_t) i, v8::Number::New(arrayElements[i]));
@@ -1010,4 +1021,3 @@ v8::Handle<v8::Array> TypeConverter::javaShortArrayToJsNumberArray(JNIEnv *env, 
 	env->ReleaseShortArrayElements(javaShortArray, arrayElements, JNI_ABORT);
 	return jsArray;
 }
-

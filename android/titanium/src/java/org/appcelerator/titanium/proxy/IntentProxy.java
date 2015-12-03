@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -189,6 +190,10 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Integer) value);
 		} else if (value instanceof Long) {
 			intent.putExtra(key, (Long) value);
+		} else if (value instanceof IntentProxy) {
+			intent.putExtra(key, (Intent) ((IntentProxy) value).getIntent());
+		} else if (value instanceof TiBlob) {
+			intent.putExtra(key, ((TiBlob) value).getImage());
 		} else if (value instanceof Object[]) {
 			try {
 				Object[] objVal = (Object[]) value;
@@ -222,9 +227,27 @@ public class IntentProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void putExtraUri(String key, String uri)
+	public void putExtraUri(String key, Object value)
 	{
-		intent.putExtra(key, Uri.parse(uri));
+	    if (value == null) {
+	        return;
+	    } 
+	    
+	    if (value instanceof String) {
+	        intent.putExtra(key, Uri.parse((String) value));
+	    } else if (value instanceof Object[]) {
+	        try {
+	            Object[] objVal = (Object[]) value;
+	            String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+	            ArrayList<Uri> imageUris = new ArrayList<Uri>();
+	            for(String s: stringArray) {
+	                imageUris.add(Uri.parse(s));
+	            }
+	            intent.putParcelableArrayListExtra(key, imageUris);
+	        } catch (Exception ex) {
+	            Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
+	        }
+	    }
 	}
 
 	@Kroll.method

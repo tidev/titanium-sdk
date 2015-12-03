@@ -21,6 +21,8 @@
                   
 -(void)dealloc
 {
+    RELEASE_TO_NIL(_title);
+    RELEASE_TO_NIL(_listViewEvent);
     RELEASE_TO_NIL(action);
     
     [super dealloc];
@@ -34,7 +36,7 @@
 -(UIPreviewAction*)action
 {
     if (action == nil) {
-        action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
+        action = [UIPreviewAction actionWithTitle:_title style:_style handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
             if ([self _hasListeners:@"click"]) {
                 [self fireEventWithAction:_action];
             }
@@ -47,14 +49,15 @@
 -(void)fireEventWithAction:(UIPreviewAction*)action
 {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
-        @"index" : NUMINT([self actionIndex]),
+        @"index" : NUMINTEGER([self actionIndex]),
         @"title" : [self title],
         @"style" : NUMINT([self style])
     }];
     
-    if ([self tableViewIndexPath] != nil) {
-        [event setValue:NUMINTEGER([self tableViewIndexPath].section) forKey:@"sectionIndex"];
-        [event setValue:NUMINTEGER([self tableViewIndexPath].row) forKey:@"itemIndex"];
+    if ([self listViewEvent] != nil) {
+        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"sectionIndex"]]) forKey:@"sectionIndex"];
+        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"itemIndex"]]) forKey:@"itemIndex"];
+        [event setValue:[[self listViewEvent] valueForKey:@"itemId"] forKey:@"itemId"];
     }
     
     [self fireEvent:@"click" withObject:event];

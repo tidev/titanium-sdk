@@ -130,7 +130,9 @@ describe('xcode', function () {
 			should(results.xcode).be.an.Object;
 			should(results.issues).be.an.Array;
 
-			checkXcode(results.selectedXcode);
+			if (results.selectedXcode !== null) {
+				checkXcode(results.selectedXcode);
+			}
 
 			Object.keys(results.xcode).forEach(function (ver) {
 				checkXcode(results.xcode[ver]);

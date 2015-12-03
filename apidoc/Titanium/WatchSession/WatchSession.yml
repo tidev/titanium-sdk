@@ -106,6 +106,7 @@ methods:
         transfers are queued. 
     parameters: 
       - name: params
+        type: Dictionary
         summary: |
             Pass an object with the following key-value pairs:
 

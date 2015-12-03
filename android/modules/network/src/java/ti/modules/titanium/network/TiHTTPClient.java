@@ -906,35 +906,42 @@ public class TiHTTPClient
 			}
 		}
 		if (sslSocketFactory == null) {
-			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
-				TrustManager[] trustManagerArray = null;
-				KeyManager[] keyManagerArray = null;
+		    if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+		        TrustManager[] trustManagerArray = null;
+		        KeyManager[] keyManagerArray = null;
 
-				if (trustManagers.size() > 0) {
-					trustManagerArray = new X509TrustManager[trustManagers.size()];
-					trustManagerArray = trustManagers.toArray(trustManagerArray);
-				}
+		        if (trustManagers.size() > 0) {
+		            trustManagerArray = new X509TrustManager[trustManagers.size()];
+		            trustManagerArray = trustManagers.toArray(trustManagerArray);
+		        }
 
-				if (keyManagers.size() > 0) {
-					keyManagerArray = new X509KeyManager[keyManagers.size()];
-					keyManagerArray = keyManagers.toArray(keyManagerArray);
-				}
+		        if (keyManagers.size() > 0) {
+		            keyManagerArray = new X509KeyManager[keyManagers.size()];
+		            keyManagerArray = keyManagers.toArray(keyManagerArray);
+		        }
 
-				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
-				} catch(Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
-			} else if (!validating) {
-				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-				try {
-					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
-				} catch(Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
-			}
+		        try {
+		            sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    } else if (!validating) {
+		        TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+		        try {
+		            sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    } else {
+		        try {
+		            sslSocketFactory = new TiSocketFactory(null, null, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    }
 		}
 		
 		if (sslSocketFactory != null) {
@@ -1259,15 +1266,18 @@ public class TiHTTPClient
 
 	    	printWriter.append("--" + boundary).append(LINE_FEED);
 	    	printWriter.append("Content-Disposition: form-data; name=\"" + name + "\"");
-	    	if(fileName != null){
-	    		printWriter.append("\"; filename=\"" + fileName + "\"");
+	    	if (fileName != null) {
+	    		printWriter.append("; filename=\"" + fileName + "\"");
 	    	}
 	    	printWriter.append(LINE_FEED);
-	    	printWriter.append("Content-Type: " + contentBody.getMimeType());
-	    	if(contentBody.getCharset() != null) {
-	    		printWriter.append("; charset="+contentBody.getCharset());
+	    	String mimeType = contentBody.getMimeType();
+	    	if (mimeType != null && !mimeType.isEmpty()) {
+	    	    printWriter.append("Content-Type: " + contentBody.getMimeType());
+	    	    if (contentBody.getCharset() != null) {
+	    	        printWriter.append("; charset=" + contentBody.getCharset());
+	    	    }
+	    	    printWriter.append(LINE_FEED);
 	    	}
-	    	printWriter.append(LINE_FEED);
 	    	printWriter.append("Content-Transfer-Encoding: "+ contentBody.getTransferEncoding()).append(LINE_FEED);
 	    	printWriter.append(LINE_FEED);
 	    	printWriter.flush();

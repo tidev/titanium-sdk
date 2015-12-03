@@ -331,7 +331,7 @@ properties:
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
+    constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
     platforms: [iphone, ipad, android]
     since: 2.1.3
@@ -538,6 +538,11 @@ properties:
       property.
       Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
       by Apple.
+      Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property 
+      is selected on certain device models.
+      The callback contains the selected property and a 'person' object of type <Titanium.Contacts.Person>.
+      Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to 
+      at least contain the selected property and fullName. 
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true

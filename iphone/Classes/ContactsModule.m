@@ -189,7 +189,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Calendar.requestAuthorization", @"5.1.0", @"Calendar.requestContactsPermissions");
+    DEPRECATED_REPLACED(@"Contacts.requestAuthorization()", @"5.1.0", @"Contacts.requestContactsPermissions()");
     [self requestContactsPermissions:args];
 }
 
@@ -1096,8 +1096,10 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		}
 
 		//unfortunately, iOS9 Beta doesn't valuate birthdays. Watch this in case of changes.
+		// Also contactProperty.identifier has an undocumented string "_systemCalendar" for gregorian calender.
 		if ([contactProperty.key isEqualToString:@"birthdays"]) {
-			if ([contactProperty.identifier isEqualToString:@"gregorian"]) {
+			if ([contactProperty.identifier isEqualToString:@"gregorian"] ||
+				 [contactProperty.identifier containsString:@"systemCalendar"]) {
 				property = @"birthday";
 				result = [personObject valueForUndefinedKey:property];				
 			}

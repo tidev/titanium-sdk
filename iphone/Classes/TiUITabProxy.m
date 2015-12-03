@@ -217,12 +217,21 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+		[self setIconInsets:[self valueForKey:@"iconInsets"]];
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
 		[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-
+        [[controller interactivePopGestureRecognizer] setDelegate:self];
 	}
 	return controller;
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (current != nil) {
+        return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
+    }
+    return YES;
 }
 
 -(TiProxy<TiTabGroup>*)tabGroup
@@ -478,6 +487,7 @@
 	
     UIViewController* rootController = [rootWindow hostingController];
 	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
+	id iconInsets = [self valueForKey:@"iconInsets"];
 	id icon = [self valueForKey:@"icon"];
 	
 	if ([icon isKindOfClass:[NSNumber class]])
@@ -547,6 +557,13 @@
     if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
     }
+    
+    if (iconInsets != nil) {
+        if(UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+            [ourItem setImageInsets:[TiUtils contentInsets:iconInsets]];
+        }
+    }
+    
     [ourItem setBadgeValue:badgeValue];
     [rootController setTabBarItem:ourItem];
 }
@@ -581,6 +598,14 @@
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 
 	[self updateTabBarItem];
+}
+
+-(void)setIconInsets:(id)args
+{
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        [self replaceValue:args forKey:@"iconInsets" notification:NO];
+        [self updateTabBarItem];
+    }
 }
 
 -(void)setIconIsMask:(id)value

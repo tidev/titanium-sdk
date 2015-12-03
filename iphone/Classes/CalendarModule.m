@@ -265,7 +265,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(void) requestEventsAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization", @"5.1.0", @"Calendar.requestCalendarPermissions");
+    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization()", @"5.1.0", @"Calendar.requestCalendarPermissions()");
     [self requestCalendarPermissions:args];
 }
 
@@ -292,7 +292,8 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 MAKE_SYSTEM_PROP(STATUS_NONE,EKEventStatusNone);
 MAKE_SYSTEM_PROP(STATUS_CONFIRMED,EKEventStatusConfirmed);
 MAKE_SYSTEM_PROP(STATUS_TENTATIVE,EKEventStatusTentative);
-MAKE_SYSTEM_PROP(STATUS_CANCELLED,EKEventStatusCanceled);
+MAKE_SYSTEM_PROP(STATUS_CANCELED,EKEventStatusCanceled);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATUS_CANCELLED, EKEventStatusCanceled, @"Calendar.STATUS_CANCELLED", @"5.2.0", @"Calendar.STATUS_CANCELED")
 
 MAKE_SYSTEM_PROP(AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
 MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);

@@ -177,6 +177,16 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: canInsert
+    summary: Specifies if the item can be inserted by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: canMove
     summary: Specifies if the item can be reordered within the list view by a user initiated action.
     description: |

@@ -22,11 +22,11 @@ import android.os.Message;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
- * 
+ *
  * The runtime instance itself is static and lives with the Android process.
  * KrollRuntime use activity reference counting to tear down the runtime state
  * when all of the application's Titanium activities have been destroyed.
- * 
+ *
  * Even after all of the activities have been destroyed, Android can (and usually does)
  * keep the application process running. When the application is re-entered from
  * this "torn down" state, we simply re-initialize again, this time from the first
@@ -143,6 +143,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private boolean runOnMainThread(Context context) {
 		if (context instanceof KrollApplication) {
 			KrollApplication ka = (KrollApplication) context;
+			ka.loadAppProperties();
 			return ka.runOnMainThread();
 		}
 		return KrollApplication.DEFAULT_RUN_ON_MAIN_THREAD;
@@ -187,7 +188,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 		return null;
 	}
-	
+
 	public boolean isRuntimeThread()
 	{
 		return Thread.currentThread().getId() == threadId;
@@ -262,7 +263,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * Evaluates a String of Javascript code, returning the result of the execution
 	 * when this method is called on the KrollRuntime thread. If this method is called
 	 * ony any other thread, then the code is executed asynchronous, and this method returns null.
-	 * 
+	 *
 	 * Currently, Kroll supports converting the following Javascript return types:
 	 * <ul>
 	 * <li>Primitives (String, Number, Boolean, etc)</li>
@@ -482,7 +483,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Sets the default exception handler for the runtime. There can only be one default exception handler set at a
 	 * time.
-	 * 
+	 *
 	 * @param handler The exception handler to set
 	 * @module.api
 	 */
@@ -496,7 +497,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Adds an exception handler to a list of handlers that will be called in addition to the default one. To replace the
 	 * default exception, use {@link #setPrimaryExceptionHandler(KrollExceptionHandler)}.
-	 * 
+	 *
 	 * @param handler The exception handler to set
 	 * @param key The key for the exception handler
 	 * @module.api
@@ -551,4 +552,3 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract void initRuntime();
 	public abstract void initObject(KrollProxySupport proxy);
 }
-

@@ -85,17 +85,7 @@ properties:
 
   - name: needsSave
     summary: |
-        Determines if iOS should fire the `useractivitywillsave` event for the application to update
-        the state or content of the user activity.
-    description: |
-        Set the property to `true` if the user activity needs to be updated before handing it off to
-        another device, then listen for the `useractivitywillsave` event to update the state or content
-        of the user activity.
-
-        iOS will reset the property to false after the `useractivitywillsave` event fires.
-
-        Note that when the user activity first becomes active, the `useractivitywillsave` event
-        will fire once even if the property is set to false.
+        Set to true everytime you have updated the user activity and need the changes to be saved before handing it off to another device.
     type: Boolean
     osver: {ios: {min: "8.0"}}
 
@@ -199,6 +189,10 @@ events:
         summary: Dictionary object containing the userInfo data of the User Activity.
         type: Dictionary
         platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: set property `needsSave` to true everytime you update current activity state instead.
+
   - name: useractivitywascontinued
     summary: |
         Fired when the user activity was continued on another device.
@@ -242,17 +236,17 @@ examples:
                 }
             });
 
-            if(!activity.supported){
-                alert('activity not supported');
-                return;
-            }
-            activity.becomeCurrent();
+            if(!activity.isSupported()){
+                alert('User Activities are not supported on this device!');
+            } else {
+                activity.becomeCurrent();
 
-            Ti.App.iOS.addEventListener('continueactivity', function(e) {
-                if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
-                    alert(e.userInfo.msg);
-                }
-            });
+                Ti.App.iOS.addEventListener('continueactivity', function(e) {
+                    if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
+                        alert(e.userInfo.msg);
+                    }
+                });
+            }
 
         #### tiapp.xml
 

@@ -1,11 +1,9 @@
-//
-//  TiPreviewingDelegate.m
-//  Titanium
-//
-//  Created by Hans Knöchel on 25/09/15.
-//
-//
-
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
@@ -14,20 +12,14 @@
 #import "TiUIListView.h"
 #import "TiUITableViewProxy.h"
 #import "TiUITableView.h"
+#import "TiUIScrollView.h"
 
 @implementation TiPreviewingDelegate
 
 -(instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext
 {
     if (self = [self init]) {
-        
-        _previewContext = previewContext;
-        
-        _preview = [_previewContext preview];
-        _sourceView = [_previewContext sourceView];
-        _actions = [_previewContext actions];
-        _contentHeight = [_previewContext contentHeight];
-        _popCallback = [_previewContext popCallback];
+        [self setPreviewContext:previewContext];
     }
     
     return self;
@@ -35,92 +27,83 @@
 
 -(void)dealloc
 {
-    [_preview forgetSelf];
-    [_sourceView forgetSelf];
+    [[[self previewContext] preview] forgetSelf];
+    [[[self previewContext] sourceView] forgetSelf];
+    
+    RELEASE_TO_NIL(_previewContext);
+    RELEASE_TO_NIL(_listViewEvent);
     
     [super dealloc];
 }
 
 -(void)previewingContext:(id<UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"preview" : _preview }];
-    
-    if ([self currentIndexPath] != nil) {
-        [propertiesDict setValue:NUMINTEGER([self currentIndexPath].section) forKey:@"sectionIndex"];
-        [propertiesDict setValue:NUMINTEGER([self currentIndexPath].row) forKey:@"itemIndex"];
-    }
+    NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:[self listViewEvent]];
+    [propertiesDict setObject:_previewContext.preview forKey:@"preview"];
     
     NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
     
-    [_popCallback call:invocationArray thisObject:_previewContext];
-    [invocationArray release];
+    [[self previewContext] fireEvent:@"pop" withObject:propertiesDict];
 }
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
-    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:_preview];
-    [[_preview view] setFrame:[[controller view] bounds]];
-    [[controller view] addSubview:[_preview view]];
-    
-    NSMutableArray *result = [NSMutableArray array];
-    int actionIndex = 0;
-
-    if (_contentHeight > 0) {
-        controller.preferredContentSize = CGSizeMake(0.0, _contentHeight);
-    }
-    
     UITableView *tableView = [self ensureTableView];
-    UITableViewCell *cell = nil;
     
-    // Handle UITableView and touches on non-cells
     if (tableView != nil) {
-        cell = [tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]];
         
         // If the tap was not on a cell, don't continue
-        if (cell == nil) {
-            RELEASE_TO_NIL(controller);
+        if ([tableView cellForRowAtIndexPath:[tableView indexPathForRowAtPoint:location]] == nil) {
             return nil;
         }
+        
+        [self setListViewEvent:[self receiveListViewEventFromIndexPath:[tableView indexPathForRowAtPoint:location]]];
+        [[self previewContext] fireEvent:@"peek" withObject:[self listViewEvent]];
     } else {
-        [self setCurrentIndexPath:nil];
+        [[self previewContext] fireEvent:@"peek" withObject:@{@"preview": [[self previewContext] preview]}];
     }
     
-    for (id item in _actions) {
+    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:[[self previewContext] preview]];
+    [[[[self previewContext] preview] view] setFrame:[[controller view] bounds]];
+    [[controller view] addSubview:[[[self previewContext] preview] view]];
+    
+    NSMutableArray *result = [NSMutableArray array];
+    NSUInteger actionIndex = 0;
+
+    if ([[self previewContext] contentHeight] > 0) {
+        controller.preferredContentSize = CGSizeMake(0.0, [[self previewContext] contentHeight]);
+    }
+    
+    for (id item in [[self previewContext] actions]) {
         if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
             [item setActionIndex:actionIndex];
             
-            if (cell != nil) {
-                [self setCurrentIndexPath:[tableView indexPathForRowAtPoint:location]];
-                [item setTableViewIndexPath:[self currentIndexPath]];
+            if ([self listViewEvent] != nil) {
+                [item setListViewEvent:[self listViewEvent]];
             }
             
             [result addObject:[item action]];
 
             actionIndex++;
         } else if ([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
-            [item setActionGroupIndex:actionIndex];
-            [result addObject:[item group]];
-
-            actionIndex++;
+            [result addObject:[item actionGroup]];
         }
     }
-
-    [previewingContext setSourceRect:[self createSourceRectWithLocation:&location]];
+    
     [controller setPreviewActions:result];
-    [_preview windowWillOpen];
+    [[[self previewContext] preview] windowWillOpen];
+    [previewingContext setSourceRect:[self createSourceRectWithLocation:location]];
     
     return controller;
 }
 
--(CGRect)createSourceRectWithLocation:(CGPoint*)location
+-(CGRect)createSourceRectWithLocation:(CGPoint)location
 {
     UITableView *tableView = [self ensureTableView];
     
     if (tableView) {
-        NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:*location];
-        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        
-        return cell.frame;
+        NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:location];
+        return [[tableView cellForRowAtIndexPath:indexPath] frame];
     }
 
     return CGRectZero; // The Frame is detected automatically on normal views
@@ -129,21 +112,50 @@
 -(UITableView*)ensureTableView
 {
 #ifdef USE_TI_UILISTVIEW
-    if ([_sourceView isKindOfClass:[TiUIListViewProxy class]] == YES) {
-        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)_sourceView;
+    if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
+        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)[[self previewContext] sourceView];
         TiUIListView *view = (TiUIListView*)[listProxy view];
+        
         return [view tableView];
     }
 #endif
-    
 #ifdef USE_TI_UITABLEVIEW
-    if ([_sourceView isKindOfClass:[TiUITableViewProxy class]] == YES) {
-        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)_sourceView;
-        TiUITableView *view = (TiUITableView*)[tableProxy view];
+    if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableView class]] == YES) {
+        TiUITableViewProxy* listProxy = (TiUITableViewProxy*)[[self previewContext] sourceView];
+        TiUITableView *view = (TiUITableView*)[listProxy view];
+        
         return [view tableView];
     }
 #endif
     
+    return nil;
+}
+
+-(NSDictionary*)receiveListViewEventFromIndexPath:(NSIndexPath*)indexPath
+{
+#ifdef USE_TI_UILISTVIEW
+    if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
+        TiUIListViewProxy* listProxy = (TiUIListViewProxy*)[[self previewContext] sourceView];
+        
+        TiUIListSectionProxy *theSection = [listProxy sectionForIndex:indexPath.section];
+        NSDictionary *theItem = [theSection itemAtIndex:indexPath.row];
+        
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            NUMINTEGER(indexPath.section), @"sectionIndex",
+                                            NUMINTEGER(indexPath.row), @"itemIndex",
+                                            [[self previewContext] preview], @"preview",
+                                            nil];
+        
+        id propertiesValue = [theItem objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+            [eventObject setObject:itemId forKey:@"itemId"];
+        }
+        
+        return eventObject;
+    }
+#endif
     return nil;
 }
 

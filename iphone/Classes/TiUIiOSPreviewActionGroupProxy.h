@@ -20,25 +20,20 @@
 @property(nonatomic, retain) NSMutableArray<UIPreviewAction*> *actions;
 
 /**
- The title of the preview action group.
+    The title of the preview action group.
  */
 @property(nonatomic, retain) NSString *title;
 
 /**
- The style of the preview action group.
+    The style of the preview action group.
  */
-@property(nonatomic) UIPreviewActionStyle style;
+@property(nonatomic, assign) UIPreviewActionStyle style;
 
 /**
- The index of the action group inside the previewing context.
+    Returns a configured preview action group.
+    @return The configured UIPreviewActionGroup.
  */
-@property(nonatomic,assign) int actionGroupIndex;
-
-/**
- Returns a configured preview action group.
- @return The configured UIPreviewActionGroup.
- */
--(UIPreviewActionGroup*)group;
+-(UIPreviewActionGroup*)actionGroup;
 
 @end
 #endif

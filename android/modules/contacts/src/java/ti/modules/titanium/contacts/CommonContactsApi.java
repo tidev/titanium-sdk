@@ -67,9 +67,9 @@ public abstract class CommonContactsApi
 			return true;
 		}
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
 		if (currentActivity != null && 
-				currentActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission(Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+				currentActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		Log.w(TAG, "Contact permissions are missing");

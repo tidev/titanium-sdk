@@ -26,8 +26,8 @@ properties:
   - name: actionsForDefaultContext
     summary: Array of notification actions to associate with the group.
     description: |
-        Note that only the first four actions can be displayed for an alert dialog and the first
-        two actions can be displayed for all other notifications.
+        Note that only the first four actions can be displayed for an alert dialog and on the Apple Watch.
+        The first two actions can be displayed for all other notifications.
     type: Array<Titanium.App.iOS.UserNotificationAction>
     accessors: false
     availability: creation
