@@ -869,7 +869,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
             } else if (!userDidApproveOrReject) {
-                [[self locationPermissionManager] requestWhenInUseAuthorization];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[self locationPermissionManager] requestWhenInUseAuthorization];
+                });
             }
         } else {
             errorMessage = @"The NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission";
@@ -881,7 +883,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
             } else if(!userDidApproveOrReject) {
-                [[self locationPermissionManager] requestAlwaysAuthorization];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[self locationPermissionManager] requestAlwaysAuthorization];
+                });
             }
         } else {
             errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
