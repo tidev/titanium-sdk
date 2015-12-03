@@ -2141,7 +2141,7 @@ return result;	\
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
     
-    if (rowSeparatorInsets.left && rowSeparatorInsets.right != 0) {
+    if (rowSeparatorInsets.left != 0 || rowSeparatorInsets.right != 0) {
         [cell setSeparatorInset:rowSeparatorInsets];
     }
     
