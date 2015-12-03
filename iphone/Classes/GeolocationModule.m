@@ -866,6 +866,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
         return;
     }
+    else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
+        [self executeAndReleaseCallbackWithCode:1 andMessage:nil];
+        return;
+    }
     
     NSString *errorMessage = nil;
     
