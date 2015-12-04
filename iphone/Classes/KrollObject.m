@@ -1347,7 +1347,17 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	{
 		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, &exception);
 		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, &exception);
-		
+        
+		double lenght = TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
+		for (uint i = 0; i < lenght; ++i)
+		{
+                TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
+                if (valueRef == callbackFunction) {
+                    TiStringRelease(jsEventTypeString);
+                    return;
+            }
+        }
+        
 		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
 	}
 
