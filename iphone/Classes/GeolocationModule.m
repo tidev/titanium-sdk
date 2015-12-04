@@ -859,14 +859,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     
     CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    
-    
     BOOL permissionsGranted = (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse);
+    
     if (permissionsGranted) {
         [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
         return;
     } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
-        [self executeAndReleaseCallbackWithCode:1 andMessage:nil];
+        NSString *message = @"The user denied access to use location services.";
+        [self executeAndReleaseCallbackWithCode:1 andMessage:message];
         return;
     }
     
