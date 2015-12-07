@@ -25,12 +25,7 @@
             WCSession* session = [WCSession defaultSession];
             session.delegate = self;
             [session activateSession];
-            
-            [session sendMessage:[NSDictionary dictionaryWithObjectsAndKeys:@"bar",@"foo", nil] replyHandler:nil errorHandler:nil];
         }
-        
-        // Initialize variables here.
-        // Configure interface objects here.
     }
     
     return self;
