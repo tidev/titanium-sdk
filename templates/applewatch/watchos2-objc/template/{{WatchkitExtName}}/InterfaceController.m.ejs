@@ -16,6 +16,26 @@
 
 @implementation InterfaceController
 
+- (instancetype)init {
+    self = [super init];
+    
+    if (self) {
+        
+        if ([WCSession isSupported]) {
+            WCSession* session = [WCSession defaultSession];
+            session.delegate = self;
+            [session activateSession];
+            
+            [session sendMessage:[NSDictionary dictionaryWithObjectsAndKeys:@"bar",@"foo", nil] replyHandler:nil errorHandler:nil];
+        }
+        
+        // Initialize variables here.
+        // Configure interface objects here.
+    }
+    
+    return self;
+}
+
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
 
@@ -25,12 +45,6 @@
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
-
-    if ([WCSession isSupported]) {
-        WCSession* session = [WCSession defaultSession];
-        session.delegate = self;
-        [session activateSession];
-    }
 }
 
 - (void)didDeactivate {
