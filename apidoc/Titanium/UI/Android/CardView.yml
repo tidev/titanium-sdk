@@ -17,6 +17,8 @@ description: |
 
     For design guidelines, see
     [Google Design Guidelines: Cards](http://www.google.com/design/spec/components/cards.html)
+
+    CardView does not support <Titanium.UI.View.backgroundImage> & <Titanium.UI.View.borderColor>.
 extends: Titanium.UI.View
 since: "5.1.0"
 platforms: [android]
