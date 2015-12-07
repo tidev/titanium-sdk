@@ -568,6 +568,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (![TiUtils isIOS7OrGreater]) {
         return nil;
     }
+    
+    DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
+    return [self cameraAuthorization];
+}
+
+-(NSNumber*)cameraAuthorization
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return nil;
+    }
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     return NUMUINT(authStatus);
 }

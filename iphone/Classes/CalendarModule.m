@@ -284,9 +284,16 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(NSNumber*) eventsAuthorization
 {
+    DEPRECATED_REPLACED(@"Calendar.eventsAuthorization", @"5.2.0", @"Calendar.calendarAuthorization");
+    return [self calendarAuthorization];
+}
+
+-(NSNumber*) calendarAuthorization
+{
     EKAuthorizationStatus result = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     return [NSNumber numberWithInteger:result];
 }
+
 #pragma mark - Properties
 
 MAKE_SYSTEM_PROP(STATUS_NONE,EKEventStatusNone);
