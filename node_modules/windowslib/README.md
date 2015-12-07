@@ -3,7 +3,7 @@
 This is a library of utilities for dealing programmatically with Windows Phone applications,
 used namely for tools like [Titanium](https://github.com/appcelerator/titanium).
 
-windowslib supports Visual Studio 2012 and 2013.
+windowslib supports Visual Studio 2012, 2013, and 2015.
 
 [![NPM](https://nodei.co/npm/windowslib.png?downloads=true&stars=true)](https://nodei.co/npm/windowslib/)
 
@@ -186,6 +186,6 @@ subsequent submissions.
 
 ## Legal
 
-Copyright (c) 2014 by [Appcelerator, Inc](http://www.appcelerator.com). All
+Copyright (c) 2014-2015 by [Appcelerator, Inc](http://www.appcelerator.com). All
 Rights Reserved. This project is licensed under the Apache Public License,
 version 2. Please see details in the LICENSE file.

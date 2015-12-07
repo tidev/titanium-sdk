@@ -29,7 +29,7 @@ const
 	// this is a hard coded list of emulators to detect.
 	// when the next windows phone is released, the enumerate()
 	// function will need to detect the new emulators.
-	wpsdks = ['8.0', '8.1', '10'];
+	wpsdks = ['8.0', '8.1', '10.0'];
 
 var cache;
 
@@ -104,7 +104,7 @@ function enumerate(options, callback) {
 						{
 							emulators.push({name: match[2], udid: wpsdk.replace('.', '-') + "-" + match[1], index: parseInt(match[1]), wpsdk: wpsdk});
 						}
-						
+
 						next(null, {
 							devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
 							emulators: emulators,
@@ -138,16 +138,12 @@ function enumerate(options, callback) {
 						// TIMOB-19576
 						// Windows 10 Mobile Emulators are detected by 8.1 sdk,
 						// which can be used for both 8.1 and 10 project.
-						if (wpsdk == '8.1') {
-							results['10'] = {
-								devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
-								emulators: []
-							}
-							Object.keys(result.emulators).forEach(function(emu) {
-								if (/Mobile\ Emulator\ 10\./.test(result.emulators[emu].name)) {
-									results['10'].emulators.push(result.emulators[emu]);
-								}
+						if (wpsdk != '8.0') {
+							// limit 8.1 or 10.0 emulators to those SDKs only
+							result.emulators = result.emulators.filter(function (e) {
+								return new RegExp("Emulator\ " + wpsdk).test(e.name);
 							});
+							// FIXME change the udids back if they don't start at 1? (If we have 8.1 and 10, the 8.1 emulators udids start at 8-1-7)
 						}
 
 						results[wpsdk] = result;
@@ -162,7 +158,7 @@ function enumerate(options, callback) {
 					emitter.emit('error', errors[0]);
 					return callback(errors[0]);
 				}
-				
+
 				// add a helper function to get a device by udid
 				Object.defineProperty(results, 'getByUdid', {
 					value: function (udid) {

@@ -1,3 +1,7 @@
+0.1.22 (12/4/2015)
+-------------------
+  * Fix: Windows 10 Mobile detection #26
+
 0.1.21 (10/29/2015)
 -------------------
   * Fix: escape vcvarsall before subprocess.run #25
