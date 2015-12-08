@@ -1209,7 +1209,9 @@ public class TiHTTPClient
 						throw e;
 					}
 				}  finally {
-					client.disconnect();
+				    if (client != null) {
+				        client.disconnect();
+				    }
 				} 
 
 
