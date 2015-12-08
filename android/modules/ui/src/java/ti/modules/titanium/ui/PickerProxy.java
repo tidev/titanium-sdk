@@ -62,6 +62,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_FIRE_COL_CHANGE = MSG_FIRST_ID + 105;
 	private static final int MSG_FIRE_ROW_CHANGE = MSG_FIRST_ID + 106;
 	private static final int MSG_FORCE_LAYOUT = MSG_FIRST_ID + 107;
+	private static final int MSG_SHOW_DATE_PICKER_DIALOG = MSG_FIRST_ID + 108;
 	private boolean useSpinner = false;
 
 	public PickerProxy()
@@ -282,6 +283,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public boolean handleMessage(Message msg)
 	{
 		switch(msg.what){
+		    case MSG_SHOW_DATE_PICKER_DIALOG: {
+		        AsyncResult result = (AsyncResult) msg.obj;
+		        handleShowDatePickerDialog((Object[]) result.getArg());
+		        result.setResult(null);
+		        return true;
+		    }
 			case MSG_SELECT_ROW : {
 				AsyncResult result = (AsyncResult)msg.obj;
 				handleSelectRow( (KrollDict)result.getArg() );
@@ -526,126 +533,135 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
-		HashMap settings = new HashMap();
-		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
-		if (args.length > 0) {
-			settings = (HashMap) args[0];
-		}
-		Calendar calendar = Calendar.getInstance();
-		if (settings.containsKey("value")) {
-			calendar.setTime(TiConvert.toDate(settings, "value"));
-		}
-
-		
-		final KrollFunction callback;
-		if (settings.containsKey("callback")) {
-			Object typeTest = settings.get("callback");
-			if (typeTest instanceof KrollFunction) {
-				callback = (KrollFunction) typeTest; 
-			} else {
-				callback = null;
-			}
-		} else {
-			callback = null;
-		}
-		DatePickerDialog.OnDateSetListener dateSetListener = null;
-		DialogInterface.OnDismissListener dismissListener = null;
-		if (callback != null) {
-			dateSetListener = new DatePickerDialog.OnDateSetListener()
-			{
-				@Override
-				public void onDateSet(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
-				{
-					if (callback != null) {
-						callbackCount.incrementAndGet();
-						Calendar calendar = Calendar.getInstance();
-						calendar.set(Calendar.YEAR, year);
-						calendar.set(Calendar.MONTH, monthOfYear);
-						calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-						Date value = calendar.getTime();
-						KrollDict data = new KrollDict();
-						data.put("cancel", false);
-						data.put("value", value);
-						callback.callAsync(getKrollObject(), new Object[]{ data });
-					}
-				}
-			};
-			dismissListener = new DialogInterface.OnDismissListener()
-			{
-				@Override
-				public void onDismiss(DialogInterface dialog)
-				{
-					if (callbackCount.get() == 0 && callback != null) {
-						callbackCount.incrementAndGet();
-						KrollDict data = new KrollDict();
-						data.put("cancel", true);
-						data.put("value", null);
-						callback.callAsync(getKrollObject(), new Object[]{ data });
-					}
-				}
-			};
-		}
-
-		/*
-		 * use getAppCurrentActivity over getActivity since technically the picker
-		 * should show up on top of the current activity when called - not just the
-		 * activity it was created in
-		 */
-		
-		// DatePickerDialog has a bug in Android 4.x
-		// If build version is using Android 4.x, use
-		// our TiDatePickerDialog. It was fixed from Android 5.0.		
-		DatePickerDialog dialog;
-		
-		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
-				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
-			dialog = new TiDatePickerDialog(
-					TiApplication.getAppCurrentActivity(),
-					dateSetListener,
-					calendar.get(Calendar.YEAR),
-					calendar.get(Calendar.MONTH),
-					calendar.get(Calendar.DAY_OF_MONTH));
-		} else {
-			dialog = new DatePickerDialog(
-					TiApplication.getAppCurrentActivity(),
-					dateSetListener,
-					calendar.get(Calendar.YEAR),
-					calendar.get(Calendar.MONTH),
-					calendar.get(Calendar.DAY_OF_MONTH));
-		}
-		
-		Date minMaxDate = null;
-		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			minMaxDate = (Date) settings.get(TiC.PROPERTY_MIN_DATE);
-		} else if (properties.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			minMaxDate = (Date) properties.get(TiC.PROPERTY_MIN_DATE);
-		}
-		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			dialog.getDatePicker().setMinDate(trimDate(minMaxDate).getTime());
-		}
-		minMaxDate = null;
-		if (settings.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			minMaxDate = (Date) settings.get(TiC.PROPERTY_MAX_DATE);
-		} else if (properties.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			minMaxDate = (Date) properties.get(TiC.PROPERTY_MAX_DATE);
-		}
-		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
-		}
-		
-		dialog.setCancelable(true);
-		if (dismissListener != null) {
-			dialog.setOnDismissListener(dismissListener);
-		}
-		if (settings.containsKey("title")) {
-			dialog.setTitle(TiConvert.toString(settings, "title"));
-		}
-		dialog.show();
-		if (settings.containsKey("okButtonTitle")) {
-			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
-		}
+	    if (TiApplication.isUIThread()) {
+	        handleShowDatePickerDialog(args);
+	    } else {
+	        TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SHOW_DATE_PICKER_DIALOG), args);
+	    }
 	}
-	
+
+	private void handleShowDatePickerDialog(Object[] args)
+	{
+	    HashMap settings = new HashMap();
+	    final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
+	    if (args.length > 0) {
+	        settings = (HashMap) args[0];
+	    }
+	    Calendar calendar = Calendar.getInstance();
+	    if (settings.containsKey("value")) {
+	        calendar.setTime(TiConvert.toDate(settings, "value"));
+	    }
+
+
+	    final KrollFunction callback;
+	    if (settings.containsKey("callback")) {
+	        Object typeTest = settings.get("callback");
+	        if (typeTest instanceof KrollFunction) {
+	            callback = (KrollFunction) typeTest; 
+	        } else {
+	            callback = null;
+	        }
+	    } else {
+	        callback = null;
+	    }
+	    DatePickerDialog.OnDateSetListener dateSetListener = null;
+	    DialogInterface.OnDismissListener dismissListener = null;
+	    if (callback != null) {
+	        dateSetListener = new DatePickerDialog.OnDateSetListener()
+	        {
+	            @Override
+	            public void onDateSet(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
+	            {
+	                if (callback != null) {
+	                    callbackCount.incrementAndGet();
+	                    Calendar calendar = Calendar.getInstance();
+	                    calendar.set(Calendar.YEAR, year);
+	                    calendar.set(Calendar.MONTH, monthOfYear);
+	                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+	                    Date value = calendar.getTime();
+	                    KrollDict data = new KrollDict();
+	                    data.put("cancel", false);
+	                    data.put("value", value);
+	                    callback.callAsync(getKrollObject(), new Object[]{ data });
+	                }
+	            }
+	        };
+	        dismissListener = new DialogInterface.OnDismissListener()
+	        {
+	            @Override
+	            public void onDismiss(DialogInterface dialog)
+	            {
+	                if (callbackCount.get() == 0 && callback != null) {
+	                    callbackCount.incrementAndGet();
+	                    KrollDict data = new KrollDict();
+	                    data.put("cancel", true);
+	                    data.put("value", null);
+	                    callback.callAsync(getKrollObject(), new Object[]{ data });
+	                }
+	            }
+	        };
+	    }
+
+	    /*
+	     * use getAppCurrentActivity over getActivity since technically the picker
+	     * should show up on top of the current activity when called - not just the
+	     * activity it was created in
+	     */
+
+	    // DatePickerDialog has a bug in Android 4.x
+	    // If build version is using Android 4.x, use
+	    // our TiDatePickerDialog. It was fixed from Android 5.0.		
+	    DatePickerDialog dialog;
+
+	    if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+	            && (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
+	        dialog = new TiDatePickerDialog(
+	                TiApplication.getAppCurrentActivity(),
+	                dateSetListener,
+	                calendar.get(Calendar.YEAR),
+	                calendar.get(Calendar.MONTH),
+	                calendar.get(Calendar.DAY_OF_MONTH));
+	    } else {
+	        dialog = new DatePickerDialog(
+	                TiApplication.getAppCurrentActivity(),
+	                dateSetListener,
+	                calendar.get(Calendar.YEAR),
+	                calendar.get(Calendar.MONTH),
+	                calendar.get(Calendar.DAY_OF_MONTH));
+	    }
+
+	    Date minMaxDate = null;
+	    if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
+	        minMaxDate = (Date) settings.get(TiC.PROPERTY_MIN_DATE);
+	    } else if (properties.containsKey(TiC.PROPERTY_MIN_DATE)) {
+	        minMaxDate = (Date) properties.get(TiC.PROPERTY_MIN_DATE);
+	    }
+	    if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	        dialog.getDatePicker().setMinDate(trimDate(minMaxDate).getTime());
+	    }
+	    minMaxDate = null;
+	    if (settings.containsKey(TiC.PROPERTY_MAX_DATE)) {
+	        minMaxDate = (Date) settings.get(TiC.PROPERTY_MAX_DATE);
+	    } else if (properties.containsKey(TiC.PROPERTY_MAX_DATE)) {
+	        minMaxDate = (Date) properties.get(TiC.PROPERTY_MAX_DATE);
+	    }
+	    if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	        dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
+	    }
+
+	    dialog.setCancelable(true);
+	    if (dismissListener != null) {
+	        dialog.setOnDismissListener(dismissListener);
+	    }
+	    if (settings.containsKey("title")) {
+	        dialog.setTitle(TiConvert.toString(settings, "title"));
+	    }
+	    dialog.show();
+	    if (settings.containsKey("okButtonTitle")) {
+	        dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
+	    }
+	}
+
 	
 	/**
 	 * Trim hour, minute, second and millisecond from the date
