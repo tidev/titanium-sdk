@@ -47,8 +47,7 @@ public class TiTableView extends FrameLayout
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
 
-	//TODO make this configurable
-	protected static final int MAX_CLASS_NAMES = 32;
+	protected int maxClassname = 32;
 
 	private TableViewModel viewModel;
 	private ListView listView;
@@ -160,7 +159,7 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return MAX_CLASS_NAMES;
+			return maxClassname;
 		}
 
 		@Override
@@ -277,6 +276,9 @@ public class TiTableView extends FrameLayout
 		super(proxy.getActivity());
 		this.proxy = proxy;
 
+		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
+		    maxClassname = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME));
+		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
 		rowTypes.put(TableViewProxy.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
