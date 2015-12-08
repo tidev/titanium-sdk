@@ -484,18 +484,19 @@ static NSDictionary* iOS9propertyKeys;
 		if ([person.namePrefix length]) {
 			[compositeName appendFormat:@"%@ ", person.namePrefix];
 		}
-		if ([person.nameSuffix length]) {
-			[compositeName appendFormat:@"%@ ", person.nameSuffix];
-		}
-		if ([person.organizationName length]) {
-			[compositeName appendFormat:@"%@ ", person.organizationName];
-		}
 		if ([person.givenName length]) {
 			[compositeName appendFormat:@"%@ ", person.givenName];
+		}
+		if ([person.middleName length]) {
+			[compositeName appendFormat:@"%@ ", person.middleName];
 		}
 		if ([person.familyName length]) {
 			[compositeName appendFormat:@"%@ ", person.familyName];
 		}
+		if ([person.nameSuffix length]) {
+			[compositeName appendFormat:@"%@ ", person.nameSuffix];
+		}
+        
 		if ([compositeName length]) {
 			//remove last space
 			NSRange range;
