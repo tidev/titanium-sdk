@@ -82,10 +82,12 @@
     return YES;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *) parentViewForChild:(TiViewProxy *)child
 {
 	return [(TiUIButton *)[self view] viewGroupWrapper];
 }
+#endif
 
 -(void)removeBarButtonView
 {
