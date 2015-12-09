@@ -1196,11 +1196,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
         };
 #ifndef TI_USE_KROLL_THREAD
     };
-    if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), mainBlock);
-    } else {
-        mainBlock();
-    }
+    TiThreadPerformOnMainThread(mainBlock, NO);
 #endif
 }
 

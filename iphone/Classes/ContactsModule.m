@@ -432,7 +432,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	ENSURE_SINGLE_ARG(arg, NSObject)
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
-	dispatch_sync(dispatch_get_main_queue(),^{
+	TiThreadPerformOnMainThread(^{
 		ABAddressBookRef ourAddressBook = [self addressBook];
 		if (ourAddressBook == NULL) {
 			return;
@@ -443,7 +443,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		{
 			validId = YES;
 		}
-	});
+    }, YES);
 	if (validId == YES)
 	{
 		return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
@@ -460,7 +460,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	ENSURE_SINGLE_ARG(arg, NSObject)
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
-	dispatch_sync(dispatch_get_main_queue(),^{
+	TiThreadPerformOnMainThread(^{
 		ABAddressBookRef ourAddressBook = [self addressBook];
 		if (ourAddressBook == NULL) {
 			return;
@@ -471,7 +471,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		{
 			validId = YES;
 		}
-	});
+    }, YES);
 	if (validId == YES)
 	{	
 		return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
