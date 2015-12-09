@@ -1797,7 +1797,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAX = "max";
 
+	/**
+     * @module.api
+     */
 	public static final String PROPERTY_MAX_AGE = "maxAge";
+	
+	/**
+     * @module.api
+     */
+	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 
 	/**
 	 * @module.api

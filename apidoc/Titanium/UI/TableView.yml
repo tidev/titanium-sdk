@@ -1288,6 +1288,15 @@ properties:
     summary: Table view footer title.
     type: String
 
+  - name: maxClassname
+    summary: Max number of row class names.
+    description: |
+        See <Titanium.UI.TableViewRow.className> for more details.
+    availability: creation
+    type: Number
+    default: 32
+    platforms: [android]
+    since: "6.0.0"
     
   - name: headerPullView
     summary: |
