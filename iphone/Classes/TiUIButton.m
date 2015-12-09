@@ -357,13 +357,6 @@
 -(void)setVerticalAlign_:(id)align
 {
     button = [self button];
-    
-    // typedef NS_ENUM(NSInteger, UIControlContentVerticalAlignment) {
-//    UIControlContentVerticalAlignmentCenter  = 0,
-//    UIControlContentVerticalAlignmentTop     = 1,
-//    UIControlContentVerticalAlignmentBottom  = 2,
-//    UIControlContentVerticalAlignmentFill    = 3,
-
     UIControlContentVerticalAlignment alignment = UIControlContentVerticalAlignmentCenter;
     if ([align isKindOfClass:[NSString class]]) {
         if ([align isEqualToString:@"top"])
