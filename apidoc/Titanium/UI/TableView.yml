@@ -1296,7 +1296,7 @@ properties:
     type: Number
     default: 32
     platforms: [android]
-    since: "6.0.0"
+    since: "5.2.0"
     
   - name: headerPullView
     summary: |
