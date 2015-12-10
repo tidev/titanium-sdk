@@ -2361,11 +2361,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEPARATOR_HEIGHT = "separatorHeight";
-	
+
 	/**
-     * @module.api
-     */
-    public static final String PROPERTY_SEPARATOR_STYLE = "separatorStyle";
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEPARATOR_STYLE = "separatorStyle";
 
 	/**
 	 * @module.api
