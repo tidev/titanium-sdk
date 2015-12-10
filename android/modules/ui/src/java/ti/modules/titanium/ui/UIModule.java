@@ -131,6 +131,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int NOTIFICATION_DURATION_LONG = Toast.LENGTH_LONG;
 	@Kroll.constant public static final int NOTIFICATION_DURATION_SHORT = Toast.LENGTH_SHORT;
 	
+	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_NONE = 0;
+	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE = 1;
+	
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;

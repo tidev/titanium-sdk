@@ -1613,11 +1613,16 @@ properties:
     description: |
         For iOS specify one of the
         [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-        
+       
+        For Android specify one of the following:
+        [TableViewSeparatorStyle_None](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
+        [TableViewSeparatorStyle_SingleLine](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
+
         For Mobile Web specify one of the
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
     platforms: [iphone, ipad, mobileweb]
+    since: {android: "6.0.0"}
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
