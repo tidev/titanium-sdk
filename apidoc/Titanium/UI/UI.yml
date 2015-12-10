@@ -1988,7 +1988,21 @@ properties:
     type: String
     permission: read-only
     since: "2.0.0"
-    
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
+    summary: The row divider is hidden.
+    type: Number
+    platforms: [android]
+    since: "6.0.0" 
+    permission: read-only
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
+    summary: The row divider is shown as a single line.
+    type: Number
+    platforms: [android]
+    since: "6.0.0" 
+    permission: read-only
+
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     description: |
