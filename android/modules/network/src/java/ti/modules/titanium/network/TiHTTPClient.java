@@ -238,9 +238,7 @@ public class TiHTTPClient
 	                }
 	                totalSize += count;
 	                try {
-	                    byte[] onStreamData = Arrays.copyOfRange(buf, 0, count);
-	                    String responseTextOnStream = new String(onStreamData);
-	                    responseText = responseTextOnStream;
+	                    responseText = new String(Arrays.copyOfRange(buf, 0, count));
 	                    handleEntityData(buf, count, totalSize, contentLength);
 	                } catch (IOException e) {
 	                    Log.e(TAG, "Error handling entity data", e);
