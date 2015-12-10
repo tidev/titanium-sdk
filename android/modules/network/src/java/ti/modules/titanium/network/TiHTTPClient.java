@@ -31,6 +31,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,6 +238,9 @@ public class TiHTTPClient
 	                }
 	                totalSize += count;
 	                try {
+	                    byte[] onStreamData = Arrays.copyOfRange(buf, 0, count);
+	                    String responseTextOnStream = new String(onStreamData);
+	                    responseText = responseTextOnStream;
 	                    handleEntityData(buf, count, totalSize, contentLength);
 	                } catch (IOException e) {
 	                    Log.e(TAG, "Error handling entity data", e);
