@@ -1622,7 +1622,7 @@ properties:
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
     platforms: [iphone, ipad, mobileweb]
-    since: {android: "6.0.0"}
+    since: {android: "5.2.0"}
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
