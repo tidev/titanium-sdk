@@ -7,7 +7,6 @@
 var should = require('./should');
 
 describe("Titanium.UI.ImageView", function () {
-    this.timeout(6000);
     it("image", function (finish) {
         var label = Ti.UI.createImageView({
             image: "https://www.google.com/images/srpr/logo11w.png"
