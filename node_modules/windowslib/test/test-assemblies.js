@@ -2,7 +2,7 @@
  * Tests windowslib's assemblies module.
  *
  * @copyright
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -18,7 +18,7 @@ describe('assemblies', function () {
 		should(windowslib.assemblies).be.an.Object;
 	});
 
-	(process.platform === 'win32' ? it : it.skip)('detect should find requird assemblies', function (done) {
+	(process.platform === 'win32' ? it : it.skip)('detect should find required assemblies', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
