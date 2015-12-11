@@ -1,3 +1,7 @@
+0.2.1 (12/11/2015)
+-------------------
+  * Fix detection of Windows 10 phone details
+
 0.2.0 (12/10/2015)
 -------------------
   * Add custom tooling for Win 10 mobile.

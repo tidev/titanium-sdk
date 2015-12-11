@@ -4,7 +4,7 @@
  * @module windowsphone
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -190,17 +190,17 @@ function detect(options, callback) {
 						}
 						next();
 					});
+				}, function () {
+					var preferred = options.preferred;
+					if (!results.windowsphone[preferred] || !results.windowsphone[preferred].supported) {
+						preferred = Object.keys(results.windowsphone).filter(function (v) { return results.windowsphone[v].supported; }).sort().pop();
+					}
+					if (preferred) {
+						results.windowsphone[preferred].selected = true;
+					}
+
+					finalize();
 				});
-
-				var preferred = options.preferred;
-				if (!results.windowsphone[preferred] || !results.windowsphone[preferred].supported) {
-					preferred = Object.keys(results.windowsphone).filter(function (v) { return results.windowsphone[v].supported; }).sort().pop();
-				}
-				if (preferred) {
-					results.windowsphone[preferred].selected = true;
-				}
-
-				finalize();
 			});
 		});
 	});
