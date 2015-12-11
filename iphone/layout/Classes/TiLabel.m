@@ -32,6 +32,7 @@
 
 -(void)setText:(NSString*) text
 {
+    _text = text;
     [label setText:text];
 }
 

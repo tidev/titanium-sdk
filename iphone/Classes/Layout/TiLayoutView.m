@@ -636,7 +636,8 @@ DEFINE_EXCEPTIONS
     {
         if ([superview isKindOfClass:[UITableView class]]) {
             return;
-        } else if ([superview isKindOfClass:[UIScrollView class]])
+        }
+        else if ([superview isKindOfClass:[UIScrollView class]])
         {
             TiLayoutRemoveChildConstraints(superview, self);
             [superview addConstraints: TI_CONSTR(@"V:|[self]|", viewsDict)];
@@ -766,12 +767,12 @@ DEFINE_EXCEPTIONS
     CGFloat bottomValue = TiDimensionCalculateValue(bottom, 1);
     
     // ========= TI.UI.SIZE ============
-    if (IS_AUTOSIZE(_tiLayoutConstraint.width)) {
+    if (IS_AUTOSIZE(_tiLayoutConstraint.width) || (IS_UNDEFINED(_tiLayoutConstraint.width) && IS_AUTOSIZE(_defaultWidth))) {
         [self addConstraints: TI_CONSTR( TI_STRING(@"H:|-(>=%f)-[child]-(>=%f)-|", leftValue, rightValue), viewsDict)];
     } else if (_tiLayoutConstraint.width_isSet) {
         [self removeConstraints: TI_CONSTR( TI_STRING(@"H:|-(>=%f)-[child]-(>=%f)-|", leftValue, rightValue), viewsDict)];
     }
-    if (IS_AUTOSIZE(_tiLayoutConstraint.height)) {
+    if (IS_AUTOSIZE(_tiLayoutConstraint.height) || (IS_UNDEFINED(_tiLayoutConstraint.height) && IS_AUTOSIZE(_defaultHeight))) {
         [self addConstraints: TI_CONSTR( TI_STRING(@"V:|-(>=%f)-[child]-(>=%f)-|", topValue, bottomValue), viewsDict)];
     } else if (_tiLayoutConstraint.height_isSet) {
         [self removeConstraints: TI_CONSTR( TI_STRING(@"V:|-(>=%f)-[child]-(>=%f)-|", topValue, bottomValue), viewsDict)];
