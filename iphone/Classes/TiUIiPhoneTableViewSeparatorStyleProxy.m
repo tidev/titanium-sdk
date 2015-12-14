@@ -18,13 +18,13 @@
 
 -(NSNumber*)SINGLE_LINE
 {
-    DEPRECATED_REPLACED(@"Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE", @"5.2.0", @"Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE");
+    DEPRECATED_REPLACED(@"UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE");
     return [NSNumber numberWithInt:UITableViewCellSeparatorStyleSingleLine];
 }
 
 -(NSNumber*)NONE
 {
-    DEPRECATED_REPLACED(@"Ti.UI.iPhone.TableViewSeparatorStyle.NONE", @"5.2.0", @"Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE");
+    DEPRECATED_REPLACED(@"UI.iPhone.TableViewSeparatorStyle.NONE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_NONE");
     return [NSNumber numberWithInt:UITableViewCellSeparatorStyleNone];
 }
 
