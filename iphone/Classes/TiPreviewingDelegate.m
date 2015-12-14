@@ -120,11 +120,11 @@
     }
 #endif
 #ifdef USE_TI_UITABLEVIEW
-    if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableView class]] == YES) {
-        TiUITableViewProxy* listProxy = (TiUITableViewProxy*)[[self previewContext] sourceView];
-        TiUITableView *view = (TiUITableView*)[listProxy view];
+    if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableViewProxy class]] == YES) {
+        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)[[self previewContext] sourceView];
+        TiUITableView *table = (TiUITableView*)[tableProxy view];
         
-        return [view tableView];
+        return [table tableView];
     }
 #endif
     
@@ -133,18 +133,19 @@
 
 -(NSDictionary*)receiveListViewEventFromIndexPath:(NSIndexPath*)indexPath
 {
+    NSDictionary *event = @{
+        @"sectionIndex": NUMINTEGER(indexPath.section),
+        @"itemIndex": NUMINTEGER(indexPath.row),
+        @"preview": [[self previewContext] preview]
+    };
+    
 #ifdef USE_TI_UILISTVIEW
     if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
         TiUIListViewProxy* listProxy = (TiUIListViewProxy*)[[self previewContext] sourceView];
-        
         TiUIListSectionProxy *theSection = [listProxy sectionForIndex:indexPath.section];
-        NSDictionary *theItem = [theSection itemAtIndex:indexPath.row];
         
-        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                            NUMINTEGER(indexPath.section), @"sectionIndex",
-                                            NUMINTEGER(indexPath.row), @"itemIndex",
-                                            [[self previewContext] preview], @"preview",
-                                            nil];
+        NSDictionary *theItem = [theSection itemAtIndex:indexPath.row];
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithDictionary:event];
         
         id propertiesValue = [theItem objectForKey:@"properties"];
         NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -156,7 +157,8 @@
         return eventObject;
     }
 #endif
-    return nil;
+
+    return event;
 }
 
 @end
