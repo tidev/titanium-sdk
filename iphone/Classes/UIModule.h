@@ -276,6 +276,10 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
+
 #endif
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
