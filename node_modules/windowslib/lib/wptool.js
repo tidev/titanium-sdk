@@ -529,7 +529,7 @@ function wpToolLaunch(device, productGuid, options, callback) {
 			var ex = new Error(__('Failed to launch app: %s', result.message));
 			callback(ex);
 		} catch (e) {
-			var ex = new Error(__('Failed to connect to emulator'));
+			var ex = new Error(__('Failed to connect to emulator: %s', out));
 			callback(ex);
 		}
 	});
@@ -712,6 +712,7 @@ function wpToolInstall(deployCmd, device, appPath, options, callback) {
  * @param {String} [appPath] - Path to the appx, xap or appxbundle to install.
  * @param {Object} [options] - An object containing various settings.
  * @param {Object} [options.skipLaunch] - Just install the app, don't launch it too.
+ * @param {Object} [options.appGuid] - The generated app guid. May be null/empty, if so we'll try to detect it
  * @param {String} [options.powershell] - Path to the 'powershell' executable.
  * @param {Function} [callback(err, results)] - A function to call with the device information.
  *
@@ -737,27 +738,41 @@ function install(device, appPath, options, callback) {
 			}
 
 			if (wpsdk == '10.0') {
-				// TODO If !options.skipLaunch then do the install and get product guid in parallel before launching?
-				wpToolInstall(cmd, device, appPath, options, function (err, result) {
-					if (err) {
-						emitter.emit(result || 'error', err);
-						return callback(err);
-					}
+				if (!options.skipLaunch) {
+					var guid;
+					// we need the appid to launch, so install the app and get the app id in parallel
+					async.parallel([
+						function (next) {
+							wpToolInstall(cmd, device, appPath, options, function (err, result) {
+								if (err) {
+									emitter.emit(result || 'error', err);
+									return next(err);
+								}
+								next();
+							});
+						},
+						function (next) {
+							if (options.appGuid) {
+								guid = options.appGuid;
+								next();
+							} else {
+								getProductGUID(appPath, options, function(err, productGuid) {
+									if (err) {
+										emitter.emit(result || 'error', err);
+										return next(err);
+									}
 
-					if (options.skipLaunch) {
-						emitter.emit('launched', device);
-						return callback(null, result);
-					}
-
-					// Need to gather the product guid from the appx!
-					getProductGUID(appPath, options, function(err, productGuid) {
+									guid = productGuid;
+									next();
+								});
+							}
+						}
+					], function (err, results) {
 						if (err) {
-							emitter.emit(result || 'error', err);
 							return callback(err);
 						}
-
 						// now launch it!
-						wpToolLaunch(device, productGuid, options, function (err, result) {
+						wpToolLaunch(device, guid, options, function (err, result) {
 							if (err) {
 								emitter.emit(result || 'error', err);
 								return callback(err);
@@ -766,7 +781,18 @@ function install(device, appPath, options, callback) {
 							callback(null, result);
 						});
 					});
-				});
+				} else {
+					// We're just installing. No need to grab appid or laucnh the app
+					wpToolInstall(cmd, device, appPath, options, function (err, result) {
+						if (err) {
+							emitter.emit(result || 'error', err);
+							return callback(err);
+						}
+
+						emitter.emit('launched', device);
+						return callback(null, result);
+					});
+				}
 			} else {
 				nativeInstall(cmd, device, appPath, options, function (err, result) {
 					if (err) {

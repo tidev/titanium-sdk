@@ -1,3 +1,9 @@
+0.2.2 (12/14/2015)
+-------------------
+  * Better error messages about bad app GUIDs when launching using our custom wptool
+  * Support appxbundles for extracting the app GUID, look in multiple locations in XML (still may get just the text appid and not GUID)
+  * Support passing in the app GUID for the launch/install methods so we don't need to extract it from appx/appxbundle if we already know it.
+
 0.2.1 (12/11/2015)
 -------------------
   * Fix detection of Windows 10 phone details
