@@ -1,4 +1,4 @@
-Appcelerator Titanium Mobile  
+Appcelerator Titanium Mobile  [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile)
 ============================
 
 Welcome to the Titanium open source project.  Titanium provides
