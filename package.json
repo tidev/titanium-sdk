@@ -14,7 +14,7 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "grunt && node support/ti_mocha_script/test.js"
   },
   "dependencies": {
     "adm-zip": "0.4.7",
@@ -28,8 +28,8 @@
     "fields": "0.1.24",
     "humanize": "0.0.9",
     "ioslib": "0.9.0",
-    "markdown": "0.5.0",
     "moment": "2.10.6",
+    "markdown": "0.5.0",
     "node-appc": "0.2.33",
     "node-uuid": "1.4.3",
     "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
@@ -37,8 +37,7 @@
     "sprintf": "0.1.5",
     "temp": "0.8.3",
     "uglify-js": "2.5.0",
-    "unorm": "^1.4.1",
-    "windowslib": "0.2.0",
+    "windowslib": "0.1.21",
     "wrench": "1.5.8",
     "xcode": "0.8.2",
     "xmldom": "0.1.19"
@@ -61,7 +60,7 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=0.10.0 <=5.1.x"
+    "node": ">=0.10.0 <=5.0.x"
   },
   "engines": {
     "node": ">=0.10.13"
