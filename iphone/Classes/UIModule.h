@@ -277,10 +277,11 @@
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 
-@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
-@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
 
 #endif
+
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 @property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
