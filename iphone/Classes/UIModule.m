@@ -567,6 +567,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 
+
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
     return NUMINTEGER(NSUnderlineStyleNone);
@@ -656,6 +657,9 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
     return NUMINTEGER(NSLineBreakByTruncatingMiddle);
 }
 #endif
+
+MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE,UITableViewCellSeparatorStyleNone);
+MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
 
 @end
 

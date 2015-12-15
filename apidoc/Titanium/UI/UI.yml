@@ -1992,14 +1992,14 @@ properties:
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.
     type: Number
-    platforms: [android]
+    platforms: [iphone, ipad, android]
     since: "5.2.0"
     permission: read-only
 
   - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
     summary: The row divider is shown as a single line.
     type: Number
-    platforms: [android]
+    platforms: [iphone, ipad, android]
     since: "5.2.0"
     permission: read-only
 
