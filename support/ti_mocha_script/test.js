@@ -17,7 +17,8 @@ var path = require('path'),
 	iosJsonResults,
 	androidJsonResults,
 	maxFailedTestCount = 0,
-	runningOnTravis = false;
+	runningOnTravis = false,
+	runningOnJenkins = false;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
@@ -269,45 +270,51 @@ function test(callback) {
 			runningOnTravis = true;
 			console.log('Running Automated Tests on Travis');
 		};
+		if (val == 'run-on-jenkins') {
+			runningOnJenkins = true;
+			console.log('Skip Automated Tests on Jenkins');
+		};
 	});
-	async.series([
-		function (next) {
-			getSDKInstallDir(next);
-		},
-		function (next) {
-			console.log("Generating project");
-			generateProject(next);
+	//Skip these tests if built on Jenkins. Should integrate into Jenkins in the future.
+	if (runningOnJenkins == false) {
+		async.series([
+			function (next) {
+				getSDKInstallDir(next);
+			},
+			function (next) {
+				console.log("Generating project");
+				generateProject(next);
 
-		},
-		function (next) {
-			console.log("Adding properties for tiapp.xml");
-			addTiAppProperties(next);
-		},
-		function (next) {
-			console.log("Copying test scripts into project");
-			copyMochaAssets(next);
-		},
-		function (next) {
-			console.log("Launching android test project in emulator");
-			runAndroidBuild(next, 1);
-		},
-		function (next) {
-			parseAndroidTestResults(androidTestResults, next);
-		},		
-		function (next) {
-			console.log("Launching ios test project in simulator");
-			runIOSBuild(next, 1);
-		},
-		function (next) {
-			parseIOSTestResults(iosTestResults, next);
-		}
-	], function(err) {
-		callback(err, {
-			iosResults: iosJsonResults,
-			androidResults: androidJsonResults
+			},
+			function (next) {
+				console.log("Adding properties for tiapp.xml");
+				addTiAppProperties(next);
+			},
+			function (next) {
+				console.log("Copying test scripts into project");
+				copyMochaAssets(next);
+			},
+			function (next) {
+				console.log("Launching android test project in emulator");
+				runAndroidBuild(next, 1);
+			},
+			function (next) {
+				parseAndroidTestResults(androidTestResults, next);
+			},		
+			function (next) {
+				console.log("Launching ios test project in simulator");
+				runIOSBuild(next, 1);
+			},
+			function (next) {
+				parseIOSTestResults(iosTestResults, next);
+			}
+		], function(err) {
+			callback(err, {
+				iosResults: iosJsonResults,
+				androidResults: androidJsonResults
+			});
 		});
-	});
-
+	}
 }
 
 // public API
