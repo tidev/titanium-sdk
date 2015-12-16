@@ -2052,7 +2052,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+	if (this.tiapp['navbar-hidden'] != manifest.navbarHidden) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
 		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
@@ -2509,6 +2509,113 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			});
 		}
 	}, this);
+
+	// genereate missing app icons
+	tasks.push(function (cb) {
+		this.currentBuildManifestFiles = this.currentBuildManifestFiles || {};
+
+		var lookup = {
+				// ../Resources/android/appicon.png
+				'default':	{ height: 128, width: 128, required: true },
+				// ../platform/android/res/drawable-[key]/appicon.png
+				'ldpi':		{ height: 36, width: 36, required: false },
+				'mdpi':		{ height: 48, width: 48, required: false },
+				'hdpi':		{ height: 72, width: 72, required: false },
+				'xhdpi':	{ height: 96, width: 96, required: false },
+				'xxhdpi':	{ height: 144, width: 144, required: false },
+				'xxxhdpi':	{ height: 192, width: 192, required: false }
+			},
+			possibleDefaultIcons = [
+				path.join(this.projectDir, 'platform', 'android', 'DefaultIcon.png'),
+				path.join(this.projectDir, 'DefaultIcon-android.png'),
+				path.join(this.projectDir, 'DefaultIcon.png')
+			],
+			missingIcons = [],
+			defaultIcon,
+			previousBuildManifestFiles = this.buildManifest && this.buildManifest.files,
+			defaultIconChanged = false;
+
+		possibleDefaultIcons.some(function (icon) {
+			if (fs.existsSync(icon)) {
+				defaultIcon = icon;
+				return true;
+			}
+		});
+
+		if (defaultIcon) {
+			var currDefaultIconHash = this.hash(fs.readFileSync(defaultIcon)),
+				defaultIconRelative = path.relative(this.projectDir, defaultIcon),
+				prevDefaultIcon = previousBuildManifestFiles && previousBuildManifestFiles[defaultIconRelative],
+				prevDefaultIconHash = prevDefaultIcon && prevDefaultIcon.hash,
+
+			this.currentBuildManifestFiles[defaultIconRelative] = {
+				hash: currDefaultIconHash
+			};
+
+			defaultIconChanged = prevDefaultIconHash !== currDefaultIconHash;
+		}
+
+		function copyGenAppIcons() {
+			// copy generated app icons from ../build/android/bin/assets/res to ../build/android/res
+			var source = path.join(_t.buildBinAssetsDir, 'res');
+			if (fs.existsSync(source)) {
+				copyDir.call(_t, {
+					src: source,
+					dest: _t.buildResDir
+				}, cb);
+			} else {
+				cb();
+			}
+		}
+
+		Object.keys(lookup).forEach(function (key) {
+			var icon = lookup[key],
+				source,
+				dest,
+				description,
+				resDrawable;
+
+			if (key === 'default') {
+				dest = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+				description = path.join('Resources', 'android', this.tiapp.icon);
+			} else {
+				resDrawable = path.join('res', 'drawable' + '-' + key, this.tiapp.icon);
+				dest = path.join(this.buildBinAssetsDir, resDrawable);
+				description = path.join('platform', 'android', resDrawable);
+			}
+
+			source = path.join(this.projectDir, description);
+
+			// the icon exists in project, should have been copied to build
+			if (fs.existsSync(source)) {
+				this.logger.trace(__('Found %sx%s app icon: %s', icon.width, icon.height, source.cyan));
+				return;
+			}
+
+			// the app icon was previously resized
+			if (!defaultIconChanged && fs.existsSync(dest)) {
+				this.logger.trace(__('Found %sx%s app icon: %s', icon.width, icon.height, dest.cyan));
+				return;
+			}
+
+			// generated icons will be placed under ../build/android/bin/assets/res/drawable-[density]
+			fs.existsSync(path.dirname(dest)) || wrench.mkdirSyncRecursive(path.dirname(dest));
+			missingIcons.push({
+				description: __('%s', description),
+				file: dest,
+				width: icon.width,
+				height: icon.height,
+				required: icon.required
+			});
+
+		}, this);
+
+		if (missingIcons.length) {
+			this.generateAppIcons(missingIcons, copyGenAppIcons);
+		} else {
+			cb();
+		}
+	});
 
 	appc.async.series(this, tasks, function (err, results) {
 		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
@@ -4158,6 +4265,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
+		files: this.currentBuildManifestFiles,
 		target: this.target,
 		deployType: this.deployType,
 		classname: this.classname,
