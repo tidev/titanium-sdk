@@ -2546,7 +2546,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			var currDefaultIconHash = this.hash(fs.readFileSync(defaultIcon)),
 				defaultIconRelative = path.relative(this.projectDir, defaultIcon),
 				prevDefaultIcon = previousBuildManifestFiles && previousBuildManifestFiles[defaultIconRelative],
-				prevDefaultIconHash = prevDefaultIcon && prevDefaultIcon.hash,
+				prevDefaultIconHash = prevDefaultIcon && prevDefaultIcon.hash;
 
 			this.currentBuildManifestFiles[defaultIconRelative] = {
 				hash: currDefaultIconHash
