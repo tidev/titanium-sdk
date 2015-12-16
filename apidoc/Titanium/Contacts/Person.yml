@@ -133,7 +133,7 @@ properties:
     summary: Localized full name of the person. Single value. Read-only on Android.
     description: | 
         The full name will be printed in the order of.
-        First name, middle name, family name, suffix.
+        Prefix,first name, middle name, family name, suffix.
     type: String
     permission: read-only
     
