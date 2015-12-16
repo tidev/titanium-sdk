@@ -56,6 +56,7 @@ script:
   - cd dist
   - ti sdk install *osx.zip
   - cd ..
+  - npm install grunt-cli
   - npm test -- run-on-travis
 
 after_success:
