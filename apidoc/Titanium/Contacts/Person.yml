@@ -264,7 +264,10 @@ properties:
     
   - name: recordId
     summary: Record identifier of the person. Single value. Deprecated since iOS 9.
-    description: For iOS 9 and later, use the [identifier](Titanium.Contacts.Person.identifier) property.
+    description: | 
+        For iOS 9 and later, use the [identifier](Titanium.Contacts.Person.identifier) property. 
+        In iOS 8, a contact can be selected without requiring User permission. In such case this 
+        property returns -1. 
     type: Number
     platforms: [iphone, ipad]
     osver: {ios: {max: "8.4"}}
