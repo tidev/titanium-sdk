@@ -60,8 +60,7 @@
 
     <style name="Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton.CloseMode" />
 
-    <style name="Widget.AppCompat.ActionButton.Overflow"
-           parent="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" />
+    <style name="Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow" />
 
     <style name="Widget.AppCompat.ActionBar.TabBar"
            parent="Base.Widget.AppCompat.ActionBar.TabBar">
@@ -218,11 +217,15 @@
 
     <style name="Widget.AppCompat.ButtonBar.AlertDialog" parent="Base.Widget.AppCompat.ButtonBar.AlertDialog" />
 
+    <style name="Widget.AppCompat.ImageButton" parent="Base.Widget.AppCompat.ImageButton" />
+
     <style name="Widget.AppCompat.TextView.SpinnerItem" parent="Base.Widget.AppCompat.TextView.SpinnerItem" />
 
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat" />
 
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light" />
+
+    <style name="Widget.AppCompat.SeekBar" parent="Base.Widget.AppCompat.SeekBar" />
 
     <!-- Toolbar -->
 
