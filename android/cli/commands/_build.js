@@ -2555,32 +2555,22 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			defaultIconChanged = prevDefaultIconHash !== currDefaultIconHash;
 		}
 
-		function copyGenAppIcons() {
-			// copy generated app icons from ../build/android/bin/assets/res to ../build/android/res
-			var source = path.join(_t.buildBinAssetsDir, 'res');
-			if (fs.existsSync(source)) {
-				copyDir.call(_t, {
-					src: source,
-					dest: _t.buildResDir
-				}, cb);
-			} else {
-				cb();
-			}
-		}
-
 		Object.keys(lookup).forEach(function (key) {
 			var icon = lookup[key],
 				source,
 				dest,
+				destFinal,
 				description,
 				resDrawable;
 
 			if (key === 'default') {
 				dest = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+				destFinal = dest;
 				description = path.join('Resources', 'android', this.tiapp.icon);
 			} else {
 				resDrawable = path.join('res', 'drawable' + '-' + key, this.tiapp.icon);
 				dest = path.join(this.buildBinAssetsDir, resDrawable);
+				destFinal = path.join(this.buildDir, resDrawable);
 				description = path.join('platform', 'android', resDrawable);
 			}
 
@@ -2595,13 +2585,19 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			// the app icon was previously resized
 			if (!defaultIconChanged && fs.existsSync(dest)) {
 				this.logger.trace(__('Found %sx%s app icon: %s', icon.width, icon.height, dest.cyan));
+
+				// since we always destroy and rebuild the res directory
+				// copy over the previously genereated icons to ../build/android/res
+				if (!fs.existsSync(destFinal)) {
+					copyFile.call(this, dest, destFinal);
+				}
 				return;
 			}
 
 			// generated icons will be placed under ../build/android/bin/assets/res/drawable-[density]
 			fs.existsSync(path.dirname(dest)) || wrench.mkdirSyncRecursive(path.dirname(dest));
 			missingIcons.push({
-				description: __('%s', description),
+				description: description,
 				file: dest,
 				width: icon.width,
 				height: icon.height,
@@ -2611,7 +2607,18 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}, this);
 
 		if (missingIcons.length) {
-			this.generateAppIcons(missingIcons, copyGenAppIcons);
+			this.generateAppIcons(missingIcons, function () {
+				// copy generated app icons from ../build/android/bin/assets/res to ../build/android/res
+				var source = path.join(_t.buildBinAssetsDir, 'res');
+				if (fs.existsSync(source)) {
+					copyDir.call(_t, {
+						src: source,
+						dest: _t.buildResDir
+					}, cb);
+				} else {
+					cb();
+				}
+			});
 		} else {
 			cb();
 		}
