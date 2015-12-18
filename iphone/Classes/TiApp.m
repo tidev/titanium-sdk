@@ -496,7 +496,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	completionHandler();
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
     RELEASE_TO_NIL(remoteNotification);
     [self generateNotification:userInfo];
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
@@ -508,10 +508,18 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if (category != nil) {
         event[@"category"] = category;
     }
+
+#if IS_XCODE_7
+    if([TiUtils isIOS9OrGreater] == YES) {
+        [event setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
+    }
+#endif
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
     [event autorelease];
     completionHandler();
 }
+
 
 
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest
