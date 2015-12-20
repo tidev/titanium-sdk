@@ -48,6 +48,10 @@
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
+    if ([[self previewContext] preview] == nil) {
+        return nil;
+    }
+    
     UITableView *tableView = [self ensureTableView];
     
     if (tableView != nil) {

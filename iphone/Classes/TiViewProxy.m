@@ -1296,6 +1296,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     
     [context setSourceView:self];
     [context connectToDelegate];
+    
+    [self replaceValue:context forKey:@"previewContext" notification:NO];
 
 #endif
 #endif
