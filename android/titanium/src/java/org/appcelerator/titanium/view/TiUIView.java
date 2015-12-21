@@ -1099,17 +1099,17 @@ public abstract class TiUIView
 	 * @param rippleColor The ripple color.
 	 */
 	private void applyTouchFeedback(@NonNull Integer bgColor, @Nullable Integer rippleColor) {
-		Context appContext = TiApplication.getInstance();
-        if (rippleColor == null) {
-        	TypedValue resolvedAttr = new TypedValue();
-            if(appContext.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, resolvedAttr, true)) {
-                rippleColor = appContext.getResources().getColor(resolvedAttr.resourceId);
-            } else {
-            	throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
-            }
-        }
-        RippleDrawable rippleDrawable = new RippleDrawable(ColorStateList.valueOf(rippleColor), new ColorDrawable(bgColor), null);
-    	nativeView.setBackground(rippleDrawable);
+	    Context appContext = TiApplication.getInstance();
+	    if (rippleColor == null) {
+	        TypedValue resolvedAttr = new TypedValue();
+	        if(appContext.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, resolvedAttr, true)) {
+	            rippleColor = appContext.getResources().getColor(resolvedAttr.resourceId);
+	        } else {
+	            throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
+	        }
+	    }
+	    RippleDrawable rippleDrawable = new RippleDrawable(ColorStateList.valueOf(rippleColor), new ColorDrawable(bgColor), null);
+	    nativeView.setBackground(rippleDrawable);
 	}
 
 	public void onFocusChange(final View v, boolean hasFocus)
