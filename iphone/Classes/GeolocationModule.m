@@ -1103,15 +1103,15 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                 errorStr = @"The user denied access to use location services.";
         }
         
-        NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
-        [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
-        
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        
-        [authorizationCallback call:invocationArray thisObject:self];
-        [invocationArray release];
-        RELEASE_TO_NIL(errorStr);
+        TiThreadPerformOnMainThread(^{
+            NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
+            [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:authorizationCallback eventObject:propertiesDict thisObject:self];
+            [[authorizationCallback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+        }, YES);
         RELEASE_TO_NIL(authorizationCallback);
+        RELEASE_TO_NIL(errorStr);
     }
 }
 
