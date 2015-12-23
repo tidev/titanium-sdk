@@ -184,7 +184,7 @@ methods:
     platforms: [iphone, ipad, android]
     parameters:
       - name: camera
-        summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
+        summary: Constant indicating to which camera you want to switch.
         type: Number
         constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
     since:
