@@ -33,6 +33,7 @@
 +(NSDictionary*)multiValueLabels;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_;
 #if IS_XCODE_7
 @property(readonly,nonatomic) NSString* identifier;
 +(NSDictionary*)iOS9multiValueLabels;
