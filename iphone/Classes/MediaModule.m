@@ -969,6 +969,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)switchCamera:(id)args
 {
+    // TIMOB-17951
+    if ([args objectAtIndex:0] == [NSNull null]) {
+        return;
+    }
+    
     ENSURE_SINGLE_ARG(args,NSNumber);
     ENSURE_UI_THREAD(switchCamera,args);
     
