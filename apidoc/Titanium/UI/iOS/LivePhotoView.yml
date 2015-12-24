@@ -40,7 +40,7 @@ methods:
         summary: An option for how much of the Live Photo's motion and sound content to play.
         type: Number
         constants: [Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL, Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_HINT]
-        default: Titanium.UI.iOS. LIVEPHOTO_PLAYBACK_STYLE_FULL
+        default: Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL
 
   - name: stopPlayback
     summary: Ends playback of Live Photo content in the view.

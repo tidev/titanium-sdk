@@ -36,10 +36,12 @@
 
 #pragma mark Public APIs
 
--(void)setMode_:(id)value
+-(void)setEffect_:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
     [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
+    
+    [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
 }
 
 -(void)setWidth_:(id)width_
