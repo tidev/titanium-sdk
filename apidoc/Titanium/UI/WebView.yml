@@ -409,7 +409,7 @@ properties:
     default: false
     since: "6.0.0"
     osver: {ios: {min: "9.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone]
 
   - name: data
     summary: Web content to load.
