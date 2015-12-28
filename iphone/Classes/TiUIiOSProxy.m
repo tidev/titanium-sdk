@@ -94,6 +94,8 @@
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
 #import <PhotosUI/PhotosUI.h>
 #endif
+#endif
+#ifdef USE_TI_UIIOSBLURVIEW
 #import "TiUIiOSBlurViewProxy.h"
 #endif
 
@@ -187,7 +189,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSBLURVIEW
--(NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
+- (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleExtraLight);
@@ -195,7 +197,7 @@
     return nil;
 }
 
--(NSNumber*) BLUR_EFFECT_STYLE_LIGHT
+- (NSNumber* )BLUR_EFFECT_STYLE_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleLight);
@@ -203,7 +205,7 @@
     return nil;
 }
 
--(NSNumber*) BLUR_EFFECT_STYLE_DARK
+- (NSNumber*) BLUR_EFFECT_STYLE_DARK
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleDark);
