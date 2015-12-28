@@ -322,7 +322,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	return url;
 }
 
--(id)setAllowsLinkPreview_:(id)value
+-(void)setAllowsLinkPreview_:(id)value
 {
 #if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == NO) {
