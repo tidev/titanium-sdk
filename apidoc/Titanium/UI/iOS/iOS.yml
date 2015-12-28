@@ -842,6 +842,37 @@ properties:
     type: Number
     permission: read-only
 
+  - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is lighter in hue than the underlying view.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: BLUR_EFFECT_STYLE_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is the same approximate hue 
+        of the underlying view.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: BLUR_EFFECT_STYLE_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is darker in hue than the underlying view.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+    osver: {ios: {min: "8.0"}}
+
   - name: AD_SIZE_PORTRAIT
     summary: |
         Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
