@@ -1662,7 +1662,7 @@ properties:
     type: Number
     since: "3.1.0"
   - name: livePhoto
-    description: |
+    summary: |
         The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto
