@@ -968,6 +968,7 @@ properties:
     type: Boolean
     since: "5.1.0"
     osver: {ios: {min: "9.0"}}
+    permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
     summary: |
@@ -977,6 +978,7 @@ properties:
     type: Number
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
+    permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
     summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
@@ -986,6 +988,7 @@ properties:
     type: Number
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
+    permission: read-only
 
   - name: MENU_POPUP_ARROW_DIRECTION_UP
     summary: An arrow that points upward.

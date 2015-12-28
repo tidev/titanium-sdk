@@ -501,6 +501,7 @@ properties:
     since: "5.2.0"
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
+    type: Number
     platforms: [iphone, ipad]
 
   - name: allAlerts
