@@ -1579,6 +1579,7 @@ properties:
         notes: Use KEYBOARD_TYPE_URL instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
+    type: Number
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
