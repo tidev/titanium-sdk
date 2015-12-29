@@ -231,7 +231,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         TiThreadPerformOnMainThread(^(){
             CNContactStore *ourContactStore = [self contactStore];
             [ourContactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError *error) {
-                NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+                NSString* errorMessage = granted ? nil : @"The user has denied access to the address book";
+                NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
                 KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                 [[callback context] enqueue:invocationEvent];
                 RELEASE_TO_NIL(invocationEvent);
