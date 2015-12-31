@@ -191,6 +191,15 @@
     return [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
 }
 #endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+-(TiUIiOSAnimationStyleProxy*)AnimationStyle
+{
+/*Not using autorelease since it breaks multiple transitions between windows*/
+ return [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[self pageContext]];
+}
+#endif
+
 #ifdef USE_TI_UIIOSMENUPOPUP
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_UP, UIMenuControllerArrowUp);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DOWN, UIMenuControllerArrowDown);
