@@ -15,6 +15,11 @@
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 #import "TIUIiOSAlertDialogStyleProxy.h"
 #endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+#import "TiUIiOSAnimationStyleProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
@@ -97,6 +102,11 @@
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 @property (nonatomic,readonly) TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
 #endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+@property (nonatomic,readonly) TiUIiOSAnimationStyleProxy* AnimationStyle;
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
 

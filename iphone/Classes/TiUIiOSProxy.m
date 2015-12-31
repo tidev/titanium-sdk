@@ -194,6 +194,15 @@
     return [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
 }
 #endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+-(TiUIiOSAnimationStyleProxy*)AnimationStyle
+{
+/*Not using autorelease since it breaks multiple transitions between windows*/
+ return [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[self pageContext]];
+}
+#endif
+
 #ifdef USE_TI_UIIOSBLURVIEW
 - (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
