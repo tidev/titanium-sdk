@@ -23,12 +23,19 @@
     return self;
 }
 
--(void)setItems:(NSArray<TiLayoutView*>*)items
+-(void)setItems:(id)items
 {
     NSMutableArray<UIBarButtonItem*>* allItems = [NSMutableArray array];
-    for(TiLayoutView* currentItem in items) {
-        UIBarButtonItem* newItem = [[UIBarButtonItem alloc] initWithCustomView:currentItem];
-        [allItems addObject:newItem];
+    for(id currentItem in items) {
+        UIBarButtonItem* newItem = nil;
+        if ([currentItem isKindOfClass:[TiLayoutView class]]) {
+            newItem = [[UIBarButtonItem alloc] initWithCustomView:(TiLayoutView*)currentItem];
+        } else if ([currentItem isKindOfClass:[UIBarButtonItem class]]) {
+            newItem = (UIBarButtonItem*)currentItem;
+        }
+        if (newItem) {
+            [allItems addObject:newItem];
+        }
     }
     [[self toolbar] setItems:allItems];
 }
