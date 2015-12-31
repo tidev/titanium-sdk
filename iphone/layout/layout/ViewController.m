@@ -8,9 +8,9 @@
 #import "ViewController.h"
 #import "TiScrollableView.h"
 #import "TiScrollView.h"
-//#import "TiTextField.h"
+#import "TiTextField.h"
 //#import "TiSwitch.h"
-//#import "TiToolbar.h"
+#import "TiToolbar.h"
 //#import "TiUtils.h"
 #import "TiLabel.h"
 #import "TiButton.h"
@@ -18,27 +18,6 @@
 #define FILL @"FILL"
 #define SIZE @"SIZE"
 
-
-static TiLayoutView* createWindow(TiLayoutView* parent)
-{
-    TiLayoutView* window = [[TiLayoutView alloc] init];
-    [window setWidth_:@320];
-    [window setHeight_:@480];
-    [window setBackgroundColor:[UIColor whiteColor]];
-    [window setViewName:@"window"];
-    [parent addSubview:window];
-    return window;
-}
-
-static NSMutableArray* viewControllers = nil;
-
-
-
-@interface ViewController ()
-{
-    TiLayoutView* contentView;
-}
-@end
 
 @implementation ViewController
 
@@ -49,71 +28,46 @@ static NSMutableArray* viewControllers = nil;
     CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
     return [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
 }
+// UIBarButtonItem *fixedItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
-
     
-    TiLayoutView* window = [[TiLayoutView alloc] init];
-    
-    
-    {
-        TiScrollView* scrollView = [[TiScrollView alloc] init];
-        scrollView.top = @10;
-        scrollView.left = @10;
-        scrollView.width = @100;
-        scrollView.height = @150;
-        scrollView.backgroundColor = [UIColor greenColor];
+    dispatch_async(dispatch_get_main_queue(), ^{
         
-        TiLayoutView* view = [[TiLayoutView alloc] init];
-        view.width = @150;
-        view.height = @200;
-        view.top = @10;
-        view.backgroundColor = [UIColor grayColor];
+        UIView* thisView = [self view];
         
-        TiLabel* label = [[TiLabel alloc] init];
-        label.width = @"SIZE";
-        label.height = @"SIZE";
-        label.text = @"Bounce:true, vertbar:false";
-        label.backgroundColor = [UIColor yellowColor];
+        TiLayoutView* window = [[TiLayoutView alloc] init];
+        [window setOnLayout:^(TiLayoutView *s, CGRect r) {
+            NSLog(@"here");
+        }];
         
+        TiToolbar* toolbar = [[TiToolbar alloc] init];
+        [window insertSubview:toolbar atIndex:0];
         
+        toolbar.backgroundColor = [UIColor grayColor];
         
-        [view addSubview:label];
-        [scrollView addSubview:view];
+        UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        UIBarButtonItem* button1 = [[UIBarButtonItem alloc] initWithTitle:@"meh 1" style:UIBarButtonItemStylePlain target:nil action:nil];
         
-        [window addSubview:scrollView];
-    }
-
-    {
-        TiScrollView* scrollView = [[TiScrollView alloc] init];
-        scrollView.top = @10;
-        scrollView.right = @10;
-        scrollView.width = @100;
-        scrollView.height = @150;
-        scrollView.backgroundColor = [UIColor greenColor];
+        TiTextField* textField = [[TiTextField alloc] init];
+        textField.viewName = @"TiUITextField";
         
-        TiLayoutView* view = [[TiLayoutView alloc] init];
-        view.width = @150;
-        view.height = @200;
-        view.top = @10;
-        view.backgroundColor = [UIColor grayColor];
+        button1.width = 33;
         
-        TiLabel* label = [[TiLabel alloc] init];
-        label.text = @"Bounce:true, horzbar:false";
-        label.width = @"SIZE";
-        label.height = @"SIZE";
-        label.backgroundColor = [UIColor yellowColor];
+        textField.backgroundColor = [UIColor yellowColor];
+        textField.width = @200;
+        textField.height = @32;
+        
+        [toolbar setItems:@[flexSpace, button1, flexSpace, textField, flexSpace]];
         
         
+        [thisView addSubview:window];
+        [thisView bringSubviewToFront:window];
         
-        [view addSubview:label];
-        [scrollView addSubview:view];
-        
-        [window addSubview:scrollView];
-    }
-
-    [[self view] addSubview:window];
-
+        NSLog(@"Done");
+    });
 }
 @end

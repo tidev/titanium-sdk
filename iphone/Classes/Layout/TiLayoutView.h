@@ -57,9 +57,8 @@
 
 +(void)removeConstraints:(UIView*)parent fromChild:(UIView*)child;
 -(CGSize)sizeThatFits:(CGSize)size height:(id)height;
-
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
+-(void)initializeTiLayoutView;
 
 @end
 #endif
