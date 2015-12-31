@@ -12,6 +12,9 @@
 	#import "TiUIiOSAdViewProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+#import "TIUIiOSAlertDialogStyleProxy.h"
+#endif
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
@@ -91,6 +94,9 @@
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
 
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+@property (nonatomic,readonly) TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
+#endif
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
 
