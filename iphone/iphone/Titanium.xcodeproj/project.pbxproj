@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C59941C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m */; };
+		159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */; };
 		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
 		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -335,6 +337,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		159C59931C345D17009A8860 /* TIUIiOSAlertDialogStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TIUIiOSAlertDialogStyleProxy.h; sourceTree = "<group>"; };
+		159C59941C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIUIiOSAlertDialogStyleProxy.m; sourceTree = "<group>"; };
+		159C59961C357D7B009A8860 /* TiUIiOSAnimationStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAnimationStyleProxy.h; sourceTree = "<group>"; };
+		159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAnimationStyleProxy.m; sourceTree = "<group>"; };
 		1D0061BF160283820016BBEE /* TiBindingRunLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingRunLoop.h; sourceTree = "<group>"; };
 		1D0061C0160283820016BBEE /* TiBindingRunLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingRunLoop.m; sourceTree = "<group>"; };
 		1D1029A615F9769100372EC0 /* TiBindingEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiBindingEvent.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1704,6 +1710,8 @@
 			children = (
 				24CA8A98111161FD0084E2DE /* TiUIAlertDialogProxy.m */,
 				24CA8A99111161FD0084E2DE /* TiUIAlertDialogProxy.h */,
+				159C59931C345D17009A8860 /* TIUIiOSAlertDialogStyleProxy.h */,
+				159C59941C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m */,
 			);
 			name = Alert;
 			sourceTree = "<group>";
@@ -1916,6 +1924,8 @@
 				24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */,
 				24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */,
 				24E50E031160661600AF54AF /* Dashboard */,
+				159C59961C357D7B009A8860 /* TiUIiOSAnimationStyleProxy.h */,
+				159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -2622,6 +2632,7 @@
 				CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */,
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
+				159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
 				24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */,
@@ -2720,6 +2731,7 @@
 				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
 				24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
 				84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
+				159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,

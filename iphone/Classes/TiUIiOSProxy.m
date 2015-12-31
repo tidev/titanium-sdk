@@ -188,6 +188,12 @@
 }
 #endif
 
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+-(TIUIiOSAlertDialogStyleProxy*)AlertDialogStyle
+{
+    return [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
+}
+#endif
 #ifdef USE_TI_UIIOSBLURVIEW
 - (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
