@@ -217,11 +217,11 @@ AppleWatchCreator.prototype.run = function run(callback) {
 		var projectDir = this.cli.argv['project-dir'],
 			extName = this.cli.argv.name,
 			dest = path.join(projectDir, 'extensions', extName),
-			isWatchOSv1 = this.cli.argv.template === 'watchos1',
 			watchkitExtName = extName + ' WatchKit Extension',
 			watchkitAppName = extName + ' WatchKit App',
-			watchkitExtId = this.tiapp.id + (isWatchOSv1 ? '' : '.watchkitapp') + '.watchkitextension',
-			watchkitAppId = this.tiapp.id + '.watchkitapp';
+			watchkitAppId = this.tiapp.id + '.watchkitapp',
+			watchkitExtId = watchkitAppId + '.watchkitextension';
+
 
 		this.cli.argv.force && fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);
 		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
