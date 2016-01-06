@@ -71,7 +71,7 @@
 
 -(void)setViews:(id)args
 {
-#ifndef TI_USE_AUTOLAYOUT
+#ifdef TI_USE_AUTOLAYOUT
     ENSURE_UI_THREAD(setViews, args)
 #endif
 	ENSURE_ARRAY(args);
@@ -94,8 +94,6 @@
 	[viewProxies autorelease];
 	viewProxies = [args mutableCopy];
     
-	[self replaceValue:args forKey:@"views" notification:YES];
-
 #ifdef TI_USE_AUTOLAYOUT
     for (TiViewProxy* proxy in viewProxies)
     {
@@ -103,6 +101,7 @@
     }
 #endif
     [self unlockViews];
+    [self replaceValue:args forKey:@"views" notification:YES];
 }
 
 -(void)addView:(id)args
