@@ -641,10 +641,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera = null;
 		}
 
-		if (cameraId == Integer.MIN_VALUE) {
-			camera = Camera.open();
-		} else {
-			camera = Camera.open(cameraId);
+		try {
+			if (cameraId == Integer.MIN_VALUE) {
+				camera = Camera.open();
+			} else {
+				camera = Camera.open(cameraId);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.", e);
 		}
 
 		if (camera == null) {
