@@ -218,6 +218,10 @@ properties:
         Array of images to animate, defined using local filesystem paths, `File` objects, 
         remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
         objects are not supported on Mobile Web.
+        
+        When using this property, an initial `start()` needs to be called upon the ImageView before any image will show in this imageview. 
+        
+        Related properties/methods to look at: `start`, `stop`, `pause`, `reverse`, `resume` and `repeatCount` 
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
 
     
