@@ -94,7 +94,7 @@
 	[viewProxies autorelease];
 	viewProxies = [args mutableCopy];
     
-	[self replaceValue:args forKey:@"views" notification:NO];
+	[self replaceValue:args forKey:@"views" notification:YES];
 
 #ifdef TI_USE_AUTOLAYOUT
     for (TiViewProxy* proxy in viewProxies)
