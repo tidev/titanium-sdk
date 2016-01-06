@@ -176,15 +176,17 @@ methods:
     summary: Stops video capture using the camera specified.
     platforms: [iphone, ipad]
   - name: switchCamera
-    summary: Switches between front and rear-facing cameras.
+    summary: |
+        Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
+        the camera you want to switch to.
     description: |
         In Android, this can only be called when using a custom overlay (see <Titanium.Media.showCamera>).
     platforms: [iphone, ipad, android]
     parameters:
       - name: camera
-        summary: The camera to switch to.
+        summary: Constant indicating to which camera you want to switch.
         type: Number
-        constants: Titanium.Media.CAMERA_*
+        constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
     since:
         android: 3.2.0
         iphone: 1.8.1
