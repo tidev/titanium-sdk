@@ -14,6 +14,7 @@
 	<guid></guid>
 	<property name="ti.ui.defaultunit">dp</property>
 	<ios>
+		<use-app-thinning>true</use-app-thinning>
 		<enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
 		<plist>
 			<dict>
