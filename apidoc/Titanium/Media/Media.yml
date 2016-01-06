@@ -753,6 +753,16 @@ properties:
     platforms: [iphone, ipad]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
+    deprecated:
+        since: "5.2.0"
+        notes: Use [CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
+  - name: CAMERA_AUTHORIZATION_UNKNOWN
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
@@ -762,6 +772,13 @@ properties:
     summary: Media type constant for photo media.
     type: String
     permission: read-only
+  - name: MEDIA_TYPE_LIVEPHOTO
+    summary: Media type constant for live photo media.
+    type: String
+    permission: read-only
+    since: "5.2.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.1"}}
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
     type: String
@@ -1297,11 +1314,23 @@ properties:
   - name: cameraAuthorizationStatus
     summary: |
         Returns the authorization status for the camera.
+    deprecated:
+        since: "5.2.0"
+        notes: Use cameraAuthorization instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
     permission: read-only
     since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: cameraAuthorization
+    summary: |
+        Returns the authorization status for the camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "5.2.0"
     osver: {ios: {min: "7.0"}}
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1480,7 +1509,10 @@ properties:
     platforms: [iphone, ipad]
     default: false
   - name: mediaTypes 
-    summary: Array of media type constants to allow.
+    summary: | 
+        Array of media type constants to allow. If you want to allow live photos with
+        Titanium.Media.MEDIA_TYPE_LIVEPHOTO on iOS 9.1 and later, you also need to specify
+        at least Titanium.Media.MEDIA_TYPE_PHOTO as a fallback.
     constants: Titanium.Media.MEDIA_TYPE_*
     type: Array<String>
     default: Both photo and video allowed.
@@ -1556,7 +1588,7 @@ summary: |
     [openPhotoGallery](Titanium.Media.openPhotoGallery).
 properties:
   - name: success 
-    summary: Function to call when the photogallery is closed after a successful selection.
+    summary: Function to call when the photo gallery is closed after a successful selection.
     type: Callback<CameraMediaItemType>
   - name: error 
     summary: Function to call upon receiving an error.
@@ -1605,7 +1637,7 @@ properties:
     summary: The media object, as a [Blob](Titanium.Blob).
     type: Titanium.Blob
   - name: mediaType
-    summary: The type of media, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
+    summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
     type: String
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
@@ -1629,6 +1661,13 @@ properties:
     description: Error code will be 0.
     type: Number
     since: "3.1.0"
+  - name: livePhoto
+    summary: |
+        The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
+        `undefined` if no live photo is selected.
+    type: Titanium.UI.iOS.LivePhoto
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
 
 # Arguably we might need a global Rect pseudotype. For now, define locally
 ---

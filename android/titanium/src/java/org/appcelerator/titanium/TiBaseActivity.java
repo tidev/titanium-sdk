@@ -474,7 +474,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected void setFullscreen(boolean fullscreen)
 	{
 		if (fullscreen) {
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			View decorView = getWindow().getDecorView();
+			// Hide both the navigation bar and the status bar.
+			// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+			// a general rule, you should design your app to hide the status bar whenever you
+			// hide the navigation bar.
+			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+			              | View.SYSTEM_UI_FLAG_FULLSCREEN;
+			decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
 
@@ -800,13 +808,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		TiWindowProxy topWindow = topWindowOnStack();
 
-		// Prevent default Android behavior for "back" press
-		// if the top window has a listener to handle the event.
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-
+		}
+		
+		// Override default Android behavior for "back" press
+		// if the top window has a callback to handle the event.
+		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
+			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
+			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
+			
 		} else {
-			// If event is not handled by any listeners allow default behavior.
+			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
 		}
 	}
@@ -1016,10 +1029,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	public static void callOrientationChangedListener(Activity activity, int width, int height, int rotation)
 	{
-		int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
-		if (orientationChangedListener != null && previousOrientation != currentOrientation) {
-			previousOrientation = currentOrientation;
-			orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
+		if (activity != null) {
+			int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
+			if (orientationChangedListener != null && previousOrientation != currentOrientation) {
+				previousOrientation = currentOrientation;
+				orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
+			}	
 		}
 	}
 

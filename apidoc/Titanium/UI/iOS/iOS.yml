@@ -968,10 +968,30 @@ properties:
     type: Boolean
     since: "5.1.0"
     osver: {ios: {min: "9.0"}}
+    permission: read-only
+
+  - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
+    summary: |
+        Plays back the entire motion and sound content of the Live Photo, including transition 
+        effects at the start and end.
+    description: This style matches the effect seen when pressing on a photo in the Photos app.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+
+  - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
+    summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
+    description: |
+        This style matches the effect seen in various iOS interface elements for hinting to the user 
+        when an asset contains Live Photo content.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
 
   - name: MENU_POPUP_ARROW_DIRECTION_UP
     summary: An arrow that points upward.
-
     type: Number
     permission: read-only
     

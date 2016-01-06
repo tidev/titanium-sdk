@@ -184,6 +184,23 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
+  - name: STATUS_CANCELLED
+    summary: Event canceled status.
+    description: |
+        A [event status]<Titanium.Calendar.Event.status> value.
+
+        One of the group of event "status" constants,
+        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
+        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
+
   - name: STATUS_CANCELED
     summary: Event canceled status.
     description: |
@@ -468,9 +485,23 @@ properties:
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+    deprecated:
+        since: "5.2.0"
+        notes: Use calendarAuthorization instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: calendarAuthorization
+    summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
+    description: |
+        Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+        type: Number
+    since: "5.2.0"
+    constants: Titanium.Calendar.AUTHORIZATION_*
+    permission: read-only
+    type: Number
     platforms: [iphone, ipad]
 
   - name: allAlerts

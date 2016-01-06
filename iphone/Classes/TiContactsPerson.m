@@ -34,6 +34,7 @@ static NSDictionary* iOS9propertyKeys;
 			ABAddressBookRef ourAddressBook = [module addressBook];
 			if (ourAddressBook != NULL) {
 				record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
+				CFRetain(record);
 			}
 		}
 	}
@@ -49,21 +50,36 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return self;
 }
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_
+{
+	if (self = [super _initWithPageContext:context]) {
+		recordId = ABRecordGetRecordID(person_);
+		record = CFRetain(person_);
+		module = module_;
+	}
+	return self;
+}
+
 #if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
 		person = [person_ retain];
 		module = module_;
-		iOS9contactProperties = [self getiOS9ContactProperties: person_];
+		iOS9contactProperties = [[self getiOS9ContactProperties: person_] retain];
 	}
 	return self;
 }
 #endif
+
 -(void)dealloc
 {
     RELEASE_TO_NIL(iOS9contactProperties)
-	[super dealloc];
+    if (record != NULL) {
+        CFRelease(record);
+    }
+    [super dealloc];
 }
 
 -(NSString*)apiName
@@ -84,33 +100,26 @@ static NSDictionary* iOS9propertyKeys;
 	if (contact == nil) {
 		return nil;
 	}
-	return [[NSDictionary alloc] initWithObjectsAndKeys:contact.givenName, @"firstName",
-		contact.familyName, @"lastName",
-		contact.middleName, @"middleName",
-		contact.namePrefix, @"prefix",
-		contact.nameSuffix, @"suffix",
-		contact.nickname, @"nickname",
-		contact.phoneticGivenName, @"firstPhonetic",
-		contact.phoneticFamilyName, @"lastPhonetic",
-		contact.phoneticMiddleName, @"middlePhonetic",
-		contact.organizationName, @"organization",
-		contact.jobTitle, @"jobTitle",
-		contact.departmentName, @"department",
-		contact.emailAddresses, @"email",
-		contact.note, @"note",
-//		contact.birthday, @"birthday", birthday property has some problems in iOS9 Beta, have to be exclusively handled
-		[NSNumber numberWithInteger:contact.contactType], @"kind",
-		contact.postalAddresses, @"address",
-		contact.phoneNumbers, @"phone",
-		contact.socialProfiles, @"socialProfile",
-		contact.instantMessageAddresses, @"instantMessage",
-		contact.dates, @"date",
-		contact.urlAddresses, @"url",
-		contact.contactRelations, @"relatedNames",
-		contact.nonGregorianBirthday, @"alternateBirthday",
-		nil];
+	
+	// iOS9 contacts framework by default returns partial contact.
+	// For ex: Email is returned nil when phone is selected and vice-versa.
+	// So check and add.
+	NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+	NSDictionary* supportedProperties = [TiContactsPerson iOS9propertyKeys];
+	for (NSString* property in supportedProperties) {
+		if ([contact isKeyAvailable:property]) {
+			id value = [contact valueForKey:property];
+			NSString* key = [supportedProperties objectForKey:property];
+			[dict setValue:value forKey:key];
+		}
+	}
+	
+	NSDictionary *result = [NSDictionary dictionaryWithDictionary:dict];
+	RELEASE_TO_NIL(dict);
+	return result;
 }
 #endif
+
 #pragma mark Property dictionaries
 
 // -kABPerson non-multi properties
@@ -491,18 +500,19 @@ static NSDictionary* iOS9propertyKeys;
 		if ([person.namePrefix length]) {
 			[compositeName appendFormat:@"%@ ", person.namePrefix];
 		}
-		if ([person.nameSuffix length]) {
-			[compositeName appendFormat:@"%@ ", person.nameSuffix];
-		}
-		if ([person.organizationName length]) {
-			[compositeName appendFormat:@"%@ ", person.organizationName];
-		}
 		if ([person.givenName length]) {
 			[compositeName appendFormat:@"%@ ", person.givenName];
+		}
+		if ([person.middleName length]) {
+			[compositeName appendFormat:@"%@ ", person.middleName];
 		}
 		if ([person.familyName length]) {
 			[compositeName appendFormat:@"%@ ", person.familyName];
 		}
+		if ([person.nameSuffix length]) {
+			[compositeName appendFormat:@"%@ ", person.nameSuffix];
+		}
+        
 		if ([compositeName length]) {
 			//remove last space
 			NSRange range;
@@ -618,7 +628,7 @@ static NSDictionary* iOS9propertyKeys;
 #if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		//birthday property managed seperately
-		if ([key isEqualToString:@"birthday"]) {
+		if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
 			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
 			return [TiUtils UTCDateForDate:date];
 		}

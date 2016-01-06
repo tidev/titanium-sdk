@@ -546,7 +546,7 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts a vlaue into a String. If value is null, a default value is returned.
+	 * Converts a value into a String. If value is null, a default value is returned.
 	 * @param value the value to convert.
 	 * @param defaultString the default value.
 	 * @return a String.

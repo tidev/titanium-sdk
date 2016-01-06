@@ -149,6 +149,7 @@
 #endif
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
@@ -156,6 +157,7 @@
 {
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
+#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {

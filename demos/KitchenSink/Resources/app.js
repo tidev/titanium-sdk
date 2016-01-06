@@ -365,7 +365,7 @@ if (isiOS4Plus())
 	var service = Ti.App.iOS.registerBackgroundService({url:'bg.js'});
 
 	Ti.API.info("registered background service = "+service);
-	
+
 	if(Ti.App.getArguments().url)
 	{
 		alert(Ti.App.getArguments().url);
@@ -410,4 +410,3 @@ if (Ti.App.Properties.getBool('showNotice', true)){
 		}
 	});
 }
-

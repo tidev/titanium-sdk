@@ -859,6 +859,16 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     
     CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    BOOL permissionsGranted = (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse);
+    
+    if (permissionsGranted) {
+        [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
+        return;
+    } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
+        NSString *message = @"The user denied access to use location services.";
+        [self executeAndReleaseCallbackWithCode:1 andMessage:message];
+        return;
+    }
     
     NSString *errorMessage = nil;
     
@@ -868,30 +878,32 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
             } else {
-                [[self locationPermissionManager] requestWhenInUseAuthorization];
+                TiThreadPerformOnMainThread(^{
+                    [[self locationPermissionManager] requestWhenInUseAuthorization];
+                }, NO);
             }
         } else {
             errorMessage = @"The NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission";
         }
     }
-    if ((requested == kCLAuthorizationStatusAuthorizedAlways) ||
-        (requested == kCLAuthorizationStatusAuthorized)) {
+    if ((requested == kCLAuthorizationStatusAuthorizedAlways) || (requested == kCLAuthorizationStatusAuthorized)) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
             if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
             } else {
-                [[self locationPermissionManager] requestAlwaysAuthorization];
+                TiThreadPerformOnMainThread(^{
+                    [[self locationPermissionManager] requestAlwaysAuthorization];
+                }, NO);
             }
         } else {
             errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
         }
     }
     
-    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
-
-    if (errorMessage != nil) {
+    if (errorMessage != nil ) {
         NSLog(@"[ERROR] %@", errorMessage);
-        RELEASE_TO_NIL(errorMessage);
+        [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+         RELEASE_TO_NIL(errorMessage);
     }
 }
 

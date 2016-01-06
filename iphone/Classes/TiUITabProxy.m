@@ -217,6 +217,7 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+		[self setIconInsets:[self valueForKey:@"iconInsets"]];
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
 		[controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
@@ -426,7 +427,12 @@
         }
     }
     if ([self _hasListeners:@"blur"]) {
-        [self fireEvent:@"blur" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        DEPRECATED_REPLACED(@"UI.Tab.Event.blur",@"5.2.0", @"UI.Tab.Event.unselected");
+        [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    
+    if ([self _hasListeners:@"unselected"]) {
+        [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
@@ -450,7 +456,12 @@
         }
     }
     if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        DEPRECATED_REPLACED(@"UI.Tab.Event.focus",@"5.2.0", @"UI.Tab.Event.selected");
+        [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+    
+    if ([self _hasListeners:@"selected"]) {
+        [self fireEvent:@"selected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
@@ -486,6 +497,7 @@
 	
     UIViewController* rootController = [rootWindow hostingController];
 	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
+	id iconInsets = [self valueForKey:@"iconInsets"];
 	id icon = [self valueForKey:@"icon"];
 	
 	if ([icon isKindOfClass:[NSNumber class]])
@@ -555,6 +567,13 @@
     if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
     }
+    
+    if (iconInsets != nil) {
+        if(UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+            [ourItem setImageInsets:[TiUtils contentInsets:iconInsets]];
+        }
+    }
+    
     [ourItem setBadgeValue:badgeValue];
     [rootController setTabBarItem:ourItem];
 }
@@ -589,6 +608,14 @@
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 
 	[self updateTabBarItem];
+}
+
+-(void)setIconInsets:(id)args
+{
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        [self replaceValue:args forKey:@"iconInsets" notification:NO];
+        [self updateTabBarItem];
+    }
 }
 
 -(void)setIconIsMask:(id)value

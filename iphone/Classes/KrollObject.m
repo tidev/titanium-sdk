@@ -1196,11 +1196,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
         };
 #ifndef TI_USE_KROLL_THREAD
     };
-    if (![NSThread isMainThread]) {
-        dispatch_async(dispatch_get_main_queue(), mainBlock);
-    } else {
-        mainBlock();
-    }
+    TiThreadPerformOnMainThread(mainBlock, NO);
 #endif
 }
 
@@ -1347,7 +1343,16 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	{
 		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, &exception);
 		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, &exception);
-		
+        
+		for (uint i = 0; i < arrayLength; ++i)
+		{
+                TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
+                if (valueRef == callbackFunction) {
+                    TiStringRelease(jsEventTypeString);
+                    return;
+            }
+        }
+        
 		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
 	}
 

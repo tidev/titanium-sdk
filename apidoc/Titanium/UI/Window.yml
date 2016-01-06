@@ -175,17 +175,6 @@ events:
         This event is fired when the current window's activity detects
         a back button press by the user to navigate back.
 
-        By default this event would trigger the current activity to be finished
-        and removed from the task stack. Subscribing to this event with a listener
-        will prevent the default behavior. To finish the activity from your listener
-        just call the *close* method of the window.
-
-        This event replaces the android:back event. Some behavior
-        changes may exist such as the event no longer firing when the
-        user dismisses the keyboard with the back button or when the
-        user closes a full-screen video which is embedded in a web view
-        with the back button.
-
     since: '3.0.0'
 
   - name: androidcamera
@@ -541,7 +530,16 @@ properties:
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
     type: Number
-
+  
+  - name: onBack
+    summary: |
+        Callback function that overrides the default behavior when the user presses the **Back** 
+        button.
+    description: |
+        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
+        callback if you explicitly want to override the back button behavior.
+    type: Callback<Object>
+  
   - name: orientationModes
     summary: |
         Array of supported orientation modes, specified using the orientation
@@ -735,8 +733,8 @@ properties:
   - name: theme
     summary: Name of the theme to apply to the window.
     description: |
-        Set the theme of the window. It can be either a [built-in theme](http://docs.appcelerator.com/platform/3.0/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
-        or a [custom theme](http://docs.appcelerator.com/platform/3.0/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+        Set the theme of the window. It can be either a [built-in theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
+        or a [custom theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
     platforms: [android]
     type: String
     since: "3.4.0"

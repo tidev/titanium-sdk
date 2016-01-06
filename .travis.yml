@@ -1,4 +1,5 @@
 language: objective-c
+
 jdk:
   - oraclejdk7
 install:
@@ -24,14 +25,7 @@ install:
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter tools
-  - echo yes | android -s update sdk --no-ui --all --filter platform-tools
-  - echo yes | android -s update sdk --no-ui --all --filter extra-android-support 
-  - echo yes | android -s update sdk --no-ui --all --filter android-8
-  - echo yes | android -s update sdk --no-ui --all --filter android-10
-  - echo yes | android -s update sdk --no-ui --all --filter android-$TITANIUM_ANDROID_API
-  - echo yes | android -s update sdk --no-ui --all --filter addon-google_apis-google-$TITANIUM_ANDROID_API
-  -
+  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-$TITANIUM_ANDROID_API.0.0,extra-android-support,android-22,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
   - # Install required Android NDK
   - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
@@ -46,11 +40,24 @@ install:
   - export ANDROID_PLATFORM=$ANDROID_SDK/platforms/android-$TITANIUM_ANDROID_API
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API
 
+before_script:
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - echo yes | emulator -avd test -no-skin -no-audio -no-window &
+
 script:
+  - df -h
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
   - npm install
-  - npm test
+  - df -h
   - ls dist
+  - cd dist
+  - ti sdk install *osx.zip
+  - cd ..
+  - npm install grunt-cli
+  - npm test -- run-on-travis
+
+after_success:
+  - #upload test results somewhere

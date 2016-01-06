@@ -220,6 +220,16 @@ properties:
          otherwise.
     type: String
 
+  - name: iconInsets
+    summary: The icon inset or outset for each edge.
+    description: | 
+        Use this property for example to center an icon without providing a title. To do that, set the
+        insets to `{top:6, bottom:-6, right:0, left:0}`.
+    since: "5.2.0"
+    default: All insets are zero.
+    type: TabIconInsets
+    platforms: [iphone,ipad]
+
   - name: iconIsMask
     summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
@@ -280,6 +290,9 @@ properties:
 events: 
   - name: blur
     summary: Fired when the tab loses focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use unselected instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -293,7 +306,24 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
 
+  - name: unselected
+    summary: Fired when the tab is no longer selected.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
@@ -307,6 +337,26 @@ events:
 
   - name: focus
     summary: Fired when the tab gains focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use selected instead.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: selected
+    summary: Fired when the tab is selected.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -381,3 +431,26 @@ examples:
                     </Tab>
                  </TabGroup>
             </Alloy>
+
+---
+name: TabIconInsets
+summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>.
+since: "5.2.0"
+platforms: [iphone, ipad]
+properties:
+  - name: top 
+    summary: Top inset.
+    type: Number
+
+  - name: left
+    summary: Left inset.
+    type: Number
+
+  - name: right
+    summary: Right inset.
+    type: Number
+
+  - name: bottom
+    summary: Bottom inset.
+    type: Number
+

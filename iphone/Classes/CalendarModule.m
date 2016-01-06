@@ -244,10 +244,10 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                                  completion:^(BOOL granted, NSError *error){
                                      NSDictionary* propertiesDict;
                                      if (error == nil) {
-                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
+                                         NSString* errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
+                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
                                      } else {
-                                         propertiesDict = [TiUtils dictionaryWithCode:[error code]
-                                                                              message:[TiUtils messageFromError:error]];
+                                         propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                      }
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                      [[callback context] enqueue:invocationEvent];
@@ -284,15 +284,23 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(NSNumber*) eventsAuthorization
 {
+    DEPRECATED_REPLACED(@"Calendar.eventsAuthorization", @"5.2.0", @"Calendar.calendarAuthorization");
+    return [self calendarAuthorization];
+}
+
+-(NSNumber*) calendarAuthorization
+{
     EKAuthorizationStatus result = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     return [NSNumber numberWithInteger:result];
 }
+
 #pragma mark - Properties
 
 MAKE_SYSTEM_PROP(STATUS_NONE,EKEventStatusNone);
 MAKE_SYSTEM_PROP(STATUS_CONFIRMED,EKEventStatusConfirmed);
 MAKE_SYSTEM_PROP(STATUS_TENTATIVE,EKEventStatusTentative);
-MAKE_SYSTEM_PROP(STATUS_CANCELLED,EKEventStatusCanceled);
+MAKE_SYSTEM_PROP(STATUS_CANCELED,EKEventStatusCanceled);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATUS_CANCELLED, EKEventStatusCanceled, @"Calendar.STATUS_CANCELLED", @"5.2.0", @"Calendar.STATUS_CANCELED")
 
 MAKE_SYSTEM_PROP(AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
 MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);
