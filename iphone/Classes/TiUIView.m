@@ -284,9 +284,16 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	
 	[self updateTouchHandling];
-	 
-	self.backgroundColor = [UIColor clearColor]; 
+	self.backgroundColor = [UIColor clearColor];
+#ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+#else
+    if (self.translatesAutoresizingMaskIntoConstraints == NO) {
+        self.autoresizingMask = UIViewAutoresizingNone;
+    } else {
+        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    }
+#endif
 }
 
 -(void)configurationSet

@@ -1002,6 +1002,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Recognizers
 
+-(BOOL) implementsSelector:(SEL)inSelector {
+    return [self respondsToSelector:inSelector] && !( [super respondsToSelector:inSelector] && [self methodForSelector:inSelector] == [super methodForSelector:inSelector] );
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -1018,10 +1022,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		view = [self newView];
 
 #ifdef TI_USE_AUTOLAYOUT
-        if ([self respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoWidthBehavior:)]) {
             [view setDefaultWidth:[self defaultAutoWidthBehavior:nil]];
         }
-        if ([self respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoHeightBehavior:)]) {
             [view setDefaultHeight:[self defaultAutoHeightBehavior:nil]];
         }
 #endif

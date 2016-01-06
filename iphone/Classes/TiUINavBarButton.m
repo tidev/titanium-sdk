@@ -72,7 +72,7 @@ DEFINE_EXCEPTIONS
 	id systemButton = [proxy_ valueForKey:@"systemButton"];
 	if (systemButton!=nil)
 	{
-		int type = [TiUtils intValue:systemButton];
+		UIBarButtonSystemItem type = [TiUtils intValue:systemButton];
 		UIView *button = [TiButtonUtil systemButtonWithType:type];
 		if (button!=nil)
 		{
@@ -106,33 +106,23 @@ DEFINE_EXCEPTIONS
             self = [super initWithCustomView:[proxy_ view]];
             self.target = self;
             self.action = @selector(clicked:);
-
+#ifndef TI_USE_AUTOLAYOUT
             if ([[proxy_ view] isKindOfClass:[UIControl class]])
             { 
                 [(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
             }
             //Sanity check. If the view bounds are zero set the bounds to auto dimensions
             CGRect bounds = [[proxy_ view] bounds];
-#ifdef TI_USE_AUTOLAYOUT
-            CGSize s = [[proxy_ view] sizeThatFits:CGSizeMake(1000, 1000)];
-#endif
             if (bounds.size.width == 0) {
-#ifdef TI_USE_AUTOLAYOUT
-                CGFloat desiredWidth = s.width;
-#else
                 CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
-#endif
                 bounds.size.width = desiredWidth;
             }
             if (bounds.size.height == 0) {
-#ifdef TI_USE_AUTOLAYOUT
-                CGFloat desiredHeight = s.height;
-#else
                 CGFloat desiredHeight = [proxy_ autoHeightForSize:CGSizeMake(bounds.size.width, 1000)];
-#endif
                 bounds.size.height = desiredHeight;
             }
             [[proxy_ view] setBounds:bounds];
+#endif
         }
         else if (image!=nil) {
             NSURL *url = [TiUtils toURL:image proxy:proxy_];

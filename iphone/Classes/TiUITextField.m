@@ -259,11 +259,24 @@
 
 #pragma mark Internal
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:textWidgetView positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
 }
+
+#endif
+
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (void) dealloc
 {
@@ -272,18 +285,18 @@
 	[super dealloc];
 }
 
-
 -(UIView<UITextInputTraits>*)textWidgetView
 {
 	if (textWidgetView==nil)
 	{
-		textWidgetView = [[TiTextField alloc] initWithFrame:CGRectZero];
-		((TiTextField *)textWidgetView).delegate = self;
-		((TiTextField *)textWidgetView).text = @"";
-		((TiTextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
-		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		[(TiTextField *)textWidgetView configure];
-		[(TiTextField *)textWidgetView setTouchHandler:self];
+		textWidgetView = [[TiTextField alloc] init];
+		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
+		((UITextField *)textWidgetView).delegate = self;
+		((UITextField *)textWidgetView).text = @"";
+		((UITextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
+		((UITextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+		[(UITextField *)textWidgetView configure];
+		[(UITextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
 		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!

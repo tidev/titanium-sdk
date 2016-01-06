@@ -35,6 +35,7 @@
 @synthesize hitPoint,proxy;
 #pragma mark Touch event handling
 
+
 // TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
 // code which will allow better interactions with UIControl elements (such as buttons)
 // and table rows/cells.
@@ -290,6 +291,15 @@
 @implementation TiUITableView
 #pragma mark Internal 
 @synthesize searchString, viewWillDetach;
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 -(id)init
 {

@@ -8,6 +8,7 @@
 
 #import "TiUIView.h"
 
+
 @interface TiUIScrollableView : TiUIView<UIScrollViewDelegate> {
 @private
 #ifdef TI_USE_AUTOLAYOUT
@@ -20,6 +21,12 @@
 #else
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;
+
+    // See the code for why we need this...
+    NSInteger lastPage;
+    BOOL enforceCacheRecalculation;
+    NSInteger cacheSize;
+    BOOL pageChanged;
 #endif
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
@@ -33,11 +40,6 @@
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
 
-    // See the code for why we need this...
-    NSInteger lastPage;
-    BOOL enforceCacheRecalculation;
-    NSInteger cacheSize;
-    BOOL pageChanged;
     
     
 }

@@ -12,6 +12,15 @@
 
 @implementation TiUIProgressBar
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(id)initWithStyle:(UIProgressViewStyle)style_
 {
 	if (self = [super initWithFrame:CGRectZero])
@@ -22,8 +31,6 @@
 		[self setHidden:YES];
         
 #ifdef TI_USE_AUTOLAYOUT
-        [self setDefaultWidth:TiDimensionAutoSize];
-        [self setDefaultHeight:TiDimensionAutoSize];
         backgroundView = [[UIView alloc] init];
         [backgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [self addSubview:backgroundView];
