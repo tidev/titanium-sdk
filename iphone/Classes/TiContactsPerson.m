@@ -34,6 +34,7 @@ static NSDictionary* iOS9propertyKeys;
 			ABAddressBookRef ourAddressBook = [module addressBook];
 			if (ourAddressBook != NULL) {
 				record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
+				CFRetain(record);
 			}
 		}
 	}
@@ -49,6 +50,17 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return self;
 }
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_
+{
+	if (self = [super _initWithPageContext:context]) {
+		recordId = ABRecordGetRecordID(person_);
+		record = CFRetain(person_);
+		module = module_;
+	}
+	return self;
+}
+
 #if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
 {
@@ -60,10 +72,14 @@ static NSDictionary* iOS9propertyKeys;
 	return self;
 }
 #endif
+
 -(void)dealloc
 {
     RELEASE_TO_NIL(iOS9contactProperties)
-	[super dealloc];
+    if (record != NULL) {
+        CFRelease(record);
+    }
+    [super dealloc];
 }
 
 -(NSString*)apiName
@@ -484,18 +500,19 @@ static NSDictionary* iOS9propertyKeys;
 		if ([person.namePrefix length]) {
 			[compositeName appendFormat:@"%@ ", person.namePrefix];
 		}
-		if ([person.nameSuffix length]) {
-			[compositeName appendFormat:@"%@ ", person.nameSuffix];
-		}
-		if ([person.organizationName length]) {
-			[compositeName appendFormat:@"%@ ", person.organizationName];
-		}
 		if ([person.givenName length]) {
 			[compositeName appendFormat:@"%@ ", person.givenName];
+		}
+		if ([person.middleName length]) {
+			[compositeName appendFormat:@"%@ ", person.middleName];
 		}
 		if ([person.familyName length]) {
 			[compositeName appendFormat:@"%@ ", person.familyName];
 		}
+		if ([person.nameSuffix length]) {
+			[compositeName appendFormat:@"%@ ", person.nameSuffix];
+		}
+        
 		if ([compositeName length]) {
 			//remove last space
 			NSRange range;

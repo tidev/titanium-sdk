@@ -190,6 +190,10 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Integer) value);
 		} else if (value instanceof Long) {
 			intent.putExtra(key, (Long) value);
+		} else if (value instanceof IntentProxy) {
+			intent.putExtra(key, (Intent) ((IntentProxy) value).getIntent());
+		} else if (value instanceof TiBlob) {
+			intent.putExtra(key, ((TiBlob) value).getImage());
 		} else if (value instanceof Object[]) {
 			try {
 				Object[] objVal = (Object[]) value;

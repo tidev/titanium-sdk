@@ -1579,6 +1579,7 @@ properties:
         notes: Use KEYBOARD_TYPE_URL instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
+    type: Number
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
@@ -1988,7 +1989,21 @@ properties:
     type: String
     permission: read-only
     since: "2.0.0"
-    
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
+    summary: The row divider is hidden.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
+    summary: The row divider is shown as a single line.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     description: |

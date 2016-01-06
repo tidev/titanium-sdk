@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		833A9EC71B56F6DB002EEEFB /* InterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 833A9EC61B56F6DB002EEEFB /* InterfaceController.m */; };
 		833A9ECA1B56F6DB002EEEFB /* NotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 833A9EC91B56F6DB002EEEFB /* NotificationController.m */; };
-		833A9ECD1B56F6DB002EEEFB /* GlanceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 833A9ECC1B56F6DB002EEEFB /* GlanceController.m */; };
 		833A9ECF1B56F6DB002EEEFB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 833A9ECE1B56F6DB002EEEFB /* Images.xcassets */; };
 		833A9ED31B56F6DB002EEEFB /* <%= watchkitAppName %>.app in Resources */ = {isa = PBXBuildFile; fileRef = 833A9ED21B56F6DB002EEEFB /* <%= watchkitAppName %>.app */; };
 		833A9EDB1B56F6DB002EEEFB /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 833A9ED91B56F6DB002EEEFB /* Interface.storyboard */; };
@@ -34,8 +33,6 @@
 		833A9EC61B56F6DB002EEEFB /* InterfaceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterfaceController.m; sourceTree = "<group>"; };
 		833A9EC81B56F6DB002EEEFB /* NotificationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationController.h; sourceTree = "<group>"; };
 		833A9EC91B56F6DB002EEEFB /* NotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationController.m; sourceTree = "<group>"; };
-		833A9ECB1B56F6DB002EEEFB /* GlanceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlanceController.h; sourceTree = "<group>"; };
-		833A9ECC1B56F6DB002EEEFB /* GlanceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GlanceController.m; sourceTree = "<group>"; };
 		833A9ECE1B56F6DB002EEEFB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		833A9ED21B56F6DB002EEEFB /* <%= watchkitAppName %>.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "<%= watchkitAppName %>.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		833A9ED81B56F6DB002EEEFB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -79,8 +76,6 @@
 				833A9EC61B56F6DB002EEEFB /* InterfaceController.m */,
 				833A9EC81B56F6DB002EEEFB /* NotificationController.h */,
 				833A9EC91B56F6DB002EEEFB /* NotificationController.m */,
-				833A9ECB1B56F6DB002EEEFB /* GlanceController.h */,
-				833A9ECC1B56F6DB002EEEFB /* GlanceController.m */,
 				833A9ECE1B56F6DB002EEEFB /* Images.xcassets */,
 				833A9EC21B56F6DB002EEEFB /* Supporting Files */,
 			);
@@ -169,7 +164,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 833A9E8E1B56F6D1002EEEFB /* Build configuration list for PBXProject "TemplateApp" */;
+			buildConfigurationList = 833A9E8E1B56F6D1002EEEFB /* Build configuration list for PBXProject "<%= extName %>" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -216,7 +211,6 @@
 			files = (
 				833A9ECA1B56F6DB002EEEFB /* NotificationController.m in Sources */,
 				833A9EC71B56F6DB002EEEFB /* InterfaceController.m in Sources */,
-				833A9ECD1B56F6DB002EEEFB /* GlanceController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,9 +326,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				IBSC_MODULE = TemplateApp64_WatchKit_Extension;
+				IBSC_MODULE = <%= watchkitExtName.replace(/ /g, '_') %>;
 				INFOPLIST_FILE = "<%= watchkitAppName %>/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitExtId %>;
 				PRODUCT_NAME = "<%= watchkitAppName %>";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -346,9 +341,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				IBSC_MODULE = TemplateApp64_WatchKit_Extension;
+				IBSC_MODULE = <%= watchkitExtName.replace(/ /g, '_') %>;
 				INFOPLIST_FILE = "<%= watchkitAppName %>/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitExtId %>;
 				PRODUCT_NAME = "<%= watchkitAppName %>";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -365,6 +361,7 @@
 				);
 				INFOPLIST_FILE = "<%= watchkitExtName %>/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitAppId %>;
 				PRODUCT_NAME = "<%= watchkitExtName %>";
 				SKIP_INSTALL = YES;
 			};
@@ -375,6 +372,7 @@
 			buildSettings = {
 				INFOPLIST_FILE = "<%= watchkitExtName %>/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitAppId %>;
 				PRODUCT_NAME = "<%= watchkitExtName %>";
 				SKIP_INSTALL = YES;
 			};
@@ -383,7 +381,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		833A9E8E1B56F6D1002EEEFB /* Build configuration list for PBXProject "TemplateApp" */ = {
+		833A9E8E1B56F6D1002EEEFB /* Build configuration list for PBXProject "<%= extName %>" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				833A9EB41B56F6D1002EEEFB /* Debug */,

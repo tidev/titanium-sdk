@@ -43,9 +43,9 @@
 	volume = 1.0;
 	resumeTime = 0;
 	
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-    });
+    }, NO);
 }
 
 -(NSString*)apiName
@@ -62,9 +62,9 @@
 		}
 		[player setDelegate:nil];
 	}
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
-    });
+    }, YES);
 	
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(url);
@@ -143,10 +143,10 @@
     if (player != nil) {
         resumeTime = 0;
         paused = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread( ^{
             [player stop];
             RELEASE_TO_NIL(player);
-        });
+        }, YES);
     }
     [self forgetSelf];
     [self _destroy];

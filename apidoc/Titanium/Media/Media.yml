@@ -176,15 +176,17 @@ methods:
     summary: Stops video capture using the camera specified.
     platforms: [iphone, ipad]
   - name: switchCamera
-    summary: Switches between front and rear-facing cameras.
+    summary: |
+        Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
+        the camera you want to switch to.
     description: |
         In Android, this can only be called when using a custom overlay (see <Titanium.Media.showCamera>).
     platforms: [iphone, ipad, android]
     parameters:
       - name: camera
-        summary: The camera to switch to.
+        summary: Constant indicating to which camera you want to switch.
         type: Number
-        constants: Titanium.Media.CAMERA_*
+        constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
     since:
         android: 3.2.0
         iphone: 1.8.1
@@ -1314,11 +1316,23 @@ properties:
   - name: cameraAuthorizationStatus
     summary: |
         Returns the authorization status for the camera.
+    deprecated:
+        since: "5.2.0"
+        notes: Use cameraAuthorization instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
     permission: read-only
     since: "4.0.0"
+    osver: {ios: {min: "7.0"}}
+  - name: cameraAuthorization
+    summary: |
+        Returns the authorization status for the camera.
+    type: Number
+    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "5.2.0"
     osver: {ios: {min: "7.0"}}
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1650,7 +1664,7 @@ properties:
     type: Number
     since: "3.1.0"
   - name: livePhoto
-    description: |
+    summary: |
         The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto

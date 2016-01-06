@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Color;
@@ -47,8 +48,7 @@ public class TiTableView extends FrameLayout
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
 
-	//TODO make this configurable
-	protected static final int MAX_CLASS_NAMES = 32;
+	protected int maxClassname = 32;
 
 	private TableViewModel viewModel;
 	private ListView listView;
@@ -62,6 +62,7 @@ public class TiTableView extends FrameLayout
 	private String filterAttribute;
 	private String filterText;
 
+	private int dividerHeight;
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private boolean filterAnchored = false;
@@ -160,7 +161,7 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return MAX_CLASS_NAMES;
+			return maxClassname;
 		}
 
 		@Override
@@ -277,6 +278,9 @@ public class TiTableView extends FrameLayout
 		super(proxy.getActivity());
 		this.proxy = proxy;
 
+		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
+		    maxClassname = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME));
+		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
 		rowTypes.put(TableViewProxy.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
@@ -340,9 +344,14 @@ public class TiTableView extends FrameLayout
 				}
 			}
 		});
-
+		// get default divider height
+		dividerHeight = listView.getDividerHeight();
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+		    setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+		}
+
+		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
+		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE)));
 		}
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -550,9 +559,16 @@ public class TiTableView extends FrameLayout
 
 	public void setSeparatorColor(String colorstring) {
 		int sepColor = TiColorHelper.parseColor(colorstring);
-		int dividerHeight = listView.getDividerHeight();
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);
+	}
+	
+	public void setSeparatorStyle(int style) {
+	    if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+	        listView.setDividerHeight(0);
+	    } else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+	        listView.setDividerHeight(dividerHeight);
+	    }
 	}
 
 	public TableViewModel getTableViewModel() {

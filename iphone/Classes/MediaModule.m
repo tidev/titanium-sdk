@@ -568,6 +568,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (![TiUtils isIOS7OrGreater]) {
         return nil;
     }
+    
+    DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
+    return [self cameraAuthorization];
+}
+
+-(NSNumber*)cameraAuthorization
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return nil;
+    }
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     return NUMUINT(authStatus);
 }
@@ -959,6 +969,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)switchCamera:(id)args
 {
+    ENSURE_TYPE(args, NSArray);
+    
+    // TIMOB-17951
+    if ([args objectAtIndex:0] == [NSNull null]) {
+        return;
+    }
+    
     ENSURE_SINGLE_ARG(args,NSNumber);
     ENSURE_UI_THREAD(switchCamera,args);
     
@@ -997,8 +1014,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
-            
-            NSString *errorMessage = granted ? @"The user denied access to use the camera." : nil;
+            NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
             KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
                                                                     eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                      thisObject:self];
