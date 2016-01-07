@@ -323,6 +323,16 @@ properties:
 
     type: String
 
+  - name: style
+    summary: Style object that can apply a rich notification style.
+    description: |
+        Notifications in the notification drawer appear in two main visual styles, normal view and big view.
+        The big view of a notification only appears when the notification is expanded.
+        This happens when the notification is at the top of the drawer, or the user clicks the notification.
+        On platform versions that don't offer expanded notifications, styles that depend on expanded notifications have no effect.
+    type: [Titanium.Android.BigTextStyle, Titanium.Android.BigPictureStyle]
+    since: "5.2.0"
+
   - name: tickerText
     summary: Text to scroll across the screen when this item is added to the status bar.
     description: |
