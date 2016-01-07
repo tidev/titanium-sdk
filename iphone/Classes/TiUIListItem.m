@@ -116,6 +116,10 @@
 		[_proxy layoutChildren:NO];
 #endif
 	}
+	
+    if (gradientLayer) {
+        [gradientLayer setFrame:[self bounds]];
+    }
 }
 
 //TIMOB-17373. Workaround for separators disappearing on iOS7 and above
@@ -164,9 +168,8 @@
 	{
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
-		[gradientLayer setFrame:[self bounds]];
+		// Gradient frame will be set when laying out subviews.
 	}
-    
 	[gradientLayer setGradient:currentGradient];
 
 	CALayer * ourLayer = [[[self contentView] layer] superlayer];
