@@ -50,3 +50,22 @@ exports.magik = function magik(options, callback, body) {
 
 	return emitter;
 };
+
+exports.mix = function mix(src, dest) {
+	Object.keys(src).forEach(function (name) {
+		if (Array.isArray(src[name])) {
+			if (Array.isArray(dest[name])) {
+				dest[name] = dest[name].concat(src[name]);
+			} else {
+				dest[name] = src[name];
+			}
+		} else if (src[name] !== null && typeof src[name] === 'object') {
+			dest[name] || (dest[name] = {});
+			Object.keys(src[name]).forEach(function (key) {
+				dest[name][key] = src[name][key];
+			});
+		} else {
+			dest[name] = src[name];
+		}
+	});
+};

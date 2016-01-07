@@ -5,7 +5,7 @@
  * @module wptool
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -82,19 +82,20 @@ function wptoolEnumerate(wpsdk, options, next) {
 			return next(ex);
 		}
 
+		// TODO Handle when we don't have permissions to the folders in SDK and need to offload build to user HOME
 		fs.stat(wptool, function (err, stats) {
 			if (err) {
-			    // file does not exist, build the tool and then run
-			    if (err.code === 'ENOENT') {
+				// file does not exist, build the tool and then run
+				if (err.code === 'ENOENT') {
 					return buildWpTool(options, function (err, path) {
-	    				if (err) {
-	    					return next(err);
-	    				}
-	    				run(wpsdk, next);
-	    			});
-			    }
+						if (err) {
+							return next(err);
+						}
+						run(wpsdk, next);
+					});
+				}
 				// some other error
-			    return next(err);
+				return next(err);
 			}
 
 			// Compare modified time versus wptool.cs!
@@ -322,7 +323,7 @@ function connect(udid, options, callback) {
 					return callback(err);
 				}
 				// TODO if we have win 10 use it's deploy tool to push to devices?
-				var wpsdk = dev.wpsdk || '8.1',
+				var wpsdk = dev.wpsdk || options.wpsdk || options.preferredWindowsPhoneSDK || '8.1',
 					done = function (err, result) {
 						if (err) {
 							emitter.emit(result || 'error', err);
@@ -351,6 +352,9 @@ function connect(udid, options, callback) {
  * @param {Function} [callback(err, path)] - A function to call after building the executable.
  */
 function buildWpTool(options, callback) {
+	// FIXME Handle when we don't have permission to edit the existing csproj or copy to the bin dir!
+	// We should move to a writable directory under HOME and return path to that
+
 	// find required assemblies
 	return assemblies.detect(options, function (err, results) {
 		if (err) {
@@ -549,7 +553,7 @@ function nativeLaunch(device, appid, options, callback) {
 			return callback(err);
 		}
 
-		var wpsdk = device.wpsdk || '8.1',
+		var wpsdk = device.wpsdk || options.wpsdk || options.preferredWindowsPhoneSDK || '8.1',
 			deployCmd = phoneResults.windowsphone[wpsdk].deployCmd,
 			args = [
 				'/launch',
@@ -730,7 +734,7 @@ function install(device, appPath, options, callback) {
 				return callback(err);
 			}
 
-			var wpsdk = device.wpsdk || options.wpsdk || '8.1',
+			var wpsdk = device.wpsdk || options.wpsdk || options.preferredWindowsPhoneSDK || '8.1',
 				cmd = phoneResults.windowsphone[wpsdk].deployCmd;
 			if (!cmd) {
 				var ex = new Error(__('Windows Phone SDK v%s does not appear to have an App deploy tool.', wpsdk));
@@ -758,7 +762,7 @@ function install(device, appPath, options, callback) {
 							} else {
 								getProductGUID(appPath, options, function(err, productGuid) {
 									if (err) {
-										emitter.emit(result || 'error', err);
+										emitter.emit('error', err);
 										return next(err);
 									}
 
@@ -808,7 +812,7 @@ function install(device, appPath, options, callback) {
 }
 
 /**
- * Unzips an appx file to read the APpxManifest.xml and grab the product guid
+ * Unzips an appx file to read the AppxManifest.xml and grab the product guid
  * out (so we know the guid we need to launch it)
  *
  * @param {String} [appxFile] - Path to the appx, xap or appxbundle to inspect.
