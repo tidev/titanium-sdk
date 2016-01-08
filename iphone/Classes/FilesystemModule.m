@@ -200,12 +200,17 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
          [newpath hasSuffix:@".png"]))
     {
         UIImage *image = nil;
-        //NSString *pathStr = [img path];
         NSRange range = [newpath rangeOfString:@".app"];
         NSString *imageArg = nil;
         if (range.location != NSNotFound) {
             imageArg = [newpath substringFromIndex:range.location+5];
         }
+        //remove suffixes.
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+        
         if (imageArg != nil) {
             unsigned char digest[CC_SHA1_DIGEST_LENGTH];
             NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
@@ -215,7 +220,6 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
                 for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
                     [sha appendFormat:@"%02x", digest[i]];
                 }
-//                [sha appendString:@"."];
                 [sha appendString:[newpath substringFromIndex:[newpath length] - 4]];
                 image = [UIImage imageNamed:sha];
                 RELEASE_TO_NIL(sha)
