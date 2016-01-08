@@ -227,7 +227,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
         }
         return [[TiBlob alloc] initWithImage:image];
     }
-    return nil;
+    return [NSNull null];
 }
 
 -(NSString*)IOS_FILE_PROTECTION_NONE
