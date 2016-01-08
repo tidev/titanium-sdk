@@ -60,7 +60,7 @@ methods:
         On iOS9, if app thinning is enabled, and the file of interest is an image file
         that was bundled with the app (not downloaded during runtime), this will not return
         the image file since it is already allocated inside the assets catalog. Please
-        use [getAsset](Titanium.Filesystem.GetAsset) instead for this case.
+        use [getAsset](Titanium.Filesystem.getAsset) instead for this case.
 
     returns:
         type: Titanium.Filesystem.File
@@ -78,9 +78,9 @@ methods:
         enabled on iOS. Since the bundled image has been reallocated into assets catalog, it is 
         no longer accessible via the original file path. To obtain a `Blob` object representing 
         this image, use the original file path as the parameter in this method instead of using it in
-        [getFile](Titanium.Filesystem.GetFile)
+        [getFile](Titanium.Filesystem.getFile)
         
-        Similar to [getFile](Titanium.Filesystem.GetFile), this method takes a variable 
+        Similar to [getFile](Titanium.Filesystem.getFile), this method takes a variable 
         number of arguments, where each argument is treated as a path component. 
         All of the arguments are joined together using the platform-specific path separator 
         to make the final path.
