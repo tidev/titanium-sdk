@@ -578,7 +578,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 -(void)setPageControlHeight_:(id)arg
 {
 	// for 0.8 backwards compat, renamed all for consistency
-    DEPRECATED_REPLACED(@"UI.ScrollableView.pageControlHeight", @"2.1.0", @"UI.ScrollableView.pagingControlHeight");
+    DEPRECATED_REPLACED_REMOVED(@"UI.ScrollableView.pageControlHeight", @"2.1.0", @"6.0.0", @"UI.ScrollableView.pagingControlHeight");
 	[self setPagingControlHeight_:arg];
 }
 
