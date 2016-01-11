@@ -68,8 +68,8 @@ function addTiAppProperties(next) {
 	var content = [];
 	fs.readFileSync(tiapp_xml).toString().split(/\r?\n/).forEach(function(line) {
 		content.push(line);
-		if (line.indexOf('<guid>') >= 0) {
-		//for fixed tiapp properties
+		if (line.indexOf('<ios>') >= 0) {
+			content.push('<use-app-thinning>true</use-app-thinning>');
 		}
 	});
 	fs.writeFileSync(tiapp_xml, content.join('\n'));
