@@ -537,4 +537,13 @@ describe("filesystem", function() {
 			finish();
 		} else finish();
 	});
+	//TIMOB-19833
+	it("getAsset", function(finish) {
+		if ("iphone" === Ti.Platform.osname || "ipad" === Ti.Platform.osname) {
+			//only available with <use-app-thinning>true</use-app-thinning>
+			var imageBlob = Ti.Filesystem.getAsset('images/foo.png');
+			should(imageBlob).not.be.null;
+		}
+		finish();
+	});	
 });
