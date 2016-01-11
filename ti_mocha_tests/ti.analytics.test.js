@@ -7,7 +7,7 @@
 var should = require('./should');
 
 describe("analytics", function() {
-	it("featureEvent", function(finish) {
+	it.skip("featureEvent", function(finish) {
 		should(function() {
 			Ti.Analytics.featureEvent();
 		}).throw();
@@ -17,7 +17,7 @@ describe("analytics", function() {
 		})).be.undefined;
 		finish();
 	});
-	it("navEvent", function(finish) {
+	it.skip("navEvent", function(finish) {
 		should(function() {
 			Ti.Analytics.navEvent();
 		}).throw();
