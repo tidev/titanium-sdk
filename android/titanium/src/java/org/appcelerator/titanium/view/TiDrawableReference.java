@@ -387,7 +387,8 @@ public class TiDrawableReference
 				        if (responseCode == 200) {
 				            b = BitmapFactory.decodeStream(connection.getInputStream());
 				        } else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-				            URL nURL = connection.getURL();
+				            String location = connection.getHeaderField("Location");
+				            URL nURL = new URL(location);
 				            String prevProtocol = mURL.getProtocol();
 				            //HttpURLConnection doesn't handle http to https redirects so we do it manually.
 				            if (prevProtocol != null && !prevProtocol.equals(nURL.getProtocol())) {
