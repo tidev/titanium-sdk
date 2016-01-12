@@ -406,6 +406,7 @@ properties:
     deprecated:
         since: "1.8.1"
         notes: Use [writable](Titanium.Filesystem.File.writable) instead.
+    removed: "6.0.0"
     summary: |
         `true` if the file identified by this object is writable.
     type: Boolean

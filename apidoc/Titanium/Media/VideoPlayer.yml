@@ -692,6 +692,7 @@ properties:
     deprecated:
         since: '1.8.0'
         notes: Use [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) instead.
+    removed: '6.0.0'
     summary: Style of the media playback controls.
     description: |
         Provides the ability to set the control mode of the movie player. 
