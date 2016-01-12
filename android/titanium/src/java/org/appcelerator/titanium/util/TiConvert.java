@@ -861,15 +861,18 @@ public class TiConvert
 	public static int validateJSON(JSONObject jsonObject, int level) {
 
 	    if (level > MAX_LEVELS) {
+	        Log.w(TAG, "Feature event cannot have more than "+ MAX_LEVELS + " nested JSONs");
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
 	    if (jsonObject == null) {
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
 	    if (level == 0 & jsonObject.toString().getBytes().length > MAX_SERLENGTH) {
+	        Log.w(TAG, "Feature event cannot exceed more than "+ MAX_SERLENGTH + " total serialized bytes");
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
 	    if (jsonObject.length() > MAX_KEYS) {
+	        Log.w(TAG, "Feature event maxium keys should not exceed "+ MAX_KEYS);
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
 
@@ -878,6 +881,7 @@ public class TiConvert
 	    while(keys.hasNext()) {
 	        String key = (String)keys.next();
 	        if (key.length() > MAX_KEYLENGTH) {
+	            Log.w(TAG, "Feature event key "+key+" length should not exceed "+MAX_KEYLENGTH+" characters");
 	            return TiC.ERROR_CODE_UNKNOWN;
 	        }
 	        try {
