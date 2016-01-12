@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -86,23 +87,38 @@ public class AnalyticsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
+	public int featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
 	{
-		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			if (data instanceof HashMap) {
-				analytics.sendAppFeatureEvent(event, TiConvert.toJSON(data));
-			} else if (data != null) {
-				try {
-					analytics.sendAppFeatureEvent(event, new JSONObject(data.toString()));
-				} catch (JSONException e) {
-					Log.e(TAG, "Cannot convert data into JSON");
-				}
-			} else {
-				analytics.sendAppFeatureEvent(event, null);
-			}
-		} else {
-			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
-		}
+	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
+	        if (data instanceof HashMap) {
+	            JSONObject jsonData = TiConvert.toJSON(data);
+	            if (TiConvert.validateJSON(jsonData, 0) == TiC.ERROR_CODE_NO_ERROR) {
+	                analytics.sendAppFeatureEvent(event, jsonData);
+	                return TiC.ERROR_CODE_NO_ERROR;
+	            } else {
+	                return TiC.ERROR_CODE_UNKNOWN;
+	            }
+	        } else if (data != null) {
+	            try {
+	                JSONObject jsonData = new JSONObject(data.toString());
+	                if (TiConvert.validateJSON(jsonData, 0) == TiC.ERROR_CODE_NO_ERROR) {
+	                    analytics.sendAppFeatureEvent(event, jsonData);
+	                    return TiC.ERROR_CODE_NO_ERROR;
+	                } else {
+	                    return TiC.ERROR_CODE_UNKNOWN;
+	                }
+	            } catch (JSONException e) {
+	                Log.e(TAG, "Cannot convert data into JSON");
+	                return TiC.ERROR_CODE_UNKNOWN;
+	            }
+	        } else {
+	            analytics.sendAppFeatureEvent(event, null);
+	            return TiC.ERROR_CODE_NO_ERROR;
+	        }
+	    } else {
+	        Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
+	        return TiC.ERROR_CODE_UNKNOWN;
+	    }
 	}
 
 	@Kroll.getProperty @Kroll.method
