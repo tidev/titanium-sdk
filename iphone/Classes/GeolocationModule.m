@@ -305,22 +305,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         }
 		locationManager.headingFilter = heading;
 
-        if ([TiUtils isIOS8OrGreater]) {
-            if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
-                [locationManager requestAlwaysAuthorization];
-            } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-                [locationManager requestWhenInUseAuthorization];
-            } else {
-                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
-            }
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
+            [locationManager requestAlwaysAuthorization];
+        } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+            [locationManager requestWhenInUseAuthorization];
         } else {
-            if (purpose != nil) {
-                DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
-                if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
-                    [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
-                }
-            }
+            NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
         }
+
         //This is set to NO by default for > iOS9.
         if ([TiUtils isIOS9OrGreater]) {
 #if IS_XCODE_7
@@ -798,18 +790,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(NSNumber*)AUTHORIZATION_ALWAYS
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
-    }
-    return NUMINT(0);
+    return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
 }
 
 -(NSNumber*)AUTHORIZATION_WHEN_IN_USE
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
-    }
-    return NUMINT(0);
+    return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
 }
 
 -(CLLocationManager*)locationPermissionManager
@@ -843,10 +829,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)requestLocationPermissions:(id)args
 {
-    if (![TiUtils isIOS8OrGreater]) {
-        return;
-    }
-    
     id value = [args objectAtIndex:0];
     ENSURE_TYPE(value, NSNumber);
     
@@ -943,14 +925,8 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 						   [NSNumber numberWithFloat:[newLocation course]],@"heading",
 						   [NSNumber numberWithFloat:[newLocation speed]],@"speed",
 						   [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)],@"timestamp",
+                           [NSNumber numberWithInteger:[[newLocation floor] level]],@"floor",
 						   nil];
-    
-    if ([TiUtils isIOS8OrGreater]) {
-        NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
-                               [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
-                               nil];
-        [data setObject:floor forKey:@"floor"];
-    }
     
 	return data;
 }

@@ -78,93 +78,61 @@
         dialogRect = CGRectZero;
     }
     
-    if ([TiUtils isIOS8OrGreater]) {
-        RELEASE_TO_NIL(alertController);
-        [[[TiApp app] controller] incrementActiveAlertControllerCount];
-        alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-                                                               message:[TiUtils stringValue:[self valueForKey:@"message"]]
-                                                        preferredStyle:UIAlertControllerStyleActionSheet] retain];
-        
-        int curIndex = 0;
-        //Configure the Buttons
-        for (id btn in options) {
-            NSString* btnName = [TiUtils stringValue:btn];
-            if (!IS_NULL_OR_NIL(btnName)) {
-                UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
-                                                                    style:((curIndex == cancelButtonIndex) ? UIAlertActionStyleCancel : ((curIndex == destructiveButtonIndex) ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault))
-                                                                  handler:^(UIAlertAction * action){
-                                                                      [self fireClickEventWithAction:action];
-                                                                  }];
-                [alertController addAction:theAction];
-            }
-            curIndex++;
-        }
-        
-        if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
-            UIAlertAction* theAction = [UIAlertAction actionWithTitle:@"Cancel"
-                                                                style:UIAlertActionStyleCancel
+    RELEASE_TO_NIL(alertController);
+    [[[TiApp app] controller] incrementActiveAlertControllerCount];
+    alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+                                                           message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                                    preferredStyle:UIAlertControllerStyleActionSheet] retain];
+    
+    int curIndex = 0;
+    //Configure the Buttons
+    for (id btn in options) {
+        NSString* btnName = [TiUtils stringValue:btn];
+        if (!IS_NULL_OR_NIL(btnName)) {
+            UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
+                                                                style:((curIndex == cancelButtonIndex) ? UIAlertActionStyleCancel : ((curIndex == destructiveButtonIndex) ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault))
                                                               handler:^(UIAlertAction * action){
                                                                   [self fireClickEventWithAction:action];
                                                               }];
             [alertController addAction:theAction];
         }
-        BOOL isPopover = NO;
-        
-        if ([TiUtils isIPad]) {
-            UIViewController* topVC = [[[TiApp app] controller] topPresentedController];
-            isPopover = ( (topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]) );
-            /**
-             ** This block commented out since it seems to have no effect on the alert controller.
-             ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
-             ** However not configuring the UIPopoverPresentationController seems to do the trick.
-             ** This hack in place to conserve current behavior. Should revisit when iOS7 is dropped so that
-             ** option dialogs are always presented in UIModalPresentationPopover
-            if (isPopover) {
-                alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
-                alertController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-            }
-            */
-        }
-        /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
-        if (!isPopover) {
-            UIPopoverPresentationController* presentationController =  alertController.popoverPresentationController;
-            presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
-            presentationController.delegate = self;
-        }
-        
-        [self retain];
-        [[TiApp app] showModalController:alertController animated:animated];
-        
-    } else {
-        if (actionSheet != nil) {
-            [actionSheet setDelegate:nil];
-            [actionSheet release];
-        }
-        actionSheet = [[UIActionSheet alloc] init];
-        [actionSheet setDelegate:self];
-        
-        [actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-        
-        for (id thisOption in options)
-        {
-            NSString * thisButtonName = [TiUtils stringValue:thisOption];
-            [actionSheet addButtonWithTitle:thisButtonName];
-        }
-        
-        
-        [actionSheet setCancelButtonIndex:cancelButtonIndex];
-        [actionSheet setDestructiveButtonIndex:destructiveButtonIndex];
-        
-        [self retain];
-        
-        if ([TiUtils isIPad])
-        {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-            [self updateOptionDialogNow];
-            return;
-        }
-        [actionSheet showInView:[[TiApp app] topMostView]];
+        curIndex++;
     }
+    
+    if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
+        UIAlertAction* theAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                            style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction * action){
+                                                              [self fireClickEventWithAction:action];
+                                                          }];
+        [alertController addAction:theAction];
+    }
+    BOOL isPopover = NO;
+    
+    if ([TiUtils isIPad]) {
+        UIViewController* topVC = [[[TiApp app] controller] topPresentedController];
+        isPopover = ( (topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]) );
+        /**
+         ** This block commented out since it seems to have no effect on the alert controller.
+         ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
+         ** However not configuring the UIPopoverPresentationController seems to do the trick.
+         ** This hack in place to conserve current behavior. Should revisit when iOS7 is dropped so that
+         ** option dialogs are always presented in UIModalPresentationPopover
+        if (isPopover) {
+            alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
+            alertController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        }
+        */
+    }
+    /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
+    if (!isPopover) {
+        UIPopoverPresentationController* presentationController =  alertController.popoverPresentationController;
+        presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+        presentationController.delegate = self;
+    }
+    
+    [self retain];
+    [[TiApp app] showModalController:alertController animated:animated];
 }
 
 -(void)hide:(id)args
