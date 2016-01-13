@@ -59,12 +59,27 @@ methods:
         default: null
 
   - name: featureEvent
+    returns:
+      type: Number
+      summary: It returns 0 if JSON validation is successful. Otherwise, -1 is returned.
     summary: Sends a feature event for this application session.
+    description: |
+      From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
+      a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
+      of up to 50 characters. If this is successful, you will get a return number of 0.
+      Otherwise, -1 is returned.
     parameters:
 
       - name: name
         summary: Event name, displayed in Analytics UI.
         type: String
+
+      - name: data
+        summary: |
+            Extra data related to the event. Must be serializable as JSON.
+        type: Object
+        optional: true
+        default: null
 
   - name: filterEvents
     summary: Sets a list of events that will not be sent to the analytics server.

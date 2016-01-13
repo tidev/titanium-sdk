@@ -852,6 +852,63 @@ public class TiConvert
 	{
 		return toDate(hashMap.get(key));
 	}
+
+	public static final int MAX_LEVELS = 5;
+	public static final int MAX_SERLENGTH = 1000;
+	public static final int MAX_KEYS = 25;
+	public static final int MAX_KEYLENGTH = 50;
+
+	public static int validateJSON(JSONObject jsonObject, int level) {
+
+	    if (level > MAX_LEVELS) {
+	        Log.w(TAG, "Feature event cannot have more than "+ MAX_LEVELS + " nested JSONs");
+	        return TiC.ERROR_CODE_UNKNOWN;
+	    }
+	    if (jsonObject == null) {
+	        return TiC.ERROR_CODE_UNKNOWN;
+	    }
+	    if ((level == 0) & (jsonObject.toString().getBytes().length > MAX_SERLENGTH)) {
+	        Log.w(TAG, "Feature event cannot exceed more than "+ MAX_SERLENGTH + " total serialized bytes");
+	        return TiC.ERROR_CODE_UNKNOWN;
+	    }
+	    if (jsonObject.length() > MAX_KEYS) {
+	        Log.w(TAG, "Feature event maxium keys should not exceed "+ MAX_KEYS);
+	        return TiC.ERROR_CODE_UNKNOWN;
+	    }
+
+	    Iterator<String> keys = jsonObject.keys();
+
+	    while(keys.hasNext()) {
+	        String key = (String)keys.next();
+	        if (key.length() > MAX_KEYLENGTH) {
+	            Log.w(TAG, "Feature event key "+key+" length should not exceed "+MAX_KEYLENGTH+" characters");
+	            return TiC.ERROR_CODE_UNKNOWN;
+	        }
+	        try {
+	            Object child;
+	            child = jsonObject.get(key);
+	            if (child instanceof JSONObject) {
+	                if (validateJSON(((JSONObject)child), level+1) != TiC.ERROR_CODE_NO_ERROR){
+	                    return TiC.ERROR_CODE_UNKNOWN;
+	                }
+	            } else if (jsonObject.get(key) instanceof JSONArray) {
+	                JSONArray jsonArray = (JSONArray) child;
+	                for(int i=0; i< jsonArray.length(); i++) {
+	                    Object o = jsonArray.get(i);
+	                    if (o instanceof JSONObject) {
+	                        if (validateJSON(((JSONObject)o), level+1) != TiC.ERROR_CODE_NO_ERROR){
+	                            return TiC.ERROR_CODE_UNKNOWN;
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (JSONException e) {
+	            Log.w(TAG, "Unable to validate JSON: " + e);
+	        }
+	    }
+	    return TiC.ERROR_CODE_NO_ERROR;
+	}
+
 }
 
 
