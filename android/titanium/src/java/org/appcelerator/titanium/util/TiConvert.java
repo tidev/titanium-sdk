@@ -867,7 +867,7 @@ public class TiConvert
 	    if (jsonObject == null) {
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
-	    if (level == 0 & jsonObject.toString().getBytes().length > MAX_SERLENGTH) {
+	    if ((level == 0) & (jsonObject.toString().getBytes().length > MAX_SERLENGTH)) {
 	        Log.w(TAG, "Feature event cannot exceed more than "+ MAX_SERLENGTH + " total serialized bytes");
 	        return TiC.ERROR_CODE_UNKNOWN;
 	    }
@@ -888,7 +888,7 @@ public class TiConvert
 	            Object child;
 	            child = jsonObject.get(key);
 	            if (child instanceof JSONObject) {
-	                if (validateJSON(((JSONObject)child), level+1) != 0){
+	                if (validateJSON(((JSONObject)child), level+1) != TiC.ERROR_CODE_NO_ERROR){
 	                    return TiC.ERROR_CODE_UNKNOWN;
 	                }
 	            } else if (jsonObject.get(key) instanceof JSONArray) {
@@ -896,7 +896,7 @@ public class TiConvert
 	                for(int i=0; i< jsonArray.length(); i++) {
 	                    Object o = jsonArray.get(i);
 	                    if (o instanceof JSONObject) {
-	                        if (validateJSON(((JSONObject)o), level+1) != 0){
+	                        if (validateJSON(((JSONObject)o), level+1) != TiC.ERROR_CODE_NO_ERROR){
 	                            return TiC.ERROR_CODE_UNKNOWN;
 	                        }
 	                    }
