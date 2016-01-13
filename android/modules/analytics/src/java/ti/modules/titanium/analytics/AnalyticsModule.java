@@ -96,6 +96,7 @@ public class AnalyticsModule extends KrollModule
 	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return TiC.ERROR_CODE_NO_ERROR;
 	            } else {
+	                Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
 	                return TiC.ERROR_CODE_UNKNOWN;
 	            }
 	        } else if (data != null) {
@@ -105,6 +106,7 @@ public class AnalyticsModule extends KrollModule
 	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return TiC.ERROR_CODE_NO_ERROR;
 	                } else {
+	                    Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
 	                    return TiC.ERROR_CODE_UNKNOWN;
 	                }
 	            } catch (JSONException e) {

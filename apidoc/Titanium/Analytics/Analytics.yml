@@ -65,8 +65,8 @@ methods:
     summary: Sends a feature event for this application session.
     description: |
       From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
-      a maximum of 5 nested levels, 1000 serlised byte length, 25 keys per level and key lengths
-      of maximum character length of 50. If this is successful, you will get a return number of 0.
+      a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
+      of up to 50 characters. If this is successful, you will get a return number of 0.
       Otherwise, -1 is returned.
     parameters:
 
