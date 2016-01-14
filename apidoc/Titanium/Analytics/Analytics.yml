@@ -61,13 +61,15 @@ methods:
   - name: featureEvent
     returns:
       type: Number
-      summary: It returns 0 if JSON validation is successful. Otherwise, -1 is returned.
+      summary: It returns 0 if it is successful. Otherwise, it is an error.
     summary: Sends a feature event for this application session.
     description: |
       From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
       a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
-      of up to 50 characters. If this is successful, you will get a return number of 0.
-      Otherwise, -1 is returned.
+      of up to 50 characters.
+
+      If this is successful, you will get a return number of 0. -1 is returned if it is a JSON
+      Validation error. -2 is returned if Analytics is disabled.
     parameters:
 
       - name: name
