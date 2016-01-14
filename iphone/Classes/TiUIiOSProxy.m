@@ -210,7 +210,6 @@
 {
     return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
 }
-
 #endif
 
 #if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
@@ -223,9 +222,19 @@
 {
     return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
 }
-
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+-(TiUIiOSTableViewStyleProxy*)TableViewStyle
+{
+    return [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+}
+
+-(TiUIiOSTableViewStyleProxy*)ListViewStyle
+{
+    return [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+}
+#endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_UP, UIMenuControllerArrowUp);
