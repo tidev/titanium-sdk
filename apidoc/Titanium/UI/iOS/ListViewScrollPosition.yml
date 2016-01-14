@@ -1,15 +1,13 @@
 ---
-name: Titanium.UI.iPhone.ListViewScrollPosition
+name: Titanium.UI.iOS.ListViewScrollPosition
 summary: |
     A set of constants for the position value that can be used for the `position` property of 
     <ListViewAnimationProperties> when invoking the ListView's `scrollToItem`, `appendSection`,
     `deleteSectionAt`, `insertSectionAt` and `replaceSectionAt` methods.
 extends: Titanium.Proxy
-since: '3.1.0'
+since: '6.0.0'
 platforms: [iphone, ipad]
-deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.ListViewScrollPosition](Titanium.UI.iOS.ListViewScrollPosition) instead.
+
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]

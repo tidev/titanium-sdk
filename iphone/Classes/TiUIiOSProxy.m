@@ -200,6 +200,33 @@
 }
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+-(TiUIiOSTableViewCellSelectionStyleProxy*)TableViewCellSelectionStyle
+{
+    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+}
+
+-(TiUIiOSTableViewCellSelectionStyleProxy*)ListViewCellSelectionStyle
+{
+    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+}
+
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+-(TiUIiOSTableViewScrollPositionProxy*)TableViewScrollPosition
+{
+    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+}
+
+-(TiUIiOSTableViewScrollPositionProxy*)ListViewScrollPosition
+{
+    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+}
+
+#endif
+
+
 #ifdef USE_TI_UIIOSMENUPOPUP
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_UP, UIMenuControllerArrowUp);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DOWN, UIMenuControllerArrowDown);
