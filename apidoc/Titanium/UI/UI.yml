@@ -775,7 +775,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -786,7 +786,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -796,7 +796,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -807,7 +807,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -817,7 +817,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -827,7 +827,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -939,7 +939,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_CLEAR> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -950,7 +950,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -961,7 +961,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_BURN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -972,7 +972,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_DODGE> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -983,7 +983,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COPY> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -994,7 +994,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DARKEN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1005,7 +1005,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_ATOP> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1016,7 +1016,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_IN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1027,7 +1027,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OUT> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1038,7 +1038,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OVER> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1049,7 +1049,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DIFFERENCE> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1060,7 +1060,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_EXCLUSION> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1071,7 +1071,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_HARD_LIGHT> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1082,7 +1082,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_HUE> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1093,7 +1093,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_LIGHTEN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1104,7 +1104,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_LUMINOSITY> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1115,7 +1115,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_MULTIPLY> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1126,7 +1126,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_NORMAL> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1137,7 +1137,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_OVERLAY> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1148,7 +1148,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_DARKER> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1159,7 +1159,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_LIGHTER> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1170,7 +1170,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SATURATION> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1181,7 +1181,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SCREEN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1192,7 +1192,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOFT_LIGHT> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1203,7 +1203,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_ATOP> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1214,7 +1214,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_IN> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1225,7 +1225,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1236,7 +1236,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_XOR> instead.
-    removed: "6.0.0"
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number

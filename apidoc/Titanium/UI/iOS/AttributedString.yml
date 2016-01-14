@@ -3,7 +3,7 @@ name: Titanium.UI.iOS.AttributedString
 deprecated:
     since: "3.6.0"
     notes: use <Titanium.UI.AttributedString> instead.
-removed: "6.0.0"
+    removed: "6.0.0"
 summary: |
     An attributed string proxy manages character strings and associated sets of attributes (for example,
     font and kerning) that apply to individual characters or ranges of characters in the string.
