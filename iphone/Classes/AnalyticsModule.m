@@ -19,6 +19,7 @@ static const uint MAX_KEYLENGTH = 50;
 
 static const NSInteger JSON_VALIDATION_PASSED = 0;
 static const NSInteger JSON_VALIDATION_FAILED = -1;
+static const NSInteger ANALYTICS_DISABLED     = -2;
 
 @implementation AnalyticsModule
 
@@ -60,12 +61,11 @@ static const NSInteger JSON_VALIDATION_FAILED = -1;
 {
     if (TI_APPLICATION_ANALYTICS == NO) {
         DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml.");
-        return JSON_VALIDATION_FAILED;
+        return ANALYTICS_DISABLED;
     }
     if ([args count] < 1)
     {
         [self throwException:@"invalid number of arguments, expected at least 1" subreason:nil location:CODELOCATION];
-        return JSON_VALIDATION_FAILED;
     }
     NSString *event = [args objectAtIndex:0];
     id data = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
