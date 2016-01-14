@@ -440,14 +440,36 @@ public class TiUIText extends TiUIView
 			autocorrect = 0;
 		}
 
-		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
-			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
+		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
+		    passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 		}
 
-		if (!editable) {
-			tv.setInputType(InputType.TYPE_NULL);
-			tv.setCursorVisible(false);
+		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
+		    editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
+		}
 
+		tv.setEnabled(true);
+
+		if (!editable) {
+		    tv.setInputType(InputType.TYPE_NULL);
+		    tv.setCursorVisible(false);
+		    tv.setEnabled(false);
+		    if (passwordMask) {
+		        Typeface origTF = tv.getTypeface();
+		        // Sometimes password transformation does not work properly when the input type is set after the
+		        // transformation method.
+		        // This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
+		        tv.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		        // Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
+		        // with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
+		        tv.setTypeface(origTF);
+		        tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+		        // turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
+		        // landscape mode.
+		        if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
+		            tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+		        }
+		    }
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);
@@ -474,10 +496,6 @@ public class TiUIText extends TiUIView
 						Log.w(TAG, "Unknown AutoCapitalization Value [" + d.getString(TiC.PROPERTY_AUTOCAPITALIZATION) + "]");
 						break;
 				}
-			}
-
-			if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
-				passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 			}
 
 			if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {

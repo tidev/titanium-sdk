@@ -12,6 +12,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly and speeds up.
@@ -22,6 +23,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly, and speeds up, then slows down at the end of the animation.
@@ -32,6 +34,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         quickly, then slows down at the end of the animation.
@@ -42,6 +45,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
         at a constant rate.
@@ -54,6 +58,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_FONT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a <Font> dictionary for <Attribute.value>.
 
@@ -68,6 +73,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -82,6 +88,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -96,6 +103,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_LIGATURE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
         Ligatures are only supported on certain fonts.
@@ -111,6 +119,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>.
@@ -126,6 +135,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_KERN> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying how many pixels to increase the character
         spacing.
@@ -141,6 +151,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
  
@@ -155,6 +166,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
 
@@ -169,6 +181,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for the `value` property in the attributes dictionary.
 
@@ -183,6 +196,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_WIDTH> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
         font size. A positive value displays an outline of the charater, while a negative value
@@ -199,6 +213,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_SHADOW> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
 
@@ -213,6 +228,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
 
@@ -227,6 +243,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
         letterpress effect to the text.
@@ -242,6 +259,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_LINK> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a URL.
 
@@ -259,6 +277,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_BASELINE_OFFSET> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
 
@@ -273,6 +292,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -287,6 +307,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -301,6 +322,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_OBLIQUENESS> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to skew the text.
 
@@ -315,6 +337,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_EXPANSION> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to stretch the text.
 
@@ -329,6 +352,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -345,6 +369,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -361,6 +386,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -377,6 +403,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -393,6 +420,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -409,6 +437,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -425,6 +454,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -441,6 +471,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -457,6 +488,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -473,6 +505,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -489,6 +522,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -504,6 +538,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -521,6 +556,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -536,6 +572,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -551,6 +588,7 @@ properties:
     deprecated:
         since: "3.6.0"
         notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -564,6 +602,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -574,6 +613,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -583,6 +623,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -593,6 +634,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -602,6 +644,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+        removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -611,6 +654,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only

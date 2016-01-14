@@ -979,7 +979,12 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if([userActivity userInfo] !=nil){
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
-    
+	
+	// Update launchOptions so that we send only expected values rather than NSUserActivity
+	NSMutableDictionary* userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
+	[userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
+	[launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+	
     if (appBooted){
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
     }

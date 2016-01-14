@@ -1,3 +1,7 @@
+0.3.0 (1/6/2016)
+-------------------
+  * Support detection and use of Windows 10 SDK/tooling without requiring 8.1 tools installed.
+
 0.2.2 (12/14/2015)
 -------------------
   * Better error messages about bad app GUIDs when launching using our custom wptool
