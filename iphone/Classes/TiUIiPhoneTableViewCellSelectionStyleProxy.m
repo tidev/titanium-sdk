@@ -17,9 +17,9 @@
     return @"Ti.UI.iPhone.TableViewCellSelectionStyle";
 }
 
-MAKE_SYSTEM_PROP(NONE,UITableViewCellSelectionStyleNone);
-MAKE_SYSTEM_PROP(BLUE,UITableViewCellSelectionStyleBlue);
-MAKE_SYSTEM_PROP(GRAY,UITableViewCellSelectionStyleGray);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,UITableViewCellSelectionStyleNone,    @"UI.iPhone.TableViewCellSelectionStyle.NONE",@"6.0.0",@"UI.iOS.TableViewCellSelectionStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUE,UITableViewCellSelectionStyleBlue,    @"UI.iPhone.TableViewCellSelectionStyle.BLUE",@"6.0.0",@"UI.iOS.TableViewCellSelectionStyle.BLUE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY,UITableViewCellSelectionStyleGray,    @"UI.iPhone.TableViewCellSelectionStyle.GRAY",@"6.0.0",@"UI.iOS.TableViewCellSelectionStyle.GRAY");
 
 @end
 

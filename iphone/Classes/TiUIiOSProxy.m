@@ -203,6 +203,33 @@
 }
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+-(TiUIiOSTableViewCellSelectionStyleProxy*)TableViewCellSelectionStyle
+{
+    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+}
+
+-(TiUIiOSTableViewCellSelectionStyleProxy*)ListViewCellSelectionStyle
+{
+    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+}
+
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+-(TiUIiOSTableViewScrollPositionProxy*)TableViewScrollPosition
+{
+    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+}
+
+-(TiUIiOSTableViewScrollPositionProxy*)ListViewScrollPosition
+{
+    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+}
+
+#endif
+
+
 #ifdef USE_TI_UIIOSBLURVIEW
 - (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {

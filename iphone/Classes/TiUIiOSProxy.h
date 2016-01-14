@@ -20,6 +20,14 @@
 #import "TiUIiOSAnimationStyleProxy.h"
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+#import "TiUIiOSTableViewCellSelectionStyleProxy.h"
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+#import "TiUIiOSTableViewScrollPositionProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
@@ -107,6 +115,14 @@
 @property (nonatomic,readonly) TiUIiOSAnimationStyleProxy* AnimationStyle;
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+@property (nonatomic,readonly) TiUIiOSTableViewCellSelectionStyleProxy*TableViewCellSelectionStyle;
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+@property (nonatomic,readonly) TiUIiOSTableViewScrollPositionProxy*TableViewScrollPosition;
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
 
@@ -119,6 +135,7 @@
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_LIGHT;
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_DARK;
 #endif
+
 
 /**
     Checks the force touch capibility of the current device.

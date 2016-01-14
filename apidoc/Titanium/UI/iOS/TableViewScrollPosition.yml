@@ -1,15 +1,12 @@
 ---
-name: Titanium.UI.iPhone.TableViewScrollPosition
+name: Titanium.UI.iOS.TableViewScrollPosition
 summary: |
     A set of constants for the position value that can be used for the `position` property of 
     <Titanium.UI.TableView> when invoking `scrollToIndex`.
 extends: Titanium.Proxy
-since: "0.9"
+since: "6.0.0"
 platforms: [iphone, ipad]
 createable: false
-deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.TableViewScrollPosition](Titanium.UI.iOS.TableViewScrollPosition) instead.
 
 properties:
   - name: BOTTOM
