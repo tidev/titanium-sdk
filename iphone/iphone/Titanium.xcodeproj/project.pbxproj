@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */; };
+		1592CC341C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC331C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m */; };
 		159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C59941C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m */; };
 		159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */; };
 		159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C599A1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m */; };
@@ -341,6 +342,8 @@
 /* Begin PBXFileReference section */
 		1592CC2C1C47147700C3DB83 /* TiUIiOSTableViewScrollPositionProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTableViewScrollPositionProxy.h; sourceTree = "<group>"; };
 		1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTableViewScrollPositionProxy.m; sourceTree = "<group>"; };
+		1592CC321C484E7900C3DB83 /* TiUIiOSTableViewStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTableViewStyleProxy.h; sourceTree = "<group>"; };
+		1592CC331C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTableViewStyleProxy.m; sourceTree = "<group>"; };
 		159C59931C345D17009A8860 /* TIUIiOSAlertDialogStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TIUIiOSAlertDialogStyleProxy.h; sourceTree = "<group>"; };
 		159C59941C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIUIiOSAlertDialogStyleProxy.m; sourceTree = "<group>"; };
 		159C59961C357D7B009A8860 /* TiUIiOSAnimationStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAnimationStyleProxy.h; sourceTree = "<group>"; };
@@ -1936,6 +1939,8 @@
 				159C599A1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m */,
 				1592CC2C1C47147700C3DB83 /* TiUIiOSTableViewScrollPositionProxy.h */,
 				1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */,
+				1592CC321C484E7900C3DB83 /* TiUIiOSTableViewStyleProxy.h */,
+				1592CC331C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -2822,6 +2827,7 @@
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
+				1592CC341C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m in Sources */,
 				84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,

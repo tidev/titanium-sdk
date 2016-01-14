@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.iPhone.ListViewStyle
+name: Titanium.UI.iOS.ListViewStyle
 summary: |
     A set of constants for the style that can be used for the `style` property of 
     <Titanium.UI.ListView>.
@@ -10,9 +10,6 @@ excludes:
 platforms: [iphone, ipad]
 since: "3.1.0"
 createable: false
-deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.ListViewStyle](Titanium.UI.iOS.ListViewStyle) instead.
 
 properties:
   - name: GROUPED

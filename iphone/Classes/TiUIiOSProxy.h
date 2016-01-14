@@ -28,6 +28,10 @@
 #import "TiUIiOSTableViewScrollPositionProxy.h"
 #endif
 
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+#import "TiUIiOSTableViewStyleProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
@@ -121,6 +125,9 @@
 
 #if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
 @property (nonatomic,readonly) TiUIiOSTableViewScrollPositionProxy*TableViewScrollPosition;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+@property (nonatomic,readonly) TiUIiOSTableViewStyleProxy*TableViewStyle;
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW

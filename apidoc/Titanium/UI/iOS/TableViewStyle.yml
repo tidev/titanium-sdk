@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.iPhone.TableViewStyle
+name: Titanium.UI.iOS.TableViewStyle
 summary: |
     A set of constants for the style that can be used for the button `style` property of 
     <Titanium.UI.TableView>.
@@ -7,9 +7,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
-deprecated:
-    ince: 6.0.0
-    notes: Use [Ti.UI.iOS.TableViewStyle](Titanium.UI.iOS.TableViewStyle) instead.
 
 properties:
   - name: GROUPED
