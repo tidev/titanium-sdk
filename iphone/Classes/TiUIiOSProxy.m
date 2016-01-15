@@ -101,6 +101,13 @@
 
 @implementation TiUIiOSProxy
 
+#define FORGET_AND_RELEASE(x) \
+{\
+[self forgetProxy:x]; \
+RELEASE_TO_NIL(x); \
+}
+
+
 -(NSString*)apiName
 {
     return @"Ti.UI.iOS";
@@ -188,54 +195,149 @@
 }
 #endif
 
+
+- (void)dealloc
+{
+    RELEASE_TO_NIL(animationStyleProxy);
+    RELEASE_TO_NIL(RowAnimationStyle);
+    RELEASE_TO_NIL(AlertDialogStyle);
+    RELEASE_TO_NIL(TableViewCellSelectionStyle);
+    RELEASE_TO_NIL(ListViewCellSelectionStyle);
+    RELEASE_TO_NIL(TableViewScrollPosition);
+    RELEASE_TO_NIL(ListViewScrollPosition);
+    RELEASE_TO_NIL(TableViewStyle);
+    RELEASE_TO_NIL(ListViewStyle);
+    RELEASE_TO_NIL(ProgressBarStyle);
+
+    [super dealloc];
+}
+
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+    FORGET_AND_RELEASE(animationStyleProxy);
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+    FORGET_AND_RELEASE(RowAnimationStyle);
+#endif
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+    FORGET_AND_RELEASE(AlertDialogStyle);
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+    FORGET_AND_RELEASE(TableViewCellSelectionStyle);
+    FORGET_AND_RELEASE(ListViewCellSelectionStyle);
+    
+#endif
+    
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+    FORGET_AND_RELEASE(TableViewScrollPosition);
+    FORGET_AND_RELEASE(ListViewScrollPosition);
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+    FORGET_AND_RELEASE(TableViewStyle);
+    FORGET_AND_RELEASE(ListViewStyle);
+#endif
+    
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+    FORGET_AND_RELEASE(ProgressBarStyle);
+#endif
+    [super didReceiveMemoryWarning:notification];
+}
+
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 -(TIUIiOSAlertDialogStyleProxy*)AlertDialogStyle
 {
-    return [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
+    if (AlertDialogStyle == nil) {
+       AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
+    }
+    return AlertDialogStyle;
 }
 #endif
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 -(TiUIiOSAnimationStyleProxy*)AnimationStyle
 {
-/*Not using autorelease since it breaks multiple transitions between windows*/
- return [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    if (animationStyleProxy == nil) {
+        animationStyleProxy = [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return animationStyleProxy;
 }
 #endif
+
 
 #if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
 -(TiUIiOSTableViewCellSelectionStyleProxy*)TableViewCellSelectionStyle
 {
-    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    if (TableViewCellSelectionStyle == nil) {
+        TableViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return TableViewCellSelectionStyle;
 }
 
 -(TiUIiOSTableViewCellSelectionStyleProxy*)ListViewCellSelectionStyle
 {
-    return [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    if (ListViewCellSelectionStyle == nil) {
+        ListViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return ListViewCellSelectionStyle;
 }
 #endif
 
 #if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
 -(TiUIiOSTableViewScrollPositionProxy*)TableViewScrollPosition
 {
-    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+    if (TableViewScrollPosition == nil) {
+        TableViewScrollPosition = [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return TableViewScrollPosition;
 }
 
 -(TiUIiOSTableViewScrollPositionProxy*)ListViewScrollPosition
 {
-    return [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+    if (ListViewScrollPosition == nil) {
+        ListViewScrollPosition = [[TiUIiOSTableViewScrollPositionProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return ListViewScrollPosition;
 }
 #endif
 
 #if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
 -(TiUIiOSTableViewStyleProxy*)TableViewStyle
 {
-    return [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    if (TableViewStyle == nil) {
+    TableViewStyle = [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return TableViewStyle;
 }
 
 -(TiUIiOSTableViewStyleProxy*)ListViewStyle
 {
-    return [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    if (ListViewStyle == nil) {
+        ListViewStyle = [[TiUIiOSTableViewStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return ListViewStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+-(TiUIiOSProgressBarStyleProxy*)ProgressBarStyle
+{
+    if (ProgressBarStyle == nil) {
+        ProgressBarStyle = [[TiUIiOSProgressBarStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return ProgressBarStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+-(TiUIiOSRowAnimationStyleProxy*)RowAnimationStyle
+{
+    if (RowAnimationStyle == nil)
+    {
+        RowAnimationStyle = [[TiUIiOSRowAnimationStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return RowAnimationStyle;
 }
 #endif
 
@@ -752,7 +854,5 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
 #endif
 #endif
 #endif
-
 @end
-
 #endif

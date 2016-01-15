@@ -32,10 +32,46 @@
 #import "TiUIiOSTableViewStyleProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+#import "TiUIiOSProgressBarStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+#import "TiUIiOSRowAnimationStyleProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+    TiUIiOSAnimationStyleProxy* animationStyleProxy;
+#endif
 
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+    TiUIiOSRowAnimationStyleProxy*RowAnimationStyle;
+#endif
+    
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+    TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+    TiUIiOSTableViewCellSelectionStyleProxy*TableViewCellSelectionStyle;
+    TiUIiOSTableViewCellSelectionStyleProxy*ListViewCellSelectionStyle;
+#endif
+    
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+    TiUIiOSTableViewScrollPositionProxy*TableViewScrollPosition;
+    TiUIiOSTableViewScrollPositionProxy*ListViewScrollPosition;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+    TiUIiOSTableViewStyleProxy*TableViewStyle;
+    TiUIiOSTableViewStyleProxy*ListViewStyle;
+#endif
+    
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+    TiUIiOSProgressBarStyleProxy*ProgressBarStyle;
+#endif
+    
 }
 
 @property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
@@ -111,24 +147,6 @@
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
 
-#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
-@property (nonatomic,readonly) TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
-#endif
-
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
-@property (nonatomic,readonly) TiUIiOSAnimationStyleProxy* AnimationStyle;
-#endif
-
-#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
-@property (nonatomic,readonly) TiUIiOSTableViewCellSelectionStyleProxy*TableViewCellSelectionStyle;
-#endif
-
-#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
-@property (nonatomic,readonly) TiUIiOSTableViewScrollPositionProxy*TableViewScrollPosition;
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-@property (nonatomic,readonly) TiUIiOSTableViewStyleProxy*TableViewStyle;
-#endif
 
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;

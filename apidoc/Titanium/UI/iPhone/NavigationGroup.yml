@@ -2,7 +2,7 @@
 name: Titanium.UI.iPhone.NavigationGroup
 deprecated:
     since: "3.1.3"
-    removed: "3.2.0"
+    removed: "6.0.0"
     notes: |
         This class is now deprecated. Please use the <Titanium.UI.iOS.NavigationWindow> class instead.
 summary: |
@@ -35,20 +35,20 @@ methods:
       - name: window
         summary: Window to close.
         type: Titanium.UI.Window
-        
+
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
             will be animated (default) while being closed.
         type: Dictionary
-        
+
   - name: open
     summary: Opens a window within the navigation group.
     parameters:
       - name: window
         summary: Window to open.
         type: Titanium.UI.Window
-        
+
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
