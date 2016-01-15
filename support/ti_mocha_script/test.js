@@ -265,7 +265,6 @@ function parseAndroidTestResults(testResults, next) {
 function getTotalAPI(next) {
 	var api = JSON.parse(fs.readFileSync('./dist/api.jsca','utf8'));
 	totalAPI = api.types.length;
-	console.log(totalAPI);
 	next();
 }
 
