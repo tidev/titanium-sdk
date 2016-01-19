@@ -824,15 +824,16 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(NSNumber*)hasLocationPermissions:(id)args
 {
-    id value = [args objectAtIndex:0];
-    
-    ENSURE_TYPE(value, NSNumber);
-
-    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
     BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
-    
-    return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    if ([TiUtils isIOS8OrGreater]) {
+        id value = [args objectAtIndex:0];
+        ENSURE_TYPE(value, NSNumber);
+        CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    } else {
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == kCLAuthorizationStatusAuthorized);
+    }
 }
 
 -(void)requestAuthorization:(id)value
@@ -844,6 +845,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 -(void)requestLocationPermissions:(id)args
 {
     if (![TiUtils isIOS8OrGreater]) {
+        DebugLog(@"[WARN] requestLocationPermissions has no effect in iOS 7.");
         return;
     }
     
