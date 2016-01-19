@@ -17,9 +17,9 @@
     return @"Ti.UI.iPhone.ScrollIndicatorStyle";
 }
 
-MAKE_SYSTEM_PROP(DEFAULT,UIScrollViewIndicatorStyleDefault);
-MAKE_SYSTEM_PROP(BLACK,UIScrollViewIndicatorStyleBlack);
-MAKE_SYSTEM_PROP(WHITE,UIScrollViewIndicatorStyleWhite);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DEFAULT,UIScrollViewIndicatorStyleDefault,@"UI.iPhone.ScrollIndicatorStyle.DEFAULT",@"6.0.0",@"UI.iOS.ScrollIndicatorStyle.DEFAULT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLACK,UIScrollViewIndicatorStyleBlack,@"UI.iPhone.ScrollIndicatorStyle.BLACK",@"6.0.0",@"UI.iOS.ScrollIndicatorStyle.BLACK");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(WHITE,UIScrollViewIndicatorStyleWhite,@"UI.iPhone.ScrollIndicatorStyle.WHITE",@"6.0.0",@"UI.iOS.ScrollIndicatorStyle.WHITE");
 
 @end
 
