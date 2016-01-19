@@ -40,6 +40,26 @@
 #import "TiUIiOSRowAnimationStyleProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+#import "TiUIiOSScrollIndicatorStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+#import "TiUIiOSStatusBarProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#import "TiUIiOSSystemButtonStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+#import "TiUIiOSSystemButtonProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+#import "TiUIiOSSystemIconProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
@@ -71,7 +91,25 @@
 #ifdef USE_TI_UIIOSPROGRESSBARSTYLE
     TiUIiOSProgressBarStyleProxy*ProgressBarStyle;
 #endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+    TiUIiOSScrollIndicatorStyleProxy*ScrollIndicatorStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+    TiUIiOSStatusBarProxy*StatusBar;
+#endif
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+    TiUIiOSSystemButtonStyleProxy*SystemButtonStyle;
+#endif
     
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+    TiUIiOSSystemButtonProxy*SystemButton;
+#endif
+    
+#ifdef USE_TI_UIIOSSYSTEMICON
+    TiUIiOSSystemIconProxy*SystemIcon;
+#endif
 }
 
 @property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;

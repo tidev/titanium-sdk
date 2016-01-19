@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.iPhone.SystemButton
+name: Titanium.UI.iOS.SystemButton
 summary: A set of constants for creating standard iOS system buttons.
 description: |
     Most of these constants are used with the
@@ -7,7 +7,7 @@ description: |
     iOS system buttons for use in navigation bars and toolbars. 
     
     See <Titanium.UI.Button> for more information on the `systemButton` property, including details
-    on where system buttons can be used. In an Alloy application you can omit the `Ti.UI.iPhone.SystemButton`
+    on where system buttons can be used. In an Alloy application you can omit the `Ti.UI.iOS.SystemButton`
     namespace when assigning a value to the `<Button>` element's `systemButton` attribute, for example:
 
         <Button systemButton="CAMERA"/>
@@ -20,22 +20,18 @@ description: |
     and are not distorted any more.
     These standard button types are:
 
-    * [CONTACT_ADD](Titanium.UI.iPhone.SystemButton.CONTACT_ADD)
-    * [DISCLOSURE](Titanium.UI.iPhone.SystemButton.DISCLOSURE)
-    * [INFO_DARK](Titanium.UI.iPhone.SystemButton.INFO_DARK)
-    * [INFO_LIGHT](Titanium.UI.iPhone.SystemButton.INFO_LIGHT)
+    * [CONTACT_ADD](Titanium.UI.iOS.SystemButton.CONTACT_ADD)
+    * [DISCLOSURE](Titanium.UI.iOS.SystemButton.DISCLOSURE)
+    * [INFO_DARK](Titanium.UI.iOS.SystemButton.INFO_DARK)
+    * [INFO_LIGHT](Titanium.UI.iOS.SystemButton.INFO_LIGHT)
 
     See Apple's 
     [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/Introduction/Introduction.html) 
     in the iOS Developer Library for details on the proper usage of iOS standard buttons
     and icons.
 extends: Titanium.Proxy
-since: "0.8"
-platforms: [iphone, ipad]
-createable: false
-deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.SystemButton](Titanium.UI.iOS.SystemButton) instead.
+since: "6.0.0"
+platforms: [iPhone, ipad]
 
 properties:
   - name: ACTION
@@ -215,7 +211,7 @@ properties:
     permission: read-only
     
   - name: SPINNER
-    summary: Identical to [ACTIVITY](Titanium.UI.iPhone.SystemButton.ACTIVITY).
+    summary: Identical to [ACTIVITY](Titanium.UI.iOS.SystemButton.ACTIVITY).
     type: Number
     permission: read-only
     

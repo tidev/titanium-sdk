@@ -1,13 +1,10 @@
 ---
-name: Titanium.UI.iPhone.ScrollIndicatorStyle
+name: Titanium.UI.iOS.ScrollIndicatorStyle
 summary: A set of constants for the styles available for scrollbars used with <Titanium.UI.ScrollView.scrollIndicatorStyle> and <Titanium.UI.TableView.scrollIndicatorStyle> properties.
 extends: Titanium.Proxy
-since: "0.9"
+since: "6.0.0"
 platforms: [iphone, ipad]
 createable: false
-deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.ScrollIndicatorStyle](Titanium.UI.iOS.ScrollIndicatorStyle) instead.
 
 properties:
   - name: BLACK

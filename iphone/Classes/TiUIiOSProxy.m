@@ -208,6 +208,11 @@ RELEASE_TO_NIL(x); \
     RELEASE_TO_NIL(TableViewStyle);
     RELEASE_TO_NIL(ListViewStyle);
     RELEASE_TO_NIL(ProgressBarStyle);
+    RELEASE_TO_NIL(ScrollIndicatorStyle);
+    RELEASE_TO_NIL(StatusBar);
+    RELEASE_TO_NIL(SystemButton);
+    RELEASE_TO_NIL(SystemButtonStyle);
+    RELEASE_TO_NIL(SystemIcon);
 
     [super dealloc];
 }
@@ -242,7 +247,23 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSPROGRESSBARSTYLE
     FORGET_AND_RELEASE(ProgressBarStyle);
 #endif
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+    FORGET_AND_RELEASE(ScrollIndicatorStyle);
+#endif
+#ifdef USE_TI_UIIOSSTATUSBAR
+    FORGET_AND_RELEASE(StatusBar);
+#endif
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+    FORGET_AND_RELEASE(SystemButtonStyle);
+#endif
+    
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+  FORGET_AND_RELEASE(SystemButton);
+#endif
     [super didReceiveMemoryWarning:notification];
+#ifdef USE_TI_UIIOSSYSTEMICON
+    FORGET_AND_RELEASE(SystemIcon);
+#endif
 }
 
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
@@ -333,11 +354,64 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
 -(TiUIiOSRowAnimationStyleProxy*)RowAnimationStyle
 {
-    if (RowAnimationStyle == nil)
-    {
+    if (RowAnimationStyle == nil) {
         RowAnimationStyle = [[TiUIiOSRowAnimationStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
     }
     return RowAnimationStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+-(TiUIiOSScrollIndicatorStyleProxy*)ScrollIndicatorStyle
+{
+    if (ScrollIndicatorStyle == nil) {
+        ScrollIndicatorStyle = [[TiUIiOSScrollIndicatorStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return ScrollIndicatorStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+-(TiUIiOSStatusBarProxy*)StatusBar
+{
+    if (StatusBar == nil)
+    {
+         StatusBar = [[TiUIiOSStatusBarProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+    }
+    return StatusBar;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+-(TiUIiOSSystemButtonStyleProxy*)SystemButtonStyle
+{
+    if (SystemButtonStyle == nil)
+    {
+        SystemButtonStyle = [[TiUIiOSSystemButtonStyleProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return SystemButtonStyle;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+-(TiUIiOSSystemButtonProxy*)SystemButton
+{
+    if (SystemButton == nil)
+    {
+        SystemButton = [[TiUIiOSSystemButtonProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return SystemButton;
+}
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+-(TiUIiOSSystemIconProxy*)SystemIcon
+{
+    if (SystemIcon == nil)
+    {
+        SystemIcon = [[TiUIiOSSystemIconProxy alloc]_initWithPageContext:[self pageContext]];
+    }
+    return SystemIcon;
 }
 #endif
 

@@ -16,34 +16,34 @@
     return @"Ti.UI.iPhone.SystemButton";
 }
 
-MAKE_SYSTEM_PROP(ACTION,UIBarButtonSystemItemAction);
-MAKE_SYSTEM_PROP(CAMERA,UIBarButtonSystemItemCamera);
-MAKE_SYSTEM_PROP(COMPOSE,UIBarButtonSystemItemCompose);
-MAKE_SYSTEM_PROP(BOOKMARKS,UIBarButtonSystemItemBookmarks);
-MAKE_SYSTEM_PROP(SEARCH,UIBarButtonSystemItemSearch);
-MAKE_SYSTEM_PROP(ADD,UIBarButtonSystemItemAdd);
-MAKE_SYSTEM_PROP(TRASH,UIBarButtonSystemItemTrash);
-MAKE_SYSTEM_PROP(REPLY,UIBarButtonSystemItemReply);
-MAKE_SYSTEM_PROP(STOP,UIBarButtonSystemItemStop);
-MAKE_SYSTEM_PROP(REFRESH,UIBarButtonSystemItemRefresh);
-MAKE_SYSTEM_PROP(PLAY,UIBarButtonSystemItemPlay);
-MAKE_SYSTEM_PROP(PAUSE,UIBarButtonSystemItemPause);
-MAKE_SYSTEM_PROP(FAST_FORWARD,UIBarButtonSystemItemFastForward);
-MAKE_SYSTEM_PROP(REWIND,UIBarButtonSystemItemRewind);
-MAKE_SYSTEM_PROP(EDIT,UIBarButtonSystemItemEdit);
-MAKE_SYSTEM_PROP(CANCEL,UIBarButtonSystemItemCancel);
-MAKE_SYSTEM_PROP(SAVE,UIBarButtonSystemItemSave);
-MAKE_SYSTEM_PROP(ORGANIZE,UIBarButtonSystemItemOrganize);
-MAKE_SYSTEM_PROP(DONE,UIBarButtonSystemItemDone);
-MAKE_SYSTEM_PROP(FLEXIBLE_SPACE,UIBarButtonSystemItemFlexibleSpace);
-MAKE_SYSTEM_PROP(FIXED_SPACE,UIBarButtonSystemItemFixedSpace);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ACTION,UIBarButtonSystemItemAction,@"UI.iPhone.SystemButton.ACTION",@"6.0.0",@"UI.iOS.SystemButton.ACTION");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CAMERA,UIBarButtonSystemItemCamera,@"UI.iPhone.SystemButton.CAMERA",@"6.0.0",@"UI.iOS.SystemButton.CAMERA");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(COMPOSE,UIBarButtonSystemItemCompose,@"UI.iPhone.SystemButton.COMPOSE",@"6.0.0",@"UI.iOS.SystemButton.COMPOSE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BOOKMARKS,UIBarButtonSystemItemBookmarks,@"UI.iPhone.SystemButton.BOOKMARKS",@"6.0.0",@"UI.iOS.SystemButton.BOOKMARKS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(SEARCH,UIBarButtonSystemItemSearch,@"UI.iPhone.SystemButton.SEARCH",@"6.0.0",@"UI.iOS.SystemButton.SEARCH");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ADD,UIBarButtonSystemItemAdd,@"UI.iPhone.SystemButton.ADD",@"6.0.0",@"UI.iOS.SystemButton.ADD");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(TRASH,UIBarButtonSystemItemTrash,@"UI.iPhone.SystemButton.TRASH",@"6.0.0",@"UI.iOS.SystemButton.TRASH");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(REPLY,UIBarButtonSystemItemReply,@"UI.iPhone.SystemButton.REPLY",@"6.0.0",@"UI.iOS.SystemButton.REPLY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STOP,UIBarButtonSystemItemStop,@"UI.iPhone.SystemButton.STOP",@"6.0.0",@"UI.iOS.SystemButton.STOP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(REFRESH,UIBarButtonSystemItemRefresh,@"UI.iPhone.SystemButton.REFRESH",@"6.0.0",@"UI.iOS.SystemButton.REFRESH");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAY,UIBarButtonSystemItemPlay,@"UI.iPhone.SystemButton.PLAY",@"6.0.0",@"UI.iOS.SystemButton.PLAY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PAUSE,UIBarButtonSystemItemPause,@"UI.iPhone.SystemButton.PAUSE",@"6.0.0",@"UI.iOS.SystemButton.PAUSE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FAST_FORWARD,UIBarButtonSystemItemFastForward,@"UI.iPhone.SystemButton.FAST_FORWARD",@"6.0.0",@"UI.iOS.SystemButton.FAST_FORWARD");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(REWIND,UIBarButtonSystemItemRewind,@"UI.iPhone.SystemButton.REWIND",@"6.0.0",@"UI.iOS.SystemButton.REWIND");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(EDIT,UIBarButtonSystemItemEdit,@"UI.iPhone.SystemButton.EDIT",@"6.0.0",@"UI.iOS.SystemButton.EDIT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CANCEL,UIBarButtonSystemItemCancel,@"UI.iPhone.SystemButton.CANCEL",@"6.0.0",@"UI.iOS.SystemButton.CANCEL");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(SAVE,UIBarButtonSystemItemSave,@"UI.iPhone.SystemButton.SAVE",@"6.0.0",@"UI.iOS.SystemButton.SAVE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ORGANIZE,UIBarButtonSystemItemOrganize,@"UI.iPhone.SystemButton.ORGANIZE",@"6.0.0",@"UI.iOS.SystemButton.ORGANIZE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE,UIBarButtonSystemItemDone,@"UI.iPhone.SystemButton.DONE",@"6.0.0",@"UI.iOS.SystemButton.DONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLEXIBLE_SPACE,UIBarButtonSystemItemFlexibleSpace,@"UI.iPhone.SystemButton.FLEXIBLE_SPACE",@"6.0.0",@"UI.iOS.SystemButton.FLEXIBLE_SPACE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FIXED_SPACE,UIBarButtonSystemItemFixedSpace,@"UI.iPhone.SystemButton.FIXED_SPACE",@"6.0.0",@"UI.iOS.SystemButton.FIXED_SPACE");
 
-MAKE_SYSTEM_PROP(ACTIVITY,UITitaniumNativeItemSpinner);
-MAKE_SYSTEM_PROP(SPINNER,UITitaniumNativeItemSpinner);
-MAKE_SYSTEM_PROP(INFO_LIGHT,UITitaniumNativeItemInfoLight);
-MAKE_SYSTEM_PROP(INFO_DARK,UITitaniumNativeItemInfoDark);
-MAKE_SYSTEM_PROP(DISCLOSURE,UITitaniumNativeItemDisclosure);
-MAKE_SYSTEM_PROP(CONTACT_ADD,UITitaniumNativeItemContactAdd);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ACTIVITY,UITitaniumNativeItemSpinner,@"UI.iPhone.SystemButtonStyle.ACTIVITY",@"6.0.0",@"UI.iOS.SystemButtonStyle.ACTIVITY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(SPINNER,UITitaniumNativeItemSpinner,@"UI.iPhone.SystemButtonStyle.SPINNER",@"6.0.0",@"UI.iOS.SystemButtonStyle.SPINNER");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(INFO_LIGHT,UITitaniumNativeItemInfoLight,@"UI.iPhone.SystemButtonStyle.INFO_LIGHT",@"6.0.0",@"UI.iOS.SystemButtonStyle.INFO_LIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(INFO_DARK,UITitaniumNativeItemInfoDark,@"UI.iPhone.SystemButtonStyle.INFO_DARK",@"6.0.0",@"UI.iOS.SystemButtonStyle.INFO_DARK");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DISCLOSURE,UITitaniumNativeItemDisclosure,@"UI.iPhone.SystemButtonStyle.DISCLOSURE",@"6.0.0",@"UI.iOS.SystemButtonStyle.DISCLOSURE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CONTACT_ADD,UITitaniumNativeItemContactAdd,@"UI.iPhone.SystemButtonStyle.CONTACT_ADD",@"6.0.0",@"UI.iOS.SystemButtonStyle.CONTACT_ADD");
 
 
 @end
