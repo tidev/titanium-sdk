@@ -134,24 +134,15 @@
 #ifdef USE_TI_UILISTVIEW
 -(NSNumber*) ROW_ACTION_STYLE_DEFAULT
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleDefault);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleDefault);
 }
 -(NSNumber*) ROW_ACTION_STYLE_DESTRUCTIVE
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleDestructive);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleDestructive);
 }
 -(NSNumber*) ROW_ACTION_STYLE_NORMAL
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleNormal);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleNormal);
 }
 #endif
 
