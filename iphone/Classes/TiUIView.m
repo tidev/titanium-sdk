@@ -369,6 +369,13 @@ DEFINE_EXCEPTIONS
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+    if (bgdImageLayer != nil) {
+        [CATransaction begin];
+        [CATransaction setValue: (id) kCFBooleanTrue forKey: kCATransactionDisableActions];
+        [bgdImageLayer setFrame:bounds];
+        [CATransaction commit];
+    }
+    
     if (backgroundRepeat) {
         [self renderRepeatedBackground:backgroundImage];
     }

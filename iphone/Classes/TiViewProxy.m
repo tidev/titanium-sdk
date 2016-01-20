@@ -106,6 +106,28 @@ static NSArray* touchEventsArray;
     }
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)setOnLayout:(id)callback
+{
+    ENSURE_SINGLE_ARG(callback, KrollCallback);
+    TiLayoutView* thisView = [self view];
+    if ([thisView onLayout] == nil) {
+        KrollCallback* __block _callback = [callback retain];
+        [thisView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+            [sender setOnLayout:nil];
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback: callback
+                                                                    eventObject: [TiUtils rectToDictionary:rect]
+                                                                     thisObject: self];
+            [[_callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+            RELEASE_TO_NIL(_callback);
+        }];
+    } else {
+        NSLog(@"[ERROR] onLayout can only be set once!");
+    }
+}
+#endif
+
 -(void)startLayout:(id)arg
 {
     DebugLog(@"startLayout() method is deprecated since 3.0.0 .");

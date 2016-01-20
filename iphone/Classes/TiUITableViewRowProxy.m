@@ -26,7 +26,11 @@ NSString * const defaultRowTableClass = @"_default_";
 // TODO: Clean this up a bit
 #define NEEDS_UPDATE_ROW 1
 
+#ifdef TI_USE_AUTOLAYOUT
+@interface TiUITableViewRowContainer : TiLayoutView
+#else
 @interface TiUITableViewRowContainer : UIView
+#endif
 {
 	TiProxy * hitTarget;
 	CGPoint hitPoint;
@@ -117,6 +121,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self clearHitTarget];
 	[super dealloc];
 }
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultWidth:TiDimensionAutoFill];
+    [self setDefaultHeight:TiDimensionAutoFill];
+}
+#endif
+
 
 
 @end
@@ -657,6 +671,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
+#ifdef TI_USE_AUTOLAYOUT
+        [rowContainerView performSelector:@selector(updateWidthAndHeight)];
+#endif
 	}
 	configuredChildren = YES;
 }
