@@ -185,6 +185,20 @@
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
 
+@property(nonatomic,readwrite,assign)	NSNumber *appBadge;
+@property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
+
+//Modal_Presentation&Transition
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
+
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
 
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
