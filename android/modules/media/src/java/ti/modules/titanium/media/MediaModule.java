@@ -371,6 +371,26 @@ public class MediaModule extends KrollModule
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 		
 	}
+	
+	@Kroll.method
+	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasStoragePermission()) {
+			return;
+		}
+
+		if (TiBaseActivity.cameraCallbackContext == null) {
+			TiBaseActivity.cameraCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+		String[] permissions = null;
+		permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+		
+
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+		
+	}
 
 	/*
 	 * Current implementation on Android limited to saving Images only to photo gallery
