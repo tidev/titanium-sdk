@@ -63,53 +63,6 @@
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
-    TiUIiOSAnimationStyleProxy* animationStyleProxy;
-#endif
-
-#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
-    TiUIiOSRowAnimationStyleProxy*RowAnimationStyle;
-#endif
-    
-#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
-    TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
-    TiUIiOSTableViewCellSelectionStyleProxy*TableViewCellSelectionStyle;
-    TiUIiOSTableViewCellSelectionStyleProxy*ListViewCellSelectionStyle;
-#endif
-    
-#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
-    TiUIiOSTableViewScrollPositionProxy*TableViewScrollPosition;
-    TiUIiOSTableViewScrollPositionProxy*ListViewScrollPosition;
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-    TiUIiOSTableViewStyleProxy*TableViewStyle;
-    TiUIiOSTableViewStyleProxy*ListViewStyle;
-#endif
-    
-#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
-    TiUIiOSProgressBarStyleProxy*ProgressBarStyle;
-#endif
-
-#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
-    TiUIiOSScrollIndicatorStyleProxy*ScrollIndicatorStyle;
-#endif
-
-#ifdef USE_TI_UIIOSSTATUSBAR
-    TiUIiOSStatusBarProxy*StatusBar;
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-    TiUIiOSSystemButtonStyleProxy*SystemButtonStyle;
-#endif
-    
-#ifdef USE_TI_UIIOSSYSTEMBUTTON
-    TiUIiOSSystemButtonProxy*SystemButton;
-#endif
-    
-#ifdef USE_TI_UIIOSSYSTEMICON
-    TiUIiOSSystemIconProxy*SystemIcon;
-#endif
 }
 
 @property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
@@ -183,6 +136,54 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+#endif
+//Modules
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSAnimationStyleProxy* animationStyleProxy;
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSRowAnimationStyleProxy* RowAnimationStyle;
+#endif
+
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+@property(nonatomic,readwrite,assign) TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewCellSelectionStyleProxy* TableViewCellSelectionStyle;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewCellSelectionStyleProxy* ListViewCellSelectionStyle;
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewScrollPositionProxy* TableViewScrollPosition;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewScrollPositionProxy* ListViewScrollPosition;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewStyleProxy* TableViewStyle;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewStyleProxy* ListViewStyle;
+#endif
+
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSProgressBarStyleProxy* ProgressBarStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSScrollIndicatorStyleProxy* ScrollIndicatorStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+@property(nonatomic,readwrite,assign) TiUIiOSStatusBarProxy* StatusBar;
+#endif
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSSystemButtonStyleProxy* SystemButtonStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+@property(nonatomic,readwrite,assign) TiUIiOSSystemButtonProxy* SystemButton;
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+@property(nonatomic,readwrite,assign) TiUIiOSSystemIconProxy* SystemIcon;
 #endif
 
 @property(nonatomic,readwrite,assign)	NSNumber *appBadge;
