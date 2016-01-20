@@ -291,7 +291,7 @@ RELEASE_TO_NIL(x); \
 -(TIUIiOSAlertDialogStyleProxy*)AlertDialogStyle
 {
     if (_AlertDialogStyle == nil) {
-       _AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[[self pageContext] autorelease]];
+       _AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[self pageContext]];
     }
     return _AlertDialogStyle;
 }
@@ -301,7 +301,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSAnimationStyleProxy*)AnimationStyle
 {
     if (_animationStyleProxy == nil) {
-        _animationStyleProxy = [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _animationStyleProxy = [[TiUIiOSAnimationStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _animationStyleProxy;
 }
@@ -312,7 +312,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSTableViewCellSelectionStyleProxy*)TableViewCellSelectionStyle
 {
     if (_TableViewCellSelectionStyle == nil) {
-        _TableViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _TableViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _TableViewCellSelectionStyle;
 }
@@ -320,7 +320,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSTableViewCellSelectionStyleProxy*)ListViewCellSelectionStyle
 {
     if (_ListViewCellSelectionStyle == nil) {
-        _ListViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _ListViewCellSelectionStyle = [[TiUIiOSTableViewCellSelectionStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _ListViewCellSelectionStyle;
 }
@@ -366,7 +366,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSProgressBarStyleProxy*)ProgressBarStyle
 {
     if (_ProgressBarStyle == nil) {
-        _ProgressBarStyle = [[TiUIiOSProgressBarStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _ProgressBarStyle = [[TiUIiOSProgressBarStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _ProgressBarStyle;
 }
@@ -376,7 +376,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSRowAnimationStyleProxy*)RowAnimationStyle
 {
     if (_RowAnimationStyle == nil) {
-        _RowAnimationStyle = [[TiUIiOSRowAnimationStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _RowAnimationStyle = [[TiUIiOSRowAnimationStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _RowAnimationStyle;
 }
@@ -386,7 +386,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSScrollIndicatorStyleProxy*)ScrollIndicatorStyle
 {
     if (_ScrollIndicatorStyle == nil) {
-        _ScrollIndicatorStyle = [[TiUIiOSScrollIndicatorStyleProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+        _ScrollIndicatorStyle = [[TiUIiOSScrollIndicatorStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _ScrollIndicatorStyle;
 }
@@ -396,7 +396,7 @@ RELEASE_TO_NIL(x); \
 -(TiUIiOSStatusBarProxy*)StatusBar
 {
     if (_StatusBar == nil) {
-         _StatusBar = [[TiUIiOSStatusBarProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
+         _StatusBar = [[TiUIiOSStatusBarProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return _StatusBar;
 }
