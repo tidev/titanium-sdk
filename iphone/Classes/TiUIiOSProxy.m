@@ -374,8 +374,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSTATUSBAR
 -(TiUIiOSStatusBarProxy*)StatusBar
 {
-    if (StatusBar == nil)
-    {
+    if (StatusBar == nil) {
          StatusBar = [[TiUIiOSStatusBarProxy alloc]_initWithPageContext:[[self pageContext]autorelease]];
     }
     return StatusBar;
@@ -385,8 +384,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
 -(TiUIiOSSystemButtonStyleProxy*)SystemButtonStyle
 {
-    if (SystemButtonStyle == nil)
-    {
+    if (SystemButtonStyle == nil) {
         SystemButtonStyle = [[TiUIiOSSystemButtonStyleProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return SystemButtonStyle;
@@ -396,8 +394,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 -(TiUIiOSSystemButtonProxy*)SystemButton
 {
-    if (SystemButton == nil)
-    {
+    if (SystemButton == nil) {
         SystemButton = [[TiUIiOSSystemButtonProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return SystemButton;
@@ -407,13 +404,36 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSYSTEMICON
 -(TiUIiOSSystemIconProxy*)SystemIcon
 {
-    if (SystemIcon == nil)
-    {
+    if (SystemIcon == nil) {
         SystemIcon = [[TiUIiOSSystemIconProxy alloc]_initWithPageContext:[self pageContext]];
     }
     return SystemIcon;
 }
 #endif
+
+-(void)setAppBadge:(id)value
+{
+    ENSURE_UI_THREAD(setAppBadge,value);
+    if (value == [NSNull null]) {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    } else {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[TiUtils intValue:value]];
+    }
+}
+
+BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge,NSNumber)
+result = [NSNumber numberWithInteger:[[UIApplication sharedApplication] applicationIconBadgeNumber]];
+END_UI_THREAD_PROTECTED_VALUE(appBadge)
+
+-(void)setAppSupportsShakeToEdit:(NSNumber *)shake
+{
+    ENSURE_UI_THREAD(setAppSupportsShakeToEdit,shake);
+    [[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:[shake boolValue]];
+}
+
+BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)
+result = [NSNumber numberWithBool:[[UIApplication sharedApplication] applicationSupportsShakeToEdit]];
+END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
 - (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
@@ -928,5 +948,16 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
 #endif
 #endif
 #endif
+
+//Modal Transition and Presentatiom
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL,UIModalTransitionStyleCoverVertical);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,UIModalTransitionStyleFlipHorizontal);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE,UIModalTransitionStyleCrossDissolve);
+
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FULLSCREEN,UIModalPresentationFullScreen);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL,UIModalTransitionStylePartialCurl);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
 @end
 #endif

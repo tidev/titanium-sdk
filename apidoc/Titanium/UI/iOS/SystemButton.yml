@@ -31,7 +31,7 @@ description: |
     and icons.
 extends: Titanium.Proxy
 since: "6.0.0"
-platforms: [iPhone, ipad]
+platforms: [iphone, ipad]
 
 properties:
   - name: ACTION

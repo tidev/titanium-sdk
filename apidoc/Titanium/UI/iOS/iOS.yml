@@ -1508,7 +1508,15 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
-                                                                                                              
+
+  - name: appBadge
+    summary: Value of the badge for the application's springboard icon.
+    type: Number
+
+  - name: appSupportsShakeToEdit
+    summary: Determines whether the shake to edit system-wide capability is enabled.
+    type: Boolean
+
 methods:
   - name: createTransitionAnimation
     summary: |
