@@ -253,7 +253,7 @@ methods:
         summary: Function to call upon user decision to grant storage access.
         type: Callback<RequestCameraAccessResult>
     platforms: [android]
-    since: "5.1.0"
+    since: "6.0.0"
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
