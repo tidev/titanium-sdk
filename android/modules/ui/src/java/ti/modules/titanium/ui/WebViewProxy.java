@@ -38,7 +38,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
-public class WebViewProxy extends ViewProxy 
+public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
@@ -56,13 +56,14 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
+	private static final int MSG_SET_HEADER = MSG_FIRST_ID + 113;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
 
 	private Message postCreateMessage;
-	
+
 	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
 
 	public WebViewProxy()
@@ -158,6 +159,9 @@ public class WebViewProxy extends ViewProxy
 				case MSG_STOP_LOADING:
 					getWebView().stopLoading();
 					return true;
+				case MSG_SET_HEADER:
+					getWebView().setHeader((HashMap)msg.obj);
+					return true;
 				case MSG_SET_USER_AGENT:
 					getWebView().setUserAgentString(msg.obj.toString());
 					return true;
@@ -212,6 +216,23 @@ public class WebViewProxy extends ViewProxy
 		getWebView().setBasicAuthentication(username, password);
 
 	}
+
+	@Kroll.method
+	public void setHeader(HashMap d)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			if (TiApplication.isUIThread()) {
+				currWebView.setHeader(d);
+			} else {
+				//
+				Message message = getMainHandler().obtainMessage(MSG_SET_HEADER);
+				message.obj = d;
+				message.sendToTarget();
+			}
+		}
+	}
+
 
 	@Kroll.method @Kroll.setProperty
 	public void setUserAgent(String userAgent)
@@ -319,7 +340,7 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public void pause() 
+	public void pause()
 	{
 		if (peekView() != null) {
 			if (TiApplication.isUIThread()) {
@@ -364,7 +385,7 @@ public class WebViewProxy extends ViewProxy
 		fusername = null;
 		fpassword = null;
 	}
-	
+
 	public String getBasicAuthenticationUserName()
 	{
 		return fusername;

@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -54,6 +55,7 @@ public class TiUIWebView extends TiUIView
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
+ 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -69,10 +71,10 @@ public class TiUIWebView extends TiUIView
 	private static enum reloadTypes {
 		DEFAULT, DATA, HTML, URL
 	}
-	
+
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
-	
+
 	private class TiWebView extends WebView
 	{
 		public TiWebViewClient client;
@@ -94,7 +96,7 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
-			
+
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -119,9 +121,9 @@ public class TiUIWebView extends TiUIView
 			}
 
 			// Don't return here -- must call super.onTouchEvent()
-			
+
 			boolean superHandled = super.onTouchEvent(ev);
-			
+
 			return (superHandled || handled || swipeHandled);
 		}
 
@@ -132,7 +134,7 @@ public class TiUIWebView extends TiUIView
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
 	}
-	
+
 	//TIMOB-16952. Overriding onCheckIsTextEditor crashes HTC Sense devices
 	private class NonHTCWebView extends TiWebView
 	{
@@ -140,13 +142,13 @@ public class TiUIWebView extends TiUIView
 		{
 			super(context);
 		}
-		
+
 		@Override
 		public boolean onCheckIsTextEditor()
 		{
 			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
 				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS), TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
-				
+
 				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 					return false;
 				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
@@ -156,13 +158,13 @@ public class TiUIWebView extends TiUIView
 			return super.onCheckIsTextEditor();
 		}
 	}
-	
+
 	private boolean isHTCSenseDevice()
 	{
 		boolean isHTC = false;
-		
+
 		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager().getSystemAvailableFeatures();
-		if(features == null) { 
+		if(features == null) {
 			return isHTC;
 		}
 		for (FeatureInfo f : features) {
@@ -175,15 +177,15 @@ public class TiUIWebView extends TiUIView
 				}
 			}
 		}
-		
+
 		return isHTC;
 	}
-	
+
 
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-		
+
 		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
 
@@ -199,7 +201,7 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabasePath(path.getAbsolutePath());
 			settings.setDatabaseEnabled(true);
 		}
-		
+
 		File cacheDir = TiApplication.getInstance().getCacheDir();
 		if (cacheDir != null) {
 			settings.setAppCacheEnabled(true);
@@ -300,7 +302,7 @@ public class TiUIWebView extends TiUIView
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
 			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
 			getWebView().getSettings().setCacheMode(mode);
@@ -316,7 +318,7 @@ public class TiUIWebView extends TiUIView
 				setData((TiBlob) value);
 			}
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
@@ -332,7 +334,7 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				nativeView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
@@ -358,7 +360,7 @@ public class TiUIWebView extends TiUIView
 			if (Build.VERSION.SDK_INT >= 9) {
 				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
-		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
+		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) {
 			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
@@ -386,6 +388,13 @@ public class TiUIWebView extends TiUIView
 		} else {
 			return false;
 		}
+	}
+
+	public void setHeader(HashMap items){
+			Map<String, String> map = items;
+			for(Map.Entry<String, String> item : map.entrySet()){
+				extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+			}
 	}
 
 	public void setUrl(String url)
@@ -459,7 +468,11 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		isLocalHTML = false;
-		getWebView().loadUrl(finalUrl);
+		if (extraHeaders.size()>0){
+			getWebView().loadUrl(finalUrl, extraHeaders);
+		} else {
+			getWebView().loadUrl(finalUrl);
+		}
 	}
 
 	public void changeProxyUrl(String url)
@@ -504,27 +517,27 @@ public class TiUIWebView extends TiUIView
 			setHtml(html);
 			return;
 		}
-		
+
 		reloadMethod = reloadTypes.HTML;
 		reloadData = d;
 		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-		} 
+		}
 		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
 			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
 		}
-		
+
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
 	/**
-	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
-	 * must be set to non null in order for the web view history to work correctly 
-	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property
+	 * must be set to non null in order for the web view history to work correctly
+	 * when working with local files (IE:  goBack() and goForward() will not work if
 	 * null is used)
-	 * 
+	 *
 	 * @param html					HTML data to load into the web view
 	 * @param baseUrl				url to associate with the data being loaded
 	 * @param mimeType				mime type of the data being loaded
@@ -584,14 +597,14 @@ public class TiUIWebView extends TiUIView
 		reloadMethod = reloadTypes.DATA;
 		reloadData = blob;
 		String mimeType = "text/html";
-		
+
 		// iOS parity: for whatever reason, in setData, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
-		
+
 		if (blob.getType() == TiBlob.TYPE_FILE) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
@@ -599,7 +612,7 @@ public class TiUIWebView extends TiUIView
 				return;
 			}
 		}
-		
+
 		if (blob.getMimeType() != null) {
 			mimeType = blob.getMimeType();
 		}
@@ -737,7 +750,7 @@ public class TiUIWebView extends TiUIView
 				getWebView().reload();
 			}
 			break;
-			
+
 		case HTML:
 			if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
 				setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
@@ -746,7 +759,7 @@ public class TiUIWebView extends TiUIView
 				getWebView().reload();
 			}
 			break;
-		
+
 		case URL:
 			if (reloadData != null && reloadData instanceof String) {
 				setUrl((String) reloadData);
@@ -755,7 +768,7 @@ public class TiUIWebView extends TiUIView
 				getWebView().reload();
 			}
 			break;
-			
+
 		default:
 			getWebView().reload();
 		}
