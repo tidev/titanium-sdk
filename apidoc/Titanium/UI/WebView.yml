@@ -154,7 +154,7 @@ methods:
     - name: data
       summary: Object that will be set as the custom header.
       type: Object
-      platforms: [android]
+  platforms: [android]
 
 
   - name: setHtml
