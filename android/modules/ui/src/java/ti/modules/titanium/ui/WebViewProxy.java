@@ -217,7 +217,7 @@ public class WebViewProxy extends ViewProxy
 
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
 	public void setHeader(HashMap d)
 	{
 		TiUIWebView currWebView = getWebView();
