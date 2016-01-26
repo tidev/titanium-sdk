@@ -26,7 +26,7 @@
 	}
 	_attributedString = [[NSMutableAttributedString alloc] initWithString:text];
 	attributes = [[NSMutableArray alloc] init];
-    [super _initWithProperties:properties];
+	[super _initWithProperties:properties];
 }
 
 -(NSString*)apiName
