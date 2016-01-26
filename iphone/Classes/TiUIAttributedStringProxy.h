@@ -14,6 +14,8 @@
 	NSMutableArray *attributes;
 }
 
+-(NSString*)getLink:(NSUInteger)arg;
+
 typedef enum {
 	AttributeNameFont,
 	AttributeNameParagraphStyle,
@@ -41,7 +43,7 @@ typedef enum {
 
 #pragma mark - Not exposed to JS. Internal Use Only.
 @property(nonatomic, readonly) NSMutableAttributedString *attributedString;
-
+@property(nonatomic, readonly) NSMutableDictionary *urls;
 @end
 
 #endif
