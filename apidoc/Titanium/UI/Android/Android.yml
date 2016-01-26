@@ -23,6 +23,8 @@ methods:
         The preferences configuration files must be created in the project folders, 
         `platform/android/res/xml/preferences.xml` and `platform/android/res/values/array/array.xml`.
         
+        The preferences values can be accessed via <Titanium.App.Properties>.
+        
         See the example for a demonstration, and the official Android Developer documentation for 
         the [preferences.xml](http://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
@@ -670,6 +672,7 @@ examples:
               title:	'Click to Open Preferences'
             });
             button.addEventListener('click', function() {
+              Ti.API.info('Current value for editText: ' + Ti.App.Properties.getString('editText'));
               Ti.UI.Android.openPreferences();
             });
             Ti.UI.currentWindow.add(button);
