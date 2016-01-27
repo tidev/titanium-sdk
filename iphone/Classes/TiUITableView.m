@@ -44,6 +44,7 @@
 		proxy = [row_ retain];
 		[proxy setCallbackCell:self];
 		self.exclusiveTouch = YES;
+		_selectedBackgroundNative = YES;
 	}
 	
 	return self;
@@ -55,8 +56,9 @@
     
     RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(gradientLayer);
-	RELEASE_TO_NIL(backgroundGradient);
-	RELEASE_TO_NIL(selectedBackgroundGradient);
+    RELEASE_TO_NIL(backgroundGradient);
+    RELEASE_TO_NIL(selectedBackgroundGradient);
+    RELEASE_TO_NIL(selectedBackgroundColor);
 	[super dealloc];
 }
 
@@ -231,26 +233,36 @@
 
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
-    [super setSelected:yn animated:animated];
-    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
+	if(_selectedBackgroundNative){
+		[super setSelected:yn animated:animated];
+	} else {
+		if(yn) [self setBackgroundColor:selectedBackgroundColor];
+		else [self setBackgroundColor:[UIColor whiteColor]];
+	}
+	[self updateGradientLayer:yn|[self isHighlighted] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
-    [super setHighlighted:yn animated:animated];
-    [self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
+	if(_selectedBackgroundNative){
+		[super setHighlighted:yn animated:animated];
+	} else {
+		if(yn) [self setBackgroundColor:selectedBackgroundColor];
+		else [self setBackgroundColor:[UIColor whiteColor]];
+	}
+	[self updateGradientLayer:yn|[self isSelected] withAnimation:animated];
 }
 
 -(void)setHighlighted:(BOOL)yn
 {
-    [super setHighlighted:yn];
-    [self updateGradientLayer:yn|[self isSelected] withAnimation:NO];
+	[super setHighlighted:yn];
+	[self updateGradientLayer:yn|[self isSelected] withAnimation:NO];
 }
 
 -(void)setSelected:(BOOL)yn
 {
-    [super setSelected:yn];
-    [self updateGradientLayer:yn|[self isHighlighted] withAnimation:NO];
+	[super setSelected:yn];
+	[self updateGradientLayer:yn|[self isHighlighted] withAnimation:NO];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
@@ -270,19 +282,30 @@
 
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
 {
-	if(newGradient == selectedBackgroundGradient)
-	{
-		return;
-	}
-	[selectedBackgroundGradient release];
-	selectedBackgroundGradient = [newGradient retain];
-	
-	if([self selectedOrHighlighted])
-	{
-		[self updateGradientLayer:YES withAnimation:NO];
-	}
+    if(newGradient == selectedBackgroundGradient)
+    {
+        return;
+    }
+    [selectedBackgroundGradient release];
+    selectedBackgroundGradient = [newGradient retain];
+    
+    if([self selectedOrHighlighted])
+    {
+        [self updateGradientLayer:YES withAnimation:NO];
+    }
 }
 
+-(void) setSelectedBackgroundColor_:(id)arg
+{
+	TiColor *selBgColor = [TiUtils colorValue:arg];
+	selectedBackgroundColor = selBgColor.color;
+}
+
+-(void) setSelectedBackgroundNative_:(id)arg
+{
+	BOOL *yn = [TiUtils boolValue:arg def:YES];
+	_selectedBackgroundNative = yn;
+}
 
 
 @end

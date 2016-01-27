@@ -387,6 +387,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 	id bgImage = [self valueForKey:@"backgroundImage"];
 	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+	id selBgNative = [self valueForKey:@"selectedBackgroundNative"];
+
+	[(TiUITableViewCell *)cell setSelectedBackgroundColor_:selBgColor];
+	[(TiUITableViewCell *)cell setSelectedBackgroundNative_:selBgNative];
 
 	if (bgImage!=nil)
 	{
