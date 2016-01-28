@@ -1676,7 +1676,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
+    // send indexPath of tableView which could be self.tableView or searchController.searchResultsTableView
+    [self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -1938,12 +1939,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![self.proxy _hasListeners:eventName]) {
 		return;
 	}
-	TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
-	NSDictionary *item = [section itemAtIndex:indexPath.row];
+    
+    // return sectionIndex, itemIndex of item in original table(self.tableView),
+    // not results table(searchController.searchResultsTableView)
+    NSIndexPath *indexPathInOrgTableView = [self pathForSearchPath:indexPath];
+	
+    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPathInOrgTableView.section];
+	NSDictionary *item = [section itemAtIndex:indexPathInOrgTableView.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINTEGER(indexPath.section), @"sectionIndex",
-										NUMINTEGER(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPathInOrgTableView.section), @"sectionIndex",
+										NUMINTEGER(indexPathInOrgTableView.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -1953,9 +1959,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[eventObject setObject:itemId forKey:@"itemId"];
 	}
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
-	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
+    
+    CGPoint convertedPoint = [tableView convertPoint:tapPoint toView:cell.contentView];
+    // if searchController is active, tableView.contentOffset.y = -44
+    // else tableView.contentOffset.y = 0
+    if ([searchController isActive]) {
+        convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
+    }
+	
+    if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
-		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, [tableView convertPoint:tapPoint toView:contentView]);
+		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, convertedPoint);
 		if (tapViewProxy != nil) {
 			[eventObject setObject:[tapViewProxy valueForKey:@"bindId"] forKey:@"bindId"];
 		}
