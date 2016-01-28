@@ -90,11 +90,18 @@
         navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];;
         navController.delegate = self;
         [TiUtils configureController:navController withObject:self];
-        if ([TiUtils isIOS7OrGreater]) {
-            [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-        }
+        [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+        [[navController interactivePopGestureRecognizer] setDelegate:self];
     }
     return navController;
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (current != nil) {
+        return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
+    }
+    return YES;
 }
 
 -(void)openWindow:(NSArray*)args

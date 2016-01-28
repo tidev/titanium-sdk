@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import "TiToJS.h"
 #import "KrollBridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
@@ -22,7 +22,7 @@
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
 #endif
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -438,30 +438,27 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	const char *urlCString = [[url_ absoluteString] UTF8String];
-	
-	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
+
+    TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
-	// validate script
-	if (![TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-		TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception);
-	}
-	
-	// only continue if we don't have any exceptions from above
 	if (exception == NULL) {
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode]) {
             TiDebuggerBeginScript(context_,urlCString);
         }
-#endif
+
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-#ifdef TI_DEBUGGER_PROFILER
         if ([[self host] debugMode]) {
             TiDebuggerEndScript(context_);
         }
+#else
+        TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 #endif
         if (exception == NULL) {
             evaluationError = NO;
+        } else {
+            evaluationError = YES;
         }
 	}
 	if (exception != NULL) {
@@ -472,7 +469,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
-    
     [pool release];
 }
 
@@ -548,6 +544,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)willStartNewContext:(KrollContext*)kroll
 {
+#ifdef HYPERLOOP
+	// Start Hyperloop engine if present
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(willStartNewContext:bridge:) withObject:kroll withObject:self];
+	}
+#endif
 	[self retain]; // Hold onto ourselves as long as the context needs us
 }
 
@@ -612,12 +615,26 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		TiBindingRunLoopAnnounceStart(kroll);
 		[self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 	}
-    
+
+#ifdef HYPERLOOP
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(didStartNewContext:bridge:) withObject:kroll withObject:self];
+	}
+#endif
+
     [pool release];
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll
 {
+#ifdef HYPERLOOP
+	// Stop Hyperloop engine if present
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(willStopNewContext:bridge:) withObject:kroll withObject:self];
+	}
+#endif
 	if (shutdown==NO)
 	{
 		shutdown = YES;
@@ -645,6 +662,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
+#ifdef HYPERLOOP
+	Class cls = NSClassFromString(@"Hyperloop");
+	if (cls) {
+		[cls performSelector:@selector(didStopNewContext:bridge:) withObject:kroll withObject:self];
+	}
+#endif
 	[self autorelease]; // Safe to release now that the context is done
 }
 
@@ -912,17 +935,16 @@ loadNativeJS:
         NSString* urlPath = (filepath != nil) ? filepath : fullPath;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
         KrollWrapper* wrapper = nil;
-#ifdef TI_DEBUGGER_PROFILER
        	const char *urlCString = [[url_ absoluteString] UTF8String];
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
 #endif
-		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		wrapper = [self loadCommonJSModule:dataContents withSourceURL:url_];
         [dataContents release];
-		
-#ifdef TI_DEBUGGER_PROFILER
+#ifndef USE_JSCORE_FRAMEWORK
         if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
@@ -978,7 +1000,8 @@ loadNativeJS:
 		return module;
 	}
 	
-	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+	NSString *arch = [TiUtils currentArchitecture];
+	@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
@@ -1071,11 +1094,13 @@ loadNativeJS:
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+#ifdef TI_USE_KROLL_THREAD
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];
 			break;
 		}
+#endif
 	}
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
 

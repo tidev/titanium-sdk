@@ -76,6 +76,7 @@
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
     UIEdgeInsets defaultSeparatorInsets;
+    UIEdgeInsets rowSeparatorInsets;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
@@ -94,6 +95,7 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
 -(void)setScrollsToTop_:(id)value;
+-(void)setContentOffset_:(id)args withObject:(id)obj;
 
 #pragma Private
 -(void)selectRow:(id)args;

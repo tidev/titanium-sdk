@@ -43,37 +43,39 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: start
     summary: |
         Starts the image animation. On Android and Mobile Web, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
-    exclude-platforms: [blackberry]
+
     
   - name: stop
     summary: Stops a running animation. On iOS and Mobile Web, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
-    exclude-platforms: [blackberry]
+
     
   - name: toBlob
     summary: Returns the image as a Blob object.
     platforms: [android, iphone, ipad]
+    returns:
+        type: Titanium.Blob
 
 events:
   - name: change
@@ -92,19 +94,19 @@ events:
             property is loaded. Set to `images`, when the series of images defined in the 
             [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
-    exclude-platforms: [blackberry]
+
     
   - name: start
     summary: Fired when the animation starts.
-    exclude-platforms: [blackberry]
+
     
   - name: stop
     summary: Fired when the animation stops.
-    exclude-platforms: [blackberry]
+
     
   - name: error
     summary: Fired when an image fails to load.
-    exclude-platforms: [blackberry]
+
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
@@ -126,23 +128,23 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { android: "2.1.1" }
-    exclude-platforms: [blackberry]
+
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web, Tizen)
+    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
-    exclude-platforms: [blackberry]
+
   
   - name: autorotate
     summary: |
         Indicates whether the image should be rotated based on exif orientation data. 
         By default, this is false on android and true on iOS. 
-        The auto rotate behavior is not supported on Mobile Web and Tizen.
+        The auto rotate behavior is not supported on Mobile Web.
     type: Boolean
     default: false on android, true on iOS. 
     availability: creation
@@ -160,7 +162,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -171,13 +173,13 @@ properties:
         started, duration will be set to the number of images multiplied by 33 ms. If no images 
         are assigned, duration will be set to 100 ms.
         
-        On iOS, Tizen and Mobile Web, prior to release 2.1.1, the default is 30 ms.
+        On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
 
         On Android, if the value of duration is changed, [stop](Titanium.UI.ImageView.stop)
         and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
-    exclude-platforms: [blackberry]
+
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
@@ -185,7 +187,7 @@ properties:
     default: false
     platforms: [android]
     since: "1.3.0"
-    exclude-platforms: [blackberry]
+
     
   - name: hires
     summary: |
@@ -205,6 +207,10 @@ properties:
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
         or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
         Mobile Web.
+
+        For Android, if there is a redirect and change in protocol, it will not follow. For example,
+        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
@@ -212,15 +218,19 @@ properties:
         Array of images to animate, defined using local filesystem paths, `File` objects, 
         remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
         objects are not supported on Mobile Web.
+        
+        When using this property, an initial `start()` needs to be called upon the ImageView before any image will show in this imageview. 
+        
+        Related properties/methods to look at: `start`, `stop`, `pause`, `reverse`, `resume` and `repeatCount` 
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
-    exclude-platforms: [blackberry]
+
     
   - name: paused
     summary: Indicates whether the animation is paused.
     type: Boolean
     default: false
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: preventDefaultImage
     summary: |

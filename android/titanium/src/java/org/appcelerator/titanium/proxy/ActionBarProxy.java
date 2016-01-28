@@ -18,8 +18,9 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
+@SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED
 })
@@ -50,7 +51,7 @@ public class ActionBarProxy extends KrollProxy
 	private ActionBar actionBar;
 	private boolean showTitleEnabled = true;
 
-	public ActionBarProxy(ActionBarActivity activity)
+	public ActionBarProxy(AppCompatActivity activity)
 	{
 		super();
 		actionBar = activity.getSupportActionBar();

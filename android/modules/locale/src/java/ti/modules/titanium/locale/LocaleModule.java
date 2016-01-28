@@ -16,6 +16,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.telephony.PhoneNumberUtils;
 
 @Kroll.module
@@ -77,6 +79,7 @@ public class LocaleModule extends KrollModule
 		return TiPlatformHelper.getInstance().getCurrencySymbol(locale);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Kroll.method
 	public String formatTelephoneNumber(String telephoneNumber)
 	{
@@ -86,7 +89,26 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.setProperty
 	public void setLanguage(String language) 
 	{
-		Log.w(TAG, "Locale.setLanguage not supported for Android.");
+		try {
+			String[] parts = language.split("-");
+			Locale locale = null;
+			
+			if (parts.length > 1) {
+				locale = new Locale(parts[0], parts[1]);
+			} else {
+				locale = new Locale(parts[0]);
+			}
+			 
+			Locale.setDefault(locale);
+			
+			Configuration config = new Configuration();
+			config.locale = locale;
+			
+			Context ctx =  TiApplication.getInstance().getBaseContext();
+			ctx.getResources().updateConfiguration(config, ctx.getResources().getDisplayMetrics());
+		} catch (Exception e) {
+			Log.e(TAG, "Error trying to set language '" + language + "':", e);
+		}
 	}
 
 	@Kroll.method  @Kroll.topLevel("L")

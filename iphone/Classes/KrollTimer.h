@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "JavaScriptCore/TiCore.h"
+#import "TiToJS.h"
 #import "KrollContext.h"
 
 //

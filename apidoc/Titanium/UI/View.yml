@@ -69,19 +69,19 @@ description: |
         is 163DPI for iPhone/iPod touch and 132DPI for the iPad. A DIP
         corresponds to 2 pixels of width or height on a Retina display.
     
-    *   On Mobile Web and Tizen, both DIP and pixel are equal to one browser pixel, which may
+    *   On Mobile Web, both DIP and pixel are equal to one browser pixel, which may
         not correspond to a pixel on the display. From testing, most browsers seem to
         report a DPI value of 96DPI, regardless of the actual display density.
     
     The absolute measures, such as inches, are dependent on the device correctly reporting
-    its density. On Mobile Web and Tizen, in particular, these values are unlikely to be exact.
+    its density. On Mobile Web, in particular, these values are unlikely to be exact.
     
     If no units are specified, a system-default unit is assumed. The system default unit is:
     
     *    Pixels on Android.
     *    DIPs on iOS.
-    *    DIPs on Mobile Web and Tizen(as described above, DIPs and pixels are interchangable on
-         Mobile Web and Tizen).
+    *    DIPs on Mobile Web (as described above, DIPs and pixels are interchangable on
+         Mobile Web).
     
     On Android and iOS, the default unit can be overriden on a per-application level by setting the
     `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the 
@@ -89,7 +89,7 @@ description: |
     
         <property name="ti.ui.defaultunit" type="string">dip</property>
     
-    (This property is not supported on Mobile Web and Tizen.)
+    (This property is not supported on Mobile Web.)
     
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or 
     `system` to specify that the platform's default unit should be used.
@@ -104,7 +104,7 @@ description: |
     
     For more details see: 
     
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/!/guide/UI_Composite_Layout_Behavior_Spec)
     
     #### Size and Position
     
@@ -125,7 +125,7 @@ description: |
         Spec. This value is not recommended for new development and will be deprecated in
         the future.
     
-        On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
+        On Mobile Web, 'auto' always selects `SIZE` behavior.
     
     Sizes and positions can also be specified as a percentage of the parent's size, for 
     example, '50%'.
@@ -260,7 +260,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
         
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
@@ -318,7 +318,7 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -373,7 +373,7 @@ events:
         
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [android,iphone,ipad,mobileweb, tizen]
+    platforms: [android,iphone,ipad,mobileweb]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left', 'right', 'up', or 'down'.
@@ -400,7 +400,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchend
     summary: Fired when a touch event is completed.
     description: |
@@ -414,7 +439,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -427,7 +477,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -438,7 +513,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+            The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     since: { android: "3.0.0" }
@@ -450,7 +550,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
 
 methods:
   - name: add
@@ -551,8 +651,11 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy.
-        type: Titanium.UI.View
+        summary: |
+            View to add to this view's hierarchy.
+
+            On the iOS and Windows platforms, you may pass an array of views.
+        type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
     summary: Animates this view.
@@ -565,7 +668,7 @@ methods:
         reflect the original values set by the user, not the actual position of the view.
         
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and 
-        position of the view. Note that on Mobile Web and Tizen, the `rect` property is not updated after 
+        position of the view. Note that on Mobile Web, the `rect` property is not updated after
         animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
 
     parameters:
@@ -595,11 +698,33 @@ methods:
         To be notified when the layout pass completes, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web and Tizen, this method has no effect, but is included for parity.
+        On Mobile Web, this method has no effect, but is included for parity.
         
   - name: hide
     summary: Hides this view.
-    
+    parameters:
+      - name: options
+        summary: |
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
+
+  - name: insertAt
+    summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array to
+               insert the view. If omitted, inserts the view to the end of the array.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
+
   - name: remove
     summary: Removes a child view from this view's hierarchy.
     parameters:
@@ -609,10 +734,32 @@ methods:
     
   - name: removeAllChildren
     summary: Removes all child views from this view's hierarchy.
-    since: {android: "3.1.0", blackberry: "3.3.0", iphone: "3.1.0", ipad: "3.1.0"}
+    since: {android: "3.1.0",  iphone: "3.1.0", ipad: "3.1.0"}
+
+  - name: replaceAt
+    summary: Replaces a view at the specified position in the [children](Titanium.UI.View.children) array.
+    description: |
+        Useful if the `layout` property is set to `horizontal` or `vertical`.
+    parameters:
+      - name: params
+        summary: |
+            Pass an object with the following key-value pairs:
+
+             * `view` (Titanium.UI.View): View to insert
+             * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
+               the view elment to replace.
+        type: Dictionary
+    since: 3.3.0
+    platforms: [android, iphone, ipad]
 
   - name: show
     summary: Makes this view visible.
+    parameters:
+      - name: options
+        summary: |
+            Animation options for Android. **Since Release 5.1.0.**
+        type: AnimationOption
+        optional: true
     
   - name: startLayout
     summary: Starts a batch update of this view's layout properties.
@@ -632,14 +779,14 @@ methods:
         Note that _any_ property changes made during the batch update _may_ be deferred until
         `finishLayout` is called. This may vary somewhat by platform. For example, changing the
         text of a label may trigger a layout pass. In iOS, updating the label text is
-        deferred, while on Mobile Web and Tizen, the label text is updated immediately but the control is 
+        deferred, while on Mobile Web, the label text is updated immediately but the control is
         not resized until `finishLayout` is called.
         
         See also: [updateLayout](Titanium.UI.View.updateLayout), 
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web and Tizen, this method is included for parity only, and thus has no effect.
+        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -657,7 +804,6 @@ methods:
         summary: | 
             Function to be invoked upon completion. If non-null, this method will be performed 
             asynchronously. If null, it will be performed immediately.
-            On Tizen, this function is asynchronous only. The callback is mandatory and function always returns "undefined".
         type: Callback<Titanium.Blob>
         optional: true
         
@@ -667,9 +813,6 @@ methods:
             
             When set to true, image is scale factor is honored. When set to false, the image in the 
             blob has the same dimensions for retina and non-retina devices.
-
-            Starting with version 3.5.0 of the Titanium SDK, this value is no longer checked and always 
-            behaves as true.
         type: Boolean
         default: false
         optional: true
@@ -695,7 +838,7 @@ methods:
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
         
-        On Mobile Web and Tizen, this method is included for parity only, and thus has no effect.
+        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -718,7 +861,7 @@ methods:
         the return value.
     returns:
         type: Point
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { android: "1.8", iphone: "1.8", ipad: "1.8", mobileweb: "2.0" }
     parameters:
       - name: point
@@ -868,7 +1011,7 @@ properties:
     summary: A background gradient for the view.
     type: Gradient
     default: No gradient
-    platforms: [iphone,ipad,mobileweb, tizen,android]
+    platforms: [iphone,ipad,mobileweb,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously 
         along a line between the `startPoint` and `endPoint`.
@@ -890,7 +1033,7 @@ properties:
         
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
         
-        Mobile Web and Tizen have two limitations: backfillStart and backfillEnd are ignored and the system 
+        Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system
         behaves as if they are true, and endPoint is not supported for radial gradients. 
 
         Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
@@ -979,14 +1122,14 @@ properties:
         
         `focusable` must be true for normal views.
     type: String
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     default: Background color of this view.
     
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
     description: For normal views, the selected background is only used if `focusable` is `true`.
     type: String
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     default: |
         If `backgroundSelectedImage` is undefined, and the normal background image
         `backgroundImage` is set, the normal image is used when this view is selected.
@@ -1003,22 +1146,22 @@ properties:
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    default: Same as the normal background color of this view (Android, Mobile Web, Tizen), black (iOS).
+    default: Same as the normal background color of this view (Android, Mobile Web), black (iOS).
     type: String
-    exclude-platforms: [blackberry]
+
     
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: Each corner is rounded using an arc of a circle.
     type: Number
     default: 0
-    exclude-platforms: [blackberry]
+
     
   - name: borderWidth
     summary: Border width of the view.
     type: Number
     default: 0
-    exclude-platforms: [blackberry]
+
     
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -1039,7 +1182,7 @@ properties:
         represent the view's calculated position.
     default: undefined
     type: Point
-    exclude-platforms: [blackberry]
+
     
   - name: children
     summary: Array of this view's child views.
@@ -1058,16 +1201,21 @@ properties:
     platforms: [iphone, ipad]
     since: "3.3.0"
 
-  - name: enabled
-    summary: Determines if the view is enabled or disabled.
-    description: Set to `true` to enable or `false` to disable the view.
-    default: Enabled by default. (Property value may be undefined.)
-    type: Boolean
-    deprecated:
-        since: "3.3.0"
-        notes: This is deprecated on Android. Use [touchEnabled](Titanium.UI.View.enabled) property instead.
-    platforms: [android, blackberry]
-    
+  - name: elevation
+    summary: Base elevation of the view relative to its parent in pixels.
+    description: |
+        The elevation of a view determines the appearance of its shadow.
+        Higher elevations produce larger and softer shadows.
+
+        **Note:** The `elevation` property only works on `Titanium.UI.View` objects.
+        Many Android components have a default elevation that cannot be modified.
+        For more information, see
+        [Google design guidelines: Elevation and shadows](https://www.google.com/design/spec/what-is-material/elevation-shadows.html).
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    osver: {android: {min: 5.0}}
+  
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean
@@ -1079,7 +1227,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp'). 
         Can also be one of the following special values:
@@ -1090,7 +1238,7 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
         
-             On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
+             On Mobile Web, 'auto' always selects `SIZE` behavior.
         
         This is an input property for specifying the view's height dimension. To determine the 
         view's size once rendered, use the [rect](Titanium.UI.View.rect) or 
@@ -1191,7 +1339,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`. 
             
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
             in the Titanium Mobile Guides. 
             
          *  `vertical`. Children are laid out vertically from top to bottom. The first child 
@@ -1209,7 +1357,7 @@ properties:
             it is wrapped to a new row. The height of each row is equal to the maximum height of
             the children in that row.
             
-            Wrapping behavior is available on iOS, Android, Tizen and Mobile Web (Release 2.1.0 and later).
+            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
             When the `horizontalWrap` property is set to true, the first row is placed at the top of the 
             parent view, and successive rows are placed below the first row. Each child is 
             positioned vertically _within its row_ somewhat like composite layout mode. 
@@ -1255,6 +1403,19 @@ properties:
     since: "3.3.0"
     platforms: [iphone,ipad]
 
+  - name: previewContext
+    summary: The preview context used in the 3D-Touch feature "Peek and Pop".
+    description: |
+        Preview context to present the "Peek and Pop" of a view. Use an configured instance
+        of <Titanium.UI.iOS.PreviewContext> here.
+
+        Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
+        It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
+    platforms: [iphone]
+    since: "5.1.0"
+    type: Titanium.UI.View
+    osver: {ios: {min: "9.0"}}
+
   - name: right
     summary: View's right position, in platform-specific units.
     description: |
@@ -1282,7 +1443,7 @@ properties:
     type: Dimension
     permission: read-only
     since: "2.0.0"
-    exclude-platforms: [blackberry]
+
 
   - name: size
     summary: |
@@ -1299,7 +1460,7 @@ properties:
         [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
@@ -1338,10 +1499,39 @@ properties:
     
   - name: transform
     summary: Transformation matrix to apply to the view.
-    description: Android, Tizen and Mobile Web only support 2DMatrix transforms.
+    description: Android and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
     default: Identity matrix
-    exclude-platforms: [blackberry]
+
+  - name: translationX
+    summary: Horizontal location of the view relative to its left position in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    
+  - name: translationY
+    summary: Vertical location of the view relative to its top position in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    
+  - name: translationZ
+    summary: Depth of the view relative to its elevation in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.0.0
+    osver: {android: {min: 5.0}}
+    
+  - name: transitionName
+    summary: A name to identify this view in activity transition. 
+    description: Name should be unique in the View hierarchy.
+    type: String
+    platforms: [android]
+    since: "5.0.2"
+    osver: {android: {min: 5.0}}
     
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
@@ -1374,7 +1564,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values: 
@@ -1385,7 +1575,7 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
         
-        On Mobile Web and Tizen, 'auto' always selects `SIZE` behavior.
+        On Mobile Web, 'auto' always selects `SIZE` behavior.
         
         This is an input property for specifying the view's width dimension. To determine 
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
@@ -1401,7 +1591,7 @@ properties:
     type: Boolean
     default: true
     since: "2.1.0"
-    exclude-platforms: [blackberry]
+
 
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.
@@ -1458,7 +1648,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad, mobileweb, tizen]
+platforms: [iphone, ipad, mobileweb]
 since: "1.8.0"
 properties:
   - name: type
@@ -1544,3 +1734,15 @@ properties:
   - name: y
     summary: The y-axis coordinate of the position.
     type: Number
+
+---
+name: AnimationOption
+summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+since: 5.1.0
+platforms: [android]
+properties:
+  - name: animated
+    summary: Determines whether to enable a circular reveal animation.
+    type: Boolean
+    default: false
+    osver: {android: {min: 5.0}}

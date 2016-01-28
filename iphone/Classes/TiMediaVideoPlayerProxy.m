@@ -323,25 +323,25 @@ NSArray* moviePlayerKeys = nil;
 // < 3.2 functions for controls - deprecated
 -(void)setMovieControlMode:(NSNumber *)value
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
 	[self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlMode
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
 	return [self mediaControlStyle];
 }
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
     [self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlStyle
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
     return [self mediaControlStyle];
 }
 
@@ -495,7 +495,7 @@ NSArray* moviePlayerKeys = nil;
     volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
         [TiUtils setVolume:volume onObject:[MPMusicPlayerController applicationMusicPlayer]];
-	}, NO);
+	}, YES);
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value

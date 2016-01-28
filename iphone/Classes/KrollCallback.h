@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "JavaScriptCore/TiCore.h"
+#import "TiToJS.h"
 #import "KrollContext.h"
 
 @class KrollBridge;
@@ -22,13 +22,16 @@
 	TiObjectRef function;
 	KrollContext *context;
 	KrollBridge * bridge;
-	NSLock* contextLock;
+#ifdef TI_USE_KROLL_THREAD
+    NSLock* contextLock;
+#endif
 	NSString *type;
 }
 
 @property(nonatomic,readwrite,retain) NSString *type;
 
 -(id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext*)context_;
+-(void)callAsync:(NSArray*)args thisObject:(id)thisObject_;
 -(id)call:(NSArray*)args thisObject:(id)thisObject_;
 -(TiObjectRef)function;
 -(KrollContext*)context;

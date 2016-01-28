@@ -7,7 +7,7 @@
 #import "KrollMethod.h"
 #import "KrollObject.h"
 #import "KrollContext.h"
-#import "TiBase.h"
+#import "TiToJS.h"
 
 #import "KrollBridge.h"
 
@@ -46,7 +46,16 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		NSDate *reftime = [NSDate date];
 		NSLog(@"[DEBUG] Invoking %@ with args: %@",o,args);
 #endif
-		id result = [o call:args];
+        
+#ifdef TI_USE_KROLL_THREAD
+        id result = [o call:args];
+#else
+        __block id result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [o call:args];
+        }, YES);
+
+#endif
 #if KMETHOD_DEBUG == 1
 		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
 		NSLog(@"[DEBUG] Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
@@ -332,14 +341,6 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
     
     [invocation invoke];
     
-    if ([_methodSignature methodReturnLength] == sizeof(id)) {
-		id result = nil;
-        void *tempResult;
-        [invocation getReturnValue:&tempResult];
-        result = (__bridge id)tempResult;
-        return result;
-    }
-
     const char * retType = [_methodSignature methodReturnType];
     char t = retType[0];
     switch(t)
@@ -348,11 +349,25 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
         {
             return nil;
         }
+        case '@':
+        {
+            id result = nil;
+            void *tempResult;
+            [invocation getReturnValue:&tempResult];
+            result = (__bridge id)tempResult;
+            return result;
+        }
         case 'c':
         {
             char c;
             [invocation getReturnValue:&c];
             return [NSNumber numberWithChar:c];
+        }
+        case 'C':
+        {
+            unsigned char uc;
+            [invocation getReturnValue:&uc];
+            return [NSNumber numberWithUnsignedChar:uc];
         }
         case 'f':
         {
@@ -366,6 +381,24 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
             [invocation getReturnValue:&i];
             return [NSNumber numberWithInt:i];
         }
+        case 'I':
+        {
+            unsigned int ui;
+            [invocation getReturnValue:&ui];
+            return [NSNumber numberWithUnsignedInt:ui];
+        }
+        case 's':
+        {
+            short s;
+            [invocation getReturnValue:&s];
+            return [NSNumber numberWithShort:s];
+        }
+        case 'S':
+        {
+            unsigned short us;
+            [invocation getReturnValue:&us];
+            return [NSNumber numberWithUnsignedShort:us];
+        }
         case 'd':
         {
             double d;
@@ -378,21 +411,34 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
             [invocation getReturnValue:&l];
             return [NSNumber numberWithLong:l];
         }
+        case 'L':
+        {
+            unsigned long ul;
+            [invocation getReturnValue:&ul];
+            return [NSNumber numberWithUnsignedLong:ul];
+        }
         case 'q':
         {
-            long long l;
-            [invocation getReturnValue:&l];
-            return [NSNumber numberWithLongLong:l];
+            long long ll;
+            [invocation getReturnValue:&ll];
+            return [NSNumber numberWithLongLong:ll];
         }
         case 'Q':
         {
-            unsigned long long l;
-            [invocation getReturnValue:&l];
-            return [NSNumber numberWithUnsignedLongLong:l];
+            unsigned long long ull;
+            [invocation getReturnValue:&ull];
+            return [NSNumber numberWithUnsignedLongLong:ull];
+        }
+        case 'b':
+        case 'B':
+        {
+            bool b;
+            [invocation getReturnValue:&b];
+            return [NSNumber numberWithBool:b];
         }
         default:
         {
-            DeveloperLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
+            DebugLog(@"[ERROR] Unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
             break;
         }
     }

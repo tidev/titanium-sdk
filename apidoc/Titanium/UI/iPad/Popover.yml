@@ -15,8 +15,20 @@ description: |
     property for more information.
 
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "1.2"
+excludes:
+    events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [animate, convertPointToView, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,zIndex]
 
 events:
   - name: hide
@@ -64,6 +76,15 @@ properties:
                 Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT,Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT,
                 Titanium.UI.iPad.POPOVER_ARROW_DIRECTION_UP]
     
+  - name: backgroundColor
+    summary: Sets the background color of the popover.
+    description: | 
+        It is recommended to set this property to colorize the whole popover instead of only 
+        its content view.
+    availability: creation
+    since: 5.2.0
+    default: undefined (behaves as transparent)
+
   - name: contentView
     summary: View to use for the popover content. Must be set before calling the `show()` method.
     description: |
@@ -102,7 +123,7 @@ properties:
     summary: Left button in the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set. 
 
@@ -130,7 +151,7 @@ properties:
     summary: Right button in the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -151,7 +172,7 @@ properties:
     summary: Title of the navigation area of the popover.
     deprecated:
         since: "3.4.2"
-        notes: This property is no loner supported.
+        notes: This property is no longer supported.
     description: |
         Ignored when [contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
@@ -182,7 +203,6 @@ examples:
             });
 
             var contentWindow = Ti.UI.createWindow({
-                backgroundColor: 'green',
                 rightNavButton: rightButton,
                 title: 'Kermit',
                 width: 250,
@@ -193,6 +213,7 @@ examples:
             var popover = Ti.UI.iPad.createPopover({
                 width: 250,
                 height: 100,
+                backgroundColor: 'green',
                 contentView: Ti.UI.iOS.createNavigationWindow({window: contentWindow})
             });
 
@@ -222,12 +243,12 @@ examples:
         `app/views/popover.xml`:
 
             <Alloy>
-                <Popover height='100' width='250'>
+                <Popover height='100' width='250' backgroundColor='green'>
                     <ContentView>
                         <NavigationWindow>
-                            <Window title='Kermit' backgroundColor='green'>
-                                <RightNavButton onClick="closePopover" title="Robin" />
-                                 <Label>It's not easy being green.</Label>
+                            <Window title='Kermit'>
+                                <RightNavButton onClick="showAlert" title="Robin" />
+                                <Label>It's not easy being green.</Label>
                             </Window>
                         </NavigationWindow>
                     </ContentView>

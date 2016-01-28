@@ -1,17 +1,48 @@
 ---
 name: Titanium.Android.BroadcastReceiver
-summary: | 
-    The Titanium binding of an 
-    [Android Broadcast Receiver](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
+summary: Monitor and handle Android system broadcasts.
 description: |
-    This object is used for broadcast receivers.
+    The application can use broadcast receivers to monitor system events from the Android OS
+    as well as custom broadcasts sent by other applications. The application will need to know the
+    name of the broadcast actions in order to monitor them. Note that Titanium only supports
+    programmatically creating and registering broadcast receivers. Titanium does not support
+    declaring a receiver in the Android manifest.
 
-    See the official Android documentation on 
-    [Broadcast Receivers](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
-    for an overview of how broadcast receivers are used.
+    To create a Broadcast Receiver, use the <Titanium.Android.createBroadcastReceiver> method.
+    Specify either a callback to handle the broadcast with the `onReceived` property or a
+    JavaScript file with the `url` property.  Do not specify both.  If both properties are
+    used, the `url` property takes precedence.
 
-    Broadcast receivers can be created with an onReceived callback or a url property that refers to a js file
-    with code to handle broadcasts. If both url and onReceived properties are defined, the url property takes precedence.
+    To start listening to a broadcast, pass the `BroadcastReceiver` object and an array of
+    broadcast actions to listen for to the <Titanium.Android.registerBroadcastReceiver> method.
+
+    Titanium exposes some of the system-level broadcasts as the `Titanium.Android.ACTION_*`
+    constants. Note that some of these constants are not broadcast messages.
+
+    You can also define a custom broadcast action.  Use a reverse domain name scheme in order to
+    avoid potential conflicts with other applications.
+
+    To stop listening to a broadcast, pass the `BroadcastReceiver` object to the
+    <Titanium.Android.unregisterBroadcastReceiver> method.
+
+    To monitor a broadcast that requires a special permission, declare the **`<uses-permission>`**
+    element in the Android manifest section of the `tiapp.xml` file for each broadcast that uses
+    a special permission.  For example, to monitor the `NEW_OUTGOING_CALL` broadcast, the
+    application needs to add the following permission:
+
+        <ti:app>
+            <android>
+                <manifest>
+                    <uses-permission android:name="android.permission.NEW_OUTGOING_CALL" />
+                </manifest>
+            </android>
+        </ti:app>
+
+    Further Reading:
+
+      * [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+      * [Android Developers: Broadcast Receivers](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
+
 
 extends: Titanium.Proxy
 since: "3.1.0"
@@ -24,11 +55,11 @@ properties:
     type: Callback<Object>
 
   - name: url
-    summary: The url of js file to handle the broadcast
+    summary: URL of the JavaScript file to handle the broadcast.
     type: String
 
 examples:
-  - title: Create and register and broadcast receiver
+  - title: Create and register a broadcast receiver
     example: |
         This example creates a broadcast receiver and registers it to handle the airplane mode broadcast.
 
@@ -37,5 +68,5 @@ examples:
                     Ti.API.info('Handling broadcast.');
                 }
             });
-            
+
             Ti.Android.registerBroadcastReceiver(bc, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);

@@ -60,11 +60,11 @@ description: |
     
     On iOS, these values have no effect.
     
-    On Mobile Web and Tizen, they are used to relatively position the row, treating the `TableView` as if it 
+    On Mobile Web, they are used to relatively position the row, treating the `TableView` as if it
     were a horizontal layout.
     
-    Also, note that the selected text color, `selectedColor`, can only be set on iOS,
-    Mobile Web and Tizen. On Android, the text color does not change when the row is selected.
+    Also, note that the selected text color, `selectedColor`, can only be set on iOS
+    and Mobile Web. On Android, the text color does not change when the row is selected.
     
     #### Row Swipe Gestures (Android and iOS)
     
@@ -85,7 +85,6 @@ since: "0.9"
 excludes:
     events: [dblclick, doubletap, focus, longpress, pinch, singletap, touchmove, twofingertap]
     methods: [animate]
-    properties: [enabled]
 
 events:
   - name: click
@@ -127,7 +126,7 @@ events:
     
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
@@ -152,9 +151,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -172,9 +171,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -192,9 +191,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -212,9 +211,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, blackberry]
+    platforms: [iphone, ipad]
     since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
@@ -239,9 +238,9 @@ properties:
         For example, if some rows include images and some rows do not, you would have two class
         names, one for image rows and one for plain rows.
         
-        This property exists on iOS, Tizen and Mobile Web, but is ignored.
+        This property exists on iOS and Mobile Web, but is ignored.
     type: String
-    platforms: [android, blackberry]
+    platforms: [android]
     
   - name: color
     summary: Default text color of the row when not selected, as a color name or hex triplet.
@@ -250,8 +249,12 @@ properties:
         
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
     type: String
-    exclude-platforms: [blackberry]
-   
+
+  - name: deleteButtonTitle
+    summary: Text to display on the delete button when editable is enabled 
+    description: When [editable](Titanium.UI.TableViewRow.editable) is enabled on the TableViewRow, use this property to change the title of the delete button.
+    type: String
+
   - name: editable
     summary: |
         Determines the rows' editable behavior, which allows them to be deleted by the user when the 
@@ -263,6 +266,8 @@ properties:
         
         See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
         row `editing` and `moving` modes.
+        
+        If you want to change the title of the delete button, use the [deleteButtonTitle](Titanium.UI.TableViewRow.deleteButtonTitle] property
     type: Boolean
     default: undefined
     platforms: [iphone, ipad]
@@ -271,7 +276,14 @@ properties:
     summary: Font to use for the row title.
     type: Font
     default: System default font.
-    exclude-platforms: [blackberry]
+
+  - name: footer
+    summary: The footer title of the row.
+    description: |
+        The `footer` property is used to assign a footer title to a row. It has the same effect as setting
+        the `footerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android]
     
   - name: hasCheck
     summary: |
@@ -279,7 +291,7 @@ properties:
         the row.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
     
   - name: hasChild
     summary: |
@@ -311,7 +323,15 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone,ipad]
-    
+
+  - name: header
+    summary: The header title of the row.
+    description: |
+        The `header` property is used to assign a header title to a row. It has the same effect as setting
+        the `headerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android]
+
   - name: indentionLevel
     summary: Indention level for the row.
     description: Indentation values greater than 0 indent the row text.
@@ -338,6 +358,12 @@ properties:
     default: undefined
     platforms: [iphone, ipad]
 
+  - name: opacity
+    description: |
+        To set the opacity of a row on iOS, specify an aRGB value with the
+        <Titanium.UI.TableViewRow.backgroundColor> property.
+    platforms: [android, mobileweb]
+
   - name: rightImage
     summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
@@ -347,12 +373,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    exclude-platforms: [blackberry]
+
     
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
-    exclude-platforms: [blackberry]
+
     
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
@@ -419,7 +445,7 @@ examples:
               
               var disabledWrapperView = Ti.UI.createView({
                 backgroundColor:'#A2E0FF',
-                objName: 'disabledWarpperView',
+                objName: 'disabledWrapperView',
                 touchEnabled: false,
                 width: 300, height: '80%'
               });

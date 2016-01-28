@@ -231,9 +231,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     pthread_rwlock_wrlock(&dynpropsLock);
     if (dynprops == nil) {
         dynprops = [[NSMutableDictionary alloc] init];
+		dynpropnames = [[NSMutableArray alloc] init];
     }
     if ([dynprops valueForKey:name] == nil) {
-        [dynprops setValue:((value == nil) ? [NSNull null] : value) forKey:name];
+		[self addKey:name toValue:((value == nil) ? [NSNull null] : value)];
     }
     pthread_rwlock_unlock(&dynpropsLock);
 }
@@ -423,13 +424,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	
 	pthread_rwlock_wrlock(&dynpropsLock);
 	RELEASE_TO_NIL(dynprops);
+	RELEASE_TO_NIL(dynpropnames);
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
+#ifdef TI_USE_KROLL_THREAD
 		TiThreadReleaseOnMainThread(modelDelegate, YES);
         modelDelegate = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(modelDelegate);
+        }, YES);
+#endif
     }
 	pageContext=nil;
 	pageKrollObject = nil;
@@ -580,10 +588,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 #pragma mark Public
 
+
 -(id<NSFastEnumeration>)allKeys
 {
 	pthread_rwlock_rdlock(&dynpropsLock);
-	id<NSFastEnumeration> keys = [dynprops allKeys];
+	// Make sure the keys are in the same order as they were added in the JS
+	id<NSFastEnumeration> keys = [[dynpropnames copy] autorelease];
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	return keys;
@@ -790,8 +800,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 }
-
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source
+{
+    [self fireCallback:type withArg:argDict withSource:source withHandler:nil];
+}
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))block
 {
 	NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
 	if ([argDict isKindOfClass:[NSDictionary class]])
@@ -800,7 +813,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil)) {
-		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:block];
 		return;
 	}
 	
@@ -809,7 +822,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	for (KrollBridge * currentBridge in bridges)
 	{
 		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
-		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:nil];
 	}
 }
 
@@ -957,20 +970,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		return;
 	}
-	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-	if (report || (code != 0))
-	{
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+    TiBindingEvent ourEvent;
+    ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+    if (report || (code != 0))
+    {
+        TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil)
+    {
+        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -981,18 +992,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-	if (report || (code != 0)) {
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+    TiBindingEvent ourEvent;
+    
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    if (report || (code != 0)) {
+        TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil)
+    {
+        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
 }
 
 
@@ -1065,6 +1076,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
  
 DEFINE_EXCEPTIONS
 
+-(void)addKey:(NSString*)key toValue:(id)val
+{
+	[dynprops setValue:val forKey:key];
+	for (NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
+		if([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
+			[dynpropnames removeObjectAtIndex:i];
+			break;
+		}
+	}
+	[dynpropnames addObject:key];
+}
+
 - (id) valueForUndefinedKey: (NSString *) key
 {
 	if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
@@ -1123,6 +1146,7 @@ DEFINE_EXCEPTIONS
 	else
 	{
 		dynprops = [[NSMutableDictionary alloc] init];
+		dynpropnames = [[NSMutableArray alloc] init];
 	}
     
     // TODO: Clarify internal difference between nil/NSNull
@@ -1142,7 +1166,7 @@ DEFINE_EXCEPTIONS
         if ([propvalue isKindOfClass:[TiProxy class]]) {
             [self rememberProxy:propvalue];
         }
-		[dynprops setValue:propvalue forKey:key];
+		[self addKey:key toValue:propvalue];		
     }
 	pthread_rwlock_unlock(&dynpropsLock);
     
@@ -1168,6 +1192,12 @@ DEFINE_EXCEPTIONS
 	if (dynprops!=nil)
 	{
 		[dynprops removeObjectForKey:key];
+		for(NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
+			if([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
+				[dynpropnames removeObjectAtIndex:i];
+				break;
+			}
+		}
 	}
 	pthread_rwlock_unlock(&dynpropsLock);
 }
@@ -1308,6 +1338,5 @@ DEFINE_EXCEPTIONS
 	return [[[proxyClass alloc] _initWithPageContext:context args:args
 			 ] autorelease];
 }
-
 
 @end

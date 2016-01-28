@@ -20,7 +20,7 @@ description: |
     Action Bar since it is part of the navigation title bar.
 
     For more examples on using the Action Bar, refer to the
-    [Android Action Bar guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar).
+    [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
 
     #### Application Notes for Alloy
 
@@ -37,6 +37,18 @@ description: |
     Set MenuItem attributes in either the XML or TSS file.
 
     For an example of using the Action Bar with Alloy, see "Action Bar using Alloy XML Markup" below.
+
+    #### Action Bar Icon
+
+    Starting with Release 4.0, due to the requirement that the target SDK must be set to Android 5.0
+    (API level 21) or higher, the action bar icon may not display. Google is discouraging
+    the use of icons in toolbars:
+
+        In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
+        than on their application icon. The use of application icon plus title as a standard layout is
+        discouraged on API 21 devices and newer.
+
+    Source: [Android Developer: Toolbar API reference](https://developer.android.com/reference/android/support/v7/widget/Toolbar.html)
 
     #### Application Note for Release 3.2.x and earlier
 
@@ -184,7 +196,10 @@ properties:
   - name: icon
     summary: Sets the application icon displayed in the "home" area of the action bar, specified as a local file path or URL.
     description: |
-        This method is only available on Android 4.0 (API 14) and above. See also:
+        Starting with Release 4.0, the action bar icon may not display. Google is discouraging the
+        use of icons in toolbars.
+
+        Prior to Release 3.3.0, this method only works on devices with Android 4.0 (API 14) and above. See also:
         [setIcon](http://developer.android.com/reference/android/app/ActionBar.html#setIcon(android.graphics.drawable.Drawable))
         in the Android Developer Reference.
     type: String
@@ -193,7 +208,7 @@ properties:
   - name: logo
     summary: Sets the application logo displayed in the "home" area of the action bar, specified as a local file path or URL.
     description: |
-        This method is only available on Android 4.0 (API 14) and above. See also:
+        Prior to Release 3.3.0, this method only works on devices with Android 4.0 (API 14) and above. See also:
         [setLogo](http://developer.android.com/reference/android/app/ActionBar.html#setLogo(android.graphics.drawable.Drawable))
         in the Android Developer Reference.
     type: String

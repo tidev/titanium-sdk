@@ -24,6 +24,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+@SuppressWarnings("deprecation")
 public class TiContext// implements ErrorReporter
 {
 	private static final String TAG = "TiContext";

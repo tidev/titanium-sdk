@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,14 +23,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+@SuppressWarnings("deprecation")
 public class TiUISearchBar extends TiUIText
 {
 	protected ImageButton cancelBtn;
-	private TiEditText tv;
+	private EditText tv;
 	private TextView promptText;
 	
 	public interface OnSearchChangeListener {
@@ -44,7 +45,7 @@ public class TiUISearchBar extends TiUIText
 	{
 		super(proxy, true);
 
-		tv = (TiEditText) getNativeView();
+		tv = (EditText) getNativeView();
 		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		promptText = new TextView(proxy.getActivity());
 		promptText.setEllipsize(TruncateAt.END);

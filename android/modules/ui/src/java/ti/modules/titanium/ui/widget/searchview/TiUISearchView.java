@@ -7,16 +7,20 @@
 
 package ti.modules.titanium.ui.widget.searchview;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import android.support.v7.widget.SearchView;
+import android.widget.EditText;
 
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
@@ -56,15 +60,36 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		}
 		if (props.containsKey(TiC.PROPERTY_SUBMIT_ENABLED)) {
 			searchView.setSubmitButtonEnabled((props.getBoolean(TiC.PROPERTY_SUBMIT_ENABLED)));			
-		} 
+		}
+		if (props.containsKey(TiC.PROPERTY_COLOR)) {
+			try {
+				int id = TiRHelper.getResource("id.search_src_text");
+				EditText text = (EditText) searchView.findViewById(id);
+				if (text != null) {
+					text.setTextColor(TiConvert.toColor(props, TiC.PROPERTY_COLOR));
+				}
+			} catch (ResourceNotFoundException e) {
+				Log.e(TAG, "Could not find SearchView EditText");
+			}
+		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 
-		if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
+		if (key.equals(TiC.PROPERTY_COLOR)) {
+			try {
+				int id = TiRHelper.getResource("id.search_src_text");
+				EditText text = (EditText) searchView.findViewById(id);
+				if (text != null) {
+					text.setTextColor(TiConvert.toColor((String) newValue));
+				}
+			} catch (ResourceNotFoundException e) {
+				Log.e(TAG, "Could not find SearchView EditText");
+			}
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint((String) newValue);
-		}  else if (key.equals(TiC.PROPERTY_VALUE)) {
+		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			searchView.setQuery((String) newValue, false);			
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED)) {
 			searchView.setIconified(TiConvert.toBoolean(newValue));

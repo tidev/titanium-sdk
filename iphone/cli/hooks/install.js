@@ -40,6 +40,9 @@ exports.init = function (logger, config, cli) {
 					}
 				},
 				function (next) {
+					if (cli.argv['build-only']) {
+						return next();
+					}
 					ioslib.device.detect({ bypassCache: true }, function (err, results) {
 						if (!err) {
 							results.devices.forEach(function (device) {
@@ -70,7 +73,7 @@ exports.init = function (logger, config, cli) {
 						}
 
 						logger.info(__('Initiating iTunes sync'));
-						run('osascript', path.join(builder.titaniumIosSdkPath, 'itunes_sync.scpt'), function (code, out, err) {
+						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
 							if (code) {
 								if (err.indexOf('(-1708)') !== -1) {
 									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
@@ -99,9 +102,11 @@ exports.init = function (logger, config, cli) {
 					installCount = 0;
 
 				function quit(force) {
-					if (force || (runningCount <= 0 && startLog)) {
-						var endLogTxt = __('End application log');
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					if (force || runningCount <= 0) {
+						if (startLog) {
+							var endLogTxt = __('End application log');
+							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+						}
 						process.exit(0);
 					}
 				}
@@ -171,12 +176,22 @@ exports.init = function (logger, config, cli) {
 						runningCount--;
 						quit();
 					}).on('error', function (err) {
-						err = err.message || err;
-						logger.error(err);
+						err = err.message || err.toString();
+						var details;
 						if (err.indexOf('0xe8008017') !== -1) {
-							logger.error(__('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device'));
+							details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
+						} else if (err.indexOf('0xe8008019') !== -1) {
+							details = __('Chances are there is a signing issue. Clean the project and try building the project again.');
+						} else if (err.indexOf('0xe800007f') !== -1) {
+							details = __('Try reconnecting your device and try again.');
+						} else if (err.indexOf('0xe8008016') !== -1) {
+							details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
+						} else if (err.indexOf('0xe8008016') !== -1) {
+							details = __('Your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
+						} else {
+							details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
 						}
-						next && next(err);
+						next && next(new appc.exception(err, details));
 						next = null;
 					}).on('disconnect', function () {
 						if (!running) {
@@ -184,6 +199,10 @@ exports.init = function (logger, config, cli) {
 							logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
 							next && next();
 							next = null;
+							if (runningCount <= 0) {
+								logger.log();
+								process.exit(0);
+							}
 						}
 					});
 				}, finished);

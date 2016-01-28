@@ -5,7 +5,7 @@
 
 import os, sys, platform, glob, subprocess, types, re
 
-DEFAULT_API_LEVEL = 10
+DEFAULT_API_LEVEL = 21
 
 android_api_levels = {
 	3: 'android-1.5',
@@ -352,7 +352,7 @@ class AndroidSDK:
 			if line == pid:
 				found_pid = True
 				break
-	
+
 		if not found_pid:
 			raise Exception("The application %s (PID %s) is not debuggable, and cannot be killed via JDWP" % (app_id, pid))
 

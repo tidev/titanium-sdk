@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,34 +13,6 @@
 #endif
 
 #endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-typedef enum {
-	AttributeNameFont,
-	AttributeNameParagraphStyle,
-	AttributeNameForegroundColor,
-	AttributeNameBackgroundColor,
-	AttributeNameLigature,
-	AttributeNameKern,
-	AttributeNameStrikethroughStyle,
-	AttributeNameUnderlineStyle,
-	AttributeNameStrokeColor,
-	AttributeNameStrokeWidth,
-	AttributeNameShadow,
-	AttributeNameVerticalGlyphForm,
-	AttributeNameWritingDirection,
-	AttributeNameTextEffect,
-	AttributeNameAttachment,
-	AttributeNameLink,
-	AttributeNameBaselineOffset,
-	AttributeNameUnderlineColor,
-	AttributeNameStrikethroughColor,
-	AttributeNameObliqueness,
-	AttributeNameExpansion
-} AttributeName;
-
-#endif
-
 @interface TiUIiOSProxy : TiProxy {
 @private
 
@@ -51,6 +23,29 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_DEFAULT;
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_ENABLED;
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
+
+#ifdef USE_TI_UILISTVIEW
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_NORMAL;
+#endif
+
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_UP;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DOWN;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_LEFT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_RIGHT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
+#endif
+
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
@@ -94,7 +89,6 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
-// -----
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
@@ -104,6 +98,12 @@ typedef enum {
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
 
 #endif
+
+/**
+    Checks the force touch capibility of the current device.
+ */
+-(NSNumber*)forceTouchSupported;
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args;
 #endif
@@ -121,6 +121,9 @@ typedef enum {
 #endif
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args;
+#endif
+#ifdef USE_TI_UIIOSSPLITWINDOW
+-(id)createSplitWindow:(id)args;
 #endif
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 -(id)createAttributedString:(id)args;
@@ -150,6 +153,20 @@ typedef enum {
 #endif
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
+#endif
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+-(id)createPreviewAction:(id)args;
+-(id)createPreviewActionGroup:(id)args;
+-(id)createPreviewContext:(id)args;
+#endif
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args;
+#endif
+#endif
+
+#if IS_XCODE_7
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+-(id)createApplicationShortcuts:(id)args;
 #endif
 #endif
 @end

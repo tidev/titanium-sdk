@@ -4,12 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
 #import "TiEvaluator.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "TiBindingRunLoop.h"
 #import <pthread.h>
+
+#ifndef TI_BASE_H
+#import "TiBase.h"
+#endif
 
 @class KrollBridge;
 @class KrollObject;
@@ -111,7 +114,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	pthread_rwlock_t listenerLock;
 	BOOL reproxying;
 @protected
-	NSMutableDictionary *dynprops; 
+	NSMutableDictionary *dynprops;
+	NSMutableArray *dynpropnames;
 	pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
 
 	int bridgeCount;
@@ -275,6 +279,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 //SetCallback is done internally by setValue:forUndefinedKey:
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))handler;
 
 #pragma mark Public 
 
@@ -345,4 +350,5 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
 
 -(NSString*)apiName;
+
 @end

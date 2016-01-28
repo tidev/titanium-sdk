@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 

@@ -25,7 +25,7 @@ description: |
     should not be used.
 
     See also [Ti
-    Analytics](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Ti_Analytics)
+    Analytics](http://docs.appcelerator.com/platform/latest/#!/guide/Ti_Analytics)
     in the Titanium Mobile Guides.
 
 extends: Titanium.Module
@@ -59,7 +59,17 @@ methods:
         default: null
 
   - name: featureEvent
+    returns:
+      type: Number
+      summary: It returns 0 if it is successful. Otherwise, it is an error.
     summary: Sends a feature event for this application session.
+    description: |
+      From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
+      a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
+      of up to 50 characters.
+
+      If this is successful, you will get a return number of 0. -1 is returned if it is a JSON
+      Validation error. -2 is returned if Analytics is disabled.
     parameters:
 
       - name: name
@@ -68,11 +78,19 @@ methods:
 
       - name: data
         summary: |
-            Extra data related to the event, **not displayed in Analytics UI**. 
-            The object must be serializable as JSON.
+            Extra data related to the event. Must be serializable as JSON.
         type: Object
         optional: true
         default: null
+
+  - name: filterEvents
+    summary: Sets a list of events that will not be sent to the analytics server.
+    parameters:
+      - name: events
+        summary: List of events to be filtered.
+        type: Array<String>
+    since: 4.1.0
+    platforms: [android, iphone, ipad]
 
   - name: navEvent
     summary: |
@@ -99,7 +117,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: settingsEvent
     summary: |
@@ -119,7 +137,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: timedEvent
     summary: |
@@ -151,7 +169,7 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
+
 
   - name: userEvent
     summary: 
@@ -171,7 +189,6 @@ methods:
         type: Object
         optional: true
         default: null
-    exclude-platforms: [blackberry]
 
 properties:
   - name: lastEvent
@@ -191,8 +208,8 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature.blah');
+            Titanium.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
-        'app.feature.blah' event was generated. 
+        'app.feature' event was generated.
 

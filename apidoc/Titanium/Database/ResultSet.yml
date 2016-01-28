@@ -4,7 +4,7 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 description: |
     A result set represents the results returned by a database query.
 
@@ -16,14 +16,6 @@ description: |
     Use the [field](Titanium.Database.ResultSet.field) or
     [fieldByName](Titanium.Database.ResultSet.fieldByName) methods to query the fields for
     the current row.
-
-    #### Platform Implementation Notes
-
-    Prior to Release 3.3.0 of the Titanium SDK, note that `fieldCount` is exposed as a *method* on iOS, 
-    but as a *property* on Android. Blackberry supported it both as a property and a method. 
-    Starting from Release 3.3.0 of the Titanium SDK, fieldCount is supported **only as a read only property**. 
-
-    ([TIMOB-5881](https://jira.appcelerator.org/browse/TIMOB-5881)).
 
     On the iOS platform, closing the database also closes the result set, that is,
     you can only access the result set if the database is currently open.
@@ -105,7 +97,7 @@ methods:
         since: "3.3.0"
         removed: "3.3.0"
         notes: Use the fieldCount property instead.
-    platforms: [iphone, ipad, blackberry]
+    platforms: [iphone, ipad]
     
   - name: fieldName
     summary: Returns the field name for the specified field index.
@@ -115,7 +107,7 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: getFieldName
     summary: Returns the field name for the specified field index.
@@ -144,7 +136,7 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: rowCount
@@ -178,16 +170,9 @@ examples:
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
             
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
-            
             Ti.API.info('Row count: ' + rows.rowCount);
-            var fieldCount;
-            // fieldCount is a method on iOS and a property on Android in prior versions of the SDK.
-            // fieldCount is a property on all supported platforms since Release 3.3.0 of the Titanium SDK.
-            if ( (Ti.Platform.name === 'android') || (Ti.version >= '3.3.0') ) {
-                fieldCount = rows.fieldCount;
-            } else {
-                fieldCount = rows.fieldCount();
-            }
+
+            var fieldCount = rows.fieldCount;
             Ti.API.info('Field count: ' + fieldCount);
             
             while (rows.isValidRow()){

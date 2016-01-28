@@ -12,6 +12,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly and speeds up.
@@ -22,6 +23,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         slowly, and speeds up, then slows down at the end of the animation.
@@ -32,6 +34,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
         quickly, then slows down at the end of the animation.
@@ -42,6 +45,7 @@ properties:
     deprecated:
         since: "2.1.0"
         notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
+        removed: "6.0.0"
     summary: |
         Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
         at a constant rate.
@@ -51,6 +55,10 @@ properties:
   - name: ATTRIBUTE_FONT
     summary: |
         Use with <Attribute.type> to specify a font.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_FONT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a <Font> dictionary for <Attribute.value>.
 
@@ -62,6 +70,10 @@ properties:
   - name: ATTRIBUTE_FOREGROUND_COLOR
     summary: |
         Use with <Attribute.type> to specify a font color.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -73,6 +85,10 @@ properties:
   - name: ATTRIBUTE_BACKGROUND_COLOR
     summary: |
         Use with <Attribute.type> to specify a background color.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -84,6 +100,10 @@ properties:
   - name: ATTRIBUTE_LIGATURE
     summary: |
         Use with <Attribute.type> to enable or disable ligatures.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_LIGATURE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
         Ligatures are only supported on certain fonts.
@@ -96,6 +116,10 @@ properties:
   - name: ATTRIBUTE_LETTERPRESS_STYLE
     summary: |
         Use with <Attribute.value> to use a letterpress text effect.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>.
@@ -108,6 +132,10 @@ properties:
   - name: ATTRIBUTE_KERN
     summary: |
         Use with <Attribute.type> to specify kerning (space between characters).
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_KERN> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying how many pixels to increase the character
         spacing.
@@ -120,6 +148,10 @@ properties:
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
     summary: |
         Use with <Attribute.type> to place a horizontal line through the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
  
@@ -131,6 +163,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINES_STYLE
     summary: |
         Use with <Attribute.type> to place a horizontal line under the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
 
@@ -142,6 +178,10 @@ properties:
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
         Use with <Attribute.type> to specify a color for the stroke text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for the `value` property in the attributes dictionary.
 
@@ -153,6 +193,10 @@ properties:
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
         Use with <Attribute.type> to specify the width of the stroke text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_WIDTH> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
         font size. A positive value displays an outline of the charater, while a negative value
@@ -166,6 +210,10 @@ properties:
   - name: ATTRIBUTE_SHADOW
     summary: |
         Use with <Attribute.type> to display a shadow behind the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_SHADOW> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
 
@@ -177,6 +225,10 @@ properties:
   - name: ATTRIBUTE_WRITING_DIRECTION
     summary: |
         Use with <Attribute.type> to control the direction of the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
 
@@ -188,6 +240,10 @@ properties:
   - name: ATTRIBUTE_TEXT_EFFECT
     summary: |
         Use with <Attribute.type> to apply a text effect.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
         letterpress effect to the text.
@@ -200,6 +256,10 @@ properties:
   - name: ATTRIBUTE_LINK
     summary: |
         Use with <Attribute.type> to create a link.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_LINK> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a URL.
 
@@ -214,6 +274,10 @@ properties:
   - name: ATTRIBUTE_BASELINE_OFFSET
     summary: |
         Use with <Attribute.type> to apply a different baseline to the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_BASELINE_OFFSET> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
 
@@ -225,6 +289,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_COLOR
     summary: |
         Use with <Attribute.type> to change the color of the horizontal line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -236,6 +304,10 @@ properties:
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
     summary: |
         Use with <Attribute.type> to change the color of the horizontal line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use a color name or hex value for <Attribute.value>.
 
@@ -247,6 +319,10 @@ properties:
   - name: ATTRIBUTE_OBLIQUENESS
     summary: |
         Use with <Attribute.type> to skew the text.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_OBLIQUENESS> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to skew the text.
 
@@ -258,6 +334,10 @@ properties:
   - name: ATTRIBUTE_EXPANSION
     summary: |
         Use with <Attribute.type> to stretch the text horizontally.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_EXPANSION> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Set <Attribute.value> to a float value to specify how much to stretch the text.
 
@@ -269,6 +349,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
         Use with <Attribute.value> to not draw a line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -282,6 +366,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
     summary: |
         Use with <Attribute.value> to draw a single line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -295,6 +383,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
     summary: |
         Use with <Attribute.value> to draw a thick line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -308,6 +400,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
     summary: |
         Use with <Attribute.value> to draw a double line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -321,6 +417,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
     summary: |
         Use with <Attribute.value> to draw a solid line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -334,6 +434,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
     summary: |
         Use with <Attribute.value> to draw a dotted line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -347,6 +451,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
     summary: |
         Use with <Attribute.value> to draw a dashed line.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -360,6 +468,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
     summary: |
         Use with <Attribute.value> to draw an alternating line of dashes and dots.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -373,6 +485,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
     summary: |
         Use with <Attribute.value> to draw an alternating line of dashes and two dots.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -386,6 +502,10 @@ properties:
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
     summary: |
         Use with <Attribute.value> to draw a line only underneath or through words.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is either
         <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
@@ -399,6 +519,10 @@ properties:
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
     summary: |
         Use with <Attribute.value> to use the embedded text direction.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -411,6 +535,10 @@ properties:
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
     summary: |
         Use with <Attribute.value> to override the text direction.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -425,6 +553,10 @@ properties:
         Use with <Attribute.value> to use the 
         [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
         to determine which direction to use.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -437,6 +569,10 @@ properties:
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
     summary: |
         Use with <Attribute.value> to write text left to right.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -449,6 +585,10 @@ properties:
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
     summary: |
         Use with <Attribute.value> to write text right to left.
+    deprecated:
+        since: "3.6.0"
+        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT> constant instead (without the iOS namespace).
+        removed: "6.0.0"
     description: |
         Use this constant when <Attribute.type> is
         <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
@@ -462,6 +602,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -472,6 +613,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -481,6 +623,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -491,6 +634,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -500,6 +644,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+        removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -509,6 +654,7 @@ properties:
     deprecated:
         since: "3.0.0"
         notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -821,6 +967,9 @@ properties:
     
   - name: COLOR_SCROLLVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the area behind scrollable content.
+    deprecated:
+        since: "3.4.2"
+        removed: "3.6.0"
     description: |
         Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
 
@@ -831,6 +980,9 @@ properties:
     
   - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
     summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
+    deprecated:
+        since: "3.4.2"
+        removed: "3.6.0"
     description: |
         Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
 
@@ -841,6 +993,9 @@ properties:
 
   - name: COLOR_UNDER_PAGE_BACKGROUND
     summary: Returns the iOS system texture used to render the background of a page.
+    deprecated:
+        since: "3.4.2"
+        removed: "3.6.0"
     description: |
         Corresponds to iOS `UIColor` `underPageBackgroundColor`.
 
@@ -849,6 +1004,60 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {ios: {min: "5.0"}}
+
+  - name: forceTouchSupported
+    summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
+    description: |
+        Returns `true` if the device supports 3D-Touch (iPhone 6S / iPhone 6S Plus and later) or `false` if not.
+    type: Boolean
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+    permission: read-only
+
+  - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
+    summary: |
+        Plays back the entire motion and sound content of the Live Photo, including transition 
+        effects at the start and end.
+    description: This style matches the effect seen when pressing on a photo in the Photos app.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+
+  - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
+    summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
+    description: |
+        This style matches the effect seen in various iOS interface elements for hinting to the user 
+        when an asset contains Live Photo content.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+
+  - name: MENU_POPUP_ARROW_DIRECTION_UP
+    summary: An arrow that points upward.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_DOWN
+    summary: An arrow that points downward.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_LEFT
+    summary: An arrow that points toward the left.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_RIGHT
+    summary: An arrow that points toward the right.
+    type: Number
+    permission: read-only
+    
+  - name: MENU_POPUP_ARROW_DIRECTION_DEFAULT
+    summary: An arrow that is automatically aligned.
+    type: Number
+    permission: read-only
 
   - name: PUSH_MODE_CONTINUOUS
     summary: |
@@ -865,6 +1074,64 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_DEFAULT
+    summary: |
+        The normal style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_SELECTED
+    summary: The selected style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
+  - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
+    summary: The destructive style for preview actions.
+    description: |
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
+    type: Number
+    permission: read-only
+    since: "5.1.0"
+    osver: {ios: {min: "9.0"}}
+
+  - name: ROW_ACTION_STYLE_DEFAULT
+    summary: The default style for <RowActionType>.
+    description: |
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+    type: Number
+    permission: read-only
+    since: "4.1.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: ROW_ACTION_STYLE_DESTRUCTIVE
+    summary: The destructive style for <RowActionType>.
+    description: |
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+    type: Number
+    permission: read-only
+    since: "4.1.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: ROW_ACTION_STYLE_NORMAL
+    summary: The normal style for <RowActionType>.
+    description: |
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+    type: Number
+    permission: read-only
+    since: "4.1.0"
+    osver: {ios: {min: "8.0"}}
 
   - name: SCROLL_DECELERATION_RATE_FAST
     summary: |
@@ -940,6 +1207,277 @@ properties:
     permission: read-only
     since: "2.1.0"
 
+  - name: TABLEVIEW_INDEX_SEARCH
+    summary: String that represents the magnifying glass on the table view index bar
+    description: |
+        Will cause a magnifying glass icon to be displayed at that location in the index.
+        This should generally only be used as the first title in the index.
+    type: String
+    permission: read-only
+    since: "3.4.0"
+
+  - name: SHORTCUT_ICON_TYPE_COMPOSE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user compose new content.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PLAY
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that plays media.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PAUSE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that pauses media playback.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_ADD
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that adds an item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_LOCATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        Will cause a magnifying glass icon to be displayed at that location in the index.
+        This should generally only be used as the first title in the index.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SEARCH
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that accesses the user's current location.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SHARE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers content sharing.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_PROHIBIT
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that disallows something.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CONTACT
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that chooses a generic contact.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_HOME
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates home.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MARK_LOCATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user mark a location.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_FAVORITE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user designate a favorite item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_LOVE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that lets a user designate a loved item.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CLOUD
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers cloud access.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_INVITATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates an invitation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CONFIRMATION
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that indicates confirmation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MAIL
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of mail.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_MESSAGE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of messaging.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_DATE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of a calendar.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TIME
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of a clock or timer.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CAPTURE_PHOTO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers photo capture.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_CAPTURE_VIDEO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers video capture.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TASK
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers task creation.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_TASK_COMPLETED
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers task completion.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_ALARM
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers creation of an alarm.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_BOOKMARK
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers creation of a bookmark.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_SHUFFLE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers shuffle mode.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+
+  - name: SHORTCUT_ICON_TYPE_AUDIO
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers use of audio.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+ 
+  - name: SHORTCUT_ICON_TYPE_UPDATE
+    summary: Number that represents the icon used for the application shortcut
+    description: |
+        An icon for a quick action that offers updating.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.1"}}
+    since: "5.1.0"
+                                                                                                              
 methods:
   - name: createTransitionAnimation
     summary: |

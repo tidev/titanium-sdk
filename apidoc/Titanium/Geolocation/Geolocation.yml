@@ -142,22 +142,6 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
-    #### Configuring Location Updates on BlackBerry
-
-    On the BlackBerry platform you must add the `access_location_services` and
-    `access_internet` permissions to the `tiapp.xml` of your Titanium project.
-    If the `blackberry` tag does not exist, you can simply create it, then add the `permissions`
-    tag and list the permissions that you need:
-
-        <blackberry>
-            <permissions>
-                <permission>access_location_services</permission>
-                <permission>access_internet</permission>
-            </permissions>
-        </blackberry>
-
-    Prior to BlackBerry 10.2.0, you also needed the `read_geolocation` permission.
-
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
@@ -218,7 +202,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure. 
         type: Callback<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -226,7 +210,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current heading.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device. 
@@ -239,7 +223,38 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current location. 
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: hasLocationPermissions
+    summary: Returns `true` if the app has location access.
+    parameters:
+      - name: authorizationType
+        summary: |
+            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on 
+            Android and iOS 7.
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
+        type: Number 
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+  
+  - name: requestLocationPermissions
+    summary: Requests for location access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: authorizationType
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
+        type: Number
+      - name: callback
+        summary: Function to call upon user decision to grant location access.
+        type: Callback<LocationAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -260,7 +275,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure. 
         type: Callback<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
 events:
 
@@ -418,7 +433,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
     
   - name: ACCURACY_BEST_FOR_NAVIGATION
@@ -443,7 +458,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
@@ -556,7 +571,7 @@ properties:
 
   - name: ERROR_TIMEOUT
     summary: Error indicating a timeout.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     type: Number
     permission: read-only
 
@@ -675,7 +690,7 @@ properties:
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
-    exclude-platforms: [blackberry]
+
     
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. 
@@ -704,13 +719,13 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { mobileweb: "2.1.0" }
 
   - name: headingFilter
@@ -775,8 +790,11 @@ properties:
     description: |
         This property informs the end user why location services are being requested by 
         the application. This property is **required** starting in iOS 4.0.
+        deprecated for >= iOS6, include the `NSLocationUsageDescription` key with your
+        description in tiapp.xml instead.
     platforms: [iphone, ipad]
     type: String
+    osver: {ios: {max: "5.0"}}
 
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
@@ -804,6 +822,18 @@ properties:
     default: false
     platforms: [iphone, ipad]
     since: "2.1.2"
+
+  - name: allowsBackgroundLocationUpdates
+    summary: |
+        Determines if the app can do background location updates.
+    description: |
+        When `UIBackgroundModes` include `location` in tiapp.xml, this property is 
+        set to `true` by default. Available in iOS 9.0 and later.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.0.0"
 
   - name: activityType
     summary: |
@@ -902,6 +932,33 @@ properties:
 
   - name: timestamp
     summary: Timestamp for this location update, in milliseconds.
+    type: Number
+
+  - name: floor
+    summary: The floor of the building on which the user is located. Available in iOS 8.0 and later.
+    type: LocationCoordinatesFloor
+    osver: {ios: {min: "8.0"}}
+    since: { iphone: "3.6.0", ipad: "3.6.0" }
+    platforms: [iphone, ipad]
+
+---
+name: LocationCoordinatesFloor
+summary: |
+        Simple object holding floor of the building on which the user is located.
+        In places where floor information can be determined.
+properties:
+
+  - name: level
+    summary: The logical floor of the building.
+    description: |
+        Level values represent logical levels above or below ground level and are not 
+        intended to correspond to any numbering scheme in use by the building itself.
+        The ground floor of a building is always represented by the value 0. Floors 
+        above the ground floor are represented by positive integers, so a value of 1 
+        represents the floor above ground level, a value of 2 represents two floors 
+        above ground level, and so on. Floors below the ground floor are represented 
+        by corresponding negative integers, with a value of -1 representing the floor 
+        immediately below ground level and so on.
     type: Number
 
 ---
@@ -1230,4 +1287,8 @@ properties:
     summary: Full address.
     type: String
     platforms: [android, iphone, ipad]
+---
+name: LocationAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
 

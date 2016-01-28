@@ -36,7 +36,7 @@ exports.run = function run(cmd, args, opts, callback) {
 		opts = {};
 	}
 
-	args = args ? (Array.isArray(args) ? args : [args]) : null;
+	args = args ? (Array.isArray(args) ? args : [args]) : [];
 
 	// when calling a Windows batch file, we need to escape ampersands in the command
 	if (process.platform == 'win32' && /\.bat$/.test(cmd)) {

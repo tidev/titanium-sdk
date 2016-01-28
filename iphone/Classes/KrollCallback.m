@@ -54,7 +54,9 @@ static NSLock *callbackLock;
 		thisObj = thisObject_;
 		TiValueProtect(jsContext, function);
 		TiValueProtect(jsContext, thisObj);
-		contextLock = [[NSLock alloc] init];
+#ifdef TI_USE_KROLL_THREAD
+        contextLock = [[NSLock alloc] init];
+#endif
 		[callbacks addObject:self];
 	}
 	return self;
@@ -67,7 +69,9 @@ static NSLock *callbackLock;
 	[callbackLock unlock];
 
 	[type release];
-	[contextLock release];
+#ifdef TI_USE_KROLL_THREAD
+    [contextLock release];
+#endif
 	if ([KrollBridge krollBridgeExists:bridge])
 	{
 		if ([context isKJSThread])
@@ -110,12 +114,22 @@ static NSLock *callbackLock;
 	return NO;
 }
 
+-(void)callAsync:(NSArray*)args thisObject:(id)thisObject_
+{
+    TiThreadPerformOnMainThread(^{
+        [self call:args thisObject:thisObject_];
+    }, [NSThread isMainThread]);
+}
 -(id)call:(NSArray*)args thisObject:(id)thisObject_
 {
+#ifdef TI_USE_KROLL_THREAD
 	[contextLock lock];
+#endif
 	if (context==nil)
 	{
-		[contextLock unlock];
+#ifdef TI_USE_KROLL_THREAD
+        [contextLock unlock];
+#endif
 		return nil;
 	}
 	
@@ -156,7 +170,9 @@ static NSLock *callbackLock;
 	
 	id val = [KrollObject toID:context value:retVal];
 	[context release];
-	[contextLock unlock];
+#ifdef TI_USE_KROLL_THREAD
+    [contextLock unlock];
+#endif
 	return val;
 }
 
@@ -172,9 +188,13 @@ static NSLock *callbackLock;
 
 -(void)setContext:(KrollContext*)context_
 {
-	[contextLock lock];
+#ifdef TI_USE_KROLL_THREAD
+    [contextLock lock];
+#endif
 	context = context_;
-	[contextLock unlock];
+#ifdef TI_USE_KROLL_THREAD
+    [contextLock unlock];
+#endif
 }
 
 @end

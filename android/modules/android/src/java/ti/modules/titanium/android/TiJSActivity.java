@@ -17,6 +17,7 @@ import org.appcelerator.titanium.view.TiUIActivityWindow;
 import android.content.Intent;
 import android.os.Bundle;
 
+@SuppressWarnings("deprecation")
 public abstract class TiJSActivity extends TiLaunchActivity
 {
 	protected String url;

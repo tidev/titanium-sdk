@@ -37,7 +37,7 @@ extends: Titanium.Module
 
 properties:
   - name: userAgent
-    exclude-platforms: [blackberry]
+
     type: String
     summary: User-agent string used by Titanium.
     description: |
@@ -48,12 +48,12 @@ properties:
     summary: Version of Titanium that is executing.
     permission: read-only
   - name: buildDate
-    exclude-platforms: [blackberry]
+
     type: String
     summary: Date of the Titanium build.
     permission: read-only
   - name: buildHash
-    exclude-platforms: [blackberry]
+
     type: String
     summary: Git hash of the Titanium build.
     permission: read-only
@@ -105,7 +105,7 @@ methods:
     returns:
         type: Titanium.Buffer
         summary: The new buffer.
-    platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+    platforms: [android, iphone, ipad, mobileweb]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -128,7 +128,7 @@ methods:
 name: CreateBufferArgs
 summary: Arguments to be passed to createBuffer
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: value

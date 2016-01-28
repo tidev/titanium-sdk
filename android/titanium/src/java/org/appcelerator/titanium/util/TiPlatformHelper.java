@@ -30,6 +30,7 @@ import android.util.DisplayMetrics;
 
 import com.appcelerator.analytics.APSAnalyticsHelper;
 
+@SuppressWarnings("deprecation")
 public class TiPlatformHelper extends APSAnalyticsHelper
 {
 	public static final String TAG = "TiPlatformHelper";

@@ -34,26 +34,103 @@ exports.init = function (logger, config, cli) {
 						hours = now.getHours(),
 						minutes = now.getMinutes(),
 						seconds = now.getSeconds(),
+
+						productsDir = path.join(build.buildDir, 'build', 'Products'),
+
 						archiveBundle = afs.resolvePath('~/Library/Developer/Xcode/Archives',
 							now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day) + path.sep +
 							name + '_' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
 							(seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive'),
 						archiveApp = path.join(archiveBundle, 'Products', 'Applications', name + '.app'),
-						archiveDsym = path.join(archiveBundle, 'dSYMs', name + '.app.dSYM');
+						archiveDsymDir = path.join(archiveBundle, 'dSYMs'),
+						dsymRegExp = /\.dSYM$/,
+
+						bcSymbolMapsDir = path.join(archiveBundle, 'BCSymbolMaps'),
+						bcSymbolMapsRegExp = /\.bcsymbolmap$/,
+
+						// no clue what this is for
+						scmBlueprintDir = path.join(archiveBundle, 'SCMBlueprint'),
+
+						watchKitSupport2Dir = path.join(archiveBundle, 'WatchKitSupport2');
+
+					if (!fs.existsSync(productsDir) || !fs.statSync(productsDir).isDirectory()) {
+						// this should never happen!
+						logger.error(__('Products dir "%s" does not exist!', productsDir) + '\n');
+						process.exit(1);
+					}
 
 					wrench.mkdirSyncRecursive(archiveApp);
-					wrench.mkdirSyncRecursive(archiveDsym);
+					wrench.mkdirSyncRecursive(archiveDsymDir);
+					wrench.mkdirSyncRecursive(bcSymbolMapsDir);
+					wrench.mkdirSyncRecursive(scmBlueprintDir);
 
 					async.parallel([
-						function (next) {
-							logger.info(__('Archiving app bundle to %s', archiveApp.cyan));
-							exec('ditto "' + build.xcodeAppDir + '" "' + archiveApp + '"', next);
+						function archiveApplication(next) {
+							logger.info(__('Archiving app bundle: %s', archiveApp.cyan));
+							appc.subprocess.run('ditto', [ build.xcodeAppDir, archiveApp ], next);
 						},
-						function (next) {
-							logger.info(__('Archiving debug symbols to %s', archiveDsym.cyan));
-							exec('ditto "' + build.xcodeAppDir + '.dSYM" "' + archiveDsym + '"', next);
+
+						function archiveDebugAndBitCodeSymbols(next) {
+							var dsyms = [],
+								bcSymbolMaps = [];
+
+							fs.readdirSync(productsDir).forEach(function (name) {
+								var subdir = path.join(productsDir, name);
+								if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
+									fs.readdirSync(subdir).forEach(function (name) {
+										var file = path.join(subdir, name);
+										if (fs.existsSync(file)) {
+											if (dsymRegExp.test(name) && fs.statSync(file).isDirectory()) {
+												dsyms.push(file);
+											} else if (bcSymbolMapsRegExp.test(name) && !fs.statSync(file).isDirectory()) {
+												bcSymbolMaps.push(file);
+											}
+										}
+									});
+								}
+							});
+
+							async.each(dsyms, function (dsym, cb) {
+								var dest = path.join(archiveDsymDir, path.basename(dsym));
+								logger.info(__('Archiving debug symbols: %s', dest.cyan));
+								appc.subprocess.run('ditto', [ dsym, dest ], cb);
+							}, function (err) {
+								if (err) {
+									return next(err);
+								}
+
+								bcSymbolMaps.forEach(function (bcSymbolMap) {
+									var dest = path.join(bcSymbolMapsDir, path.basename(bcSymbolMap));
+									logger.info(__('Archiving Bitcode Symbol Map: %s', dest.cyan));
+									fs.writeFileSync(dest, fs.readFileSync(bcSymbolMap));
+								});
+
+								next();
+							});
 						},
-						function (next) {
+						function archiveWatchKitSupportFiles(next) {
+							// NOTE: this will probably break when WatchKit 3 hits the scene
+							if (build.hasWatchAppV2orNewer) {
+								wrench.mkdirSyncRecursive(watchKitSupport2Dir);
+
+								// find the _WatchKitStub dir
+								var watchDir = path.join(build.xcodeAppDir, 'Watch');
+								if (fs.existsSync(watchDir) && fs.statSync(watchDir).isDirectory()) {
+									fs.readdirSync(watchDir).forEach(function (name) {
+										var watchAppDir = path.join(watchDir, name);
+										if (fs.existsSync(watchAppDir) && fs.statSync(watchAppDir).isDirectory()) {
+											var wkStubDir = path.join(watchAppDir, '_WatchKitStub');
+											if (fs.existsSync(wkStubDir) && fs.statSync(wkStubDir).isDirectory()) {
+												logger.info(__('Archiving %s support files: %s', name.cyan, wkStubDir.cyan));
+												build.copyDirSync(wkStubDir, watchKitSupport2Dir, { forceCopy: true });
+											}
+										}
+									});
+								}
+							}
+							next();
+						},
+						function archiveInfoPlist(next) {
 							var tempPlist = path.join(archiveBundle, 'Info.xml.plist');
 
 							exec('/usr/bin/plutil -convert xml1 -o "' + tempPlist + '" "' + path.join(build.xcodeAppDir, 'Info.plist') + '"', function (err, stdout, strderr) {
@@ -67,7 +144,8 @@ exports.init = function (logger, config, cli) {
 									ApplicationProperties: {
 										ApplicationPath: appBundle,
 										CFBundleIdentifier: origPlist.CFBundleIdentifier,
-										CFBundleShortVersionString: appc.version.format(origPlist.CFBundleVersion, 3, 3),
+										CFBundleShortVersionString: origPlist.CFBundleShortVersionString,
+										CFBundleVersion: origPlist.CFBundleVersion,
 										IconPaths: [
 											appBundle + '/' + build.tiapp.icon
 										]
@@ -91,7 +169,7 @@ exports.init = function (logger, config, cli) {
 						logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
 						exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
 							process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
-							exec('osascript "' + path.join(build.titaniumIosSdkPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
+							exec('osascript "' + path.join(build.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
 								logger.info(__('Packaging complete'));
 								finished();
 							});

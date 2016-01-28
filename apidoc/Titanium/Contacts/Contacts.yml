@@ -17,9 +17,14 @@ description: |
     reload them from the `Contacts` module before modifying them.
 
     See the examples for sample use of the `reload` event.
+
+    If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit 
+    certain fields. Check your default account in the iOS settings under contacts. If it's not 'iCloud',
+    mostly likely it will not support fields such as alternateBirthday or socialProfile.
+
 extends: Titanium.Module
 since: "0.8"
-platforms: [android, iphone, ipad, tizen, blackberry]
+platforms: [android, iphone, ipad]
 
 events:
   - name: reload
@@ -37,16 +42,9 @@ methods:
     summary: Creates and returns an instance of <Titanium.Contacts.Group>.
     description: |
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
-        
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        * `http://tizen.org/privilege/contact.write`
-        
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     parameters:
       - name: parameters
         summary: |
@@ -59,13 +57,6 @@ methods:
     summary: |
         Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending 
         changes to the underlying contacts database.
-    description: |
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        * `http://tizen.org/privilege/contact.write`
-        
     returns:
         type: Titanium.Contacts.Person
     since: {android: "2.1.0"}
@@ -79,19 +70,13 @@ methods:
     
   - name: getAllGroups
     summary: Gets all groups.
-    description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        
     returns:
         type: Array<Titanium.Contacts.Group>
-    platforms: [ipad, iphone, tizen]
+    platforms: [ipad, iphone]
     
   - name: getAllPeople
-    summary: Gets all people, unless a limit is specified. On Tizen, use [Titanium.Contacts.Tizen.getAllPeople](Titanium.Contacts.Tizen.getAllPeople).
-    platforms: [android, iphone, ipad, blackberry]
+    summary: Gets all people, unless a limit is specified.
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -100,28 +85,33 @@ methods:
         type: Number
     
   - name: getGroupByID
-    summary: Gets the group with the specified identifier.
-    description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        
+    summary: Gets the group with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getGroupByIdentifier> instead.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     parameters:
       - name: id
         summary: Group identifier.
         type: Number
+    osver: {ios: {max: "8.0"}}
+
+  - name: getGroupByIdentifier
+    summary: Gets the group with the specified identifier. 
+    returns:
+        type: Titanium.Contacts.Group
+    platforms: [iphone, ipad]
+    parameters:
+      - name: id
+        summary: Group identifier.
+        type: String
+    since: "5.0.0"
+    osver: {ios: {min: "9.0"}}
     
   - name: getPeopleWithName
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
-    description: |
-        On Tizen, use [Titanium.Contacts.Tizen.getPeopleWithName](Titanium.Contacts.Tizen.getPeopleWithName).
-    platforms: [android, iphone, ipad, blackberry]
+    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -130,32 +120,31 @@ methods:
         type: String
         
   - name: getPersonByID
-    summary: Gets the person with the specified identifier.
-    description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        
+    summary: Gets the person with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getPersonByIdentifier> instead.
     returns:
         type: Titanium.Contacts.Person
     parameters:
       - name: id
         summary: Contact identifier.
         type: Number
+    osver: {ios: {max: "8.0"}}
         
+  - name: getPersonByIdentifier
+    summary: Gets the person with the specified identifier.
+    returns:
+        type: Titanium.Contacts.Person
+    parameters:
+      - name: id
+        summary: Contact identifier.
+        type: Number
+    since: "5.0.0"      
+    osver: {ios: {min: "9.0"}}
+
   - name: removeGroup
     summary: Removes a group from the address book.
     description: |
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
-
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        * `http://tizen.org/privilege/contact.write`
-        
-    platforms: [iphone, ipad, tizen]
+    platforms: [iphone, ipad]
     parameters:
       - name: group
         summary: Contact group.
@@ -173,16 +162,9 @@ methods:
         exist once committed, it will no longer be valid. Continuing to use it will result in 
         unpredictable behavior, including crashes.
         
-        On Android and Tizen:
+        On Android:
         
         This method will remove the person from the Contacts book automatically. 
-        
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        * `http://tizen.org/privilege/contact.write`
-        
     since: {android: "2.1.0"}
     parameters:
       - name: person
@@ -190,19 +172,14 @@ methods:
         type: Titanium.Contacts.Person
         
   - name: revert
-    summary: Reverts all changes made by the previous save to the address book.
+    summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
     platforms: [iphone, ipad]
+    osver: {ios: {max: "8.0"}}
+
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    description: |
-        To use this method on Tizen, you must include the following privileges in the `tiapp.xml` file 
-        of your Titanium application:
-
-        * `http://tizen.org/privilege/contact.read`
-        * `http://tizen.org/privilege/contact.write`
-        
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     parameters:
       - name: contacts
         summary: List of contacts to save. Used on Android only. 
@@ -217,19 +194,35 @@ methods:
         
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
-    description: |
-        To use this method on Tizen, you must include the following privilege in the `tiapp.xml` file 
-        of your Titanium application: 
-
-        * `http://tizen.org/privilege/contact.read`
-        
     parameters:
       - name: params
         summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
-    exclude-platforms: [blackberry]
+
+  - name: hasContactsPermissions
+    summary: Returns `true` if the app has contacts access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestContactsPermissions
+    summary: Requests for contacts access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant contacts access.
+        type: Callback<ContactsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
 
   - name: requestAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Use [requestContactsPermissions](Titanium.Contacts.requestContactsPermissions).
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |
@@ -253,7 +246,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_KIND_PERSON
     summary: Specifies that a contact is a person.
@@ -265,7 +258,7 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_SORT_FIRST_NAME
     summary: Specifies that group members will be sorted by first name.
@@ -277,7 +270,7 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: CONTACTS_SORT_LAST_NAME
     summary: Specifies that group members will be sorted by last name.
@@ -289,17 +282,17 @@ properties:
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
         A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
         indicating that the application is authorized to use the address book.
     description: |
-        This value is always returned on Android and Tizen devices, as well as on iOS versions earlier than 6.0.
+        This value is always returned on Android devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     since: 2.1.3
 
   - name: AUTHORIZATION_DENIED
@@ -308,7 +301,7 @@ properties:
         indicating that the application is not authorized to use the address book.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     since: 2.1.3
 
   - name: AUTHORIZATION_RESTRICTED
@@ -318,7 +311,7 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     since: 2.1.3
 
   - name: AUTHORIZATION_UNKNOWN
@@ -327,43 +320,40 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     since: 2.1.3
 
   - name: contactsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the address book.
     description: |
-         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0, Android and Tizen devices.
+         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0 and Android devices.
          
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
+    constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
-    platforms: [iphone, ipad, android, tizen]
+    platforms: [iphone, ipad, android]
     since: 2.1.3
-    exclude-platforms: [blackberry]
+
 
 examples:
   - title: Request access to the address book
     example: |
-        To safely access the address book given iOS 6's new security model:
-        
-            var performAddressBookFunction = function(){...};
-            var addressBookDisallowed = function(){...};
-            if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_AUTHORIZED){
-                performAddressBookFunction();
-            } else if (Ti.Contacts.contactsAuthorization == Ti.Contacts.AUTHORIZATION_UNKNOWN){
-                Ti.Contacts.requestAuthorization(function(e){
-                    if (e.success) {
-                        performAddressBookFunction();
-                    } else {
-                        addressBookDisallowed();
-                    }
-                });
-            } else {
-                addressBookDisallowed();
-            }
+
+        var performAddressBookFunction = function(){...};
+        var addressBookDisallowed = function(){...};
+        if (Ti.Contacts.hasContactsPermissions()) {
+            performAddressBookFunction();
+        } else {
+            Ti.Contacts.requestContactsPermissions(function(e) {
+                if (e.success) {
+                    performAddressBookFunction();
+                } else {
+                    addressBookDisallowed();
+                }
+            });
+        }
 
   - title: Query Existing System Address Book Records
     example: |
@@ -518,7 +508,7 @@ examples:
 ---
 name: showContactsParams
 summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
-platforms: [android, iphone, ipad, tizen]
+platforms: [android, iphone, ipad]
 
 properties:
 - name: animated
@@ -546,6 +536,13 @@ properties:
   summary: |
       Function to call when a property is selected. Must not be used with `selectedPerson` 
       property.
+      Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
+      by Apple.
+      Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property 
+      is selected on certain device models.
+      The callback contains the selected property and a 'person' object of type <Titanium.Contacts.Person>.
+      Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to 
+      at least contain the selected property and fullName. 
   platforms: [iphone, ipad]
   type: Callback<Object>
   optional: true

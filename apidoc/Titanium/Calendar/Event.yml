@@ -55,7 +55,7 @@ methods:
         type: String
     platforms: [android]
 
-  - name: createRecurenceRule
+  - name: createRecurrenceRule
     summary: |
         Creates an recurrence pattern for a recurring event.
         All of the properties for the recurrence rule must be set during creation. 
@@ -124,7 +124,7 @@ methods:
     osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad]
 
-  - name: removeRecurenceRule
+  - name: removeRecurrenceRule
     summary: Removes a recurrence rule to the recurrence rule array.
     parameters:
       - name: rule
@@ -238,7 +238,7 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
 
-  - name: recurenceRule
+  - name: recurrenceRule
     summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
     type: Titanium.Calendar.RecurrenceRule
     osver: {ios: {max: "5.0"}}
@@ -247,7 +247,7 @@ properties:
         removed: "3.2.0"
     platforms: [iphone, ipad]
     
-  - name: recurenceRules
+  - name: recurrenceRules
     summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
     type: Array<Titanium.Calendar.RecurrenceRule>
     osver: {ios: {min: "5.0"}}

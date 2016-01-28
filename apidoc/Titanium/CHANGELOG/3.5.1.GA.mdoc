@@ -1,0 +1,69 @@
+# Titanium SDK 3.5.1 General Availability - 06 March 2015
+
+#### Contents
+
+  * [About This Release](#about)
+  * [Studio 3.4.2](#studio)
+  * [Titanium CLI 3.4.2](#cli) 
+  * [Fixed Issues](#issues)
+  * [API Changes](#apichanges)
+
+<a name="about"></a>
+
+## About This Release
+
+Titanium SDK Release 3.5.1 is a service pack release of the Titanium SDK, addressing high-priority
+issues in previous releases. 
+
+Notable fixed issues include support for Node 0.12.x.
+
+This Release also conincides with the release of Appcelerator Studio 3.4.2 and Titanium CLI 3.4.2.
+There are no updates to Alloy or Titanium Studio; continue to use the latest stable releases:
+Alloy 1.5.1 and Titanium Studio 3.4.1.
+
+<a name="studio"></a>
+## Studio 3.4.2
+
+This Release coincides with the release of Appcelerator Studio 3.4.2, which includes a new version
+of LiveView to support Node 0.12.x
+([TIMOB-18546](https://jira.appcelerator.org/browse/TIMOB-18546)).
+
+Note that there is not a new version of Titanium Studio. Continue to use Titanium Studio 3.4.1.
+
+See the [Studio Release
+Notes](http://docs.appcelerator.com/titanium/latest/#!/guide/Studio_Release_Notes).
+
+<a name="cli"></a>
+## Titanium CLI 3.4.2
+
+This Release coincides with the release of Titanium CLI 3.4.2, which includes a fix to support Node
+0.12.x ([TIMOB-18538](https://jira.appcelerator.org/browse/TIMOB-18538)).
+
+See the CLI [Changelog](https://github.com/appcelerator/titanium/blob/3_4_X/CHANGELOG.md).
+
+<a name="issues"></a>
+
+## Fixed Issues
+
+  * [TIMOB-16946](https://jira.appcelerator.org/browse/TIMOB-16946) iOS: SDK should have 0 static analyzer errors (it currently has 77)
+  * [TIMOB-18333](https://jira.appcelerator.org/browse/TIMOB-18333) iOS: Debugger creates unnecessary call-frames in debug view
+  * [TIMOB-18369](https://jira.appcelerator.org/browse/TIMOB-18369) iOS: Stepping over does not work if breakpoints are in the file that is included in app.js
+  * [TIMOB-18378](https://jira.appcelerator.org/browse/TIMOB-18378) iOS: Option Dialog Caret Present on iPad
+  * [TIMOB-18379](https://jira.appcelerator.org/browse/TIMOB-18379) iOS: Option Dialog iPad no longer fires click when clicked outside
+  * [TIMOB-18380](https://jira.appcelerator.org/browse/TIMOB-18380) Regression: Programmatically hiding a PopOver showing a ListView with a SearchBar that has focus results in crash
+  * [TIMOB-18401](https://jira.appcelerator.org/browse/TIMOB-18401) Module using Google Maps SDK works fine when run with 3.4.1.GA crashes with 3.5.0.GA
+  * [TIMOB-18414](https://jira.appcelerator.org/browse/TIMOB-18414) CLI: Set Node 0.10 as minimum supported version
+  * [TIMOB-18432](https://jira.appcelerator.org/browse/TIMOB-18432) Add support for BOOL type
+  * [TIMOB-18538](https://jira.appcelerator.org/browse/TIMOB-18538) CLI: Fix incompatibilities with Node 0.12
+  * [TIMOB-18546](https://jira.appcelerator.org/browse/TIMOB-18546) LiveView: Incompatible with Node 0.12
+  * [TIMOB-18611](https://jira.appcelerator.org/browse/TIMOB-18611) CLI: Copyright date is not correct; it should be 2015 not 2014
+  * [TIMOB-18628](https://jira.appcelerator.org/browse/TIMOB-18628) Update the node version in vendorDependencies in the package.json
+  * [TIMOB-18629](https://jira.appcelerator.org/browse/TIMOB-18629) CLI: Warn if using an unsupported Node version
+  * [TIMOB-18632](https://jira.appcelerator.org/browse/TIMOB-18632) CLI: Node 0.12: If the CLI is updated to 3.4.2 before the SDK is updated then you can't install the new SDK
+  * [TIMOB-18635](https://jira.appcelerator.org/browse/TIMOB-18635) Android: Android SDK tools 24.1.2 is listed as not supported
+
+<a name="apichanges"></a>
+
+## API Changes
+
+No APIs were modified for this release.

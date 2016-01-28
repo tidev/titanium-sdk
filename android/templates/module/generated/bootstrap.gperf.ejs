@@ -1,0 +1,15 @@
+%define lookup-function-name lookupGeneratedInit
+%define class-name <%- moduleName %>Bindings
+%{
+
+#include <string.h>
+#include <v8.h>
+#include <KrollBindings.h>
+
+<%- headers %>
+
+%}
+struct titanium::bindings::BindEntry;
+%%
+<%- bindings %>
+%%

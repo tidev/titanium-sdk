@@ -14,10 +14,15 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -27,6 +32,7 @@ import android.text.format.DateUtils;
 public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
+	private static final String TAG = "Calendar";
 	protected boolean selected, hidden;
 	private static final long MAX_DATE_RANGE = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
 
@@ -57,6 +63,9 @@ public class CalendarProxy extends KrollProxy {
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
 	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
+		if (!hasCalendarPermissions()) {
+			return calendars;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		Cursor cursor = null;
@@ -96,6 +105,20 @@ public class CalendarProxy extends KrollProxy {
 	public static ArrayList<CalendarProxy> queryCalendars(TiContext context, String query, String[] queryArgs)
 	{
 		return queryCalendars(query, queryArgs);
+	}
+
+	public static boolean hasCalendarPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		if (currentActivity != null && 
+				currentActivity.checkSelfPermission("android.permission.READ_CALENDAR") == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission("android.permission.WRITE_CALENDAR") == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		} 
+		Log.w(TAG, "Calendar permissions are missing");
+		return false;
 	}
 
 	@Kroll.method

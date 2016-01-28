@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -53,7 +54,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 {
 	private static final String TAG = "TiUIImageView";
 	private static final int FRAME_QUEUE_SIZE = 5;
-	public static final int INFINITE = 0;
 	public static final int MIN_DURATION = 30;
 	public static final int DEFAULT_DURATION = 200;
 
@@ -278,6 +278,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private class Loader implements Runnable
 	{
 		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
+		private LinkedList<Integer> hashTable;
 		private int waitTime = 0;
 		private int sleepTime = 50; //ms
 		private int repeatIndex = 0;
@@ -285,12 +286,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public Loader()
 		{
 			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
+			hashTable = new LinkedList<Integer>();
 		}
 
 		private boolean isRepeating()
 		{
 			int repeatCount = getRepeatCount();
-			if (repeatCount <= INFINITE) {
+			if (repeatCount <= 0) {
 				return true;
 			}
 			return repeatIndex < repeatCount;
@@ -338,6 +340,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			repeatIndex = 0;
 			isLoading.set(true);
 			firedLoad = false;
+			boolean shouldCache = getRepeatCount() >= 5 ? true : false;
 			topLoop: while (isRepeating()) {
 
 				if (imageSources == null) {
@@ -381,7 +384,20 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						if (imageSources == null || j >= imageSources.size()) {
 							break topLoop;
 						}
-						Bitmap b = imageSources.get(j).getBitmap(true);
+						TiDrawableReference imageRef = imageSources.get(j);
+						Bitmap b = null;
+						if (shouldCache) {
+							int hash = imageRef.hashCode();
+							b = mMemoryCache.get(hash);
+							if (b == null) {
+								Log.i(TAG, "Image isn't cached");
+								b = imageRef.getBitmap(true);
+								mMemoryCache.put(hash, b);
+								hashTable.add(hash);
+							}
+						} else {
+							b = imageRef.getBitmap(true);
+						}
 						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
 						while (waitTime < getDuration() * imageSources.size()) {
 							try {
@@ -409,6 +425,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 			}
 			isLoading.set(false);
+			//clean out the cache after animation
+			while (!hashTable.isEmpty()) {
+				mMemoryCache.remove(hashTable.pop());
+			}
 		}
 
 		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
@@ -456,7 +476,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (proxy.hasProperty(TiC.PROPERTY_REPEAT_COUNT)) {
 			return TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_REPEAT_COUNT));
 		}
-		return INFINITE;
+		return 0;
 	}
 
 	private void fireLoad(String state)
@@ -518,7 +538,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 				}
 
-				BitmapWithIndex b = loader.getBitmapQueue().take();
+				ArrayBlockingQueue<BitmapWithIndex> bitmapQueue = loader.getBitmapQueue();
+				//Fire stop event when animation finishes
+				if (!isLoading.get() && bitmapQueue.isEmpty()) {
+					fireStop();
+				}
+				BitmapWithIndex b = bitmapQueue.take();
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
 				setImage(b.bitmap);
 				fireChange(b.index);

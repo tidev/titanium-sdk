@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,11 +15,18 @@
 @synthesize suppressFocusEvents;
 DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+    [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
+}
+
 - (void)windowWillClose
 {
 	if([self viewInitialized])
 	{
-		[[self view] resignFirstResponder];
+		[self blur:nil];
 	}
 	[(TiViewProxy *)[keyboardTiView proxy] windowWillClose];
 	for (TiViewProxy * thisToolBarItem in keyboardToolbarItems)
@@ -71,7 +78,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] resignFirstResponder];
+		[[(TiUITextWidget*)[self view] textWidgetView] resignFirstResponder];
 	}
 }
 
@@ -80,13 +87,20 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] becomeFirstResponder];
+		[[(TiUITextWidget*)[self view] textWidgetView] becomeFirstResponder];
 	}
 }
 
 -(BOOL)focused:(id)unused
 {
-	BOOL result=NO;
+    if (![NSThread isMainThread]) {
+        __block BOOL result=NO;
+        TiThreadPerformOnMainThread(^{
+            result = [self focused:nil];
+        }, YES);
+        return result;
+    }
+    BOOL result = NO;
 	if ([self viewAttached])
 	{
 		result = [(TiUITextWidget*)[self view] isFirstResponder];
@@ -114,9 +128,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 - (CGFloat) keyboardAccessoryHeight
 {
 	CGFloat result = MAX(keyboardAccessoryHeight,40);
+#ifndef TI_USE_AUTOLAYOUT
 	if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
 		result = [(TiViewProxy<LayoutAutosizing>*)[keyboardTiView proxy] verifyHeight:result];
 	}
+#endif
 	return result;
 }
 
@@ -134,11 +150,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	[self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
 	if(keyboardUIToolbar != nil){ //It already exists, update it.
 		UIColor * newColor = [[TiUtils colorValue:value] _color];
-		if ([TiUtils isIOS7OrGreater]) {
-			[keyboardUIToolbar performSelector:@selector(setBarTintColor:) withObject:newColor];
-		} else {
-			[keyboardUIToolbar setTintColor:newColor];
-		}
+		[keyboardUIToolbar setBarTintColor:newColor];
 	}
 }
 
@@ -163,11 +175,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320,[self keyboardAccessoryHeight])];
 		UIColor * newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
 		if(newColor != nil){
-			if ([TiUtils isIOS7OrGreater]) {
-				[keyboardUIToolbar performSelector:@selector(setBarTintColor:) withObject:newColor];
-			} else {
-				[keyboardUIToolbar setTintColor:newColor];
-			}
+			[keyboardUIToolbar setBarTintColor:newColor];
 		}
 		[self updateUIToolbar];
 	}
@@ -270,6 +278,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	return nil;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -278,6 +287,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 -(NSDictionary*)selection
 {
@@ -303,10 +313,10 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
     TiThreadPerformOnMainThread(^{[(TiUITextWidget*)[self view] setSelectionFrom:arg to:property];}, NO);
 }
+#ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_HEIGHT
 USE_VIEW_FOR_CONTENT_WIDTH
-
-
+#endif
 @end
 
 #endif

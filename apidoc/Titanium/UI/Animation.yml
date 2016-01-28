@@ -54,7 +54,7 @@ description: |
     animation until the matrix transform animation is complete, then jumps to the animated position.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb]
 
 events:
   - name: complete
@@ -81,7 +81,7 @@ properties:
     summary: Specifies if the animation should be replayed in reverse upon completion.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
     
   - name: backgroundColor
     summary: |
@@ -90,7 +90,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: bottom
     summary: Value of the `bottom` property at the end of the animation.
@@ -99,7 +99,7 @@ properties:
   - name: center
     summary: Value of the `center` property at the end of the animation.
     type: Object
-    exclude-platforms: [blackberry]
+
     
   - name: color
     summary: |
@@ -107,13 +107,13 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: curve
     summary: Animation curve or easing function to apply to the animation.
     type: Number
     constants: Titanium.UI.ANIMATION_CURVE_*
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: delay
     summary: Delay, in milliseconds before starting the animation.
@@ -163,7 +163,7 @@ properties:
         
         3D transforms are only supported on iOS.
     type: [Titanium.UI.2DMatrix, Titanium.UI.3DMatrix]
-    exclude-platforms: [blackberry]
+
     
   - name: transition
     summary: Transition type to use during a transition animation.
@@ -190,7 +190,7 @@ properties:
   - name: visible
     summary: Value of the `visible` property at the end of the animation.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: width
     summary: Value of the `width` property at the end of the animation.
@@ -200,7 +200,7 @@ properties:
     summary: Value of the `zIndex` property at the end of the animation.
     description: Refer to <Titanium.UI.View.zIndex> for an explanation of z-index.
     type: Number
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
 examples:
   - title: Simple Animation Applied to a View

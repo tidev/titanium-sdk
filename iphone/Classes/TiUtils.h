@@ -331,7 +331,6 @@ typedef enum
 +(TiDimension)dimensionValue:(id)value;
 
 +(id)valueFromDimension:(TiDimension)dimension;
-
 /**
  Looks up a value for the key in the provided dictionary and returns it as an int.
  @param name The lookup key.
@@ -402,6 +401,7 @@ typedef enum
  */
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists;
 
+#ifndef TI_USE_AUTOLAYOUT
 /**
  Looks up a value for the key in the provided dictionary and returns it as a dimension.
  @param name The lookup key.
@@ -411,6 +411,7 @@ typedef enum
  @return The resulting value as a dimension
  */
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists;
+#endif
 
 +(NSShadow*)shadowValue:(id)value;
 
@@ -428,8 +429,9 @@ typedef enum
 
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def;
 
+#ifndef TI_USE_AUTOLAYOUT
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def;
-
+#endif
 
 +(WebFont*)fontValue:(NSDictionary*)properties def:(WebFont*)def;
 
@@ -449,13 +451,22 @@ typedef enum
 
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties;
 
+#ifndef TI_USE_AUTOLAYOUT
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties;
-
+#endif
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect;
 
 +(NSDictionary*)sizeToDictionary:(CGSize)size;
+
+/**
+ Converts input values in to a NSDictionary.
+ @param touch The UITouch object. Containing all the UITouch attributes.
+ @param point The point on the view , before the touch even is triggered.
+ @return NSDictionary containing the point coordinates and UITouch properties.
+ */
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point;
 
 +(UIEdgeInsets)contentInsets:(id)value;
 
@@ -471,6 +482,8 @@ typedef enum
 
 +(NSString*)jsonStringify:(id)value;
 +(id)jsonParse:(NSString*)value;
+
++(NSString*)currentArchitecture;
 
 +(NSString*)jsonStringify:(id)value error:(NSError**)error;
 +(id)jsonParse:(NSString*)value error:(NSError**)error;;
@@ -557,6 +570,18 @@ typedef enum
 +(BOOL)isIOS8OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 9.0.
+ @return _YES_ if the current OS version is equal to or greater thann 9.0, _NO_ otherwise.
+ */
++(BOOL)isIOS9OrGreater;
+
+/**
+ Whether or not the current OS version is equal to or greater than 9.1.
+ @return _YES_ if the current OS version is equal to or greater thann 9.1, _NO_ otherwise.
+ */
++(BOOL)isIOS9_1OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
@@ -639,5 +664,17 @@ typedef enum
  @param message The optional string describing the error.
  */
 + (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
+
+/**
+ Checks the force touch capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)forceTouchSupported;
+
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
 
 @end

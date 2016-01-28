@@ -225,7 +225,6 @@ static NSArray* popoverSequence;
         return;
     }
     
-    
     [popOverCondition lock];
     if (currentlyDisplaying) {
         [currentPopover hide:nil];
@@ -255,7 +254,8 @@ static NSArray* popoverSequence;
 	[closingCondition unlock];
 
 	TiThreadPerformOnMainThread(^{
-		animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+        [contentViewProxy windowWillClose];
+        animated = [TiUtils boolValue:@"animated" properties:args def:NO];
         if ([TiUtils isIOS8OrGreater]) {
             [[self viewController] dismissViewControllerAnimated:animated completion:^{
                 [self cleanup];
@@ -290,14 +290,14 @@ static NSArray* popoverSequence;
         
         return;
     }
-    
+    [contentViewProxy setProxyObserver:nil];
     [contentViewProxy windowWillClose];
     
     popoverInitialized = NO;
     [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [contentViewProxy windowDidClose];
-    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]] || [TiUtils isIOS8OrGreater]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
             TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
@@ -324,6 +324,7 @@ static NSArray* popoverSequence;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
         [self updatePassThroughViews];
     }
+    [contentViewProxy setProxyObserver:self];
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
@@ -356,6 +357,7 @@ static NSArray* popoverSequence;
 
 -(CGSize)contentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     if (![TiUtils isIOS8OrGreater]) {
         UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
@@ -379,6 +381,9 @@ static NSArray* popoverSequence;
     }
     
     return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
+#else
+    return CGSizeZero;
+#endif
 }
 
 -(void)updatePassThroughViews
@@ -422,6 +427,7 @@ static NSArray* popoverSequence;
         UIPopoverPresentationController* thePresentationController = [theController popoverPresentationController];
         thePresentationController.permittedArrowDirections = directions;
         thePresentationController.delegate = self;
+        [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
         
         [[TiApp app] showModalController:theController animated:animated];
         return;
@@ -476,6 +482,7 @@ static NSArray* popoverSequence;
         if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
             [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
             viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
+
         } else {
             viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
         }
@@ -488,12 +495,25 @@ static NSArray* popoverSequence;
     if (popoverController == nil) {
         popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
         [popoverController setDelegate:self];
+
         [self updateContentSize];
     }
     return popoverController;
 }
 
 #pragma mark Delegate methods
+
+-(void)proxyDidRelayout:(id)sender
+{
+    if (sender == contentViewProxy) {
+        if (viewController != nil) {
+            CGSize newSize = [self contentSize];
+            if (!CGSizeEqualToSize([viewController preferredContentSize], newSize)) {
+                [self updateContentSize];
+            }
+        }
+    }
+}
 
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
@@ -510,7 +530,7 @@ static NSArray* popoverSequence;
         UIView* view = [popoverView view];
         if (view != nil && (view.window != nil)) {
             popoverPresentationController.sourceView = view;
-            popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect)?CGRectMake(view.bounds.size.width/2, view.bounds.size.height/2, 1, 1):popoverRect);
+            popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect)?[view bounds]:popoverRect);
             return;
         }
     }
@@ -526,6 +546,7 @@ static NSArray* popoverSequence;
     if ([[self viewController] presentedViewController] != nil) {
         return NO;
     }
+    [contentViewProxy windowWillClose];
     return YES;
 }
 
@@ -541,8 +562,8 @@ static NSArray* popoverSequence;
     UIView* theSourceView = *view;
     
     if (!canUseDialogRect) {
-        rect->origin = CGPointMake(theSourceView.bounds.size.width/2, theSourceView.bounds.size.height/2);
-        rect->size = CGSizeMake(1, 1);
+        rect->origin = [theSourceView bounds].origin;
+        rect->size = [theSourceView bounds].size;
     }
     
     popoverPresentationController.sourceRect = *rect;
@@ -555,6 +576,7 @@ static NSArray* popoverSequence;
             return NO;
         }
     }
+    [contentViewProxy windowWillClose];
     return YES;
 }
 

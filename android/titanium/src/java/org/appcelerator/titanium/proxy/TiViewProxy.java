@@ -24,6 +24,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
@@ -33,11 +34,16 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 
 /**
  * The parent class of view proxies.
@@ -61,7 +67,10 @@ import android.view.View;
 
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
-	"softKeyboardOnFocus", "transform"
+	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
+	"translationX", "translationY", "translationZ",
+	
+	TiC.PROPERTY_TRANSITION_NAME
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
@@ -747,6 +756,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected void handleShow(KrollDict options)
 	{
 		if (view != null) {
+			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+				View nativeView = view.getOuterView();
+				int width = nativeView.getWidth();
+				int height = nativeView.getHeight();
+				int radius = Math.max(width, height);
+				Animator anim = ViewAnimationUtils.createCircularReveal(nativeView, width/2, height/2, 0, radius);
+				view.show();
+				anim.start();
+				return;
+			}
 			view.show();
 		}
 	}
@@ -770,6 +789,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (pendingAnimation != null) {
 					handlePendingAnimation(false);
 				}
+			}
+			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+				View nativeView = view.getOuterView();
+				int width = nativeView.getWidth();
+				int height = nativeView.getHeight();
+				int radius = Math.max(width, height);
+				Animator anim = ViewAnimationUtils.createCircularReveal(nativeView, width/2, height/2, radius, 0);
+				anim.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						super.onAnimationEnd(animation);
+						view.hide();
+					}
+				});
+
+				anim.start();
+				return;
 			}
 			view.hide();
 		}
@@ -884,24 +920,50 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public KrollDict toImage()
+	public TiBlob toImage(final @Kroll.argument(optional=true) KrollFunction callback)
 	{
-		if (TiApplication.isUIThread()) {
-			return handleToImage();
-
-		} else {
-			return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
+		final boolean waitForFinish = (callback == null);
+		TiBlob blob;
+		
+		/*
+		 * Callback don't exist. Just render on main thread and return blob. 
+		 */
+		if (waitForFinish) {
+			if (TiApplication.isUIThread()) {
+				blob = handleToImage();
+			} else {
+				blob = (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
+			}
+		} 
+		
+		/*
+		 * Callback exists. Perform async rendering and return an empty blob.
+		 */
+		else {
+			// Create a non-null empty blob to return. 
+			blob  = TiBlob.blobFromImage(Bitmap.createBitmap(1, 1, Config.ARGB_8888));
+			Runnable renderRunnable = new Runnable() {
+				public void run() {
+					callback.callAsync(getKrollObject(), new Object[] {handleToImage()});
+				}
+			};
+			
+			Thread renderThread = new Thread(renderRunnable);
+			renderThread.setPriority(Thread.MAX_PRIORITY);
+			renderThread.start();
 		}
+		
+		return blob;
 	}
 
-	protected KrollDict handleToImage()
+	protected TiBlob handleToImage()
 	{
 		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
 		}
-
-		return view.toImage();
+		KrollDict dict = view.toImage();
+		return TiUIHelper.getImageFromDict(dict);
 	}
 
 	/**

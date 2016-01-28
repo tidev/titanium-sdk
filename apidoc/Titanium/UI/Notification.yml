@@ -1,14 +1,14 @@
 ---
 name: Titanium.UI.Notification
-summary: An Android Toast-style notification.
+summary: A toast notification.
 description: |
-    A Toast notification is an unobtrusive, pop-up notification that doesn't 
+    A toast notification is an unobtrusive, pop-up notification that does not
     block the UI. Use the <Titanium.UI.createNotification> method or **`<Notification>`** Alloy element 
     to create a Toast notification.
 
-    By default, a Toast notification appears centered on the bottom half of the screen.
-
-    This object will be moved to the Android namespace in a future release.
+    On Android, by default, a toast notification appears centered on the bottom half of the screen.
+    On Windows Phone, by default, a toast notification appears over the status bar on the top part
+    of the screen.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android]

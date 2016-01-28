@@ -5,8 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "JavaScriptCore/TiCore.h"
-#import "TiBase.h"
+#import "TiToJS.h"
 
 @class KrollContext;
 @class KrollCallback;
@@ -30,10 +29,6 @@
 {
 @private
 	id<KrollDelegate> delegate;
-	NSString *contextId;
-	NSRecursiveLock *lock;
-	NSCondition *condition;
-	NSMutableArray *queue;
 	BOOL stopped;
 
 //Garbage collection variables.
@@ -41,17 +36,26 @@
 	unsigned int loopCount;
 
 	BOOL destroyed;
+#ifndef __clang_analyzer__
 	BOOL suspended;
+#endif
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
-	NSRecursiveLock *timerLock;
 	void *debugger;
+    
+#ifdef TI_USE_KROLL_THREAD
+    NSRecursiveLock *timerLock;
+	NSString *contextId;
+    NSRecursiveLock *lock;
+    NSCondition *condition;
+    NSMutableArray *queue;
 	id cachedThreadId;
+#endif
+
 }
 
 @property(nonatomic,readwrite,assign) id<KrollDelegate> delegate;
 
--(NSString*)contextId;
 -(void)start;
 -(void)stop;
 -(BOOL)running;
@@ -62,7 +66,9 @@
 
 #ifdef DEBUG
 // used during debugging only
+#ifdef TI_USE_KROLL_THREAD
 -(NSUInteger)queueCount;
+#endif
 #endif
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
@@ -79,8 +85,10 @@
 -(void)unregisterTimer:(double)timerId;
 
 -(int)forceGarbageCollectNow;
+#ifdef TI_USE_KROLL_THREAD
+-(NSString*)contextId;
 -(NSString*)threadName;
-
+#endif
 @end
 
 //====================================================================================================================

@@ -191,8 +191,10 @@ NSArray* bufferKeySequence = nil;
     // We pick the smallest one!
     NSRange replacement = NSMakeRange(offset, MIN(MIN(sourceLength, [data length]-offset), [[sourceBuffer data] length]-sourceOffset));
     [data replaceBytesInRange:replacement withBytes:(source+sourceOffset)];
-    
+	//ignore leak, Xcode getting confused over the function name
+#ifndef __clang_analyzer__
     return NUMUINTEGER(replacement.length);
+#endif
 }
 
 -(TiBuffer*)clone:(id)args

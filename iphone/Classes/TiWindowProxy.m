@@ -23,8 +23,14 @@
 
 -(void) dealloc {
     if (controller != nil) {
+#ifdef TI_USE_KROLL_THREAD
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(controller);
+        }, YES);
+#endif
     }
     
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -149,6 +155,23 @@
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
+    
+    // TODO: Revisit
+    /*
+    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
+    UIView *rootView = [topContainerController hostingView];
+
+    UIViewController* thisViewController = [self hostingController];
+    UIView* theView = [thisViewController view];
+    [theView setFrame:[rootView bounds]];
+    
+    [thisViewController willMoveToParentViewController:topContainerController];
+    [topContainerController addChildViewController:thisViewController];
+    
+    [rootView addSubview:theView];
+    [rootView bringSubviewToFront:theView];
+    [thisViewController didMoveToParentViewController:topContainerController];
+     */
 }
 
 -(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
@@ -399,11 +422,9 @@
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
     }
-    if ([TiUtils isIOS7OrGreater]) {
-        TiThreadPerformOnMainThread(^{
-            [self forceNavBarFrame];
-        }, NO);
-    }
+    TiThreadPerformOnMainThread(^{
+        [self forceNavBarFrame];
+    }, NO);
 
 }
 
@@ -560,10 +581,47 @@
     return _supportedOrientations;
 }
 
+
+-(void)showNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(showNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:NO animated:animated];
+    }
+}
+
+-(void)hideNavBar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(hideNavBar,args);
+    [self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setNavigationBarHidden:YES animated:animated];
+        //TODO: need to fix height
+    }
+}
+
+
 #pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
+    id navBarHidden = [self valueForKey:@"navBarHidden"];
+    if (navBarHidden!=nil) {
+        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
+        if ([TiUtils boolValue:navBarHidden]) {
+            [self hideNavBar:properties];
+        }
+        else {
+            [self showNavBar:properties];
+        }
+    }
     [self willShow];
 }
 -(void)viewWillDisappear:(BOOL)animated
@@ -665,8 +723,10 @@
                 TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)animatedOver proxy];
                 if ([theProxy viewAttached]) {
                     [[[self view] superview] insertSubview:animatedOver belowSubview:[self view]];
+#ifndef TI_USE_AUTOLAYOUT
                     LayoutConstraint* layoutProps = [theProxy layoutProperties];
                     ApplyConstraintToViewWithBounds(layoutProps, (TiUIView*)animatedOver, [[animatedOver superview] bounds]);
+#endif
                     [theProxy layoutChildren:NO];
                     RELEASE_TO_NIL(animatedOver);
                 }

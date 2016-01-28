@@ -130,7 +130,7 @@ description: |
     #### For More Information
     
     See [Integrating Web
-    Content](http://docs.appcelerator.com/titanium/2.1/index.html#!/guide/Integrating_Web_Content)
+    Content](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
     in the Titanium Mobile Guides for more information on using web views, including use
     cases, more code examples, and best practices for web view content.
 
@@ -138,7 +138,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     methods: [ add, removeAllChildren ]
-    properties: [ enabled ]
 since: "0.8"
 methods:
 
@@ -169,14 +168,14 @@ methods:
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
     description: |
-        For Mobile Web and Tizen, returns true if `url` is set.
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
   - name: canGoForward
     summary: Returns `true` if the web view can go forward in its history list.
     description: |
-        For Mobile Web and Tizen, returns true if `url` is set.
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
@@ -235,7 +234,7 @@ methods:
   - name: reload
     summary: Reloads the current webpage.
     description: |
-        For Mobile Web and Tizen, when you reload, the last visited same domain page or the original `url` 
+        For Mobile Web, when you reload, the last visited same domain page or the original `url`
         is the page that is reloaded and all local URL history is reset. The history of remote URLs is
         preserved.
 
@@ -263,7 +262,7 @@ methods:
   - name: setBasicAuthentication
     summary: |
         Sets the basic authentication for this web view to use on subsequent URl requests.
-    platforms: [android, iphone, ipad, tizen]
+    platforms: [android, iphone, ipad]
     parameters:
 
       - name: username
@@ -273,7 +272,7 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
-    exclude-platforms: [blackberry]
+
 
   - name: stopLoading
     summary: Stops loading a currently loading page.
@@ -282,15 +281,15 @@ methods:
         the parent and all other web views.  Generally, this feature does not work reliably and instead 
         you may choose to set the `hardStop` argument to true.
 
-        When `hardStop` is set to `true`, the Mobile Web and Tizen platforms will destroy the iFrame
+        When `hardStop` is set to `true`, the Mobile Web platforms will destroy the iFrame
         used to display the content, so nothing is displayed where the web view used to
         be. The actual web view component is *not* destroyed, and you can redisplay it by
         calling [reload](Titanium.UI.WebView.reload), or by specifying new content.
     parameters:
       - name: hardStop
-        summary: Forces the web view to destroy the iFrame (Mobile Web and Tizen only).
+        summary: Forces the web view to destroy the iFrame (Mobile Web only).
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
 events:
 
@@ -301,7 +300,7 @@ events:
         the URL of the web view to a URL that redirects to another URL, such as an HTTP URL
         redirecting to an HTTPS URL, this event is fired for the original URL and the redirect URL.
 
-        For Mobile Web and Tizen, if you pass the `url` into the constructor, you must attach the event listener 
+        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener
         before adding the web view to its parent, otherwise the event will fire before you have a 
         chance to add the event listener.
         
@@ -344,11 +343,11 @@ events:
       - name: url
         summary: URL of the web document.
         type: String
-        platforms: [iphone, ipad, mobileweb, tizen, android]
+        platforms: [iphone, ipad, mobileweb, android]
       - name: message
         summary: Error message. Use error instead.
         type: String
-        platforms: [iphone, ipad, mobileweb, tizen, android]
+        platforms: [iphone, ipad, mobileweb, android]
         deprecated:
             since: "3.1.0"
       - name: errorCode
@@ -362,13 +361,24 @@ events:
   - name: load
     summary: Fired when the web view content is loaded.
     description: |
-        For Mobile Web and Tizen, the `url` returned in the load event is generally accurate when loading 
+        For Mobile Web, the `url` returned in the load event is generally accurate when loading
         same domain pages and remote pages that you explicitly set using the `url` property. 
         If you navigate to a remote page, then this `url` is set to the initial remote page's URL.
     properties:
       - name: url
         summary: URL of the web document. 
-        
+
+  - name: onLoadResource
+    summary: Fired when loading resource.
+    description: |
+        Android only. Notify the host application that the WebView will load the resource specified by the given url.
+    platforms: [android]
+    since: "3.6.0"
+    properties:
+      - name: url
+        summary: The url of the resource that will load.
+        type: String
+
   - name: sslerror
     summary: Fired when an SSL error occurred.
     description: |
@@ -383,17 +393,35 @@ events:
         
 properties:
 
+  - name: allowsLinkPreview
+    summary: |
+        A Boolean value that determines whether pressing on a link displays a preview of the 
+        destination for the link.
+    description: |
+        This property is available on devices that support 3D Touch. Default value is `false`.
+
+        If you set this value to `true` for a web view, users (with devices that support 3D Touch) 
+        can preview link destinations, and can preview detected data such as addresses, by pressing on links. 
+        Such previews are known to users as peeks. If a user presses deeper, the preview navigates (or pops, 
+        in user terminology) to the destination. Because pop navigation switches the user from your app to 
+        Safari, it is opt-in, by way of this property, rather default behavior for this class.
+    type: Boolean
+    default: false
+    since: "6.0.0"
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+
   - name: data
     summary: Web content to load.
     description: |
         Android only supports loading data from a `Blob`, not a `File`.
 
-        For Mobile Web and Tizen, setting new content will reset the `url` and the WebView's history. The WebView's
+        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
         "onload" event will have already fired prior to the data being set inside the WebView.
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
-    exclude-platforms: [blackberry]
+
 
   - name: disableBounce
     summary: |
@@ -403,6 +431,16 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+
+  - name: enableJavascriptInterface
+    summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
+    description: |
+        This property is introduced to prevent a security issue with older devices (< JELLY_BEAN_MR1)
+    type: Boolean
+    platforms: [android]
+    since: "3.6.0"
+    availability: creation
+    default: true
 
   - name: handlePlatformUrl
     summary: Lets the webview handle platform supported urls
@@ -434,15 +472,15 @@ properties:
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or 
         [url](Titanium.UI.WebView.url) properties.
 
-        #### Mobile Web and Tizen Platform Notes
+        #### Mobile Web Platform Notes
 
-        For Mobile Web and Tizen, setting new content will reset the `url` and the WebView's
+        For Mobile Web, setting new content will reset the `url` and the WebView's
         history. 
         
         Content added using the `html` property (or the `setHtml` method) will never
         receive an "onload" DOM event. 
 
-        When querying this the `html` property, Mobile Web and Tizen return a modified version of the original html. 
+        When querying this the `html` property, Mobile Web return a modified version of the original html.
         The `<html>` tag is stripped off, along with any comments outside of the `<html>` tag. Some default 
         attributes may be added as well. For example, a web page with the code:
         
@@ -471,7 +509,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
-    exclude-platforms: [blackberry]
+
 
 
   - name: onCreateWindow
@@ -559,7 +597,7 @@ properties:
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
     platforms: [android]
     since: "1.8.0"
-    osver: {android: {min: "8"}}
+    osver: {android: {min: "2.2"}}
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop
@@ -578,7 +616,7 @@ properties:
   - name: showScrollbars
     summary: If `true`, scrollbars are displayed if content is larger than the web view.
     type: Boolean
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: "1.8.2"
     default: true
 
@@ -610,10 +648,6 @@ properties:
         clicks a hyperlink inside the web view).
         
         See also: [data](Titanium.UI.WebView.data) and [html](Titanium.UI.WebView.html).
-        
-        On Tizen, the URL cannot refer to a [File](Titanium.Filesystem.File) object. 
-        `Ti.Filesystem` uses web storage, which can't be accessed directly from a web view. 
-        The URL can be a string that points to a physical file on Tizen's file system (e.g. /opt/apps/kitchensink/index.html), or a remote location.
     type: String
 
   - name: userAgent

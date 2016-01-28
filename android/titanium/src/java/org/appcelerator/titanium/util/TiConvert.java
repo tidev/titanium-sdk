@@ -368,7 +368,11 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key, boolean def)
 	{
-		return toBoolean(hashMap.get(key), def);
+		if (hashMap != null && key != null){
+			return toBoolean(hashMap.get(key), def);
+		}
+		
+		return def;
 	}
 
 	/**
@@ -542,7 +546,7 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts a vlaue into a String. If value is null, a default value is returned.
+	 * Converts a value into a String. If value is null, a default value is returned.
 	 * @param value the value to convert.
 	 * @param defaultString the default value.
 	 * @return a String.
@@ -848,6 +852,7 @@ public class TiConvert
 	{
 		return toDate(hashMap.get(key));
 	}
+
 }
 
 

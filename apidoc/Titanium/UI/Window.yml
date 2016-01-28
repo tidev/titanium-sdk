@@ -6,6 +6,22 @@ since: "0.9"
 excludes: { methods:[removeAllChildren] }
 
 methods:
+
+  - name: addSharedElement
+    summary: Adds a common UI element to participate in window transition animation. 
+    description: |
+        Available from Android 5.0. Use the current window's UI element that is contextually shared with the other window. 
+    parameters:
+      - name: view
+        summary: The shared view from the current window. 
+        type: Titanium.UI.View
+      - name: transitionName
+        summary: The assigned common transition name of UI elements in both windows. 
+        type: String
+    since: "5.2.0"
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
   - name: close
     summary: Closes the window.
     description: |
@@ -45,6 +61,14 @@ methods:
         summary: Animation or display properties to use when opening the window.
         type: openWindowParams
         optional: true
+
+  - name: removeAllSharedElements
+    summary: Clears all added shared elements. 
+    description: |
+        Available from Android 5.0. Use this method to clear all shared elements. This will not remove the views from view hierarchy. 
+    since: "5.2.0"
+    platforms: [android]
+    osver: {android: {min: 5.0}}
 
   - name: setToolbar
     summary: Sets the array of items to show in the window's toolbar.
@@ -161,7 +185,18 @@ events:
         user dismisses the keyboard with the back button or when the
         user closes a full-screen video which is embedded in a web view
         with the back button.
-
+        
+        As of 5.0.0, you can create an event that can prevent accidental closure of the
+        app due to hitting the back button to many times.
+        
+            var win = Ti.UI.createWindow(
+                { // some code... }
+            );
+            // more code
+            win.addEventListener("windows:back", function()
+                { alert("Back pressed"); }
+            );
+        
     since: '3.0.0'
 
   - name: androidcamera
@@ -235,7 +270,7 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android,  iphone, ipad, mobileweb]
 
   - name: open
     summary: Fired when the window is opened.
@@ -287,7 +322,7 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: barImage
@@ -296,7 +331,7 @@ properties:
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: bottom
@@ -428,7 +463,7 @@ properties:
                     </Tab>
                 </TabGroup>
             </Alloy>
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
 
   - name: leftNavButtons
@@ -452,7 +487,7 @@ properties:
         See the "Modal Windows" section for platform-specific information.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
 
   - name: navBarHidden
     summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
@@ -464,7 +499,7 @@ properties:
 
         Since Release 3.3.0, due to changes to support the appcompat library, this property has no
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
-        [Android Action Bar guide](http://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar).
+        [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
 
         Prior to Release 3.2.0, setting this property forces the creation of a heavyweight window. See "Android
         Heavyweight and Lightweight Windows" in the main description of this class for more
@@ -475,7 +510,7 @@ properties:
         Since Release  3.1.3, this is no longer a valid parameter passed to the [Window.open](Titanium.UI.Window.open) method.
         Modal windows on iOS no longer have a navigation controller and hence **do not** have a nav bar.
 
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     default: false
     type: Boolean
 
@@ -517,7 +552,16 @@ properties:
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
     type: Number
-
+  
+  - name: onBack
+    summary: |
+        Callback function that overrides the default behavior when the user presses the **Back** 
+        button.
+    description: |
+        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
+        callback if you explicitly want to override the back button behavior.
+    type: Callback<Object>
+  
   - name: orientationModes
     summary: |
         Array of supported orientation modes, specified using the orientation
@@ -645,7 +689,7 @@ properties:
                 </TabGroup>
             </Alloy>
 
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
     
   - name: rightNavButtons
@@ -669,7 +713,7 @@ properties:
         This property indicates if the window should use a [split action bar](http://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
     platforms: [android]
     type: Boolean
-    since: 3.5.0
+    since: 3.6.0
     availability: creation
 
   - name: statusBarStyle
@@ -686,6 +730,17 @@ properties:
                  Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
+
+  - name: swipeToClose
+    summary: Boolean value indicating if the user should be able to close a window using a swipe gesture.
+    description: |
+        If `false` the user will not be able to swipe from the left edge of the window to close it. 
+        Note: This property is only used for a window being embedded in a [Ti.UI.Tab](Titanium.UI.Tab) or
+        [Ti.UI.iOS.NavigationWindow](Titanium.UI.iOS.NavigationWindow). It is enabled by default.
+    type: Boolean
+    since: "5.2.0"
+    platforms: [iphone,ipad]
+    default: true
     
   - name: tabBarHidden
     summary: |
@@ -700,8 +755,8 @@ properties:
   - name: theme
     summary: Name of the theme to apply to the window.
     description: |
-        Set the theme of the window. It can be either a [built-in theme](http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
-        or a [custom theme](http://docs.appcelerator.com/titanium/3.0/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+        Set the theme of the window. It can be either a [built-in theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
+        or a [custom theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
     platforms: [android]
     type: String
     since: "3.4.0"
@@ -709,8 +764,6 @@ properties:
 
   - name: title
     summary: Title of the window.
-    description: |
-        On BlackBerry, this property automatically creates a `navBar` and sets the title on it.
     type: String
 
   - name: titleAttributes
@@ -740,12 +793,12 @@ properties:
                     </TitleControl>
                 </Window>
             </Alloy>
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: Titanium.UI.View
 
   - name: titleImage
     summary: Image to show in the title area of the nav bar, specified as a local file path or URL.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: String
 
   - name: titlePrompt
@@ -757,7 +810,7 @@ properties:
     summary: Key identifying a string from the locale file to use for the window title.
     description: Only one of `title` or `titleid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
@@ -820,16 +873,19 @@ properties:
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
 
   - name: url
     summary: Loads a JavaScript file from a local URL.
+    deprecated:
+        since: 3.5.0
+        removed: 3.6.0
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
+        [Alloy Framework](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
+        [CommonJS module](http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
         than using this property.  One benefit of using a CommonJS module is that it consumes less
         resources.
 
@@ -848,7 +904,7 @@ properties:
 
     type: String
     availability: creation
-    exclude-platforms: [blackberry]
+
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.
@@ -958,7 +1014,7 @@ description: |
     ### Pass Context Between Windows
 
     To pass data between windows, use a
-    [CommonJS module](http://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium)
+    [CommonJS module](http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
     to save information from one window then retrieve it in another.  In the example below, the foo
     module exposes two methods to store and retrieve an object.  The first window of the project
     loads the foo module and uses the set method to store some data before opening the second window.
@@ -1337,6 +1393,60 @@ description: |
     `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
     and then available via <Titanium.App.Android.R>.
 
+    #### Material design activity transitions in Android
+
+    Activity transitions in material design apps provide visual connections between different states through 
+    motion and transformations between common elements.
+
+    As an example, you may wish for the views move in or out from the center when transitioning between two activities. 
+    These are called content transitions which animates the whole content between transitions. 
+    
+        var win = Ti.UI.createWindow({
+            title: 'RSS Feed',
+            activityExitTransition: Titanium.UI.Android.TRANSITION_EXPLODE,
+            activityReenterTransition: Titanium.UI.Android.TRANSITION_EXPLODE,
+        });
+
+    Use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition` and `activityReturnTransition` to customize 
+    the content transitions. 
+    
+    Also you can provide transition between common elements among participating activities. For example in a master-detail pattern,
+    clicking on a row item animates the common elements of image, title smoothly into details activity as if they are part of
+    the same scene. This seamless animation is called shared element transition and can be achieved by the following steps. 
+
+    Say window A is opening window B.
+    Firstly, specify a unique `transitionName` to the common UI elements between the two windows. 
+    Next use `addSharedElement` method on window B passing the window A common UI element and the transition name. This tells the system
+    which views are shared between windows and performs the transition between them. Note that we specify the UI elements of window A
+    since the system needs the source element and connects the destination element from the shared transition name once window B is created 
+    and shown. 
+
+    For example to transition a title label in window A to a title label in window B. 
+
+        // Create label in window A with a unique transitionName.
+        var titleInWinA = new Ti.UI.createLabel({
+            text:'Top 10 pics from Mars!',
+            left:70, top: 6,
+            width:200, height: 30,
+            transitionName: 'title'
+        });
+        windowA.add(titleInWinA);
+        
+        // Creating label in window B, note that the same transitionName is used.
+        var titleInWinB = new Ti.UI.createLabel({
+            text:'Top 10 pics from Mars!',
+            left:50, top: 10,
+            width:200, height: 30,
+            transitionName: 'title'
+        });
+
+        // Before opening window B specify the common UI elements. 
+        windowB.addSharedElement(titleInWinA, "title");
+        windowB.open();
+
+    See the official Android [Activity Transitions](http://developer.android.com/training/material/animations.html#Transitions) 
+    documentation for more information and supported transitons.
+
     #### Android "root" Windows
 
     In Android, you may wish to specify that a window which you create (such as the first
@@ -1516,6 +1626,123 @@ properties:
     type: Number
     platforms: [android]
     since: "3.1.0"
+
+  - name: activityExitTransition
+    summary: The type of transition used when activity is exiting. 
+    description: |
+        Activity A's exit transition determines how views in A are animated when A starts B.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityEnterTransition
+    summary: The type of transition used when activity is entering. 
+    description: |
+        Activity B's enter transition determines how views in B are animated when A starts B.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityReturnTransition
+    summary: The type of transition used when returning from a previously started activity. 
+    description: |
+        Activity B's return transition determines how views in B are animated when B returns to A.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityReenterTransition
+    summary: The type of transition used when reentering to a previously started activity. 
+    description: |
+        Activity A's reenter transition determines how views in A are animated when B returns to A.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementExitTransition
+    summary: The type of exit transition used when animating shared elements between two activities.
+    description: |
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementEnterTransition
+    summary: The type of enter transition used when animating shared elements between two activities.
+    description: |
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementReturnTransition
+    summary: The type of return transition used when animating shared elements between two activities.
+    description: |
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementReenterTransition
+    summary: The type of reenter transition used when animating shared elements between two activities.
+    description: |
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: Titanium.UI.Android.TRANSITION_*
+    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
 
 ---
 name: windowToolbarParam

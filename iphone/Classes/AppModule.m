@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -45,8 +45,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     UIApplication * app = [UIApplication sharedApplication];
     TiApp * appDelegate = [TiApp app];
+#ifndef TI_USE_AUTOLAYOUT
     [TiLayoutQueue resetQueue];
-    
+#endif
     /* Begin backgrounding simulation */
     [appDelegate applicationWillResignActive:app];
     [appDelegate applicationDidEnterBackground:app];
@@ -63,7 +64,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [nc removeObserver:thisModule];
     }
     /* Because of other issues, we must leak the modules as well as the runtime */
+#ifndef __clang_analyzer__
     [delegateModules copy];
+#endif
     [delegateModules removeAllObjects];
     
     /* Disconnect the Kroll bridge, and spoof the shutdown */
@@ -296,13 +299,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
-    if (![self _hasListeners:@"keyboardFrameChanged"] && ![self _hasListeners:@"keyboardframechanged"])
+    if (![self _hasListeners:@"keyboardframechanged"])
     {
         return;
     }
     
     NSDictionary *userInfo = [notification userInfo];
-    
+    NSNumber* duration = [userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
     CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     if (![TiUtils isIOS8OrGreater]) {
         // window for keyboard
@@ -312,11 +315,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
-                                nil];
+                           [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
+                           duration, @"animationDuration",
+                           nil];
     
-    [self fireEvent:@"keyboardFrameChanged" withObject:event]; 
-    [self fireEvent:@"keyboardframechanged" withObject:event];     
+    
+    [self fireEvent:@"keyboardframechanged" withObject:event];
 }
 
 - (void)timeChanged:(NSNotification*)notiication
@@ -398,7 +402,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
     [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 
-    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidChangeFrameNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
     [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
     
     [super startup];
@@ -445,6 +449,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if ([self _hasListeners:@"resumed"])
 	{
 		[self fireEvent:@"resumed" withObject:nil];
+	}
+}
+
+-(void)errored:(NSNotification *)notification
+{
+	if ([self _hasListeners:@"uncaughtException"])
+	{
+		[self fireEvent:@"uncaughtException" withObject:[notification userInfo]];
 	}
 }
 

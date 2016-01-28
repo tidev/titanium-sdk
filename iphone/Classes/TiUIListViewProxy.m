@@ -16,21 +16,22 @@
 @end
 
 @implementation TiUIListViewProxy {
-	NSMutableArray *_sections;
-	NSMutableArray *_operationQueue;
-	pthread_mutex_t _operationQueueMutex;
-	pthread_rwlock_t _markerLock;
-	NSIndexPath *marker;
+    NSMutableArray *_sections;
+    NSMutableArray *_operationQueue;
+    NSMutableArray *_markerArray;
+    pthread_mutex_t _operationQueueMutex;
+    pthread_rwlock_t _markerLock;
 }
 
 - (id)init
 {
     self = [super init];
     if (self) {
-		_sections = [[NSMutableArray alloc] initWithCapacity:4];
-		_operationQueue = [[NSMutableArray alloc] initWithCapacity:10];
-		pthread_mutex_init(&_operationQueueMutex,NULL);
-		pthread_rwlock_init(&_markerLock,NULL);
+        _sections = [[NSMutableArray alloc] initWithCapacity:4];
+        _operationQueue = [[NSMutableArray alloc] initWithCapacity:10];
+        _markerArray = [[NSMutableArray alloc] initWithCapacity:4];
+        pthread_mutex_init(&_operationQueueMutex,NULL);
+        pthread_rwlock_init(&_markerLock,NULL);
     }
     return self;
 }
@@ -47,13 +48,22 @@
     return @"Ti.UI.ListView";
 }
 
+- (void)windowWillClose
+{
+    if([self viewInitialized])
+    {
+        [self makeViewPerformSelector:@selector(cleanup:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+    }
+    [super windowWillClose];
+}
+
 - (void)dealloc
 {
-	[_operationQueue release];
-	pthread_mutex_destroy(&_operationQueueMutex);
-	pthread_rwlock_destroy(&_markerLock);
-	[_sections release];
-	RELEASE_TO_NIL(marker);
+    [_operationQueue release];
+    pthread_mutex_destroy(&_operationQueueMutex);
+    pthread_rwlock_destroy(&_markerLock);
+    [_sections release];
+    [_markerArray release];
     [super dealloc];
 }
 
@@ -81,7 +91,7 @@
         block(nil);
         TiThreadPerformOnMainThread(^{
             [self.listView updateSearchResults:nil];
-        }, NO);
+        }, [NSThread isMainThread]);
         return;
     }
     
@@ -93,7 +103,7 @@
 	if (triggerMainThread) {
 		TiThreadPerformOnMainThread(^{
 			[self processUpdateActions];
-		}, NO);
+		}, [NSThread isMainThread]);
 	}
 }
 
@@ -208,9 +218,10 @@
 			[templates setObject:template forKey:key];
 		}
 	}];
+    
 	TiThreadPerformOnMainThread(^{
 		[self.listView setDictTemplates_:templates];
-	}, NO);
+	}, [NSThread isMainThread]);
 	[templates release];
 }
 
@@ -404,7 +415,7 @@
             TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
             [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
 }
 
@@ -449,8 +460,26 @@
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
             [self.listView.tableView deselectRowAtIndexPath:indexPath animated:YES];
-        }, NO);
+        }, [NSThread isMainThread]);
     }
+}
+
+-(void)setContentOffset:(id)args
+{
+    id arg1;
+    id arg2;
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        arg1 = args;
+        arg2 = nil;
+    }
+    else {
+        arg1 = [args objectAtIndex:0];
+        arg2 = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    }
+	TiThreadPerformOnMainThread(^{
+        [self.listView setContentOffset_:arg1 withObject:arg2];
+    }, NO);
+
 }
 
 -(void)setContentInsets:(id)args
@@ -467,14 +496,13 @@
     }
     TiThreadPerformOnMainThread(^{
         [self.listView setContentInsets_:arg1 withObject:arg2];
-    }, NO);
+    }, [NSThread isMainThread]);
 }
 
 #pragma mark - Marker Support
-- (void)setMarker:(id)args;
+
+-(NSIndexPath*)indexPathFromDictionary:(NSDictionary*) args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-    pthread_rwlock_wrlock(&_markerLock);
     BOOL valid = NO;
     NSInteger section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:0 valid:&valid];
     if (!valid) {
@@ -484,22 +512,81 @@
     if (!valid) {
         row = NSIntegerMax;
     }
-    RELEASE_TO_NIL(marker);
-    marker = [[NSIndexPath indexPathForRow:row inSection:section] retain];
-    pthread_rwlock_unlock(&_markerLock);
+    return [NSIndexPath indexPathForRow:row inSection:section];
+}
+
+-(BOOL)canAddMarker:(NSIndexPath*)marker
+{
+    //Checks if the marker is part of currently visible rows.
+    __block BOOL canAddMarker = YES;
+    TiThreadPerformOnMainThread(^{
+        if ([self viewInitialized] && !self.listView.isSearchActive) {
+            NSArray* visibleRows = [self.listView.tableView indexPathsForVisibleRows];
+            canAddMarker = ![visibleRows containsObject:marker];
+        }
+    }, [NSThread isMainThread]);
+    
+    return canAddMarker;
+}
+
+- (void)setMarker:(id)args;
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    NSIndexPath* marker = [self indexPathFromDictionary:args];
+    if ([self canAddMarker:marker]) {
+        pthread_rwlock_wrlock(&_markerLock);
+        [_markerArray removeAllObjects];
+        [_markerArray addObject:marker];
+        pthread_rwlock_unlock(&_markerLock);
+    } else if ([self _hasListeners:@"marker" checkParent:NO]){
+        //Index path is currently visible. Fire
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            NUMINTEGER(marker.section), @"sectionIndex",
+                                            NUMINTEGER(marker.row), @"itemIndex",
+                                            nil];
+        [self fireEvent:@"marker" withObject:eventObject withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [eventObject release];
+    }
+}
+
+- (void)addMarker:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    NSIndexPath* marker = [self indexPathFromDictionary:args];
+    if ([self canAddMarker:marker]) {
+        pthread_rwlock_wrlock(&_markerLock);
+        if (![_markerArray containsObject:marker]) {
+            [_markerArray addObject:marker];
+        }
+        pthread_rwlock_unlock(&_markerLock);
+    } else if ([self _hasListeners:@"marker" checkParent:NO]){
+        //Index path is currently visible. Fire
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            NUMINTEGER(marker.section), @"sectionIndex",
+                                            NUMINTEGER(marker.row), @"itemIndex",
+                                            nil];
+        [self fireEvent:@"marker" withObject:eventObject withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [eventObject release];
+    }
 }
 
 -(void)willDisplayCell:(NSIndexPath*)indexPath
 {
-    if ((marker != nil) && [self _hasListeners:@"marker"]) {
+    if (([_markerArray count] > 0) && [self _hasListeners:@"marker" checkParent:NO]) {
         //Never block the UI thread
-        int result = pthread_rwlock_tryrdlock(&_markerLock);
+        int result = pthread_rwlock_trywrlock(&_markerLock);
         if (result != 0) {
             return;
         }
-        if ( (indexPath.section > marker.section) || ( (marker.section == indexPath.section) && (indexPath.row >= marker.row) ) ){
-            [self fireEvent:@"marker" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            RELEASE_TO_NIL(marker);
+        if ([_markerArray containsObject:indexPath]){
+            
+            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                NUMINTEGER(indexPath.section), @"sectionIndex",
+                                                NUMINTEGER(indexPath.row), @"itemIndex",
+                                                nil];
+            [self fireEvent:@"marker" withObject:eventObject withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            [_markerArray removeObject:indexPath];
+            [eventObject release];
         }
         pthread_rwlock_unlock(&_markerLock);
     }

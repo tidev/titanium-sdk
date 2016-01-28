@@ -3,7 +3,7 @@ name: Titanium.App.Properties
 summary: |
     The App Properties module is used for storing application-related data in property/value pairs 
     that persist beyond application sessions and device power cycles.
-
+description: |
     #### App Properties in the tiapp.xml file
 
     App properties defined in the `tiapp.xml` file may be accessed using these APIs.  An app
@@ -24,7 +24,7 @@ summary: |
     device's secure storage, making them read-only.  Additionally, external access to these
     properties is now restricted.  Other iOS applications cannot access these properties and
     native Android modules must use the Titanium module API
-    [TiApplication.getAppProperties](http://docs.appcelerator.com/module-apidoc/latest/android/org/appcelerator/titanium/TiApplication.html#getAppProperties())
+    [TiApplication.getAppProperties](http://docs.appcelerator.com/module-apidoc/latest/android/org/appcelerator/platform/TiApplication.html#getAppProperties())
     method to access these properties.
 
     If you need to change the values during runtime, initially create the property with these APIs
@@ -32,8 +32,6 @@ summary: |
 
     Prior to Release 3.2.0, application properties defined in the `tiapp.xml` file could be
     overwritten by these APIs and accessed externally by other applications and modules.
-
-description: |
     
 extends: Titanium.Module
 since: "0.5"
@@ -244,7 +242,7 @@ events:
         making a change using the Settings application.
 
         The event is also fired when the application changes a property directly using one of the 
-        `Ti.App.Properties` methods.
+        `Ti.App.iOS.UserDefaults` or `Ti.App.Properties` methods.
     platforms: [iphone, ipad]
     since: "3.0.0"
 

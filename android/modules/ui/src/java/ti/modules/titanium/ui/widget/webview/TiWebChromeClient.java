@@ -29,6 +29,7 @@ import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+@SuppressWarnings("deprecation")
 public class TiWebChromeClient extends WebChromeClient
 {
 	private static final String TAG = "TiWebChromeClient";

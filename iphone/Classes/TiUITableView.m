@@ -17,7 +17,7 @@
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
 
 @interface TiUIView(eventHandler);
@@ -112,7 +112,9 @@
         || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchstart"])
         {
-            [proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
+            UITouch *touch = [touches anyObject];
+            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+            [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
         }
     }
         
@@ -126,7 +128,7 @@
         if ([proxy _hasListeners:@"touchmove"])
         {
             UITouch *touch = [touches anyObject];
-            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
             [proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
         }
     }
@@ -139,7 +141,9 @@
         || ([[event touchesForView:self.imageView] count] > 0) || ([[event touchesForView:self.proxy.currentRowContainerView] count]> 0 )) {
         if ([proxy _hasListeners:@"touchend"])
         {
-            [proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
+            UITouch *touch = [touches anyObject];
+            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+            [proxy fireEvent:@"touchend" withObject:evt propagate:YES];
         }
     }
     [super touchesEnded:touches withEvent:event];
@@ -148,7 +152,10 @@
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ([proxy _hasListeners:@"touchcancel"]) {
-        [proxy fireEvent:@"touchcancel" withObject:[proxy createEventObject:nil] propagate:YES];
+        
+        UITouch *touch = [touches anyObject];
+        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+        [proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
     }
     [super touchesCancelled:touches withEvent:event];
 }
@@ -293,6 +300,7 @@
 		filterAnchored = NO; // defaults to false on search
 		searchString = @"";
 		defaultSeparatorInsets = UIEdgeInsetsZero;
+		rowSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
@@ -370,7 +378,7 @@
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
+	if (([table style] == UITableViewStyleGrouped) && [TiUtils isIPad]) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}
@@ -410,7 +418,7 @@
 		
         BOOL initBackGround = YES;
         id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
-        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+        if (style == UITableViewStyleGrouped) {
             //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
             initBackGround = (bgInitValue != nil);
         }
@@ -420,13 +428,18 @@
 		
 		[self updateSearchView];
         
-		if ([TiUtils isIOS7OrGreater]) {
-			defaultSeparatorInsets = [tableview separatorInset];
-		}
-        
+        defaultSeparatorInsets = [tableview separatorInset];
+		
         if ([TiUtils isIOS8OrGreater]) {
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
+        
+#if IS_XCODE_7
+        if ([TiUtils isIOS9OrGreater]) {
+            tableview.cellLayoutMarginsFollowReadableWidth = NO;
+        }
+#endif
+        
 	}
 	if ([tableview superview] != self)
 	{
@@ -696,7 +709,17 @@
 			TiUITableViewRowProxy *oldrow = [[row.section rows] objectAtIndex:index];
 			[self insertRow:row before:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
+            
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
+            
 			break;
 		}
         case TiUITableViewActionInsertSectionBefore:
@@ -759,7 +782,17 @@
 			}
 			[self insertRow:row after:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:NO];
+			}
+            
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+            
+			if(action.animation == UITableViewRowAnimationNone) {
+				[UIView setAnimationsEnabled:YES];
+			}
+            
 			break;
 		}
         case TiUITableViewActionInsertSectionAfter:
@@ -876,6 +909,9 @@
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath
 {
 	TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
+	if (!indexPath || [section rowCount] <= [indexPath row]) {
+		return nil;
+	}
 	return [section rowAtIndex:[indexPath row]];
 }
 
@@ -1549,8 +1585,10 @@
 	// called when text starts editing
 	[self showSearchScreen:nil];
     searchActivated = YES;
-    [[searchController searchResultsTableView] reloadData];
+    // Dont reload here since user started editing but not yet started typing.
+    // Also if a previous search string exists this reload results in blank cells.
 }
+
 /*
  * This is no longer required since we do it from the 
  * searchDisplayControllerDidEndSearch method
@@ -1620,21 +1658,42 @@
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        [self tableView];
-        
-        if ([arg isKindOfClass:[NSDictionary class]]) {
-            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
-            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
-            [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
-        } else {
-            [tableview setSeparatorInset:defaultSeparatorInsets];
-        }
-        if (!searchActivated) {
-            [tableview setNeedsDisplay];
-        }
+    [self tableView];
+    DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"6.0.0", @"UI.TableView.tableSeparatorInsets")
+    [self setTableSeparatorInsets_:arg];
+}
+
+-(void)setTableSeparatorInsets_:(id)arg
+{
+    [self tableView];
+    
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+        [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+    } else {
+        [tableview setSeparatorInset:defaultSeparatorInsets];
+    }
+    if (!searchActivated) {
+        [tableview setNeedsDisplay];
     }
 }
+
+-(void)setRowSeparatorInsets_:(id)arg
+{
+    [self tableView];
+    
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+        rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (!searchActivated) {
+        [tableview setNeedsDisplay];
+    }
+}
+
 
 -(void)setBackgroundColor_:(id)arg
 {
@@ -1989,6 +2048,13 @@
 	}
 }
 
+-(void)setContentOffset_:(id)args withObject:(id)obj
+{
+    CGPoint offset = [TiUtils pointValue:args];
+    BOOL animated = [TiUtils boolValue: [obj objectForKey:@"animated"] def:NO];
+    [tableview setContentOffset:offset animated:animated];
+}
+
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
@@ -2074,7 +2140,11 @@ return result;	\
     if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
-	
+    
+    if (rowSeparatorInsets.left != 0 || rowSeparatorInsets.right != 0) {
+        [cell setSeparatorInset:rowSeparatorInsets];
+    }
+    
 	return cell;
 }
 
@@ -2266,6 +2336,11 @@ return result;	\
 	{
 		// get the section for the row index
 		int index = [[sectionIndexMap objectForKey:title] intValue];
+
+        if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
+            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys:title, @"title", NUMINT(index), @"index", nil];
+            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+        }
 		return [self sectionIndexForIndex:index];
 	}
 	return 0;
@@ -2366,9 +2441,12 @@ return result;	\
 	return result;
 }
 
-- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
     TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-    [row.section reorderRows];
+    if (row) {
+        [row.section reorderRows];
+    }
 }
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -2397,9 +2475,6 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
-	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
-		rowWidth -= GROUPED_MARGIN_WIDTH;
-	}
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -2462,6 +2537,7 @@ return result;	\
 	CGFloat size = 0.0;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2475,6 +2551,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
     /*
      * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
@@ -2488,7 +2565,7 @@ return result;	\
      */
 	else if ([sectionProxy headerTitle]!=nil)
 	{
-        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
             return size;
         }
 		size+=[tableview sectionHeaderHeight];
@@ -2511,6 +2588,7 @@ return result;	\
 	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
@@ -2524,6 +2602,7 @@ return result;	\
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 				break;
 		}
+#endif
 	}
 	else if ([sectionProxy footerTitle]!=nil)
 	{
@@ -2539,18 +2618,14 @@ return result;	\
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-	ENSURE_CONSISTENCY(lastSectionIndex>=0);
-	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+	CGRect minimumContentRect = [tableview bounds];
 	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([tableview isScrollEnabled]) {
-        NSInteger lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-        ENSURE_CONSISTENCY(lastSectionIndex>=0);
-        CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+        CGRect minimumContentRect = [tableview bounds];
         
         CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
         CGPoint offsetPoint = [tableview contentOffset];
@@ -2667,6 +2742,9 @@ return result;	\
     [searchField ensureSearchBarHeirarchy];
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
+    // Since we clear the searchbar, the search string and indexes can be cleared as well.
+    [self setSearchString:nil];
+    RELEASE_TO_NIL(searchResultIndexes);
 }
 @end
 

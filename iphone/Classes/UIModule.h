@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,10 @@
 // in their code instead of the full API, we need to create
 // an explicit compile time dependency to UI
 #import "TiUIAlertDialogProxy.h"
+
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
 
 @interface UIModule : TiModule {
 
@@ -25,8 +29,8 @@
 #ifdef USE_TI_UIIOS
 	TiProxy *ios;
 #endif
-#ifdef USE_TI_UICLIPBOARD	
-	TiProxy *clipboard;
+#ifdef USE_TI_UICLIPBOARD
+    TiProxy *clipboard;
 #endif
 }
 
@@ -40,6 +44,10 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_LEFT;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
+
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_START;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_END;
 
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_TOP;
 @property(nonatomic,readonly) NSNumber *TEXT_VERTICAL_ALIGNMENT_CENTER;
@@ -56,6 +64,7 @@
 @property(nonatomic,readonly) NSNumber *RETURNKEY_YAHOO;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_DONE;
 @property(nonatomic,readonly) NSNumber *RETURNKEY_EMERGENCY_CALL;
+@property(nonatomic,readonly) NSNumber *RETURNKEY_CONTINUE;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_ASCII;
@@ -66,6 +75,8 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_WEBSEARCH;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_TWITTER;
 
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_DEFAULT;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_APPEARANCE_ALERT;
@@ -214,6 +225,66 @@
 
 #ifdef USE_TI_UICLIPBOARD
 @property(nonatomic,readonly)			TiProxy* Clipboard;
+#endif
+
+#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_BACKGROUND_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LIGATURE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_KERN;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STRIKETHROUGH_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINES_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STROKE_WIDTH;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_SHADOW;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_VERTICAL_GLYPH_FORM;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_TEXT_EFFECT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_ATTACHMENT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINK;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_BASELINE_OFFSET;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_STRIKETHROUGH_COLOR;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_OBLIQUENESS;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_EXPANSION;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_SINGLE;
+// iOS 7 ----
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_THICK;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_STYLE_DOUBLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_SOLID;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_UNDERLINE_BY_WORD;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_EMBEDDING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_OVERRIDE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_NATURAL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_CLIPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
+
+@property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+
+
+#endif
+
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
+
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+@property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
 #endif
 
 @end

@@ -35,6 +35,10 @@ description: |
     Add key-value pairs of view properties and their values to the `properties` dictionary of the
     item template to set view properties of the list item.
 
+    **Note:** If possible, do not use `Ti.UI.SIZE` or non-static dimensions to set the
+    dimensions of view elements in list items.  Instead, try to use static dimensions. Scrolling in
+    the list view may be jerky if you use non-static dimensions.
+
     Add key-value pairs of event names and their callback functions (or array of callback functions
     for multiple callback bindings) to the `events` dictionary of the  item template to bind callbacks
     to events, which are bubbled from the subcomponents of the item.
@@ -173,6 +177,16 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: canInsert
+    summary: Specifies if the item can be inserted by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: canMove
     summary: Specifies if the item can be reordered within the list view by a user initiated action.
     description: |
@@ -182,6 +196,15 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
     accessors: false
+
+  - name: editActions
+    summary: Specifies custom action items to be shown when when a list item is edited.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Array<RowActionType>
+    since: 4.1.0
+    osver: {ios: {min: "8.0"}}
+    platforms: [iphone, ipad]
 
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
@@ -215,6 +238,7 @@ properties:
     summary: Row height in platform-specific units.
     description: |
         On Android, the value can be either a float value or a dimension string, for example, '40dp'.
+        By default, the minimum height is 30 dp on the Android platform.
 
         On iOS, the value can only be an absolute value.
     type: [Number,String]
@@ -383,11 +407,10 @@ examples:
                 events: {click: toggleCheck }
             };
 
-            /*
-               The following JSON API calls copy the plainTemplate object minus functions.
-               This method of copying an object is simple but not quick.
-               If performance is a factor, create your own method to copy an object.
-            */
+            // The following JSON API calls copy the plainTemplate object minus functions.
+            // This method of copying an object is simple but not quick.
+            // If performance is a factor, create your own method to copy an object.
+
             var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
             redTemplate.childTemplates[1].properties.color = 'red';
@@ -559,5 +582,40 @@ properties:
     description: |
         If there are properties set in the <ItemTemplate> (not the children view templates),
         the values set in the list data item override the template's properties.
+
+
+---
+name: RowActionType
+summary: Represents the custom edit action for a ListItem.
+description: |
+    By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
+    This object lets developers define custom titles for editing actions supported on the row. 
+    This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
+    [rowAction](Titanium.UI.ListView.rowAction) event. 
+platforms: [ipad, iphone]
+since: '4.1.0' 
+osver: {ios: {min: "8.0"}}
+properties:
+  - name: title
+    type: String
+    summary: The title of the row action.
+    optional: false
+
+  - name: style
+    type: Number
+    summary: The style of the row action.
+    description: |
+        Use one of <Titanium.UI.iOS.ROW_ACTION_STYLE_DEFAULT>, <Titanium.UI.iOS.ROW_ACTION_STYLE_DESTRUCTIVE> or
+        <Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL> 
+    optional: false
+
+  - name: color
+    type: String
+    summary: The background color of the row action.
+    description: |
+        By default the background color of the row action is defined by the style applied. Use this property to 
+        override the default background color of the row action.
+    optional: true
+
 
 

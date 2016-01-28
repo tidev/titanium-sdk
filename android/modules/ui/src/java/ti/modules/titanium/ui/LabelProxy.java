@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -18,6 +19,7 @@ import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_AUTO_LINK,
+	TiC.PROPERTY_ATTRIBUTED_STRING,
 	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_ELLIPSIZE,
 	TiC.PROPERTY_FONT,
@@ -31,10 +33,15 @@ import android.app.Activity;
 	TiC.PROPERTY_SHADOW_OFFSET,
 	TiC.PROPERTY_SHADOW_COLOR,
 	TiC.PROPERTY_SHADOW_RADIUS,
-	TiC.PROPERTY_INCLUDE_FONT_PADDING
+	TiC.PROPERTY_INCLUDE_FONT_PADDING,
+	TiC.PROPERTY_LINES,
+	TiC.PROPERTY_MAX_LINES
 })
 public class LabelProxy extends TiViewProxy
 {
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+		
 	public LabelProxy()
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
@@ -58,7 +65,7 @@ public class LabelProxy extends TiViewProxy
 	{
 		return new TiUILabel(this);
 	}
-
+	
 	@Override
 	public String getApiName()
 	{

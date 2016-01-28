@@ -19,6 +19,7 @@ android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "suppor
 sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
+from string import Template
 
 all_annotated_apis = None
 apis = None
@@ -332,6 +333,49 @@ def get_summary_and_description(api_obj):
 		res = u"\t * " + desc
 	return res
 
+def get_edit_url(filepath):
+	res = ""
+	basePath = ""
+	isTiDoc = 0
+	isAppCModuleDoc = 0
+	isTizenDoc = 0
+	isTiModuleDoc = 0
+	url =''
+
+	# Some module are in private repos and can't be edited.
+	module_black_list = ['ti.geofence', 'appcelerator.https']
+
+	# Identify object type by path. These should always be mutually exclusive.
+	isTiDoc = filepath.find('titanium_mobile/')
+	isTiModuleDoc = filepath.find('titanium_modules/')
+	isAppCModuleDoc = filepath.find('appc_modules/')
+	isTizenDoc = filepath.find('titanium_mobile_tizen/')
+
+	if isTiDoc != -1:
+		basePath = "https://github.com/appcelerator/titanium_mobile/edit/master/"
+		index = filepath.find('apidoc/')
+		path = filepath[index:]
+		url += basePath + path
+		res = "\t * @editurl " + url + "\n"
+	elif isAppCModuleDoc != -1 or isTiModuleDoc !=-1:
+		s = Template('https://github.com/appcelerator-modules/$module/edit/master/$path')
+		index = filepath.find('apidoc/')	
+		modulepath = filepath[index:]
+		match = re.search('titanium_modules|appc_modules\/(.+)\/apidoc', filepath)
+		if match:
+			modulename = match.group(1)
+			if modulename not in module_black_list:
+				url = s.substitute(module=modulename, path=modulepath)
+				res = "\t * @editurl " + url + "\n"
+	elif isTizenDoc != -1:
+		basePath = "https://github.com/appcelerator/titanium_mobile_tizen/edit/master/modules/tizen/"
+		index = filepath.find('apidoc/')
+		path = filepath[index:]
+		url += basePath + path
+		res = "\t * @editurl " + url + "\n"
+
+	return res
+
 # Side effect of hiding properties is that the accessors do not get hidden
 # Explicitly hide accessors for JSDuck
 def hide_accessors(parent_name, property_name):
@@ -441,6 +485,7 @@ def generate(raw_apis, annotated_apis, options):
 			if annotated_obj.is_pseudotype and not is_special_toplevel_type(annotated_obj.api_obj):
 				write_utf8(output, "\t * @pseudo\n")
 			write_utf8(output, output_properties_for_obj(annotated_obj))
+			write_utf8(output, get_edit_url(raw_apis[name]['filepath']))
 			write_utf8(output, get_summary_and_description(annotated_obj.api_obj))
 			write_utf8(output, output_examples_for_obj(annotated_obj.api_obj))
 			write_utf8(output, output_deprecation_for_obj(annotated_obj))

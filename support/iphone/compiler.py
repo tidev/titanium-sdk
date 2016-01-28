@@ -217,6 +217,7 @@ class Compiler(object):
 
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.assets_dir = os.path.join(self.iphone_dir,'assets')
+
 		self.modules = []
 		self.modules_metadata = []
 		self.exports = []
@@ -428,7 +429,12 @@ class Compiler(object):
 			softlink_for_simulator(self.project_dir,app_dir)
 
 	def compile_module(self):
-		root_asset = self.compile_commonjs_file(self.appid+'.js', os.path.join(self.assets_dir, self.appid+'.js'))
+		module_properties = read_module_properties(self.project_dir)
+		appid_js_file = os.path.join(self.assets_dir, self.appid+'.js')
+		if not os.path.exists(appid_js_file):
+			appid_js_file = os.path.join(self.project_dir, '..', 'assets', self.appid+'.js')
+
+		root_asset = self.compile_commonjs_file(self.appid+'.js', appid_js_file)
 
 		js_files = []
 		for root, dirs, files in os.walk(self.assets_dir, True, None, True):
@@ -442,7 +448,7 @@ class Compiler(object):
 		cmdinputfile = tempfile.TemporaryFile()
 		cmdinputfile.write('\n'.join(js_files))
 		cmdinputfile.seek(0)
-		module_assets = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
+		module_assets = subprocess.Popen([titanium_prep, self.appid, self.assets_dir, module_properties['guid']], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
 		cmdinputfile.close()
 
 		# Clean up the generated assets
@@ -503,7 +509,7 @@ class Compiler(object):
 			break
 
 		return sorted(set(tokens))
-		
+
 	def compile_js(self,file_contents):
 		for line in file_contents.split(';'):
 			for symbol in ('Titanium','Ti'):
@@ -750,5 +756,3 @@ if __name__ == "__main__":
 	name = ti.properties['name']
 	c = Compiler(project_dir,appid,name,deploytype)
 	c.compileProject(xcode,devicefamily,ios,sdk=sdk)
-
-

@@ -1,12 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import <Foundation/Foundation.h>
-#import "JavaScriptCore/TiCore.h"
-#import "TiBase.h"
+#import "TiToJS.h"
 
 @class KrollContext, KrollCallback, TiProxy;
 extern TiClassRef KrollObjectClassRef;
@@ -78,6 +77,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(void)noteCallback:(KrollCallback *)eventCallback forKey:(NSString *)key;
 -(void)forgetCallbackForKey:(NSString *)key;
 -(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
+-(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject onDone:(void(^)(id result))block;
 
 -(TiObjectRef)callbacksForEvent:(TiStringRef)jsEventTypeString;
 -(void)storeListener:(id)eventCallbackOrWrapper forEvent:(NSString *)eventName;

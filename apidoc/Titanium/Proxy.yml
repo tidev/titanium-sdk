@@ -2,7 +2,7 @@
 name: Titanium.Proxy
 summary: The base for all Titanium objects.
 description: |
-    On platforms that use native code (Android, iOS, and BlackBerry), the `Proxy` type represents a
+    On platforms that use native code (Android and iOS), the `Proxy` type represents a
     JavaScript wrapper or _proxy_ around a native object. Setting or getting a property
     on a proxy object results in a method invokation on the native object. Likewise,
     calling a method on the proxy object results in a method invokation on the native
@@ -70,7 +70,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: {android: "3.0.0", blackberry: "3.3.0", iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
 
 properties:
 
@@ -94,7 +94,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, blackberry, iphone, ipad, mobileweb, tizen]
+    platforms: [android,  iphone, ipad, mobileweb]
     since: "3.2.0"
 
   - name: lifecycleContainer
@@ -105,4 +105,4 @@ properties:
       to the appropriate containing Window or TabGroup.
     type: [Titanium.UI.Window, Titanium.UI.TabGroup]
     platforms: [android]
-    since: "3.5.0"
+    since: "3.6.0"

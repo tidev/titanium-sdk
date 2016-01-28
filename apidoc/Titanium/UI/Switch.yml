@@ -5,25 +5,26 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/switch/switch_android.png" height="75" /></td>
-        <td><img src="images/switch/switch_bb.png" height="75" /></td>
         <td><img src="images/switch/switch_ios.png" height="75" /></td>
         <td><img src="images/switch/switch_mobileweb.png" height="75" /></td>
+        <td><img src="images/switch/switch_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
     
     The appearance of a `Switch` control varies by platform: 
 
-    * On Android, a Switch object can be styled either as a checkbox or 
-    toggle button (see [Titanium.UI.Switch.style](Titanium.UI.Switch.style)). The checkbox style
-    can optionally display a label next to the control.
+    * On Android, a Switch object can be styled either as a switch, checkbox or
+    toggle button based on the <Titanium.UI.Switch.style> property. The checkbox style can
+    optionally display a label next to the control.
     
     * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
     
-    * On Mobile Web and Tizen, a switch always has text associated with it, and appears as a toggle button, 
+    * On Mobile Web, a switch always has text associated with it, and appears as a toggle button,
     similar to Android.
     
     Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
+
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -38,20 +39,28 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
 properties:
+  - name: animated
+    summary: Determines if there is animation when the switch value changes.
+    description: Set to `true` if animation is desired or `false` for no animation. 
+    type: Boolean
+    default: undefined (equivalent to true)
+    platforms: [iphone, ipad]
+    since: 5.1.1
+
   - name: color
     summary: Color to use for switch text, as a color name or hex triplet.
     description: For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: black
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: enabled
     summary: Determines whether the switch is enabled.
@@ -66,14 +75,17 @@ properties:
   - name: font
     summary: Font to use for the switch text.
     type: Font
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: style
-    summary: Style of the switch. Enables either the toggle button (default) or checkbox.
+    summary: Style of the switch.
+    description: |
+        Prior to Release 4.0, you can only specify either a toggle button or checkbox.
     type: Number
     constants: Titanium.UI.Android.SWITCH_STYLE_*
     platforms: [android]
-    default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
+    default: |
+        Titanium.UI.Android.SWITCH_STYLE_SWITCH; prior to Release 4.0, Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
     
   - name: textAlign
     summary: |
@@ -84,15 +96,14 @@ properties:
         [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the 
         [title](Titanium.UI.Switch.title) contents. 
         
-        On Mobile Web and Tizen this property is always supported, as the `style` property is not supported. 
+        On Mobile Web this property is always supported, as the `style` property is not supported.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (Mobile Web)
-        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (Tizen)
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: title
     summary: Text to display next to the switch, when the checkbox style is in use.
@@ -103,7 +114,7 @@ properties:
         Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the 
         switch.
     type: String
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: titleOff
     summary: Text to display on the switch in its "off" state, when the toggle button style is in use.
@@ -114,7 +125,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: Off
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: titleOn
     summary: Text to display on the switch in its "on" state, when the toggle button style is in use.
@@ -125,7 +136,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: On
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: tintColor
     summary: The color used to tint the outline of the switch when it is turned off.
@@ -162,14 +173,14 @@ properties:
         On iOS, be aware that this property must be set when the switch is rendered, otherwise it 
         will not be visible. This is a known issue. 
     type: Boolean
-    default: undefined (visual state off, Android), false (Mobile Web and Tizen)
+    default: undefined (visual state off, Android), false (Mobile Web)
     
   - name: verticalAlign
     summary: Vertical alignment for the text field.
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
 events:
   - name: change
@@ -212,6 +223,7 @@ examples:
             });
             
             var basicSwitch = Ti.UI.createSwitch({
+              style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
               titleOn:'Notifications Enabled',
               titleOff:'Notifications Disabled',
               value:true,

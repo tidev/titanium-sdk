@@ -30,8 +30,6 @@ description: |
     not support this action. Parity between the two platforms cannot be achieved with this feature.
 extends: Titanium.UI.View
 since: "0.9"
-excludes:
-    properties: [ enabled ]
 
 methods:
   - name: scrollTo
@@ -44,11 +42,11 @@ methods:
       - name: y
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: contentOffset
         summary: |
@@ -59,7 +57,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
         optional: true
-    exclude-platforms: [blackberry]
+
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
@@ -73,7 +71,7 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: zoomScaleOption
         optional: true
-    exclude-platforms: [blackberry]
+
         
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -100,10 +98,17 @@ events:
   - name: scroll
     summary: Fired when the scrollable region is scrolled.
     properties:
+
+      - name: contentSize
+        summary: |
+            The current content size of the scroll view defined by its `width` and `height` properties.
+        type: Dictionary
+        platforms: [iphone, ipad]
+
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: dragging
         summary: |
@@ -111,7 +116,7 @@ events:
             remained in contact with the display to physically drag the view, as opposed to it being 
             the result of scrolling momentum.
         type: Boolean
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: zooming
         summary: |
@@ -140,7 +145,7 @@ events:
     summary: Fired when the view has stopped moving completely.
     description: |
         This event has been deprecated and renamed scrollend (lower case).
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: "2.1.0"
 
   - name: dragStart
@@ -150,7 +155,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
    
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -159,7 +164,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
@@ -169,7 +174,7 @@ events:
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: "3.0.0"
 
   - name: dragstart
@@ -177,7 +182,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     since: "3.0.0"
    
   - name: dragend
@@ -185,7 +190,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
@@ -221,7 +226,7 @@ properties:
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset. 
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
-    exclude-platforms: [blackberry]
+
         
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -246,7 +251,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -261,7 +266,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -328,7 +333,7 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0", mobileweb: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
@@ -336,14 +341,14 @@ properties:
     description: Set to `true` to show the horizontal scroll indicator.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
     
   - name: showVerticalScrollIndicator
     summary: Determines whether the vertical scroll indicator is visible.
     description: Set to `true` to show the vertical scroll indicator.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
     
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
@@ -358,7 +363,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: zoomScale
     summary: Scaling factor of the scroll view's content.

@@ -1,7 +1,0 @@
-{
- "functions": [
-  "scheduleNotification", 
-  "didReceiveLocalNotification"
- ], 
- "properties": []
-}

@@ -28,10 +28,12 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -188,6 +190,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	private PersonProxy[] getPeople(int limit, String additionalCondition, String[] additionalSelectionArgs)
 	{
+		if (!hasContactsPermissions()) {
+			Log.e(TAG, "Contacts permissions missing");
+			return null;
+		}
+		
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
 			return null;
@@ -287,6 +294,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return Im.PROTOCOL_SKYPE;
 		} else if (serviceName.equals("Yahoo")) {
 			return Im.PROTOCOL_YAHOO;
+		} else if (serviceName.equals("Jabber")) {
+			return Im.PROTOCOL_JABBER;
 		} else {
 			return -2;
 		}
@@ -533,8 +542,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@SuppressWarnings("rawtypes")
 	protected PersonProxy addContact(KrollDict options) 
 	{
-
-		if (options == null) {
+		
+		if (options == null || !hasContactsPermissions()) {
 			return null;
 		}
 		
@@ -697,6 +706,10 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	protected void removePerson(PersonProxy person) 
 	{
+		if (!hasContactsPermissions()) {
+			return;
+		}
+
 		if (!(person instanceof PersonProxy)) {
 			Log.e(TAG, "Invalid argument type. Expected [PersonProxy], but was: " + person);
 			return;
@@ -720,13 +733,10 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected PersonProxy getPersonById(long id)
 	{
-		/*
-		TiContext tiContext = weakContext.get();
-		if (tiContext == null) {
-			Log.d(LCAT , "Could not getPersonById, context is GC'd");
-			return null;
+
+		if (!hasContactsPermissions()) {
+			return null; 
 		}
-		 */
 
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Failed to call getPersonById(), application is null", Log.DEBUG_MODE);
@@ -785,13 +795,10 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected Bitmap getInternalContactImage(long id)
 	{
-		/*
-		TiContext tiContext = weakContext.get();
-		if (tiContext == null) {
-			Log.d(LCAT , "Could not getContactImage, context is GC'd");
-			return null;
+
+		if (!hasContactsPermissions()) {
+			return null; 
 		}
-		 */
 
 		if (TiApplication.getInstance() == null) {
 			Log.e(TAG, "Failed to call getInternalContactImage(), application is null", Log.DEBUG_MODE);
@@ -1031,8 +1038,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	@Override
 	protected void save(Object people) {
-		
-		if (!(people instanceof Object[])) {
+
+		if (!(people instanceof Object[]) || !hasContactsPermissions()) {
 			return;
 		}
 		

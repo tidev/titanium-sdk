@@ -110,10 +110,17 @@
         TiThreadPerformOnMainThread(^{[self close:nil];}, YES);
     }
     
+#ifdef TI_USE_KROLL_THREAD
 	TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
 	TiThreadReleaseOnMainThread(barImageView, NO);
 	barImageView = nil;
-	if (context!=nil)
+#else
+    TiThreadPerformOnMainThread(^{
+        [barImageView removeFromSuperview];
+        RELEASE_TO_NIL(barImageView);
+    }, YES);
+#endif
+    if (context!=nil)
 	{
 		[context shutdown:nil];
 		RELEASE_TO_NIL(context);
@@ -200,7 +207,8 @@
 	
 	if (url!=nil)
 	{
-		// Window based JS can only be loaded from local filesystem within app resources
+        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
+        // Window based JS can only be loaded from local filesystem within app resources
 		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
 		{
 			// since this function is recursive, only do this if we haven't already created the context
@@ -313,40 +321,10 @@
 
 #pragma mark - UINavController, NavItem UI
 
-
--(void)showNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(showNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:NO animated:animated];
-	}
-}
-
--(void)hideNavBar:(NSArray*)args
-{
-	ENSURE_UI_THREAD(hideNavBar,args);
-	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"navBarHidden" notification:NO];
-	if (controller!=nil)
-	{
-		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
-		//TODO: need to fix height
-	}
-}
-
 -(void)setNavTintColor:(id)colorString
 {
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
-    
     TiThreadPerformOnMainThread(^{
         if(controller != nil) {
             TiColor * newColor = [TiUtils colorValue:color];
@@ -380,11 +358,7 @@
 
         UINavigationBar * navBar = [[controller navigationController] navigationBar];
         [navBar setBarStyle:navBarStyle];
-        if([TiUtils isIOS7OrGreater]) {
-            [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-        } else {
-            [navBar setTintColor:barColor];
-        }
+        [navBar setBarTintColor:barColor];
         [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
 }
@@ -442,13 +416,7 @@
     
     UINavigationBar* ourNB = [[controller navigationController] navigationBar];
     UIImage* theImage = nil;
-    if ([TiUtils isIOS7OrGreater]) {
-        //TIMOB-16490
-        theImage = [TiUtils toImage:barImageValue proxy:self];
-    } else {
-        //TIMOB-16338
-        theImage = [TiUtils toImage:barImageValue proxy:self size:[ourNB bounds].size];
-    }
+    theImage = [TiUtils toImage:barImageValue proxy:self];
     
     if (theImage == nil) {
         [ourNB setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -508,8 +476,7 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-        BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
-		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:def];
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value def:YES];
 	}
 }
 
@@ -577,9 +544,15 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
+            [self forgetProxy:curProxy];
         }
     }
-    
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
+	
     [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
@@ -641,9 +614,14 @@
     for (TiViewProxy* curProxy in curValues) {
         if (![(NSArray*)arg containsObject:curProxy]) {
             [curProxy removeBarButtonView];
+            [self forgetProxy:curProxy];
         }
     }
-
+    for(TiViewProxy* proxy in arg) {
+        if([proxy isKindOfClass:[TiViewProxy class]]) {
+            [self rememberProxy:proxy];
+        }
+    }
     [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
     TiThreadPerformOnMainThread(^{
@@ -788,8 +766,9 @@
             //relayout titleControl
             CGRect barBounds;
             barBounds.origin = CGPointZero;
+#ifndef TI_USE_AUTOLAYOUT
             barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
-            
+#endif
             [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
             [oldView setAutoresizingMask:UIViewAutoresizingNone];
             
@@ -855,7 +834,7 @@
         if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
             controller.navigationItem.title = title;
         }
-    }, NO);
+    }, [NSThread isMainThread]);
 }
 
 -(void)setTitlePrompt:(NSString*)title_
@@ -923,20 +902,17 @@
 				}
 			}
 			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
-			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:[TiUtils isIOS7OrGreater]];
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
 			TiColor* toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
 			UIColor* barColor = [TiUtils barColorForColor:toolbarColor];
 			[controller setToolbarItems:array animated:animated];
 			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
-			if ([TiUtils isIOS7OrGreater]) {
-				UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
-				[ourNC.toolbar performSelector:@selector(setBarTintColor:) withObject:barColor];
-				[ourNC.toolbar setTintColor:tintColor];
-			} else {
-				[ourNC.toolbar setTintColor:barColor];
-			}
+			UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
+			[ourNC.toolbar setBarTintColor:barColor];
+			[ourNC.toolbar setTintColor:tintColor];
+			
 			[array release];
 			
 		}
@@ -998,17 +974,6 @@ else{\
     [self updateBarImage];
     [self updateNavButtons];
     [self refreshBackButton];
-
-    id navBarHidden = [self valueForKey:@"navBarHidden"];
-    if (navBarHidden!=nil) {
-        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
-        if ([TiUtils boolValue:navBarHidden]) {
-            [self hideNavBar:properties];
-        }
-        else {
-            [self showNavBar:properties];
-        }
-    }
 }
 
 -(void)cleanupWindowDecorations

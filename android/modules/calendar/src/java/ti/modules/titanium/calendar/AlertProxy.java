@@ -61,6 +61,9 @@ public class AlertProxy extends KrollProxy
 	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
 	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return alerts;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()), new String[] { "_id", "event_id", "begin", "end",
@@ -102,6 +105,9 @@ public class AlertProxy extends KrollProxy
 
 	public static AlertProxy createAlert(EventProxy event, int minutes)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
 
@@ -139,26 +145,6 @@ public class AlertProxy extends KrollProxy
 	}
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
-
-	protected void registerAlertIntent(TiContext context)
-	{
-		// Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
-		// Intent intent = new Intent(EVENT_REMINDER_ACTION);
-		Intent intent = new Intent(context.getActivity(), AlarmReceiver.class);
-		// intent.setAction("" + Math.random());
-		// intent.setData(uri);
-		// intent.putExtra("beginTime", begin.getTime());
-		// intent.putExtra("endTime", end.getTime());
-		PendingIntent sender = PendingIntent.getBroadcast(context.getActivity(), 0, intent,
-			PendingIntent.FLAG_CANCEL_CURRENT);
-		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
-		// PendingIntent.FLAG_CANCEL_CURRENT);
-
-		AlarmManager manager = (AlarmManager) getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
-
-		// manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
-		manager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), sender);
-	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getId()

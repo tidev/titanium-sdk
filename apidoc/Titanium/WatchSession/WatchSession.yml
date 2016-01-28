@@ -1,0 +1,448 @@
+---
+name: Titanium.WatchSession
+summary: Used to enable data and file transfers between a watchOS and iOS application.
+description: |
+    WatchSession enables data and file transfers between a WatchKit application and a Titanium application
+    using the iOS Watch Connectivity framework introduced in iOS 9 and watchOS 2.
+extends: Titanium.Module
+platforms: [iphone]
+since: "5.0.0"
+properties:
+  - name: isSupported
+    summary: Returns `true` if the device supports watch connectivity.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+  - name: isPaired
+    summary: Returns `true` if the device is paired with a watch.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+  - name: isWatchAppInstalled
+    summary: Returns `true` if the accompanying watch app is installed.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+  - name: isComplicationEnabled
+    summary: Returns `true` if complication is enabled on the installed watch app.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+  - name: isReachable
+    summary: Returns `true` if the watch is currently reachable.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+  - name: recentApplicationContext
+    summary: The most recent application context sent to the watch app.
+    type: Dictionary
+    permission: read-only
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+methods:
+  - name: activateSession
+    summary: |
+        Activates the watch session
+    description: |
+        Activates the watch session to make the app ready to receive messages from the watch app.
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: sendMessage
+    summary: |
+        Sends a message to the apple watch.
+    description: |
+        Sends a message to the installed watchapp on the apple watch in the foreground. 
+    parameters: 
+      - name: message
+        summary: Message to send to apple watch.
+        type: Dictionary
+      - name: reply
+        summary: |
+            Function to be called upon receiving a reply from the watch app.
+
+            **Since Release 5.1.0**
+
+            This function is used to process the direct reply from the watch app after sending one.
+        type: Callback<MessageReply>
+        optional: true
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+
+  - name: updateApplicationContext
+    summary: |
+        Sends an app context update to the apple watch.
+    description: |
+        Sends an app context update to the apple watch. If watchapp is in background during transfer,
+        watchapp's delegate will receive the app context immediately when it becomes active. Only one app
+        context is stored at any one time. Subsequent updates will simply replace the earlier one sent.
+    parameters: 
+      - name: params    
+        summary: App context to be updated in apple watch.
+        type: Dictionary
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: transferUserInfo
+    summary: |
+        Transfers an user info to the apple watch.
+    description: |
+        Transfers an user info object to the installed watchapp on the apple watch in the background.
+        Subsequent transfers are queued. 
+    parameters:
+      - name: params
+        summary: userInfo to be transferred to apple watch.
+        type: Dictionary
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: transferFile
+    summary: |
+        Transfers a file to the apple watch.
+    description: |
+        Transfers a file to the installed watchapp on the apple watch in the background. Subsequent
+        transfers are queued. 
+    parameters: 
+      - name: params
+        type: Dictionary
+        summary: |
+            Pass an object with the following key-value pairs:
+
+              * `fileURL` (String) (required): Local filesystem path of file to send to the watch app.
+              * `metaData` (Dictionary) (optional): Additional information about the file to send to the watch app.
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: transferCurrentComplication
+    summary: |
+        Transfers complication data to the watch application.
+    description: |
+        Transfers complication data to the installed watch app. This is only for
+        watch apps with complications enabled.
+    parameters: 
+      - name: params
+        summary: Complication to be transferred to watch app.
+        type: Dictionary
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: cancelAllUserInfoTransfers
+    summary: |
+        Cancels all incomplete user info and complication transfers to the apple watch.
+    description: |
+        Cancels all incomplete user info and complication transfers to the apple watch.
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: cancelAllFileTransfers
+    summary: |
+        Cancels all incomplete file transfers to the apple watch.
+    description: |
+        Cancels all incomplete file transfers to the apple watch.
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+  - name: cancelAllTransfers
+    summary: |
+        Cancels all incomplete transfers to the apple watch.
+    description: |
+        Cancels all incomplete transfers to the apple watch, including user info, complication and file.
+    platforms: [iphone]
+    osver: {ios: {min: "9.0"}}
+events:
+  - name: receivemessage
+    summary: |
+        App received message from apple watch in foreground.
+    properties:
+      - name: message
+        summary: message content
+        type: Dictionary
+        platforms: [iphone]
+  - name: receiveapplicationcontext
+    summary: |
+        App received app context from apple watch.
+    properties:
+      - name: applicationContext
+        summary: application Context
+        type: Dictionary
+        platforms: [iphone]
+  - name: receiveuserinfo
+    summary: |
+        App received user info from apple watch in background.
+    properties:
+      - name: userInfo
+        summary: user info content
+        type: Dictionary
+        platforms: [iphone]
+  - name: receivefile
+    summary: |
+        App received file from apple watch in background.
+    properties:
+      - name: data
+        summary: The downloaded data as a Titanium.Blob object.
+        type: Titanium.Blob
+        platforms: [iphone]
+      - name: metaData
+        summary: Information about the file.
+        type: Dictionary
+        platforms: [iphone]
+      - name: success
+        summary: If the transfer was successful.
+        type: Boolean
+        platforms: [iphone]
+      - name: errorCode
+        summary: Error code if transfer failed.
+        type: Number 
+        platforms: [iphone]
+      - name: message
+        summary: Error message if any.
+        type: String 
+        platforms: [iphone]
+  - name: watchstatechanged
+    summary: |
+        The watch state has changed.
+    properties:
+      - name: isPaired
+        summary: If the device is paired with the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isWatchAppInstalled
+        summary: If the watch app is installed in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isComplicationEnabled
+        summary: If the complication is enabled in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+  - name: reachabilitychanged
+    summary: |
+        The watch reachability state has changed.
+    properties:
+      - name: isReachable
+        summary: If apple watch is currently reachable.
+        type: Boolean
+        platforms: [iphone]
+  - name: finishuserinfotransfer
+    summary: |
+        Fired when the application completed user info transfer to the watch app.
+    properties:
+      - name: userInfo
+        summary: The downloaded data as a Titanium.Blob object.
+        type: Dictionary
+        platforms: [iphone]
+      - name: success
+        summary: If the transfer was successful.
+        type: Boolean
+        platforms: [iphone]
+      - name: errorCode
+        summary: Error code if transfer failed.
+        type: Number 
+        platforms: [iphone]
+      - name: message
+        summary: Error message if any.
+        type: String 
+        platforms: [iphone]
+  - name: finishfiletransfer
+    summary: |
+        App completed file transfer to watch app.
+    properties:
+      - name: fileURL
+        summary: URL of the file transferred.
+        type: String
+        platforms: [iphone]
+      - name: metaData
+        summary: meta data of the file transferred.
+        type: Dictionary
+        platforms: [iphone]
+      - name: success
+        summary: If the transfer was successful.
+        type: Boolean
+        platforms: [iphone]
+      - name: errorCode
+        summary: Error code if transfer failed.
+        type: Number 
+        platforms: [iphone]
+      - name: message
+        summary: Error message if any.
+        type: String 
+        platforms: [iphone]
+# Callbacks
+---
+name: MessageReply
+summary: Reply message received from watch app.
+properties:
+  - name: message 
+    summary: Reply message from watchapp.
+    description: Will be undefined if `success` is `false`.
+    type: Dictionary
+  - name: success
+    summary: Indicates if the operation succeeded.
+    description: Returns `true` if request succeeded, `false` otherwise.
+    type: Boolean
+  - name: error
+    summary: Error message, if any returned.
+    description: Will be undefined if `success` is `true`.
+    type: String
+  - name: code
+    summary: Error code. Returns 0 if `success` is `true`.
+    description: |
+        Error code will be 0 if `success` is `true`, nonzero otherwise. If the error
+        was generated by the operating system, that system's error value is used.
+        Otherwise, this value will be -1.
+    type: Number
+since: 5.1.0
+platforms: [iphone]
+osver: {ios: {min: "9.0"}}
+
+examples:
+  - title: Creating a Watch Session
+    example: |
+        The following example demonstrates how to create a new watch session, and call methods to transfer
+        data to the watch. Also include event listeners for receiving data from the watch.
+        
+        It is important to note that this only works if there is a corresponding watchOS2 app written
+        in Objective-C in the Xcode project inside the extensions folder of the Titanium Project.
+        
+        #### app.js
+        
+            Ti.WatchSession.activateSession();
+
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white'
+            });
+
+            var eventsArea = Ti.UI.createTextArea({
+              borderWidth: 2,
+              borderColor: '#bbb',
+              borderRadius: 5,
+              color: '#888',
+              font: {fontSize:16},
+              textAlign: 'left',
+              value: 'This is where we listen for events',
+              bottom: 10,
+              width: 300, height : 140
+            });
+
+            win.add(eventsArea);
+
+            var imageView = Ti.UI.createImageView ({
+                top: 240,
+                width: 80,
+                height: 80
+            });
+
+            win.add(imageView);
+
+            var statusBtn = Ti.UI.createButton({
+                title: 'status me',
+                top: 40
+            });
+
+            statusBtn.addEventListener('click', function(e) {
+                eventsArea.value += '\nbtn pressed '
+                + '\nwatchOS2 is supported: ' + Ti.WatchSession.isSupported
+                + '\nwatch is paired: ' + Ti.WatchSession.isPaired
+                + '\nwatchApp is installed: ' + Ti.WatchSession.isWatchAppInstalled
+                + '\nwatchComplication is enabled: ' + Ti.WatchSession.isComplicationEnabled
+                + '\nwatch is reachable: ' + Ti.WatchSession.isReachable
+                + '\nMost recent app context: ' + JSON.stringify(Ti.WatchSession.recentApplicationContext);
+            })
+            win.add(statusBtn);
+
+            var sendMsgBtn = Ti.UI.createButton({
+                title: 'send Message to watch',
+                top: 80
+            });
+
+            sendMsgBtn.addEventListener('click', function(e) {
+                Ti.WatchSession.sendMessage({
+                    message: 'Hi',
+                    from: 'app',
+                    type: 'message'
+                });
+            });
+
+            var sendUserInfoBtn = Ti.UI.createButton({
+                title: 'send User Info to watch',
+                top: 120
+            });
+
+            sendUserInfoBtn.addEventListener('click', function(e) {
+                Ti.WatchSession.transferUserInfo({
+                    data: 'user info from app',
+                    created: '2015'
+                });
+            });
+
+            var sendAppContextBtn = Ti.UI.createButton({
+                title: 'update app context to watch',
+                top: 160
+            });
+
+            sendAppContextBtn.addEventListener('click', function(e) {
+                Ti.WatchSession.updateApplicationContext({
+                    status: 'Application Context from app',
+                    updates: 2
+                });
+            });
+
+            var sendFileBtn = Ti.UI.createButton({
+                title: 'send File to watch',
+                top: 200
+            });
+
+            sendFileBtn.addEventListener('click', function(e) {
+                Ti.WatchSession.transferFile({
+                    fileURL: '/images/default_app_logo.png',
+                    metaData: {
+                        data: 'appcelerator logo'
+                    }
+                });
+            });
+
+            Ti.WatchSession.addEventListener('receivemessage', function(e) {
+                eventsArea.value += '\nreceivemessage '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('receiveuserinfo', function(e) {
+                eventsArea.value += '\nreceiveuserinfo '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('receivefile', function(e) {
+                eventsArea.value += '\nreceivefile ' + '\n' + JSON.stringify(e);
+                var cacheFile = e.data.getFile();
+                var downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
+                downloadedFile.write(e.data);
+                imageView.setImage(downloadedFile);
+            });
+
+            Ti.WatchSession.addEventListener('receiveapplicationcontext', function(e) {
+                eventsArea.value += '\nreceiveapplicationcontext '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('watchstatechanged', function(e) {
+                eventsArea.value += '\nwatchstatechanged '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('reachabilitychanged', function(e) {
+                eventsArea.value += '\nreachabilitychanged '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('finishfiletransfer', function(e) {
+                eventsArea.value += '\nfinishfiletransfer '
+                + '\n' + JSON.stringify(e);
+            });
+
+            Ti.WatchSession.addEventListener('finishuserinfotransfer', function(e) {
+                eventsArea.value += '\nfinishuserinfotransfer '
+                + '\n' + JSON.stringify(e);
+            });
+            win.add(sendMsgBtn);
+            win.add(sendUserInfoBtn);
+            win.add(sendFileBtn);
+            win.add(sendAppContextBtn);
+
+            win.open();

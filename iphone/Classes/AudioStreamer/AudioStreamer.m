@@ -69,6 +69,10 @@ static NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are l
 	[delegate playbackStateChanged:self];
 }
 
+-(void)errorReceived:(id)sender
+{
+	[delegate errorReceived:self];
+}
 //
 // stringForErrorCode:
 //

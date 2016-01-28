@@ -111,15 +111,21 @@
 	[super layoutSubviews];
 	if (_templateStyle == TiUIListItemTemplateStyleCustom) {
 		// prevent any crashes that could be caused by unsupported layouts
+#ifndef TI_USE_AUTOLAYOUT
 		_proxy.layoutProperties->layoutStyle = TiLayoutRuleAbsolute;
 		[_proxy layoutChildren:NO];
+#endif
 	}
+	
+    if (gradientLayer) {
+        [gradientLayer setFrame:[self bounds]];
+    }
 }
 
 //TIMOB-17373. Workaround for separators disappearing on iOS7 and above
 - (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView
 {
-    if (![TiUtils isIOS7OrGreater] || [self selectedOrHighlighted]) {
+    if ([self selectedOrHighlighted]) {
         return;
     }
     UITableView* attachedTableView = tableView;
@@ -162,9 +168,8 @@
 	{
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
-		[gradientLayer setFrame:[self bounds]];
+		// Gradient frame will be set when laying out subviews.
 	}
-    
 	[gradientLayer setGradient:currentGradient];
 
 	CALayer * ourLayer = [[[self contentView] layer] superlayer];
@@ -259,7 +264,7 @@
                 case UITableViewCellSelectionStyleGray:sbgColor = [Webcolor webColorNamed:@"#bbb"];break;
                 case UITableViewCellSelectionStyleNone:sbgColor = [UIColor clearColor];break;
                 case UITableViewCellSelectionStyleBlue:sbgColor = [Webcolor webColorNamed:@"#0272ed"];break;
-                default:sbgColor = [TiUtils isIOS7OrGreater] ? [Webcolor webColorNamed:@"#e0e0e0"] : [Webcolor webColorNamed:@"#0272ed"];break;
+                default:sbgColor = [Webcolor webColorNamed:@"#e0e0e0"];break;
             }
         }
         selectedBGView.fillColor = sbgColor;
@@ -341,37 +346,19 @@
         backgroundImage = [_initialValues objectForKey:@"backgroundImage"];
     }
     UIImage* bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
-    if (_grouped && ![TiUtils isIOS7OrGreater]) {
-        UIView* superView = [self backgroundView];
-        if (bgImage != nil) {
-            if (![_bgView isKindOfClass:[UIImageView class]]) {
-                [_bgView removeFromSuperview];
-                RELEASE_TO_NIL(_bgView);
-                _bgView = [[UIImageView alloc] initWithFrame:CGRectZero];
-                _bgView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-                [superView addSubview:_bgView];
-            }
-            [(UIImageView*)_bgView setImage:bgImage];
-            [_bgView setBackgroundColor:[UIColor clearColor]];
+    if (bgImage != nil) {
+        //Set the backgroundView to ImageView and set its backgroundColor to bgColor
+        if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
+            [(UIImageView*)self.backgroundView setImage:bgImage];
+            [(UIImageView*)self.backgroundView setBackgroundColor:[UIColor clearColor]];
         } else {
-            [_bgView removeFromSuperview];
-            RELEASE_TO_NIL(_bgView);
+            UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+            [view_ setImage:bgImage];
+            [view_ setBackgroundColor:[UIColor clearColor]];
+            self.backgroundView = view_;
         }
     } else {
-        if (bgImage != nil) {
-            //Set the backgroundView to ImageView and set its backgroundColor to bgColor
-            if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
-                [(UIImageView*)self.backgroundView setImage:bgImage];
-                [(UIImageView*)self.backgroundView setBackgroundColor:[UIColor clearColor]];
-            } else {
-                UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-                [view_ setImage:bgImage];
-                [view_ setBackgroundColor:[UIColor clearColor]];
-                self.backgroundView = view_;
-            }
-        } else {
-            self.backgroundView = nil;
-        }
+        self.backgroundView = nil;
     }
     
 }
@@ -440,7 +427,7 @@
 					}
 					[(NSDictionary *)dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
 						NSString *keyPath = [NSString stringWithFormat:@"%@.%@", bindId, key];
-						if ([self shouldUpdateValue:value forKeyPath:keyPath]) {
+						if ([self shouldUpdateValue:value forKeyPath:keyPath] || [self shouldUpdateValue:value forKey:key withProxy:bindObject withKeyPath:keyPath] ) {
 							[self recordChangeValue:value forKeyPath:keyPath withBlock:^{
 								[bindObject setValue:value forKey:key];
 							}];
@@ -521,6 +508,19 @@
 		[_currentValues removeObjectForKey:keyPath];
 	}
 	[_resetKeys removeObject:keyPath];
+}
+
+- (BOOL)shouldUpdateValue:(id)value forKey:(NSString *)key withProxy:(id)object withKeyPath:(NSString*)keyPath
+{
+    if ([object isKindOfClass:[TiProxy class]] && (key != nil)) {
+        id current = [object valueForKey:key];
+        BOOL sameValue = ((current == value) || [current isEqual:value]);
+        if (sameValue) {
+            [_resetKeys removeObject:keyPath];
+        }
+        return !sameValue;
+    }
+    return NO;
 }
 
 - (BOOL)shouldUpdateValue:(id)value forKeyPath:(NSString *)keyPath

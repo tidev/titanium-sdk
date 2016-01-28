@@ -1,11 +1,12 @@
 {
-	"min_api_level": "10",
+	"min_api_level": "13",
 	"dependencies":
 	{
 		"appcompat":[],
+		"cardview":[],
 		"accelerometer":[],
 		"analytics":[],
-		"android":[],
+		"android":["filesystem"],
 		"app":[],
 		"calendar":[],
 		"contacts":[],
@@ -18,18 +19,18 @@
 		"media":["filesystem"],
 		"network":["xml"],
 		"platform":[],
-		"ui":["filesystem","media","appcompat"],
+		"ui":["filesystem","media","appcompat","cardview"],
 		"utils":[],
 		"xml":[]
 	},
 	"required": ["analytics","android","app","ui","locale","network"],
-	"libraries": 
+	"libraries":
 	{
-		"android":["jaxen-1.1.1.jar","ti-commons-codec-1.3.jar","kroll-common.jar","titanium.jar"],
+		"android":["jaxen-1.1.1.jar","ti-commons-codec-1.3.jar","kroll-common.jar","titanium.jar","filesystem.jar"],
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["nineoldandroids-appc-2.4.0.jar"],
-		"network":["thirdparty.jar"],
 		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
+		"cardview":["cardview-v7-23.0.1.jar"],
 		"analytics":["aps-analytics.jar"]
 	},
 	"runtimes":
@@ -40,6 +41,7 @@
 	"modulepackage":
 	{
 		"appcompat":"android.support.v7.appcompat",
+		"cardview":"android.support.v7.cardview",
 		"ui":"ti.modules.titanium.ui"
 	}
 }

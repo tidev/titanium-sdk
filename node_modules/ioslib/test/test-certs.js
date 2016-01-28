@@ -93,23 +93,23 @@ describe('certs', function () {
 		});
 	});
 
-	it('watch for changes for 1 minute', function (done) {
-		this.timeout(100000);
-		this.slow(100000);
+	it('watch for changes for 10 seconds', function (done) {
+		this.timeout(50000);
+		this.slow(50000);
 
-		ioslib.certs.watch({ watchInterval: 10000 }, function (err, results) {
+		ioslib.certs.watch({ watchInterval: 1000 }, function (err, results) {
 			should(results).be.an.Object;
 		});
 
 		setTimeout(function () {
 			ioslib.certs.unwatch();
 			done();
-		}, 60000);
+		}, 10000);
 	});
 
 	it('stop watching for updates', function (done) {
-		this.timeout(80000);
-		this.slow(80000);
+		this.timeout(50000);
+		this.slow(50000);
 
 		var counter = 0,
 			unwatch = ioslib.certs.watch({ watchInterval: 4000 }, function (err, results) {

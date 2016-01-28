@@ -96,13 +96,17 @@ exports.init = function (logger, config, cli) {
 		return deviceCache = devices.concat(emulators);
 	}
 
-	// hook into the config and add the --device-id and --wp8-publisher-guid
+	// hook into the config and add the --device-id and --wp-publisher-guid
 	cli.on('build.mobileweb.config', function (data, callback) {
 		var conf = data.args[0];
 
 		// add 'wp8' and 'winstore' to the targets
 		windowslib.detect(windowslibOptions, function (err, wi) {
 			windowsInfo = wi;
+			if (err) {
+				callback(err);
+				return;
+			}
 
 			if (wi.visualstudio && Object.keys(wi.visualstudio).some(function (ver) { return wi.visualstudio[ver].supported; })) {
 				if (wi.windowsphone && Object.keys(wi.windowsphone).some(function (ver) { return wi.windowsphone[ver].supported; })) {
@@ -123,21 +127,21 @@ exports.init = function (logger, config, cli) {
 				};
 			};
 
-			// add the --wp8-publisher-guid option
-			conf.options['wp8-publisher-guid'] = {
-				default: config.get('wp8.publisherGuid'),
+			// add the --wp-publisher-guid option
+			conf.options['wp-publisher-guid'] = {
+				default: config.get('windows.phone.publisherGuid'),
 				desc: __('your publisher GUID, obtained from %s', 'http://appcelerator.com/windowsphone'.cyan),
 				hint: __('guid'),
 				order: 120,
 				prompt: function (callback) {
 					callback(fields.text({
-						promptLabel: __('What is your __Windows Phone 8 Publisher GUID__?'),
-						validate: conf.options['wp8-publisher-guid'].validate
+						promptLabel: __('What is your __Windows Phone Publisher GUID__?'),
+						validate: conf.options['wp-publisher-guid'].validate
 					}));
 				},
 				validate: function (value, callback) {
 					if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
-						return callback(new Error(__('Invalid "--wp8-publisher-guid" value "%s"', value)));
+						return callback(new Error(__('Invalid "--wp-publisher-guid" value "%s"', value)));
 					}
 					callback(null, value);
 				}
@@ -276,7 +280,7 @@ exports.init = function (logger, config, cli) {
 					assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_SDK_MISSING_DEPLOY_CMD', true);
 					assertIssue(windowsInfo.issues, 'WINDOWS_PHONE_ENUMERATE_DEVICES_FAILED', true);
 
-					conf.options['wp8-publisher-guid'].required = true;
+					conf.options['wp-publisher-guid'].required = true;
 					conf.options['device-id'].required = true;
 				}
 
@@ -537,7 +541,7 @@ exports.init = function (logger, config, cli) {
 							copyright: tiapp.copyright || ('Copyright © ' + new Date().getFullYear()),
 							ipAddressList: logRelay && logRelay.ipAddressList.join(',') || '',
 							logConnectionTimeout: config.get('windows.log.connectionTimeout', 2000),
-							publisherGUID: cli.argv['wp8-publisher-guid'],
+							publisherGUID: cli.argv['wp-publisher-guid'],
 							serverToken: logRelay && logRelay.serverToken || '',
 							targetSDK: targetWPSDK,
 							targetFrameworkVersion: targetWPSDK ? 'v' + targetWPSDK : '',

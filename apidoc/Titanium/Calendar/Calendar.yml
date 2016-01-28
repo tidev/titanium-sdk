@@ -8,7 +8,7 @@ description: |
 
     Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
     calendar. See "Common Requirements" in
-    [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/titanium/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
+    [tiapp.xml and timodule.xml Reference](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
 
 extends: Titanium.Module
 platforms: [android, iphone, ipad]
@@ -40,7 +40,30 @@ methods:
         type: String
     platforms: [android, iphone, ipad]
 
+  - name: hasCalendarPermissions
+    summary: Returns `true` if the app has calendar access.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"  
+
+  - name: requestCalendarPermissions
+    summary: Requests for calendar access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant calendar access.
+        type: Callback<EventsAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+
   - name: requestEventsAuthorization
+    deprecated:
+        since: "5.1.0"
+        notes: Use [requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
@@ -160,6 +183,23 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
+  - name: STATUS_CANCELLED
+    summary: Event canceled status.
+    description: |
+        A [event status]<Titanium.Calendar.Event.status> value.
+
+        One of the group of event "status" constants,
+        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
+        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
+        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
+        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
@@ -445,9 +485,23 @@ properties:
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+    deprecated:
+        since: "5.2.0"
+        notes: Use calendarAuthorization instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: calendarAuthorization
+    summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
+    description: |
+        Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
+        type: Number
+    since: "5.2.0"
+    constants: Titanium.Calendar.AUTHORIZATION_*
+    permission: read-only
+    type: Number
     platforms: [iphone, ipad]
 
   - name: allAlerts
@@ -618,27 +672,27 @@ examples:
                     Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name:' + calendar.name);
                     
                     function printReminder(r) {
-                    	if (osname === 'android') {
-                    		var typetext = '[method unknown]';
-                    		if (r.method == Ti.Calendar.METHOD_EMAIL) {
-                    			typetext = 'Email';
-                    		} else if (r.method == Ti.Calendar.METHOD_SMS) {
-                    			typetext = 'SMS';
-                    		} else if (r.method == Ti.Calendar.METHOD_ALERT) {
-                    			typetext = 'Alert';
-                    		} else if (r.method == Ti.Calendar.METHOD_DEFAULT) {
-                    			typetext = '[default reminder method]';
-                    		}
-                    		print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
-                    	}
-                	}
+                        if (osname === 'android') {
+                            var typetext = '[method unknown]';
+                            if (r.method == Ti.Calendar.METHOD_EMAIL) {
+                                typetext = 'Email';
+                            } else if (r.method == Ti.Calendar.METHOD_SMS) {
+                                typetext = 'SMS';
+                            } else if (r.method == Ti.Calendar.METHOD_ALERT) {
+                                typetext = 'Alert';
+                            } else if (r.method == Ti.Calendar.METHOD_DEFAULT) {
+                                typetext = '[default reminder method]';
+                            }
+                            print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
+                        }
+                    }
                     
                     function printAlert(a) {
-                    	if (osname === 'android') {
-                      		print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
-                    	} else if (osname === 'iphone' || osname === 'ipad') {
-                    		print('Alert absoluteDate ' + a.absoluteDate + ' relativeOffset ' + a.relativeOffset);
-                    	}
+                        if (osname === 'android') {
+                              print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+                        } else if (osname === 'iphone' || osname === 'ipad') {
+                            print('Alert absoluteDate ' + a.absoluteDate + ' relativeOffset ' + a.relativeOffset);
+                        }
                     }
                     
                     function printEvent(event) {
@@ -650,10 +704,10 @@ examples:
                       
                       var reminders = event.reminders;
                       if (reminders && reminders.length) {
-                      	print('There is/are ' + reminders.length + ' reminder(s)');
-                      	for (var i = 0; i < reminders.length; i++) {
-                      		printReminder(reminders[i]);
-                      	}
+                          print('There is/are ' + reminders.length + ' reminder(s)');
+                          for (var i = 0; i < reminders.length; i++) {
+                              printReminder(reminders[i]);
+                          }
                       }
                       print('hasAlarm? ' + event.hasAlarm);
                       var alerts = event.alerts;
@@ -702,29 +756,26 @@ examples:
               layout: 'vertical',
               title: 'Calendar Demo'
             });
-            
-            if (osname === 'android') {
-            	performCalendarReadFunctions();
-            } else if (osname === 'iphone' || osname === 'ipad') {
-            	if (Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-                	performCalendarReadFunctions();
-            	} else {
-                	Ti.Calendar.requestEventsAuthorization(function(e){
-                    	if (e.success) {
-                        	performCalendarReadFunctions();
-                    	} else {
-                        	alert('Access to calendar is not allowed');
-                    	}
-                	});
-            	}
+
+            if (Ti.Calendar.hasCalendarPermissions()) {
+                performCalendarReadFunctions();
+            } else {
+                Ti.Calendar.requestCalendarPermissions(function(e) {
+                    if (e.success) {
+                        performCalendarReadFunctions();
+                    } else {
+                        Ti.API.error(e.error);
+                        alert('Access to calendar is not allowed');
+                    }
+                });
             }
-            
+
             win.open();
 
   - title: Create a Recurring Event with Alerts on iOS
     example: |
         Create a recurring event with alerts.
-        
+
             function printEventDetails(eventID) {
                 Ti.API.info('eventID:' + eventID);
                 var defCalendar = Ti.Calendar.defaultCalendar;
@@ -812,7 +863,7 @@ examples:
                 })
                 var allAlerts = new Array(alert1,alert2);
                 event1.alerts = allAlerts;
-                var newRule = event1.createRecurenceRule({
+                var newRule = event1.createRecurrenceRule({
                                     frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
                                     interval: 1,
                                     daysOfTheWeek: [{dayOfWeek:1,week:2},{dayOfWeek:2}],
@@ -837,17 +888,18 @@ examples:
                         });
             win.add(label);
             
-            if(Ti.Calendar.eventsAuthorization == Ti.Calendar.AUTHORIZATION_AUTHORIZED) {
-                performCalendarWriteFunctions();
+            if (Ti.Calendar.hasCalendarPermissions()) {
+                performCalendarReadFunctions();
             } else {
-                Ti.Calendar.requestEventsAuthorization(function(e){
-                        if (e.success) {
-                            performCalendarWriteFunctions();
-                        } else {
-                            alert('Access to calendar is not allowed');
-                        }
-                    });
+                Ti.Calendar.requestCalendarPermissions(function(e) {
+                    if (e.success) {
+                        performCalendarReadFunctions();
+                    } else {
+                        alert('Access to calendar is not allowed');
+                    }
+                });
             }
+
             win.open();
 ---
 name: EventsAuthorizationResponse

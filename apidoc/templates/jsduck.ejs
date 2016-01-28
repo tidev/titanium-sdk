@@ -5,6 +5,7 @@
  * @platform <%- platform %> <%- cls.since[platform] %> <% } %>
 <% if (cls.subtype == 'pseudo') { %> * @pseudo <% } %>
 <% if ('extends' in cls) { %> * @extends <%- cls.extends %> <% } %> 
+<% if (cls.editurl) { %> * @editurl <%- cls.editurl %> <% } %>
  * <%- cls.summary %>
 <% if (cls.deprecated) { %> * <%- cls.deprecated %> <% } %>  
 <% if (cls.osver) { %> * <%- cls.osver %> <% } %> 
@@ -47,14 +48,18 @@
 
 <% cls.properties.forEach(function (property) { %>
 /**
+<% if ('defaultValue' in property && property.defaultValue !== '') { %>
+ * @property [<%- property.name %>=<%- property.defaultValue %>]
+<% } else { %>
  * @property <%- property.name %>
+<% } %>
 <% if ('hide' in property && property.hide) { %> * @hide <% } %>
  * @type <%- property.type %>
 <% if ('permission' in property) { %>
 <% if (property.permission == 'read-only') { %> * @readonly <% } %>
 <% if (property.permission == 'write-only') { %> * @writeonly <% } %>
 <% } %>
-<% if ('availability' in property && property.availability == 'creation-only') { %> * @creationOnly	<% } %>		
+<% if ('availability' in property && property.availability == 'creation') { %> * @creationOnly	<% } %>		
  * <%- property.summary %>
 <% if (property.deprecated) { %> * <%- property.deprecated %> <% } %>
 <% if (property.osver) { %> * <%- property.osver %> <% } %>

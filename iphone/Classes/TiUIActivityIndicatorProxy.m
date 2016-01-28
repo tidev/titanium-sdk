@@ -11,10 +11,29 @@
 
 @implementation TiUIActivityIndicatorProxy
 
+-(NSArray *)keySequence
+{
+    return [NSArray arrayWithObjects:
+            @"visible",
+            @"font",
+            @"message",
+            @"color",
+            @"style",
+            @"indicatorColor",
+            nil];
+}
+
 -(NSMutableDictionary*)langConversionTable
 {
     return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
 }
+
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+    [self initializeProperty:@"visible" defaultValue:NUMBOOL(NO)];
+    [super _initWithProperties:properties];
+}
+
 
 -(NSString*)apiName
 {
@@ -30,10 +49,10 @@
     return TiDimensionAutoSize;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_WIDTH
-
 USE_VIEW_FOR_CONTENT_HEIGHT
-
+#endif
 @end
 
 #endif

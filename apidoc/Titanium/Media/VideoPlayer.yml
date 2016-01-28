@@ -56,7 +56,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     events: ['focus', 'pinch', 'longclick', 'twofingertap']
-    properties: ['enabled']
 
 since: "0.9"
 examples: 
@@ -161,7 +160,9 @@ methods:
     description: |
         Asynchronous thumbnail requests initiated with 
         [requestThumbnailImagesAtTimes](Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes).
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.6.0"
 
   - name: pause
     summary: Pauses playing the video.
@@ -185,8 +186,9 @@ methods:
         The callback function is invoked when a thumbnail is available.
         
         Calling this method will cancel all pending asynchronous thumbnail requests.
-
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since:
+        android: "3.6.0"
     parameters:
       - name: times
         summary: Array of time values, representing offsets into the video, in seconds.
@@ -303,7 +305,7 @@ events:
       - name: duration
         summary: Video duration, in milliseconds.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: durationavailable
     summary: Fired when the video duration is available.
@@ -312,7 +314,7 @@ events:
         summary: Video duration, in milliseconds.
         type: Number
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: error
     summary: Fired when movie playback encounters an error.
@@ -340,7 +342,7 @@ events:
             is used. Otherwise, this value will be -1.
         type: Number
         platforms: [android]
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
 
 
@@ -350,7 +352,7 @@ events:
         On iOS, this event is fired at the beginning of the transition to 
         fullscreen mode. A `duration` property is provided, indicating the duration
         of the animated transition to or from fullscreen mode.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
 
       - name: entering
@@ -418,7 +420,7 @@ events:
         summary: Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property.
         type: Number
         constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
-    exclude-platforms: [blackberry]
+
 
   - name: mediatypesavailable
     summary: Fired when the media types in the current movie are determined.
@@ -449,11 +451,11 @@ events:
         type: Number
         constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: playing
     summary: Fired when the currently playing movie changes.
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: url
         summary: URL of the media.
@@ -461,7 +463,7 @@ events:
 
   - name: preload
     summary: Fired when the movie has preloaded and is ready to play.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
 
   - name: resize
     summary: Fired when the movie player is resized.
@@ -511,7 +513,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
 
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -522,7 +524,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
 
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
@@ -536,7 +538,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
     
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -550,7 +552,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
     
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
@@ -563,7 +565,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
 
 properties:
 
@@ -584,7 +586,7 @@ properties:
         conditions (if the movie is being streamed from a remote source).
     type: Boolean
     default: true
-    exclude-platforms: [blackberry]
+
 
   - name: contentURL
     summary: URL of the media to play.
@@ -593,12 +595,12 @@ properties:
         removed: "3.0.0"
         notes: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
     type: String
-    exclude-platforms: [blackberry]
+
 
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
@@ -607,7 +609,7 @@ properties:
         [durationavailable](Titanium.Media.VideoPlayer.durationavailable) event is 
         fired when the duration is known.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: endPlaybackTime
     summary: The end time of movie playback, in milliseconds.
@@ -620,7 +622,7 @@ properties:
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration)
         (the natural end time), and changing the value has no effect.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: fullscreen
     summary: |
@@ -639,27 +641,27 @@ properties:
         rather than being embedded as a view. 
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
 
   - name: initialPlaybackTime
     summary: The start time of movie playback, in milliseconds.
     description: |
         Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: loadState
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: media
     summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
     type: [Titanium.Blob, Titanium.Filesystem.File, String]
     permission: write-only
-    exclude-platforms: [blackberry]
+
 
   - name: mediaControlStyle
     summary: The style of the playback controls.
@@ -669,7 +671,7 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
-    exclude-platforms: [blackberry]
+
 
   - name: mediaTypes
     summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
@@ -690,6 +692,7 @@ properties:
     deprecated:
         since: '1.8.0'
         notes: Use [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) instead.
+        removed: '6.0.0'
     summary: Style of the media playback controls.
     description: |
         Provides the ability to set the control mode of the movie player. 
@@ -710,7 +713,7 @@ properties:
         fired when the natural size is known.
     platforms: [iphone, ipad]
     type: MovieSize
-    exclude-platforms: [blackberry]
+
 
   - name: playableDuration
     summary: |
@@ -720,7 +723,7 @@ properties:
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration).
     type: Number
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: playbackState
     summary: Current playback state of the video player.
@@ -729,7 +732,7 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     permission: read-only
-    exclude-platforms: [blackberry]
+
 
   - name: playing
     summary: Boolean to indicate if the player has started playing.
@@ -738,11 +741,11 @@ properties:
 
   - name: repeatMode
     summary: Determines how the movie player repeats when reaching the end of playback. 
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
     constants: Titanium.Media.VIDEO_REPEAT_MODE_*
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
-    exclude-platforms: [blackberry]
+
 
   - name: scalingMode
     summary: Determines how the content scales to fit the view.
@@ -752,7 +755,7 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_SCALING_*
     default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
-    exclude-platforms: [blackberry]
+
 
   - name: sourceType
     summary: The playback type of the movie. 
@@ -779,7 +782,10 @@ properties:
   - name: useApplicationAudioSession
     summary: |
         Indicates if the movie player should inherit the application's audio session
-        instead of creating a new session. 
+        instead of creating a new session.
+    deprecated:
+        since: 3.5.0
+        notes: There is no replacement for this property and its use is discouraged.
     description: |
         Creating a new session interrupts the application's session.
 
@@ -788,6 +794,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: true
+    osver: {ios: {max: "6.0"}}
 
   - name: volume
     summary: |
@@ -811,16 +818,22 @@ summary: |
     method.
 description: |
     The callback is invoked when a movie thumbnail is available.
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
+since:
+        android: "3.6.0"
 extends: ErrorResponse
 properties:
   - name: image
     summary: Thumbnail image, as a `Blob`.
     type: Titanium.Blob
+    since:
+        android: "3.6.0"
 
   - name: time
     summary: Time offset for the thumbnail, in seconds.
     type: Number
+    since:
+        android: "3.6.0"
 
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
@@ -829,7 +842,10 @@ properties:
         was generated by the operating system, that system's error value is used.
         Otherwise, this value will be -1.
     type: Number
-    since: "3.1.0"
+    since: 
+        iphone: "3.1.0"
+        ipad: "3.1.0"
+        android: "3.6.0"
 
 ---
 name: MovieSize

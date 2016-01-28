@@ -1156,6 +1156,7 @@ public class TiAnimationBuilder
 			this.setAnimationListener(new android.view.animation.Animation.AnimationListener()
 			{
 
+				@SuppressWarnings("deprecation")
 				public void onAnimationStart(Animation animation)
 				{
 					TiColorAnimation.this.view

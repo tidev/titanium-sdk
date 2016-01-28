@@ -71,6 +71,9 @@
 
 -(void)setViews:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    ENSURE_UI_THREAD(setViews, args)
+#endif
 	ENSURE_ARRAY(args);
 	for (id newViewProxy in args)
 	{
@@ -80,17 +83,25 @@
 	[self lockViewsForWriting];
 	for (id oldViewProxy in viewProxies)
 	{
+        [[oldViewProxy view] removeFromSuperview];
 		if (![args containsObject:oldViewProxy])
 		{
 			[oldViewProxy setParent:nil];
 			TiThreadPerformOnMainThread(^{[oldViewProxy detachView];}, NO);
-			[self forgetProxy:oldViewProxy];			
+			[self forgetProxy:oldViewProxy];
 		}
 	}
 	[viewProxies autorelease];
 	viewProxies = [args mutableCopy];
-	[self unlockViews];
-	[self replaceValue:args forKey:@"views" notification:YES];
+    
+#ifdef TI_USE_AUTOLAYOUT
+    for (TiViewProxy* proxy in viewProxies)
+    {
+        [[self view] addSubview:[proxy view]];
+    }
+#endif
+    [self unlockViews];
+    [self replaceValue:args forKey:@"views" notification:YES];
 }
 
 -(void)addView:(id)args
@@ -240,6 +251,7 @@
 	return result;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	[self lockViews];
@@ -265,7 +277,7 @@
 	//Adding the view to a scrollable view is invalid.
 	return nil;
 }
-
+#endif
 -(CGFloat)autoWidthForSize:(CGSize)size
 {
     CGFloat result = 0.0;
@@ -297,6 +309,16 @@
     if ([self viewAttached]) {
         [(TiUIScrollableView*)[self view] manageRotation];
     }
+}
+
+-(void)willChangeLayout
+{
+#ifndef TI_USE_AUTOLAYOUT
+    if (layoutProperties.layoutStyle != TiLayoutRuleAbsolute) {
+        layoutProperties.layoutStyle = TiLayoutRuleAbsolute;
+    }
+#endif
+    [super willChangeLayout];
 }
 
 @end

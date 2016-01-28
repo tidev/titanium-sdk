@@ -29,7 +29,7 @@ description: |
     retrieved as a <Titanium.Blob> type. 
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
   - name: clearData
@@ -111,10 +111,10 @@ examples:
         Then, store the string, "hello", to the clipboard and output it from the clipboard to the 
         console. 
         
-            Ti.API.log('Deleting all text in Clipboard');
+            Ti.API.info('Deleting all text in Clipboard');
             Ti.UI.Clipboard.clearText();
-            Ti.API.log('Clipboard.getText(): ' + Ti.UI.Clipboard.getText()); // returns empty string on Android and undefined on iOS
-            Ti.API.log('Set text Clipboard to hello');
+            Ti.API.info('Clipboard.getText(): ' + Ti.UI.Clipboard.getText()); // returns empty string on Android and undefined on iOS
+            Ti.API.info('Set text Clipboard to hello');
             Ti.UI.Clipboard.setText('hello');
-            Ti.API.log('Clipboard.hasText(), should be true: ' + Ti.UI.Clipboard.hasText()); // returns true on Android and 1 on iOS
-            Ti.API.log('Clipboard.getText(), should be hello: ' + Ti.UI.Clipboard.getText());
+            Ti.API.info('Clipboard.hasText(), should be true: ' + Ti.UI.Clipboard.hasText()); // returns true on Android and 1 on iOS
+            Ti.API.info('Clipboard.getText(), should be hello: ' + Ti.UI.Clipboard.getText());

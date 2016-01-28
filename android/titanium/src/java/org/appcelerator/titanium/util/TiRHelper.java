@@ -64,25 +64,30 @@ public class TiRHelper {
 	}
 
 	protected static int lookupResource(String prefix, String path, String[] classAndFieldNames) throws ResourceNotFoundException {
-		// Get the clsPrefixApplication if this is the first time
-		if (clsPrefixApplication == null)
-			clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".R$";
-		if (prefix == null) {
-			prefix = clsPrefixApplication;
-		}
-		
-		Integer i = null;
-		// Load the field
-		try {
-			i = getClass(prefix + classAndFieldNames[0]).getDeclaredField(classAndFieldNames[1]).getInt(null);
-		} catch (Exception e) {
-			Log.e(TAG, "Error looking up resource: " + e.getMessage(), e, Log.DEBUG_MODE);
-			valCache.put(path, 0);
-			throw new ResourceNotFoundException(path);
-		}
-		
-		valCache.put(path, i);
-		return i;
+	    if (prefix != null && path != null 
+	            && prefix.startsWith("android.R") && path.startsWith("drawable.")) {
+	        Log.w(TAG, "Using android.R.drawable is not recommended since they are changed/removed across Android versions. Instead copy images to res folder.");
+	    }
+
+	    // Get the clsPrefixApplication if this is the first time
+	    if (clsPrefixApplication == null)
+	        clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".R$";
+	    if (prefix == null) {
+	        prefix = clsPrefixApplication;
+	    }
+
+	    Integer i = null;
+	    // Load the field
+	    try {
+	        i = getClass(prefix + classAndFieldNames[0]).getDeclaredField(classAndFieldNames[1]).getInt(null);
+	    } catch (Exception e) {
+	        Log.e(TAG, "Error looking up resource: " + e.getMessage(), e, Log.DEBUG_MODE);
+	        valCache.put(path, 0);
+	        throw new ResourceNotFoundException(path);
+	    }
+
+	    valCache.put(path, i);
+	    return i;
 	}
 	
 	/**

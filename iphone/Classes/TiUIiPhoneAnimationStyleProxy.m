@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
 
 #import "TiUIiPhoneAnimationStyleProxy.h"
-
+#import "TiBase.h"
 
 @implementation TiUIiPhoneAnimationStyleProxy
 

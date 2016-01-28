@@ -21,16 +21,13 @@ description: |
     and [pump](Titanium.Stream.pump) methods provided by the <Titanium.Stream> module,
     rather than using the socket object's `read` and `write` methods directly.
 
-    Note: With BlackBerry OS it is best to call the socket object's `read` and `write` methods 
-    directly.
-    
     A familiarity with the basics of BSD socket programming is a recommended before using 
     sockets with Titanium.
 
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
 extends: Titanium.IOStream
 since: "1.7"
-platforms: [android, iphone, ipad, blackberry]
+platforms: [android, iphone, ipad]
 examples:
   - title: Simple Socket IO using Stream.pump
     example: |
@@ -350,7 +347,6 @@ summary: Options object for the [accept](Titanium.Network.Socket.TCP.accept) met
 description: |
     Simple object that defines properties to be set on the next accepted socket.
 since: "1.7"
-exclude-platforms: [blackberry]
 properties:
   - name: timeout
     type: Number

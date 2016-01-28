@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -34,10 +34,13 @@ fields.setup({
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
-exports.extendedDesc = 'Builds an existing app or module project.';
+exports.extendedDesc = __('Builds an existing app or module project.');
 
 exports.config = function (logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
+
+	// start patching the logger here
+	patchLogger(logger, cli);
 
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
@@ -100,35 +103,58 @@ exports.config = function (logger, config, cli) {
 							callback: function (projectDir) {
 								if (projectDir === '') {
 									// no option value was specified
-									// check if current directory is a valid dir
-									// if not output meaningful error message
+									// set project dir to current directory
 									projectDir = conf.options['project-dir'].default;
-									if (!fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
-										return;
+								}
+
+								projectDir = appc.fs.resolvePath(projectDir);
+
+								// load the tiapp.xml/timodule.xml
+								if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
+									try {
+										var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
+									} catch (ex) {
+										logger.error(ex);
+										logger.log();
+										process.exit(1);
 									}
+
+									tiapp.properties || (tiapp.properties = {});
+
+									// make sure the tiapp.xml is sane
+									ti.validateTiappXml(logger, config, tiapp);
+
+									// check that the Titanium SDK version is correct
+									if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+										throw new cli.GracefulShutdown();
+									}
+
+									cli.argv.type = 'app';
+
+								} else if (fs.existsSync(path.join(projectDir, 'timodule.xml'))) {
+									try {
+										var timodule = cli.tiapp = cli.timodule = new tiappxml(path.join(projectDir, 'timodule.xml'));
+									} catch (ex) {
+										logger.error(ex);
+										logger.log();
+										process.exit(1);
+									}
+
+									var manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
+
+									timodule.properties || (timodule.properties = {});
+
+									// make sure the module manifest is sane
+									ti.validateModuleManifest(logger, cli, manifest);
+
+									cli.argv.type = 'module';
+
+								} else {
+									// neither app nor module
+									return;
 								}
 
-								// start file logging here
-								patchLogger(logger, cli);
-
-								// load the tiapp.xml
-								try {
-									var tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
-								} catch (ex) {
-									logger.error(ex);
-									logger.log();
-									process.exit(1);
-								}
-
-								tiapp.properties || (tiapp.properties = {});
-
-								// make sure the tiapp.xml is sane
-								ti.validateTiappXml(logger, config, tiapp);
-
-								// check that the Titanium SDK version is correct
-								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
-									throw new cli.GracefulShutdown();
-								}
+								cli.scanHooks(path.join(projectDir, 'hooks'));
 
 								return projectDir;
 							},
@@ -147,39 +173,54 @@ exports.config = function (logger, config, cli) {
 							},
 							required: true,
 							validate: function (projectDir, callback) {
-								var isDefault = projectDir == conf.options['project-dir'].default;
-
-								var dir = appc.fs.resolvePath(projectDir);
+								var isDefault = projectDir == conf.options['project-dir'].default,
+									dir = appc.fs.resolvePath(projectDir);
 
 								if (!fs.existsSync(dir)) {
 									return callback(new Error(__('Project directory does not exist')));
 								}
 
-								var tiappFile = path.join(dir, 'tiapp.xml'),
-									root = path.resolve('/');
+								var isFound,
+									root = path.resolve('/'),
+									projDir = dir;
 
-								// try to find the tiapp.xml
-								while (!fs.existsSync(tiappFile)) {
-									dir = path.dirname(dir);
-									if (dir == root) {
-										if (!isDefault) {
-											callback(new Error(__('Invalid project directory "%s" because tiapp.xml not found', projectDir)));
-											return;
-										} else {
-											callback(true);
-											return;
+								['tiapp.xml', 'timodule.xml'].some(function (tiXml) {
+
+									var tiFile = path.join(dir, tiXml);
+
+									while (!fs.existsSync(tiFile)) {
+										dir = path.dirname(dir);
+										if (dir == root) {
+											isFound = false;
+											break;
 										}
+										tiFile = path.join(dir, tiXml);
 									}
-									tiappFile = path.join(dir, 'tiapp.xml');
+
+									// Found the xml file, break the loop
+									if (fs.existsSync(tiFile)) {
+										isFound = true;
+										return true;
+									}
+
+									dir = projDir;
+								});
+
+								if (!isFound && dir == root && isDefault) {
+									callback(true);
+									return;
 								}
 
+								if (!isFound) {
+									callback(new Error(__('Invalid project directory "%s" because tiapp.xml or timodule.xml not found', projectDir)));
+									return;
+								}
 								callback(null, dir);
 							}
 						}
 					}, ti.commonOptions(logger, config)),
 					platforms: platformConf
 				};
-				logger.log(logBanner(cli));
 				callback(null, conf);
 			});
 		})(function (err, result) {
@@ -189,43 +230,61 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	// TODO: set the type to 'app' for now, but we'll need to determine if the project is an app or a module
-	cli.argv.type = 'app';
+	// Determine if the project is an app or a module, run appropriate build command
+	if (cli.argv.type === 'module') {
 
-	ti.validatePlatform(logger, cli, 'platform');
-
-	// since we need validate() to be async, we return a function in which the cli
-	// will immediately call
-	return function (finished) {
-		function next(result) {
-			if (result !== false) {
-				// no error, load the tiapp.xml plugins
-				ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+		return function (finished) {
+			logger.log.init(function () {
+				var result = ti.validatePlatformOptions(logger, config, cli, 'buildModule');
+				if (result && typeof result == 'function') {
+					result(finished);
+				} else {
 					finished(result);
-				});
-			} else {
-				finished(result);
-			}
-		}
+				}
+			});
+		};
 
-		// loads the platform specific bulid command and runs its validate() function
-		var result = ti.validatePlatformOptions(logger, config, cli, 'build');
-		if (result && typeof result == 'function') {
-			result(next);
-		} else {
-			next(result);
-		}
-	};
+	} else {
+
+		ti.validatePlatform(logger, cli, 'platform');
+
+		// since we need validate() to be async, we return a function in which the cli
+		// will immediately call
+		return function (finished) {
+			logger.log.init(function () {
+				function next(result) {
+					if (result !== false) {
+						// no error, load the tiapp.xml plugins
+						ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+							finished(result);
+						});
+					} else {
+						finished(result);
+					}
+				}
+
+				// loads the platform specific bulid command and runs its validate() function
+				var result = ti.validatePlatformOptions(logger, config, cli, 'build');
+				if (result && typeof result == 'function') {
+					result(next);
+				} else {
+					next(result);
+				}
+			});
+		};
+	}
 };
 
 exports.run = function (logger, config, cli, finished) {
-	var platform = ti.resolvePlatform(cli.argv.platform),
-		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_build.js'),
+
+	var buildFile = (cli.argv.type === 'module') ? '_buildModule.js' :'_build.js',
+		platform = ti.resolvePlatform(cli.argv.platform),
+		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile),
 		counter = 0;
 
 	if (!fs.existsSync(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
-		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
+		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk install --force --default').cyan) + '\n');
 		process.exit(1);
 	}
 
@@ -249,14 +308,24 @@ exports.run = function (logger, config, cli, finished) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta));
-				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-					logger.error(msg);
-				});
+				logger.error(__('An error occurred during build after %s', delta));
+				if (err instanceof appc.exception) {
+					err.dump(logger.error);
+				} else if (err !== true) {
+					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+						logger.error(msg);
+					});
+				}
 				logger.log();
+				logger.log.end();
 				process.exit(1);
 			} else {
-				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				// eventually all platforms will just show how long the build took since they
+				// are responsible for showing the own logging
+				if (platform !== 'iphone' || cli.argv['build-only']) {
+					logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				}
+				logger.log.end();
 			}
 
 			finished();
@@ -270,21 +339,10 @@ exports.run = function (logger, config, cli, finished) {
  * @param {Object} cli - The CLI instance
  */
 function patchLogger(logger, cli) {
-	var origLoggerLog = logger.log,
-		platform = ti.resolvePlatform(cli.argv.platform),
-		buildDir = path.join(cli.argv['project-dir'], 'build'),
-		logFileStream;
-
-	fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir);
-
-	// create our write stream
-	logFileStream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii' });
-
-	// write the banner to start out the log
-	logFileStream.write(logBanner(cli));
+	var origLoggerLog = logger.log;
 
 	// override the existing log function
-	logger.log = function() {
+	logger.log = function patchedLog() {
 		// most of this copied from the CLI's logger.js logger.log() function
 		var args = Array.prototype.slice.call(arguments),
 			padLevels = logger.padLevels,
@@ -297,7 +355,7 @@ function patchLogger(logger, cli) {
 		args[0] in logger.levels || args.unshift('_');
 
 		// turn off padding
-		logger.padLevels = args[0] != '_';
+		logger.padLevels = args[0] !== '_';
 
 		// get rid of any null args
 		while (args.length && args[args.length-1] == null) args.pop();
@@ -311,41 +369,98 @@ function patchLogger(logger, cli) {
 
 		typeof type != 'string' && (args[1] = ''+args[1]);
 
-		// strip off starting full colons
-		args[1] = args[1].replace(/:\s{1}/, ' ');
-
 		// add [INFO] type prefixes for each line
-		prefix = (args[0] != "_") ? "[" + args[0].toUpperCase() + "]" + ((args[0].length===5) ? '  ' : '   ') : "";
+		prefix = (args[0] != '_') ? '[' + args[0].toUpperCase() + ']' + ((args[0].length===5) ? '  ' : '   ') : '';
 
-		// log it to our log file, stripping out the color codes
-		logFileStream.write("\n" + prefix + args[1].replace(/\x1B\[\d+m/g, ''));
+		if(logger.fileWriteEnabled) {
+			if (logger.log.filestream) {
+				if (logger.log.buffer) {
+					logger.log.filestream.write(logger.log.buffer);
+					logger.log.buffer = null;
+				}
+
+				// log it to our log file, stripping out the color codes
+				logger.log.filestream.write('\n' + prefix + (args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]).replace(/\x1B\[\d+m/g, ''));
+			} else {
+				logger.log.buffer += '\n' + prefix + args[1].replace(/\x1B\[\d+m/g, '');
+			}
+		}
 
 		// call the original logger with our cleaned up args
-		origLoggerLog.apply(logger, [args[0], args.length > 2 ? sprintf.apply(null, args.slice(1)) : args[1]]);
+		origLoggerLog.apply(logger, arguments);
 
 		// restore padding
 		logger.padLevels = padLevels;
-	}
-}
+	};
 
-/**
-* Outputs environment details at the top of the log file
-* for each run of `titanium build`
-* @param {Object} cli - The CLI instance
-*
-* See http://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history for
-* os.release() to version mapping for OS X. (e.g. 14.0.0 is v10.10 Yosemite)
-*/
-function logBanner(cli) {
-	var os = require('os');
-	return new Date().toLocaleString() + '\n\n' +
-		'Build Environment \n' +
-		'   Host OS         = ' + (os.platform()==='darwin' ? "OS X" : os.platform()) + ' ' + os.release() + ', ' + os.arch() + '\n'  +
-		'   Target platform = ' + ti.resolvePlatform(cli.argv.platform) + '\n'  +
-		'   CLI version     = ' + cli.version + '\n'  +
-		'   SDK version     = ' + cli.argv.sdk + '\n' +
-		'   SDK path        = ' + cli.sdk.path + '\n' +
-		'   Node version    = ' + process.version + '\n' +
-		'   Command         = ' + cli.argv.$ + ' ' + cli.argv.$_.join(' ') + '\n' +
-		'\n';
+	logger.log.init = function (callback) {
+		var platform = ti.resolvePlatform(cli.argv.platform),
+			buildDir = path.join(cli.argv['project-dir'], 'build');
+
+		logger.fileWriteEnabled = true;
+
+		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0766);
+
+		// create our write stream
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'utf8', 'mode': 0666 });
+
+		function styleHeading(s) {
+			return ('' + s).bold;
+		}
+
+		function styleValue(s) {
+			return ('' + s).magenta;
+		}
+
+		function rpad(s) {
+			return appc.string.rpad(s, 27);
+		}
+
+		cli.env.getOSInfo(function (osInfo) {
+			logger.log([
+				new Date().toLocaleString(),
+				'',
+				styleHeading(__('Operating System')),
+				'  ' + rpad(__('Name'))            + ' = ' + styleValue(osInfo.os),
+				'  ' + rpad(__('Version'))         + ' = ' + styleValue(osInfo.osver),
+				'  ' + rpad(__('Architecture'))    + ' = ' + styleValue(osInfo.ostype),
+				'  ' + rpad(__('# CPUs'))          + ' = ' + styleValue(osInfo.oscpu),
+				'  ' + rpad(__('Memory'))          + ' = ' + styleValue(osInfo.memory),
+				'',
+				styleHeading(__('Node.js')),
+				'  ' + rpad(__('Node.js Version')) + ' = ' + styleValue(osInfo.node),
+				'  ' + rpad(__('npm Version'))     + ' = ' + styleValue(osInfo.npm),
+				'',
+				styleHeading(__('Titanium CLI')),
+				'  ' + rpad(__('CLI Version'))     + ' = ' + styleValue(cli.version),
+				'',
+				styleHeading(__('Titanium SDK')),
+				'  ' + rpad(__('SDK Version'))     + ' = ' + styleValue(cli.argv.sdk),
+				'  ' + rpad(__('SDK Path'))        + ' = ' + styleValue(cli.sdk.path),
+				'  ' + rpad(__('Target Platform')) + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
+				'',
+				styleHeading(__('Command')),
+				'  ' + styleValue(process.argv.join(' ')),
+				''
+			].join('\n'));
+
+			logger.log.flush();
+			callback();
+		});
+	};
+
+	logger.log.flush = function () {
+		if (logger.log.filestream && logger.log.buffer && logger.fileWriteEnabled) {
+			logger.log.filestream.write(logger.log.buffer);
+			logger.log.buffer = null;
+			logger.log.filestream.end();
+		}
+	};
+
+	logger.log.end = function() {
+		logger.log.filestream && logger.log.filestream.end();
+		logger.fileWriteEnabled = false;
+	}
+
+	logger.log.buffer = '';
 }

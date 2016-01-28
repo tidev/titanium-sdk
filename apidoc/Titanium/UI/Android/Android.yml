@@ -23,8 +23,10 @@ methods:
         The preferences configuration files must be created in the project folders, 
         `platform/android/res/xml/preferences.xml` and `platform/android/res/values/array/array.xml`.
         
+        The preferences values can be accessed via <Titanium.App.Properties>.
+        
         See the example for a demonstration, and the official Android Developer documentation for 
-        the [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
+        the [preferences.xml](http://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
         
 properties:
@@ -590,14 +592,27 @@ properties:
     permission: read-only
     
   - name: SWITCH_STYLE_CHECKBOX
-    summary: Display <Titanium.UI.Switch> as a checkbox.
+    summary: Display a checkbox.
+    description: Use with the <Titanium.UI.Switch.style> property.
     type: Number
     permission: read-only
     
   - name: SWITCH_STYLE_TOGGLEBUTTON
-    summary: Display <Titanium.UI.Switch> as a toggle button. (default)
+    summary: Display a toggle button.
+    description: Use with the <Titanium.UI.Switch.style> property.
     type: Number
     permission: read-only
+    
+  - name: SWITCH_STYLE_SWITCH
+    summary: Display a switch.
+    description: |
+        Use with the <Titanium.UI.Switch.style> property.
+
+        Due to [Android issue #78262](https://code.google.com/p/android/issues/detail?id=78262),
+        the thumb (circle icon) may not appear on the switch.
+    type: Number
+    permission: read-only
+    since: "4.0.0"
     
   - name: WEBVIEW_PLUGINS_OFF
     summary: |
@@ -663,6 +678,125 @@ properties:
     permission: read-only
     since: "3.2.0"
 
+  - name: TRANSITION_EXPLODE
+    summary: |
+        Moves views in or out from the edges of the scene. 
+    description: |
+        Use this only for activity transition.
+        Refers to [Explode](http://developer.android.com/reference/android/transition/Explode.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_FADE_IN
+    summary: |
+        Fades in the views.
+    description: |
+        Use this only for activity transition.
+        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_FADE_OUT
+    summary: |
+        Fades out the views.
+    description: |
+        Use this only for activity transition.
+        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_SLIDE_TOP
+    summary: |
+        Moves views to top.
+    description: |
+        Use this only for activity transition.
+        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_SLIDE_RIGHT
+    summary: |
+        Moves views to right.
+    description: |
+        Use this only for activity transition.
+        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_SLIDE_BOTTOM
+    summary: |
+        Moves views to bottom.
+    description: |
+        Use this only for activity transition.
+        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_SLIDE_LEFT
+    summary: |
+        Moves views to left.
+    description: |
+        Use this only for activity transition.
+        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_CHANGE_BOUNDS
+    summary: |
+        Captures layout bounds of target views before and after the scene change and animates those changes during the transition.
+    description: |
+        Use this only for shared element transition.
+        Refers to [ChangeBounds](http://developer.android.com/reference/android/transition/ChangeBounds.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_CHANGE_CLIP_BOUNDS
+    summary: |
+        Captures the clip bounds before and after the scene change and animates those changes during the transition.
+    description: |
+        Use this only for shared element transition.
+        Refers to [ChangeClipBounds](http://developer.android.com/reference/android/transition/ChangeClipBounds.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_CHANGE_TRANSFORM
+    summary: |
+        Captures scale and rotation for Views before and after the scene change and animates those changes during the transition.
+    description: |
+        Use this only for shared element transition.
+        Refers to [ChangeTransform](http://developer.android.com/reference/android/transition/ChangeTransform.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_CHANGE_IMAGE_TRANSFORM
+    summary: |
+        Captures an ImageView's matrix before and after the scene change and animates it during the transition.
+    description: |
+        Use this only for shared element transition.
+        Refers to [ChangeImageTransform](http://developer.android.com/reference/android/transition/ChangeImageTransform.html) transition.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: TRANSITION_NONE
+    summary: |
+        Resets transition to platform default. 
+    description: |
+        Can be used with activity and shared element transtion.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
 examples:
   - title: Android Preferences Example
     example: |
@@ -674,6 +808,7 @@ examples:
               title:	'Click to Open Preferences'
             });
             button.addEventListener('click', function() {
+              Ti.API.info('Current value for editText: ' + Ti.App.Properties.getString('editText'));
               Ti.UI.Android.openPreferences();
             });
             Ti.UI.currentWindow.add(button);

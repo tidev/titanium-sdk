@@ -28,7 +28,11 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
 -(void) activateSession
 {
     NSError* error = nil;
-    [[AVAudioSession sharedInstance] setActive:YES error:&error];
+    
+    // TIMOB-19633
+    BOOL shouldActivate = ![[AVAudioSession sharedInstance] isOtherAudioPlaying];
+    [[AVAudioSession sharedInstance] setActive:shouldActivate error:&error];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeChangeCallback:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interruptionCallback:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:NULL];
@@ -64,11 +68,9 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
         case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
             [event setObject:@"no_route_for_category" forKey:@"reason"];
             break;
-        case 8://AVAudioSessionRouteChangeReasonRouteConfigurationChange:
-            if ([TiUtils isIOS7OrGreater]) {
-                [event setObject:@"route_config_change" forKey:@"reason"];
-                break;
-            }
+        case AVAudioSessionRouteChangeReasonRouteConfigurationChange:
+            [event setObject:@"route_config_change" forKey:@"reason"];
+            break;
         default:
             [event setObject:@"silence_change" forKey:@"reason"];
             break;

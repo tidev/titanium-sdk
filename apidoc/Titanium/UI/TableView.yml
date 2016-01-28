@@ -7,11 +7,11 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/tableview/tableview_android.png" height="200" style="border: 1px solid black;" /></td>
-        <td><img src="images/tableview/tableview_bb.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_ios.png" height="200" style="border: 1px solid black;" /></td>
         <td><img src="images/tableview/tableview_mobileweb.png" height="200" style="border: 1px solid black;" /></td>
+        <td><img src="images/tableview/tableview_wp.png" height="200" style="border: 1px solid black;" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
@@ -19,7 +19,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
     
     #### Creating Tables
     
@@ -180,7 +180,7 @@ events:
         
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -189,7 +189,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
         
   - name: delete
     summary: Fired when a table row is deleted by the user.
@@ -262,8 +262,24 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
     
+  - name: indexclick
+    summary: Fired when the index bar is clicked by the user.
+    description: |
+        If the tabe view contains the [index](Titanium.UI.TableView.index) array of indices the index bar will appear on the side.
+        This event will fire when this bar is clicked 
+    properties:
+      - name: title
+        summary: The title of the index clicked.
+        type: String
+
+      - name: index
+        summary: The index number clicked.
+        type: Number
+    platforms: [iphone, ipad]
+    since: 3.4.0
+
   - name: longpress
     summary: Fired when the device detects a long press.
     description: |
@@ -304,7 +320,7 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: move
     summary: Fired when a table row is moved by the user.
@@ -349,7 +365,7 @@ events:
     description: |
         A pinch is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: "1.8.0"
     properties:
       - name: scale
@@ -366,19 +382,19 @@ events:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
         type: Number
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
         
       - name: size
         summary: |
@@ -389,23 +405,23 @@ events:
       - name: totalItemCount
         summary: Total number of rows in the view.
         type: Number
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
         
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
         type: Number
-        platforms: [android, mobileweb, tizen]
+        platforms: [android, mobileweb]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb, tizen]
+        platforms: [mobileweb]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [mobileweb, tizen]
-    exclude-platforms: [blackberry]
+        platforms: [mobileweb]
+
         
   - name: scrollEnd
     deprecated:
@@ -418,12 +434,12 @@ events:
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: size
         summary: |
@@ -438,7 +454,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: scrollend
     summary: Fired when the table view stops scrolling.
@@ -448,12 +464,12 @@ events:
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
         
       - name: size
         summary: |
@@ -469,7 +485,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
         
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -539,7 +555,7 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
@@ -552,9 +568,9 @@ events:
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -562,17 +578,42 @@ events:
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
   - name: touchend
     summary: Fired when a touch gesture is complete.
     description: |
-        On Android and iOS, be aware that a row or table touch event and a table 
-        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        On Android and iOS, be aware that a row or table touch event and a table
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
     properties:
       - name: index
@@ -603,12 +644,37 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+    
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -617,18 +683,43 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
     description: |
-        On Android and iOS, be aware that a row or table touch event and a table 
+        On Android and iOS, be aware that a row or table touch event and a table
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
-        On Mobile Web and Tizen, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: index
         summary: Row index.
@@ -658,10 +749,35 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -679,7 +795,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: dragEnd
     deprecated:
@@ -689,7 +805,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
@@ -702,7 +818,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     since: '3.0.0'
 
   - name: dragend
@@ -710,7 +826,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
@@ -758,7 +874,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, tizen, iphone, ipad]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deleteRow
     summary: Deletes an existing row.
@@ -774,7 +890,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    exclude-platforms: [blackberry]
+
     
   - name: deleteSection
     summary: Deletes an existing section.
@@ -790,7 +906,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, tizen, iphone, ipad]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -799,7 +915,7 @@ methods:
         summary: Row index to deselect.
         type: Number
     platforms: [iphone,ipad]
-    exclude-platforms: [blackberry]
+
     
   - name: insertRowAfter
     summary: Inserts a row after another row.
@@ -822,7 +938,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    exclude-platforms: [blackberry]
+
     
   - name: insertSectionAfter
     summary: Inserts a section after another section.
@@ -848,7 +964,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, tizen, iphone, ipad]
+    platforms: [android, mobileweb, iphone, ipad]
         
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -871,7 +987,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    exclude-platforms: [blackberry]
+
         
   - name: insertSectionBefore
     summary: Inserts a section before another section.
@@ -897,7 +1013,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, mobileweb, tizen, iphone, ipad]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -932,7 +1048,7 @@ methods:
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
         
-        On Mobile Web and Tizen, the `top` value is interpreted as a pixel offset between the top of the top
+        On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
         row of data and the top of the table view. So a `top` value of 0 scrolls the list to
         the top. A positive value scrolls it down. Values outside the scrollable range are clipped
         so that negative numbers scroll the list to the top, and large positive values scroll the
@@ -949,7 +1065,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-    exclude-platforms: [blackberry]
+
     
   - name: setContentInsets
     summary: Sets this tableview's content insets.
@@ -971,6 +1087,18 @@ methods:
     platforms: [iphone, ipad]
     since: "2.1.0"
     
+  - name: setContentOffset
+    summary: Sets the value of the content offset of the table view without animation by default.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: contentOffset
+        summary: |
+            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
+            reposition the top-left point of the scrollable region of the table view.
+            The `animated` property is optional and set to `false` by default. 
+        type: Dictionary
+    since: 3.4.0
+
   - name: selectRow
     summary: | 
         Programmatically selects a row. In Android, it sets the currently selected item. If in touch mode,
@@ -1030,14 +1158,10 @@ methods:
     description: |
         Known issues:
 
-        *   On iOS, Mobile Web and Tizen, event listeners do not fire correctly after table view sections are 
+        *   On iOS and Mobile Web, event listeners do not fire correctly after table view sections are
             updated using the `updateSection` methods. 
             ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616),
             [TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
-
-        *   On iOS, the first two arguments to the `updateSection` method are reversed.
-            ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
-            addressed in Release 3.3.0 of the Titanium SDK
     parameters:
       - name: index
         summary: Index of the section to update.
@@ -1051,7 +1175,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 3.0.0
-    platforms: [android, mobileweb, tizen, iphone, ipad]
+    platforms: [android, mobileweb, iphone, ipad]
 
 properties:
   - name: allowsSelection
@@ -1082,7 +1206,7 @@ properties:
         values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
     default: transparent on non-iOS platforms, white on the iOS platform
-    exclude-platforms: [blackberry]
+
     
   - name: data
     summary: Rows of the table view.
@@ -1163,7 +1287,16 @@ properties:
   - name: footerTitle
     summary: Table view footer title.
     type: String
-    exclude-platforms: [blackberry]
+
+  - name: maxClassname
+    summary: Max number of row class names.
+    description: |
+        See <Titanium.UI.TableViewRow.className> for more details.
+    availability: creation
+    type: Number
+    default: 32
+    platforms: [android]
+    since: "5.2.0"
     
   - name: headerPullView
     summary: |
@@ -1177,7 +1310,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](http://docs.appcelerator.com/titanium/latest/#!/guide/TableViews).
+        [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
@@ -1232,7 +1365,7 @@ properties:
             </Alloy>
 
     type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
     
   - name: headerDividersEnabled
     summary: When set to false, the ListView will not draw the divider after the header view.
@@ -1245,7 +1378,7 @@ properties:
   - name: headerTitle
     summary: Table view header title.
     type: String
-    exclude-platforms: [blackberry]
+
     
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
@@ -1263,26 +1396,27 @@ properties:
             </Alloy>
 
     type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
     
   - name: index
     summary: Array of objects (with `title` and `index` properties) to control the table view index.
     description: |
         If an index array is specified, an index bar is displayed on the right-hand side of the 
         table view. Clicking on a title in the index bar scrolls the table view to the row 
-        index associated with that title.
+        index associated with that title. If the index is -1 the table view will scroll to the top.
+
     type: Array<TableViewIndexEntry>
     platforms: [iphone, ipad]
     
   - name: maxRowHeight
     summary: Maximum row height for table view rows.
     type: Number
-    exclude-platforms: [blackberry]
+
     
   - name: minRowHeight
     summary: Minimum row height for table view rows.
     type: Number
-    exclude-platforms: [blackberry]
+
 
   - name: moveable
     summary: |
@@ -1323,7 +1457,7 @@ properties:
   - name: rowHeight
     summary: Default row height for table view rows.
     type: Number
-    exclude-platforms: [blackberry]
+
     
   - name: scrollable
     summary: If `true`, the tableview can be scrolled.
@@ -1389,7 +1523,7 @@ properties:
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: sections
     summary: Sections of this table.
@@ -1400,7 +1534,7 @@ properties:
         for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0, mobileweb: 3.0.0 }
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1411,10 +1545,12 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: platform-specific default color
-    exclude-platforms: [blackberry]
-    
+
   - name: separatorInsets
     summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    deprecated:
+        since: "6.0.0"
+        notes: Use tableSeparatorInsets instead
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
         This property sets the default inset for all cells in the table. Set this to a dictionary 
@@ -1426,23 +1562,67 @@ properties:
                 left:10,
                 right:10
             });
-        
-        
+
     type: Dictionary
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
-    
-  - name: separatorStyle
-    summary: Separator style constant. 
+
+  - name: tableSeparatorInsets
+    summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
     description: |
-        For iOS specify one of the 
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
+
+        For example:
+
+            tableView1.setTableSeparatorInsets({
+                left:10,
+                right:10
+            });
+
+
+    type: Dictionary
+    since: 6.0.0
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: rowSeparatorInsets
+    summary: The insets for table view cells (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. This property is only available upon creation of the cells.
+
+        For example:
+
+            tableView1.setRowSeparatorInsets({
+                left:10,
+                right:10
+            });
+
+
+    type: Dictionary
+    since: 6.0.0
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: separatorStyle
+    summary: Separator style constant.
+    description: |
+        For iOS specify one of the
         [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-        
-        For Mobile Web and Tizen specify one of the 
+       
+        For Android specify one of the following:
+        [TableViewSeparatorStyle_None](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
+        [TableViewSeparatorStyle_SingleLine](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
+
+        For Mobile Web specify one of the
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
+    since: {android: "5.2.0"}
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.

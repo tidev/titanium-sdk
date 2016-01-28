@@ -67,7 +67,7 @@ public class TiOverlayItemView extends FrameLayout
 		leftPane.setTag("leftPane");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+		if (Build.VERSION.SDK_INT > 3) {
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
 		params.setMargins(0, 0, 5, 0);
@@ -116,7 +116,7 @@ public class TiOverlayItemView extends FrameLayout
 		rightPane.setId(103);
 		rightPane.setTag("rightPane");
 		params = createBaseParams();
-		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+		if (Build.VERSION.SDK_INT > 3) {
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
 		params.addRule(RelativeLayout.RIGHT_OF, 101);

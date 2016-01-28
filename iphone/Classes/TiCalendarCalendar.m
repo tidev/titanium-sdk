@@ -131,14 +131,14 @@
     ENSURE_SINGLE_ARG(arg, NSString);
     __block NSString* eventId = [TiUtils stringValue:arg];
     __block id result = NULL;
-	dispatch_sync(dispatch_get_main_queue(),^{
+	TiThreadPerformOnMainThread(^{
         EKEventStore* ourStore = [self ourStore];
         if (ourStore == nil) {
             return ;
         }
         result = [ourStore eventWithIdentifier:[TiUtils stringValue:arg]];
         
-    });
+    }, YES);
     if (result != NULL) {
         EKEvent* event_ = [[self ourStore] eventWithIdentifier:[TiUtils stringValue:arg]];
         TiCalendarEvent* event = [[[TiCalendarEvent alloc] _initWithPageContext:[self executionContext]

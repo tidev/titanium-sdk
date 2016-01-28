@@ -100,6 +100,14 @@
             curIndex++;
         }
         
+        if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
+            UIAlertAction* theAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                                style:UIAlertActionStyleCancel
+                                                              handler:^(UIAlertAction * action){
+                                                                  [self fireClickEventWithAction:action];
+                                                              }];
+            [alertController addAction:theAction];
+        }
         BOOL isPopover = NO;
         
         if ([TiUtils isIPad]) {
@@ -240,6 +248,7 @@
     
     //Fell through.
     UIViewController* presentingController = [alertController presentingViewController];
+    popoverPresentationController.permittedArrowDirections = 0;
     popoverPresentationController.sourceView = [presentingController view];
     popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(presentingController.view.bounds.size.width/2, presentingController.view.bounds.size.height/2, 1, 1):dialogRect);;
 }
@@ -272,7 +281,7 @@
 - (void)willPresentActionSheet:(UIActionSheet *)actionSheet_
 {
     //TIMOB-15939. Workaround rendering issue on iPAD on iOS7
-    if (actionSheet_ == actionSheet && forceOpaqueBackground &&[TiUtils isIOS7OrGreater] && [TiUtils isIPad]) {
+    if (actionSheet_ == actionSheet && forceOpaqueBackground && [TiUtils isIPad]) {
         NSArray* subviews = [actionSheet subviews];
         
         for (UIView* subview in subviews) {
@@ -297,10 +306,15 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
+        NSArray *actions = [alertController actions];
+        NSInteger indexOfAction = [actions indexOfObject:theAction];
+        
+        if ([TiUtils isIPad] && (cancelButtonIndex == -1) && (indexOfAction == ([actions count]-1)) ) {
+            indexOfAction = cancelButtonIndex;
+        }
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      NUMUINTEGER(indexOfAction),@"index",
+                                      NUMINTEGER(indexOfAction),@"index",
                                       NUMINT(cancelButtonIndex),@"cancel",
                                       NUMINT(destructiveButtonIndex),@"destructive",
                                       nil];
@@ -308,6 +322,7 @@
         
         [self fireEvent:@"click" withObject:event];
     }
+    [self cleanup];
 }
 
 -(void)cleanup

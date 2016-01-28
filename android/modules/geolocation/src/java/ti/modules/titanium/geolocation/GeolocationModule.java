@@ -17,6 +17,8 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -27,9 +29,13 @@ import ti.modules.titanium.geolocation.android.AndroidModule;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 import ti.modules.titanium.geolocation.android.LocationRuleProxy;
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
@@ -151,6 +157,8 @@ public class GeolocationModule extends KrollModule
 	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
 	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
+	private static final double SIMPLE_LOCATION_GPS_MIN_AGE_RULE = 30000;
+
 
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
@@ -192,7 +200,7 @@ public class GeolocationModule extends KrollModule
 		simpleLocationProviders.put(PROVIDER_PASSIVE, new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE, SIMPLE_LOCATION_PASSIVE_TIME, this));
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, null, null);
+		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
 		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
@@ -528,6 +536,10 @@ public class GeolocationModule extends KrollModule
 				enableLocationProviders(locationProviders);
 
 				// fire off an initial location fix if one is available
+				if (!hasLocationPermissions()) {
+					Log.e(TAG, "Location permissions missing");
+					return;
+				}
 				lastLocation = tiLocation.getLastKnownLocation();
 				if (lastLocation != null) {
 					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())));
@@ -611,6 +623,40 @@ public class GeolocationModule extends KrollModule
 		}
 	}
 
+	@Kroll.method
+	public boolean hasLocationPermissions()
+	{
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		} 
+		return false;
+	}
+	
+	@Kroll.method
+	public void requestLocationPermissions(@Kroll.argument(optional=true) Object type, @Kroll.argument(optional=true) KrollFunction permissionCallback)
+	{
+		if (hasLocationPermissions()) {
+			return;
+		}
+
+		if (TiBaseActivity.locationCallbackContext == null) {
+			TiBaseActivity.locationCallbackContext = getKrollObject();
+		}
+
+		if (type instanceof KrollFunction && permissionCallback == null) {
+			TiBaseActivity.locationPermissionCallback = (KrollFunction) type;
+		} else {
+			TiBaseActivity.locationPermissionCallback = permissionCallback;
+		}
+
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
+		currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);		
+	}
+
 	/**
 	 * Registers the specified location provider with the OS.  Once the provider is registered, the OS 
 	 * will begin to provider location updates as they are available
@@ -619,6 +665,10 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void registerLocationProvider(LocationProviderProxy locationProvider)
 	{
+		if (!hasLocationPermissions()) {
+			Log.e(TAG, "Location permissions missing", Log.DEBUG_MODE);
+			return;
+		}
 		String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
 
 		try {
@@ -722,6 +772,10 @@ public class GeolocationModule extends KrollModule
 	@Kroll.method
 	public void getCurrentPosition(KrollFunction callback)
 	{
+		if (!hasLocationPermissions()) {
+			Log.e(TAG, "Location permissions missing");
+			return;
+		}
 		if (callback != null) {
 			Location latestKnownLocation = tiLocation.getLastKnownLocation();
 
@@ -895,6 +949,18 @@ public class GeolocationModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.Geolocation";
+	}
+	
+	@Override
+	public void onDestroy(Activity activity) {
+		//clean up event listeners
+		if (compassListenersRegistered) {
+			tiCompass.unregisterListener();
+			compassListenersRegistered = false;
+		}
+		disableLocationProviders();
+		super.onDestroy(activity);
+
 	}
 }
 

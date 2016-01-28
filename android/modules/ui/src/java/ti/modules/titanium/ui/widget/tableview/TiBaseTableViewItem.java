@@ -31,6 +31,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
+@SuppressWarnings("deprecation")
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback
 {
 	private static final String TAG = "TiBaseTableViewItem";
@@ -63,9 +64,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 						path = "/org/appcelerator/titanium/res/drawable/btn_more_64.png";
 					}
 					
-					if (Build.VERSION.SDK_INT >= 16 && density == DisplayMetrics.DENSITY_XXHIGH) {
+					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_more_100.png";
 					}
+
 					childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 				if (checkIndicatorBitmap == null) {
@@ -79,9 +81,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
 					} 
 					
-					if (Build.VERSION.SDK_INT >= 16 && density == DisplayMetrics.DENSITY_XXHIGH) {
+					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_100.png";
 					}
+
 
 					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}

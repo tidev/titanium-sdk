@@ -16,6 +16,7 @@ import ti.modules.titanium.ui.UIModule;
 import android.content.Context;
 import android.text.ClipboardManager;
 
+@SuppressWarnings("deprecation")
 @Kroll.module(parentModule=UIModule.class)
 public class ClipboardModule extends KrollModule
 {

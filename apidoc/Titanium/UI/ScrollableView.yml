@@ -22,9 +22,8 @@ description: |
     the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
 excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
-    properties: [ 'enabled' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, mobileweb, tizen, blackberry]
+platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
 
 methods:
@@ -40,7 +39,7 @@ methods:
         Sets the current page to the next consecutive page in <Titanium.UI.ScrollableView.views>.
     description: |
         Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: movePrevious
@@ -48,7 +47,7 @@ methods:
         Sets the current page to the previous consecutive page in <Titanium.UI.ScrollableView.views>.
     description: |
         Since Titanium Mobile Release 3.3.0, using this method to change current page animates the change on iOS and Android.
-    platforms: [android, blackberry, iphone, ipad]
+    platforms: [android,  iphone, ipad]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
     
   - name: removeView
@@ -85,7 +84,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    exclude-platforms: [blackberry]
+
   - name: doubletap
     summary: Fired when the device detects a double tap against this page.
     platforms: [iphone, ipad]
@@ -186,13 +185,13 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
         notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
 
     properties:
@@ -213,15 +212,15 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
     since: "2.1.0"
-    platforms: [mobileweb, tizen]
-    exclude-platforms: [blackberry]
+    platforms: [mobileweb]
+
 
   - name: dragEnd
     deprecated:
        since: "3.0.0"
        notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: "2.1.0"
     properties:
       - name: currentPage
@@ -230,7 +229,7 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
@@ -243,20 +242,20 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
     since: '3.0.0'
-    exclude-platforms: [blackberry]
+
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: "3.0.0"
     properties:
       - name: currentPage
@@ -265,7 +264,7 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-    exclude-platforms: [blackberry]
+
 
 properties:
   - name: cacheSize
@@ -275,7 +274,8 @@ properties:
         values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved 
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [android,  iphone, ipad]
+    since: {android: "4.1.0"}
     
   - name: currentPage
     summary: Index of the active page.
@@ -317,7 +317,7 @@ properties:
     description: Set to `true` to show paging control.
     type: Boolean
     default: false
-    exclude-platforms: [blackberry]
+
 
   - name: pagingControlTimeout
     summary: Number of milliseconds to wait before hiding the paging control.
@@ -325,7 +325,7 @@ properties:
     type: Number
     availability: creation
     default: 3000
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -359,7 +359,7 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android, mobileweb, tizen]
+    platforms: [iphone, ipad, android, mobileweb]
     since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0", mobileweb: "3.0.0" }
 
   - name: views

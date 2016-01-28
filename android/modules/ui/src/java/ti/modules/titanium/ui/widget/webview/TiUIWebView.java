@@ -45,6 +45,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+@SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
 {
 
@@ -124,7 +125,6 @@ public class TiUIWebView extends TiUIView
 			return (superHandled || handled || swipeHandled);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{
@@ -162,6 +162,9 @@ public class TiUIWebView extends TiUIView
 		boolean isHTC = false;
 		
 		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager().getSystemAvailableFeatures();
+		if(features == null) { 
+			return isHTC;
+		}
 		for (FeatureInfo f : features) {
 			String fName = f.name;
 			if (fName != null) {
@@ -222,10 +225,14 @@ public class TiUIWebView extends TiUIView
 			initializePluginAPI(webView);
 		}
 
+		boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		chromeClient = new TiWebChromeClient(this);
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+			client.getBinding().addJavascriptInterfaces();
+		}
 
 		webView.client = client;
 
@@ -532,9 +539,18 @@ public class TiUIWebView extends TiUIView
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			webView.getSettings().setLoadWithOverviewMode(false);
 		}
-
+		boolean enableJavascriptInjection = true;
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		}
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
+		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
+
+		if (!enableJavascriptInjection) {
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+			return;
+		}
 
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.

@@ -16,21 +16,58 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
 properties:
   - name: attributedString
     summary: Specify an attributed string for the label.
     description: |
-        If set, the label ignores the `text`, `color`, and `shadow` properties.
-    type: Titanium.UI.iOS.AttributedString
-    platforms: [iphone, ipad]
-    since: 3.2.0
+        The underlying attributed string drawn by the label. If set, avoid setting common attributes 
+        in the label, such as `color` and `font`, as unexpected behaviors may result. 
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        element inside a `<Label>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <Label>
+                    <AttributedString>
+                        Alloy is great!
+                    </AttributedString>
+                  </Label>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
 
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
@@ -43,16 +80,9 @@ properties:
         deprecated in favor of the `AUTOLINK` constants.
         
         The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
-
-        Tizen does not support `AUTOLINK_ALL` or `AUTOLINK_MAP_ADDRESSES`.
-        To use this property on Tizen, you must include the following privilege 
-        in the `tiapp.xml` file of your Titanium application: 
-
-        * `http://tizen.org/privilege/application.launch`
-
     type: Number
     constants: Titanium.UI.AUTOLINK_*
-    platforms: [android, tizen]
+    platforms: [android]
     
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
@@ -82,10 +112,11 @@ properties:
     
   - name: ellipsize
     summary: |
-        Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
-    type: Boolean
+        Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
+    constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
+    type: [Number, Boolean]
     default: false
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: font
     summary: Font to use for the label text.
@@ -103,7 +134,7 @@ properties:
     
   - name: html
     summary: Simple HTML formatting.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     type: String
     
   - name: includeFontPadding
@@ -113,6 +144,18 @@ properties:
     default: undefined but behaves as true
     since: "3.3.0"
 
+  - name: lines
+    summary: Makes the label be exactly this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "4.1.0"
+    
+  - name: maxLines
+    summary: Makes the label at most this many lines tall.
+    platforms: [android]
+    type: Number
+    since: "4.1.0"
+    
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |
@@ -126,7 +169,7 @@ properties:
         Use in conjunction with [shadowOffset](Titanium.UI.Label.shadowOffset) and [shadowRadius](Titanium.UI.Label.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: {android: "3.2.0"}
 
   - name: shadowOffset
@@ -134,7 +177,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
     type: Dictionary
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
     since: {android: "3.2.0"}
 
   - name: shadowRadius
@@ -167,13 +210,13 @@ properties:
     summary: Key identifying a string from the locale file to use for the label text. 
     description: Only one of `text` or `textid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
+
     
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.
     type: Boolean
     default: true
-    platforms: [android, mobileweb, tizen, blackberry]
+    platforms: [android, mobileweb]
     
   - name: verticalAlign
     summary: |
@@ -193,10 +236,15 @@ properties:
     
 events:
   - name: link
-    summary: Fired when user performs a long press on a URL in the text area.
+    summary: Fired when user interacts with a URL in the Label.
     description: |
-        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.Label.attributedString). 
-        Only valid on iOS7 and above.
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.Label.attributedString). 
+
+        On Android, this event also fires if the `html` property is used instead of the `attributedString` property. This event will
+        also override the default behavior of openning the link in its default application.
+
+        On iOS, this is only valid on version 7 and above. In previous versions of the the Titanium SDK this event required a `longpress`
+        gesture to be performed. Beginning with Titanium SDK 4.0.0, only a `singletap` gesture is required to invoke this event.
     properties:
       - name: url
         summary: The URL that is associated with this event.
@@ -207,9 +255,9 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,android]
     osver: {ios: {min: "7.0"}}
-    since: 3.2.0
+    since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
         
 
 examples:

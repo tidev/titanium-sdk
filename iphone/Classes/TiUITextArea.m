@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -73,8 +73,6 @@
 
 @implementation TiUITextArea
 
-@synthesize becameResponder;
-
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -125,9 +123,32 @@
 
 #pragma mark Public APIs
 
+-(void)setShowUndoRedoActions:(id)value
+{
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+    
+#if IS_XCODE_7
+    
+        UITextView *tv = (UITextView *)[self textWidgetView];
+        if([TiUtils boolValue:value] == YES) {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+            tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+            
+        } else {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = @[];
+            tv.inputAssistantItem.trailingBarButtonGroups = @[];
+        }
+#endif
+}
+
 -(void)setEnabled_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:value]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+	[(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setScrollable_:(id)value
@@ -135,9 +156,10 @@
 	[(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
 }
 
--(void)setEditable_:(id)editable
+-(void)setEditable_:(id)value
 {
-	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+    [(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
 -(void)setAutoLink_:(id)type_
@@ -167,36 +189,6 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
--(BOOL)resignFirstResponder
-{
-	[super resignFirstResponder];
-	becameResponder = NO;
-    return [textWidgetView resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-    UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (ourView.isEditable) {
-        becameResponder = YES;
-        
-        if ([textWidgetView isFirstResponder])
-        {
-            return NO;
-        }
-        
-        [self makeRootViewFirstResponder];
-        BOOL result = [super becomeFirstResponder];
-        return result;
-    }
-    return NO;
-}
--(BOOL)isFirstResponder
-{
-    if (becameResponder)
-        return YES;
-    return [super isFirstResponder];
-}
 
 //TODO: scrollRangeToVisible
 

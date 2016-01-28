@@ -21,6 +21,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -36,14 +37,17 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -53,6 +57,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
 
+@SuppressWarnings("deprecation")
 @Kroll.module @ContextSpecific
 public class MediaModule extends KrollModule
 	implements Handler.Callback
@@ -100,6 +105,11 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
+	
+	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEAREST_KEYFRAME = MediaMetadataRetriever.OPTION_CLOSEST;
+	@Kroll.constant public static final int VIDEO_TIME_OPTION_CLOSEST_SYNC = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
+	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEXT_SYNC = MediaMetadataRetriever.OPTION_NEXT_SYNC;
+	@Kroll.constant public static final int VIDEO_TIME_OPTION_PREVIOUS_SYNC = MediaMetadataRetriever.OPTION_PREVIOUS_SYNC;
 
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
@@ -113,6 +123,7 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
+
 	}
 
 	public MediaModule(TiContext tiContext)
@@ -137,7 +148,6 @@ public class MediaModule extends KrollModule
 	    final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
 	    final String imageWhere = null;
 	    final String[] imageArguments = null;
-	    
 	    Cursor imageCursor = activity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, imageWhere, imageArguments, imageOrderBy);
 	    if (imageCursor == null) {
 	    	return -1;
@@ -275,10 +285,48 @@ public class MediaModule extends KrollModule
 		activity.startActivity(intent);
 	}
 
+	@Kroll.method
+	public boolean hasCameraPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		} 
+		return false;		
+	}
+	
+	private boolean hasCameraPermission() {
+	    if (Build.VERSION.SDK_INT < 23) {
+	        return true;
+	    }
+	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+	    if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+	        return true;
+	    } 
+	    return false;
+	}
+
+	private boolean hasStoragePermission() {
+	    if (Build.VERSION.SDK_INT < 23) {
+	        return true;
+	    }
+	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+	        return true;
+	    } 
+	    return false;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
+		if (!hasCameraPermissions()) {
+			return;
+		}
 		KrollDict cameraOptions = null;
 		if ( (options == null) || !(options instanceof HashMap<?, ?>) ) {
 			if (Log.isDebugModeEnabled()) {
@@ -296,6 +344,32 @@ public class MediaModule extends KrollModule
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
+	}
+	
+	@Kroll.method
+	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasCameraPermissions()) {
+			return;
+		}
+
+		if (TiBaseActivity.cameraCallbackContext == null) {
+			TiBaseActivity.cameraCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.cameraPermissionCallback = permissionCallback;
+		String[] permissions = null;
+		if (!hasCameraPermission() && !hasStoragePermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+		} else if (!hasCameraPermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA};
+		} else {
+	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+		}
+		
+
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+		
 	}
 
 	/*
@@ -363,7 +437,7 @@ public class MediaModule extends KrollModule
 			} else {
 				try {
 					String mimetype = theBlob.getMimeType();
-					extension = TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
+					extension = '.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
 				} catch(Throwable t) {
 					extension = null;
 				}

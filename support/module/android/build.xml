@@ -101,7 +101,7 @@ timodule.xml.
 			<pathelement location="${ti.module.support.dir}/android/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
-	
+
 	<property name="src" location="${ti.module.root}/src"/>
 	<property name="build" location="${ti.module.root}/build"/>
 	<property name="gen" location="${build}/generated"/>
@@ -150,12 +150,34 @@ timodule.xml.
 		<mkdir dir="${dist}"/>
 	</target>
 
-	<target name="process.annotations" depends="init"
+	<target name="process.aidl" depends="init">
+		<echo>Generating java files from the .aidl files</echo>
+
+		<path id="aidlexe">
+			<last>
+				<fileset dir="${android.platform}/../../build-tools">
+					<include name="**/*/aidl"/>
+				</fileset>
+			</last>
+		</path>
+		<echo message="${toString:aidlexe}" />
+
+		<apply executable="${toString:aidlexe}" failonerror="true">
+			<arg value="-p${android.platform}/framework.aidl" />
+			<arg value="-I${src}" />
+			<fileset dir="${src}" id="aidlfiles">
+				<include name="**/*.aidl"/>
+			</fileset>
+		</apply>
+		<echo message="${toString:aidlfiles}" />
+	</target>
+
+	<target name="process.annotations" depends="process.aidl, init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${genjson}"/>
 
-		<javac 
-			srcdir="${src}" 
+		<javac
+			srcdir="${src}"
 			destdir="${classes}"
 			target="1.6"
 			source="1.6"
@@ -219,8 +241,8 @@ timodule.xml.
 		</condition>
 	</target>
 
-	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
-		<javac 
+	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,check.build.arch,ndk.build.local" description="Compile this module's source code">
+		<javac
 			destdir="${classes}"
 			debug="${javac.debug}"
 			target="1.6"
@@ -229,7 +251,7 @@ timodule.xml.
 			<src path="${src}" />
 			<src path="${genjava}" />
 			<include name="**/*.java" />
-			
+
 			<classpath refid="project.classpath" />
 		</javac>
 		<copy todir="${classes}">
@@ -259,16 +281,16 @@ timodule.xml.
 			</condition>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="build.ndk">
 		<attribute name="gendir"/>
 		<sequential>
-			<condition property="ndk.build" 
-				value="${ndk.path}/ndk-build.cmd" 
+			<condition property="ndk.build"
+				value="${ndk.path}/ndk-build.cmd"
 				else="${ndk.path}/ndk-build">
 				<os family="windows"/>
 			</condition>
-			
+
 			<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
 			<property name="ndk.verbose" value="0"/>
 			<propertyregex property="user.name.nospaces" input="${user.name}" regexp=" " replace="_" global="true" defaultValue="${user.name}"/>
@@ -291,7 +313,7 @@ timodule.xml.
 			</move>
 		</sequential>
 	</macrodef>
-	
+
 	<target name="ndk.build">
 		<check.ndk/>
 
@@ -322,7 +344,7 @@ timodule.xml.
 			file="${module.generated.dir}/Android.mk">
 			<filterset refid="ndk.filter"/>
 		</copy>
-		
+
 		<build.ndk gendir="${gen}"/>
 
 		<copy todir="${libs}">
@@ -332,7 +354,38 @@ timodule.xml.
 			</fileset>
 		</copy>
 	</target>
-	
+
+	<target name="check.build.arch">
+		<dirset id="build.archs" dir="${libs}" includes="*"/>
+
+		<echo>Architectures in manifest: ${manifest.architectures}</echo>
+		<echo>Compiled binary architectures: ${toString:build.archs}</echo>
+
+		<property name="manifest.archs" value="${manifest.architectures};" />
+
+		<loadresource property="new.manifest.archs">
+			<propertyresource name="manifest.archs"/>
+			<filterchain>
+				<tokenfilter>
+					<filetokenizer/>
+					<replacestring from=" " to=";"/>
+				</tokenfilter>
+			</filterchain>
+		</loadresource>
+
+		<for param="line" list="${toString:build.archs}" delimiter=";">
+			<sequential>
+				<fail message="There is discrepancy between the architectures specified in manifest and compiled binary.">
+					<condition>
+						<not>
+							<contains string="${new.manifest.archs}" substring="@{line};"/>
+						</not>
+					</condition>
+				</fail>
+			</sequential>
+		</for>
+	</target>
+
 	<target name="js.compile" if="${isJSModule}">
 		<echo>CommonJS module files found. Compiling.</echo>
 		<!-- If applicable, will set commonjs key value in manifest and
@@ -359,7 +412,7 @@ timodule.xml.
 				<include name="**"/>
 			</fileset>
 		</copy>
-		
+
 		<build.ndk gendir="${genjni.local}"/>
 
 		<copy todir="${libs}">
@@ -468,7 +521,7 @@ timodule.xml.
 			<fileset dir="${libs}" includes="**/*"/>
 		</delete>
 	</target>
-	
+
 
 	<macrodef name="titanium">
 		<attribute name="command"/>

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -61,6 +61,7 @@
 @property(nonatomic,readonly) NSDictionary* currentRoute;
 @property(nonatomic,readonly) NSNumber* audioPlaying;
 @property(nonatomic,readonly) NSNumber* isCameraSupported;
+@property(nonatomic,readonly) NSNumber* cameraAuthorizationStatus;
 @property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
@@ -99,8 +100,16 @@
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_AUTO;
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_ON;
 
+@property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_AUTHORIZED;
+@property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_DENIED;
+@property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_RESTRICTED;
+@property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_NOT_DETERMINED;
+
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
+#if IS_XCODE_7_1
+@property(nonatomic,readonly) NSString* MEDIA_TYPE_LIVEPHOTO;
+#endif
 
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_LINEAR_PCM;
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ULAW;

@@ -7,7 +7,7 @@ description: |
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
-platforms: [android, iphone, ipad, mobileweb, tizen]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
 
@@ -97,11 +97,11 @@ methods:
         optional: true
         default: Length of the supplied buffer.
 
-  - name: isWriteable
-    summary: Indicates whether this stream is writeable.
+  - name: isWritable
+    summary: Indicates whether this stream is writable.
     returns:
         type: Boolean
-        summary: True if stream is writeable, false otherwise.
+        summary: True if stream is writable, false otherwise.
 
   - name: isReadable
     summary: Indicates whether this stream is readable.
@@ -121,7 +121,8 @@ examples:
         This example demonstrates writing data to a stream.
 
             var outBuffer = Ti.createBuffer({data: "write me"});
-            var outStream = // stream object could be socket, file, buffer or blob
+            // stream object could be socket, file, buffer or blob
+            var outStream = Ti.Stream.createStream({mode: Ti.Stream.MODE_WRITE});
             
             var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
             Ti.API.info("Bytes written:" + bytesWritten);  // should be 8

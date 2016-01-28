@@ -118,7 +118,7 @@ description: |
     This can lead to memory leaks if application-level event listeners are added and not
     removed.
 
-    See also: [Event Handling](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Event_Handling)
+    See also: [Event Handling](http://docs.appcelerator.com/platform/latest/#!/guide/Event_Handling)
     in the Titanium Mobile Guides.
 
     #### System Level Accessibility Events
@@ -236,6 +236,43 @@ events:
     platforms: [iphone, android]
     since: {android: "3.3.0"}
     
+  - name: uncaughtException
+    summary: Fired when an uncaught JavaScript exception occurs.
+    description: |
+        This event will occur in both production and development builds, allowing you to warn the
+        user that an error has occured, and log more information to help you fix any bugs.
+    properties:
+      - name: message
+        summary: The error message.
+      - name: line
+        summary: The line where the error occurred.
+      - name: sourceId
+        summary: A unique identification for the source file.
+        platforms: [iphone, ipad]
+      - name: type
+        summary: The type of error.
+        platforms: [iphone, ipad]
+      - name: sourceURL
+        summary: The URL to the source file.
+        platforms: [iphone, ipad]
+      - name: backtrace
+        summary: The backtrace of function calls when the error occurred.
+        platforms: [iphone, ipad]
+      - name: title
+        summary: The title for the error.
+        platforms: [android]
+      - name: sourceName
+        summary: The name of the source file.
+        platforms: [android]
+      - name: lineSource
+        summary: The line source reference.
+        platforms: [android]
+      - name: lineOffset
+        summary: The offset on the line where the error occurred.
+        platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: '4.1.0'
+    
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
@@ -266,6 +303,7 @@ events:
   - name: keyboardFrameChanged
     deprecated:
         since: "3.0.0"
+        removed: "4.0.0"
         notes: |
             Renamed to [keyboardframechanged](Titanium.App.keyboardframechanged)
             (all lowercase).
@@ -285,12 +323,22 @@ events:
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
         This event fires when the application presents the soft keyboard on/off the screen . The 
-        event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
-        `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
-        the keyboard with respect to the screen coordinates.
+        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys, 
+        corresponding to the frame of the keyboard with respect to the screen coordinates. 
+
+        On Titanium SDK 4.0.0 and later the event also contains a second parameter `animationDuration` representing
+        the duration of the animation for the presentation and dismissal of the soft keyboard.
         
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.
+    properties:
+      - name: keyboardFrame
+        summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
+        type: Dictionary
+    
+      - name: animationDuration
+        summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
+        type: Number
     platforms: [iphone, ipad]
     since: '3.0.0'
 
@@ -334,7 +382,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     since: "3.0.0"
-    exclude-platforms: [blackberry]
+
 
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
@@ -347,19 +395,19 @@ properties:
     summary: Indicates whether Accessibility is enabled by the system.
     type: Boolean
     permission: read-only
-    exclude-platforms: [blackberry]
+
  
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: deployType
     summary: |
@@ -367,20 +415,20 @@ properties:
         `production`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
@@ -398,7 +446,7 @@ properties:
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: installId
     summary: The install ID for this application.
@@ -422,7 +470,7 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled. 
@@ -463,25 +511,25 @@ properties:
     summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
-    exclude-platforms: [blackberry]
+
     
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.

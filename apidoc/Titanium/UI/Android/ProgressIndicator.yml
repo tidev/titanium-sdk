@@ -22,9 +22,21 @@ description:  |
     wait for the window to open before creating the progress bar.
     For example, in the sample code below, for it to work in the status bar,
     create the progress bar inside the event listener, which waits for the open event.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "3.0.0"
 platforms: [android]
+excludes:
+    events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 methods:
   - name: hide
@@ -41,6 +53,14 @@ properties:
         When `true` allows the user to cancel the progress dialog by pressing the BACK button.
     type: Boolean
     platforms: [android]
+
+  - name: canceledOnTouchOutside
+    summary: |
+        When `cancelable` is set to `true` and this is set to `true`, the dialog is canceled when touched outside the window's bounds.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "3.6.0"
 
   - name: message
     summary: Message text.

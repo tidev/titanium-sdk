@@ -25,6 +25,17 @@
     [super dealloc];
 }
 
+#if IS_XCODE_7
+-(NSArray<id<UIPreviewActionItem>> *)previewActionItems
+{
+    if ([self previewActions] == nil) {
+        [self setPreviewActions:[NSArray array]];
+    }
+    
+    return [self previewActions];
+}
+#endif
+
 -(void)updateOrientations
 {
     id object = [_proxy valueForUndefinedKey:@"orientationModes"];
@@ -88,7 +99,7 @@
     return YES;
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     /*
      If we are in a navigation controller, let us match so it doesn't get freaked 
      out in when pushing/popping. We are going to force orientation anyways.
@@ -97,7 +108,7 @@
         return [[self navigationController] supportedInterfaceOrientations];
     }
     //This would be for modal.
-    return _supportedOrientations;
+    return (UIInterfaceOrientationMask)_supportedOrientations;
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
@@ -193,6 +204,9 @@
 {
     if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
+    } else if ([[[TiApp app] controller] topContainerController] != nil) {
+        // Prefer the style of the most recent view controller.
+        return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
     } else {
         return UIStatusBarStyleDefault;
     }
@@ -207,5 +221,7 @@
 {
     return UIStatusBarAnimationNone;
 }
-
+- (BOOL)disablesAutomaticKeyboardDismissal {
+    return NO;
+}
 @end

@@ -204,7 +204,7 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAttribute(TiConvert.toString(d, TiC.PROPERTY_FILTER_ATTRIBUTE));
 		} else {
 			// Default to title to match iPhone default.
-			proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE, false);
+			proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 			tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
 		}
 
@@ -282,6 +282,8 @@ public class TiUITableView extends TiUIView
 
 		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_SEPARATOR_STYLE)) {
+		    tableView.setSeparatorStyle(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));

@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
+@SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback
 {
 	private static final String TAG = "TiCameraActivity";
@@ -136,6 +137,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		setFullscreen(true);
 		
 		super.onCreate(savedInstanceState);
+
+		// checks if device has only front facing camera and sets it
+		checkWhichCameraAsDefault();
 
 		// create camera preview
 		preview = new SurfaceView(this);
@@ -543,6 +547,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
 					TiBlob theBlob = TiBlob.blobFromFile(theFile);
 					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					
+					// add previewRect to response
+					KrollDict previewRect = new KrollDict();
+					if (optimalPreviewSize!=null){
+						previewRect.put(TiC.PROPERTY_WIDTH, optimalPreviewSize.width);
+						previewRect.put(TiC.PROPERTY_HEIGHT, optimalPreviewSize.height);
+					} else {
+						previewRect.put(TiC.PROPERTY_WIDTH, 0);
+						previewRect.put(TiC.PROPERTY_HEIGHT, 0);
+					}
+					response.put("previewRect", previewRect);
+					
 					successCallback.callAsync(callbackContext, response);
 				}				
 			} catch (Throwable t) {
@@ -561,6 +577,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 		}
 	};
+
+	private void checkWhichCameraAsDefault(){
+		// This is to check if device has only front facing camera
+		// TIMOB-15812: Fix for Devices like Nexus 7 (2012) that only
+		// has front facing camera and no rear camera.
+		TiCameraActivity.getFrontCameraId();
+		TiCameraActivity.getBackCameraId();
+		if (backCameraId == Integer.MIN_VALUE && frontCameraId != Integer.MIN_VALUE) {
+			TiCameraActivity.whichCamera = MediaModule.CAMERA_FRONT;
+		} else {
+			TiCameraActivity.whichCamera = MediaModule.CAMERA_REAR;
+		}
+	}
 
 	private static int getFrontCameraId()
 	{
@@ -612,10 +641,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera = null;
 		}
 
-		if (cameraId == Integer.MIN_VALUE) {
-			camera = Camera.open();
-		} else {
-			camera = Camera.open(cameraId);
+		try {
+			if (cameraId == Integer.MIN_VALUE) {
+				camera = Camera.open();
+			} else {
+				camera = Camera.open(cameraId);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.", e);
 		}
 
 		if (camera == null) {

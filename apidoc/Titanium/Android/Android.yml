@@ -1,22 +1,98 @@
 ---
 name: Titanium.Android
-summary: The top level Android module. 
+summary: The top-level Android module.
 description: |
-    The [currentActivity](Titanium.Android.currentActivity) property provides a reference to the
-    context's current [Activity](Titanium.Android.Activity). Activity objects cannot be 
-    created directly, although a new activity can be started from an existing activity
-    using [Activity.startActivity](Titanium.Android.Activity.startActivity) or 
-    [Activity.startActivityForResult](Titanium.Android.Activity.startActivityForResult).
+    The Android module allows the application to manage various Android components.
 
-    Almost all of the constants defined in this module correspond directly to Android
-    constants, and are documented in the official Android documentation. In particular, 
-    the `ACTION_`, `EXTRA_` and `CATEGORY_` constants are defined in the 
-    [Intent Class Reference](http://developer.android.com/reference/android/content/Intent.html), 
+    #### Action Bar
 
-    See also:
-        
-    *   [Intents and Intent Filters in the Android Developer's Guide](http://developer.android.com/guide/topics/intents/intents-filters.html)
-        
+    An action bar is a UI feature that identifies the application and user location, and
+    provides user actions and navigation modes.
+
+    The Titanium SDK lets you customize the look of the action bar and add action items.
+    Action items are added using the <Titanium.Android.Menu> API.
+
+    For more information about the action bar, see the
+    [Titanium.Android.ActionBar API reference](Titanium.Android.ActionBar).
+
+    #### Activities
+
+    An Android application is made up of one or more activities. Each activity represents a single screen
+    with a user interface.
+
+    In Titanium, each `Window` or `TabGroup` has its own activity.  The application
+    can access the activity of a `Window` and `TabGroup` object and monitor its lifecycle events.
+    Titanium also lets you launch new activities by creating intents to launch them.
+    See the "Intents" section below.
+
+    For more information about activities, see the
+    [Titanium.Android.Activity API reference](Titanium.Android.Activity).
+
+    #### Broadcast Intents and Receivers
+
+    Broadcast Intents allow your application to send out a message to any application that sets up
+    a Broadcast Receiver to listen to it. Your application can also register Broadcast Receivers
+    to listen to system events sent by the Android OS, such as low battery warnings or airplane
+    mode changes.
+
+    For more information about broadcasts, see the
+    [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+    and [Titanium.Android.BroadcastReceiver API reference](Titanium.Android.BroadcastReceiver).
+
+    #### Intents
+
+    Intents are message objects that specify actions to perform that start either activities,
+    broadcasts or services.
+
+    For more information about intents, see the
+    [Titanium.Android.Intent API reference](Titanium.Android.Intent).
+
+    #### Intent Filters
+
+    Intent Filters advertise to the Android OS that your application handles certain actions and
+    data types. For example, when another application wants to share an image or text, your application
+    can define intent filters to let Android know your application can handle those data types.
+
+    For more information about intent filters, see the
+    [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+
+    #### Notifications
+
+    Notifications alert the user that something is happening to your application while it is
+    in the background. Notifications appear in the notification drawer until the user
+    clears them and on the lock screen for devices running Android 5.0 or greater.
+    Note that the user can filter or turn notifications on and off from **Settings**.
+    For more information about notifications, see the
+    [Titanium.Android.Notification API reference](Titanium.Android.Notification).
+
+    For Android toast notifications (pop-up notifications sent while the application is in the
+    foreground), see <Titanium.UI.Notification>.
+
+    #### Options Menu
+
+    The options menu is a feature of older Android devices (prior to Android 3.0 (API 11)), and has been
+    replaced by the action bar.  The options menu is accessed by pressing the **Menu**  and presents
+    a pop-up menu of options the user can execute.
+
+    The `Titanium.Android.Menu` API is used to construct both the options menu and action items for
+    the action bar.
+
+    For more information about the options menu, see the
+    [Titanium.Android.Menu API reference](Titanium.Android.Menu).
+
+    #### Services
+
+    A service is a component started by an application that runs in the background. The service
+    does not have any application UI associated with it, so the user does not directly interact
+    with it, only your application.
+
+    The Titanium SDK gives you the ability to write your own Android Services using JavaScript.
+    The service executes your JavaScript code at intervals you specify.  Note that the service
+    may stop running if the application is killed.
+
+    For more information about services, see the
+    [Titanium.Android.Service API reference](Titanium.Android.Service).
+
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
@@ -31,16 +107,16 @@ methods:
         Use this method when the user wants to take an action that could use any one of a
         number of applications. For example, when sending a plain text message, the user
         may choose to send a text message, send an email, or post to a social network.
-        
+
         You pass in an [Intent](Titanium.Android.Intent) representing the action being taken,
-        and a title for the chooser. 
+        and a title for the chooser.
 
         The method returns another intent, representing the chooser, which can be used to
         start an activity. See the code example for details on how to display the chooser.
 
         For more information, see the official Android documentation for
         [Intent.ACTION_CHOOSER](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER)
-    parameters: 
+    parameters:
       - name: intent
         summary: The intent to display a chooser for.
         type: Titanium.Android.Intent
@@ -53,17 +129,17 @@ methods:
         type: Titanium.Android.Intent
 
     examples:
-      - title: Using a Chooser 
+      - title: Using a Chooser
         example: |
             The following example uses an activity chooser to send a plain text message.
 
-                var intent = Ti.Android.createIntent( { 
+                var intent = Ti.Android.createIntent( {
                     action: Ti.Android.ACTION_SEND,
                     type: 'text/plain'
                 });
                 intent.putExtra(Ti.Android.EXTRA_SUBJECT, "This is the subject.");
                 intent.putExtra(Ti.Android.EXTRA_TEXT, "This is some text to send.")
-    
+
                 var chooser = Ti.Android.createIntentChooser(intent, "Send Message");
                 var activity = Ti.Android.currentActivity.startActivity(chooser);
 
@@ -155,309 +231,417 @@ methods:
             An `Intent` created with [createServiceIntent](Titanium.Android.createServiceIntent),
             which specifies the service to stop.
         type: Titanium.Android.Intent
-        
+
   - name: createBroadcastIntent
     summary: Create an `Intent` to be used in a broadcast.
     returns:
         type: Titanium.Android.Intent
     parameters:
-      - name: options
-        summary: Options for the Intent.
-        type: BroadcastIntentOptions
+      - name: parameters
+        summary: |
+            Properties to set on the new object, including any defined by
+            <Titanium.Android.Intent>, except those marked not-creation or read-only.
+        type: Dictionary<Titanium.Android.Intent>
+        optional: true
     since: "3.2.0"
 
 properties:
 
   - name: ACTION_AIRPLANE_MODE_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_AIRPLANE_MODE_CHANGED` constant.
+    summary: User switched airplane mode on or off.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_AIRPLANE_MODE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_AIRPLANE_MODE_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_ALL_APPS
-    summary: Corresponds to the Android `Intent.ACTION_ALL_APPS` constant.
+    summary: List all applications.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_ALL_APPS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ALL_APPS).
     type: String
     permission: read-only
 
   - name: ACTION_ANSWER
-    summary: Corresponds to the Android `Intent.ACTION_ANSWER` constant.
+    summary: Handle an incoming phone call.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_ANSWER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ANSWER).
     type: String
     permission: read-only
 
   - name: ACTION_ATTACH_DATA
-    summary: Corresponds to the Android `Intent.ACTION_ATTACH_DATA` constant.
+    summary: Used to indicate that the data is an attachment.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_ATTACH_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ATTACH_DATA).
     type: String
     permission: read-only
 
   - name: ACTION_BATTERY_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_BATTERY_CHANGED` constant.
+    summary: Listen to battery state change status.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
+
         See [Intent.ACTION_BATTERY_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_BATTERY_LOW
-    summary: Corresponds to the Android `Intent.ACTION_BATTERY_LOW` constant.
+    summary: Indicates low battery condition on the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
+
         See [Intent.ACTION_BATTERY_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_LOW).
     type: String
     permission: read-only
 
   - name: ACTION_BATTERY_OKAY
-    summary: Corresponds to the Android `Intent.ACTION_BATTERY_OKAY` constant.
+    summary: Inidicates the battery is now okay after being low.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
+
         See [Intent.ACTION_BATTERY_OKAY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_OKAY).
     type: String
     permission: read-only
 
   - name: ACTION_BOOT_COMPLETED
-    summary: Corresponds to the Android `Intent.ACTION_BOOT_COMPLETED` constant.
+    summary: Indicates the system has finished booting.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        The application needs to also set the `android.permission.RECEIVE_BOOT_COMPLETED` permission
+        in the Android manifest section of the `tiapp.xml` file.
+
+            <ti:app>
+                <android>
+                    <manifest>
+                        <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+                    </manifest>
+                </android>
+            </ti:app>
+
         See [Intent.ACTION_BOOT_COMPLETED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BOOT_COMPLETED).
     type: String
     permission: read-only
 
   - name: ACTION_BUG_REPORT
-    summary: Corresponds to the Android `Intent.ACTION_BUG_REPORT` constant.
+    summary: Show activity for reporting a bug.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_BUG_REPORT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BUG_REPORT).
     type: String
     permission: read-only
 
   - name: ACTION_CALL
-    summary: Corresponds to the Android `Intent.ACTION_CALL` constant.
+    summary: Perform a call to someone specified by the `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL).
     type: String
     permission: read-only
 
   - name: ACTION_CALL_BUTTON
-    summary: Corresponds to the Android `Intent.ACTION_CALL_BUTTON` constant.
+    summary: User pressed the call button.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_CALL_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL_BUTTON).
     type: String
     permission: read-only
 
   - name: ACTION_CAMERA_BUTTON
-    summary: Corresponds to the Android `Intent.ACTION_CAMERA_BUTTON` constant.
+    summary: The camera button was pressed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_CAMERA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CAMERA_BUTTON).
     type: String
     permission: read-only
 
   - name: ACTION_CHOOSER
-    summary: Corresponds to the Android `Intent.ACTION_CHOOSER` constant.
+    summary: Display an activity chooser.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an Activity Chooser.
+
+        You can also create an activity chooser using the <Titanium.Android.createIntentChooser> method.
+
         See [Intent.ACTION_CHOOSER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER).
     type: String
     permission: read-only
 
   - name: ACTION_CLOSE_SYSTEM_DIALOGS
-    summary: Corresponds to the Android `Intent.ACTION_CLOSE_SYSTEM_DIALOGS` constant.
+    summary: User dismissed a temporary system dialog, such as the notification drawer or recent-app drawer.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_CLOSE_SYSTEM_DIALOGS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CLOSE_SYSTEM_DIALOGS).
     type: String
     permission: read-only
 
   - name: ACTION_CONFIGURATION_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_CONFIGURATION_CHANGED` constant.
+    summary: The device's configuration changed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_CONFIGURATION_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CONFIGURATION_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_CREATE_SHORTCUT
-    summary: Corresponds to the Android `Intent.ACTION_CREATE_SHORTCUT` constant.
+    summary: Create a shortcut.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_CREATE_SHORTCUT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CREATE_SHORTCUT).
     type: String
     permission: read-only
 
   - name: ACTION_DATE_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_DATE_CHANGED` constant.
+    summary: Date changed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_DATE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DATE_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_DEFAULT
-    summary: Corresponds to the Android `Intent.ACTION_DEFAULT` constant.
+    summary: Default action, which is `Titanium.Android.ACTION_VIEW`
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEFAULT).
     type: String
     permission: read-only
 
   - name: ACTION_DELETE
-    summary: Corresponds to the Android `Intent.ACTION_DELETE` constant.
+    summary: Delete the data specified by the Intent's `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_DELETE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DELETE).
     type: String
     permission: read-only
 
   - name: ACTION_DEVICE_STORAGE_LOW
-    summary: Corresponds to the Android `Intent.ACTION_DEVICE_STORAGE_LOW` constant.
+    summary: Indicates a low memory condition on the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_DEVICE_STORAGE_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEVICE_STORAGE_LOW).
     type: String
     permission: read-only
 
   - name: ACTION_DIAL
-    summary: Corresponds to the Android `Intent.ACTION_DIAL` constant.
+    summary: Dial a number specified by the Intent's `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_DIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DIAL).
     type: String
     permission: read-only
 
   - name: ACTION_EDIT
-    summary: Corresponds to the Android `Intent.ACTION_EDIT` constant.
+    summary: Provide editable access to the data specified by the Intent's `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_EDIT).
     type: String
     permission: read-only
 
   - name: ACTION_GET_CONTENT
-    summary: Corresponds to the Android `Intent.ACTION_GET_CONTENT` constant.
+    summary: Allow the user to select a particular kind of data specified by the Intent's `type` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_GET_CONTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GET_CONTENT).
     type: String
     permission: read-only
 
   - name: ACTION_GTALK_SERVICE_CONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_GTALK_SERVICE_CONNECTED` constant.
+    summary: GTalk connection has been established.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_GTALK_SERVICE_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_CONNECTED).
     type: String
     permission: read-only
 
   - name: ACTION_GTALK_SERVICE_DISCONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_GTALK_SERVICE_DISCONNECTED` constant.
+    summary: GTalk connections has been disconnected.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_GTALK_SERVICE_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_DISCONNECTED).
     type: String
     permission: read-only
 
   - name: ACTION_HEADSET_PLUG
-    summary: Corresponds to the Android `Intent.ACTION_HEADSET_PLUG` constant.
+    summary: A wired headset has been plugged in or unplugged.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_HEADSET_PLUG in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_HEADSET_PLUG).
     type: String
     permission: read-only
 
   - name: ACTION_INPUT_METHOD_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_INPUT_METHOD_CHANGED` constant.
+    summary: An input method has been changed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_INPUT_METHOD_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INPUT_METHOD_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_INSERT
-    summary: Corresponds to the Android `Intent.ACTION_INSERT` constant.
+    summary: Insert an empty item into the given container.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_INSERT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT).
     type: String
     permission: read-only
 
   - name: ACTION_INSERT_OR_EDIT
-    summary: Corresponds to the Android `Intent.ACTION_INSERT_OR_EDIT` constant.
+    summary: Pick an existing item or insert an empty item, then edit it.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_INSERT_OR_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT_OR_EDIT).
     type: String
     permission: read-only
 
   - name: ACTION_MAIN
-    summary: Corresponds to the Android `Intent.ACTION_MAIN` constant.
+    summary: Start as the main entry point.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_MAIN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MAIN).
     type: String
     permission: read-only
 
   - name: ACTION_MANAGE_PACKAGE_STORAGE
-    summary: Corresponds to the Android `Intent.ACTION_MANAGE_PACKAGE_STORAGE` constant.
+    summary: Indicates low memory condition notification acknowledged by user and package management should be started.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MANAGE_PACKAGE_STORAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MANAGE_PACKAGE_STORAGE).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_BAD_REMOVAL
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_BAD_REMOVAL` constant.
+    summary: External media was removed from SD card slot, but mount point was not unmounted.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_BAD_REMOVAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BAD_REMOVAL).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_BUTTON
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_BUTTON` constant.
+    summary: The media button was pressed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BUTTON).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_CHECKING
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_CHECKING` constant.
+    summary: External media is present and being disk-checked
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        Applications should close all files they have open within the mount point when they receive this intent.
+
         See [Intent.ACTION_MEDIA_CHECKING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_CHECKING).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_EJECT
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_EJECT` constant.
+    summary: User has expressed the desire to remove the external storage media.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_EJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_EJECT).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_MOUNTED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_MOUNTED` constant.
+    summary: External media is present and mounted at its mount point.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_MOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_MOUNTED).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_NOFS
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_NOFS` constant.
+    summary: External media is present, but is using an incompatible filesystem or is blank.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_NOFS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_NOFS).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_REMOVED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_REMOVED` constant.
+    summary: External media has been removed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_REMOVED).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_SCANNER_FINISHED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_FINISHED` constant.
+    summary: The media scanner has finished scanning a directory.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_SCANNER_FINISHED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_FINISHED).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_SCANNER_SCAN_FILE
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_SCAN_FILE` constant.
+    summary: Request the media scanner to scan a file and add it to the media database.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_SCANNER_SCAN_FILE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_SCAN_FILE).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_SCANNER_STARTED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SCANNER_STARTED` constant.
+    summary: The media scanner has started scanning a directory.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_SCANNER_STARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_STARTED).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_SHARED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_SHARED` constant.
+    summary: External media is unmounted because it is being shared via USB mass storage.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_SHARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SHARED).
     type: String
     permission: read-only
@@ -465,511 +649,660 @@ properties:
   - name: ACTION_MEDIA_UNMOUNTABLE
     summary: Corresponds to the Android `Intent.ACTION_MEDIA_UNMOUNTABLE` constant.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_UNMOUNTABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTABLE).
     type: String
     permission: read-only
 
   - name: ACTION_MEDIA_UNMOUNTED
-    summary: Corresponds to the Android `Intent.ACTION_MEDIA_UNMOUNTED` constant.
+    summary: External media is present, but not mounted at its mount point.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_MEDIA_UNMOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTED).
     type: String
     permission: read-only
 
   - name: ACTION_NEW_OUTGOING_CALL
-    summary: Corresponds to the Android `Intent.ACTION_NEW_OUTGOING_CALL` constant.
+    summary: An outgoing call is about to be placed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
+        The application needs to also set the `android.permission.NEW_OUTGOING_CALL` permission
+        in the Android manifest section of the `tiapp.xml` file.
+
+            <ti:app>
+                <android>
+                    <manifest>
+                        <uses-permission android:name="android.permission.NEW_OUTGOING_CALL" />
+                    </manifest>
+                </android>
+            </ti:app>
+
         See [Intent.ACTION_NEW_OUTGOING_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_NEW_OUTGOING_CALL).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_ADDED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_ADDED` constant.
+    summary: A new application package has been installed on the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_ADDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_ADDED).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_CHANGED` constant.
+    summary: An existing application package has been changed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_DATA_CLEARED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_DATA_CLEARED` constant.
+    summary: The user has cleared the data of a package.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_DATA_CLEARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_DATA_CLEARED).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_INSTALL
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_INSTALL` constant.
+    summary: Trigger the download and eventual installation of a package.
     description: |
+        **Note:** this constant has never been used by Android.
+
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_INSTALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_INSTALL).
     type: String
     permission: read-only
+    osver: {android: {max: "4.0"}}
 
   - name: ACTION_PACKAGE_REMOVED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_REMOVED` constant.
+    summary: An existing application package has been removed from the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REMOVED).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_REPLACED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_REPLACED` constant.
+    summary: A new version of an application package has been installed, replacing an existing version that was previously installed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_REPLACED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REPLACED).
     type: String
     permission: read-only
 
   - name: ACTION_PACKAGE_RESTARTED
-    summary: Corresponds to the Android `Intent.ACTION_PACKAGE_RESTARTED` constant.
+    summary: The user has restarted a package, and all of its processes have been killed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PACKAGE_RESTARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_RESTARTED).
     type: String
     permission: read-only
 
   - name: ACTION_PICK
-    summary: Corresponds to the Android `Intent.ACTION_PICK` constant.
+    summary: Pick an item from the directory indicated by the Intent's `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_PICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK).
     type: String
     permission: read-only
 
   - name: ACTION_PICK_ACTIVITY
-    summary: Corresponds to the Android `Intent.ACTION_PICK_ACTIVITY` constant.
+    summary: Pick an activity given an intent.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
+        Add the activity intent using the intent's `putExtra()` method.  Pass the method
+        `Titanium.Android.EXTRA_INTENT` as the `name` parameter and the activity intent
+        as the `data` parameter.
+
         See [Intent.ACTION_PICK_ACTIVITY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK_ACTIVITY).
     type: String
     permission: read-only
 
   - name: ACTION_POWER_CONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_POWER_CONNECTED` constant.
+    summary: External power has been connected to the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_POWER_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_CONNECTED).
     type: String
     permission: read-only
 
   - name: ACTION_POWER_DISCONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_POWER_DISCONNECTED` constant.
+    summary: External power has been disconnected from the device.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_POWER_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_DISCONNECTED).
     type: String
     permission: read-only
 
   - name: ACTION_POWER_USAGE_SUMMARY
-    summary: Corresponds to the Android `Intent.ACTION_POWER_USAGE_SUMMARY` constant.
+    summary: Show power usage information to the user.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_POWER_USAGE_SUMMARY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_USAGE_SUMMARY).
     type: String
     permission: read-only
 
   - name: ACTION_PROVIDER_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_PROVIDER_CHANGED` constant.
+    summary: Content provider published new events or items.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_PROVIDER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PROVIDER_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_REBOOT
-    summary: Corresponds to the Android `Intent.ACTION_REBOOT` constant.
+    summary: Device rebooted.
     description: |
+        **Only used by the system.**
+
         See [Intent.ACTION_REBOOT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_REBOOT).
     type: String
     permission: read-only
 
   - name: ACTION_RUN
-    summary: Corresponds to the Android `Intent.ACTION_RUN` constant.
+    summary: Run the data.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_RUN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_RUN).
     type: String
     permission: read-only
 
   - name: ACTION_SCREEN_OFF
-    summary: Corresponds to the Android `Intent.ACTION_SCREEN_OFF` constant.
+    summary: Sent when the device goes to sleep and becomes non-interactive.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_SCREEN_OFF in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_OFF).
     type: String
     permission: read-only
 
   - name: ACTION_SCREEN_ON
-    summary: Corresponds to the Android `Intent.ACTION_SCREEN_ON` constant.
+    summary: Sent when the device wakes up and becomes interactive.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_SCREEN_ON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_ON).
     type: String
     permission: read-only
 
   - name: ACTION_SEARCH
-    summary: Corresponds to the Android `Intent.ACTION_SEARCH` constant.
+    summary: Perform a search.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH).
     type: String
     permission: read-only
 
   - name: ACTION_SEARCH_LONG_PRESS
-    summary: Corresponds to the Android `Intent.ACTION_SEARCH_LONG_PRESS` constant.
+    summary: Start action associated with long pressing on the search key.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SEARCH_LONG_PRESS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH_LONG_PRESS).
     type: String
     permission: read-only
 
   - name: ACTION_SEND
-    summary: Corresponds to the Android `Intent.ACTION_SEND` constant.
+    summary: Deliver data to another activity.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SEND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND).
     type: String
     permission: read-only
 
   - name: ACTION_SENDTO
-    summary: Corresponds to the Android `Intent.ACTION_SENDTO` constant.
+    summary: Deliver data to the recipient specified by the Intent's `data` property.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SENDTO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SENDTO).
     type: String
     permission: read-only
 
   - name: ACTION_SEND_MULTIPLE
-    summary: Corresponds to the Android `Intent.ACTION_SEND_MULTIPLE` constant.
+    summary: Deliver multiple data to another activity.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SEND_MULTIPLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND_MULTIPLE).
     type: String
     permission: read-only
 
   - name: ACTION_SET_WALLPAPER
-    summary: Corresponds to the Android `Intent.ACTION_SET_WALLPAPER` constant.
+    summary: Show settings for choosing the system wallpaper.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SET_WALLPAPER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SET_WALLPAPER).
     type: String
     permission: read-only
 
   - name: ACTION_SHUTDOWN
-    summary: Corresponds to the Android `Intent.ACTION_SHUTDOWN` constant.
+    summary: Device is shutting down.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_SHUTDOWN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SHUTDOWN).
     type: String
     permission: read-only
 
   - name: ACTION_SYNC
-    summary: Corresponds to the Android `Intent.ACTION_SYNC` constant.
+    summary: Perform data synchronization.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SYNC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYNC).
     type: String
     permission: read-only
 
   - name: ACTION_SYSTEM_TUTORIAL
-    summary: Corresponds to the Android `Intent.ACTION_SYSTEM_TUTORIAL` constant.
+    summary: Start the platform-defined tutorial.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_SYSTEM_TUTORIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYSTEM_TUTORIAL).
     type: String
     permission: read-only
 
   - name: ACTION_TIME_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_TIME_CHANGED` constant.
+    summary: The time was set.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_TIME_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_CHANGED).
     type: String
     permission: read-only
 
   - name: ACTION_TIME_TICK
-    summary: Corresponds to the Android `Intent.ACTION_TIME_TICK` constant.
+    summary: The current time changed.  Sent every minute.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_TIME_TICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_TICK).
     type: String
     permission: read-only
 
   - name: ACTION_UID_REMOVED
-    summary: Corresponds to the Android `Intent.ACTION_UID_REMOVED` constant.
+    summary: A user ID was removed from the system.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_UID_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UID_REMOVED).
     type: String
     permission: read-only
 
   - name: ACTION_UMS_CONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_UMS_CONNECTED` constant.
+    summary:  The device has entered USB Mass Storage mode.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_UMS_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_CONNECTED).
     type: String
     permission: read-only
+    osver: {android: {max: "4.0"}}
 
   - name: ACTION_UMS_DISCONNECTED
-    summary: Corresponds to the Android `Intent.ACTION_UMS_DISCONNECTED` constant.
+    summary:  The device has exited USB Mass Storage mode.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_UMS_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_DISCONNECTED).
     type: String
     permission: read-only
+    osver: {android: {max: "4.0"}}
 
   - name: ACTION_USER_PRESENT
-    summary: Corresponds to the Android `Intent.ACTION_USER_PRESENT` constant.
+    summary:  Sent when the user is present after device wakes up.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_USER_PRESENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_USER_PRESENT).
     type: String
     permission: read-only
 
   - name: ACTION_VIEW
-    summary: Corresponds to the Android `Intent.ACTION_VIEW` constant.
+    summary: Display data to the user.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_VIEW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VIEW).
     type: String
     permission: read-only
 
   - name: ACTION_VOICE_COMMAND
-    summary: Corresponds to the Android `Intent.ACTION_VOICE_COMMAND` constant.
+    summary: Start voice command.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_VOICE_COMMAND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VOICE_COMMAND).
     type: String
     permission: read-only
 
   - name: ACTION_WALLPAPER_CHANGED
-    summary: Corresponds to the Android `Intent.ACTION_WALLPAPER_CHANGED` constant.
+    summary: The current system wallpaper has changed.
     description: |
+        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
+
         See [Intent.ACTION_WALLPAPER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WALLPAPER_CHANGED).
     type: String
     permission: read-only
+    osver: {android: {max: "4.1"}}
 
   - name: ACTION_WEB_SEARCH
-    summary: Corresponds to the Android `Intent.ACTION_WEB_SEARCH` constant.
+    summary: Perform a web search.
     description: |
+        Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
+
         See [Intent.ACTION_WEB_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WEB_SEARCH).
     type: String
     permission: read-only
 
   - name: CATEGORY_ALTERNATIVE
-    summary: Corresponds to the Android `Intent.CATEGORY_ALTERNATIVE` constant.
+    summary: Set if the activity should be considered as an alternative action to the data the user is currently viewing.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_ALTERNATIVE).
     type: String
     permission: read-only
 
   - name: CATEGORY_BROWSABLE
-    summary: Corresponds to the Android `Intent.CATEGORY_BROWSABLE` constant.
+    summary: Activity can browse the Internet.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
+        The `Titanium.Android.ACTION_MAIN` constant must also be set in the intent's `action` property.
+
         See [Intent.CATEGORY_BROWSABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE).
     type: String
     permission: read-only
 
   - name: CATEGORY_DEFAULT
-    summary: Corresponds to the Android `Intent.CATEGORY_DEFAULT` constant.
+    summary: Activity should be used as the default action to perform on a piece of data.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEFAULT).
     type: String
     permission: read-only
 
   - name: CATEGORY_DEVELOPMENT_PREFERENCE
-    summary: Corresponds to the Android `Intent.CATEGORY_DEVELOPMENT_PREFERENCE` constant.
+    summary: Activity is in the development preference panel.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_DEVELOPMENT_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEVELOPMENT_PREFERENCE).
     type: String
     permission: read-only
 
   - name: CATEGORY_EMBED
-    summary: Corresponds to the Android `Intent.CATEGORY_EMBED` constant.
+    summary: Activity can run inside a parent activity.
     description: |
         See [Intent.CATEGORY_EMBED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_EMBED).
     type: String
     permission: read-only
 
   - name: CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST
-    summary: Corresponds to the Android `Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST` constant.
+    summary: To be used as test code for framework instrumentation tests.
     description: |
         See [Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST).
     type: String
     permission: read-only
 
   - name: CATEGORY_HOME
-    summary: Corresponds to the Android `Intent.CATEGORY_HOME` constant.
+    summary: Home activity, the first activity that is displayed when the device boots.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_HOME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_HOME).
     type: String
     permission: read-only
 
   - name: CATEGORY_INFO
-    summary: Corresponds to the Android `Intent.CATEGORY_INFO` constant.
+    summary: Provides information about the package it is in.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_INFO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_INFO).
     type: String
     permission: read-only
 
   - name: CATEGORY_LAUNCHER
-    summary: Corresponds to the Android `Intent.CATEGORY_LAUNCHER` constant.
+    summary: Activity is in the device's launcher.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_LAUNCHER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_LAUNCHER).
     type: String
     permission: read-only
 
   - name: CATEGORY_MONKEY
-    summary: Corresponds to the Android `Intent.CATEGORY_MONKEY` constant.
+    summary: This activity may be exercised by the monkey or other automated test tools.
     description: |
         See [Intent.CATEGORY_MONKEY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_MONKEY).
     type: String
     permission: read-only
 
   - name: CATEGORY_OPENABLE
-    summary: Corresponds to the Android `Intent.CATEGORY_OPENABLE` constant.
+    summary: Activity can open raw `file://` or `scheme://` URIs.
     description: |
         See [Intent.CATEGORY_OPENABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_OPENABLE).
     type: String
     permission: read-only
 
   - name: CATEGORY_PREFERENCE
-    summary: Corresponds to the Android `Intent.CATEGORY_PREFERENCE` constant.
+    summary: This activity is a preference panel.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_PREFERENCE).
     type: String
     permission: read-only
 
   - name: CATEGORY_SAMPLE_CODE
-    summary: Corresponds to the Android `Intent.CATEGORY_SAMPLE_CODE` constant.
+    summary: To be used as a sample code example (not part of the normal user experience).
     description: |
         See [Intent.CATEGORY_SAMPLE_CODE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SAMPLE_CODE).
     type: String
     permission: read-only
 
   - name: CATEGORY_SELECTED_ALTERNATIVE
-    summary: Corresponds to the Android `Intent.CATEGORY_SELECTED_ALTERNATIVE` constant.
+    summary: |
+        Activity should be considered as an alternative selection action to the data the user
+        has currently selected.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_SELECTED_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SELECTED_ALTERNATIVE).
     type: String
     permission: read-only
 
   - name: CATEGORY_TAB
-    summary: Corresponds to the Android `Intent.CATEGORY_TAB` constant.
+    summary: Activity to be used in a tab activity.
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_TAB in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TAB).
     type: String
     permission: read-only
 
   - name: CATEGORY_TEST
-    summary: Corresponds to the Android `Intent.CATEGORY_TEST` constant.
+    summary: To be used as a test (not part of the normal user experience).
     description: |
+        Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
+
         See [Intent.CATEGORY_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TEST).
     type: String
     permission: read-only
 
   - name: CATEGORY_UNIT_TEST
-    summary: Corresponds to the Android `Intent.CATEGORY_UNIT_TEST` constant.
+    summary: To be used as a unit test (run through the Test Harness).
     description: |
         See [Intent.CATEGORY_UNIT_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_UNIT_TEST).
     type: String
     permission: read-only
 
-
   - name: EXTRA_ALARM_COUNT
-    summary: Corresponds to the Android `Intent.EXTRA_ALARM_COUNT` constant.
+    summary: Integer indicating how many pending alarms are being delivered with the intent.
     description: |
         See [Intent.EXTRA_ALARM_COUNT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_ALARM_COUNT).
     type: String
     permission: read-only
 
   - name: EXTRA_BCC
-    summary: Corresponds to the Android `Intent.EXTRA_BCC` constant.
+    summary: String array containing e-mail addresses for blind carbon copying.
     description: |
         See [Intent.EXTRA_BCC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_BCC).
     type: String
     permission: read-only
 
   - name: EXTRA_CC
-    summary: Corresponds to the Android `Intent.EXTRA_CC` constant.
+    summary: String array containing e-mail addresses for carbon copying.
     description: |
         See [Intent.EXTRA_CC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_CC).
     type: String
     permission: read-only
 
   - name: EXTRA_DATA_REMOVED
-    summary: Corresponds to the Android `Intent.EXTRA_DATA_REMOVED` constant.
+    summary: Boolean indicating full uninstall (true) or partial uninstall (false).
     description: |
+        Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcast.
+
         See [Intent.EXTRA_DATA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DATA_REMOVED).
     type: String
     permission: read-only
 
   - name: EXTRA_DONT_KILL_APP
-    summary: Corresponds to the Android `Intent.EXTRA_DONT_KILL_APP` constant.
+    summary: Boolean indicating to restart the application or not.
     description: |
+        Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` and
+        `Titanium.Android.ACTION_PACKAGE_CHANGED` broadcasts.
+
         See [Intent.EXTRA_DONT_KILL_APP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DONT_KILL_APP).
     type: String
     permission: read-only
 
   - name: EXTRA_EMAIL
-    summary: Corresponds to the Android `Intent.EXTRA_EMAIL` constant.
+    summary: String array containing e-mail addresses.
     description: |
         See [Intent.EXTRA_EMAIL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_EMAIL).
     type: String
     permission: read-only
 
   - name: EXTRA_INTENT
-    summary: Corresponds to the Android `Intent.EXTRA_INTENT` constant.
+    summary: An Intent describing the choices you would like shown.
     description: |
+        Set if the Intent's action is `Titanium.Android.ACTION_PICK_ACTIVITY`.
+
         See [Intent.EXTRA_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_INTENT).
     type: String
     permission: read-only
 
   - name: EXTRA_KEY_EVENT
-    summary: Corresponds to the Android `Intent.EXTRA_KEY_EVENT` constant.
+    summary: A KeyEvent object containing the event that triggered the creation of the Intent it is in.
     description: |
         See [Intent.EXTRA_KEY_EVENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_KEY_EVENT).
     type: String
     permission: read-only
 
   - name: EXTRA_PHONE_NUMBER
-    summary: Corresponds to the Android `Intent.EXTRA_PHONE_NUMBER` constant.
+    summary: String holding the phone number to call or number that was called.
     description: |
+        Sent with the `Titanium.Android.ACTION_NEW_OUTGOING_CALL` broadcast.
+
+        Set if the Intent's action is `Titanium.Android.ACTION_CALL`.
+
         See [Intent.EXTRA_PHONE_NUMBER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_PHONE_NUMBER).
     type: String
     permission: read-only
 
   - name: EXTRA_REPLACING
-    summary: Corresponds to the Android `Intent.EXTRA_REPLACING` constant.
+    summary: Boolean indicating if the package is being replaced.
     description: |
+        Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcast.
+
         See [Intent.EXTRA_REPLACING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_REPLACING).
     type: String
     permission: read-only
 
   - name: EXTRA_SHORTCUT_ICON
-    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_ICON` constant.
+    summary: Bitmap icon.
     description: |
+        Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
+
         See [Intent.EXTRA_SHORTCUT_ICON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON).
     type: String
     permission: read-only
 
   - name: EXTRA_SHORTCUT_ICON_RESOURCE
-    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_ICON_RESOURCE` constant.
+    summary: Resource of the shortcut.
     description: |
+        Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
+
         See [Intent.EXTRA_SHORTCUT_ICON_RESOURCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON_RESOURCE).
     type: String
     permission: read-only
 
   - name: EXTRA_SHORTCUT_INTENT
-    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_INTENT` constant.
+    summary: Intent of a shortcut.
     description: |
+        Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
+
         See [Intent.EXTRA_SHORTCUT_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_INTENT).
     type: String
     permission: read-only
 
   - name: EXTRA_SHORTCUT_NAME
-    summary: Corresponds to the Android `Intent.EXTRA_SHORTCUT_NAME` constant.
+    summary: Name of the shortcut.
     description: |
+        Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
+
         See [Intent.EXTRA_SHORTCUT_NAME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_NAME).
     type: String
     permission: read-only
 
   - name: EXTRA_STREAM
-    summary: Corresponds to the Android `Intent.EXTRA_STREAM` constant.
+    summary: URI containing the stream data.
     description: |
+        Use if the Intent's action is `Titanium.Android.ACTION_SEND`.
+
         See [Intent.EXTRA_STREAM in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_STREAM).
     type: String
     permission: read-only
 
   - name: EXTRA_SUBJECT
-    summary: Corresponds to the Android `Intent.EXTRA_SUBJECT` constant.
+    summary: Subject line of a message.
     description: |
         See [Intent.EXTRA_SUBJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SUBJECT).
     type: String
     permission: read-only
 
   - name: EXTRA_TEMPLATE
-    summary: Corresponds to the Android `Intent.EXTRA_TEMPLATE` constant.
+    summary: Initial data to place in a newly created record.
     description: |
+        Use if the Intent's action is `Titanium.Android.ACTION_INSERT`.
+
         See [Intent.EXTRA_TEMPLATE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TEMPLATE).
     type: String
     permission: read-only
@@ -984,62 +1317,72 @@ properties:
   - name: EXTRA_TITLE
     summary: Corresponds to the Android `Intent.EXTRA_TITLE` constant.
     description: |
+        Set if the Intent's action is `Titanium.Android.ACTION_CHOOSER`.
+
         See [Intent.EXTRA_TITLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TITLE).
     type: String
     permission: read-only
 
   - name: EXTRA_UID
-    summary: Corresponds to the Android `Intent.EXTRA_UID` constant.
+    summary: UID of the assigned packaged.
     description: |
+        Sent with the `Titanium.Android.ACTION_UID_REMOVED` broadcast, and may be sent with the
+        `Titanium.Android.ACTION_PACKAGE_CHANGED` and `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcasts.
+
         See [Intent.EXTRA_UID in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_UID).
     type: String
     permission: read-only
 
   - name: FILL_IN_ACTION
-    summary: Corresponds to the Android `Intent.FILL_IN_ACTION` constant.
+    summary: Not used.
     description: |
         See [Intent.FILL_IN_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_ACTION).
     type: Number
     permission: read-only
 
   - name: FILL_IN_CATEGORIES
-    summary: Corresponds to the Android `Intent.FILL_IN_CATEGORIES` constant.
+    summary: Not used.
     description: |
         See [Intent.FILL_IN_CATEGORIES in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_CATEGORIES).
     type: Number
     permission: read-only
 
   - name: FILL_IN_COMPONENT
-    summary: Corresponds to the Android `Intent.FILL_IN_COMPONENT` constant.
+    summary: Not used.
     description: |
         See [Intent.FILL_IN_COMPONENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_COMPONENT).
     type: Number
     permission: read-only
 
   - name: FILL_IN_DATA
-    summary: Corresponds to the Android `Intent.FILL_IN_DATA` constant.
+    summary: Not used.
     description: |
         See [Intent.FILL_IN_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_DATA).
     type: Number
     permission: read-only
 
   - name: FILL_IN_PACKAGE
-    summary: Corresponds to the Android `Intent.FILL_IN_PACKAGE` constant.
+    summary: Not used.
     description: |
         See [Intent.FILL_IN_PACKAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_PACKAGE).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_BROUGHT_TO_FRONT
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT` constant.
+    summary: If activity is already running, bring it to the foreground.
     description: |
+        Set by the system when launching a task.
+
         See [Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_BROUGHT_TO_FRONT).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_CLEAR_TOP
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_CLEAR_TOP` constant.
+    summary: |
+        If the activity is present, removes any activities on top of it to make it the foreground activity.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_CLEAR_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_TOP).
     type: Number
     permission: read-only
@@ -1050,59 +1393,79 @@ properties:
         See [Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET).
     type: Number
     permission: read-only
+    osver: {android: {max: "5.0"}}
 
   - name: FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS` constant.
+    summary: Exclude the activity from recently launched activities.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_FORWARD_RESULT
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_FORWARD_RESULT` constant.
+    summary: Return result to the original calling activity.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_FORWARD_RESULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_FORWARD_RESULT).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY` constant.
+    summary: Activity was launched from history.
     description: |
+        Set by the system when launching a task.
+
         See [Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_MULTIPLE_TASK
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_MULTIPLE_TASK` constant.
+    summary: Start the activity as a new task even if it exists.
     description: |
+        Must be used with the `Titanium.Android.FLAG_ACTIVITY_NEW_TASK`.
+
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_MULTIPLE_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_MULTIPLE_TASK).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_NEW_TASK
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NEW_TASK` constant.
+    summary: Activity will be the start of a new task (collection of activities).
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_NEW_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NEW_TASK).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_NO_ANIMATION
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_ANIMATION` constant.
+    summary: Prevent transition animation.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_NO_ANIMATION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_ANIMATION).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_NO_HISTORY
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_HISTORY` constant.
+    summary: Do not keep the activity in the history stack.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_NO_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_HISTORY).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_NO_USER_ACTION
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_NO_USER_ACTION` constant.
+    summary: |
+        Disables the [onUserLeaveHint()](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint()) callback.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_NO_USER_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_USER_ACTION).
     type: Number
     permission: read-only
@@ -1110,63 +1473,80 @@ properties:
   - name: FLAG_ACTIVITY_PREVIOUS_IS_TOP
     summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP` constant.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_PREVIOUS_IS_TOP).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_REORDER_TO_FRONT
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_REORDER_TO_FRONT` constant.
+    summary: If the activity already exists, place it at the top of the history stack.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_REORDER_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_REORDER_TO_FRONT).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED` constant.
+    summary: If the task already exists, resets the task to its initial state.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_RESET_TASK_IF_NEEDED).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_SINGLE_TOP
-    summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_SINGLE_TOP` constant.
+    summary: Do not launch the activity if it is already running.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_ACTIVITY_SINGLE_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_SINGLE_TOP).
     type: Number
     permission: read-only
 
-
   - name: FLAG_DEBUG_LOG_RESOLUTION
-    summary: Corresponds to the Android `Intent.FLAG_DEBUG_LOG_RESOLUTION` constant.
+    summary: Enable a log message to print out the resolution of the intent.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_DEBUG_LOG_RESOLUTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_DEBUG_LOG_RESOLUTION).
     type: Number
     permission: read-only
 
   - name: FLAG_FROM_BACKGROUND
-    summary: Corresponds to the Android `Intent.FLAG_FROM_BACKGROUND` constant.
+    summary: Indicates the intent is coming from a background operation.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_FROM_BACKGROUND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_FROM_BACKGROUND).
     type: Number
     permission: read-only
 
   - name: FLAG_GRANT_READ_URI_PERMISSION
-    summary: Corresponds to the Android `Intent.FLAG_GRANT_READ_URI_PERMISSION` constant.
+    summary: Grant read permission on the URI in the Intent's data or clipboard.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_GRANT_READ_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_READ_URI_PERMISSION).
     type: Number
     permission: read-only
 
   - name: FLAG_GRANT_WRITE_URI_PERMISSION
-    summary: Corresponds to the Android `Intent.FLAG_GRANT_WRITE_URI_PERMISSION` constant.
+    summary: Grants write permission on the URI in the Intent's data or clipboard.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_GRANT_WRITE_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_WRITE_URI_PERMISSION).
     type: Number
     permission: read-only
 
   - name: FLAG_RECEIVER_REGISTERED_ONLY
-    summary: Corresponds to the Android `Intent.FLAG_RECEIVER_REGISTERED_ONLY` constant.
+    summary: When sending a broadcast, only registered receivers will be called.
     description: |
+        Bitwise-OR the constant with the Intent's `flags` property.
+
         See [Intent.FLAG_RECEIVER_REGISTERED_ONLY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_RECEIVER_REGISTERED_ONLY).
     type: Number
     permission: read-only
@@ -1175,140 +1555,188 @@ properties:
 
 
   - name: FLAG_CANCEL_CURRENT
-    summary: Corresponds to the Android `PendingIntent.FLAG_CANCEL_CURRENT` constant.
+    summary: Cancel the current pending intent before creating a new one.
     description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
         See [PendingIntent.FLAG_CANCEL_CURRENT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_CANCEL_CURRENT).
     type: Number
     permission: read-only
 
   - name: FLAG_NO_CREATE
-    summary: Corresponds to the Android `PendingIntent.FLAG_NO_CREATE` constant.
+    summary: If the current intent does not exist, do not create it.
     description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
         See [PendingIntent.FLAG_NO_CREATE in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_NO_CREATE).
     type: Number
     permission: read-only
 
   - name: FLAG_ONE_SHOT
-    summary: Corresponds to the Android `PendingIntent.FLAG_ONE_SHOT` constant.
+    summary: The pending intent can only be used once.
     description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
         See [PendingIntent.FLAG_ONE_SHOT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_ONE_SHOT).
     type: Number
     permission: read-only
 
   - name: FLAG_UPDATE_CURRENT
-    summary: Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
+    summary: If the current pending intent already exists, only update the current intent's extra data.
     description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
         See [PendingIntent.FLAG_UPDATE_CURRENT in the Android API
         Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
     type: Number
     permission: read-only
 
 # Notification-related constants
-  
+
   - name: CATEGORY_ALARM
-    summary: Corresponds to the Android `Notification.CATEGORY_ALARM` constant.
+    summary: Notification category indicating an alarm or timer.
     description: |
-        An alarm or timer.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_ALARM in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_ALARM).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_CALL
-    summary: Corresponds to the Android `Notification.CATEGORY_CALL` constant.
+    summary: |
+        Notification category indicating an incoming call (voice or video) or similar synchronous
+        communication request.
     description: |
-        Incoming call (voice or video) or similar synchronous communication request.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_CALL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_CALL).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_EMAIL
-    summary: Corresponds to the Android `Notification.CATEGORY_EMAIL` constant.
+    summary: Notification category indicating an asynchronous bulk message (email).
     description: |
-        Asynchronous bulk message (email).
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_EMAIL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_EMAIL).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_ERROR
-    summary: Corresponds to the Android `Notification.CATEGORY_ERROR` constant.
+    summary: Notification category indicating an error in background operation or authentication status.
     description: |
-        Error in background operation or authentication status.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_ERROR in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_ERROR).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_EVENT
-    summary: Corresponds to the Android `Notification.CATEGORY_EVENT` constant.
+    summary: Notification category indicating a calendar event.
     description: |
-        A calendar event.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_EVENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_EVENT).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_MESSAGE
-    summary: Corresponds to the Android `Notification.CATEGORY_MESSAGE` constant.
+    summary: Notification category indicating an incoming direct message (SMS, instant message, etc.).
     description: |
-        Incoming direct message (SMS, instant message, etc.).
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_MESSAGE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_MESSAGE).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_PROGRESS
-    summary: Corresponds to the Android `Notification.CATEGORY_PROGRESS` constant.
+    summary: Notification category indicating the progress of a long-running background operation.
     description: |
-        Progress of a long-running background operation.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_PROGRESS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROGRESS).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_PROMO
-    summary: Corresponds to the Android `Notification.CATEGORY_PROMO` constant.
+    summary: Notification category indicating a promotion or advertisement.
     description: |
-        Promotion or advertisement.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_PROMO in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROMO).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_RECOMMENDATION
-    summary: Corresponds to the Android `Notification.CATEGORY_RECOMMENDATION` constant.
+    summary: Notification category indicating a specific, timely recommendation for a single thing.
     description: |
-        A specific, timely recommendation for a single thing. For example, a news app 
-        might want to recommend a news story it believes the user will want to read next.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_RECOMMENDATION in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_RECOMMENDATION).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_SERVICE
-    summary: Corresponds to the Android `Notification.CATEGORY_SERVICE` constant.
+    summary: Notification category for a running background service.
     description: |
-        Indication of running background service.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_SERVICE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_SERVICE).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_SOCIAL
-    summary: Corresponds to the Android `Notification.CATEGORY_SOCIAL` constant.
+    summary: Notification category for a social network or sharing update.
     description: |
-        Social network or sharing update.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_SOCIAL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_SOCIAL).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_STATUS
-    summary: Corresponds to the Android `Notification.CATEGORY_STATUS` constant.
+    summary: Notification category indicating ongoing information about device or contextual status.
     description: |
-        Ongoing information about device or contextual status.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_STATUS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_STATUS).
     type: String
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: CATEGORY_TRANSPORT
-    summary: Corresponds to the Android `Notification.CATEGORY_TRANSPORT` constant.
+    summary: Notification category indicating media transport control for playback.
     description: |
-        Media transport control for playback.
+        Use with the <Titanium.Android.Notification.category> property.
+
+        See [Notification.CATEGORY_TRANSPORT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_TRANSPORT).
     type: String
     permission: read-only
-    since: "3.4.2"
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
 
   - name: DEFAULT_ALL
     summary: |
@@ -1401,72 +1829,101 @@ properties:
         See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
     type: Number
     permission: read-only
-   
+
   - name: PRIORITY_MAX
-    summary: Corresponds to the Android `Notification.PRIORITY_MAX` constant.
+    summary: |
+        Use for urgent or time-critical notifications, for example, turn-by-turn directions or
+        emergency alerts.
     description: |
-        See [Notification.PRIORITY_MAX in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MAX).
+        Use with the <Titanium.Android.Notification.priority> property.
+
+        See also: [Notification.PRIORITY_MAX in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MAX).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
+
   - name: PRIORITY_HIGH
-    summary: Corresponds to the Android `Notification.PRIORITY_HIGH` constant.
+    summary: Use for high priority notifications like real-time chat messages.
     description: |
-        See [Notification.PRIORITY_HIGH in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_HIGH).
+        Use with the <Titanium.Android.Notification.priority> property.
+
+        See also: [Notification.PRIORITY_HIGH in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_HIGH).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
+
   - name: PRIORITY_DEFAULT
-    summary: Corresponds to the Android `Notification.PRIORITY_DEFAULT` constant.
+    summary: Default priority if it does no fit into another priority category.
     description: |
-        See [Notification.PRIORITY_DEFAULT in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_DEFAULT).
+        Use with the <Titanium.Android.Notification.priority> property.
+
+        See also: [Notification.PRIORITY_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_DEFAULT).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
+
   - name: PRIORITY_LOW
-    summary: Corresponds to the Android `Notification.PRIORITY_LOW` constant.
+    summary: Use for low priority notifications like software updates.
     description: |
-        See [Notification.PRIORITY_LOW in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_LOW).
+        Use with the <Titanium.Android.Notification.priority> property.
+
+        See also: [Notification.PRIORITY_LOW in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_LOW).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
+
   - name: PRIORITY_MIN
-    summary: Corresponds to the Android `Notification.PRIORITY_MIN` constant.
+    summary: Use for expired events.
     description: |
-        See [Notification.PRIORITY_MIN in the Android API reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MIN).
+        Use with the <Titanium.Android.Notification.priority> property.
+
+        Note that the user will not be alerted to the notification (sound, vibration, etc.),
+        but the notification will appear in the drawer.
+
+        See also: [Notification.PRIORITY_MIN in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MIN).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
+
   - name: VISIBILITY_PRIVATE
-    summary: Corresponds to the Android `Notification.VISIBILITY_PRIVATE` constant.
+    summary: Shows basic information about the notification.
     description: |
-        The lockscreen will reveal basic information about the existence of this notification, 
-        including its icon and the name of the app that posted it. The rest of the 
-        notification's details, however, are not displayed.
+        Use with the <Titanium.Android.Notification.visibility> property.
+
+        Only the application name and icon appear in the lock screen with the message: "Contents hidden".
+
+        See also: [Notification.VISIBILITY_PRIVATE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PRIVATE).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: VISIBILITY_PUBLIC
-    summary: Corresponds to the Android `Notification.VISIBILITY_PUBLIC` constant.
+    summary: Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
     description: |
-         Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
+        Use with the <Titanium.Android.Notification.visibility> property.
+
+        See also: [Notification.VISIBILITY_PUBLIC in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PUBLIC).
     type: Number
     permission: read-only
-    since: "3.4.2"
-    
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
+
   - name: VISIBILITY_SECRET
-    summary: Corresponds to the Android `Notification.VISIBILITY_SECRET` constant.
+    summary: Shows the most minimal information of the notification on the lockscreen.
     description: |
-         Shows only the most minimal information on the lockscreen, excluding even the notification's icon.
+        Use with the <Titanium.Android.Notification.visibility> property.
+
+        See also: [Notification.VISIBILITY_SECRET in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_SECRET).
     type: Number
     permission: read-only
-    since: "3.4.2"
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
 
 
 # Constants that should probably be removed
@@ -1475,28 +1932,28 @@ properties:
     summary: Not used.
     type: Number
     permission: read-only
-    deprecated: 
+    deprecated:
         since: "2.0.0"
 
   - name: PENDING_INTENT_FOR_BROADCAST
     summary: Not used.
     type: Number
     permission: read-only
-    deprecated: 
+    deprecated:
         since: "2.0.0"
 
   - name: PENDING_INTENT_FOR_SERVICE
     summary: Not used.
     type: Number
     permission: read-only
-    deprecated: 
+    deprecated:
         since: "2.0.0"
 
   - name: PENDING_INTENT_MAX_VALUE
     summary: Not used.
     type: Number
     permission: read-only
-    deprecated: 
+    deprecated:
         since: "2.0.0"
 
 # end of deprecated constants
@@ -1518,7 +1975,7 @@ properties:
 
   - name: RESULT_FIRST_USER
     summary: |
-        Used with [setResult](Titanium.Android.Activity.setResult) to specify a 
+        Used with [setResult](Titanium.Android.Activity.setResult) to specify a
         user-defined result.
     description: |
         User-defined result constants values start at `RESULT_FIRST_USER`.
@@ -1585,12 +2042,16 @@ properties:
 
   - name: SHOW_AS_ACTION_ALWAYS
     summary: Always show this item as an action button in the action bar.
+    description: |
+        Use with the MenuItem's <Titanium.Android.MenuItem.showAsAction> property.
     type: Number
     permission: read-only
     since: "3.0.0"
 
   - name: SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
     summary: The action view can collapse to a normal menu item.
+    description: |
+        Use with the MenuItem's <Titanium.Android.MenuItem.showAsAction> property.
     type: Number
     permission: read-only
     since: "3.0.0"
@@ -1598,39 +2059,49 @@ properties:
   - name: SHOW_AS_ACTION_IF_ROOM
     summary: |
       Show this item as an action button if the system decides there is room for it.
+    description: |
+        Use with the MenuItem's <Titanium.Android.MenuItem.showAsAction> property.
     type: Number
     permission: read-only
     since: "3.0.0"
 
   - name: SHOW_AS_ACTION_NEVER
     summary: Never display this item as an action button in the action bar.
+    description: |
+        Use with the MenuItem's <Titanium.Android.MenuItem.showAsAction> property.
     type: Number
     permission: read-only
     since: "3.0.0"
 
   - name: SHOW_AS_ACTION_WITH_TEXT
     summary: When this item is in the action bar, always show it with a text label.
+    description: |
+        Use with the MenuItem's <Titanium.Android.MenuItem.showAsAction> property.
     type: Number
     permission: read-only
     since: "3.0.0"
 
   - name: NAVIGATION_MODE_STANDARD
     summary: Standard Action Bar navigation mode
+    description: |
+        Use with the <Titanium.Android.ActionBar.navigationMode> property.
     type: Number
     permission: read-only
     since: "3.2.0"
-    
+
   - name: NAVIGATION_MODE_TABS
     summary: Action Bar tab navigation mode
+    description: |
+        Use with the <Titanium.Android.ActionBar.navigationMode> property.
     type: Number
     permission: read-only
     since: "3.2.0"
-    
+
   - name: START_NOT_STICKY
     summary: |
         A Service start mode indicating that if the host application is stopped by Android, the service should not be restarted automatically.
     description: |
-        Use as a `startMode` value in the options object passed to 
+        Use as a `startMode` value in the options object passed to
         [createServiceIntent](Titanium.Android.createServiceIntent).
     type: Number
     permission: read-only
@@ -1638,7 +2109,7 @@ properties:
   - name: START_REDELIVER_INTENT
     summary: A Service start mode indicating that if the host application is stopped by Android, the service should be restarted automatically and the original Intent re-sent.
     description: |
-        Use as a `startMode` value in the options object passed to 
+        Use as a `startMode` value in the options object passed to
         [createServiceIntent](Titanium.Android.createServiceIntent).
     type: Number
     permission: read-only
@@ -1652,11 +2123,10 @@ properties:
 
   - name: STREAM_DEFAULT
     summary: |
-        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the
         default stream type for notifications be used.
     type: Number
     permission: read-only
-
 
   - name: STREAM_MUSIC
     summary: |
@@ -1667,28 +2137,28 @@ properties:
 
   - name: STREAM_NOTIFICATION
     summary: |
-        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the
         notification stream type for notifications be used.
     type: Number
     permission: read-only
 
   - name: STREAM_RING
     summary: |
-        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the
         ring stream type for notifications be used.
     type: Number
     permission: read-only
 
   - name: STREAM_SYSTEM
     summary: |
-        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the
         system stream type for notifications be used.
     type: Number
     permission: read-only
 
   - name: STREAM_VOICE_CALL
     summary: |
-        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the
         voice call stream type for notifications be used.
     type: Number
     permission: read-only
@@ -1703,9 +2173,6 @@ properties:
     type: Titanium.Android.Activity
     accessors: false
     permission: read-only
-    deprecated:
-        since: 3.5.0
-        notes: Use the [activity](Titanium.UI.Window.activity) property instead.
 
   - name: currentService
     summary: Service in the active context.
@@ -1728,51 +2195,3 @@ properties:
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
     constants: Titanium.Android.START_*
-
----
-name: BroadcastIntentOptions
-summary: Options passed to <Titanium.Android.createBroadcastIntent>.
-since: "3.2.0"
-properties:
-
-  - name: action
-    summary: The action associated with this intent.
-    description: 
-        Specify one of the `ACTION` constants from <Titanium.Android>, or 
-        an application-specific custom action string.
-    type: String
-    constants: Titanium.Android.ACTION_*
-
-  - name: className
-    summary: |
-        Constrain the broadcast to receivers matching this Java class name.
-        ([packageName](Titanium.Android.Intent.packageName) must then also be set).
-    type: String
-
-  - name: data
-    summary: The Intent's Data URI. 
-    description: |
-        The data URI can be set when the intent is created. It is read-only after the
-        intent is created.
-
-        For more information on data URIs, see:
-        [Intent.setData in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
-    type: String
-    optional: true
-
-  - name: flags
-    summary: Intent flags. See the `FLAG_` constants in <Titanium.Android>.
-    type: Number
-    optional: true
-    constants: Titanium.Android.FLAG_*
-
-  - name: packageName
-    summary: Constrain the broadcast to receivers which are Java classes in this Java package.
-    type: String
-    optional: true
-
-  - name: url
-    summary: Url for the broadcast receiver's JavaScript.
-    type: String
-    optional: true
-    

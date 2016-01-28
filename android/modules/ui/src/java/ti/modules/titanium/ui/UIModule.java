@@ -27,6 +27,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebViewClient;
@@ -64,6 +65,16 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	@Kroll.constant public static final int KEYBOARD_DEFAULT = 7;
 	@Kroll.constant public static final int KEYBOARD_DECIMAL_PAD = 8;
+    
+	@Kroll.constant public static final int KEYBOARD_TYPE_ASCII = 0;
+	@Kroll.constant public static final int KEYBOARD_TYPE_NUMBERS_PUNCTUATION = 1;
+	@Kroll.constant public static final int KEYBOARD_TYPE_URL = 2;
+	@Kroll.constant public static final int KEYBOARD_TYPE_NUMBER_PAD = 3;
+	@Kroll.constant public static final int KEYBOARD_TYPE_PHONE_PAD = 4;
+	@Kroll.constant public static final int KEYBOARD_TYPE_EMAIL = 5;
+	@Kroll.constant public static final int KEYBOARD_TYPE_NAMEPHONE_PAD = 6;
+	@Kroll.constant public static final int KEYBOARD_TYPE_DEFAULT = 7;
+	@Kroll.constant public static final int KEYBOARD_TYPE_DECIMAL_PAD = 8;
 	
 	@Kroll.constant public static final int AUTOLINK_ALL = Linkify.ALL;
 	@Kroll.constant public static final int AUTOLINK_EMAIL_ADDRESSES = Linkify.EMAIL_ADDRESSES;
@@ -120,10 +131,18 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int NOTIFICATION_DURATION_LONG = Toast.LENGTH_LONG;
 	@Kroll.constant public static final int NOTIFICATION_DURATION_SHORT = Toast.LENGTH_SHORT;
 	
+	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_NONE = 0;
+	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE = 1;
+	
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
+	
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_START = 0;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MIDDLE = 1;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_END = 2;
+	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MARQUEE = 3;
 
 	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
 	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
@@ -145,6 +164,17 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int URL_ERROR_TIMEOUT = WebViewClient.ERROR_TIMEOUT;
 	@Kroll.constant public static final int URL_ERROR_UNKNOWN = WebViewClient.ERROR_UNKNOWN;
 	@Kroll.constant public static final int URL_ERROR_UNSUPPORTED_SCHEME = WebViewClient.ERROR_UNSUPPORTED_SCHEME;
+	
+	@Kroll.constant public static final int ATTRIBUTE_FONT = 0;
+	@Kroll.constant public static final int ATTRIBUTE_FOREGROUND_COLOR = 1;
+	@Kroll.constant public static final int ATTRIBUTE_BACKGROUND_COLOR = 2;
+	@Kroll.constant public static final int ATTRIBUTE_STRIKETHROUGH_STYLE = 3;
+	@Kroll.constant public static final int ATTRIBUTE_UNDERLINES_STYLE = 4;
+	@Kroll.constant public static final int ATTRIBUTE_LINK = 5;
+	@Kroll.constant public static final int ATTRIBUTE_UNDERLINE_COLOR = 6;
+
+	@Kroll.constant public static final int INPUT_TYPE_CLASS_NUMBER = InputType.TYPE_CLASS_NUMBER;
+	@Kroll.constant public static final int INPUT_TYPE_CLASS_TEXT = InputType.TYPE_CLASS_TEXT;
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;

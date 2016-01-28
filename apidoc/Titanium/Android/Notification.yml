@@ -1,36 +1,104 @@
 ---
 name: Titanium.Android.Notification
-summary: | 
-    The Titanium binding of an 
-    [Android Notification](http://developer.android.com/reference/android/app/Notification.html).
+summary: UI notifications that can be sent while the application is in the background.
 description: |
-    This object is used for status bar notifications.
+    Notifications alert the user that something is happening to your application while it is
+    in the background. Notifications appear in the notification drawer until the user
+    clears them and on the lock screen for devices running Android 5.0 or greater.
+    Note that the user can filter or turn notifications on and off from **Settings**.
 
-    See the official Android documentation on 
-    [Status Bar Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
-    for an overview of how status bar notifications are used.
+    For Android toast notifications (pop-up notifications sent while the application is in the
+    foreground), see <Titanium.UI.Notification>.
 
-    If you pass `contentTitle` and/or `contentText` into <Titanium.Android.createNotification>, 
-    then `setLatestEventInfo` will automatically be called with those properties.  There's no need 
-    to call it separately unless you want to update the notification at a later time. You can also 
-    use a custom `layout.xml` wrapped in 
-    a <Titanium.Android.RemoteViews> object in the `contentView` property, which gives more 
-    fine grained control and customization to how the notification actually behaves.
+    To create a notification, use the <Titanium.Android.createNotification> method.
 
-    Use the [NotificationManager](Titanium.Android.NotificationManager) module to send
-    and cancel notifications.
-    
-    For Android "toast" (pop-up) notifications, see <Titanium.UI.Notification>.
+    Pass the Notification object to the methods of the <Titanium.Android.NotificationManager> class
+    to send or cancel notifications.
+
+    For examples of using Notifications, see [Android Notifications](#!/guide/Android_Notifications).
+
+    Further Reading:
+
+      * [Android Developers: Notifications](http://developer.android.com/design/patterns/notifications.html)
+
+    #### Android 5.0 Changes
+
+    Starting with Android 5.0 (API 21), ticker text, defined with the `tickerText` property,
+    no longer appears in the status bar when the notification is first sent but is used as an
+    audible notification if accessibility services are enabled.
+
+    Notifications now appear in the lock screen.  The user can customize the visibility level of
+    these notifications from **Settings**.  The visibility level is based on the `visibility`
+    property set on the notification.
+
+examples:
+  - title: Simple Notification Example
+    example: |
+        The following example shows how to create a notification that launches the
+        application when the user clicks on the notification.
+
+        To have the notification launch an application when the user clicks on it,
+        assign the `contentIntent` property to an [Intent](Titanium.Android.Intent) object
+        that launches the main activity of the application by specifying the `packageName`
+        and `className` properties of the intent.
+
+        The `packageName` is the project's application ID. For Titanium applications, you
+        can find this in the `tiapp.xml` file.
+
+        The `className` is the name of the main activity, prefixed with the `packageName`.
+        For Titanium applications, the name of the main activity is the application name with
+        only the first character capitalized suffixed with `Activity`.  You can also find the name
+        of the main activity in the `build/android/AndroidManifest.xml` file after you build your
+        application.
+
+        For example, if the application ID is `com.appcelerator.notificationsample` and the
+        application name is `NotificationSample`, the class name will be:
+
+            com.appcelerator.notificationsample.NotificationsampleActivity
+
+        The notification icon must be specified as an Android resource ID. In this case,
+        the icon, `my_icon.png` would be placed in `platforms/android/res/drawable/my_icon.png`.
+        See <Titanium.App.Android.R> for more information.
+
+        This example does not include a custom alert sound. For information on adding a
+        custom alert sound, see [Notification.sound](Titanium.Android.Notification.sound).
+
+            // Intent object to launch the application
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_MAIN,
+                // Substitute the correct class name for your application
+                className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
+                // Substitue the correct package name for your application
+                packageName: 'com.appcelerator.notificationsample'
+            });
+            intent.flags |= Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_NEW_TASK;
+            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+
+            // Create a PendingIntent to tie together the Activity and Intent
+            var pending = Titanium.Android.createPendingIntent({
+                intent: intent,
+                flags: Titanium.Android.FLAG_UPDATE_CURRENT
+            });
+
+            // Create the notification
+            var notification = Titanium.Android.createNotification({
+            	// icon is passed as an Android resource ID -- see Ti.App.Android.R.
+                icon: Ti.App.Android.R.drawable.my_icon,
+            	contentTitle: 'Something Happened',
+            	contentText : 'Click to return to the application.',
+            	contentIntent: pending
+            });
+
+            // Send the notification.
+            Titanium.Android.NotificationManager.notify(1, notification);
+
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 methods:
   - name: setLatestEventInfo
-    summary: Sets the latest event info using the built-in Notification View for this notification. 
-    description: |
-        See the official Android documentation for 
-        [Notification.setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent)).
-    parameters: 
+    summary: Sets the latest event info using the built-in notification view for this notification.
+    parameters:
 
       - name: contentTitle
         summary: Title to display when the notification is expanded.
@@ -44,7 +112,6 @@ methods:
         summary: Intent to launch when the user clicks on the notification.
         type: Titanium.Android.PendingIntent
 
-
 properties:
 
   - name: audioStreamType
@@ -55,29 +122,16 @@ properties:
     type: Number
 
   - name: category
-    summary: Sets the notification's category
+    summary: Sets the notification's category.
     type: String
-    constants: [
-         Titanium.Android.CATEGORY_ALARM,
-         Titanium.Android.CATEGORY_CALL,
-         Titanium.Android.CATEGORY_EMAIL,
-         Titanium.Android.CATEGORY_ERROR,
-         Titanium.Android.CATEGORY_EVENT,
-         Titanium.Android.CATEGORY_MESSAGE,
-         Titanium.Android.CATEGORY_PROGRESS,
-         Titanium.Android.CATEGORY_PROMO,
-         Titanium.Android.CATEGORY_RECOMMENDATION,
-         Titanium.Android.CATEGORY_SERVICE,
-         Titanium.Android.CATEGORY_SOCIAL,
-         Titanium.Android.CATEGORY_STATUS,
-         Titanium.Android.CATEGORY_SYSTEM,
-         Titanium.Android.CATEGORY_TRANSPORT ]   
+    constants: Titanium.Android.CATEGORY_*
     description: |
-         If your notification falls into one of the predefined categories, assign it accordingly. 
-         Aspects of the system UI such as the notification shade may use this information 
-         to make ranking and filtering decisions. This property only works for API 21+ (Lollipop and above). It
-         does nothing for lower API levels.
-    since: "3.4.2"
+         If your notification falls into one of the predefined categories, assign it accordingly.
+         Aspects of the system UI such as the notification shade may use this information
+         to make ranking and filtering decisions. This property only works for devices running Android 5.0 (API 21)
+         and greater.
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
 
   - name: contentIntent
     summary: The `PendingIntent` to execute when the expanded status entry is clicked.
@@ -108,7 +162,7 @@ properties:
   - name: defaults
     summary: Specifies which values should be taken from the defaults.
     description: |
-        Specify the bitwise OR of the desired values: 
+        Specify the bitwise OR of the desired values:
         <Titanium.Android.DEFAULT_LIGHTS>, <Titanium.Android.DEFAULT_SOUND>, and
         <Titanium.Android.DEFAULT_VIBRATE>. Use <Titanium.Android.DEFAULT_ALL> to specify
         that all values should be taken from the defaults.
@@ -129,7 +183,7 @@ properties:
     default: <Titanium.Android.FLAG_AUTO_CANCEL>
 
   - name: icon
-    summary: 
+    summary:
         Notification icon, specified as an Android resource ID, or a local URL to a
         density-specific image.
     description: |
@@ -140,21 +194,50 @@ properties:
 
             Resources/android/images/res-hdpi/my_icon.png
             Resources/android/images/res-mdpi/my_icon.png
-        
+
         To access this icon, you'd use the URL '/images/my_icon.png'.
 
         To access the same icon using an Android resource ID, place the icon in:
 
             platform/android/res/drawable/my_icon.png
-         
+
         This icon's resource ID can be referenced through the <Titanium.App.Android.R>
         object:
 
             icon: Ti.App.Android.R.drawable.my_icon,
 
-        See <Titanium.App.Android.R> for more information on accessing 
+        See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.
     type: [Number,String]
+
+  - name: largeIcon
+    summary:
+        Add a large icon to the notification (and the ticker on some devices)
+        specified as an Android resource ID, or a local URL to a density-specific image.
+    description: |
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_large_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_large_icon.png
+            Resources/android/images/res-mdpi/my_large_icon.png
+
+        To access this large icon, you'd use the URL '/images/my_large_icon.png'.
+
+        To access the same large icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_large_icon.png
+
+        This large icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_large_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing
+        Android resources by ID.
+    type: [Number,String]
+    since: "4.2.0"
 
   - name: ledARGB
     summary: The color for the LED to blink.
@@ -173,19 +256,14 @@ properties:
     type: Number
 
   - name: priority
-    summary: Sets the priority of the notification
+    summary: Sets the priority of the notification.
     description: |
-        This property only works for API 16+ (Jelly Bean and above). It
-        does nothing for lower API levels.
+        This property only works for devices running Android 4.1 (API 16) and greater.
     type: Number
-    constants: [
-        Titanium.Android.PRIORITY_MAX,
-        Titanium.Android.PRIORITY_HIGH,
-        Titanium.Android.PRIORITY_DEFAULT,
-        Titanium.Android.PRIORITY_LOW,
-        Titanium.Android.PRIORITY_MIN ]
-    default: undefined but behaves as Titanium.Android.PRIORITY_DEFAULT    
-    since: "3.4.2"
+    constants: Titanium.Android.PRIORITY_*
+    default: undefined but behaves as Titanium.Android.PRIORITY_DEFAULT
+    since: "3.6.0"
+    osver: {android: {min: "4.1"}}
 
   - name: sound
     summary: A URL to the sound to play.
@@ -196,7 +274,7 @@ properties:
         external storage directory
         ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
 
-        To create a raw resource, place the audio file in the `platform/android/res/raw` 
+        To create a raw resource, place the audio file in the `platform/android/res/raw`
         folder and reference it as:
 
             notification.sound = Ti.Filesystem.getResRawDirectory() + audioFileName;
@@ -209,7 +287,7 @@ properties:
             function getOrCopyAudioFile(resourceFilename) {
                 var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
                 var outPath = outFile.nativePath;
-                
+
                 if (! outFile.exists()) {
                     var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
                     if (! outDir.isDirectory()) {
@@ -220,7 +298,7 @@ properties:
                         }
                     }
                     outDir = null;
-            
+
                     var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
                     try {
                         inFile.copy(outPath);
@@ -237,7 +315,7 @@ properties:
 
 
         Then when creating a notification, specify the sound like this:
-            
+
             var sound = getOrCopyAudioFile();
             if (sound) {
                 notification.sound = sound;
@@ -245,21 +323,33 @@ properties:
 
     type: String
 
+  - name: style
+    summary: Style object that can apply a rich notification style.
+    description: |
+        Notifications in the notification drawer appear in two main visual styles, normal view and big view.
+        The big view of a notification only appears when the notification is expanded.
+        This happens when the notification is at the top of the drawer, or the user clicks the notification.
+        On platform versions that don't offer expanded notifications, styles that depend on expanded notifications have no effect.
+    type: [Titanium.Android.BigTextStyle, Titanium.Android.BigPictureStyle]
+    since: "6.0.0"
+
   - name: tickerText
     summary: Text to scroll across the screen when this item is added to the status bar.
+    description: |
+        For devices running Android 5.0 (API 21) and greater, the ticket text is no longer displayed
+        in the status bar.  However, this property is used as an audible notification if accessibility
+        services are enabled.
     type: String
 
   - name: visibility
     summary: Allows user to conceal private information of the notification on the lockscreen.
     description: |
-         This property only works for API 21+ (Lollipop and above). It does nothing for lower API levels.
+         This property only works on devices running Android 5.0 (API 21) and greater.
     type: Number
-    constants: [
-        Titanium.Android.VISIBILITY_PUBLIC,
-        Titanium.Android.VISIBILITY_PRIVATE,
-        Titanium.Android.VISIBILITY_SECRET ]
+    constants: Titanium.Android.VISIBILITY_*
     default: undefined but behaves as Titanium.Android.VISIBILITY_PUBLIC
-    since: "3.4.2"
+    since: "3.6.0"
+    osver: {android: {min: "5.0"}}
 
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
@@ -267,4 +357,3 @@ properties:
         If the timestamp is set to 0, no time is displayed in the notification
         window for this notification.
     type: [Date,Number]
-

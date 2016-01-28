@@ -14,23 +14,23 @@ description: |
     The behavior of tabs and tab groups follows the platform's native navigation style, 
     which varies significantly between platforms.
 
-    #### iOS, Mobile Web and Tizen Platform Implementation Notes
+    #### iOS and Mobile Web Platform Implementation Notes
 
-    On iOS, Mobile Web and Tizen, the tab maintains a stack of windows. On Mobile Web and Tizen, the tab is 
+    On iOS and Mobile Web, the tab maintains a stack of windows. On Mobile Web, the tab is
     really just a [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup). Windows on top 
     of the stack can partially or totally obscure windows lower in the stack.  Calling 
     [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a window 
     is closed, either by the user or by code, the window is removed from the stack, making 
     the previous window visible. The root tab window cannot be removed. 
     
-    On iOS, Mobile Web and Tizen the tab controls are generally kept on screen to allow a user to 
+    On iOS and Mobile Web the tab controls are generally kept on screen to allow a user to
     navigate inside the app. Tab controls are hidden when the user is performing a modal 
     task (for example, composing a message). In this case, the app should provide a button 
     in the navigation bar to return to the previous screen. On iOS, the window should also 
     be opened as modal. On iOS, The tab controls can also be hidden by opening the new window 
     with [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
     
-    When closing a tab window in iOS, Mobile Web and Tizen, you should always use the 
+    When closing a tab window in iOS and Mobile Web, you should always use the
     [Tab.close](Titanium.UI.Tab.close) method to ensure that the tab group maintains its 
     navigation state.
 
@@ -63,7 +63,7 @@ excludes:
 methods:
   - name: open
     summary: Opens a new window.
-    description: On iOS, Mobile Web and Tizen, the new window is opened as the top window 
+    description: On iOS and Mobile Web, the new window is opened as the top window
         in the tab's window stack. On Android, the new window is opened as a new, 
         heavyweight window, obscuring the tab group.
     parameters: 
@@ -90,7 +90,7 @@ methods:
 
             myTab.close();
 
-        On Mobile Web and Tizen, calling `Tab.close` is identical to calling `close` on
+        On Mobile Web, calling `Tab.close` is identical to calling `close` on
         the tab's current topmost window.
 
         On Android, if a window has been opened in front of the tab using `Tab.open`, 
@@ -135,7 +135,7 @@ properties:
          platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
          is recommended instead.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: activeIcon
     summary: Icon URL for this tab when active.
@@ -159,14 +159,14 @@ properties:
   - name: backgroundColor
     summary: Sets the color of the tab when it is inactive.
     description: For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: {android: 3.0.0}
 
   - name: backgroundDisabledColor
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: backgroundDisabledImage
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
@@ -174,22 +174,22 @@ properties:
         On the Android platform, this sets the color of the active tab.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [android, mobileweb, tizen]
+    platforms: [android, mobileweb]
     since: {android: 3.0.0}
 
   - name: backgroundFocusedImage
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: backgroundImage
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: backgroundSelectedImage
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String
-    platforms: [iphone,ipad, blackberry]
+    platforms: [iphone,ipad]
 
   - name: icon
     summary: Icon URL for this tab.
@@ -220,6 +220,16 @@ properties:
          otherwise.
     type: String
 
+  - name: iconInsets
+    summary: The icon inset or outset for each edge.
+    description: | 
+        Use this property for example to center an icon without providing a title. To do that, set the
+        insets to `{top:6, bottom:-6, right:0, left:0}`.
+    since: "5.2.0"
+    default: All insets are zero.
+    type: TabIconInsets
+    platforms: [iphone,ipad]
+
   - name: iconIsMask
     summary: Defines if the icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
@@ -234,7 +244,7 @@ properties:
   - name: activeIconIsMask
     summary: Defines if the active icon property of the tab must be used as a mask. This property is applicable on iOS 7 and greater. 
     description: |
-        This is the equivalent of the [iconIsMask](Titanium.UI.Tab.iconIsmask) property, but for the active icon. When this is true, the active icon is 
+        This is the equivalent of the [iconIsMask](Titanium.UI.Tab.iconIsMask) property, but for the active icon. When this is true, the active icon is 
         tinted with the color specified in [tabsTintColor](Titanium.UI.TabGroup.tabsTintColor). When this is false the image is rendered as is, though the 
         title of the tab is still tinted. 
     type: [Boolean]
@@ -250,10 +260,27 @@ properties:
   - name: titleid
     summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
-    exclude-platforms: [blackberry]
+
+  - name: titleColor
+    summary: Defines the color of the title of tab when it's inactive. 
+    description: |
+        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+    type: String
+    since: "4.1.0"
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone,ipad]
+
+  - name: activeTitleColor
+    summary: Defines the color of the title of tab when it's active.
+    description: |
+        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+    type: String
+    since: "4.1.0"
+    osver: {ios: {min: "5.0"}}
+    platforms: [iphone,ipad]
 
   - name: touchEnabled
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
@@ -263,6 +290,9 @@ properties:
 events: 
   - name: blur
     summary: Fired when the tab loses focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use unselected instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -276,20 +306,40 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    exclude-platforms: [blackberry]
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: unselected
+    summary: Fired when the tab is no longer selected.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
-    exclude-platforms: [blackberry, iphone, ipad]
+    exclude-platforms: [iphone, ipad]
 
   - name: dblclick
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: doubletap
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: focus
     summary: Fired when the tab gains focus.
+    deprecated:
+        since: "5.2.0"
+        notes: Use selected instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -303,41 +353,58 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad, mobileweb, tizen]
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: selected
+    summary: Fired when the tab is selected.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: longpress
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: postlayout
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: selected
     summary: Fired when the tab is selected.
     platforms: [android]
-    since: "3.3.0"
+    since: "3.6.0"
 
   - name: singletap
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: swipe
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: touchcancel
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: touchend
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: touchmove
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: touchstart
-    platforms: [mobileweb, tizen]
+    platforms: [mobileweb]
 
   - name: unselected
     summary: Fired when the tab is unselected.
     platforms: [android]
-    since: "3.3.0"
+    since: "3.6.0"
 
 examples:
   - title: Simple Tab Example
@@ -364,3 +431,26 @@ examples:
                     </Tab>
                  </TabGroup>
             </Alloy>
+
+---
+name: TabIconInsets
+summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>.
+since: "5.2.0"
+platforms: [iphone, ipad]
+properties:
+  - name: top 
+    summary: Top inset.
+    type: Number
+
+  - name: left
+    summary: Left inset.
+    type: Number
+
+  - name: right
+    summary: Right inset.
+    type: Number
+
+  - name: bottom
+    summary: Bottom inset.
+    type: Number
+

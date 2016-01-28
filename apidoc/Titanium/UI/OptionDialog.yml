@@ -8,12 +8,11 @@ description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
-        <td><img src="images/optiondialog/optiondialog_bb.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_mobileweb.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>BlackBerry</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
     </table>
 
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
@@ -60,8 +59,20 @@ description: |
     Care should be taken not to define any properties that are not documented, as this may produce 
     unexpected results. For example, setting a `message` property will prevent the picker of option 
     items from being displayed on Android.
-extends: Titanium.Proxy
+extends: Titanium.UI.View
 since: "0.8"
+excludes:
+    events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
+                 anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
+                 backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
+                 backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
+                 backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
+                 children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
   - name: click
@@ -102,7 +113,7 @@ events:
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
-        platforms: [iphone, ipad, mobileweb, tizen]
+        platforms: [iphone, ipad, mobileweb]
 
 methods:
   - name: show
@@ -176,16 +187,16 @@ properties:
         Note that the cancel button is never shown on iPad, since the user can cancel the 
         dialog by clicking outside of the dialog. 
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web, Tizen)
-    exclude-platforms: [blackberry]
+    default: undefined (Android), -1 (iOS, Mobile Web)
+
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
-    platforms: [iphone, ipad, mobileweb, tizen]
+    platforms: [iphone, ipad, mobileweb]
     availability: creation
-    exclude-platforms: [blackberry]
+
 
   - name: options
     summary: List of option names to display in the dialog.
@@ -220,7 +231,7 @@ properties:
 
   - name: selectedIndex
     summary: Defines the default selected option.
-    platforms: [android, blackberry]
+    platforms: [android]
     type: Number
     availability: creation
     
@@ -231,7 +242,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    exclude-platforms: [blackberry]
+
 
 examples:
   - title: Dialog with 3 Options
