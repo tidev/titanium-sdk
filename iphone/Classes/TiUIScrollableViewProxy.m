@@ -17,7 +17,7 @@
     pthread_rwlock_init(&viewsLock, NULL);
     [self initializeProperty:@"currentPage" defaultValue:NUMINT(0)];
     [self initializeProperty:@"pagingControlColor" defaultValue:@"black"];
-    [self initializeProperty:@"pageIndicatorTintColor" defaultValue:@"gray"];
+    [self initializeProperty:@"pageIndicatorTintColor" defaultValue:@"#4CFFFFFF"];
     [self initializeProperty:@"currentPageIndicatorTintColor" defaultValue:@"white"];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];

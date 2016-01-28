@@ -40,7 +40,7 @@
         cacheSize = 3;
         pageControlHeight=20;
         pageControlBackgroundColor = [[UIColor blackColor] retain];
-        pageIndicatorTintColor = [[UIColor grayColor] retain];
+        pageIndicatorTintColor = [[UIColor colorWithWhite:1.0 alpha:0.3] retain];
         currentPageIndicatorTintColor = [[UIColor whiteColor] retain];
         pagingControlOnTop = NO;
         overlayEnabled = NO;

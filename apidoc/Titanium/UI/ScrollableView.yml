@@ -290,7 +290,8 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: white
-    platforms: [iphone,ipad]  
+    platforms: [iphone,ipad]
+    since: "6.0.0"
   
   - name: disableBounce
     summary: Determines whether page bouncing effect is disabled.
@@ -325,8 +326,9 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    default: gray
+    default: semi-transparent
     platforms: [iphone,ipad]
+    since: "6.0.0"
     
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
