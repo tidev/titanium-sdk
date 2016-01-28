@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -62,6 +63,7 @@ import android.widget.MediaController.MediaPlayerControl;
  * it can be used in any layout manager, and provides various display options
  * such as scaling and tinting.
  */
+@SuppressWarnings("deprecation")
 public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 {
 	private static final String TAG = "TiVideoView8";
@@ -341,7 +343,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		try {
 			mUri = TiUIHelper.getRedirectUri(mUri);
-			mMediaPlayer.setDataSource(getContext(), mUri);
+			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}

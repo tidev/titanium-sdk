@@ -104,6 +104,11 @@
 	[[self searchBar] setKeyboardType:[TiUtils intValue:value]];
 }
 
+-(void)setKeyboardAppearance_:(id)value
+{
+    [[self searchBar] setKeyboardAppearance:[TiUtils intValue:value]];
+}
+
 -(void)setPrompt_:(id)value
 {
 	[[self searchBar] setPrompt:[TiUtils stringValue:value]];
@@ -141,11 +146,24 @@
 -(void)setBackgroundImage_:(id)arg
 {
     UIImage *image = [self loadImage:arg];
-    [[self searchBar] setBackgroundImage:image];
+    UISearchBar* searchBar = [self searchBar];
+    // reset the image to nil so we can check if the next statement sets it
+    [searchBar setBackgroundImage:nil];
+    
+    // try to set the image with UIBarMetricsDefaultPrompt barMetrics
+    //
+    // Checking for the `prompt` property is not reliable, even if it's not set, the height
+    // of the searchbar determines wheather the barMetrics is `DefaultPrompt` or just `Default`
+    [searchBar setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefaultPrompt];
+    
+    // check that the image has been set, otherwise try the other barMetrics
+    if([searchBar backgroundImage] == nil) {
+        [searchBar setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
+    }
     self.backgroundImage = arg;
 }
 
-#pragma mark Delegate 
+#pragma mark Delegate
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
     if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarShouldBeginEditing:)]) {

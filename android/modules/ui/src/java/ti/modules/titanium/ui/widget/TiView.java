@@ -20,7 +20,7 @@ public class TiView extends TiUIView
 		super(proxy);
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
-		if (proxy.hasProperty(TiC.PROPERTY_LAYOUT)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_LAYOUT)) {
 			String layoutProperty = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT));
 			if (layoutProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
 				arrangement = LayoutArrangement.HORIZONTAL;

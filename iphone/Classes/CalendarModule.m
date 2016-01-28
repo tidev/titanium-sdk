@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -159,7 +159,21 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
         DebugLog(@"Could not instantiate an event of the event store.");
         return nil;
     }
-    EKCalendar* calendar_ = [ourStore calendarWithIdentifier:arg];
+    EKCalendar* calendar_ = NULL;
+    if ([TiUtils isIOS8OrGreater]) {
+        //Instead of getting calendar by identifier, have to get all and check for match
+        //not optimal but best way to fix non existing shared calendar error
+        NSArray *allCalendars = [ourStore calendarsForEntityType:EKEntityTypeEvent];
+        for (EKCalendar *cal in allCalendars) {
+            if ([cal.calendarIdentifier isEqualToString:arg]) {
+                calendar_ = cal;
+                break;
+            }
+        }
+    }
+    else {
+        calendar_ = [ourStore calendarWithIdentifier:arg];
+    }
     if (calendar_ == NULL) {
         return NULL;
     }
@@ -230,10 +244,10 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                                  completion:^(BOOL granted, NSError *error){
                                      NSDictionary* propertiesDict;
                                      if (error == nil) {
-                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
+                                         NSString* errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
+                                         propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
                                      } else {
-                                         propertiesDict = [TiUtils dictionaryWithCode:[error code]
-                                                                              message:[TiUtils messageFromError:error]];
+                                         propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                      }
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                                      [[callback context] enqueue:invocationEvent];
@@ -244,13 +258,25 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 #pragma mark - Public API
 
+-(NSNumber*) hasCalendarPermissions:(id)unused
+{
+    return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);
+}
+
 -(void) requestEventsAuthorization:(id)args
+{
+    DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization()", @"5.1.0", @"Calendar.requestCalendarPermissions()");
+    [self requestCalendarPermissions:args];
+}
+
+-(void) requestCalendarPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     [self requestAuthorization:args forEntityType:EKEntityTypeEvent];
 }
 
--(void) requestRemindersAuthorization:(id)args
+// Not documented + used, yet. Part of the 5.2.0 release.
+-(void) requestRemindersPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     [self requestAuthorization:args forEntityType:EKEntityTypeReminder];
@@ -258,15 +284,23 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(NSNumber*) eventsAuthorization
 {
+    DEPRECATED_REPLACED(@"Calendar.eventsAuthorization", @"5.2.0", @"Calendar.calendarAuthorization");
+    return [self calendarAuthorization];
+}
+
+-(NSNumber*) calendarAuthorization
+{
     EKAuthorizationStatus result = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     return [NSNumber numberWithInteger:result];
 }
+
 #pragma mark - Properties
 
 MAKE_SYSTEM_PROP(STATUS_NONE,EKEventStatusNone);
 MAKE_SYSTEM_PROP(STATUS_CONFIRMED,EKEventStatusConfirmed);
-MAKE_SYSTEM_PROP(STATUS_TENTATIVE,EKEventStatusNone);
-MAKE_SYSTEM_PROP(STATUS_CANCELED,EKEventStatusNone);
+MAKE_SYSTEM_PROP(STATUS_TENTATIVE,EKEventStatusTentative);
+MAKE_SYSTEM_PROP(STATUS_CANCELED,EKEventStatusCanceled);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATUS_CANCELLED, EKEventStatusCanceled, @"Calendar.STATUS_CANCELLED", @"5.2.0", @"Calendar.STATUS_CANCELED")
 
 MAKE_SYSTEM_PROP(AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
 MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);

@@ -24,6 +24,10 @@
     NSRange lastSelectedRange;
 }
 
+-(void)setShowUndoRedoActions:(id)value;
+
+-(UIView<UITextInputTraits>*)textWidgetView;
+
 @end
 
 #endif

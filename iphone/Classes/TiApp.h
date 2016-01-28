@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,7 @@
 	#import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
-#import "JavaScriptCore/TiContextRef.h"
+#import "TiToJS.h"
 
 extern BOOL applicationInMemoryPanic;
 
@@ -54,6 +54,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	id remoteNotificationDelegate;
 	NSDictionary* remoteNotification;
 	NSMutableDictionary* pendingCompletionHandlers;
+    NSMutableDictionary* pendingReplyHandlers;
     NSMutableDictionary* backgroundTransferCompletionHandlers;
     BOOL appBooted;
     
@@ -63,6 +64,9 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
+#if IS_XCODE_7
+    UIApplicationShortcutItem *launchedShortcutItem;
+#endif
 }
 
 @property (nonatomic) BOOL forceSplashAsSnapshot;
@@ -209,6 +213,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)stopBackgroundService:(TiProxy*)proxy;
 -(void)completionHandler:(id)key withResult:(int)result;
 -(void)completionHandlerForBackgroundTransfer:(id)key;
-
+-(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo;
 @end
 

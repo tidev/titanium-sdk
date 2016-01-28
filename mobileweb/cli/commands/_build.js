@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile Web CLI build command
  *
- * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -9,7 +9,7 @@ const
 	appc = require('node-appc'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
+	CleanCSS = require('clean-css'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -25,9 +25,9 @@ const
 	afs = appc.fs,
 	parallel = appc.async.parallel;
 
-ejs.filters.escapeQuotes = function escapeQuotes(s) {
+function escapeQuotes(s) {
 	return String(s).replace(/"/g, '\\"');
-};
+}
 
 function MobileWebBuilder() {
 	Builder.apply(this, arguments);
@@ -238,9 +238,6 @@ MobileWebBuilder.prototype.initialize = function initialize(next) {
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
 		this.moduleSearchPaths = this.moduleSearchPaths.concat(this.config.paths.modules);
 	}
-
-	this.ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs'));
-	this.ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
 
 	this.projectDependencies = [];
 	this.modulesToLoad = [];
@@ -590,7 +587,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 	async.waterfall([
 		// 1) render the header
 		function (next) {
-			next(null, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString()) + '\n');
+			next(null, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString(), { escapeQuotes: escapeQuotes }) + '\n');
 		}.bind(this),
 
 		// 2) read in the config.js and fill in the template
@@ -628,7 +625,8 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 					hasAnalyticsUseXhr: tiapp.mobileweb.analytics ? tiapp.mobileweb.analytics['use-xhr'] === true : false,
 					hasShowErrors: this.deployType != 'production' && tiapp.mobileweb['disable-error-screen'] !== true,
 					hasInstrumentation: !!tiapp.mobileweb.instrumentation,
-					hasAllowTouch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true
+					hasAllowTouch: tiapp.mobileweb.hasOwnProperty('allow-touch') ? !!tiapp.mobileweb['allow-touch'] : true,
+					escapeQuotes: escapeQuotes
 				},
 				next
 			);
@@ -801,7 +799,7 @@ MobileWebBuilder.prototype.assembleTitaniumJS = function assembleTitaniumJS(next
 
 MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(next) {
 	var tiCSS = [
-		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString()), '\n'
+		ejs.render(fs.readFileSync(path.join(this.templatesDir, 'header.ejs')).toString(), { escapeQuotes: escapeQuotes }), '\n'
 	];
 
 	if (this.tiapp.mobileweb.splash.enabled) {
@@ -905,7 +903,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 	}, this);
 
 	// write the titanium.css
-	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? cleanCSS.process(tiCSS.join('')) : tiCSS.join(''));
+	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS({ processImport: false }).minify(tiCSS.join('')).styles : tiCSS.join(''));
 
 	next();
 };
@@ -994,7 +992,8 @@ MobileWebBuilder.prototype.createIndexHtml = function createIndexHtml(next) {
 			tiCss: fs.readFileSync(path.join(this.buildDir, 'titanium.css')).toString(),
 			splashScreen: this.splashHtml,
 			tiJs: fs.readFileSync(path.join(this.buildDir, 'titanium.js')).toString(),
-			prefetch: this.prefetch
+			prefetch: this.prefetch,
+			escapeQuotes: escapeQuotes
 		},
 		next
 	);

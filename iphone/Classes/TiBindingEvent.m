@@ -8,11 +8,10 @@
 
 #import "TiBindingEvent.h"
 #include <libkern/OSAtomic.h>
-#include "JavaScriptCore/Ti.h"
+#include "TiToJS.h"
 #import "KrollObject.h"
 #import "TiBindingTiValue.h"
 #import "TiBindingRunLoop.h"
-#import "TiBase.h"
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
 
@@ -162,7 +161,6 @@ void TiBindingEventClearError(TiBindingEvent event)
 	event->reportError = false;
 }
 
-
 void TiBindingEventFire(TiBindingEvent event)
 {
 	pthread_once(&jsBindingRunOnce,TiBindingInitialize);
@@ -272,14 +270,19 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			{
 				continue;
 			}
-			TiValueRef exception = NULL;
-			TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
-			if (exception!=NULL)
-			{
-				id excm = TiBindingTiValueToNSObject(context, exception);
-				[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
-			}
-			
+#ifndef TI_USE_KROLL_THREAD
+            TiThreadPerformOnMainThread( ^{
+#endif
+                TiValueRef exception = NULL;
+                TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef*)&eventObjectRef,&exception);
+                if (exception!=NULL)
+                {
+                    id excm = TiBindingTiValueToNSObject(context, exception);
+                    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+                }
+#ifndef TI_USE_KROLL_THREAD
+            }, [NSThread isMainThread]);
+#endif
 			// Note cancel bubble
 			cancelBubbleValue = TiObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
 			if(TiValueToBoolean(context,cancelBubbleValue)){

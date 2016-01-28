@@ -92,6 +92,7 @@ public class TiResultSetProxy extends KrollProxy
 		 return internalGetField(index, type);
 	}
 
+	@SuppressWarnings("deprecation")
 	private Object internalGetField(int index, int type)
 	{
 		if (rs == null) {

@@ -210,6 +210,35 @@ properties:
         Android resources by ID.
     type: [Number,String]
 
+  - name: largeIcon
+    summary:
+        Add a large icon to the notification (and the ticker on some devices)
+        specified as an Android resource ID, or a local URL to a density-specific image.
+    description: |
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_large_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_large_icon.png
+            Resources/android/images/res-mdpi/my_large_icon.png
+
+        To access this large icon, you'd use the URL '/images/my_large_icon.png'.
+
+        To access the same large icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_large_icon.png
+
+        This large icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_large_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing
+        Android resources by ID.
+    type: [Number,String]
+    since: "4.2.0"
+
   - name: ledARGB
     summary: The color for the LED to blink.
     type: Number
@@ -293,6 +322,16 @@ properties:
             }
 
     type: String
+
+  - name: style
+    summary: Style object that can apply a rich notification style.
+    description: |
+        Notifications in the notification drawer appear in two main visual styles, normal view and big view.
+        The big view of a notification only appears when the notification is expanded.
+        This happens when the notification is at the top of the drawer, or the user clicks the notification.
+        On platform versions that don't offer expanded notifications, styles that depend on expanded notifications have no effect.
+    type: [Titanium.Android.BigTextStyle, Titanium.Android.BigPictureStyle]
+    since: "6.0.0"
 
   - name: tickerText
     summary: Text to scroll across the screen when this item is added to the status bar.

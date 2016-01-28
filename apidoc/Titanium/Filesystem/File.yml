@@ -24,7 +24,7 @@ description: |
 
     For random access to a file, such as accessing a small portion of a larger file, 
     you can open a file as a [FileStream](Titanium.Filesystem.FileStream) object. Use the 
-    [open](Titanium.Filesystem.File.open) method to get a `FileStream` for an 
+    [open](Titanium.Filesystem.File.open) method to get a `FileStream` for an
     existing `File` object, or use the <Titanium.Filesystem.openStream> method 
     to get a `FileStream` directly without calling `getFile` first.
 
@@ -188,6 +188,16 @@ methods:
       - type: String
       - type: Titanium.Filesystem.File
 
+  - name: getProtectionKey
+    summary: |
+        Returns the protection key value of this file object.
+        Returns `null` if there's an error.
+    returns:
+        type: String
+        constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
+    platforms: [iphone, ipad]
+    since: "4.1.0"    
+
   - name: isDirectory
     summary: Returns `true` if this file object represents a directory. 
     returns:
@@ -271,6 +281,21 @@ methods:
     returns:
         type: String
 
+  - name: setProtectionKey
+    summary: Sets the protection key as an attribute to the file identified by this file object.
+    description: |
+        Returns `true` if successfully set. Returns `false` if failed.
+    returns:
+        type: Boolean
+    parameters:
+      - name: fileProtectionType
+        summary: |
+            File protection type.
+        constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
+        type: String
+    platforms: [iphone, ipad]
+    since: "4.1.0"  
+
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file
         identified by this file object is stored.
@@ -347,7 +372,6 @@ properties:
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android, mobileweb]
 
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
@@ -382,6 +406,7 @@ properties:
     deprecated:
         since: "1.8.1"
         notes: Use [writable](Titanium.Filesystem.File.writable) instead.
+        removed: "6.0.0"
     summary: |
         `true` if the file identified by this object is writable.
     type: Boolean

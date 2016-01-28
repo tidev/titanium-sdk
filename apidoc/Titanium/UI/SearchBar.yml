@@ -90,21 +90,47 @@ events:
 
   - name: blur
     summary: Fired when the search bar loses focus.
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
 
   - name: bookmark
     summary: Fired when the bookmark button is pressed.
+    platforms: ['iphone', 'ipad']
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
       
   - name: cancel
     summary: Fired when the cancel button is pressed.
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
 
   - name: change
     summary: Fired when the value of the search bar changes.
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
 
   - name: focus
     summary: Fired when the search bar gains focus.
+    platforms: ['android', 'iphone', 'ipad']
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
 
   - name: return
     summary: Fired when keyboard search button is pressed.
+    properties:
+      - name: value
+        summary: Value of the search bar.
+        type: String
 
 properties:
 
@@ -147,7 +173,16 @@ properties:
     summary: Keyboard type constant to use when the field is focused.
     type: Number
     platforms: [iphone, ipad]
-    default: System default keyboard.
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard to be displayed the field is focused.
+    type: Number
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.

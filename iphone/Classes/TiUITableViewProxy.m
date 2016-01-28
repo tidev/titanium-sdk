@@ -789,6 +789,24 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     }, YES);
     return [curSections autorelease];
 }
+-(void)setContentOffset:(id)args
+{
+	id arg1;
+	id arg2;
+	if ([args isKindOfClass:[NSDictionary class]])
+	{
+		arg1 = args;
+		arg2 = [NSDictionary dictionary];
+	}
+	else
+	{
+		arg1 = [args objectAtIndex:0];
+		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+	}
+	TiThreadPerformOnMainThread(^{
+		[[self tableView] setContentOffset_:arg1 withObject:arg2];
+	}, NO);
+}
 
 -(void)setContentInsets:(id)args
 {

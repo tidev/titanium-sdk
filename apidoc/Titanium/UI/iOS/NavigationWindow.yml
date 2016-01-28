@@ -58,9 +58,9 @@ methods:
         type: Dictionary
 
 examples:
-  - title: Simple Navigation Group
+  - title: Simple Navigation Window
     example: |
-        Creates a navigation group with the first window colored red.
+        Creates a navigation window with the first window colored red.
         Press the button to open the blue window.
         Use the back button to return to the red root window.
 

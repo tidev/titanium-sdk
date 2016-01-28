@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2015, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -34,7 +34,7 @@ fields.setup({
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Build');
 exports.desc = __('builds a project');
-exports.extendedDesc = 'Builds an existing app or module project.';
+exports.extendedDesc = __('Builds an existing app or module project.');
 
 exports.config = function (logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
@@ -153,6 +153,8 @@ exports.config = function (logger, config, cli) {
 									// neither app nor module
 									return;
 								}
+
+								cli.scanHooks(path.join(projectDir, 'hooks'));
 
 								return projectDir;
 							},
@@ -282,7 +284,7 @@ exports.run = function (logger, config, cli, finished) {
 
 	if (!fs.existsSync(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
-		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
+		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk install --force --default').cyan) + '\n');
 		process.exit(1);
 	}
 
@@ -306,15 +308,23 @@ exports.run = function (logger, config, cli, finished) {
 		if (!counter++) {
 			var delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error(__('Project failed to build after %s', delta));
-				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-					logger.error(msg);
-				});
+				logger.error(__('An error occurred during build after %s', delta));
+				if (err instanceof appc.exception) {
+					err.dump(logger.error);
+				} else if (err !== true) {
+					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+						logger.error(msg);
+					});
+				}
 				logger.log();
 				logger.log.end();
 				process.exit(1);
 			} else {
-				logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				// eventually all platforms will just show how long the build took since they
+				// are responsible for showing the own logging
+				if (platform !== 'iphone' || cli.argv['build-only']) {
+					logger.info(__('Project built successfully in %s', delta.cyan) + '\n');
+				}
 				logger.log.end();
 			}
 
@@ -392,7 +402,7 @@ function patchLogger(logger, cli) {
 		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0766);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii', 'mode': 0666 });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'utf8', 'mode': 0666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;

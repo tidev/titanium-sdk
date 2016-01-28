@@ -69,10 +69,17 @@
 
 - (void) dealloc
 {
+	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+#ifdef TI_USE_KROLL_THREAD
 	TiThreadRemoveFromSuperviewOnMainThread(textWidgetView, YES);
 	TiThreadReleaseOnMainThread(textWidgetView, NO);
-	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
 	textWidgetView = nil;	//Wasted action, yes.
+#else
+    TiThreadPerformOnMainThread(^{
+        [textWidgetView removeFromSuperview];
+        RELEASE_TO_NIL(textWidgetView);
+    }, YES);
+#endif
 	[super dealloc];
 }
 
@@ -155,7 +162,17 @@
 
 -(void)setAppearance_:(id)value
 {
-	[[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
+    NSString *className = [NSStringFromClass([self class]) substringFromIndex:4];
+    NSString *deprecatedApi = [NSString stringWithFormat:@"UI.%@%@", className, @".appearance"];
+    NSString *newApi = [NSString stringWithFormat:@"UI.%@%@", className, @".keyboardAppearance"];
+    
+    DEPRECATED_REPLACED(deprecatedApi, @"5.2.0", newApi);
+    [self setKeyboardAppearance_:value];
+}
+
+-(void)setKeyboardAppearance_:(id)value
+{
+    [[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
 }
 
 -(void)setAutocapitalization_:(id)value

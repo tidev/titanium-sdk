@@ -47,16 +47,27 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
-		if (type == -1)
+        float width = 320;
+        float height = 216;
+        
+        if ([TiUtils isIOS9OrGreater]) {
+            width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+            height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
+        }
+    
+        [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
+        [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+            
+        if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];

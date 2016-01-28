@@ -145,24 +145,36 @@ module.exports.detectTitaniumSDKs = module.exports.detect = function detectTitan
 				}).map(function (v) {
 					var sdkPath = path.join(mobilesdkPath, v),
 						manifestFile = path.join(sdkPath, 'manifest.json'),
-						manifest,
+						packageJsonFile = path.join(sdkPath, 'package.json'),
 						platforms = ['android', 'ios', 'mobileweb'],
 						sdk = env.sdks[v] = {
 							commands: {},
 							name: v,
+							manifest: null,
+							packageJson: null,
 							path: sdkPath,
 							platforms: {}
 						};
 
 					if (fs.existsSync(manifestFile)) {
-						// read in the manifest
+						// read in the manifest.json
 						try {
-							manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf-8'));
-							manifest && (sdk.manifest = manifest);
+							sdk.manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf-8'));
 						} catch (e) {}
 					}
 
-					platforms = manifest ? manifest.platforms : platforms;
+					if (fs.existsSync(packageJsonFile)) {
+						// read in the package.json
+						try {
+							sdk.packageJson = JSON.parse(fs.readFileSync(packageJsonFile, 'utf-8'));
+						} catch (e) {}
+					}
+
+					sdk.packageJson || (sdk.packageJson = {});
+					sdk.packageJson.vendorDependencies || (sdk.packageJson.vendorDependencies = {});
+					sdk.packageJson.vendorDependencies.node || (sdk.packageJson.vendorDependencies.node = '>=0.8.0 <=0.10.x');
+
+					platforms = sdk.manifest ? sdk.manifest.platforms : platforms;
 					platforms.forEach(function (p) {
 						var pp = path.join(sdkPath, p);
 						if (fs.existsSync(pp)) {

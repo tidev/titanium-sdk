@@ -13,11 +13,11 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -150,7 +150,7 @@ public class AttributedStringProxy extends KrollProxy
 															fontProperties[TiUIHelper.FONT_SIZE_POSITION], activity)),
 														range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 												}
-												if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
+												if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null || fontProperties[TiUIHelper.FONT_STYLE_POSITION] != null) {
 													int typefaceStyle = TiUIHelper.toTypefaceStyle(
 														fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
 														fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
@@ -158,9 +158,17 @@ public class AttributedStringProxy extends KrollProxy
 														Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 												}
 												if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
-													spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
-														range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													if(TiUIHelper.isAndroidTypeface(fontProperties[TiUIHelper.FONT_FAMILY_POSITION])){
+														spannableText.setSpan(new TypefaceSpan(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]),
+																range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													} else {
+														// If it is not an Android Typeface, it is a custom font
+														Typeface font = TiUIHelper.toTypeface(activity, fontProperties[TiUIHelper.FONT_FAMILY_POSITION]);
+														spannableText.setSpan(new CustomTypefaceSpan(font),
+															range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+													}
 												}
+
 											}
 										}
 										break;

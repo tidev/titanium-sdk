@@ -19,6 +19,9 @@ description: |
       * Plain text files
       * Comma-separated value files (CSV)
 
+    Note: Using HTML content in the DocumentViewer is not recommended, since it does not support
+    all HTML-capabilities. Please use <Titanium.UI.WebView> to display complex HTML files.
+
     You can launch the document either in the document viewer or with another application with the
     options menu. To use the options menu, you need to specify a view with the `show` method to
     anchor the options menu to.

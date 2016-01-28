@@ -1,0 +1,582 @@
+# Titanium SDK 4.0.0 General Availability - 21 May 2015
+
+<div class="note" style="color: #31708f;
+background-color: #d9edf7;
+border-color: #bce8f1;
+border-width: 5px;
+padding: 15px;
+margin-bottom: 20px;
+border: 5px solid;
+border-radius: 4px;">
+
+<p>
+<strong>Please note</strong>: You need to install Android SDK 5.0 (API 21) to build Android
+applications
+with this Release.
+</p>
+</div>
+
+#### Contents
+
+  * [About This Release](#about)
+    * [Alloy 1.6.0](#alloy)
+    * [Android Support](#android)
+    * [BlackBerry Support](#blackberry)
+    * [Studio 4.0.0](#studio)
+  * [Notice of Feature and Behavior Changes](#changes)
+    * [Android Platform](#deprecated_android)
+      * [Action Bar Icons](#action_bar)
+    * [Facebook Module](#deprecated_facebook)
+    * [iOS Platform](#deprecated_ios)
+      * [iOS Attributed String](#ios_attributed_string)
+      * [iPad Split Window](#ipad_split_window)
+  * [New Features](#features)
+    * [Android Platform](#new_android)
+      * [Attributed String](#attributed_string)
+      * [Material Theme](#material_theme)
+      * [Module Lifecycle Hooks](#lifecycle)
+      * [Notifications](#notifications)
+      * [Scrollable Tabs](#scrollable_tabs)
+      * [Split Action Bar](#split_action_bar)
+      * [TLS Support](#tls_support)
+      * [Video Thumbnails](#video_thumbnail_support)
+    * [Facebook Module](#facebook)
+    * [iOS Platform](#new_ios)
+      * [Camera Permission Request](#camera)
+      * [Contacts](#contacts)
+      * [Split Window](#split_window)
+      * [User Defaults](#user_defaults)
+  * [Known Issues](#known_issues) 
+    * [Cannot Preview Mobile Web Application in Studio](#web_server)
+    * [Fail to Encrypt JavaScript Files on Windows](#windows_java)
+  * [API Changes](#apis) 
+    * [New APIs](#new_apis)
+    * [Deprecated APIs](#deprecated_apis)
+    * [Removed APIs](#removed_apis)
+
+<a name="about"></a>
+## About This Release
+
+This is the general availability (GA) release version of the Titanium SDK 4.0.0.
+
+Note that this release includes feature and behavior changes. See [Notice of Feature and Behavior Changes](#changes) for details.
+
+This release includes over 150 bug fixes and improvements, see the [full list of issues that were addressed in Release 4.0.0](https://jira.appcelerator.org/issues/?filter=16715)
+
+<a name="alloy"></a>
+### Alloy 1.6.0
+
+This release coincides with the release of Alloy 1.6.0.
+ 
+**Summary of New Features:**
+ 
+  * Support for Backbone 1.1.2
+  * Upgrade to Underscore 1.6.0
+  * Update extract-i18n command to extract localized strings from XML files in addition to JavaScript and TSS files
+  * XML Markup/TSS Enhancements:
+    * Set the `Titanium.Android.MenuItem.actionView` property in XML Markup using the &lt;ActionView/&gt; element
+ 
+For more details, see the Alloy [Changelog](https://github.com/appcelerator/alloy/blob/1_6_X/CHANGELOG.md).
+
+<a name="android"></a>
+### Android Support
+
+Due to the addition of Material Theme support in this Release, the target SDK version must be set to API 21 (Android 5.0) or greater.  If you do not set the target SDK version, Android SDK 5.0 or greater must still be installed. Previously, the target SDK version could be API 14 or greater.
+
+The Titanium SDK no longer supports deploying applications to devices running Android 3.x or less.  The minimum SDK version (if used) must be set to API 14 (Android 4.0) or greater.  Previously, the minimum API level was 10 (Android 2.3.x).
+
+<a name="blackberry"></a>
+### BlackBerry Support
+
+Support for building and deploying to the BlackBerry OS was removed in this Release.
+
+<a name="studio"></a>
+### Studio 4.0.0
+
+
+This Release coincides with the release of Studio 4.0.0.
+
+**Summary of Changes:**
+
+  * Integration with the Appcelerator CLI.
+  * New installers for OS X and Windows with silent installation capabilities, and prerequisite detection and installation.
+  * Update Eclipse base from 4.3 (Kepler) to 4.4 (Lunar).
+  * Update content assist for Alloy projects.
+  * Add hyperlink detector to jump from i18n translation keys in Alloy JavaScript and TSS attributes to their definition in strings.xml files.
+
+For more details, see the [Studio Release Notes](http://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
+
+<a name="changes"></a>
+## Notice of Feature or Behavior Changes 
+
+<a name="deprecated_android"></a>
+### Android Platform
+
+<a name="action_bar"></a>
+#### Action Bar Icons
+
+Due to the requirement that the target SDK must be set to Android 5.0 (API level 21) or higher,
+action bar icons may not display.  Google is discouraging the use of icons in toolbars:
+
+<blockquote>
+In modern Android UIs developers should lean more on a visually distinct color scheme for toolbars
+than on their application icon. The use of application icon plus title as a standard layout is
+discouraged on API 21 devices and newer.
+</blockquote>
+
+Source:
+[Android Developer: Toolbar API reference](https://developer.android.com/reference/android/support/v7/widget/Toolbar.html)
+
+<a name="deprecated_facebook"></a>
+### Facebook Module
+
+The Facebook module was updated to use a newer version of the Facebook SDK for Android and iOS.
+Some APIs were removed due to changes in the native Facebook SDKs and removal of the Facebook v1.0 REST APIs.
+
+For details, see the Migration section in the
+[Facebook API reference](http://docs.appcelerator.com/platform/latest/#!/api/Modules.Facebook).
+
+<a name="deprecated_ios"></a>
+### iOS Platform
+
+This section lists changes for the iOS platform.
+
+<a name="ios_attributed_string"></a>
+#### iOS Attributed String
+
+Since Android supports attributed strings, the `Titanium.UI.iOS.AttributedString` class is deprecated and a new  [Titanium.UI.AttributedString](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.AttributedString) class was added.  The new class behaves the same as the old class.  If you currently use attributed strings in your application, just remove the iOS namespace.  Note that Android only supports a subset of attributes as compared to iOS.
+
+The Label `link` event now responds to a single tap rather than a long press.
+
+<a name="ipad_split_window"></a>
+#### iPad Split Window
+
+In iOS 8, the iPhone now supports the SplitView class.  The `Titanium.UI.iPad.SplitWindow` class is deprecated and a new [Titanium.UI.iOS.SplitWindow](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.SplitWindow) class was added.
+Any application that uses the old iPad SplitWindow should transition to the new iOS SplitWindow.
+
+
+<a name="features"></a>
+## New Features
+
+This section describes new features introduced in Release 4.0.0.
+
+<a name="new_android"></a>
+### Android Platform
+
+This section lists new features and improvements only available on the Android platform.
+
+<a name="attributed_string"></a>
+#### Attributed String
+
+As of this Release, the Android platform supports attributed strings using the [Titanium.UI.AttributedString](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.AttributedString) class.  Previously, this feature was only available for iOS.
+
+For more details, see the [Attributed String guide](http://docs.appcelerator.com/platform/latest/#!/guide/Attributed_Strings).
+
+<a name="material_theme"></a>
+#### Material Theme
+
+Starting with this Release, the Titanium SDK exposes the Material Theme color palette attributes, introduced in Android 5.0 (Lollipop).  These attributes allow you to style the status bar, action bar and several control widgets, such as toggle switches and text fields, without having to individually style each component.
+
+To use the Material Theme with Titanium, you need to create a custom theme that extends one of the AppCompat themes, then set the color palette attributes you want to change from the default theme.
+
+For details, see the "Material Theme" section in the
+[Android Themes guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes).
+
+<a name="lifecycle"></a>
+#### Module Lifecycle Hooks
+
+Starting with this Release, an Android module proxy can respond to activity lifecycle events by overriding the activity lifecycle callbacks in the proxy, then in the JavaScript application, assign either a Window or TabGroup object to the proxy's
+[lifecycleContainer property](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Proxy-property-lifecycleContainer)
+when creating the module proxy to monitor the lifecycle events of that object to trigger the module proxy's lifecycle events.
+
+For details, see the "Activity Lifecycle Events" section in
+[Android Module Architecture guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Module_Architecture).
+
+<a name="notifications"></a>
+#### Notifications
+
+The `Titanium.Android.Notifications` class exposes the following new properties:
+
+  * [category](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-category): Set to a `Titanium.Android.CATEGORY_*` constant if the notification falls into one of the pre-defined notification categories.  Android uses the category to determine where and how it should be displayed. Supported on Android 5.0 and greater.
+  * [priority](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-priority): Set to a `Titanium.Android.PRIORITY_*` constant to determine where the notification is displayed in the drawer.  Supported on Android 4.1 and greater.
+  * [visibility](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-visibility): Set to a `Titanium.Android.VISIBILITY_*` constant to filter notifications in the lock screen. Supported on Android 5.0 and greater.
+
+For details, see the 
+[Android Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications).
+
+<a name="scrollable_tabs"></a>
+#### Scrollable Tabs
+
+This Release adds support for scrollable tabs, where users can swipe to navigate between tabs in addition to tapping a tab in the tab bar. The following APIs were added:
+
+  * [Titanium.UI.TabGroup.disableTabNavigation() method](http://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-method-disableTabNavigation): Enable or disables tab navigation, which displays or hides the tab bar, respectively.
+  * [Titanium.UI.TabGroup.smoothScrollOnTabClick property](http://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-property-smoothScrollOnTabClick): Determines if the tab transition should be animated or not if the user taps the tab.
+  * [Titanium.UI.TabGroup.swipeable property](http://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-property-swipeable): Determines if the user can swipe to navigate between tabs.
+  * [Titanium.UI.Tab.selected event](http://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.Tab-event-selected): Fired when the tab is selected.
+  * [Titanium.UI.Tab.unselected event](http://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.Tab-event-unselected): Fired when the tab is unselected.
+
+
+<a name="split_action_bar"></a>
+#### Split Action Bar
+
+This Release adds support for the split action bar, which displays action items in a separate bar at the bottom of the window instead of at the top.  To create a split action bar, set the
+[splitActionBar property](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Window-property-splitActionBar)
+to `true` when creating a Window object. 
+
+<a name="tls_support"></a>
+#### TLS Support
+
+As of this Release, the application can specify which TLS version to use with the HTTPClient.  Set the HTTPClient's
+[tlsVersion](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.HTTPClient-property-tlsVersion)
+property to one of the `Titanium.Network.TLS_*` constants to force the TLS version to use.
+
+Previously, this feature was only available for iOS.
+
+For details, see the "TLS Support" section in the
+[HTTPClient API reference](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.HTTPClient).
+
+<a name="video_thumbnail_support"></a>
+#### Video Thumbnails
+
+The following `Titanium.Media.VideoPlayer` methods are exposed to the Android platform to support extracting thumbnails from a video:
+
+  * [cancelAllThumbnailImageRequests()](Titanium.Media.VideoPlayer-method-cancelAllThumbnailImageRequests): Cancels all pending asynchronous thumbnail requests.
+  * [requestThumbnailImagesAtTimes()](Titanium.Media.VideoPlayer-method-requestThumbnailImagesAtTimes): Asynchronously request thumbnail images for one or more points in time in the video.
+
+Previously, this feature was only available for iOS.
+
+
+      
+<a name="facebook"></a>
+### Facebook Module
+
+The Facebook module was updated to use a newer version of the Facebook SDK for Android and iOS.  New features include the Like button and using the Facebook application's interface for dialogs if the Facebook app is also installed on device.
+
+For details, see the
+[Facebook API reference](http://docs.appcelerator.com/platform/latest/#!/api/Modules.Facebook).
+
+<a name="new_ios"></a>
+### iOS Platform
+
+This section lists new features and improvements only available on the iOS platform.
+
+<a name="camera"></a>
+
+#### Camera Permission Request
+
+This Release exposes the following APIs to request permission to use the device's camera:
+
+ * [Titanium.Media.requestCameraAccess()](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media-method-requestCameraAccess): Request permission to use the device's camera.</li>
+ * [Titanium.Media.cameraAuthorizationStatus](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media-property-cameraAuthorizationStatus): Retrieve the current authorization status for the camera.
+
+Note that the application will automatically request permission to use the camera if the camera
+application is launched.  The new APIs allow the application to explicitly request permission from
+the user before the camera is launched.
+
+<a name="contacts"></a>
+#### Contacts
+
+The `Titanium.Contacts.Person` class exposes the following new properties:
+
+  * [alternateBirthday](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Contacts.Person-property-alternateBirthday): Adds an alternate birthday to the contact.
+  * [socialProfile](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Contacts.Person-property-socialProfile): Adds social profile information to the contact.
+
+<a name="split_window"></a>
+#### Split Window
+
+This Release introduces the
+[Titanium.UI.iOS.SplitWindow class](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.SplitWindow)
+to support the SplitWindow object on both iPhone and iPad devices, introduced in iOS 8.  Previously, this feature was only available for iPad.  This class deprecates the `Titanium.UI.iPad.SplitWindow` class.
+
+<a name="user_defaults"></a>
+
+#### User Defaults
+
+This Release exposes the iOS NSUserDefaults APIs to allow a Titanium application to access user
+preferences that can be shared between multiple applications that are registered with the same
+application group permission.
+
+For more details, see the
+[iOS Extension Guide](http://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_Native_iOS_App_Extension_or_WatchKit_App-section-43301277_IntegrateaNativeiOSAppExtensionorWatchKitApp-ShareDataBetweentheApplicationandExtension).
+
+
+<a name="known_issues"></a>
+## Known Issues
+
+<a name="web_server"></a>
+### Cannot Preview Mobile Web Application in Studio
+
+After building a mobile web application in Studio, Studio does not launch the application in a
+browser ([TISTUD-7428](https://jira.appcelerator.org/browse/TISTUD-7428)).
+
+To workaround this issue, create your own web server to launch the
+application.  Instructions will be available in the linked ticket.
+
+<a name="windows_java"></a>
+### Fail to Encrypt JavaScript Files on Windows
+
+When building an application on Windows, the build fails at the encryption stage
+([CLI-658](https://jira.appcelerator.org/browse/CLI-658)).
+
+To workaround this issue, install the 32-bit version of Java.
+
+
+<a name="apis"></a>
+## API Changes
+
+<a name="new_apis"></a>
+### New APIs
+
+The following APIs are new or have expanded platform support in Release
+4.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.Android.CATEGORY_ALARM</td><td>property</td><td><p>Notification category indicating an alarm or timer. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_CALL</td><td>property</td><td><p>Notification category indicating an incoming call (voice or video) or similar synchronous
+communication request.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_EMAIL</td><td>property</td><td><p>Notification category indicating an asynchronous bulk message (email). (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_ERROR</td><td>property</td><td><p>Notification category indicating an error in background operation or authentication status. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_EVENT</td><td>property</td><td><p>Notification category indicating a calendar event. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_MESSAGE</td><td>property</td><td><p>Notification category indicating an incoming direct message (SMS, instant message, etc.). (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_PROGRESS</td><td>property</td><td><p>Notification category indicating the progress of a long-running background operation. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_PROMO</td><td>property</td><td><p>Notification category indicating a promotion or advertisement. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_RECOMMENDATION</td><td>property</td><td><p>Notification category indicating a specific, timely recommendation for a single thing. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_SERVICE</td><td>property</td><td><p>Notification category for a running background service. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_SOCIAL</td><td>property</td><td><p>Notification category for a social network or sharing update. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_STATUS</td><td>property</td><td><p>Notification category indicating ongoing information about device or contextual status. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.CATEGORY_TRANSPORT</td><td>property</td><td><p>Notification category indicating media transport control for playback. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.category</td><td>property</td><td><p>Sets the notification's category. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.getCategory</td><td>method</td><td><p>Gets the value of the category property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.getPriority</td><td>method</td><td><p>Gets the value of the priority property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.getVisibility</td><td>method</td><td><p>Gets the value of the visibility property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.priority</td><td>property</td><td><p>Sets the priority of the notification. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.setCategory</td><td>method</td><td><p>Sets the value of the category property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.setPriority</td><td>method</td><td><p>Sets the value of the priority property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.setVisibility</td><td>method</td><td><p>Sets the value of the visibility property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.Notification.visibility</td><td>property</td><td><p>Allows user to conceal private information of the notification on the lockscreen. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.PRIORITY_DEFAULT</td><td>property</td><td><p>Default priority if it does no fit into another priority category. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.PRIORITY_HIGH</td><td>property</td><td><p>Use for high priority notifications like real-time chat messages. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.PRIORITY_LOW</td><td>property</td><td><p>Use for low priority notifications like software updates. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.PRIORITY_MAX</td><td>property</td><td><p>Use for urgent or time-critical notifications, for example, turn-by-turn directions or
+emergency alerts.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.PRIORITY_MIN</td><td>property</td><td><p>Use for expired events. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.VISIBILITY_PRIVATE</td><td>property</td><td><p>Shows basic information about the notification. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.VISIBILITY_PUBLIC</td><td>property</td><td><p>Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Android.VISIBILITY_SECRET</td><td>property</td><td><p>Shows the most minimal information of the notification on the lockscreen. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.UserDefaults</td><td>module</td><td><p>The UserDefaults module is used for storing application-related data in property/value pairs that persist beyond application sessions and device power cycles. UserDefaults allows the suiteName of the UserDefaults to be specified at creation time.  (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.App.iOS.createUserDefaults</td><td>method</td><td><p>Creates and returns an instance of Titanium.App.iOS.UserDefaults.  (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.alternateBirthday</td><td>property</td><td><p>Alternate birthday of the person. Single Dictionary.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.getAlternateBirthday</td><td>method</td><td><p>Gets the value of the alternateBirthday property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.getSocialProfile</td><td>method</td><td><p>Gets the value of the socialProfile property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.setAlternateBirthday</td><td>method</td><td><p>Sets the value of the alternateBirthday property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.setSocialProfile</td><td>method</td><td><p>Sets the value of the socialProfile property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Contacts.Person.socialProfile</td><td>property</td><td><p>Social profile information of the person. Multi-value.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Filesystem.directoryForSuite</td><td>method</td><td><p>Returns the path to the container directory associated with the specified security application group ID. (New API, supported
+on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_AUTHORIZATION_AUTHORIZED</td><td>property</td><td><p>Constant specifying that app is authorized to use camera. This is available on iOS 7 and later. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_AUTHORIZATION_DENIED</td><td>property</td><td><p>Constant specifying that app is denied usage of camera. This is available on iOS 7 and later. (New API, supported on
+iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_AUTHORIZATION_NOT_DETERMINED</td><td>property</td><td><p>Constant specifying that app is not yet authorized to use camera. This is available on iOS 7 and later. (New
+API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.CAMERA_AUTHORIZATION_RESTRICTED</td><td>property</td><td><p>Constant specifying that app is restricted from using camera. This is available on iOS 7 and later. (New API,
+supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.cameraAuthorizationStatus</td><td>property</td><td><p>Returns the authorization status for the camera.  (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.getCameraAuthorizationStatus</td><td>method</td><td><p>Gets the value of the cameraAuthorizationStatus property. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.requestCameraAccess</td><td>method</td><td><p>Requests for camera access. (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.Media.VIDEO_TIME_OPTION_CLOSEST_SYNC</td><td>property</td><td><p>Use the closest sync (or key) frame at given the time. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME</td><td>property</td><td><p>Use the closest keyframe in the time. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Media.VIDEO_TIME_OPTION_NEXT_SYNC</td><td>property</td><td><p>Use the sync (or key) frame located right after or at given the time. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Media.VIDEO_TIME_OPTION_PREVIOUS_SYNC</td><td>property</td><td><p>Use the sync (or key) frame located right before or at given the time. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.cancelAllThumbnailImageRequests</td><td>method</td><td><p>Cancels all pending asynchronous thumbnail requests. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes</td><td>method</td><td><p>Asynchronously request thumbnail images for one or more points in time in the video. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Network.HTTPClient.tlsVersion</td><td>property</td><td><p>Sets the TLS version to use for handshakes. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Network.TLS_VERSION_1_0</td><td>property</td><td><p>Constant value specifying TLS version 1.0 for SSL. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Network.TLS_VERSION_1_1</td><td>property</td><td><p>Constant value specifying TLS version 1.1 for SSL. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Network.TLS_VERSION_1_2</td><td>property</td><td><p>Constant value specifying TLS version 1.2 for SSL. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.Proxy.getLifecycleContainer</td><td>method</td><td><p>Gets the value of the lifecycleContainer property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Proxy.lifecycleContainer</td><td>property</td><td><p>The Window or TabGroup whose Activity lifecycle should be triggered on the proxy. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.Proxy.setLifecycleContainer</td><td>method</td><td><p>Sets the value of the lifecycleContainer property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR</td><td>property</td><td><p>Use with Attribute.type to specify a background color.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_BASELINE_OFFSET</td><td>property</td><td><p>Use with Attribute.type to apply a different baseline to the text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_EXPANSION</td><td>property</td><td><p>Use with Attribute.type to stretch the text horizontally.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_FONT</td><td>property</td><td><p>Use with Attribute.type to specify a font.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR</td><td>property</td><td><p>Use with Attribute.type to specify a font color.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_KERN</td><td>property</td><td><p>Use with Attribute.type to specify kerning (space between characters).
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE</td><td>property</td><td><p>Use with Attribute.value to use a letterpress text effect.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_LIGATURE</td><td>property</td><td><p>Use with Attribute.type to enable or disable ligatures.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_LINK</td><td>property</td><td><p>Use with Attribute.type to create a link.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_OBLIQUENESS</td><td>property</td><td><p>Use with Attribute.type to skew the text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_SHADOW</td><td>property</td><td><p>Use with Attribute.type to display a shadow behind the text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR</td><td>property</td><td><p>Use with Attribute.type to change the color of the horizontal line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE</td><td>property</td><td><p>Use with Attribute.type to place a horizontal line through the text.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_STROKE_COLOR</td><td>property</td><td><p>Use with Attribute.type to specify a color for the stroke text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_STROKE_WIDTH</td><td>property</td><td><p>Use with Attribute.type to specify the width of the stroke text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_TEXT_EFFECT</td><td>property</td><td><p>Use with Attribute.type to apply a text effect.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE</td><td>property</td><td><p>Use with Attribute.type to place a horizontal line under the text.
+ (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD</td><td>property</td><td><p>Use with Attribute.value to draw a line only underneath or through words.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR</td><td>property</td><td><p>Use with Attribute.type to change the color of the horizontal line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH</td><td>property</td><td><p>Use with Attribute.value to draw a dashed line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT</td><td>property</td><td><p>Use with Attribute.value to draw an alternating line of dashes and dots.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT</td><td>property</td><td><p>Use with Attribute.value to draw an alternating line of dashes and two dots.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT</td><td>property</td><td><p>Use with Attribute.value to draw a dotted line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID</td><td>property</td><td><p>Use with Attribute.value to draw a solid line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE</td><td>property</td><td><p>Use with Attribute.value to draw a double line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE</td><td>property</td><td><p>Use with Attribute.value to not draw a line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE</td><td>property</td><td><p>Use with Attribute.value to draw a single line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK</td><td>property</td><td><p>Use with Attribute.value to draw a thick line.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION</td><td>property</td><td><p>Use with Attribute.type to control the direction of the text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING</td><td>property</td><td><p>Use with Attribute.value to use the embedded text direction.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT</td><td>property</td><td><p>Use with Attribute.value to write text left to right.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL</td><td>property</td><td><p>Use with Attribute.value to use the
+Unicode Bidirection Algorithm rules P2 and P3
+to determine which direction to use.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE</td><td>property</td><td><p>Use with Attribute.value to override the text direction.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT</td><td>property</td><td><p>Use with Attribute.value to write text right to left.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.SWITCH_STYLE_SWITCH</td><td>property</td><td><p>Display a switch. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.ProgressIndicator.canceledOnTouchOutside</td><td>property</td><td><p>When <code>cancelable</code> is set to <code>true</code> and this is set to <code>true</code>, the dialog is canceled when touched outside the window's bounds.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.ProgressIndicator.getCanceledOnTouchOutside</td><td>method</td><td><p>Gets the value of the canceledOnTouchOutside property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Android.ProgressIndicator.setCanceledOnTouchOutside</td><td>method</td><td><p>Sets the value of the canceledOnTouchOutside property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.AttributedString</td><td>object</td><td><p>An attributed string proxy manages character strings and associated sets of attributes (for example,
+font and foregroundcolor) that apply to individual characters or ranges of characters in the string.
+ (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.attributedString</td><td>property</td><td><p>Specify an attributed string for the label. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Label.link</td><td>event</td><td><p>Fired when user interacts with a URL in the Label. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Tab.selected</td><td>event</td><td><p>Fired when the tab is selected. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Tab.unselected</td><td>event</td><td><p>Fired when the tab is unselected. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.disableTabNavigation</td><td>method</td><td><p>Disable (or re-enable) tab navigation. If tab navigation is disabled, the tabs are hidden and
+the last selected tab window is shown.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.getSmoothScrollOnTabClick</td><td>method</td><td><p>Gets the value of the smoothScrollOnTabClick property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.getSwipeable</td><td>method</td><td><p>Gets the value of the swipeable property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.setSmoothScrollOnTabClick</td><td>method</td><td><p>Sets the value of the smoothScrollOnTabClick property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.setSwipeable</td><td>method</td><td><p>Sets the value of the swipeable property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.smoothScrollOnTabClick</td><td>property</td><td><p>Boolean value indicating if changing pages by tab clicks is animated.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TabGroup.swipeable</td><td>property</td><td><p>Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.
+ (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextArea.attributedString</td><td>property</td><td><p>TextArea attributed string. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.attributedHintText</td><td>property</td><td><p>Hint text attributed string. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.TextField.attributedString</td><td>property</td><td><p>TextField attributed string. (Added support for Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.enableJavascriptInterface</td><td>property</td><td><p>Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2) (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.getEnableJavascriptInterface</td><td>method</td><td><p>Gets the value of the enableJavascriptInterface property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.WebView.onLoadResource</td><td>event</td><td><p>Fired when loading resource. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.getSplitActionBar</td><td>method</td><td><p>Gets the value of the splitActionBar property. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.Window.splitActionBar</td><td>property</td><td><p>Boolean value to enable split action bar. (New API, supported on Android.)</p></td></tr>
+  <tr><td>Titanium.UI.createAttributedString</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.AttributedString. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.SplitWindow</td><td>object</td><td><p>A SplitWindow is a window that manages the presentation of two side-by-side view 
+controllers. 
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createSplitWindow</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.iOS.SplitWindow. (New API, supported on iPhone and iPad.)</p></td></tr>
+<tr>
+</table>
+
+<a name="deprecated_apis"></a>
+### Deprecated APIs
+
+The following APIs are deprecated in Release 4.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_BACKGROUND_COLOR</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_BASELINE_OFFSET</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_BASELINE_OFFSET constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_EXPANSION</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_EXPANSION constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_FONT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_FONT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_KERN</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_KERN constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_LIGATURE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_LIGATURE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_LINK</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_LINK constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_OBLIQUENESS</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_OBLIQUENESS constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_SHADOW</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_SHADOW constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_STROKE_COLOR</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_STROKE_COLOR constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_STROKE_WIDTH</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_STROKE_WIDTH constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_TEXT_EFFECT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_BY_WORD</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_COLOR</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DOT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_SOLID</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_THICK</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_NATURAL</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT</td><td>property</td><td><p>Use the Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT constant instead (without the iOS namespace).</p></td></tr>
+  <tr><td>Titanium.UI.iOS.Attribute</td><td>object</td><td><p>use Attribute instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.AttributedString</td><td>object</td><td><p>use Titanium.UI.AttributedString instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createAttribute</td><td>method</td><td><p>use Attribute instead.</p></td></tr>
+  <tr><td>Titanium.UI.iOS.createAttributedString</td><td>method</td><td><p>use Titanium.UI.AttributedString instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.SplitWindow</td><td>object</td><td><p>Use Titanium.UI.iOS.SplitWindow instead.</p></td></tr>
+  <tr><td>Titanium.UI.iPad.createSplitWindow</td><td>method</td><td><p>Use Titanium.UI.iOS.SplitWindow instead.</p></td></tr>
+<tr>
+</table>
+
+<a name="removed_apis"></a>
+### Removed APIs
+
+The following APIs have been removed in Release 4.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+  <tr><td>Titanium.App.keyboardFrameChanged</td><td>event</td><td><p>Renamed to keyboardframechanged (all lowercase).</td></tr>
+  <tr><td>Titanium.UI.Window.getUrl</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.Window.url</td><td>property</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND</td><td>property</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND</td><td>property</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND</td><td>property</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.SplitWindow.getUrl</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.iOS.SplitWindow.url</td><td>property</td><td></td></tr>
+  <tr><td>Titanium.UI.iPad.SplitWindow.getUrl</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.iPad.SplitWindow.url</td><td>property</td><td></td></tr>
+<tr>
+</table>

@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiBase.h"
 
 /**
  The class represents locale.

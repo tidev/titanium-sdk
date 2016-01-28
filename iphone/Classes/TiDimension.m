@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef TI_USE_AUTOLAYOUT
+
 #import "TiDimension.h"
 #import "TiUtils.h"
 #import "TiApp.h"
@@ -153,3 +155,4 @@ TiDimension TiDimensionFromObject(id object)
 }
 
 
+#endif

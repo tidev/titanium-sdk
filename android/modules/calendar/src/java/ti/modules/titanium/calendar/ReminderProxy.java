@@ -48,6 +48,9 @@ public class ReminderProxy extends KrollProxy {
 	public static ArrayList<ReminderProxy> getRemindersForEvent(EventProxy event)
 	{
 		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return reminders;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		Uri uri = Uri.parse(getRemindersUri());
 
@@ -75,6 +78,9 @@ public class ReminderProxy extends KrollProxy {
 
 	public static ReminderProxy createReminder(EventProxy event, int minutes, int method)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues eventValues = new ContentValues();
 

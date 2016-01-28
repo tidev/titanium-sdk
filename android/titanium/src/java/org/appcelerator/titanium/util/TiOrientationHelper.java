@@ -7,8 +7,9 @@
 package org.appcelerator.titanium.util;
 
 import android.content.res.Configuration;
+import android.view.Surface;
 
-
+@SuppressWarnings("deprecation")
 public class TiOrientationHelper
 {
 	// public member
@@ -19,22 +20,52 @@ public class TiOrientationHelper
 	public static final int ORIENTATION_LANDSCAPE_REVERSE = 4;
 	public static final int ORIENTATION_SQUARE = 5;
 
-	public static int convertConfigToTiOrientationMode (int configOrientationMode)
+	public static int convertRotationToTiOrientationMode (int rotation, int width, int height)
 	{
-		switch (configOrientationMode)
-		{
-			case Configuration.ORIENTATION_PORTRAIT:
-				return ORIENTATION_PORTRAIT;
+	    // Device that has portrait natural orientation
+	    if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) && height > width ||
+	            (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) && width > height) {
 
-			case Configuration.ORIENTATION_LANDSCAPE:
-				return ORIENTATION_LANDSCAPE;
+	        switch (rotation)
+	        {
+	            case Surface.ROTATION_0:
+	                return ORIENTATION_PORTRAIT;
 
-			case Configuration.ORIENTATION_SQUARE:
-				return ORIENTATION_SQUARE;
+	            case Surface.ROTATION_90:
+	                return ORIENTATION_LANDSCAPE;
 
-			default:
-				return ORIENTATION_UNKNOWN;
-		}
+	            case Surface.ROTATION_180:
+	                return ORIENTATION_PORTRAIT_REVERSE;
+
+	            case Surface.ROTATION_270:
+	                return ORIENTATION_LANDSCAPE_REVERSE;
+
+	            default:
+	                return ORIENTATION_UNKNOWN;
+	        }
+
+	        // Device that has landscape natural orientation. Eg Samsung Galaxy Tab 3 10.1
+	    } else {
+	        switch (rotation)
+	        {
+	            case Surface.ROTATION_0:
+	                return ORIENTATION_LANDSCAPE;
+
+	            case Surface.ROTATION_90:
+	                return ORIENTATION_PORTRAIT;
+
+	            case Surface.ROTATION_180:
+	                return ORIENTATION_LANDSCAPE_REVERSE;
+
+	            case Surface.ROTATION_270:
+	                return ORIENTATION_PORTRAIT_REVERSE;
+
+	            default:
+	                return ORIENTATION_UNKNOWN;
+	        }
+
+	    }
+
 	}
 }
 

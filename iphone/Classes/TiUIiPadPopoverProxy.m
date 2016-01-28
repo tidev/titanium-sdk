@@ -297,7 +297,7 @@ static NSArray* popoverSequence;
     [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [contentViewProxy windowDidClose];
-    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]] || [TiUtils isIOS8OrGreater]) {
         UIView* topWindowView = [[[TiApp app] controller] topWindowProxyView];
         if ([topWindowView isKindOfClass:[TiUIView class]]) {
             TiViewProxy* theProxy = (TiViewProxy*)[(TiUIView*)topWindowView proxy];
@@ -357,6 +357,7 @@ static NSArray* popoverSequence;
 
 -(CGSize)contentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     if (![TiUtils isIOS8OrGreater]) {
         UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
@@ -380,6 +381,9 @@ static NSArray* popoverSequence;
     }
     
     return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
+#else
+    return CGSizeZero;
+#endif
 }
 
 -(void)updatePassThroughViews
@@ -423,6 +427,7 @@ static NSArray* popoverSequence;
         UIPopoverPresentationController* thePresentationController = [theController popoverPresentationController];
         thePresentationController.permittedArrowDirections = directions;
         thePresentationController.delegate = self;
+        [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
         
         [[TiApp app] showModalController:theController animated:animated];
         return;
@@ -477,6 +482,7 @@ static NSArray* popoverSequence;
         if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
             [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
             viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
+
         } else {
             viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
         }
@@ -489,6 +495,7 @@ static NSArray* popoverSequence;
     if (popoverController == nil) {
         popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
         [popoverController setDelegate:self];
+
         [self updateContentSize];
     }
     return popoverController;

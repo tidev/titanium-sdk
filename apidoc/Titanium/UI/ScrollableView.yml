@@ -274,7 +274,8 @@ properties:
         values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved 
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [android,  iphone, ipad]
+    since: {android: "4.1.0"}
     
   - name: currentPage
     summary: Index of the active page.

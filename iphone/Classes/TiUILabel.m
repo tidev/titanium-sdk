@@ -90,6 +90,7 @@
 
 -(void)padLabel
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
     UIControlContentVerticalAlignment alignment = verticalAlign;
     if (alignment == UIControlContentVerticalAlignmentFill) {
@@ -145,8 +146,10 @@
         [self updateBackgroundImageFrameWithPadding];
     }
 	return;
+#endif
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
@@ -154,11 +157,14 @@
 {
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
+#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     initialLabelFrame = bounds;
     [wrapperView setFrame:initialLabelFrame];
+#endif
     [self padLabel];
     [super frameSizeChanged:frame bounds:bounds];
 }
@@ -170,11 +176,15 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
+#ifndef TI_USE_AUTOLAYOUT
         wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
         [wrapperView addSubview:label];
         wrapperView.clipsToBounds = YES;
         [wrapperView setUserInteractionEnabled:NO];
         [self addSubview:wrapperView];
+#else
+        [self addSubview:label];
+#endif
         minFontSize = 0;
     }
 	return label;
@@ -408,6 +418,17 @@
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
 	[[self label] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
+}
+
+-(void)setEllipsize_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber);
+	//for bool case and parity with android
+	if ([TiUtils intValue:value] == 1) {
+		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
+		return;
+	}
+	[[self label] setLineBreakMode:[TiUtils intValue:value]];
 }
 
 -(void)setHighlightedColor_:(id)color

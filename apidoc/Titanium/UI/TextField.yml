@@ -7,8 +7,9 @@ description: |
         <td><img src="images/textfield/textfield_android.png" height="25" /></td>
         <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
         <td><img src="images/textfield/textfield_mobileweb.png" height="25" /></td>
+        <td><img src="images/textfield/textfield_wp.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
@@ -74,7 +75,17 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use keyboardAppearance instead.
+
+  - name: keyeyboardAppearance
+    summary: Determines the appearance of the keyboard displayed when this field is focused.
+    type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: attributedString
     summary: TextField attributed string. 
     description: |
@@ -83,6 +94,36 @@ properties:
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        element inside a `<TextField>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <TextField>
+                    <AttributedString>
+                        Alloy is great!
+                    </AttributedString>
+                  </TextField>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -98,6 +139,36 @@ properties:
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
+        element inside a `<TextField>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <TextField>
+                    <AttributedHintText>
+                        Alloy is great!
+                    </AttributedHintText>
+                  </TextField>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
@@ -115,7 +186,7 @@ properties:
     summary: |
         Determines whether to automatically correct text entered into this text field.
     description: |
-        Set to `true` to enable automatic spelling correction.
+        Set to `true` to enable automatic spelling correction. On iOS 9+, this can be used to disable QuickType suggestions.
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
@@ -230,7 +301,19 @@ properties:
         Another way to change the hint text color is to use this property and specify a color.
     type: String
     default: Default Android theme's hint text color.
-    
+
+  - name: inputType
+    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    description: |
+        When asking for a specific kind of user input, such as a phone number or email 
+        address, you should always specify the input type that is accepted. This overrides
+        any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
+    type: Array<Number>
+    constants: [Titanium.UI.INPUT_TYPE_*]
+    platforms: [android]
+    default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
+    since: 5.2.0
+
   - name: keyboardToolbar
     summary: |
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
@@ -280,8 +363,8 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
-    constants: Titanium.UI.KEYBOARD_*
-    default: <Titanium.UI.KEYBOARD_DEFAULT>
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
     
   - name: leftButton
     summary: Left button view to display in the `TextField`.
@@ -417,7 +500,15 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, android]
     since: "3.3.0"
-    
+
+  - name: showUndoRedoActions
+    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    type: Boolean
+    default: true
+    platforms: [ipad]
+    osver: {ios: {min: "9.0"}}
+    since: 5.0.0
+
   - name: textAlign
     summary: Text alignment within this text field.
     type: [String, Number]

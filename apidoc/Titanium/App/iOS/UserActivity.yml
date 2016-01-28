@@ -1,0 +1,265 @@
+---
+name: Titanium.App.iOS.UserActivity
+summary: The UserActivity module is used to enable device Handoff and to create User Activities.
+description: |
+    A UserActivity object requires the `activityType` property to be specified at creation time.
+    Additional properties can be set either at creation or set individually after creation.
+
+    Handoff will not work in the simulator.  You must build and run on a compatible device.
+
+    Handoff functionality depends on a few things:
+
+      * You must be logged into the same iCloud account on each device you wish to use Handoff.
+      * Handoff broadcasts activities via Bluetooth LE signals, so both the broadcasting and receiving devices must have Bluetooth LE 4.0 support.
+      * Connect all devices to the same Wi-Fi network.
+
+    Make sure you have two Handoff compatible devices running iOS 8 or later that are logged onto the same iCloud account.
+extends: Titanium.Proxy
+platforms: [iphone,ipad]
+since: "5.0.0"
+createable: true
+properties:
+  - name: activityType
+    summary: Name of the activity type.
+    description: |
+        Apple recommends using a reverse DNS scheme to name activities in the format: com.<company>.<application>.<activity_type>.
+
+        The activity type must also be registered in the `ios plist` section of the `tiapp.xml` file.  Add the `NSUserActivityTypes`
+        key and set its value to an array of activity type strings.
+
+        #### tiapp.xml
+
+            <ti:app>
+              <ios>
+                <plist>
+                  <dict>
+                    <key>NSUserActivityTypes</key>
+                    <array>
+                      <string>com.fooinc.musicalpedia.playtrack</string>
+                    </array>
+                  </dict>
+                </plist>
+              </ios>
+            </ti:app>
+    type: String
+    osver: {ios: {min: "8.0"}}
+
+  - name: eligibleForPublicIndexing
+    summary: Set to `true` if the user activity can be publicly accessed by all iOS users.
+    description: |
+        Set to `true` if this user activity should be eligible for indexing for any user of the application,
+        on any device, or `false` if the activity contains private or sensitive information or which would not be useful to other
+        users if indexed.  You must also set either the `requiredUserActivityKeys` or `webpageURL` property.
+    type: Boolean
+    default: false
+    osver: {ios: {min: "9.0"}}
+    availability: creation
+
+  - name: eligibleForSearch
+    summary: Set to true if the user activity should be added to the on-device index.
+    type: Boolean
+    default: false
+    osver: {ios: {min: "9.0"}}
+    availability: creation
+
+  - name: eligibleForHandoff
+    summary: Set to true if this user activity should be eligible to be handed off to another device
+    type: Boolean
+    osver: {ios: {min: "9.0"}}
+    default: true
+    availability: creation
+
+  - name: expirationDate
+    summary: Absolute date after which the activity is no longer eligible to be indexed or handed off.
+    description: |
+        The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
+        For example, `2015-12-25T23:30:55.978+0000`
+    type: String
+    default: Determined by iOS
+    osver: {ios: {min: "9.0"}}
+
+  - name: keywords
+    summary: An array of string keywords representing words or phrases that might help the user to find the activity in the application history.
+    type: Array<String>
+    osver: {ios: {min: "9.0"}}
+
+  - name: needsSave
+    summary: |
+        Set to true everytime you have updated the user activity and need the changes to be saved before handing it off to another device.
+    type: Boolean
+    osver: {ios: {min: "8.0"}}
+
+  - name: requiredUserInfoKeys
+    summary: An array of String keys from the userInfo property which represent the minimal information about the user activity that should be stored for later restoration.
+    type: Array<String>
+    osver: {ios: {min: "9.0"}}
+
+  - name: supported
+    summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
+    type: Boolean
+    osver: {ios: {min: "8.0"}}
+    deprecated:
+        since: "5.1.0"
+        notes: Use the [Ti.App.iOS.UserActivity.isSupported()](Titanium.App.iOS.UserActivity.isSupported) method instead.
+
+  - name: title
+    summary: An optional, user-visible title for this activity such as a document name or web page title.
+    type: String
+    osver: {ios: {min: "8.0"}}
+
+  - name: userInfo
+    summary: The userInfo dictionary contains application-specific state needed to continue an activity on another device.
+    type: Dictionary
+    osver: {ios: {min: "8.0"}}
+
+  - name: webpageURL
+    summary: |
+        When no suitable application is installed on a resuming device and the `webpageURL` property is set,
+        the user activity will instead be continued in a web browser by loading the specified URL.
+    description: |
+        Only supports the `http://` and `https://` protocols.  Any other protocol will throw an error.
+    type: String
+    osver: {ios: {min: "8.0"}}
+    platforms: [iphone,ipad]
+methods:
+  - name: addContentAttributeSet
+    summary: |
+        Adds a Titanium.App.iOS.SearchableItemAttributeSet to the user activity.
+    parameters:
+      - name: contentAttributeSet
+        summary: SearchableItemAttributeSet object that contains the set of properties you want to display for a searchable activity.
+        type: Titanium.App.iOS.SearchableItemAttributeSet
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+  - name: becomeCurrent
+    summary: |
+        Marks the activity as currently in use by the user.
+    description: |
+        For example, you should mark the activity associated with the active window as current.
+        A newly created activity is eligible for continuation on another device after the first time it becomes current.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+  - name: invalidate
+    summary: |
+        Invalidates an activity when it is no longer eligible for continuation.
+    description: |
+        For example, when the window associated with an activity is closed, you should invalidate the activity.
+        An invalid activity cannot become current.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+  - name: resignCurrent
+    summary: |
+        Marks the activity as currently **not** in use and ineligible to be continued.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+  - name: isSupported
+    summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
+    returns:
+        type: Boolean
+        summary: Returns `true` if the device supports user activity.
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "8.0"}}
+events:
+  - name: useractivitywillsave
+    summary: |
+        Fired if the activity context needs to be saved before being continued on another device.
+
+        To fire the event, set the UserActiviy object's `needsSave ` property to `true`.
+
+        The receiver should update the activity with current activity state.
+
+        After the event is fired, iOS will reset the `needsSave` property to false.
+    properties:
+      - name: activityType
+        summary: The activityType of the User Activity triggering the event.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: title
+        summary: The title of the User Activity if defined.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: webpageURL
+        summary: The webpageURL of the User Activity if defined.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: userInfo
+        summary: Dictionary object containing the userInfo data of the User Activity.
+        type: Dictionary
+        platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: set property `needsSave` to true everytime you update current activity state instead.
+
+  - name: useractivitywascontinued
+    summary: |
+        Fired when the user activity was continued on another device.
+    properties:
+      - name: activityType
+        summary: The activityType of the User Activity triggering the event.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: title
+        summary: The title of the User Activity if defined.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: webpageURL
+        summary: The webpageURL of the User Activity if defined.
+        type: String
+        platforms: [iphone, ipad]
+
+      - name: userInfo
+        summary: Dictionary object containing the userInfo data of the User Activity.
+        type: Dictionary
+        platforms: [iphone, ipad]
+examples:
+  - title: Creating a new UserActivity Example
+    example: |
+        The following example demonstrates how to create a new UserActivity and mark the activity as
+        the current activity Handoff should be using when switching between devices.
+
+        It is important to note that all activityTypes must be defined in your `tiapp.xml` before this
+        feature can be supported.  It is important to check the supported property on your UserActivity
+        to ensure the activity created is supported on your device.
+
+        #### app.js
+
+            var activity =  Ti.App.iOS.createUserActivity({
+            activityType: 'com.setdirection.home',
+                title: 'activity 1',
+                userInfo: {
+                    msg: 'hello world'
+                }
+            });
+
+            if(!activity.isSupported()){
+                alert('User Activities are not supported on this device!');
+            } else {
+                activity.becomeCurrent();
+
+                Ti.App.iOS.addEventListener('continueactivity', function(e) {
+                    if (e.activityType === 'com.setdirection.home' && e.userInfo.msg) {
+                        alert(e.userInfo.msg);
+                    }
+                });
+            }
+
+        #### tiapp.xml
+
+            <ti:app>
+              <ios>
+                <plist>
+                  <dict>
+                    <key>NSUserActivityTypes</key>
+                    <array>
+                      <string>com.setdirection.home</string>
+                    </array>
+                  </dict>
+                </plist>
+              </ios>
+            </ti:app>
+

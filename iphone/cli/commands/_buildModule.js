@@ -14,7 +14,7 @@
 var appc = require('node-appc'),
 	AdmZip = require('adm-zip'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/archiver/core'),
+	archiverCore = require('archiver/lib/core'),
 	async = require('async'),
 	crypto = require('crypto'),
 	Builder = require('titanium-sdk/lib/builder'),
@@ -295,7 +295,7 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 				jsFilesToEncrypt = opts.jsFiles,
 				placeHolderName = opts.placeHolder;
 
-			this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+			this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan);
 			jsFilesToEncrypt.forEach(function (file) {
 				this.logger.debug(__('Preparing %s', file.cyan));
 			}, this);
@@ -357,8 +357,8 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
-				[this.manifest.moduleid, this.assetsDir],
-				{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset'},
+				[ this.manifest.moduleid, this.assetsDir, this.manifest.guid ],
+				{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset' },
 				cb
 			);
 		},
@@ -380,8 +380,8 @@ iOSModuleBuilder.prototype.compileJS = function (next) {
 			} else {
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'),
-					[this.manifest.moduleid, this.assetsDir],
-					{'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets'},
+					[ this.manifest.moduleid, this.assetsDir, this.manifest.guid ],
+					{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets' },
 					cb
 				);
 			}
@@ -600,7 +600,6 @@ iOSModuleBuilder.prototype.packageModule = function (next) {
 		zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function() {
 			console.error = origConsoleError;
-			next();
 		});
 		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(zipStream);
@@ -742,7 +741,8 @@ iOSModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'ios'
+					'-p', 'ios',
+					'--force'
 				],
 				this.logger,
 				cb

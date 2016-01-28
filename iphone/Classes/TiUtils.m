@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,6 +20,7 @@
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
 #import "TiExceptionHandler.h"
+#import "TiApp.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -188,6 +189,16 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS8OrGreater
 {
     return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
+}
+
++(BOOL)isIOS9OrGreater
+{
+    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
+}
+
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
 }
 
 +(BOOL)isIPad
@@ -773,30 +784,36 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		return [NSURL URLWithString:relativeString];
 	}
 
-	NSURL *result = nil;
-		
-	// don't bother if we don't at least have a path and it's not remote
-	//TODO: What is this mess? -BTH
-	if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
-	{
-		NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
-		if (range.location!=NSNotFound)
-		{
-			NSString *firstPortion = [relativeString substringToIndex:range.location];
-			NSString *pathPortion = [relativeString substringFromIndex:range.location];
-			CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-					(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-					kCFStringEncodingUTF8);
-			relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-			if(escapedPath != NULL)
-			{
-				CFRelease(escapedPath);
-			}
-		}
-	}
-
-	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+    NSURL *result = nil;
     
+    // don't bother if we don't at least have a path and it's not remote
+    //TODO: What is this mess? -BTH
+    if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
+    {
+        NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
+        if (range.location!=NSNotFound)
+        {
+            NSString *firstPortion = [relativeString substringToIndex:range.location];
+            NSString *pathPortion = [relativeString substringFromIndex:range.location];
+            CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                              (CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+                                                                              kCFStringEncodingUTF8);
+            relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+            if(escapedPath != NULL)
+            {
+                CFRelease(escapedPath);
+            }
+        }
+        result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+    } else {
+        //only add percentescape if there are spaces in relativestring
+        if ([[relativeString componentsSeparatedByString:@" "] count] -1 == 0) {
+            result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+        }
+        else {
+            result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+        }
+    }
     //TIMOB-18262
     if (result && ([[result scheme] isEqualToString:@"file"])){
         BOOL isDir = NO;
@@ -1126,6 +1143,30 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			[NSNumber numberWithDouble:size.width],@"width",
 			[NSNumber numberWithDouble:size.height],@"height",
 			nil];
+}
+
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
+{
+#if IS_XCODE_7
+    if ([self forceTouchSupported]) {
+         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+         [NSNumber numberWithDouble:point.x],@"x",
+         [NSNumber numberWithDouble:point.y],@"y",
+         [NSNumber numberWithFloat:touch.force],@"force",
+         [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+         [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
+         nil];
+        
+#if IS_XCODE_7_1
+        if ([self isIOS9_1OrGreater]) {
+            [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
+        }
+#endif
+        return dict;
+    }
+#endif
+    
+    return [self pointToDictionary:point];
 }
 
 +(CGRect)contentFrame:(BOOL)window
@@ -1912,6 +1953,27 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSLog(@"Could not parse JSON. Error: %@", error);
     }
     return r;
+}
+
++(BOOL)forceTouchSupported
+{
+#if IS_XCODE_7
+    if ([self isIOS9OrGreater] == NO) {
+        return NO;
+    }
+    return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+#else
+    return NO;
+#endif
+}
+
++(BOOL)livePhotoSupported
+{
+#if IS_XCODE_7_1
+    return [self isIOS9_1OrGreater] == YES;
+#else
+    return NO;
+#endif
 }
 
 +(NSString*)currentArchitecture

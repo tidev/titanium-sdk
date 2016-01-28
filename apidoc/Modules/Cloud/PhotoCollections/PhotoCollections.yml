@@ -1,5 +1,5 @@
 name: Modules.Cloud.PhotoCollections
-summary: Provides methods for Arrow DB photo collections.
+summary: Provides methods for ArrowDB photo collections.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 

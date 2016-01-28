@@ -44,6 +44,10 @@ public class TiMimeTypeHelper
 		return mimetype;
 	}
 	
+	public static String getFileExtensionFromUrl(String url) {
+		return MimeTypeMap.getFileExtensionFromUrl(url);
+	}
+
 	public static String getMimeType(String url, String defaultType)
 	{
 		String extension = "";

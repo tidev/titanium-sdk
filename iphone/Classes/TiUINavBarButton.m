@@ -113,12 +113,23 @@ DEFINE_EXCEPTIONS
             }
             //Sanity check. If the view bounds are zero set the bounds to auto dimensions
             CGRect bounds = [[proxy_ view] bounds];
+#ifdef TI_USE_AUTOLAYOUT
+            CGSize s = [[proxy_ view] sizeThatFits:CGSizeMake(1000, 1000)];
+#endif
             if (bounds.size.width == 0) {
+#ifdef TI_USE_AUTOLAYOUT
+                CGFloat desiredWidth = s.width;
+#else
                 CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
-                bounds.size.width = desiredWidth;                        
+#endif
+                bounds.size.width = desiredWidth;
             }
             if (bounds.size.height == 0) {
+#ifdef TI_USE_AUTOLAYOUT
+                CGFloat desiredHeight = s.height;
+#else
                 CGFloat desiredHeight = [proxy_ autoHeightForSize:CGSizeMake(bounds.size.width, 1000)];
+#endif
                 bounds.size.height = desiredHeight;
             }
             [[proxy_ view] setBounds:bounds];
@@ -134,6 +145,8 @@ DEFINE_EXCEPTIONS
     }
     proxy = proxy_; // Don't retain
 
+    self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
+    
     self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
     //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
     // we need to listen manually to proxy change events if we want to be

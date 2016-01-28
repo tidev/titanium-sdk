@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,11 +22,11 @@ import android.os.Message;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
- * 
+ *
  * The runtime instance itself is static and lives with the Android process.
  * KrollRuntime use activity reference counting to tear down the runtime state
  * when all of the application's Titanium activities have been destroyed.
- * 
+ *
  * Even after all of the activities have been destroyed, Android can (and usually does)
  * keep the application process running. When the application is re-entered from
  * this "torn down" state, we simply re-initialize again, this time from the first
@@ -80,21 +80,26 @@ public abstract class KrollRuntime implements Handler.Callback
 		private static final String TAG = "KrollRuntimeThread";
 
 		private KrollRuntime runtime = null;
+		private boolean runOnMain;
 
-		public KrollRuntimeThread(KrollRuntime runtime, int stackSize)
+		public KrollRuntimeThread(KrollRuntime runtime, int stackSize, boolean onMainThread)
 		{
 			super(null, null, TAG, stackSize);
 			this.runtime = runtime;
+			this.runOnMain = onMainThread;
 		}
 
 		public void run()
 		{
 			Looper looper;
-
-			Looper.prepare();
-			synchronized (this) {
-				looper = Looper.myLooper();
-				notifyAll();
+			if (runOnMain) {
+				looper = Looper.getMainLooper();
+			} else {
+				Looper.prepare();
+				synchronized (this) {
+					looper = Looper.myLooper();
+					notifyAll();
+				}
 			}
 
 			// initialize the runtime instance
@@ -108,25 +113,40 @@ public abstract class KrollRuntime implements Handler.Callback
 			// initialize the runtime
 			runtime.doInit();
 
-			// start handling messages for this thread
-			Looper.loop();
+			if (!runOnMain) {
+				// start handling messages for this thread
+				Looper.loop();
+			}
 		}
 	}
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
+		KrollAssetHelper.init(context);
 		// Initialized the runtime if it isn't already initialized
 		if (runtimeState != State.INITIALIZED) {
+			boolean onMainThread = runtime.runOnMainThread(context);
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
+			runtime.thread = new KrollRuntimeThread(runtime, stackSize, onMainThread);
 			runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
 
 			instance = runtime; // make sure this is set before the runtime thread is started
-			runtime.thread.start();
+			if (onMainThread) {
+				runtime.thread.run();
+			} else {
+				runtime.thread.start();
+			}
 		}
+	}
 
-		KrollAssetHelper.init(context);
+	private boolean runOnMainThread(Context context) {
+		if (context instanceof KrollApplication) {
+			KrollApplication ka = (KrollApplication) context;
+			ka.loadAppProperties();
+			return ka.runOnMainThread();
+		}
+		return KrollApplication.DEFAULT_RUN_ON_MAIN_THREAD;
 	}
 
 	public static KrollRuntime getInstance()
@@ -168,7 +188,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 		return null;
 	}
-	
+
 	public boolean isRuntimeThread()
 	{
 		return Thread.currentThread().getId() == threadId;
@@ -243,7 +263,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * Evaluates a String of Javascript code, returning the result of the execution
 	 * when this method is called on the KrollRuntime thread. If this method is called
 	 * ony any other thread, then the code is executed asynchronous, and this method returns null.
-	 * 
+	 *
 	 * Currently, Kroll supports converting the following Javascript return types:
 	 * <ul>
 	 * <li>Primitives (String, Number, Boolean, etc)</li>
@@ -463,7 +483,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Sets the default exception handler for the runtime. There can only be one default exception handler set at a
 	 * time.
-	 * 
+	 *
 	 * @param handler The exception handler to set
 	 * @module.api
 	 */
@@ -477,7 +497,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Adds an exception handler to a list of handlers that will be called in addition to the default one. To replace the
 	 * default exception, use {@link #setPrimaryExceptionHandler(KrollExceptionHandler)}.
-	 * 
+	 *
 	 * @param handler The exception handler to set
 	 * @param key The key for the exception handler
 	 * @module.api
@@ -532,4 +552,3 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract void initRuntime();
 	public abstract void initObject(KrollProxySupport proxy);
 }
-

@@ -57,6 +57,7 @@
 // AND the width of the proxy is undefined, they want magic!
 -(void)frameSizeChanged:(CGRect)frame_ bounds:(CGRect)bounds_
 {
+#ifndef TI_USE_AUTOLAYOUT
     // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
     UISegmentedControl* ourControl = [self segmentedControl];
     if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width)) {
@@ -67,6 +68,7 @@
     else {
         [ourControl setFrame:bounds_];
     }
+#endif
     [super frameSizeChanged:frame_ bounds:bounds_];
 }
 

@@ -373,6 +373,7 @@ DEFINE_EXCEPTIONS
 {
 	[super setFrame:frame];
 	
+#ifndef TI_USE_AUTOLAYOUT
 	// this happens when a view is added to another view but not
 	// through the framework (such as a tableview header) and it
 	// means we need to force the layout of our children
@@ -383,10 +384,12 @@ DEFINE_EXCEPTIONS
 		childrenInitialized=YES;
 		[(TiViewProxy*)self.proxy layoutChildren:NO];
 	}
+#endif
 }
 
 -(void)checkBounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGRect newBounds = [self bounds];
     if(!CGSizeEqualToSize(oldSize, newBounds.size)) {
         oldSize = newBounds.size;
@@ -406,6 +409,7 @@ DEFINE_EXCEPTIONS
         }
         [self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
     }
+#endif
 }
 
 -(void)setBounds:(CGRect)bounds
@@ -417,9 +421,9 @@ DEFINE_EXCEPTIONS
 -(void)layoutSubviews
 {
 	[super layoutSubviews];
+    
 	[self checkBounds];
 }
-
 -(void)updateTransform
 {
 #ifdef USE_TI_UI2DMATRIX	
@@ -1112,12 +1116,11 @@ DEFINE_EXCEPTIONS
 	return longPressRecognizer;
 }
 
-
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
 	CGPoint tapPoint = [recognizer locationInView:self];
 	NSDictionary *event = [TiUtils pointToDictionary:tapPoint];
-	
+
 	if ([recognizer numberOfTouchesRequired] == 2) {
 		[proxy fireEvent:@"twofingertap" withObject:event];
 	}
@@ -1258,14 +1261,13 @@ DEFINE_EXCEPTIONS
 }
 
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    UITouch *touch = [touches anyObject];
-	
+{	 
 	if (handlesTouches)
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchstart"])
 		{
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 			[self handleControlEvents:UIControlEventTouchDown];
 		}
@@ -1282,12 +1284,12 @@ DEFINE_EXCEPTIONS
 
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
@@ -1306,7 +1308,8 @@ DEFINE_EXCEPTIONS
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
-		NSDictionary *evt = [TiUtils pointToDictionary:[touch locationInView:self]];
+		NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+
 		if ([proxy _hasListeners:@"touchend"])
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
@@ -1329,7 +1332,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesCancelled:touches withEvent:event];
@@ -1341,11 +1344,10 @@ DEFINE_EXCEPTIONS
 {
 	if (handlesTouches)
 	{
-		UITouch *touch = [touches anyObject];
-		CGPoint point = [touch locationInView:self];
-		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
+			UITouch *touch = [touches anyObject];
+			NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}

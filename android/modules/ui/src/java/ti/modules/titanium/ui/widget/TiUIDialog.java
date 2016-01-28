@@ -20,8 +20,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
@@ -173,7 +173,7 @@ public class TiUIDialog extends TiUIView
 	{
 		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 
-		AlertDialog dialog = dialogWrapper.getDialog();
+		AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			if (dialog != null) {
 				dialog.setTitle((String) newValue);
@@ -251,7 +251,7 @@ public class TiUIDialog extends TiUIView
 
 	public void show(KrollDict options)
 	{
-		AlertDialog dialog = dialogWrapper.getDialog();
+		AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 		if (dialog == null) {
 			if (dialogWrapper.getActivity() == null) {
 				TiBaseActivity dialogActivity = (TiBaseActivity) getCurrentActivity();
@@ -308,7 +308,7 @@ public class TiUIDialog extends TiUIView
 
 	public void hide(KrollDict options)
 	{
-		AlertDialog dialog = dialogWrapper.getDialog();
+		AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 		if (dialog != null) {
 			dialog.dismiss();
 			dialogWrapper.getActivity().removeDialog(dialog);

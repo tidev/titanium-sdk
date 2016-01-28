@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;

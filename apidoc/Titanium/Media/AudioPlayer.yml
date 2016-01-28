@@ -202,6 +202,19 @@ events:
         type: Number
     platforms: [android]
 
+  - name: error
+    summary: Fired when there's an error.
+    properties:
+      - name: error
+        summary: Error message.
+        type: String
+
+      - name: code
+        summary: |
+            Error code. Different between android and iOS.
+        type: Number
+    since: "4.1.0"
+
   - name: progress
     summary: Fired once per second with the current progress during playback.
     properties:

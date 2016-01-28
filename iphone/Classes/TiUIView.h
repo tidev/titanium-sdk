@@ -8,7 +8,9 @@
 #import "TiAnimation.h"
 #import "TiGradient.h"
 #import "LayoutConstraint.h"
-
+#ifdef TI_USE_AUTOLAYOUT
+#import "TiLayoutView.h"
+#endif
 //By declaring a scrollView protocol, TiUITextWidget can access 
 @class TiUIView;
 
@@ -43,7 +45,11 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  Base class for all Titanium views.
  @see TiViewProxy
  */
-@interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
+#ifdef TI_USE_AUTOLAYOUT
+@interface TiUIView : TiLayoutView<TiProxyDelegate>
+#else
+@interface TiUIView : UIView<TiProxyDelegate, LayoutAutosizing>
+#endif
 {
 @protected
     BOOL configurationSet;

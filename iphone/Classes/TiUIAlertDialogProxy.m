@@ -114,8 +114,14 @@ static BOOL alertShowing = NO;
         }
         
         cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+        
         if (cancelIndex >= [buttonNames count]) {
             cancelIndex = -1;
+        }
+        
+        if (destructiveIndex >= [buttonNames count]) {
+            destructiveIndex = -1;
         }
         
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
@@ -128,12 +134,24 @@ static BOOL alertShowing = NO;
                                                                   message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                             preferredStyle:UIAlertControllerStyleAlert] retain];
             int curIndex = 0;
+            
             //Configure the Buttons
             for (id btn in buttonNames) {
                 NSString* btnName = [TiUtils stringValue:btn];
                 if (!IS_NULL_OR_NIL(btnName)) {
+                    
+                    UIAlertActionStyle alertActionStyle;
+                    
+                    if (curIndex == cancelIndex) {
+                        alertActionStyle = UIAlertActionStyleCancel;
+                    } else if (curIndex == destructiveIndex) {
+                        alertActionStyle = UIAlertActionStyleDestructive;
+                    } else {
+                        alertActionStyle  = UIAlertActionStyleDefault;
+                    }
+
                     UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
-                                                                        style:((curIndex == cancelIndex) ? UIAlertActionStyleCancel : UIAlertActionStyleDefault)
+                                                                        style:alertActionStyle
                                                                       handler:^(UIAlertAction * action){
                                                                                 [self fireClickEventWithAction:action];
                                                                                 }];
@@ -146,14 +164,23 @@ static BOOL alertShowing = NO;
             if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"placeholder"]] ?: @"";
+                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
+                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
+                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
                 }];
             } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = @"Login";
-                    textField.secureTextEntry = NO;
+                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
+                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
+                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginPlaceholder"]] ?: @"Login";
                 }];
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = @"Password";
+                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
+                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
+                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordPlaceholder"]] ?: @"Password";
                     textField.secureTextEntry = YES;
                 }];
             }
@@ -198,6 +225,7 @@ static BOOL alertShowing = NO;
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       NUMUINTEGER(indexOfAction),@"index",
                                       [NSNumber numberWithInt:cancelIndex],@"cancel",
+                                      [NSNumber numberWithInt:destructiveIndex],@"destructive",
                                       nil];
         
         

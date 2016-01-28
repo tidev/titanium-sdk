@@ -70,10 +70,10 @@ function exportAPIs (api, type) {
 	return rv;
 }
 
- /**
-  * Returns a JSON object with annotated members for add-on YAML files
-  * @param {Object} apis
-  */
+/**
+ * Returns a JSON object with annotated members for add-on YAML files
+ * @param {Object} apis
+ */
 exports.exportData = function exportJSON (apis) {
 	var className = null,
 		cls = {},

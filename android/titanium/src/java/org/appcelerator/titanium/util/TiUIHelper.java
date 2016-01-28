@@ -43,7 +43,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -87,6 +87,7 @@ import android.widget.TextView;
 /**
  * A set of utility methods focused on UI and View operations.
  */
+@SuppressWarnings("deprecation")
 public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
@@ -356,6 +357,20 @@ public class TiUIHelper
 		tf = toTypeface(tv.getContext(), fontFamily);
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
+	}
+
+	public static boolean isAndroidTypeface(String fontFamily)
+	{
+		if (fontFamily != null) {
+			if ("monospace".equals(fontFamily)) {
+				return true;
+			} else if ("serif".equals(fontFamily)) {
+				return true;
+			} else if ("sans-serif".equals(fontFamily)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static Typeface toTypeface(Context context, String fontFamily)

@@ -7,7 +7,6 @@
 package ti.modules.titanium.geolocation;
 
 import java.util.Calendar;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -25,6 +24,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.os.SystemClock;
 
+@SuppressWarnings("deprecation")
 public class TiCompass
 	implements SensorEventListener
 {

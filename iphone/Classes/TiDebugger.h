@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include "TiBase.h"
+#include "TiToJS.h"
 
 typedef enum {
     OUT,

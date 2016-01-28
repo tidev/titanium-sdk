@@ -7,12 +7,10 @@
 
 package org.appcelerator.titanium.util;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -21,8 +19,6 @@ import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
 import android.media.ExifInterface;
-import android.net.Uri;
-import android.provider.MediaStore;
 
 /**
  * Utility class for image manipulations.

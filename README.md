@@ -1,4 +1,4 @@
-Appcelerator Titanium Mobile  
+Appcelerator Titanium Mobile  [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile)
 ============================
 
 Welcome to the Titanium open source project.  Titanium provides
@@ -75,6 +75,10 @@ for video tutorials on Titanium.
 ### IRC 
 
 Titanium developers regularly visit `#titanium_app` on irc.freenode.net.
+
+### Slack
+
+Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
 
 ### Twitter
 

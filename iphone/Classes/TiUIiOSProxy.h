@@ -30,6 +30,23 @@
 @property (nonatomic,readonly) NSNumber* ROW_ACTION_STYLE_NORMAL;
 #endif
 
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
+#endif
+
+#ifdef USE_TI_UIIOSMENUPOPUP
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_UP;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DOWN;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_LEFT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_RIGHT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
+#endif
+
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
+
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
@@ -74,7 +91,6 @@
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
 
-
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
 
@@ -82,6 +98,12 @@
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
 
 #endif
+
+/**
+    Checks the force touch capibility of the current device.
+ */
+-(NSNumber*)forceTouchSupported;
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args;
 #endif
@@ -131,6 +153,20 @@
 #endif
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
+#endif
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+-(id)createPreviewAction:(id)args;
+-(id)createPreviewActionGroup:(id)args;
+-(id)createPreviewContext:(id)args;
+#endif
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args;
+#endif
+#endif
+
+#if IS_XCODE_7
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+-(id)createApplicationShortcuts:(id)args;
 #endif
 #endif
 @end

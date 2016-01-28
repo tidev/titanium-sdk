@@ -1,0 +1,109 @@
+---
+name: Titanium.Android.BigPictureStyle
+summary: Helper object for generating large-format notifications that include a large image attachment.
+description: |
+    If the platform does not provide large-format notifications, this style helper has no effect.
+    The user will always see the normal notification view.
+
+    This style object attaches to a <Titanium.UI.Notification> object and modifies its behavior.
+examples:
+  - title: Big picture style Example
+    example: |
+
+        // This example will be use image that placed in one of the density-specific folder
+        // under `Resources/android/images`
+
+        var bigPictureStyle = Titanium.Android.createBigPictureStyle({
+            bigPicture: "/images/bigPicture.png",
+            bigContentTitle: "Title for big picture",
+            summaryText: "Summary for big picture"
+        });
+
+        // Create big image style notification
+        var notification = Titanium.Android.createNotification({
+            contentTitle: 'Something Happened',
+            contentText : 'Click to return to the application.',
+            style: bigPictureStyle,
+            time: Date.now()
+        });
+
+        // Send the notification.
+        Titanium.Android.NotificationManager.notify(1, notification);
+
+since: "6.0.0"
+platforms: [android]
+properties:
+
+  - name: bigLargeIcon
+    summary: Override the <Titanium.UI.Notification.largeIcon> when the big notification is shown.
+    description: |
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_big_large_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_big_large_icon.png
+            Resources/android/images/res-mdpi/my_big_large_icon.png
+
+        To access this icon, you'd use the URL '/images/my_big_large_icon.png'.
+
+        To access the same icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_big_large_icon.png
+
+        This icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_big_large_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing
+        Android resources by ID.
+    type: [Number, String]
+
+  - name: bigPicture
+    summary: Provide the bitmap to be used as the payload for the BigPicture notification.
+    description: |
+        Image to display, defined using a local filesystem path, a `File` object, a remote URL,
+        or a `Blob` object containing image data.
+
+        If there is a redirect and change in protocol, it will not follow. For example,
+        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        for more information.
+
+        If specified as a local URL, the bigPicture must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your bigPicture is called
+        `my_big_picture.png`, you would create high- and medium-density versions of the bigPicture
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_big_picture.png
+            Resources/android/images/res-mdpi/my_big_picture.png
+
+        To access this bigPicture, you'd use the URL '/images/my_big_picture.png'.
+
+        To access the same bigPicture using an Android resource ID, place the bigPicture in:
+
+            platform/android/res/drawable/my_big_picture.png
+
+        This bigPicture's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            bigPicture: Ti.App.Android.R.drawable.my_big_picture,
+
+        See <Titanium.App.Android.R> for more information on accessing
+        Android resources by ID.
+    type: [Number, String, Titanium.Blob, Titanium.Filesystem.File]
+
+  - name: bigContentTitle
+    summary: Overrides <Titanium.UI.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.UI.Notification.contentTitle>.
+    type: String
+    default: <Titanium.UI.Notification.contentTitle>
+
+  - name: decodeRetries
+    summary: |
+        Number of times to retry decoding the bitmap at bigPicture URL.
+    type: Number
+    default: 5
+
+  - name: summaryText
+    summary: Set the first line of text after the detail section in the big form of the notification.
+    type: String
