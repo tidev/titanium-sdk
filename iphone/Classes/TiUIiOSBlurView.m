@@ -70,16 +70,14 @@
     if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) ||
         TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
         return UIViewContentModeScaleAspectFit;
-    }
-    else {
+    } else {
         return UIViewContentModeScaleToFill;
     }
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    for (UIView *child in [self subviews])
-    {
+    for (UIView *child in [self subviews]) {
         [TiUtils setView:child positionRect:bounds];
     }
     
@@ -89,8 +87,7 @@
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
-    if (autoWidth > 0)
-    {
+    if (autoWidth > 0) {
         //If height is DIP returned a scaled autowidth to maintain aspect ratio
         if (TiDimensionIsDip(height) && autoHeight > 0) {
             return roundf(autoWidth*height.value/autoHeight);
@@ -99,8 +96,7 @@
     }
     
     CGFloat calculatedWidth = TiDimensionCalculateValue(width, autoWidth);
-    if (calculatedWidth > 0)
-    {
+    if (calculatedWidth > 0) {
         return calculatedWidth;
     }
     
@@ -113,8 +109,7 @@
         return (width_*autoHeight/autoWidth);
     }
     
-    if (autoHeight > 0)
-    {
+    if (autoHeight > 0) {
         return autoHeight;
     }
     
