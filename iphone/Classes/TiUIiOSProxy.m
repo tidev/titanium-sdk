@@ -20,10 +20,8 @@
 #import "TiUIiOSMenuPopupProxy.h"
 #endif
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoViewProxy.h"
-#endif
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -90,10 +88,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #endif
-#if IS_XCODE_7_1
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
 #import <PhotosUI/PhotosUI.h>
-#endif
 #endif
 #ifdef USE_TI_UIIOSBLURVIEW
 #import "TiUIiOSBlurViewProxy.h"
@@ -168,29 +164,23 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDefault);
     }
-#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDestructive);
     }
-#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleSelected);
     }
-#endif
     return nil;
 }
 #endif
@@ -686,7 +676,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 }
 #endif
 
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(id)createPreviewAction:(id)args
 {
@@ -703,7 +692,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-#endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
 -(id)createMenuPopup:(id)args
@@ -719,7 +707,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 }
 #endif
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 -(id)createLivePhotoView:(id)args
 {
@@ -786,8 +773,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     }
     return NUMINT(0);
 }
-#endif
-
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR
@@ -928,9 +913,7 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 
 #endif
 
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-
 -(id)createApplicationShortcuts:(id)args
 {
     return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
@@ -943,9 +926,6 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ADD,UIApplicationShortcutIconTypeAdd);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOCATION,UIApplicationShortcutIconTypeLocation);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SEARCH,UIApplicationShortcutIconTypeSearch);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHARE,UIApplicationShortcutIconTypeShare);
-
-#ifdef __IPHONE_9_1
-
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PROHIBIT,UIApplicationShortcutIconTypeProhibit);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONTACT,UIApplicationShortcutIconTypeContact);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_HOME,UIApplicationShortcutIconTypeHome);
@@ -969,8 +949,6 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHUFFLE,UIApplicationShortcutIconTypeShuffle
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO,UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
 
-#endif
-#endif
 #endif
 
 //Modal Transition and Presentatiom

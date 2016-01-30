@@ -301,7 +301,7 @@
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
-#if IS_XCODE_7
+
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     
     [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
@@ -313,7 +313,6 @@
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];
     }
-#endif
 }
 
 -(void)setPaddingLeft_:(id)value

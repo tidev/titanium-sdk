@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 
 #import "WatchSessionModule.h"
 #import "TiUtils.h"
@@ -416,5 +415,3 @@
 }
 
 @end
-
-#endif

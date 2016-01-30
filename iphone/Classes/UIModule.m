@@ -120,11 +120,10 @@ MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL,UIReturnKeyEmergencyCall);
 
 -(NSNumber*)RETURNKEY_CONTINUE
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == YES) {
         return [NSNumber numberWithInt:UIReturnKeyContinue];
     }
-#endif
+
     return UIReturnKeyDefault;
 }
 
