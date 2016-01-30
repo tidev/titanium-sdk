@@ -25,7 +25,6 @@
     [super dealloc];
 }
 
-#if IS_XCODE_7
 -(NSArray<id<UIPreviewActionItem>> *)previewActionItems
 {
     if ([self previewActions] == nil) {
@@ -34,7 +33,6 @@
     
     return [self previewActions];
 }
-#endif
 
 -(void)updateOrientations
 {

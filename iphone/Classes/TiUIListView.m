@@ -198,12 +198,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
         }
         
-#if IS_XCODE_7
         if ([TiUtils isIOS9OrGreater]) {
             _tableView.cellLayoutMarginsFollowReadableWidth = NO;
-        }
-#endif
-        
+        }        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];

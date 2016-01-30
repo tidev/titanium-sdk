@@ -29,14 +29,11 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
-
 #import <UIKit/UIPopoverController.h>
-
-#if IS_XCODE_7_1
 #import <Photos/Photos.h>
 #import "TiUIiOSLivePhoto.h"
-#endif
-// by default, we want to make the camera fullscreen and 
+
+// by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
 
 enum
@@ -323,7 +320,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 //Constants for mediaTypes in showCamera
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO,kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
-#if IS_XCODE_7_1
+
 -(NSString*)MEDIA_TYPE_LIVEPHOTO
 {
     if ([TiUtils isIOS9_1OrGreater] == YES) {
@@ -332,7 +329,6 @@ MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
     
     return @"";
 }
-#endif
 
 //Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
@@ -1762,20 +1758,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     
     BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
-    BOOL isLivePhoto = NO;
-    
-#if IS_XCODE_7_1
-    isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
-#endif
+    BOOL isLivePhoto = isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
     
     NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
     TiUIiOSLivePhoto *livePhoto = nil;
-#endif
 #endif
     TiBlob *thumbnail = nil;
 
@@ -1899,14 +1889,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
         }
         
-#if IS_XCODE_7_1
 #ifdef  USE_TI_UIIOSLIVEPHOTOVIEW
         if(isLivePhoto) {
             livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         }
 #endif
-#endif
-        
     }
 	
     NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
@@ -1916,13 +1903,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (thumbnail != nil) {
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
-
     if (livePhoto != nil) {
         [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
-#endif
 #endif
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
