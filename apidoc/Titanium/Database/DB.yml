@@ -73,7 +73,7 @@ properties:
       setting file properties.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [android,iphone,ipad]
     since: "2.0.0"
     
   - name: lastInsertRowId
