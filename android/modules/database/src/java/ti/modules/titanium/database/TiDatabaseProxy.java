@@ -204,10 +204,10 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-    public TiFileProxy getFile(){
-        String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
-        return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));               
-    }
+	public TiFileProxy getFile(){
+	        String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
+		return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));               
+	}
 	   
 	@Override
 	public String getApiName()
