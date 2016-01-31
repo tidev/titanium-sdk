@@ -427,7 +427,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			case TiBlobTypeData:
 			{
 				[self ensureLocalProtocolHandler];
-                // Empty NSURL since nil is not accepted here
+				// Empty NSURL since nil is not accepted here
 				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[NSURL new]];
 				if (scalingOverride==NO)
 				{
