@@ -74,8 +74,10 @@ properties:
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android,iphone,ipad]
-    since: "2.0.0"
-    
+    since: 
+      android: "6.0.0"
+      iphone: "2.0.0"
+      ipad: "2.0.0"
   - name: lastInsertRowId
     summary: The identifier of the last populated row.
     type: Number
