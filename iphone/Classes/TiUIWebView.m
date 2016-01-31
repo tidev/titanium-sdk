@@ -324,13 +324,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)setAllowsLinkPreview_:(id)value
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == NO) {
         return;
     }
     ENSURE_TYPE(value, NSNumber);
     [webview setAllowsLinkPreview:[TiUtils boolValue:value]];
-#endif
 }
 
 - (void)reload
@@ -429,7 +427,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			case TiBlobTypeData:
 			{
 				[self ensureLocalProtocolHandler];
-				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:nil];
+                // Empty NSURL since nil is not accepted here
+				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[NSURL new]];
 				if (scalingOverride==NO)
 				{
 					[[self webview] setScalesPageToFit:YES];
