@@ -92,9 +92,9 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_UNKNOWN:
 		default:
 		{
-            NSData *data = [[NSData alloc] init];
+			NSData *data = [[NSData alloc] init];
 			[board setData:data forPasteboardType: mimeTypeToUTType(mimeType)];
-            [data release];
+			[data release];
 		}
 	}
 }

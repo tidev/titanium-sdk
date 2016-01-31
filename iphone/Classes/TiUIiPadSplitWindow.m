@@ -179,24 +179,24 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc willShowViewController:(UIViewController *)aViewController invalidatingBarButtonItem:(UIBarButtonItem *)button
 {
-    [self fireEvent:@"visible" withSource:@"master" visibilityChanged:NO];
+	[self fireEvent:@"visible" withSource:@"master" visibilityChanged:NO];
 
 }
 
 - (void)splitViewController:(UISplitViewController*)svc popoverController:(UIPopoverController*)pc willPresentViewController:(UIViewController *)aViewController
 {
-    [self fireEvent:@"visible" withSource:@"popover" visibilityChanged:YES];
+	[self fireEvent:@"visible" withSource:@"popover" visibilityChanged:YES];
 }
 
 #pragma mark Helper
 
 - (void)fireEvent:(NSString*)event withSource:(NSString*)source visibilityChanged:(BOOL)changed
 {
-    [(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:changed];
+	[(TiUIiPadSplitWindowProxy*) [self proxy] popupVisibilityChanged:changed];
     
-    if ([self.proxy _hasListeners:event]) {
-        [self.proxy fireEvent:event withObject:@{@"view": source}];
-    }
+	if ([self.proxy _hasListeners:event]) {
+		[self.proxy fireEvent:event withObject:@{@"view": source}];
+	}
 }
 
 @end
