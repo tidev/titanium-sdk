@@ -7,12 +7,10 @@
 #import "TiProxy.h"
 
 #ifdef USE_TI_UIIOS
-
 #ifdef USE_TI_UIIOSADVIEW
 	#import "TiUIiOSAdViewProxy.h"
 #endif
 
-#endif
 @interface TiUIiOSProxy : TiProxy {
 @private
 
@@ -176,3 +174,4 @@
 #endif
 
 @end
+#endif
