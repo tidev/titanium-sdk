@@ -231,8 +231,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         TiThreadPerformOnMainThread(^(){
             CNContactStore *ourContactStore = [self contactStore];
             [ourContactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError *error) {
-                NSString* errorMessage = granted ? nil : @"The user has denied access to the address book";
-                NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:errorMessage];
+                NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                 KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
                 [[callback context] enqueue:invocationEvent];
                 RELEASE_TO_NIL(invocationEvent);
@@ -900,21 +899,14 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 }
 
 //Deprecated in iOS 8
--(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)selectedPerson
+-(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	if (selectedPersonCallback) {
-		TiContactsPerson* person = nil;
-		if ([TiUtils isIOS8OrGreater] && (ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized)) {
-			// In iOS 8 selected contact is returned without requiring user permission. But we cannot query metadata like recordid.
-			person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] person:selectedPerson module:self] autorelease];
-		} else {
-			// iOS7 and below or iOS8 with permission granted.
-			ABRecordID id_ = ABRecordGetRecordID(selectedPerson);
-			person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
-		}
+		ABRecordID id_ = ABRecordGetRecordID(person);
+		TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
 		[self _fireEventToListener:@"selectedPerson"
-						withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"]
-						  listener:selectedPersonCallback
+						withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"] 
+						listener:selectedPersonCallback 
 						thisObject:nil];
 		[[TiApp app] hideModalController:picker animated:animated];
 		return NO;

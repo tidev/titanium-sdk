@@ -92,7 +92,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [_headerViewProxy setProxyObserver:nil];
     [_footerViewProxy setProxyObserver:nil];
     [_pullViewProxy setProxyObserver:nil];
-    [searchController setDelegate:nil];
     RELEASE_TO_NIL(_searchString);
     RELEASE_TO_NIL(_searchResults);
     RELEASE_TO_NIL(_pullViewWrapper);
@@ -807,11 +806,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         if (curPlaceHolder == nil) {
             [[searchViewProxy searchBar] setPlaceholder:@"Search"];
         }
-        self.searchString = [[searchViewProxy searchBar] text];
-        if (self.searchString) {
-            [self buildResultsForSearchText];
-            [_tableView reloadData];
-        }
+        
         keepSectionsInSearch = NO;
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
@@ -1858,10 +1853,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     self.searchString = (searchText == nil) ? @"" : searchText;
     [self buildResultsForSearchText];
-    if (!searchActive) {
-       // Reload since some cells could be reused as part of previous search.
-       [_tableView reloadData];
-    }
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar

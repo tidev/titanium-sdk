@@ -336,10 +336,9 @@
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
-	[saveRequest deleteGroup: [[group mutableCopy] autorelease]];
+	[saveRequest deleteGroup:(CNMutableGroup*)group];
 	return saveRequest;
 }
-
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];

@@ -852,7 +852,6 @@ public class TiConvert
 	{
 		return toDate(hashMap.get(key));
 	}
-
 }
 
 

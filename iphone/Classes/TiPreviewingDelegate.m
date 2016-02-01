@@ -48,10 +48,6 @@
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
 {
-    if ([[self previewContext] preview] == nil) {
-        return nil;
-    }
-    
     UITableView *tableView = [self ensureTableView];
     
     if (tableView != nil) {
@@ -124,11 +120,11 @@
     }
 #endif
 #ifdef USE_TI_UITABLEVIEW
-    if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableViewProxy class]] == YES) {
-        TiUITableViewProxy* tableProxy = (TiUITableViewProxy*)[[self previewContext] sourceView];
-        TiUITableView *table = (TiUITableView*)[tableProxy view];
+    if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableView class]] == YES) {
+        TiUITableViewProxy* listProxy = (TiUITableViewProxy*)[[self previewContext] sourceView];
+        TiUITableView *view = (TiUITableView*)[listProxy view];
         
-        return [table tableView];
+        return [view tableView];
     }
 #endif
     
@@ -137,19 +133,18 @@
 
 -(NSDictionary*)receiveListViewEventFromIndexPath:(NSIndexPath*)indexPath
 {
-    NSDictionary *event = @{
-        @"sectionIndex": NUMINTEGER(indexPath.section),
-        @"itemIndex": NUMINTEGER(indexPath.row),
-        @"preview": [[self previewContext] preview]
-    };
-    
 #ifdef USE_TI_UILISTVIEW
     if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
         TiUIListViewProxy* listProxy = (TiUIListViewProxy*)[[self previewContext] sourceView];
-        TiUIListSectionProxy *theSection = [listProxy sectionForIndex:indexPath.section];
         
+        TiUIListSectionProxy *theSection = [listProxy sectionForIndex:indexPath.section];
         NSDictionary *theItem = [theSection itemAtIndex:indexPath.row];
-        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithDictionary:event];
+        
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            NUMINTEGER(indexPath.section), @"sectionIndex",
+                                            NUMINTEGER(indexPath.row), @"itemIndex",
+                                            [[self previewContext] preview], @"preview",
+                                            nil];
         
         id propertiesValue = [theItem objectForKey:@"properties"];
         NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -161,8 +156,7 @@
         return eventObject;
     }
 #endif
-
-    return event;
+    return nil;
 }
 
 @end

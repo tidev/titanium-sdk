@@ -229,9 +229,7 @@ methods:
     summary: Returns `true` if the app has location access.
     parameters:
       - name: authorizationType
-        summary: |
-            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on 
-            Android and iOS 7.
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
         constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
         type: Number 
     returns:

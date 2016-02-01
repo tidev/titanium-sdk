@@ -5,6 +5,9 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 createable: false
 since: "0.9"
+deprecated:
+    since: "6.0.0"
+    notes: Use [Titanium.UI.iOS.RowAnimationStyle](Titanium.UI.iOS.RowAnimationStyle) instead.
 
 properties:
   - name: BOTTOM

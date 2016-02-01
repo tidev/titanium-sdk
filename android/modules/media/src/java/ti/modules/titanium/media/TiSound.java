@@ -363,9 +363,7 @@ public class TiSound
 			}
 
 			try {
-			    if (mp.getDuration() >= 0) {
-			        mp.seekTo(position);
-			    }
+				mp.seekTo(position);
 			} catch (IllegalStateException e) {
 				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}

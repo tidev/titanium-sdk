@@ -34,7 +34,6 @@ static NSDictionary* iOS9propertyKeys;
 			ABAddressBookRef ourAddressBook = [module addressBook];
 			if (ourAddressBook != NULL) {
 				record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
-				CFRetain(record);
 			}
 		}
 	}
@@ -50,17 +49,6 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return self;
 }
-
--(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_
-{
-	if (self = [super _initWithPageContext:context]) {
-		recordId = ABRecordGetRecordID(person_);
-		record = CFRetain(person_);
-		module = module_;
-	}
-	return self;
-}
-
 #if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
 {
@@ -72,14 +60,10 @@ static NSDictionary* iOS9propertyKeys;
 	return self;
 }
 #endif
-
 -(void)dealloc
 {
     RELEASE_TO_NIL(iOS9contactProperties)
-    if (record != NULL) {
-        CFRelease(record);
-    }
-    [super dealloc];
+	[super dealloc];
 }
 
 -(NSString*)apiName
