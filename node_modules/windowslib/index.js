@@ -2,7 +2,7 @@
  * Main namespace for the windowslib.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -14,6 +14,7 @@ const
 	async        = require('async'),
 	EventEmitter = require('events').EventEmitter,
 	magik        = require('./lib/utilities').magik,
+	mix          = require('./lib/utilities').mix,
 	__           = appc.i18n(__dirname).__,
 
 	packageJson  = require('./package.json'),
@@ -63,25 +64,6 @@ function detect(options, callback) {
 			detectVersion: '3.0',
 			issues: []
 		};
-
-		function mix(src, dest) {
-			Object.keys(src).forEach(function (name) {
-				if (Array.isArray(src[name])) {
-					if (Array.isArray(dest[name])) {
-						dest[name] = dest[name].concat(src[name]);
-					} else {
-						dest[name] = src[name];
-					}
-				} else if (src[name] !== null && typeof src[name] === 'object') {
-					dest[name] || (dest[name] = {});
-					Object.keys(src[name]).forEach(function (key) {
-						dest[name][key] = src[name][key];
-					});
-				} else {
-					dest[name] = src[name];
-				}
-			});
-		}
 
 		async.each([env, visualstudio, windowsphone, assemblies, device, winstore, emulator], function (lib, next) {
 			lib.detect(options, function (err, result) {

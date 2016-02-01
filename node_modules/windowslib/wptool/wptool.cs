@@ -19,7 +19,7 @@ namespace wptool
 			string command = null;
 			string wpsdk = null;
 			string udid = null;
-			string appid = null;
+			Guid appid = Guid.Empty;
 			int i;
 
 			for (i = 0; i < args.Length; i++) {
@@ -35,7 +35,14 @@ namespace wptool
 					else if (command == "launch" && i + 1 < args.Length)
 					{
 						udid = args[++i];
-						appid = args[++i];
+						string rawAppId = args[++i];
+						try
+						{
+							appid = Guid.Parse(rawAppId);
+						} catch (FormatException fe)
+						{
+							return showHelp("Invalid app GUID format: " + rawAppId);
+						}
 					}
 				}
 			}
@@ -161,7 +168,7 @@ namespace wptool
 
 					if (command == "launch")
 					{
-						IRemoteApplication app = device.GetApplication(Guid.Parse(appid));
+						IRemoteApplication app = device.GetApplication(appid);
 						app.Launch();
 						Console.WriteLine("{");
 						Console.WriteLine("\t\"success\": true");
@@ -217,13 +224,13 @@ namespace wptool
 			Console.WriteLine("  wptool <command> [--wpsdk <ver>]");
 			Console.WriteLine("");
 			Console.WriteLine("Commands:");
-			Console.WriteLine("  enumerate                     List all devices and emulators");
-			Console.WriteLine("  connect <udid>                Connects to the specified device");
+			Console.WriteLine("  enumerate					 List all devices and emulators");
+			Console.WriteLine("  connect <udid>				Connects to the specified device");
 			Console.WriteLine("  launch <udid> <product-guid>  Connects to the specified device and launches the app with the given product guid");
 			Console.WriteLine("");
 			Console.WriteLine("Options:");
-			Console.WriteLine(" --wpsdk <ver>                  The version of the Windows Phone SDK emulators to use (e.g. '10.0', or '8.1')");
-			Console.WriteLine("                                Defaults to Windows 10 Mobile (e.g. 10.0)");
+			Console.WriteLine(" --wpsdk <ver>				  The version of the Windows Phone SDK emulators to use (e.g. '10.0', or '8.1')");
+			Console.WriteLine("								Defaults to Windows 10 Mobile (e.g. 10.0)");
 			Console.WriteLine("");
 
 			return msg.Length > 0 ? 1 : 0;
