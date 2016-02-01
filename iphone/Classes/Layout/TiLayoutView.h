@@ -60,5 +60,6 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)initializeTiLayoutView;
 
+-(CGFloat)heightIfWidthWere:(CGFloat)width;
 @end
 #endif
