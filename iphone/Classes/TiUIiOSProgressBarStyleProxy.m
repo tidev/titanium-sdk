@@ -13,7 +13,7 @@
 
 -(NSString*)apiName
 {
-    return @"Ti.UI.iPhone.ProgressBarStyle";
+    return @"Ti.UI.iOS.ProgressBarStyle";
 }
 
 MAKE_SYSTEM_PROP(PLAIN,UIProgressViewStyleDefault);

@@ -13,7 +13,7 @@
 
 -(NSString*)apiName
 {
-    return @"Ti.UI.iPhone.RowAnimationStyle";
+    return @"Ti.UI.iOS.RowAnimationStyle";
 }
 
 MAKE_SYSTEM_PROP(NONE,UITableViewRowAnimationNone);

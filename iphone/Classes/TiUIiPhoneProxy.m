@@ -245,7 +245,7 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarStyle)
 	{
 		[[UIApplication sharedApplication] setApplicationIconBadgeNumber:[TiUtils intValue:value]];
 	}
-    DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"6.0.0", @"UI.iOS.appBadge");
+	DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"6.0.0", @"UI.iOS.appBadge");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge,NSNumber)
@@ -256,7 +256,7 @@ END_UI_THREAD_PROTECTED_VALUE(appBadge)
 {
 	ENSURE_UI_THREAD(setAppSupportsShakeToEdit,shake);
 	[[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:[shake boolValue]];
-     DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"6.0.0", @"UI.iOS.appSupportsShakeToEdit");
+	DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"6.0.0", @"UI.iOS.appSupportsShakeToEdit");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)
