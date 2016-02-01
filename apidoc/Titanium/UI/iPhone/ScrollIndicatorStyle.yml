@@ -6,8 +6,8 @@ since: "0.9"
 platforms: [iphone, ipad]
 createable: false
 deprecated:
-    since: 6.0.0
-    notes: Use [Ti.UI.iOS.ScrollIndicatorStyle](Titanium.UI.iOS.ScrollIndicatorStyle) instead.
+    since: "6.0.0"
+    notes: Use [Titanium.UI.iOS.ScrollIndicatorStyle](Titanium.UI.iOS.ScrollIndicatorStyle) instead.
 
 properties:
   - name: BLACK

@@ -14,7 +14,7 @@
 
 -(NSString*)apiName
 {
-    return @"Ti.UI.iPhone.ScrollIndicatorStyle";
+    return @"Ti.UI.iOS.ScrollIndicatorStyle";
 }
 
 MAKE_SYSTEM_PROP(DEFAULT,UIScrollViewIndicatorStyleDefault);
