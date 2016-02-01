@@ -216,7 +216,8 @@ properties:
     summary: Height of the scrollable region.
     description: |
         While absolute dimensions are supported, relative values, such as those provided
-        in percentages, are not. The minimum value for contentHeight is the height of the scroll view.
+        in percentages, are not. The minimum value for contentHeight is the height of the scroll view. 
+        Measured in platform-specific units; pixels on Android and density-independent pixels (dip) on iOS.
     type: [Number, String]
     
   - name: contentOffset
@@ -232,7 +233,8 @@ properties:
     summary: Width of the scrollable region.
     description: |
         While absolute dimensions are supported, relative values, such as those provided
-        in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
+        in percentages, are not. The minimum value for contentWidth is the width of the scroll view. 
+        Measured in platform-specific units; pixels on Android and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
   - name: decelerationRate

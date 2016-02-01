@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,11 @@ var path = require('path'),
 	iosJsonResults,
 	androidJsonResults,
 	maxFailedTestCount = 0,
-	runningOnTravis = false;
+	runningOnTravis = false,
+	runningOnJenkins = false,
+	glob = require('glob'),
+	totalAPI = 0,
+	totalAPITest = 0;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
@@ -67,8 +71,8 @@ function addTiAppProperties(next) {
 	var content = [];
 	fs.readFileSync(tiapp_xml).toString().split(/\r?\n/).forEach(function(line) {
 		content.push(line);
-		if (line.indexOf('<guid>') >= 0) {
-		//for fixed tiapp properties
+		if (line.indexOf('<ios>') >= 0) {
+			content.push('<use-app-thinning>true</use-app-thinning>');
 		}
 	});
 	fs.writeFileSync(tiapp_xml, content.join('\n'));
@@ -257,10 +261,29 @@ function parseAndroidTestResults(testResults, next) {
 		next();
 	}
 }
+
+function getTotalAPI(next) {
+	var api = JSON.parse(fs.readFileSync('./dist/api.jsca','utf8'));
+	totalAPI = api.types.length;
+	next();
+}
+
+function getTotalAPITest(next) {
+	glob("./ti_mocha_tests/*.test.js", function(err, files) {
+		if(err) {
+			console.log('Error reading ti_mocha_tests');
+			next('Error reading ti_mocha_tests');
+		}
+		totalAPITest = files.length;
+		next();
+	});
+}
+
 /**
  * Finds the SDK, generates a Titanium mobile project, sets up the project, copies unit tests into it from ti_mocha_tests,
  * and then runs the project in a ios simulator and android emulator which will run the mocha unit tests. The test results are piped to
- * the CLi, which takes them, and compared to the minimum health threshold. If it falls below the threshold, process exits with a fail.
+ * the CLi. If any unit test fails, process exits with a fail. After which the API coverage is calculated. If the coverage
+ * falls below the previous build, process exits with a fail.
  */
 function test(callback) {
 
@@ -269,45 +292,51 @@ function test(callback) {
 			runningOnTravis = true;
 			console.log('Running Automated Tests on Travis');
 		};
+		if (val == 'run-on-jenkins') {
+			runningOnJenkins = true;
+			console.log('Skip Automated Tests on Jenkins');
+		};
 	});
-	async.series([
-		function (next) {
-			getSDKInstallDir(next);
-		},
-		function (next) {
-			console.log("Generating project");
-			generateProject(next);
+	//Skip these tests if built on Jenkins. Should integrate into Jenkins in the future.
+	if (runningOnJenkins == false) {
+		async.series([
+			function (next) {
+				getSDKInstallDir(next);
+			},
+			function (next) {
+				console.log("Generating project");
+				generateProject(next);
 
-		},
-		function (next) {
-			console.log("Adding properties for tiapp.xml");
-			addTiAppProperties(next);
-		},
-		function (next) {
-			console.log("Copying test scripts into project");
-			copyMochaAssets(next);
-		},
-		function (next) {
-			console.log("Launching android test project in emulator");
-			runAndroidBuild(next, 1);
-		},
-		function (next) {
-			parseAndroidTestResults(androidTestResults, next);
-		},		
-		function (next) {
-			console.log("Launching ios test project in simulator");
-			runIOSBuild(next, 1);
-		},
-		function (next) {
-			parseIOSTestResults(iosTestResults, next);
-		}
-	], function(err) {
-		callback(err, {
-			iosResults: iosJsonResults,
-			androidResults: androidJsonResults
+			},
+			function (next) {
+				console.log("Adding properties for tiapp.xml");
+				addTiAppProperties(next);
+			},
+			function (next) {
+				console.log("Copying test scripts into project");
+				copyMochaAssets(next);
+			},
+			function (next) {
+				console.log("Launching android test project in emulator");
+				runAndroidBuild(next, 1);
+			},
+			function (next) {
+				parseAndroidTestResults(androidTestResults, next);
+			},		
+			function (next) {
+				console.log("Launching ios test project in simulator");
+				runIOSBuild(next, 1);
+			},
+			function (next) {
+				parseIOSTestResults(iosTestResults, next);
+			}
+		], function(err) {
+			callback(err, {
+				iosResults: iosJsonResults,
+				androidResults: androidJsonResults
+			});
 		});
-	});
-
+	}
 }
 
 // public API
@@ -376,7 +405,28 @@ if (module.id === ".") {
 				console.log('\n%d unit tests failed. Failing travis build.', androidFailedTestsCount + iosFailedTestsCount);
 				process.exit(1);
 			}
-			process.exit(0);
+			console.log('\n--------------Calculating coverage--------------------');
+			async.series([
+				function (next) {
+					getTotalAPI(next);
+				},
+				function (next) {
+					getTotalAPITest(next);
+
+				}], function (err) {
+
+					if (err) {
+						console.error(err.toString().red);
+						process.exit(1);						
+					}
+					var apiCoverage = totalAPITest/totalAPI*100;
+					console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
+					//send coverage info to server
+					process.exit(0);
+				}
+			);
+
+
 		}
 	});
 }

@@ -176,15 +176,17 @@ methods:
     summary: Stops video capture using the camera specified.
     platforms: [iphone, ipad]
   - name: switchCamera
-    summary: Switches between front and rear-facing cameras.
+    summary: |
+        Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
+        the camera you want to switch to.
     description: |
         In Android, this can only be called when using a custom overlay (see <Titanium.Media.showCamera>).
     platforms: [iphone, ipad, android]
     parameters:
       - name: camera
-        summary: The camera to switch to.
+        summary: Constant indicating to which camera you want to switch.
         type: Number
-        constants: Titanium.Media.CAMERA_*
+        constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
     since:
         android: 3.2.0
         iphone: 1.8.1
@@ -401,6 +403,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant for headphones.
     type: Number
     permission: read-only
@@ -409,6 +412,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant for headphones and microphone.
     type: Number
     permission: read-only
@@ -417,6 +421,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant for headset in/out.
     type: Number
     permission: read-only
@@ -425,6 +430,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant for line-out.
     type: Number
     permission: read-only
@@ -433,6 +439,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant for microphone.
     type: Number
     permission: read-only
@@ -441,6 +448,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant indicated mute switch is on.
     type: Number
     permission: read-only
@@ -449,6 +457,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant indicating receiver and microphone.
     type: Number
     permission: read-only
@@ -512,6 +521,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        removed: "6.0.0"
     summary: For long-duration sounds such as rain, car engine noise, and so on. 
     description: |
         Also used for for 'play along' style applications, such a virtual piano that a 
@@ -525,6 +535,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        removed: "6.0.0"
     summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application. 
     description: |
         When using this mode, your application audio continues with the Ring/Silent switch set 
@@ -537,6 +548,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        removed: "6.0.0"
     summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. 
     description: |
         This category is appropriate for simultaneous recording and playback, and also for 
@@ -554,6 +566,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        removed: "6.0.0"
     summary: Session mode for recording audio; it silences playback audio.
     type: Number
     permission: read-only
@@ -681,6 +694,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant indicating that audio is unavailable.
     type: Number
     permission: read-only
@@ -689,6 +703,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in <Titanium.Media>.
+        removed: "3.6.0"
     summary: Line-type constant indicating that line-type is unknown or not determined.
     type: Number
     permission: read-only
@@ -1038,6 +1053,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.Media.VIDEO_CONTROL_EMBEDDED> instead.
+        removed: "6.0.0"
     summary: Constant for video controls volume only.
     type: Number
     permission: read-only
@@ -1662,7 +1678,7 @@ properties:
     type: Number
     since: "3.1.0"
   - name: livePhoto
-    description: |
+    summary: |
         The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto

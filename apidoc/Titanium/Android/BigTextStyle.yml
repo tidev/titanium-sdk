@@ -1,0 +1,45 @@
+---
+name: Titanium.Android.BigTextStyle
+summary: Helper object for generating large-format notifications that include a lot of text.
+description: |
+    If the platform does not provide large-format notifications, this style helper has no effect.
+    The user will always see the normal notification view.
+
+    This style object attaches to a <Titanium.UI.Notification> object and modifies its behavior.
+examples:
+  - title: Big text style Example
+    example: |
+
+        var bigTextStyle = Titanium.Android.createBigTextStyle({
+            bigText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            bigContentTitle: "Title for big text",
+            summaryText: "Summary for big text"
+        });
+
+        // Create big text style notification
+        var notification = Titanium.Android.createNotification({
+            contentTitle: 'Something Happened',
+            contentText : 'Click to return to the application.',
+            style: bigTextStyle,
+            time: Date.now()
+        });
+
+        // Send the notification.
+        Titanium.Android.NotificationManager.notify(1, notification);
+
+since: "6.0.0"
+platforms: [android]
+properties:
+
+  - name: bigText
+    summary: Sets the longer text to be displayed in the big form of the notification in place of the content text.
+    type: String
+
+  - name: bigContentTitle
+    summary: Overrides <Titanium.UI.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.UI.Notification.contentTitle>.
+    type: String
+    default: <Titanium.UI.Notification.contentTitle>
+
+  - name: summaryText
+    summary: Set the first line of text after the detail section in the big form of the notification.
+    type: String

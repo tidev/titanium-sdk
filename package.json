@@ -38,13 +38,13 @@
     "temp": "0.8.3",
     "uglify-js": "2.5.0",
     "unorm": "^1.4.1",
-    "windowslib": "0.2.2",
+    "windowslib": "0.3.1",
     "wrench": "1.5.8",
     "xcode": "0.8.2",
     "xmldom": "0.1.19"
   },
   "devDependencies": {
-    "grunt-cli": "*",
+    "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-clang-format": "*",
     "grunt-appc-js": "*",

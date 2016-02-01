@@ -808,13 +808,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		TiWindowProxy topWindow = topWindowOnStack();
 
-		// Prevent default Android behavior for "back" press
-		// if the top window has a listener to handle the event.
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-
+		}
+		
+		// Override default Android behavior for "back" press
+		// if the top window has a callback to handle the event.
+		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
+			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
+			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
+			
 		} else {
-			// If event is not handled by any listeners allow default behavior.
+			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
 		}
 	}
