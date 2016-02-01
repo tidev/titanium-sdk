@@ -96,7 +96,12 @@
 
 @property(nonatomic,readonly) NSString* AD_SIZE_PORTRAIT;
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
+#endif
 
+#ifdef USE_TI_UIIOSBLURVIEW
+@property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_EXTRA_LIGHT;
+@property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_LIGHT;
+@property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_DARK;
 #endif
 
 /**
@@ -161,6 +166,9 @@
 #endif
 #ifdef USE_TI_UIIOSMENUPOPUP
 -(id)createMenuPopup:(id)args;
+#endif
+#ifdef USE_TI_UIIOSBLURVIEW
+-(id)createBlurView:(id)args;
 #endif
 #endif
 

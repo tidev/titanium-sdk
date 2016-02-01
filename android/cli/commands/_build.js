@@ -2942,7 +2942,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 			// make sure that the module was not built before 1.8.0.1
 			if (~~module.manifest.apiversion < 2) {
-				this.logger.error(__('The "apiversion" for "%s" in the module manifest is less than version 2.', id.cyan));
+				this.logger.error(__('The "apiversion" for "%s" in the module manifest is less than version 2.', module.manifest.moduleid.cyan));
 				this.logger.error(__('The module was likely built against a Titanium SDK 1.8.0.1 or older.'));
 				this.logger.error(__('Please use a version of the module that has "apiversion" 2 or greater'));
 				this.logger.log();
