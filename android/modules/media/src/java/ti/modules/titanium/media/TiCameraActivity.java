@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -34,6 +35,7 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
@@ -43,6 +45,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
@@ -134,7 +137,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		setFullscreen(true);
+		setFullscreenForCamera(true);
 		
 		super.onCreate(savedInstanceState);
 
@@ -158,6 +161,38 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
 		setContentView(cameraLayout);
+
+	}
+
+	// This is overriden to prevent using the FullScreen method which is not supported for Camera use.
+	@Override
+	protected void windowCreated(Bundle savedInstanceState) {
+	    boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
+	    int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
+	    int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
+	    boolean hasSoftInputMode = softInputMode != -1;
+
+	    if (windowFlags > 0) {
+	        getWindow().addFlags(windowFlags);
+	    }
+
+	    if (modal) {
+	        if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+	            // This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
+	            getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+	        }
+	    }
+
+	    if (hasSoftInputMode) {
+	        Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
+	        getWindow().setSoftInputMode(softInputMode);
+	    }
+
+	    boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
+	    if (useActivityWindow) {
+	        int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+	        TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
+	    }
 
 	}
 

@@ -486,6 +486,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 	}
 
+	protected void setFullscreenForCamera(boolean fullscreen)
+	{
+	    if (fullscreen) {
+	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    }
+	}
+
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
