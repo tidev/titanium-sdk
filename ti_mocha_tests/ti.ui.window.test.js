@@ -23,16 +23,20 @@ describe("Titanium.UI.Window", function () {
         win.setToolbar([Ti.UI.createButton({title: "Toolbar"})]);
         nav.open();
 
-        // Show toolbar
-        win.showToolbar({animated: false});
-        should(win.toolbarHidden).eql(false);
+        win.addEventListener("open", function() {
+            // Show toolbar
+            win.showToolbar({animated: false});
+            should(win.toolbarHidden).eql(false);
 
-        // Hide toolbar
-        win.hideToolbar({animated: false});
-        should(win.toolbarHidden).eql(true);
+            setTimeout(function() {
+                // Hide toolbar
+                win.hideToolbar({animated: false});
+                should(win.toolbarHidden).eql(true);
 
-        // Finish test
-        finish();
+                // Finish test
+                finish();
+            },250);
+        });
     });
 
 });
