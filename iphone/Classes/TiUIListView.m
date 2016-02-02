@@ -1942,14 +1942,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     // return sectionIndex, itemIndex of item in original table(self.tableView),
     // not results table(searchController.searchResultsTableView)
-    NSIndexPath *indexPathInOrgTableView = [self pathForSearchPath:indexPath];
+    NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
 	
-    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPathInOrgTableView.section];
-	NSDictionary *item = [section itemAtIndex:indexPathInOrgTableView.row];
+    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+	NSDictionary *item = [section itemAtIndex:realIndexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINTEGER(indexPathInOrgTableView.section), @"sectionIndex",
-										NUMINTEGER(indexPathInOrgTableView.row), @"itemIndex",
+										NUMINTEGER(realIndexPath.section), @"sectionIndex",
+										NUMINTEGER(realIndexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
