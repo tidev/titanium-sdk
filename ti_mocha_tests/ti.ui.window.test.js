@@ -32,7 +32,7 @@ describe("Titanium.UI.Window", function () {
         should(win.toolbarHidden).eql(true);
 
         // Finish test
-		finish();
+        finish();
     });
 
 });
