@@ -239,6 +239,7 @@
         _urls = [[NSMutableDictionary alloc] init];
     }
     [_urls setObject:[TiUtils stringValue:temp] forKey: NSStringFromRange(rangeValue)];
+    [attributes addObject: args];
 }
 
 -(NSString*)getLink:(NSUInteger)arg
