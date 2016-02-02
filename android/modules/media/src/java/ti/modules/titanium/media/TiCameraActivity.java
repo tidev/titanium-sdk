@@ -43,6 +43,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
@@ -134,7 +135,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		setFullscreen(true);
+		// setting Fullscreen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		super.onCreate(savedInstanceState);
 
