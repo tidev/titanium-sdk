@@ -137,7 +137,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		setFullscreenForCamera(true);
+		// setting Fullscreen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		super.onCreate(savedInstanceState);
 
@@ -162,13 +163,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		setContentView(cameraLayout);
 
-	}
-
-	public void setFullscreenForCamera(boolean fullscreen)
-	{
-	    if (fullscreen) {
-	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	    }
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
