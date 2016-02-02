@@ -1704,7 +1704,8 @@ properties:
     type: Number
 ---
 name: PreviewRectType
-summary: Simple object for describing the preview image rectangle.
+summary: |
+    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used. 
 properties:
   - name: width
     summary: Width preview image, in pixels.
