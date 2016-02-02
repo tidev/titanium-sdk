@@ -164,36 +164,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	}
 
-	// This is overriden to prevent using the FullScreen method which is not supported for Camera use.
-	@Override
-	protected void windowCreated(Bundle savedInstanceState) {
-	    boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
-	    int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
-	    int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
-	    boolean hasSoftInputMode = softInputMode != -1;
-
-	    if (windowFlags > 0) {
-	        getWindow().addFlags(windowFlags);
+	public void setFullscreenForCamera(boolean fullscreen)
+	{
+	    if (fullscreen) {
+	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    }
-
-	    if (modal) {
-	        if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-	            // This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-	            getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-	        }
-	    }
-
-	    if (hasSoftInputMode) {
-	        Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
-	        getWindow().setSoftInputMode(softInputMode);
-	    }
-
-	    boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
-	    if (useActivityWindow) {
-	        int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
-	        TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
-	    }
-
 	}
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
