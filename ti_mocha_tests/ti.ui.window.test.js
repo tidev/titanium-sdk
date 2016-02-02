@@ -28,14 +28,12 @@ describe("Titanium.UI.Window", function () {
             win.showToolbar({animated: false});
             should(win.toolbarHidden).eql(false);
 
-            setTimeout(function() {
-                // Hide toolbar
-                win.hideToolbar({animated: false});
-                should(win.toolbarHidden).eql(true);
+            // Hide toolbar
+            win.hideToolbar({animated: false});
+            should(win.toolbarHidden).eql(true);
 
-                // Finish test
-                finish();
-            },250);
+            // Finish test
+            finish();
         });
     });
 
