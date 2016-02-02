@@ -1939,12 +1939,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![self.proxy _hasListeners:eventName]) {
 		return;
 	}
-    
-    // return sectionIndex, itemIndex of item in original table(self.tableView),
-    // not results table(searchController.searchResultsTableView)
-    NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+
+	// return sectionIndex, itemIndex of item in original table(self.tableView),
+	// not results table(searchController.searchResultsTableView)
+	NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
 	
-    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+	TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
 	NSDictionary *item = [section itemAtIndex:realIndexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
@@ -1959,15 +1959,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[eventObject setObject:itemId forKey:@"itemId"];
 	}
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
-    
-    CGPoint convertedPoint = [tableView convertPoint:tapPoint toView:cell.contentView];
-    // if searchController is active, tableView.contentOffset.y = -44
-    // else tableView.contentOffset.y = 0
-    if ([searchController isActive]) {
-        convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
-    }
+
+	CGPoint convertedPoint = [tableView convertPoint:tapPoint toView:cell.contentView];
+	// if searchController is active, tableView.contentOffset.y = -44
+	// else tableView.contentOffset.y = 0
+	if ([searchController isActive]) {
+		convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
+	}
 	
-    if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
+	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
 		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, convertedPoint);
 		if (tapViewProxy != nil) {
