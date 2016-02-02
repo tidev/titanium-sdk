@@ -869,7 +869,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 -(void)requestLocationPermissions:(id)args
 {
     if (![TiUtils isIOS8OrGreater]) {
-        [self requestLocationPermissioniOS7:args];
+        // It is required that delegate is created and permission is presented in main thread.
+        TiThreadPerformOnMainThread(^{
+            [self requestLocationPermissioniOS7:args];
+        }, NO);
         return;
     }
     
