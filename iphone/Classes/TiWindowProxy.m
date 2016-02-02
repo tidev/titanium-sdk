@@ -618,6 +618,8 @@
         id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
         BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
         [[controller navigationController] setToolbarHidden:NO animated:animated];
+    } else {
+        NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
     }
 }
 
@@ -630,6 +632,8 @@
         id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
         BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
         [[controller navigationController] setToolbarHidden:YES animated:animated];
+    } else {
+        NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
     }
 }
 
