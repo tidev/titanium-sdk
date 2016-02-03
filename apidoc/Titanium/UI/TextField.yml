@@ -79,7 +79,7 @@ properties:
         since: "5.2.0"
         notes: Use keyboardAppearance instead.
 
-  - name: keyeyboardAppearance
+  - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
     type: Number
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
