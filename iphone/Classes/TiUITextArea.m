@@ -125,7 +125,6 @@
 
 -(void)setShowUndoRedoActions:(id)value
 {
-ENSURE_UI_THREAD(setShowUndoRedoActions,value);
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
