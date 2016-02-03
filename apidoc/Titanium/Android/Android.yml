@@ -192,6 +192,24 @@ methods:
             which specifies the service to check.
         type: Titanium.Android.Intent
 
+  - name: hasStoragePermission
+    summary: Returns `true` if the app has storage permissions.
+    returns:
+        type: Boolean
+    since: "6.0.0"
+
+  - name: requestStoragePermissions
+    summary: Requests for storage permissions
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant storage access
+        type: Callback<RequestStorageAccessResult>
+    since: "6.0.0"
+
   - name: registerBroadcastReceiver
     summary: Registers broadcast receiver for the given actions
     parameters:
@@ -2195,3 +2213,7 @@ properties:
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
     constants: Titanium.Android.START_*
+---
+name: RequestStorageAccessResult
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
