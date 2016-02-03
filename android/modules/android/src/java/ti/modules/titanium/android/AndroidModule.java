@@ -8,11 +8,16 @@ package ti.modules.titanium.android;
 
 import java.util.List;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -344,6 +349,35 @@ public class AndroidModule extends KrollModule
 		} else {
 			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
 		}
+	}
+
+	@Kroll.method
+	private boolean hasStoragePermission() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
+	@Kroll.method
+	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasStoragePermission()) {
+			return;
+		}
+
+		if (TiBaseActivity.storageCallbackContext == null) {
+			TiBaseActivity.storageCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.storagePermissionCallback = permissionCallback;
+		String[] permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+
 	}
 
 	@Kroll.method
