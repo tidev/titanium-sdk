@@ -21,7 +21,6 @@ describe("Titanium.UI.Window", function () {
 
         // Set toolbar
         win.setToolbar([Ti.UI.createButton({title: "Toolbar"})]);
-        nav.open();
 
         win.addEventListener("open", function() {
             // Show toolbar
@@ -35,6 +34,8 @@ describe("Titanium.UI.Window", function () {
             // Finish test
             finish();
         });
+
+        nav.open();
     });
 
 });
