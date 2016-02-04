@@ -271,7 +271,9 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-    if (window == rootWindow) {
+    TiApp* TiAppProxy = [TiApp app];
+    
+    if (window == rootWindow && ![TiAppProxy willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
         return;
     }
