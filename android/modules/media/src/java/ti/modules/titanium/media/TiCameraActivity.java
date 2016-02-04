@@ -509,6 +509,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	                    if (!success) {
 	                        Log.w(TAG, "Unable to focus.");
 	                    }
+	                    // This is a Hotfix for TIMOB-20260
+	                    // "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera) 
+	                    // We need to move to android.hardware.camera2 APIs as soon as we can.
 	                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 	                        camera.cancelAutoFocus();
 	                    }
