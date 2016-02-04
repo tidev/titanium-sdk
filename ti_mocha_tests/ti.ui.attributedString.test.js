@@ -26,8 +26,8 @@ var string = Ti.UI.createAttributedString({
         range: [0, 12]
       },
       {
-        type: Ti.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-        value: Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_NONE,
+        type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+        value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE,
         range: [0, 12]
       },
     {
