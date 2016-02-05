@@ -269,11 +269,10 @@
 
 -(void)closeWindow:(NSArray*)args
 {
-	TiWindowProxy *window = [args objectAtIndex:0];
-	ENSURE_TYPE(window,TiWindowProxy);
-	TiApp* TiAppProxy = [TiApp app];
+    TiWindowProxy *window = [args objectAtIndex:0];
+    ENSURE_TYPE(window,TiWindowProxy);
     
-    if (window == rootWindow && ![TiAppProxy willTerminate]) {
+    if (window == rootWindow && ![[TiApp app] willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
         return;
     }
