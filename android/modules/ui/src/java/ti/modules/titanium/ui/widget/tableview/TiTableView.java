@@ -48,7 +48,8 @@ public class TiTableView extends FrameLayout
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
 
-	protected int maxClassname = 32;
+	// Default maxClassname is 32. It is set to 35 for bug in TIMOB-20038
+	protected int maxClassname = 35;
 
 	private TableViewModel viewModel;
 	private ListView listView;
@@ -281,7 +282,7 @@ public class TiTableView extends FrameLayout
 		this.proxy = proxy;
 
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-		    maxClassname = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME));
+		    maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
