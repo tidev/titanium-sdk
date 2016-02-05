@@ -161,7 +161,9 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return maxClassname;
+		        // Fix for TIMOB-20038. Seems that there are 3 more
+		        // hidden views that needs to be recreated onLayout
+			return maxClassname + 3;
 		}
 
 		@Override
