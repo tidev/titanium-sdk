@@ -7,6 +7,9 @@ extends: Titanium.Proxy
 since: "3.0.0"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "6.0.0"
+    notes: Use [Titanium.UI.iOS.AlertDialogStyle](Titanium.UI.iOS.AlertDialogStyle) instead.
 
 properties:
   - name: DEFAULT

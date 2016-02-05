@@ -16,12 +16,12 @@
     return @"Ti.UI.iPhone.RowAnimationStyle";
 }
 
-MAKE_SYSTEM_PROP(NONE,UITableViewRowAnimationNone);
-MAKE_SYSTEM_PROP(LEFT,UITableViewRowAnimationLeft);
-MAKE_SYSTEM_PROP(RIGHT,UITableViewRowAnimationRight);
-MAKE_SYSTEM_PROP(TOP,UITableViewRowAnimationTop);
-MAKE_SYSTEM_PROP(BOTTOM,UITableViewRowAnimationBottom);
-MAKE_SYSTEM_PROP(FADE,UITableViewRowAnimationFade);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,UITableViewRowAnimationNone,@"UI.iPhone.RowAnimationStyle.NONE",@"6.0.0",@"UI.iOS.RowAnimationStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(LEFT,UITableViewRowAnimationLeft,@"UI.iPhone.RowAnimationStyle.LEFT",@"6.0.0",@"UI.iOS.RowAnimationStyle.LEFT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(RIGHT,UITableViewRowAnimationRight,@"UI.iPhone.RowAnimationStyle.RIGHT",@"6.0.0",@"UI.iOS.RowAnimationStyle.RIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(TOP,UITableViewRowAnimationTop,@"UI.iPhone.RowAnimationStyle.TOP",@"6.0.0",@"UI.iOS.RowAnimationStyle.TOP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BOTTOM,UITableViewRowAnimationBottom,@"UI.iPhone.RowAnimationStyle.BOTTOM",@"6.0.0",@"UI.iOS.RowAnimationStyle.BOTTOM");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FADE,UITableViewRowAnimationFade,@"UI.iPhone.RowAnimationStyle.FADE",@"6.0.0",@"UI.iOS.RowAnimationStyle.FADE");
 
 // used before 0.9 in KS
 MAKE_SYSTEM_PROP(UP,UITableViewRowAnimationTop);

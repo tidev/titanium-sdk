@@ -12,7 +12,7 @@ description: |
 
         <Button systemButton="CAMERA"/>
         <!-- Instead of -->
-        <Button systemButton="Titanium.UI.iPhone.SystemButton.CAMERA"/>
+        <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
@@ -33,6 +33,9 @@ extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "6.0.0"
+    notes: Use [Titanium.UI.iOS.SystemButton](Titanium.UI.iOS.SystemButton) instead.
 
 properties:
   - name: ACTION
