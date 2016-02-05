@@ -810,7 +810,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
-
+	_willTerminate = YES;
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
 	NSCondition *condition = [[NSCondition alloc] init];

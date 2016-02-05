@@ -106,6 +106,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 
+@property (nonatomic,readonly) BOOL willTerminate;
 /**
  Returns singleton instance of TiApp application object.
  */
