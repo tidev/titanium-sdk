@@ -48,8 +48,7 @@ public class TiTableView extends FrameLayout
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
 
-	// Default maxClassname is 32. It is set to 35 for bug in TIMOB-20038
-	protected int maxClassname = 35;
+	protected int maxClassname = 32;
 
 	private TableViewModel viewModel;
 	private ListView listView;
