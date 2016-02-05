@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIView.h"
 #import "TiUIiOSLivePhoto.h"
@@ -21,5 +20,4 @@
 @property(nonatomic,retain) PHLivePhotoView *livePhotoView;
 
 @end
-#endif
 #endif
