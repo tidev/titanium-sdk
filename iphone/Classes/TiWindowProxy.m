@@ -311,7 +311,9 @@
     }
     
     if (!opened) {
+#ifndef TI_USE_KROLL_THREAD
         DebugLog(@"Window is not open. Ignoring this close call");
+#endif
         return;
     }
     
