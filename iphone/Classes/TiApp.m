@@ -288,17 +288,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-        appBooted = YES;
+		appBooted = YES;
 
-        if(launchedShortcutItem != nil) {
-            [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-            launchedShortcutItem = nil;
-        }
+		if(launchedShortcutItem != nil) {
+			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+			launchedShortcutItem = nil;
+		}
 
-        if (localNotification != nil) {
+		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-        TiThreadPerformOnMainThread(^{[self validator];}, YES);
+		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 

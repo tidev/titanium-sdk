@@ -572,7 +572,7 @@ static NSDictionary* iOS9propertyKeys;
 		return [result autorelease];
 	}
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		if (person.imageDataAvailable == YES) {
 			TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
 			return imageBlob;
@@ -598,7 +598,7 @@ static NSDictionary* iOS9propertyKeys;
 {
 	ENSURE_UI_THREAD(setBirthday, date)
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		NSDate *saveDate = [TiUtils dateForUTCDate:date];
 		unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
 		NSCalendar * cal = [NSCalendar currentCalendar];
