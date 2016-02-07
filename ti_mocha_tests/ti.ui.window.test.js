@@ -23,18 +23,18 @@ describe("Titanium.UI.Window", function () {
         win.setToolbar([Ti.UI.createButton({title: "Toolbar"})]);
         nav.open();
 
-        setTimeout(function() {
-            // Show toolbar
-            win.showToolbar({animated: false});
-            should(win.toolbarHidden).eql(false);
+        this.timeout(250);
+        
+        // Show toolbar
+        win.showToolbar({animated: false});
+        should(win.toolbarHidden).eql(false);
 
-            // Hide toolbar
-            win.hideToolbar({animated: false});
-            should(win.toolbarHidden).eql(true);
+        // Hide toolbar
+        win.hideToolbar({animated: false});
+        should(win.toolbarHidden).eql(true);
 
-            // Finish test
-            finish();
-        },250);
+        // Finish test
+        finish();
     });
 
 });
