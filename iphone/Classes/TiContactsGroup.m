@@ -113,7 +113,7 @@
 		return;
 	}
 
-    CFErrorRef error;
+	CFErrorRef error;
 	if(!ABRecordSetValue([self record], kABGroupNameProperty, (CFStringRef)arg, &error)) {
 		CFStringRef reason = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)reason];
@@ -132,7 +132,7 @@
 		return [result autorelease];
 	}
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
 			return nil;
@@ -157,7 +157,7 @@
 		}
 	}
 
-    CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembers([self record]);
+	CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembers([self record]);
 	if (arrayRef == NULL) {
 		return nil;
 	}
@@ -183,7 +183,7 @@
 		return [result autorelease];
 	}
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
 			return nil;
@@ -260,7 +260,7 @@
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(add,arg);
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -281,7 +281,7 @@
 		return;
 	}
 
-    CFErrorRef error;
+	CFErrorRef error;
 	if (!ABGroupAddMember([self record], [arg record], &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
@@ -298,7 +298,7 @@
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(remove,arg);
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];
 		if (ourContactStore == NULL) {
@@ -319,7 +319,7 @@
 		return;
 	}
 
-    CFErrorRef error;
+	CFErrorRef error;
 	if (!ABGroupRemoveMember([self record], [arg record], &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
