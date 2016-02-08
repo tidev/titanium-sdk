@@ -1630,6 +1630,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
