@@ -351,34 +351,6 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
-	private boolean hasStoragePermission() {
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
-	}
-
-	@Kroll.method
-	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
-	{
-		if (hasStoragePermission()) {
-			return;
-		}
-
-		if (TiBaseActivity.storageCallbackContext == null) {
-			TiBaseActivity.storageCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.storagePermissionCallback = permissionCallback;
-		String[] permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
-
-	}
 
 	@Kroll.method
 	public boolean isServiceRunning(IntentProxy intentProxy)

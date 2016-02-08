@@ -10,11 +10,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -77,6 +83,35 @@ public class FilesystemModule extends KrollModule
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
 		return new FileProxy(invocation.getSourceUrl(), sparts);
+	}
+
+	@Kroll.method
+	private boolean hasStoragePermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
+	@Kroll.method
+	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasStoragePermissions()) {
+			return;
+		}
+
+		if (TiBaseActivity.storageCallbackContext == null) {
+			TiBaseActivity.storageCallbackContext = getKrollObject();
+		}
+		TiBaseActivity.storagePermissionCallback = permissionCallback;
+		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+
 	}
 
 	@Kroll.getProperty @Kroll.method
