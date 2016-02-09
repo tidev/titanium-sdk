@@ -208,7 +208,13 @@ events:
         
 properties:
   - name: backgroundColor
-    platforms: [android]
+    summary: Background color of the picker, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.0.0"
+    default: White (iOS), transparent (Android)
 
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
