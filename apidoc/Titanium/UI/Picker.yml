@@ -250,6 +250,17 @@ properties:
         Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
     type: Number
     platforms: [iphone, ipad]
+
+  - name: dateTimeColor
+    summary: Sets the text color of date- and time-pickers.
+    description: |
+        Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
+        The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the 
+        [UIKit User Interface Catalog](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/UIDatePicker.html).
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+    default: Black
     
   - name: format24
     summary: |
