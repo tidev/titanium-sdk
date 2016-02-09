@@ -218,6 +218,22 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+-(void)setDateTimeColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+
+	if (picker != nil) {
+		[(UIDatePicker*)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
+		SEL selector = NSSelectorFromString(@"setHighlightsToday:");
+		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDatePicker instanceMethodSignatureForSelector:selector]];
+		BOOL no = NO;
+		
+		[invocation setSelector:selector];
+		[invocation setArgument:&no atIndex:2];
+		[invocation invokeWithTarget:(UIDatePicker*)[self picker]];
+	}
+}
+
 //TODO: minute interval
 
 -(void)setValue_:(id)date
