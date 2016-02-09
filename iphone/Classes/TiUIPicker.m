@@ -212,11 +212,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)setBackgroundColor_:(id)value
 {
-    [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
-    if (picker != nil) {
-        [[self picker] setBackgroundColor:[[TiUtils colorValue:value] _color]];
-    }
-
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	if (picker != nil) {
+		[[self picker] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+	}
 }
 
 //TODO: minute interval
