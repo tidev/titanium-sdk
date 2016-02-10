@@ -337,6 +337,7 @@ public class TiLocation implements Handler.Callback
 		address.put(TiC.PROPERTY_REGION2, ""); // SubAdminArea
 		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
+		address.put(TiC.PROPERTY_STATE, place.optString(TiC.PROPERTY_STATE, ""));
 		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE, "")); // TIMOB-4478, remove this later, was old android name
 		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));		
 		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
