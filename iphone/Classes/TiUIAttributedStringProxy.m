@@ -151,7 +151,6 @@
         case AttributeNameLink:
             [self setLink:args];
             return;
-            break;
             
         case AttributeNameBaselineOffset:
             attrName = NSBaselineOffsetAttributeName;
@@ -246,8 +245,7 @@
 {
     float tempIndx = ([[NSNumber numberWithUnsignedInteger: arg] floatValue]);
     
-    for (NSString* key in _urls)
-    {
+    for (NSString* key in _urls) {
         NSRange range = NSRangeFromString(key);
         CGFloat tempLenght = range.location + range.length;
        if (range.location <= tempIndx && tempLenght >= tempIndx ) {
