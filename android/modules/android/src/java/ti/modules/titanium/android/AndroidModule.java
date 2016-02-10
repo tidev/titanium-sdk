@@ -8,11 +8,16 @@ package ti.modules.titanium.android;
 
 import java.util.List;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -345,6 +350,7 @@ public class AndroidModule extends KrollModule
 			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
 		}
 	}
+
 
 	@Kroll.method
 	public boolean isServiceRunning(IntentProxy intentProxy)
