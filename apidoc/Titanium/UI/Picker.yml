@@ -213,8 +213,8 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, android]
-    since: "6.0.0"
-    default: White (iOS), transparent (Android)
+    since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
+    default: White (iOS), Transparent (Android)
 
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
@@ -259,7 +259,7 @@ properties:
         [UIKit User Interface Catalog](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/UIDatePicker.html).
     type: String
     platforms: [iphone, ipad]
-    since: "6.0.0"
+    since: "5.2.0"
     default: Black
     
   - name: format24
