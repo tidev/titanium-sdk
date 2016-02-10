@@ -1165,7 +1165,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return dict;
     }
 #endif
-    
     return [self pointToDictionary:point];
 }
 
