@@ -137,10 +137,8 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-    if (window == rootWindow) {
-#ifndef TI_USE_KROLL_THREAD
+    if (window == rootWindow && ![[TiApp app] willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
-#endif
         return;
     }
     TiThreadPerformOnMainThread(^{
