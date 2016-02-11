@@ -2,7 +2,7 @@
  * Tests windowslib's emulator module.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -139,7 +139,7 @@ describe('emulator', function () {
 		});
 
 		// Shut down the emulator
-		before(function (done) {
+		after(function (done) {
 			if (!emu) {
 				return done();
 			}
@@ -147,8 +147,10 @@ describe('emulator', function () {
 			windowslib.emulator.stop({
 				name: emu.name
 			}, function () {
-				done();
+				// do nothing
 			});
+
+			done();
 		});
 
 		it('launch and shutdown emulator', function (done) {
