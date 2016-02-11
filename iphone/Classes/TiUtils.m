@@ -1961,6 +1961,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if ([self isIOS9OrGreater] == NO) {
         return NO;
     }
+    
+    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && ([UIScreen mainScreen].bounds.size.height == 1366))) {
+        return YES;
+    }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 #else
     return NO;
