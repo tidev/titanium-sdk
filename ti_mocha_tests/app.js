@@ -24,6 +24,7 @@ require('./ti.ui.slider.test');
 require('./ti.utils.test');
 require('./ti.analytics.test');
 require('./ti.ui.textfield.test');
+require('./ti.network.cookie.test');
 /*require('./ti.accelerometer.test');
 require('./ti.app.test');
 require('./ti.app.properties.test');
