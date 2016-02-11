@@ -1758,7 +1758,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     
     BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
-    BOOL isLivePhoto = isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
+    BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
     
     NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
