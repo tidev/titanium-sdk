@@ -149,13 +149,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.getProperty @Kroll.method
 	public boolean getUseSpinner()
 	{
-	    Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
+		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
 		return useSpinner;
 	}
 	@Kroll.setProperty @Kroll.method
 	public void setUseSpinner(boolean value)
 	{
-	    Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
+		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
 		if (peekView() != null) {
 			Log.w(TAG, "Attempt to change useSpinner property after view has already been created. Ignoring.");
 		} else {
