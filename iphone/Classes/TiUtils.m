@@ -1148,7 +1148,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
 #if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [touch type] == UITouchTypeStylus) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
