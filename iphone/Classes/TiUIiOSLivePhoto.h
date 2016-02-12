@@ -6,7 +6,6 @@
  */
 
 #if IS_XCODE_7_1
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiProxy.h"
 #import <Photos/Photos.h>
 
@@ -17,5 +16,4 @@
 -(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto;
 
 @end
-#endif
 #endif
