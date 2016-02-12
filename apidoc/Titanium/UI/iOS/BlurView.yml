@@ -1,11 +1,9 @@
 ---
 name: Titanium.UI.iOS.BlurView
 summary: |
-    A <Titanium.UI.iOS.BlurView> object gives you an easy way implement some complex visual effects.
-    Depending on the desired effect, the effect may affect content layered behind the view or
-    content added to the visual effect view's contentView.
+    A <Titanium.UI.iOS.BlurView> object gives you an easy way implement some complex visual effects. Depending on the desired effect, the effect may affect content layered behind the view or content added to the visual effect view's contentView.
 
-    For more infos on BlurView's, refer to the official [Apple documentation](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIVisualEffectView/).
+    For more information on BlurView, please refer to the official [Apple documentation](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIVisualEffectView/).
 
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
@@ -27,30 +25,24 @@ examples:
             var win = Ti.UI.createWindow({
                 backgroundColor: "#fff"
             });
-
-            /*
-             *	Reference Image
-             */
+            
+            // *	Reference Image
             var img = Ti.UI.createImageView({
                 image: "/default_app_logo.png",
                 top: 100,
                 width: 300,
                 height: 300
             });
-
-            /*
-             *	Blur View
-             */
+            
+            // *	Blur View
             var blur = Ti.UI.iOS.createBlurView({
                 width: Ti.UI.FILL,
                 height: Ti.UI.FILL
             });
-
+            
             img.add(blur);
-
-            /*
-             *	Effect Controls
-             */
+            
+            // *	Effect Controls
             var tabs = Ti.UI.iOS.createTabbedBar({
                 labels: ["Extra light", "Light", "Dark"],
                 bottom: 100

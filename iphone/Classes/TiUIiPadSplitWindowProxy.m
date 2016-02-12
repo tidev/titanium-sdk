@@ -34,7 +34,7 @@
 -(void)windowWillClose
 {
     if ([self viewAttached]) {
-        [(TiUIiPadSplitWindow*)[self view] splitViewController:nil willShowViewController:nil invalidatingBarButtonItem:nil];
+        [(TiUIiPadSplitWindow*)[self view] fireEvent:@"visible" withSource:@"master" visibilityChanged:NO];
     }
     TiViewProxy* masterProxy = [self valueForUndefinedKey:@"masterView"];
     TiViewProxy* detailProxy = [self valueForUndefinedKey:@"detailView"];

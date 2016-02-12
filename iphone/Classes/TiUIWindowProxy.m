@@ -892,7 +892,7 @@
 					}
 				}
 			}
-			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
+			NSMutableArray * array = [[NSMutableArray alloc] initWithArray:@[]];
 			for (TiViewProxy *proxy in items)
 			{
 				if([proxy supportsNavBarPositioning])
