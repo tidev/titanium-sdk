@@ -34,7 +34,7 @@ describe('device', function () {
 			should(results.devices).be.an.Array;
 			results.devices.forEach(function (dev) {
 				should(dev).be.an.Object;
-				should(dev).have.keys('name', 'udid', 'index', 'wpsdk');
+				should(dev).have.properties('name', 'udid', 'index', 'wpsdk'); // may also have 'ip'
 
 				should(dev.name).be.a.String;
 				should(dev.name).not.equal('');

@@ -1,3 +1,13 @@
+0.4.0 (2/10/2016)
+-------------------
+  * Support enumerating devices using Windows 10 WinAppDeployCmd
+  * Make wstool print pid after launching Windows Store app sucessfully (as stdout)
+  * Move common code to utilities.js for checking if wptool/wstool need to be rebuilt.
+  * Add method for loopback ip network isolation exempting a Windows Store app by id/Name: windowslib.winstore.loopbackExempt(appId, options, callback);
+  * Add method to get listing of Windows appx containers as JSON: windowslib.winstore.getAppxPackages(options, callback);
+  * Fix broken wp_get_appx_metadata.ps1 file from newline mid-line
+  * Add method to find a process by pid: windowslib.process.find(pid, options, callback);
+
 0.3.0 (1/6/2016)
 -------------------
   * Support detection and use of Windows 10 SDK/tooling without requiring 8.1 tools installed.
