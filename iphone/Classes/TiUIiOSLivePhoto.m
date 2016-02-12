@@ -6,7 +6,6 @@
  */
 
 #if IS_XCODE_7_1
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhoto.h"
 
 @implementation TiUIiOSLivePhoto
@@ -21,5 +20,4 @@
 }
 
 @end
-#endif
 #endif
