@@ -1891,7 +1891,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 resultImage = (editedImage != nil) ? editedImage : originalImage;
             }
             
-            media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
+            media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [media setImage:resultImage];
+
             if (saveToRoll) {
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
@@ -1899,7 +1901,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         
 #if IS_XCODE_7_1
         if(isLivePhoto) {
-            livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
+            livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [livePhoto setLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         }
 #endif
         
