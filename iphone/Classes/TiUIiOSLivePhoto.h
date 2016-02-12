@@ -13,7 +13,5 @@
 
 @property(nonatomic,retain) PHLivePhoto *livePhoto;
 
--(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto;
-
 @end
 #endif
