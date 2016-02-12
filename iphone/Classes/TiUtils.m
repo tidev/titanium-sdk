@@ -1148,7 +1148,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
 #if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [touch type] == UITouchTypeStylus) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1165,6 +1165,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return dict;
     }
 #endif
+    
     return [self pointToDictionary:point];
 }
 
@@ -1871,10 +1872,6 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     else if ([image isKindOfClass:[NSString class]]) {
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-        if (resultImage==nil)
-        {
-            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
-        }
         if (resultImage==nil && [image isEqualToString:@"Default.png"])
         {
             // special case where we're asking for Default.png and it's in Bundle not path
@@ -1889,7 +1886,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
     }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [(TiBlob*)image image];
+        resultImage = [image image];
     }
     return resultImage;
 }
@@ -1963,10 +1960,6 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 #if IS_XCODE_7
     if ([self isIOS9OrGreater] == NO) {
         return NO;
-    }
-    
-    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && ([UIScreen mainScreen].bounds.size.height == 1366))) {
-        return YES;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 #else
