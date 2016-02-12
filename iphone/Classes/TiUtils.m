@@ -1148,7 +1148,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
 #if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [touch type] == UITouchTypeStylus) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1165,6 +1165,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return dict;
     }
 #endif
+    
     return [self pointToDictionary:point];
 }
 
@@ -1873,12 +1874,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
         if (resultImage==nil)
         {
-            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
-        }
-        if (resultImage==nil && [image isEqualToString:@"Default.png"])
-        {
             // special case where we're asking for Default.png and it's in Bundle not path
-            resultImage = [UIImage imageNamed:image];
+            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
         }
         if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
         {
