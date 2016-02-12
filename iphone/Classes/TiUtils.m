@@ -1148,7 +1148,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
 #if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [touch type] == UITouchTypeStylus) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1960,10 +1960,6 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 #if IS_XCODE_7
     if ([self isIOS9OrGreater] == NO) {
         return NO;
-    }
-    
-    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad && ([UIScreen mainScreen].bounds.size.height == 1366))) {
-        return YES;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 #else
