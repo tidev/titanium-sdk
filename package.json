@@ -61,7 +61,7 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=0.10.0 <=5.1.x"
+    "node": ">=0.10.0 <=5.x"
   },
   "engines": {
     "node": ">=0.10.13"
