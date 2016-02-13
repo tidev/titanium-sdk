@@ -26,7 +26,7 @@ properties:
     default: false
 
 methods:   
-  - name: startWithPlaybackStyle
+  - name: startPlaybackWithStyle
     summary: Begins playback of Live Photo content in the view.
     description: | 
         Use the `playbackStyle` parameter to choose whether to play the full motion and sound content of the 
