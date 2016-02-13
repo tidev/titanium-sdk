@@ -1147,7 +1147,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1984,6 +1984,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return @"i386";
 #endif
     return @"Unknown";
+}
+
++(BOOL)validatePencilWithTouch:(UITouch*)touch
+{
+    if ([self isIOS9_1OrGreater]) {
+        return [touch type] == UITouchTypeStylus;
+    } else {
+        return NO;
+    }
 }
 
 @end
