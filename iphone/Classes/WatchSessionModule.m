@@ -401,6 +401,7 @@
     }
 }
 
+#if IS_XCODE_7_3
 -(void)sessionDidBecomeInactive:(WCSession *)session
 {
     if ([self _hasListeners:@"inactive"]) {
@@ -427,7 +428,6 @@
 
 #pragma mark WatchSession activation states
 
-#if IS_XCODE_7_3
 -(NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
 {
     if (![TiUtils isIOS9_3OrGreater]) {
