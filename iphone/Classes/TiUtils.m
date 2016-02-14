@@ -22,6 +22,10 @@
 #import "TiExceptionHandler.h"
 #import "TiApp.h"
 
+#if IS_XCODE_7_3
+#import <WatchConnectivity/WatchConnectivity.h>
+#endif
+
 // for checking version
 #import <sys/utsname.h>
 
@@ -199,6 +203,15 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS9_1OrGreater
 {
     return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
++(BOOL)isIOS9_3OrGreater
+{
+#if IS_XCODE_7_3
+    return [WCSession instancesRespondToSelector:@selector(activationState)];
+#else
+    return NO;
+#endif
 }
 
 +(BOOL)isIPad

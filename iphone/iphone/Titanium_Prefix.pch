@@ -22,3 +22,9 @@
 #else
 #define IS_XCODE_7_1 false
 #endif
+
+#ifdef __IPHONE_9_3
+#define IS_XCODE_7_3 true
+#else
+#define IS_XCODE_7_3 false
+#endif

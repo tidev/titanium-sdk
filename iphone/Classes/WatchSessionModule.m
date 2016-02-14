@@ -127,6 +127,28 @@
     return NUMBOOL(NO);
 }
 
+-(NSNumber*)isActivated
+{
+#if IS_XCODE_7_3
+    if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+        return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
+    }
+#endif
+    DebugLog(@"[ERROR] Target does not support watch connectivity");
+    return NUMBOOL(NO);
+}
+
+-(NSNumber*)activationState
+{
+#if IS_XCODE_7_3
+    if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+        return [NSNumber numberWithInteger:[[self watchSession] activationState]];
+    }
+#endif
+    DebugLog(@"[ERROR] Target does not support watch connectivity");
+    return nil;
+}
+
 //copy of most recent app context sent to watch
 -(NSDictionary*)recentApplicationContext
 {
@@ -414,6 +436,77 @@
         [self fireEvent:@"finishfiletransfer" withObject:dict];
     }
 }
+
+-(void)sessionDidBecomeInactive:(WCSession *)session
+{
+    if([self _hasListeners:@"inactive"]){
+        NSDictionary *dict = [NSDictionary
+                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
+                              [self isWatchAppInstalled],@"isWatchAppInstalled",
+                              [self isComplicationEnabled],@"isComplicationEnabled",
+                              [self isActivated],@"isActivated",
+                              [self activationState],@"activationState",
+                              nil];
+        [self fireEvent:@"inactive" withObject:dict];
+    }
+}
+
+-(void)sessionDidDeactivate:(WCSession *)session
+{
+    if([self _hasListeners:@"deactivate"]){
+        NSDictionary *dict = [NSDictionary
+                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
+                              [self isWatchAppInstalled],@"isWatchAppInstalled",
+                              [self isComplicationEnabled],@"isComplicationEnabled",
+                              [self isActivated],@"isActivated",
+                              [self activationState],@"activationState",
+                              nil];
+        [self fireEvent:@"deactivate" withObject:dict];
+    }
+}
+
+-(void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(NSError *)error
+{
+    if([self _hasListeners:@"activationCompleted"]){
+        NSDictionary *dict = [NSDictionary
+                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
+                              [self isWatchAppInstalled],@"isWatchAppInstalled",
+                              [self isComplicationEnabled],@"isComplicationEnabled",
+                              [self isActivated],@"isActivated",
+                              [self activationState],@"activationState",
+                              NUMBOOL(error == nil),@"success",
+                              nil];
+        [self fireEvent:@"activationCompleted" withObject:dict];
+    }
+}
+
+#pragma mark WatchSession activation states
+
+#if IS_XCODE_7_3
+-(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_NOT_ACTIVATED
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateNotActivated);
+}
+
+-(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_INACTIVE
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateInactive);
+}
+
+-(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_ACTIVATED
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateActivated);
+}
+#endif
 
 @end
 
