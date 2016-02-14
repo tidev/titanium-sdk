@@ -160,7 +160,7 @@
 }
 
 #pragma mark watch session methods
--(void)activateSession:(id)value
+-(void)activateSession:(id)unused
 {
     [self watchSession];
 }
@@ -428,7 +428,7 @@
 #pragma mark WatchSession activation states
 
 #if IS_XCODE_7_3
--(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_NOT_ACTIVATED
+-(NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
 {
     if (![TiUtils isIOS9_3OrGreater]) {
         return nil;
@@ -436,7 +436,7 @@
     return NUMINTEGER(WCSessionActivationStateNotActivated);
 }
 
--(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_INACTIVE
+-(NSNumber *)ACTIVATION_STATE_INACTIVE
 {
     if (![TiUtils isIOS9_3OrGreater]) {
         return nil;
@@ -444,7 +444,7 @@
     return NUMINTEGER(WCSessionActivationStateInactive);
 }
 
--(NSNumber *)WATCH_SESSION_ACTIVATION_STATE_ACTIVATED
+-(NSNumber *)ACTIVATION_STATE_ACTIVATED
 {
     if (![TiUtils isIOS9_3OrGreater]) {
         return nil;

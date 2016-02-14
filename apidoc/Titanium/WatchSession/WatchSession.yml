@@ -8,42 +8,89 @@ extends: Titanium.Module
 platforms: [iphone]
 since: "5.0.0"
 properties:
+  - name: activationState
+    summary: Returns the current activation state of the watch.
+    type: Number
+    constants: Titanium.WatchSession.ACTIVATION_STATE_*
+    permission: read-only
+    osver: {ios: {min: "9.3"}}
+    platforms: [iphone]
+    since: "6.0.0"
+
+  - name: ACTIVATION_STATE_NOT_ACTIVATED
+    summary: The watch is currently not activated.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.3"}}
+    platforms: [iphone]
+    since: "6.0.0"
+
+  - name: ACTIVATION_STATE_INACTIVE
+    summary: The watch is currently inactive.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.3"}}
+    platforms: [iphone]
+    since: "6.0.0"
+
+  - name: ACTIVATION_STATE_ACTIVATED
+    summary: The watch is currently activated.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "9.3"}}
+    platforms: [iphone]
+    since: "6.0.0"
+
   - name: isSupported
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
   - name: isPaired
     summary: Returns `true` if the device is paired with a watch.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
   - name: isWatchAppInstalled
     summary: Returns `true` if the accompanying watch app is installed.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
   - name: isComplicationEnabled
     summary: Returns `true` if complication is enabled on the installed watch app.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
   - name: isReachable
     summary: Returns `true` if the watch is currently reachable.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
+  - name: isActivated
+    summary: Returns `true` if the watch is currently activated.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "9.3"}}
+    platforms: [iphone]
+    since: "6.0.0"
+
   - name: recentApplicationContext
     summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
+
 methods:
   - name: activateSession
     summary: |
@@ -78,8 +125,9 @@ methods:
         Sends an app context update to the apple watch.
     description: |
         Sends an app context update to the apple watch. If watchapp is in background during transfer,
-        watchapp's delegate will receive the app context immediately when it becomes active. Only one app
-        context is stored at any one time. Subsequent updates will simply replace the earlier one sent.
+        watchapp will fire the <Titanium.WatchSession.event.receiveapplicationcontext> immediately when 
+        it becomes active. Only one app context is stored at any one time. Subsequent updates will simply 
+        replace the earlier one sent.
     parameters: 
       - name: params    
         summary: App context to be updated in apple watch.
@@ -150,26 +198,28 @@ methods:
 events:
   - name: receivemessage
     summary: |
-        App received message from apple watch in foreground.
+        App received message from apple watch in foreground. Will be called on startup if the 
+        incoming message caused the receiver to launch.
     properties:
       - name: message
-        summary: message content
+        summary: The message content
         type: Dictionary
         platforms: [iphone]
   - name: receiveapplicationcontext
     summary: |
-        App received app context from apple watch.
+        App received app context from apple watch. Will be called on startup if an applicationContext is available.
     properties:
       - name: applicationContext
-        summary: application Context
+        summary: The application Context
         type: Dictionary
         platforms: [iphone]
   - name: receiveuserinfo
     summary: |
-        App received user info from apple watch in background.
+        App received user info from apple watch in background. Will be called on startup if the user info finished 
+        transferring when the receiver was not running.
     properties:
       - name: userInfo
-        summary: user info content
+        summary: The user info content
         type: Dictionary
         platforms: [iphone]
   - name: receivefile
@@ -204,6 +254,10 @@ events:
         summary: If the device is paired with the apple watch.
         type: Boolean
         platforms: [iphone]
+      - name: isReachable
+        summary: If apple watch is currently reachable.
+        type: Boolean
+        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
@@ -212,13 +266,51 @@ events:
         summary: If the complication is enabled in the apple watch.
         type: Boolean
         platforms: [iphone]
+      - name: isActivated
+        summary: | 
+            If the apple watch is currently activated. Only available on iOS 9.3
+            and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: activationState
+        summary: | 
+            Returns the current activation state of the watch.  Only available on iOS 9.3
+            and later. See <Ti.WatchSession.activationState> for more infos.
+        type: Number
+        constants: Titanium.WatchSession.ACTIVATION_STATE_*
+        platforms: [iphone]
   - name: reachabilitychanged
     summary: |
         The watch reachability state has changed.
     properties:
+      - name: isPaired
+        summary: If the device is paired with the apple watch.
+        type: Boolean
+        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
+        platforms: [iphone]
+      - name: isWatchAppInstalled
+        summary: If the watch app is installed in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isComplicationEnabled
+        summary: If the complication is enabled in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isActivated
+        summary: | 
+            If the apple watch is currently activated. Only available on iOS 9.3
+            and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: activationState
+        summary: | 
+            Returns the current activation state of the watch.  Only available on iOS 9.3
+            and later. See <Ti.WatchSession.activationState> for more infos.
+        type: Number
+        constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
   - name: finishuserinfotransfer
     summary: |
@@ -264,6 +356,117 @@ events:
         summary: Error message if any.
         type: String 
         platforms: [iphone]
+  - name: inactive
+    summary: |
+        Called when the session can no longer be used to modify or add any new transfers and, 
+        all interactive messages will be cancelled, but events for background transfers can still fire. 
+        This will happen when the selected watch is being changed. 
+    properties:
+      - name: isPaired
+        summary: If the device is paired with the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isReachable
+        summary: If apple watch is currently reachable.
+        type: Boolean
+        platforms: [iphone]
+      - name: isWatchAppInstalled
+        summary: If the watch app is installed in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isComplicationEnabled
+        summary: If the complication is enabled in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isActivated
+        summary: | 
+            If the apple watch is currently activated. Only available on iOS 9.3
+            and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: activationState
+        summary: | 
+            Returns the current activation state of the watch.  Only available on iOS 9.3
+            and later. See <Ti.WatchSession.activationState> for more infos.
+        type: Number
+        constants: Titanium.WatchSession.ACTIVATION_STATE_*
+        platforms: [iphone]
+    since: "6.0.0"
+    osver: {ios: {min: "9.3"}}
+  - name: deactivate
+    summary: |
+        Called when all events for the previously selected watch has occurred. 
+        The session can be re-activated for the now selected watch using activateSession.
+    properties:
+      - name: isPaired
+        summary: If the device is paired with the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isReachable
+        summary: If apple watch is currently reachable.
+        type: Boolean
+        platforms: [iphone]
+      - name: isWatchAppInstalled
+        summary: If the watch app is installed in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isComplicationEnabled
+        summary: If the complication is enabled in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isActivated
+        summary: | 
+            If the apple watch is currently activated. Only available on iOS 9.3
+            and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: activationState
+        summary: | 
+            Returns the current activation state of the watch.  Only available on iOS 9.3
+            and later. See <Ti.WatchSession.activationState> for more infos.
+        type: Number
+        constants: Titanium.WatchSession.ACTIVATION_STATE_*
+        platforms: [iphone]
+    since: "6.0.0"
+    osver: {ios: {min: "9.3"}}
+  - name: activationCompleted
+    summary: |
+        Called when the session has completed activation. If session state is 
+        <Titanium.WatchSession.ACTIVATION_STATE_NOT_ACTIVATED> there will be an error 
+        with more details. 
+    properties:
+      - name: isPaired
+        summary: If the device is paired with the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isReachable
+        summary: If apple watch is currently reachable.
+        type: Boolean
+        platforms: [iphone]
+      - name: isWatchAppInstalled
+        summary: If the watch app is installed in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isComplicationEnabled
+        summary: If the complication is enabled in the apple watch.
+        type: Boolean
+        platforms: [iphone]
+      - name: isActivated
+        summary: | 
+            If the apple watch is currently activated. Only available on iOS 9.3
+            and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: activationState
+        summary: | 
+            Returns the current activation state of the watch.  Only available on iOS 9.3
+            and later. See <Ti.WatchSession.activationState> for more infos.
+        type: Number
+        constants: Titanium.WatchSession.ACTIVATION_STATE_*
+        platforms: [iphone]
+    since: "6.0.0"
+    osver: {ios: {min: "9.3"}}
+
 # Callbacks
 ---
 name: MessageReply
