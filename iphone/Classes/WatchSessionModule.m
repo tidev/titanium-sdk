@@ -67,7 +67,7 @@
     if (watchSession == nil) {
         if ([WCSession isSupported]) {
             watchSession = [WCSession defaultSession];
-            watchSession.delegate = self;
+            [watchSession setDelegate:self];
             [watchSession activateSession];
         }
         else {
@@ -80,7 +80,7 @@
 -(void)dealloc
 {
     if (watchSession != nil) {
-        watchSession.delegate = nil;
+        [watchSession setDelegate:nil];
     }
     [super dealloc];
 }
@@ -306,76 +306,52 @@
 #pragma mark watch session delegates
 - (void)session:(nonnull WCSession *)session didReceiveMessage:(nonnull NSDictionary<NSString *,id> *)message
 {
-    if([self _hasListeners:@"receivemessage"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:message forKey:@"message"];
-        [self fireEvent:@"receivemessage" withObject:dict];
+    if ([self _hasListeners:@"receivemessage"]) {
+        [self fireEvent:@"receivemessage" withObject:@{@"message":message}];
     }
 }
 //these are context updates received right after [watchSession activateSession]
 - (void)session:(nonnull WCSession *)session didReceiveApplicationContext:(nonnull NSDictionary<NSString *,id> *)applicationContext
 {
-    if([self _hasListeners:@"receiveapplicationcontext"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:applicationContext forKey:@"applicationContext"];
-        [self fireEvent:@"receiveapplicationcontext" withObject:dict];
+    if ([self _hasListeners:@"receiveapplicationcontext"]) {
+        [self fireEvent:@"receiveapplicationcontext" withObject:@{@"applicationContext":applicationContext}];
     }
 }
 
 -(void)session:(nonnull WCSession *)session didReceiveUserInfo:(nonnull NSDictionary<NSString *,id> *)userInfo
 {
-    if([self _hasListeners:@"receiveuserinfo"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:userInfo forKey:@"userInfo"];
-        [self fireEvent:@"receiveuserinfo" withObject:dict];
+    if ([self _hasListeners:@"receiveuserinfo"]) {
+        [self fireEvent:@"receiveuserinfo" withObject:@{@"userInfo": userInfo}];
     }
 }
 
 -(void)sessionWatchStateDidChange:(nonnull WCSession *)session
 {
-    if([self _hasListeners:@"watchstatechanged"]){
-        NSDictionary *dict = [NSDictionary
-                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
-                              NUMBOOL([session isWatchAppInstalled]),@"isWatchAppInstalled",
-                              NUMBOOL([session isComplicationEnabled]),@"isComplicationEnabled",
-                              nil];
-        [self fireEvent:@"watchstatechanged" withObject:dict];
+    if ([self _hasListeners:@"watchstatechanged"]) {
+        [self fireEvent:@"watchstatechanged" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)sessionReachabilityDidChange:(nonnull WCSession *)session
 {
-    if([self _hasListeners:@"reachabilitychanged"]){
-        NSDictionary *dict = [NSDictionary
-                          dictionaryWithObjectsAndKeys:NUMBOOL([session isReachable]),@"isReachable",
-                          nil];
-        [self fireEvent:@"reachabilitychanged" withObject:dict];
+    if ([self _hasListeners:@"reachabilitychanged"]) {
+        [self fireEvent:@"reachabilitychanged" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)session:(WCSession * _Nonnull)session didFinishUserInfoTransfer:(nonnull WCSessionUserInfoTransfer *)userInfoTransfer error:(nullable NSError *)error
 {
-    if([self _hasListeners:@"finishuserinfotransfer"]){
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     [userInfoTransfer userInfo], @"userInfo",
-                                     nil];
-        if (error) {
-            NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                        NUMINTEGER([error code]), @"errorCode",
-                                        [error localizedDescription], @"message",
-                                        nil];
-            [dict addEntriesFromDictionary:errorinfo];
-        } else {
-            NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                      NUMINT(0), @"errorCode",
-                                      @"", @"message",
-                                      nil];
-            [dict addEntriesFromDictionary:success];
-        }
+    if ([self _hasListeners:@"finishuserinfotransfer"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{@"userInfo": [userInfoTransfer userInfo]}];
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
+
         [self fireEvent:@"finishuserinfotransfer" withObject:dict];
     }
 }
 
 -(void)session:(nonnull WCSession *)session didReceiveFile:(nonnull WCSessionFile *)file
 {
-    if([self _hasListeners:@"receivefile"]){
+    if ([self _hasListeners:@"receivefile"]) {
         NSError *error;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *destinationFilename = [[file fileURL] lastPathComponent];
@@ -414,68 +390,37 @@
 
 -(void)session:(nonnull WCSession *)session didFinishFileTransfer:(nonnull WCSessionFileTransfer *)fileTransfer error:(nullable NSError *)error
 {
-    if([self _hasListeners:@"finishfiletransfer"]){
-        WCSessionFile *file = [fileTransfer file];
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     [file fileURL], @"fileURL",
-                                     [file metadata], @"metaData",
-                                     nil];
-        if (error) {
-            NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                        NUMINTEGER([error code]), @"errorCode",
-                                        [error localizedDescription], @"message",
-                                        nil];
-            [dict addEntriesFromDictionary:errorinfo];
-        } else {
-            NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                      NUMINT(0), @"errorCode",
-                                      @"", @"message",
-                                      nil];
-            [dict addEntriesFromDictionary:success];
-        }
+    if ([self _hasListeners:@"finishfiletransfer"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"fileURL": [[fileTransfer file] fileURL],
+            @"metaData": [[fileTransfer file] metadata]
+        }];
+        
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
         [self fireEvent:@"finishfiletransfer" withObject:dict];
     }
 }
 
 -(void)sessionDidBecomeInactive:(WCSession *)session
 {
-    if([self _hasListeners:@"inactive"]){
-        NSDictionary *dict = [NSDictionary
-                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
-                              [self isWatchAppInstalled],@"isWatchAppInstalled",
-                              [self isComplicationEnabled],@"isComplicationEnabled",
-                              [self isActivated],@"isActivated",
-                              [self activationState],@"activationState",
-                              nil];
-        [self fireEvent:@"inactive" withObject:dict];
+    if ([self _hasListeners:@"inactive"]) {
+        [self fireEvent:@"inactive" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)sessionDidDeactivate:(WCSession *)session
 {
-    if([self _hasListeners:@"deactivate"]){
-        NSDictionary *dict = [NSDictionary
-                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
-                              [self isWatchAppInstalled],@"isWatchAppInstalled",
-                              [self isComplicationEnabled],@"isComplicationEnabled",
-                              [self isActivated],@"isActivated",
-                              [self activationState],@"activationState",
-                              nil];
-        [self fireEvent:@"deactivate" withObject:dict];
+    if ([self _hasListeners:@"deactivate"]) {
+        [self fireEvent:@"deactivate" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(NSError *)error
 {
-    if([self _hasListeners:@"activationCompleted"]){
-        NSDictionary *dict = [NSDictionary
-                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
-                              [self isWatchAppInstalled],@"isWatchAppInstalled",
-                              [self isComplicationEnabled],@"isComplicationEnabled",
-                              [self isActivated],@"isActivated",
-                              [self activationState],@"activationState",
-                              NUMBOOL(error == nil),@"success",
-                              nil];
+    if ([self _hasListeners:@"activationCompleted"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[self dictionaryFromWatchSession:session]];
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
+        
         [self fireEvent:@"activationCompleted" withObject:dict];
     }
 }
@@ -507,6 +452,36 @@
     return NUMINTEGER(WCSessionActivationStateActivated);
 }
 #endif
+
+#pragma mark Helper
+
+-(NSDictionary*)dictionaryFromWatchSession:(WCSession*)session
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"isPaired": [self isPaired],
+        @"isReachable":[self isReachable],
+        @"isWatchAppInstalled": [self isWatchAppInstalled],
+        @"isComplicationEnabled": [self isComplicationEnabled]
+    }];
+    
+#if IS_XCODE_7_3
+    if ([TiUtils isIOS9_3OrGreater]) {
+        [dict setObject:[self isActivated] forKey:@"isActivated"];
+        [dict setObject:[self activationState] forKey:@"activationState"];
+    }
+#endif
+    
+    return dict;
+}
+
+-(NSDictionary*)dictionaryFromError:(NSError*)error
+{
+    return @{
+        @"success": NUMBOOL(!error),
+        @"errorCode": NUMINTEGER(error ? [error code]: 0),
+        @"message": error ? [error localizedDescription]: @""
+    };
+}
 
 @end
 
