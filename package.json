@@ -41,7 +41,8 @@
     "windowslib": "0.3.1",
     "wrench": "1.5.8",
     "xcode": "0.8.2",
-    "xmldom": "0.1.19"
+    "xmldom": "0.1.19",
+    "glob": "6.0.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
