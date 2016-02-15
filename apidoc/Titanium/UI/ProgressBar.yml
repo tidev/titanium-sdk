@@ -56,7 +56,7 @@ methods:
 properties:
 
   - name: color
-    summary: Color of the progress bar text, as a color name or hex triplet.
+    summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
@@ -71,13 +71,13 @@ properties:
   - name: message
     summary: Progress bar text.
     type: String
-
+  - name: tintColor
+    summary: The color shown for the portion of the progress bar that is filled.
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: String
     platforms: [iphone, ipad]
     since: "5.2.0"
-
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
