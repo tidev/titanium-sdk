@@ -15,7 +15,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.3"}}
     platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: ACTIVATION_STATE_NOT_ACTIVATED
     summary: The watch is currently not activated.
@@ -23,7 +23,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.3"}}
     platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: ACTIVATION_STATE_INACTIVE
     summary: The watch is currently inactive.
@@ -31,7 +31,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.3"}}
     platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: ACTIVATION_STATE_ACTIVATED
     summary: The watch is currently activated.
@@ -39,7 +39,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.3"}}
     platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: isSupported
     summary: Returns `true` if the device supports watch connectivity.
@@ -82,7 +82,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.3"}}
     platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: recentApplicationContext
     summary: The most recent application context sent to the watch app.
@@ -391,7 +391,7 @@ events:
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "9.3"}}
   - name: deactivate
     summary: |
@@ -427,7 +427,7 @@ events:
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "9.3"}}
   - name: activationCompleted
     summary: |
@@ -464,7 +464,7 @@ events:
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "9.3"}}
 
 # Callbacks
