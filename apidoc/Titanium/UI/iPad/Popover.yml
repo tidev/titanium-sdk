@@ -14,7 +14,6 @@ description: |
     Adding top-level view containers may have unintended side effects. See the [contentView](Titanium.UI.iPad.Popover.contentView) 
     property for more information.
 
-    ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.UI.View
 since: "1.2"
 excludes:
