@@ -8,7 +8,7 @@
 var should = require('./should');
 
 describe("Titanium.UI.Window", function () {
-    it("showToolbarHideToolbar", function (finish) {
+    it.skip("showToolbarHideToolbar", function (finish) {
 
         // This test is iOS-only, Android can succeed directly.
         if (Ti.Platform.osname == 'android') {
@@ -23,16 +23,20 @@ describe("Titanium.UI.Window", function () {
         win.setToolbar([Ti.UI.createButton({title: "Toolbar"})]);
         nav.open();
 
-        // Show toolbar
-        win.showToolbar({animated: false});
-        should(win.toolbarHidden).eql(false);
+        // Open window
+        win.addEventListener("open", function() {
 
-        // Hide toolbar
-        win.hideToolbar({animated: false});
-        should(win.toolbarHidden).eql(true);
+            // Show toolbar
+            win.showToolbar({animated: false});
+            should(win.toolbarHidden).eql(false);
 
-        // Finish test
-		finish();
+            // Hide toolbar
+            win.hideToolbar({animated: false});
+            should(win.toolbarHidden).eql(true);
+
+            // Finish test
+            finish();
+        });
     });
 
 });
