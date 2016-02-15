@@ -47,4 +47,5 @@ script:
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
   - npm install
   - ls dist
+  - npm install grunt-cli
   - npm test -- run-on-travis
