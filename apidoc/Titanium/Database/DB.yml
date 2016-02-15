@@ -75,7 +75,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     since:
-        android: 6.0.0
+        android: 5.4.0
         iphone: 2.0.0
         ipad: 2.0.0
     
