@@ -568,8 +568,9 @@ if (module.id === ".") {
 						);
 						process.exit(1);
 					}
-					var apiCoverage = totalAPITest/totalAPI*100;
-					console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
+					//var apiCoverage = totalAPITest/totalAPI*100;
+					//console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
+					console.log('API Coverage: %d', totalAPITest);
 					//send coverage info to server
 					async.series([
 						function(next) {
