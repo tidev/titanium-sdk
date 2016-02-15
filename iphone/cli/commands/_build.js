@@ -4929,13 +4929,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			fs.existsSync(launchImageDir) || wrench.mkdirSyncRecursive(launchImageDir);
 
-			Object.keys(lookup).forEach(function (key) {
-				if (appc.version.lt(this.minIosVer, lookup[key].minSysVer)) {
-					// remove unsupported
-					delete lookup[key];
-				}
-			}, this);
-
 			Object.keys(launchImages).forEach(function (filename) {
 				var info = launchImages[filename],
 					meta = lookup[filename];

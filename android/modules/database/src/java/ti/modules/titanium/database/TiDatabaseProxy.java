@@ -12,6 +12,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Context;
@@ -201,6 +203,12 @@ public class TiDatabaseProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public TiFileProxy getFile(){
+	        String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
+		return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));               
+	}
+	   
 	@Override
 	public String getApiName()
 	{
