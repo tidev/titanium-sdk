@@ -81,7 +81,13 @@
 
 -(void)hide:(id)args
 {
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    id params = [args objectAtIndex:0];
+    ENSURE_TYPE_OR_NIL(params, NSDictionary);
+    BOOL animated = YES;
+    
+    if (params != nil) {
+        animated = [TiUtils boolValue:@"animated" properties:params def:YES];
+    }
     
     [[UIMenuController sharedMenuController] setMenuVisible:NO animated:animated];
 }
