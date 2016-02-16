@@ -56,7 +56,6 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_TYPE([args objectForKey:@"view"], TiViewProxy);
-    ENSURE_UI_THREAD_1_ARG(args);
     
     TiViewProxy *sourceView = [args objectForKey:@"view"];
     UIMenuControllerArrowDirection arrowDirection = [TiUtils intValue:@"arrowDirection" properties:args def:UIMenuControllerArrowDefault];
