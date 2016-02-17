@@ -1,3 +1,7 @@
+0.4.3 (2/17/2016)
+-------------------
+  * Another fix for uninstalling store apps from Windows 8.1
+
 0.4.2 (2/17/2016)
 -------------------
   * Align dependencies with titanium_mobile
