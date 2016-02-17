@@ -60,6 +60,11 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		return fragment;
 	}
 
+	public boolean handleMessage (Message msg) {
+		//overwriting so descendents don't have to
+		return true;
+	}
+
 	protected boolean interceptTouchEvent(MotionEvent ev)
 	{
 		return false;
