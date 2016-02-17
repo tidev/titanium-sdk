@@ -33,7 +33,7 @@
                             </imageView>
                         </subviews>
                         <animations/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="oLO-hJ-nXs" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="1:2" id="b7h-ZE-BfJ"/>
                             <constraint firstItem="oLO-hJ-nXs" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="bxl-7H-1iT"/>
