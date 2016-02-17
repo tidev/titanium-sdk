@@ -925,7 +925,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return toImage(null);
 	}
 
-
 	@Kroll.method
 	public TiBlob toImage(final @Kroll.argument(optional=true) KrollFunction callback)
 	{
