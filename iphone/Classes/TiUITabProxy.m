@@ -571,7 +571,7 @@
     
     if (iconInsets != nil) {
         if(UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
-            [ourItem setImageInsets:[self calcumateIconInsets:iconInsets]];
+            [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
         }
     }
     
@@ -579,7 +579,7 @@
     [rootController setTabBarItem:ourItem];
 }
 
--(UIEdgeInsets)calcumateIconInsets:(id)value
+-(UIEdgeInsets)calculateIconInsets:(id)value
 {
     if ([value isKindOfClass:[NSDictionary class]])
     {
