@@ -144,7 +144,7 @@ examples:
                 top: 25,
                 width: 250,
                 min: 0,
-                max: 0,
+                max: 10,
                 value: 0,
                 color: 'blue',
                 message: 'Downloading 0 of 10',
