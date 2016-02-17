@@ -227,7 +227,7 @@ function uninstall(appId, options, callback) {
 			}
 
 			if (packageName) {
-				appc.subprocess.run(options.powershell || 'powershell', ['-NoLogo', '-NoProfile', '-NonInteractive', '-command', '{Remove-AppxPackage ' + packageName + '}'], function (code, out, err) {
+				appc.subprocess.run(options.powershell || 'powershell', ['-NoLogo', '-NoProfile', '-NonInteractive', '-command', 'Remove-AppxPackage ' + packageName], function (code, out, err) {
 					if (err) {
 						emitter.emit('error', err);
 						callback(err);
