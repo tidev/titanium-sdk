@@ -116,7 +116,6 @@ examples:
             });
             win.add(pb);
             win.open();
-            pb.show();
 
   - title: Alloy XML Markup
     example: |
@@ -138,7 +137,6 @@ examples:
                 }
             }
             $.win.open();
-            $.pb.show();
 
         index.tss:
 
