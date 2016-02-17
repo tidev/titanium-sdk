@@ -102,21 +102,25 @@ public class AnalyticsModule extends KrollModule
 	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
 	        if (data instanceof HashMap) {
 	            JSONObject jsonData = TiConvert.toJSON(data);
+	            // Temporary code for change TIMOB-19826. This needs to be changed in the next version.
+	            analytics.sendAppFeatureEvent(event, jsonData);
 	            if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
-	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return SUCCESS;
 	            } else {
-	                Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                Log.w(TAG, "Feature event "+ event +" is sent. It is not conforming to recommended usage."
+	                        + "Please conform as this will be changed to an error instead of a warning in the future.");
 	                return JSON_VALIDATION_FAILED;
 	            }
 	        } else if (data != null) {
 	            try {
 	                JSONObject jsonData = new JSONObject(data.toString());
+	                // Temporary code change for TIMOB-19826. This needs to be changed in the next version.
+	                analytics.sendAppFeatureEvent(event, jsonData);
 	                if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
-	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return SUCCESS;
 	                } else {
-	                    Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                    Log.w(TAG, "Feature event "+ event +" is sent. It is not conforming to recommended usage."
+	                            + "Please conform as this will be changed to an error instead of a warning in the future.");
 	                    return JSON_VALIDATION_FAILED;
 	                }
 	            } catch (JSONException e) {
