@@ -102,25 +102,39 @@ public class AnalyticsModule extends KrollModule
 	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
 	        if (data instanceof HashMap) {
 	            JSONObject jsonData = TiConvert.toJSON(data);
-	            // Temporary code for change TIMOB-19826. This needs to be changed in the next version.
-	            analytics.sendAppFeatureEvent(event, jsonData);
-	            if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
+	            
+	            boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
+	            // This will be removed in future when we treat this as an error.
+	            if (!isPayloadValid) {
+	                Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                Log.w(TAG, "This will be treated as an error in future releases.");
+	                isPayloadValid = true;
+	            }
+
+	            if (isPayloadValid) {
+	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return SUCCESS;
 	            } else {
-	                Log.w(TAG, "Feature event "+ event +" is sent. It is not conforming to recommended usage."
-	                        + "Please conform as this will be changed to an error instead of a warning in the future.");
+	                Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
 	                return JSON_VALIDATION_FAILED;
 	            }
 	        } else if (data != null) {
 	            try {
 	                JSONObject jsonData = new JSONObject(data.toString());
-	                // Temporary code change for TIMOB-19826. This needs to be changed in the next version.
-	                analytics.sendAppFeatureEvent(event, jsonData);
-	                if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
+	                
+	                boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
+	                // This will be removed in future when we treat this as an error.
+	                if (!isPayloadValid) {
+	                    Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                    Log.w(TAG, "This will be treated as an error in future releases.");
+	                    isPayloadValid = true;
+	                }
+
+	                if (isPayloadValid) {
+	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return SUCCESS;
 	                } else {
-	                    Log.w(TAG, "Feature event "+ event +" is sent. It is not conforming to recommended usage."
-	                            + "Please conform as this will be changed to an error instead of a warning in the future.");
+	                    Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
 	                    return JSON_VALIDATION_FAILED;
 	                }
 	            } catch (JSONException e) {
