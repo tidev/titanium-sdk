@@ -79,7 +79,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
-	private static OrientationEventListener orientationListener;
+	private OrientationEventListener orientationListener;
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -1038,7 +1038,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			if (orientationChangedListener != null && previousOrientation != currentOrientation) {
 				previousOrientation = currentOrientation;
 				orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
-			}	
+			}
 		}
 	}
 
