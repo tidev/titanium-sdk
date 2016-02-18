@@ -1497,6 +1497,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 						if (targetInfo.isWatchAppV1) {
 							this.hasWatchAppV1 = true;
+							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
 						} else if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
