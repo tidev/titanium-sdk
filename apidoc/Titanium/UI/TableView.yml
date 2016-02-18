@@ -1585,7 +1585,7 @@ properties:
 
 
     type: Dictionary
-    since: 6.0.0
+    since: 5.4.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
 
@@ -1605,7 +1605,7 @@ properties:
 
 
     type: Dictionary
-    since: 6.0.0
+    since: 5.4.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
 
