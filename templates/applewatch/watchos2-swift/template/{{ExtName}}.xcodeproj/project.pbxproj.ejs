@@ -357,7 +357,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				IBSC_MODULE = <%= watchkitExtName.replace(/ /g, '_') %>;
+				IBSC_MODULE = <%= watchkitExtName.replace(/[^a-z0-9]+/gi, '_') %>;
 				INFOPLIST_FILE = "<%= watchkitAppName %>/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitAppId %>;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -373,7 +373,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				IBSC_MODULE = <%= watchkitExtName.replace(/ /g, '_') %>;
+				IBSC_MODULE = <%= watchkitExtName.replace(/[^a-z0-9]+/gi, '_') %>;
 				INFOPLIST_FILE = "<%= watchkitAppName %>/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = <%= watchkitAppId %>;
 				PRODUCT_NAME = "$(TARGET_NAME)";
