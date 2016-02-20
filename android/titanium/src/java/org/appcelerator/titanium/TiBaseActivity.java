@@ -93,8 +93,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
-	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
-	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+	public static KrollObject storageCallbackContext, cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
+	public static KrollFunction storagePermissionCallback, cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -465,6 +465,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 			case TiC.PERMISSION_CODE_CONTACTS: {
 				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
+				return;
+			}
+			case TiC.PERMISSION_CODE_EXTERNAL_STORAGE: {
+				permissionCallback(grantResults, storagePermissionCallback, storageCallbackContext, "Storage");
 				return;
 			}
 

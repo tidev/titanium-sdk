@@ -6,6 +6,10 @@
  */
 package org.appcelerator.titanium.util;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 
 public class TiFileHelper2
@@ -75,6 +79,17 @@ public class TiFileHelper2
 			return relativePath.substring(TiC.URL_ANDROID_ASSET_RESOURCES.length());
 		}
 		return null;
+	}
+
+	public static boolean hasStoragePermission() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
 	}
 
 }

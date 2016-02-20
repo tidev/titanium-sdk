@@ -1526,9 +1526,7 @@ properties:
     default: false
   - name: mediaTypes 
     summary: | 
-        Array of media type constants to allow. If you want to allow live photos with
-        Titanium.Media.MEDIA_TYPE_LIVEPHOTO on iOS 9.1 and later, you also need to specify
-        at least Titanium.Media.MEDIA_TYPE_PHOTO as a fallback.
+        Array of media type constants to allow.
     constants: Titanium.Media.MEDIA_TYPE_*
     type: Array<String>
     default: Both photo and video allowed.
@@ -1704,7 +1702,8 @@ properties:
     type: Number
 ---
 name: PreviewRectType
-summary: Simple object for describing the preview image rectangle.
+summary: |
+    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used. 
 properties:
   - name: width
     summary: Width preview image, in pixels.

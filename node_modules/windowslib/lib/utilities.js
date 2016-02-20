@@ -14,6 +14,7 @@
 const
 	appc = require('node-appc'),
 	EventEmitter = require('events').EventEmitter,
+	fs = require('fs'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -67,5 +68,41 @@ exports.mix = function mix(src, dest) {
 		} else {
 			dest[name] = src[name];
 		}
+	});
+};
+
+/**
+ * Determine if an executable needs to be rebuilt, based on whether the destination
+ * file exists or has an older modified timestamp than the source file used to
+ * generate it.
+ *
+ * @param {String} srcFile - Path to the source file used to generate the exe
+ * @param {String} destFile - Path to the destination exe file
+ * @param {Function} [callback(err, outdated)] - A function to call after checking
+ **/
+exports.checkOutdated = function checkOutdated(srcFile, destFile, callback) {
+	// Be smart about rebuilding wstool if source is newer
+	fs.stat(destFile, function (err, stats) {
+		if (err) {
+			// file does not exist, build the tool and then run
+			if (err.code === 'ENOENT') {
+				return callback(null, true); // rebuild
+			}
+			// some other error
+			return callback(err);
+		}
+
+		// Compare src and dest modified times
+		var sourceStats = fs.statSync(srcFile);
+		if (sourceStats.mtime > stats.mtime) {
+			// delete generated file and and rebuild
+			return fs.unlink(destFile, function (err) {
+				if (err) {
+					return callback(err);
+				}
+				return callback(null, true); // rebuild
+			});
+		}
+		return callback(null, false); // run
 	});
 };

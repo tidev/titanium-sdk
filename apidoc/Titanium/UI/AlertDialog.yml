@@ -47,9 +47,9 @@ description: |
     `cancel` event.
 
     Starting at Titanium SDK 5.1.0, you can also specify the `placeholder`, `keyboardType` and `returnKeyType`
-    properties when using the alert dialog style <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-    <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
-    When using the alert dialog style <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>, you can
+    properties when using the alert dialog style <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+    <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    When using the alert dialog style <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>, you can
     specify the `loginPlaceholder`, `loginKeyboardType` and `loginReturnKeyType` properties for the login field,
     as well as the `passwordPlaceholder`, `passwordKeyboardType` and `passwordReturnKeyType` properties for the password field.
     
@@ -109,22 +109,22 @@ events:
       - name: login
         summary: |
             Value of login field if dialog `style` property is defined as 
-            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+            <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
         platforms: [iphone, ipad]
 
       - name: password
         summary: |
             Value of password field if dialog `style` property is defined as 
-            <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+            <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
         platforms: [iphone, ipad]
 
       - name: text
         summary: |
             Value of text field if dialog `style` property is defined as
-            <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
-            <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+            <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
+            <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
         platforms: [iphone, ipad]
 
@@ -211,8 +211,8 @@ properties:
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
     platforms: [iphone, ipad]
@@ -223,8 +223,8 @@ properties:
     summary: Keyboard appearance to be displayed when the text field inside the dialog is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.2.0
     platforms: [iphone, ipad]
@@ -235,7 +235,7 @@ properties:
     summary: Placeholder of the login text field inside the dialog.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
     platforms: [iphone, ipad]
@@ -244,7 +244,7 @@ properties:
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.RETURNKEY_*
@@ -254,7 +254,7 @@ properties:
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.KEYBOARD_*
@@ -289,7 +289,7 @@ properties:
     summary: Placeholder of the password text field inside the dialog.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
     platforms: [iphone, ipad]
@@ -298,7 +298,7 @@ properties:
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.RETURNKEY_*
@@ -308,7 +308,7 @@ properties:
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: Number
     since: 5.1.0
     constants: Titanium.UI.KEYBOARD_*
@@ -318,8 +318,8 @@ properties:
     summary: Placeholder of the text field inside the dialog.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: 5.1.0
     platforms: [iphone, ipad]
@@ -338,8 +338,8 @@ properties:
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
         Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT>.
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
     platforms: [iphone, ipad]
@@ -350,13 +350,13 @@ properties:
     summary: The style for the alert dialog.
     description: |
         Style of the alert dialog, specified using one of the constants from
-        <Titanium.UI.iPhone.AlertDialogStyle>. Using styles other than default one can break
+        <Titanium.UI.iOS.AlertDialogStyle>. Using styles other than default one can break
         your dialog layout if more than two buttons used. All styles can handle up to two
         buttons comfortably, except for default style can handle up to six buttons when `title`
         and `message` is empty or not given. Note that this property is only available on
         iOS SDK 5 or above.
     type: Number
-    default: <Titanium.UI.iPhone.AlertDialogStyle.DEFAULT>
+    default: <Titanium.UI.iOS.AlertDialogStyle.DEFAULT>
     since: 3.0.0
     platforms: [iphone, ipad]
 
@@ -456,7 +456,7 @@ examples:
             win.addEventListener('click', function(e){
               var dialog = Ti.UI.createAlertDialog({
                 title: 'Enter text',
-                style: Ti.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT,
+                style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
                 buttonNames: ['OK']
               });
               dialog.addEventListener('click', function(e){

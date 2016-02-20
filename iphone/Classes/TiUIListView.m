@@ -1037,10 +1037,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
+        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
+
         //Delete Data
         [theSection deleteItemAtIndex:indexPath.row];
-        
-        [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
+
+        [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:indexPath item:theItem];
+        [theItem release];
         
         BOOL emptySection = NO;
         
@@ -1115,7 +1118,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         [tableView endUpdates];
     } else if(editingStyle == UITableViewCellEditingStyleInsert) {
-        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
+        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
+        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:indexPath item:theItem];
+        [theItem release];
     }
     [theSection release];
 }
@@ -1880,7 +1885,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - UISearchDisplayDelegate Methods
 
-- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
+    ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
+    
+    if (!searchButtonTitle) {
+        return;
+    }
+
+    // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
+    // as soon as we remove iOS < 9 support
+    id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+    [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+}
+
+- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     self.searchString = @"";
     [self buildResultsForSearchText];
@@ -2035,10 +2055,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
--(void)fireEditEventWithName:(NSString*)name andSection:(TiUIListSectionProxy*)section atIndexPath:(NSIndexPath*)indexPath
+-(void)fireEditEventWithName:(NSString*)name andSection:(TiUIListSectionProxy*)section atIndexPath:(NSIndexPath*)indexPath item:(NSDictionary*)item
 {
-    NSDictionary *theItem = [[section itemAtIndex:indexPath.row] retain];
-
     //Fire the delete Event if required
     if ([self.proxy _hasListeners:name]) {
         
@@ -2047,7 +2065,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                                             NUMINTEGER(indexPath.section), @"sectionIndex",
                                             NUMINTEGER(indexPath.row), @"itemIndex",
                                             nil];
-        id propertiesValue = [theItem objectForKey:@"properties"];
+        id propertiesValue = [item objectForKey:@"properties"];
         NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
         id itemId = [properties objectForKey:@"itemId"];
         if (itemId != nil) {
@@ -2056,7 +2074,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.proxy fireEvent:name withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         [eventObject release];
     }
-    [theItem release];
 }
 
 #pragma mark - UITapGestureRecognizer

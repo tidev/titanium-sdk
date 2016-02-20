@@ -38,6 +38,9 @@ extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "6.0.0"
+    notes: Use [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle) instead.
 
 properties:
   - name: BAR
@@ -50,7 +53,10 @@ properties:
         color to show through.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "3.4.2"
+        removed: "3.6.0"
+
   - name: BORDERED
     summary: A simple button style with a border. 
     description: |

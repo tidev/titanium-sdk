@@ -5,6 +5,9 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
+deprecated:
+    since: "6.0.0"
+    notes: Use [Ti.UI.iOS.AnimationStyle](Titanium.UI.iOS.AnimationStyle) instead.
 
 properties:
   - name: CURL_DOWN
@@ -20,7 +23,10 @@ properties:
         and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.AnimationStyle.CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN) instead.
+
   - name: CURL_UP
     summary: Curl upwards during a transition animation.
     description: |
@@ -34,7 +40,10 @@ properties:
         and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.AnimationStyle.CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP) instead
+
   - name: FLIP_FROM_LEFT
     summary: Flip from left to right during a transition animation.
     description: |
@@ -48,7 +57,10 @@ properties:
         and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT] (Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT) instead
+
   - name: FLIP_FROM_RIGHT
     summary: Flip from right to left during a transition animation.
     description: |
@@ -62,7 +74,10 @@ properties:
         and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT] (Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT) instead
+
   - name: NONE
     summary: No animation.
     description: |
@@ -76,3 +91,6 @@ properties:
         and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.AnimationStyle.NONE](Titanium.UI.iOS.AnimationStyle.NONE) instead

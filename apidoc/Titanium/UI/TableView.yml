@@ -1291,7 +1291,8 @@ properties:
   - name: maxClassname
     summary: Max number of row class names.
     description: |
-        See <Titanium.UI.TableViewRow.className> for more details.
+        See <Titanium.UI.TableViewRow.className> for more details. This property will default to
+        32 when it is set to a number lesser than that.
     availability: creation
     type: Number
     default: 32

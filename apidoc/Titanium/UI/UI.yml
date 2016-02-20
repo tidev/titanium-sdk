@@ -1482,14 +1482,14 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 5.2.0
+    since: "5.2.0"
 
   - name: KEYBOARD_APPEARANCE_LIGHT
     summary: Use the platform-specific light keyboard appearance.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 5.2.0
+    since: "5.2.0"
 
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
@@ -1623,6 +1623,7 @@ properties:
         type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
@@ -1632,6 +1633,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1640,6 +1642,7 @@ properties:
         properties.
     type: Number
     permission: read-only
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -1651,6 +1654,7 @@ properties:
         overridden with `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -1660,6 +1664,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -1669,6 +1674,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1682,6 +1688,7 @@ properties:
         `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -1695,6 +1702,7 @@ properties:
         `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
+    since: "5.2.0"
 
   - name: KEYBOARD_TYPE_WEBSEARCH
     summary: Use a keyboard optimized for web search terms and URL entry.
@@ -1728,6 +1736,7 @@ properties:
         `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
+    since: "5.2.0"
 
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).

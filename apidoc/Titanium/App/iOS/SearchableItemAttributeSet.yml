@@ -569,7 +569,7 @@ examples:
             itemAttr.keywords =["Mobile","Appcelerator","Titanium"];
 
             var item = Ti.App.iOS.createSearchableItem({
-                identifier:"my-id",
+                uniqueIdentifier:"my-id",
                 domainIdentifier:"com.mydomain",
                 attributeSet:itemAttr
             });

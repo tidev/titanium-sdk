@@ -919,6 +919,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	public TiBlob toImage()
+	{
+		//backward compat with maps
+		return toImage(null);
+	}
+
 	@Kroll.method
 	public TiBlob toImage(final @Kroll.argument(optional=true) KrollFunction callback)
 	{

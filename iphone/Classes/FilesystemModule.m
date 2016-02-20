@@ -24,7 +24,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 {
 	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
 	{
-		return [arg path];
+		return [(TiFilesystemFileProxy*)arg path];
 	}
 	return [TiUtils stringValue:arg];
 }

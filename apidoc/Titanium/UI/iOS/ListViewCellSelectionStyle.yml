@@ -1,0 +1,29 @@
+---
+name: Titanium.UI.iOS.ListViewCellSelectionStyle
+summary: |
+    A set of constants for the style that can be used for the `selectionStyle` property of a
+    ListItem, which is set in the `properties` dictionary of either the <ListDataItem> or
+    <ItemTemplate>.
+extends: Titanium.Proxy
+since: "6.0.0"
+platforms: [iphone, ipad]
+excludes:
+    methods: [addEventListener,applyProperties,fireEvent,removeEventListener]
+    properties: [bubbleParent]
+createable: false
+
+properties:
+  - name: BLUE
+    summary: The cell when selected has a blue background. This is the default value.
+    type: Number
+    permission: read-only
+    
+  - name: GRAY
+    summary: The cell when selected has a gray background.
+    type: Number
+    permission: read-only
+    
+  - name: NONE
+    summary: The cell has no distinct style for when it is selected.
+    type: Number
+    permission: read-only

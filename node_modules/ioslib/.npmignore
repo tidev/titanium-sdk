@@ -3,6 +3,7 @@
 .git*
 node_modules
 npm-debug.log
+env.properties
 
 test/TestApp/info.plist
 test/TestApp/build
