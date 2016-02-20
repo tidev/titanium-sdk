@@ -123,6 +123,27 @@
 	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
+-(void)insertAt:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+    NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    id arg = [args objectAtIndex:1];
+    
+    [self lockViewsForWriting];
+    [self rememberProxy:arg];
+    [arg setParent:self];
+    if (viewProxies != nil)
+    {
+        [viewProxies insertObject:arg atIndex:insertIndex];
+    }
+    else
+    {
+        viewProxies = [[NSMutableArray alloc] initWithObjects:arg,nil];
+    }
+    [self unlockViews];
+    [self makeViewPerformSelector:@selector(addView:) withObject:arg createIfNeeded:NO waitUntilDone:NO];
+}
+
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
