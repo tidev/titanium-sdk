@@ -123,9 +123,10 @@
 	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
--(void)insertAt:(id)args
+-(void)insertViewsAt:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
+    ENSURE_UI_THREAD(insertViewsAt,args);
     NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
     id arg = [args objectAtIndex:1];
     
