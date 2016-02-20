@@ -34,11 +34,11 @@ methods:
     parameters:
       - name: date1
         summary: Start date.
-        type: Date
+        type: [Date,String]
         
       - name: date2
         summary: End date.
-        type: Date
+        type: [Date,String]
     platforms: [android, iphone, ipad]
         
   - name: getEventsInDate
