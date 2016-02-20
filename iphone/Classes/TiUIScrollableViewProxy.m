@@ -130,15 +130,35 @@
     id arg = [args objectAtIndex:1];
     
     [self lockViewsForWriting];
-    [self rememberProxy:arg];
-    [arg setParent:self];
-    if (viewProxies != nil)
-    {
-        [viewProxies insertObject:arg atIndex:insertIndex];
+    
+    if ([arg isKindOfClass:[TiViewProxy class]]) {
+        [self rememberProxy:arg];
+        [arg setParent:self];
+        
+        if (viewProxies != nil)
+        {
+            [viewProxies insertObject:arg atIndex:insertIndex];
+        }
+        else
+        {
+            viewProxies = [[NSMutableArray alloc] initWithObjects:arg,nil];
+        }
     }
-    else
-    {
-        viewProxies = [[NSMutableArray alloc] initWithObjects:arg,nil];
+    else if ([arg isKindOfClass:[NSArray class]]) {
+        for (id newViewProxy in arg)
+        {
+            [self rememberProxy:newViewProxy];
+            [newViewProxy setParent:self];
+            if (viewProxies != nil)
+            {
+                [viewProxies insertObject:newViewProxy atIndex:insertIndex];
+            }
+            else
+            {
+                viewProxies = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
+            }
+        }
+        
     }
     [self unlockViews];
     [self makeViewPerformSelector:@selector(addView:) withObject:arg createIfNeeded:NO waitUntilDone:NO];
