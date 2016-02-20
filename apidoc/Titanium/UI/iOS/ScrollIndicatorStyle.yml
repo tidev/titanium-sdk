@@ -1,0 +1,29 @@
+---
+name: Titanium.UI.iOS.ScrollIndicatorStyle
+summary: A set of constants for the styles available for scrollbars used with <Titanium.UI.ScrollView.scrollIndicatorStyle> and <Titanium.UI.TableView.scrollIndicatorStyle> properties.
+extends: Titanium.Proxy
+since: "6.0.0"
+platforms: [iphone, ipad]
+createable: false
+
+properties:
+  - name: BLACK
+    summary: |
+        A style of indicator which is black smaller than the default style. This style is good 
+        against a white content background.
+    type: Number
+    permission: read-only
+    
+  - name: DEFAULT
+    summary: |
+        The default style of scroll indicator, which is black with a white border. This style is 
+        good against any content background.
+    type: Number
+    permission: read-only
+    
+  - name: WHITE
+    summary: |
+        A style of indicator is white and smaller than the default style. This style is good against 
+        a black content background.
+    type: Number
+    permission: read-only

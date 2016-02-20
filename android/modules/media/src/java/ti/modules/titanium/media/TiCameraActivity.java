@@ -34,6 +34,7 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
@@ -44,6 +45,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 @SuppressWarnings("deprecation")
@@ -134,7 +136,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		setFullscreen(true);
+		// setting Fullscreen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		super.onCreate(savedInstanceState);
 
@@ -493,24 +496,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	static public void takePicture()
 	{
-		String focusMode = camera.getParameters().getFocusMode();
-		if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF) || focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
-			.equals(Parameters.FOCUS_MODE_INFINITY))) {
-			AutoFocusCallback focusCallback = new AutoFocusCallback()
-			{
-				public void onAutoFocus(boolean success, Camera camera)
-				{
-					camera.takePicture(shutterCallback, null, jpegCallback);
-					if (!success) {
-						Log.w(TAG, "Unable to focus.");
-					}
-					camera.cancelAutoFocus();
-				}
-			};
-			camera.autoFocus(focusCallback);
-		} else {
-			camera.takePicture(shutterCallback, null, jpegCallback);
-		}
+	    try {
+	        String focusMode = camera.getParameters().getFocusMode();
+	        if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF)
+	                || focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
+	                .equals(Parameters.FOCUS_MODE_INFINITY))) {
+	            AutoFocusCallback focusCallback = new AutoFocusCallback()
+	            {
+	                public void onAutoFocus(boolean success, Camera camera)
+	                {
+	                    camera.takePicture(shutterCallback, null, jpegCallback);
+	                    if (!success) {
+	                        Log.w(TAG, "Unable to focus.");
+	                    }
+	                    // This is a Hotfix for TIMOB-20260
+	                    // "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera) 
+	                    // We need to move to android.hardware.camera2 APIs as soon as we can.
+	                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+	                        camera.cancelAutoFocus();
+	                    }
+	                }
+	            };
+	            camera.autoFocus(focusCallback);
+	        } else {
+	            camera.takePicture(shutterCallback, null, jpegCallback);
+	        }
+	    } catch (Exception e) {
+	        if (camera != null) {
+	            camera.release();
+	        }
+	    }
 	}
 
 	public boolean isPreviewRunning()

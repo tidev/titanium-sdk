@@ -137,7 +137,7 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-    if (window == rootWindow) {
+    if (window == rootWindow && ![[TiApp app] willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
         return;
     }

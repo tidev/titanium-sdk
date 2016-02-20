@@ -12,10 +12,57 @@
 	#import "TiUIiOSAdViewProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+#import "TIUIiOSAlertDialogStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+#import "TiUIiOSAnimationStyleProxy.h"
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+#import "TiUIiOSTableViewCellSelectionStyleProxy.h"
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+#import "TiUIiOSTableViewScrollPositionProxy.h"
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+#import "TiUIiOSTableViewStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+#import "TiUIiOSProgressBarStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+#import "TiUIiOSRowAnimationStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+#import "TiUIiOSScrollIndicatorStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+#import "TiUIiOSStatusBarProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#import "TiUIiOSSystemButtonStyleProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+#import "TiUIiOSSystemButtonProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+#import "TiUIiOSSystemIconProxy.h"
+#endif
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
 @private
-
 }
 
 @property (nonatomic,readonly) NSNumber* SCROLL_DECELERATION_RATE_NORMAL;
@@ -90,6 +137,69 @@
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 #endif
+//Modules
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSAnimationStyleProxy* animationStyleProxy;
+#endif
+
+#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSRowAnimationStyleProxy* RowAnimationStyle;
+#endif
+
+#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
+@property(nonatomic,readwrite,assign) TIUIiOSAlertDialogStyleProxy* AlertDialogStyle;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewCellSelectionStyleProxy* TableViewCellSelectionStyle;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewCellSelectionStyleProxy* ListViewCellSelectionStyle;
+#endif
+
+#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewScrollPositionProxy* TableViewScrollPosition;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewScrollPositionProxy* ListViewScrollPosition;
+#endif
+#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewStyleProxy* TableViewStyle;
+@property(nonatomic,readwrite,assign) TiUIiOSTableViewStyleProxy* ListViewStyle;
+#endif
+
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSProgressBarStyleProxy* ProgressBarStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSScrollIndicatorStyleProxy* ScrollIndicatorStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSTATUSBAR
+@property(nonatomic,readwrite,assign) TiUIiOSStatusBarProxy* StatusBar;
+#endif
+#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+@property(nonatomic,readwrite,assign) TiUIiOSSystemButtonStyleProxy* SystemButtonStyle;
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
+@property(nonatomic,readwrite,assign) TiUIiOSSystemButtonProxy* SystemButton;
+#endif
+
+#ifdef USE_TI_UIIOSSYSTEMICON
+@property(nonatomic,readwrite,assign) TiUIiOSSystemIconProxy* SystemIcon;
+#endif
+
+@property(nonatomic,readwrite,assign)	NSNumber *appBadge;
+@property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
+
+//Modal_Presentation&Transition
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
+
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
 
 #ifdef USE_TI_UIIOSADVIEW
 -(id)createAdView:(id)args;
@@ -103,6 +213,7 @@
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_LIGHT;
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_DARK;
 #endif
+
 
 /**
     Checks the force touch capibility of the current device.

@@ -1,5 +1,5 @@
 language: objective-c
-
+osx_image: xcode7.3
 jdk:
   - oraclejdk7
 install:
@@ -40,25 +40,12 @@ install:
   - export ANDROID_PLATFORM=$ANDROID_SDK/platforms/android-$TITANIUM_ANDROID_API
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API
 
-before_script:
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-  - echo yes | emulator -avd test -no-skin -no-audio -no-window &
-
 script:
-  - df -h
   - export TITANIUM_BUILD="$SDKS/titanium_build"
   - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
   - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
   - npm install
-  - df -h
   - ls dist
-  - cd dist
-  - ti sdk install *osx.zip
-  - cd ..
-  - npm install glob
   - npm install grunt-cli
   - npm test -- run-on-travis
-
-after_success:
-  - #upload test results somewhere

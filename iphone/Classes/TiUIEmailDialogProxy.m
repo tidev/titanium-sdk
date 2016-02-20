@@ -119,7 +119,7 @@
 		{
 			if ([attachment isKindOfClass:[TiBlob class]])
 			{
-				NSString *path = [attachment path];
+				NSString *path = [(TiBlob*)attachment path];
 				if (path==nil)
 				{
 					path = @"attachment";

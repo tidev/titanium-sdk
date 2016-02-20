@@ -157,6 +157,14 @@ properties:
     platforms: [android, iphone, ipad]
     default: System default bar color.
 
+  - name: cancelButtonTitle
+    summary: The title of the cancel button when the search bar field is focused.
+    description: Use this property if you want to display a custom cancel title.
+    type: String
+    default: System-localized "Cancel"
+    since: "6.0.0"
+    platforms: [iphone,ipad]
+
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String

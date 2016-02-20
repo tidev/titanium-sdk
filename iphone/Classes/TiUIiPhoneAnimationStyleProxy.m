@@ -16,11 +16,11 @@
     return @"Ti.UI.iPhone.AnimationStyle";
 }
 
-MAKE_SYSTEM_PROP(NONE,UIViewAnimationOptionTransitionNone);
-MAKE_SYSTEM_PROP(CURL_UP,UIViewAnimationOptionTransitionCurlUp);
-MAKE_SYSTEM_PROP(CURL_DOWN,UIViewAnimationOptionTransitionCurlDown);
-MAKE_SYSTEM_PROP(FLIP_FROM_LEFT,UIViewAnimationOptionTransitionFlipFromLeft);
-MAKE_SYSTEM_PROP(FLIP_FROM_RIGHT,UIViewAnimationOptionTransitionFlipFromRight);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,              UIViewAnimationOptionTransitionNone,     @"UI.iPhone.AnimationStyle.NONE",@"6.0.0",@"UI.iOS.AnimationStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_UP,           UIViewAnimationOptionTransitionCurlUp, @"UI.iPhone.AnimationStyle.CURL_UP",@"6.0.0",@"UI.iOS.AnimationStyle.CURL_UP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_DOWN,         UIViewAnimationOptionTransitionCurlDown, @"UI.iPhone.AnimationStyle.CURL_DOWN",@"6.0.0",@"UI.iOS.AnimationStyle.CURL_DOWN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_LEFT,    UIViewAnimationOptionTransitionFlipFromLeft,@"UI.iPhone.AnimationStyle.FLIP_FROM_LEFT",@"6.0.0",@"UI.iOS.AnimationStyle.FLIP_FROM_LEFT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_RIGHT,   UIViewAnimationOptionTransitionFlipFromRight,  @"UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT",@"6.0.0",@"UI.iOS.AnimationStyle.FLIP_FROM_RIGHT");
 
 @end
 

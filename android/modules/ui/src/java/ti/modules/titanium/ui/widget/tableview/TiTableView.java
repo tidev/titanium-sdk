@@ -161,7 +161,9 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return maxClassname;
+		        // Fix for TIMOB-20038. Seems that there are 3 more
+		        // hidden views that needs to be recreated onLayout
+			return maxClassname + 3;
 		}
 
 		@Override
@@ -279,7 +281,7 @@ public class TiTableView extends FrameLayout
 		this.proxy = proxy;
 
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-		    maxClassname = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME));
+		    maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);

@@ -224,7 +224,8 @@ properties:
     summary: The icon inset or outset for each edge.
     description: | 
         Use this property for example to center an icon without providing a title. To do that, set the
-        insets to `{top:6, bottom:-6, right:0, left:0}`.
+        insets to `{top:6, left: 0}`. The `right` and `bottom` are calculated internally to prevent the
+        icon from mutating.
     since: "5.2.0"
     default: All insets are zero.
     type: TabIconInsets
@@ -310,6 +311,7 @@ events:
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
+    since: "5.2.0"
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -357,6 +359,7 @@ events:
 
   - name: selected
     summary: Fired when the tab is selected.
+    since: "5.2.0"
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -445,12 +448,3 @@ properties:
   - name: left
     summary: Left inset.
     type: Number
-
-  - name: right
-    summary: Right inset.
-    type: Number
-
-  - name: bottom
-    summary: Bottom inset.
-    type: Number
-
