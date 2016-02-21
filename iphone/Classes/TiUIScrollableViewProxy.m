@@ -128,6 +128,48 @@
 	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
+-(void)insertViewsAt:(id)args
+{
+	ENSURE_ARG_COUNT(args, 2);
+	ENSURE_UI_THREAD(insertViewsAt, args);
+	NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+	id arg = [args objectAtIndex:1];
+	
+	[self lockViewsForWriting];
+	
+	if ([arg isKindOfClass:[TiViewProxy class]]) {
+		[self rememberProxy:arg];
+		[arg setParent:self];
+		
+		if (viewProxies != nil)
+		{
+			[viewProxies insertObject:arg atIndex:insertIndex];
+		}
+		else
+		{
+			viewProxies = [[NSMutableArray alloc] initWithObjects:arg,nil];
+		}
+	}
+	else if ([arg isKindOfClass:[NSArray class]]) {
+		for (id newViewProxy in arg)
+		{
+			[self rememberProxy:newViewProxy];
+			[newViewProxy setParent:self];
+			if (viewProxies != nil)
+			{
+				[viewProxies insertObject:newViewProxy atIndex:insertIndex];
+			}
+			else
+			{
+				viewProxies = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
+			}
+		}
+		
+	}
+	[self unlockViews];
+	[self makeViewPerformSelector:@selector(addView:) withObject:arg createIfNeeded:NO waitUntilDone:NO];
+}
+
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
 #if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
