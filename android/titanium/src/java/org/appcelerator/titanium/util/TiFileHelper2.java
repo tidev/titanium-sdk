@@ -86,6 +86,10 @@ public class TiFileHelper2
 			return true;
 		}
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		// Fix for TIMOB-20434 where activity is null
+		if (currentActivity == null) {
+		    return false;
+		}
 		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}

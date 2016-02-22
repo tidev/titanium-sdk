@@ -183,7 +183,7 @@ description: |
           property to true. When the user clicks on the '+' sign of the item, an [insert](Titanium.UI.ListView.insert) event is fired.
           Note: A new item is not inserted automatically when clicking on the '+' sign to let you decide the way to insert a new item.
           You can use any inserting method of [Ti.UI.ListSection](Titanium.UI.ListSection), for example [insertItemsAt](Titanium.UI.ListSection.insertItemsAt)
-          and [appendItemsAt](Titanium.UI.ListSection.appendItemsAt).
+          and [appendItems](Titanium.UI.ListSection.appendItems).
 
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
           to a different location within the ListView. The item can only be moved when the ListView is put in 

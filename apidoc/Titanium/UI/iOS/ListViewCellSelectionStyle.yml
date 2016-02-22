@@ -5,7 +5,7 @@ summary: |
     ListItem, which is set in the `properties` dictionary of either the <ListDataItem> or
     <ItemTemplate>.
 extends: Titanium.Proxy
-since: "6.0.0"
+since: "5.4.0"
 platforms: [iphone, ipad]
 excludes:
     methods: [addEventListener,applyProperties,fireEvent,removeEventListener]

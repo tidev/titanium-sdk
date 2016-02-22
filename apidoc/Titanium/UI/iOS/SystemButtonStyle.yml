@@ -35,7 +35,7 @@ description: |
     * `BAR`. Used on `ButtonBar` and `TabbedBar` controls to produce a more compact bar with 
     translucent buttons that allow the bar's background color to show through.
 extends: Titanium.Proxy
-since: "6.0.0"
+since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
 

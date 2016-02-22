@@ -204,17 +204,17 @@ examples:
 
             var contentWindow = Ti.UI.createWindow({
                 rightNavButton: rightButton,
-                title: 'Kermit',
-                width: 250,
-                height: 100
+                title: 'Kermit'
             });
             contentWindow.add(Ti.UI.createLabel({text: "It's not easy being green."}));
 
             var popover = Ti.UI.iPad.createPopover({
-                width: 250,
-                height: 100,
                 backgroundColor: 'green',
-                contentView: Ti.UI.iOS.createNavigationWindow({window: contentWindow})
+                contentView: Ti.UI.iOS.createNavigationWindow({
+                    width: 250,
+                    height: 100,
+                    window: contentWindow
+                })
             });
 
             win.open();
@@ -243,9 +243,9 @@ examples:
         `app/views/popover.xml`:
 
             <Alloy>
-                <Popover height='100' width='250' backgroundColor='green'>
+                <Popover backgroundColor='green'>
                     <ContentView>
-                        <NavigationWindow>
+                        <NavigationWindow height='100' width='250'>
                             <Window title='Kermit'>
                                 <RightNavButton onClick="showAlert" title="Robin" />
                                 <Label>It's not easy being green.</Label>
