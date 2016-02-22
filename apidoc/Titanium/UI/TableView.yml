@@ -1616,13 +1616,13 @@ properties:
         [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
        
         For Android specify one of the following:
-        [TableViewSeparatorStyle_None](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
-        [TableViewSeparatorStyle_SingleLine](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
+        [TABLE_VIEW_SEPARATOR_STYLE_NONE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
+        [TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
 
         For Mobile Web specify one of the
         [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, android]
     since: {android: "5.2.0"}
     
   - name: showVerticalScrollIndicator
