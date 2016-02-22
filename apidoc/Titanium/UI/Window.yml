@@ -110,7 +110,7 @@ methods:
         optional: true
         default: true
     platforms: [iphone, ipad]
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: hideToolbar
     summary: Makes the bottom toolbar invisible.
@@ -127,7 +127,7 @@ methods:
         optional: true
         default: true
     platforms: [iphone, ipad]
-    since: "6.0.0"
+    since: "5.4.0"
 
 events:
   - name: android:back

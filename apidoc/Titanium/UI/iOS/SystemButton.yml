@@ -30,7 +30,7 @@ description: |
     in the iOS Developer Library for details on the proper usage of iOS standard buttons
     and icons.
 extends: Titanium.Proxy
-since: "6.0.0"
+since: "5.4.0"
 platforms: [iphone, ipad]
 
 properties:

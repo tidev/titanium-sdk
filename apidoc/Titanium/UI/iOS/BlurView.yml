@@ -9,7 +9,7 @@ summary: |
 
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
-since: "6.0.0"
+since: "5.4.0"
 osver: {ios:{min: "8.0"}}
 
 properties:
