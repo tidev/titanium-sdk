@@ -311,7 +311,9 @@
     }
     
     if (!opened) {
+#ifndef TI_USE_KROLL_THREAD
         DebugLog(@"Window is not open. Ignoring this close call");
+#endif
         return;
     }
     
@@ -606,6 +608,35 @@
         //TODO: need to fix height
     }
 }
+
+-(void)showToolbar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(showToolbar,args);
+    [self replaceValue:[NSNumber numberWithBool:NO] forKey:@"toolbarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setToolbarHidden:NO animated:animated];
+    } else {
+        NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
+    }
+}
+
+-(void)hideToolbar:(NSArray*)args
+{
+    ENSURE_UI_THREAD(hideToolbar,args);
+    [self replaceValue:[NSNumber numberWithBool:YES] forKey:@"toolbarHidden" notification:NO];
+    if (controller!=nil)
+    {
+        id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+        [[controller navigationController] setToolbarHidden:YES animated:animated];
+    } else {
+        NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
+    }
+}
+
 
 
 #pragma mark - Appearance and Rotation Callbacks. For subclasses to override.

@@ -16,9 +16,9 @@
     return @"Ti.UI.iPhone.ProgressBarStyle";
 }
 
-MAKE_SYSTEM_PROP(PLAIN,UIProgressViewStyleDefault);
-MAKE_SYSTEM_PROP(DEFAULT,UIProgressViewStyleDefault);
-MAKE_SYSTEM_PROP(BAR,UIProgressViewStyleBar);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,UIProgressViewStyleDefault,@"UI.iPhone.ProgressBarStyle.PLAIN",@"6.0.0",@"UI.iOS.ProgressBarStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DEFAULT,UIProgressViewStyleDefault,@"UI.iPhone.ProgressBarStyle.DEFAULT",@"6.0.0",@"UI.iOS.ProgressBarStyle.DEFAULT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BAR,UIProgressViewStyleBar,@"UI.iPhone.ProgressBarStyle.BAR",@"6.0.0",@"UI.iOS.ProgressBarStyle.BAR");
 
 @end
 

@@ -1497,6 +1497,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 						if (targetInfo.isWatchAppV1) {
 							this.hasWatchAppV1 = true;
+							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
 						} else if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
@@ -4931,13 +4932,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				found = {};
 
 			fs.existsSync(launchImageDir) || wrench.mkdirSyncRecursive(launchImageDir);
-
-			Object.keys(lookup).forEach(function (key) {
-				if (appc.version.lt(this.minIosVer, lookup[key].minSysVer)) {
-					// remove unsupported
-					delete lookup[key];
-				}
-			}, this);
 
 			Object.keys(launchImages).forEach(function (filename) {
 				var info = launchImages[filename],

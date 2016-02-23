@@ -504,6 +504,11 @@ DEFINE_EXCEPTIONS
             if (range.location != NSNotFound) {
                 imageArg = [pathStr substringFromIndex:range.location+5];
             }
+            //remove suffixes.
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
             if (imageArg != nil) {
                 unsigned char digest[CC_SHA1_DIGEST_LENGTH];
                 NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];

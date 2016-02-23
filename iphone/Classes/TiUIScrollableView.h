@@ -48,6 +48,8 @@
 -(void)setCurrentPage:(id)page animated:(NSNumber*)animate;
 -(void)addView:(id)viewproxy;
 -(void)removeView:(id)args;
+-(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
+
 @end
 
 #endif

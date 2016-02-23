@@ -93,8 +93,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
-	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
-	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+	public static KrollObject storageCallbackContext, cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
+	public static KrollFunction storagePermissionCallback, cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -467,6 +467,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
 				return;
 			}
+			case TiC.PERMISSION_CODE_EXTERNAL_STORAGE: {
+				permissionCallback(grantResults, storagePermissionCallback, storageCallbackContext, "Storage");
+				return;
+			}
 
 		}
 	}
@@ -808,13 +812,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		TiWindowProxy topWindow = topWindowOnStack();
 
-		// Prevent default Android behavior for "back" press
-		// if the top window has a listener to handle the event.
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
-
+		}
+		
+		// Override default Android behavior for "back" press
+		// if the top window has a callback to handle the event.
+		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
+			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
+			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
+			
 		} else {
-			// If event is not handled by any listeners allow default behavior.
+			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
 		}
 	}

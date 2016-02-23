@@ -327,7 +327,7 @@
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player withFlags:(NSUInteger)flags
 {
-	if (flags != AVAudioSessionInterruptionFlags_ShouldResume) {
+	if (flags != AVAudioSessionInterruptionOptionShouldResume) {
 		[self stop:nil];
 	}
 	

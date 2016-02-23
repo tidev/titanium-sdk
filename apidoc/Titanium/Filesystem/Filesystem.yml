@@ -56,6 +56,11 @@ methods:
         On iOS, all relative paths are currently interpreted as relative to the
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
+        
+        On iOS9, if app thinning is enabled, and the file of interest is an image file
+        that was bundled with the app (not downloaded during runtime), this will not return
+        the image file since it is already allocated inside the assets catalog. Please
+        use [getAsset](Titanium.Filesystem.getAsset) instead for this case.
 
     returns:
         type: Titanium.Filesystem.File
@@ -64,6 +69,45 @@ methods:
         summary: One or more path components. Path arguments are joined together using 
             the platform specific path separator to form the full path.
         type: String
+
+  - name: getAsset
+    summary: Returns a `Blob` object representing the asset catalog image identified by the path
+        arguments.
+    description: |
+        This method is only applicable on images in assets catalogs for apps with app-thinning 
+        enabled on iOS. Since the bundled image has been reallocated into assets catalog, it is 
+        no longer accessible via the original file path. To obtain a `Blob` object representing 
+        this image, use the original file path as the parameter in this method instead of using it in
+        [getFile](Titanium.Filesystem.getFile)
+        
+        Similar to [getFile](Titanium.Filesystem.getFile), this method takes a variable 
+        number of arguments, where each argument is treated as a path component. 
+        All of the arguments are joined together using the platform-specific path separator 
+        to make the final path.
+        
+        If a relative path is passed, the full path should be interpreted relative
+        to the current file. For example, if the file `Resources/login/login.js` 
+        contains the following code:
+        
+            var icon = Titanium.Filesystem.getAsset('icon.png');
+        
+        The path is interpreted as `Resources/login/icon.png`. 
+        
+        On iOS, all relative paths are currently interpreted as relative to the
+        `Resources` directory, **not** to the current context. This is a known issue
+        that will be addressed in a future release.
+
+    returns:
+        type: Titanium.Blob
+    parameters:
+      - name: path
+        summary: One or more path components. Path arguments are joined together using 
+            the platform specific path separator to form the full path.
+        type: String
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.4.0"
+
   - name: isExternalStoragePresent
     summary: Returns `true` if the device supports external storage *and* the external storage
         device is mounted.
@@ -74,6 +118,24 @@ methods:
         Returns `false` on iOS and Mobile Web.
     returns:
         type: Boolean
+
+  - name: hasStoragePermissions
+    summary: Returns `true` if the app has storage permissions.
+    returns:
+        type: Boolean
+    since: "5.4.0"
+
+  - name: requestStoragePermissions
+    summary: Requests for storage permissions
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant storage access
+        type: Callback<RequestStorageAccessResult>
+    since: "5.4.0"
 
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.
@@ -297,3 +359,9 @@ properties:
         may not persist when the application is shut down and restarted.
     type: String
     permission: read-only
+    
+---
+name: RequestStorageAccessResult
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+    

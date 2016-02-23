@@ -4,14 +4,16 @@
  * @module plist
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var fs = require('fs'),
+const
+	__ = require('./i18n')(__dirname).__,
+	fs = require('fs'),
 	path = require('path'),
 	wrench = require('wrench'),
 	xml = require('./xml'),
@@ -30,7 +32,7 @@ module.exports = plist;
 function PlistType(type, value) {
 	this.className = 'PlistType';
 	this.type = type;
-	this.value = type == 'real' && ~~value === value ? value.toFixed(1) : value;
+	this.value = type === 'real' && ~~value === value ? value.toFixed(1) : value;
 }
 
 /**
@@ -39,7 +41,7 @@ function PlistType(type, value) {
  * @param {*} value - The value being stringify
  */
 function plistTypeFormatter(key, value) {
-	if (value && typeof value == 'object' && value.className == 'PlistType') {
+	if (value && typeof value === 'object' && value.className === 'PlistType') {
 		return value.value;
 	}
 	return value;
@@ -65,7 +67,7 @@ function toXml(dom, parent, it, indent) {
 
 	switch (type) {
 		case '[object Object]':
-			if (it.className == 'PlistType') {
+			if (it.className === 'PlistType') {
 				dom.create(it.type, it.value, parent);
 			} else {
 				p = dom.create('dict', null, parent);
@@ -116,50 +118,51 @@ function walkDict(obj, node) {
 	var key, next;
 
 	while (node) {
-		if (node.nodeType == xml.ELEMENT_NODE && node.tagName == 'key') {
+		if (node.nodeType === xml.ELEMENT_NODE) {
+			if (node.tagName !== 'key') {
+				throw new Error(__('Error parsing plist: Expected <key> entry'));
+			}
+
 			key = (node.firstChild && node.firstChild.data || '').trim();
 
 			next = node.nextSibling;
-			while (next && next.nodeType != xml.ELEMENT_NODE) {
+			while (next && next.nodeType !== xml.ELEMENT_NODE) {
 				next = next.nextSibling;
 			}
 
-			if (next.tagName == 'key') {
+			if (!next) {
+				// all done
+				return;
+			}
+
+			node = next;
+
+			if (next.tagName === 'key') {
 				obj[key] = null;
-				node = next;
 				continue;
 			}
 
-			if (next) {
-				if (next.tagName == 'true') {
-					obj[key] = true;
-					node = next;
-				} else if (next.tagName == 'false') {
-					obj[key] = false;
-					node = next;
-				} else if (next.tagName == 'string') {
-					obj[key] = '' + (next.firstChild && next.firstChild.data || '').trim(); // cast all values as strings
-					node = next;
-				} else if (next.tagName == 'integer') {
-					obj[key] = parseInt(next.firstChild && next.firstChild.data) || 0;
-					node = next;
-				} else if (next.tagName == 'real') {
-					obj[key] = parseFloat(next.firstChild && next.firstChild.data) || 0;
-					node = next;
-				} else if (next.tagName == 'date') {
-					// note: plists do not support milliseconds
-					var d = (next.firstChild && next.firstChild.data || '').trim();
-					obj[key] = d ? new Date(d) : null; // note: toXml() can't convert a null date back to a <date> tag
-					node = next;
-				} else if (next.tagName == 'array') {
-					walkArray(obj[key] = [], next.firstChild);
-					node = next;
-				} else if (next.tagName == 'dict') {
-					walkDict(obj[key] = {}, next.firstChild);
-				} else if (next.tagName == 'data') {
-					obj[key] = new PlistType('data', (next.firstChild && next.firstChild.data || '').replace(/\s*/g, ''));
-					node = next;
-				}
+			if (next.tagName === 'dict') {
+				walkDict(obj[key] = {}, next.firstChild);
+			} else if (next.tagName === 'true') {
+				obj[key] = true;
+			} else if (next.tagName === 'false') {
+				obj[key] = false;
+			} else if (next.tagName === 'string') {
+				obj[key] = '' + (next.firstChild && next.firstChild.data || '').trim(); // cast all values as strings
+			} else if (next.tagName === 'integer') {
+				obj[key] = parseInt(next.firstChild && next.firstChild.data) || 0;
+			} else if (next.tagName === 'real') {
+				obj[key] = parseFloat(next.firstChild && next.firstChild.data) || 0;
+			} else if (next.tagName === 'date') {
+				// note: plists do not support milliseconds
+				var d = (next.firstChild && next.firstChild.data || '').trim();
+				obj[key] = d ? new Date(d) : null; // note: toXml() can't convert a null date back to a <date> tag
+			} else if (next.tagName === 'array') {
+				walkArray(obj[key] = [], next.firstChild);
+			} else if (next.tagName === 'data') {
+				obj[key] = new PlistType('data', (next.firstChild && next.firstChild.data || '').replace(/\s*/g, ''));
+				node = next;
 			}
 		}
 		node = node.nextSibling;
@@ -173,7 +176,7 @@ function walkDict(obj, node) {
  */
 function walkArray(arr, node) {
 	while (node) {
-		if (node.nodeType == xml.ELEMENT_NODE) {
+		if (node.nodeType === xml.ELEMENT_NODE) {
 			switch (node.tagName) {
 				case 'string':
 					arr.push('' + (node.firstChild && node.firstChild.data || '').trim());
@@ -231,7 +234,7 @@ function toJS(obj, doc) {
 
 	// the first child should be a <dict> element
 	while (node) {
-		if (node.nodeType == xml.ELEMENT_NODE && node.tagName == 'dict') {
+		if (node.nodeType === xml.ELEMENT_NODE && node.tagName === 'dict') {
 			node = node.firstChild;
 			break;
 		}
@@ -273,18 +276,14 @@ function plist(filename) {
 	 */
 	Object.defineProperty(this, 'parse', {
 		value: function (str) {
-			// need to backup the original console.error since parse errors
-			// will print to stderr and throw, but we only want it to throw
-			var origConsoleError = console.error;
-			console.error = function () {};
-			try {
-				var dom = new DOMParser().parseFromString(str, 'text/xml');
-				console.error = origConsoleError;
-				toJS(this, dom.documentElement);
-			} catch (ex) {
-				console.error = origConsoleError;
-				throw ex;
-			}
+			var dom = new DOMParser({
+				errorHandler: function (err) {
+					throw err;
+				}
+			}).parseFromString(str, 'text/xml');
+
+			toJS(this, dom.documentElement);
+
 			return this;
 		}
 	});
@@ -345,12 +344,12 @@ function plist(filename) {
 	 */
 	Object.defineProperty(this, 'toString', {
 		value: function (fmt) {
-			if (fmt == 'xml') {
+			if (fmt === 'xml') {
 				return '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'
 					+ this.toXml().toString().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-			} else if (fmt == 'pretty-json') {
+			} else if (fmt === 'pretty-json') {
 				return JSON.stringify(this, plistTypeFormatter, '\t');
-			} else if (fmt == 'json') {
+			} else if (fmt === 'json') {
 				return JSON.stringify(this, plistTypeFormatter);
 			}
 			return Object.prototype.toString.call(this);

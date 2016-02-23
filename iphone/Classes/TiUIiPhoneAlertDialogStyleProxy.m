@@ -16,10 +16,10 @@
     return @"Ti.UI.iPhone.AlertDialogStyle";
 }
 
-MAKE_SYSTEM_PROP(DEFAULT,                   UIAlertViewStyleDefault);
-MAKE_SYSTEM_PROP(PLAIN_TEXT_INPUT,          UIAlertViewStylePlainTextInput);
-MAKE_SYSTEM_PROP(SECURE_TEXT_INPUT,         UIAlertViewStyleSecureTextInput);
-MAKE_SYSTEM_PROP(LOGIN_AND_PASSWORD_INPUT,  UIAlertViewStyleLoginAndPasswordInput);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DEFAULT,UIAlertViewStyleDefault, @"UI.iPhone.AlertDialogStyle.DEFAULT",@"6.0.0",@"UI.iOS.AlertDialogStyle.DEFAULT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN_TEXT_INPUT,UIAlertViewStylePlainTextInput,@"UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT",@"6.0.0",@"UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(SECURE_TEXT_INPUT,UIAlertViewStyleSecureTextInput, @"UI.iPhone.AlertDialogStyle.SECURE_TEXT_INPUT",@"6.0.0",@"UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(LOGIN_AND_PASSWORD_INPUT,UIAlertViewStyleLoginAndPasswordInput, @"UI.iPhone.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT",@"6.0.0",@"UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT");
 
 @end
 

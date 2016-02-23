@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -345,7 +345,8 @@ describe("filesystem", function() {
 		should(newFile.move(Titanium.Filesystem.applicationDataDirectory + "/moved.txt")).be.true;
 		finish();
 	});
-	it("tempDirTest", function(finish) {
+	//skip this due to android 23 requires external storage permissions
+	it.skip("tempDirTest", function(finish) {
 		var filename = "drillbit_temp_file.txt";
 		should(Ti.Filesystem.getTempDirectory).be.a.Function;
 		var outBuffer = Ti.createBuffer({
@@ -537,4 +538,13 @@ describe("filesystem", function() {
 			finish();
 		} else finish();
 	});
+	//TIMOB-19833
+	it("getAsset", function(finish) {
+		if ("iphone" === Ti.Platform.osname || "ipad" === Ti.Platform.osname) {
+			//only available with <use-app-thinning>true</use-app-thinning>
+			var imageBlob = Ti.Filesystem.getAsset('images/foo.png');
+			should(imageBlob).not.be.null;
+		}
+		finish();
+	});	
 });

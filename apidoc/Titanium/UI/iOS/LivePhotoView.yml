@@ -26,7 +26,7 @@ properties:
     default: false
 
 methods:   
-  - name: startWithPlaybackStyle
+  - name: startPlaybackWithStyle
     summary: Begins playback of Live Photo content in the view.
     description: | 
         Use the `playbackStyle` parameter to choose whether to play the full motion and sound content of the 
@@ -40,7 +40,7 @@ methods:
         summary: An option for how much of the Live Photo's motion and sound content to play.
         type: Number
         constants: [Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL, Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_HINT]
-        default: Titanium.UI.iOS. LIVEPHOTO_PLAYBACK_STYLE_FULL
+        default: Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL
 
   - name: stopPlayback
     summary: Ends playback of Live Photo content in the view.
@@ -59,14 +59,6 @@ events:
       - name: playbackStyle
         summary: Returns the `playbackStyle` that was provided to start the playback.
         type: Number
-
-properties:
-  - name: livePhoto
-    summary: The Live Photo displayed in the view.
-    description: |
-        You receive a new live photo object either by taking a new photo or
-        by selecting an existing photo from the photo gallery.
-    type: [Titanium.UI.iOS.LivePhoto]
 
 examples:
   - title: Basic LivePhotoView

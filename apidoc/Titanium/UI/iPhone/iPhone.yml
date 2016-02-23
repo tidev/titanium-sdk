@@ -179,11 +179,17 @@ properties:
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
     type: Number
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Ti.UI.iOS.appBadge](Ti.UI.iOS.appBadge) instead.
+
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
     type: Boolean
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use [Titanium.UI.iOS.appSupportsShakeToEdit](Titanium.UI.iOS.appSupportsShakeToEdit) instead.
+
   - name: statusBarHidden
     summary: Determines whether the status bar is hidden.
     description: |
@@ -191,7 +197,11 @@ properties:
         Use the [fullscreen](Titanium.UI.Window.fullscreen) property of the window to control if the staus bar is shown or not.
     type: Boolean
     permission: read-only
-    
+    deprecated:
+        since: "3.1.3"
+        notes: Use [Titanium.UI.windows.fullscreen](Titanium.UI.windows.fullscreen) instead.
+        removed: "6.0.0"
+
   - name: statusBarStyle
     summary: Determines the status bar color style.
     description: |
@@ -202,7 +212,10 @@ properties:
                  Titanium.UI.iPhone.StatusBar.GREY, Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT,
                  Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     permission: read-only
-
+    deprecated:
+        since: "3.1.3"
+        notes: Use [Titanium.UI.Window.statusBarStyle](Titanium.UI.Window.statusBarStyle) instead.
+        removed: "6.0.0"
 ---
 name: hideStatusBarParams
 summary: Dictionary of options for the <Titanium.UI.iPhone.hideStatusBar> method.

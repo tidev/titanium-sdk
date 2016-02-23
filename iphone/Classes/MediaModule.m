@@ -231,27 +231,27 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 //Constants for AudioSessions
 -(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_AMBIENT");
+    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"6.0.0",@"Media.AUDIO_SESSION_CATEGORY_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
+    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"6.0.0", @"Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
+    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_RECORD");
+    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
+    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
 }
 
@@ -359,7 +359,7 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 // Deprecated old-school video control modes, mapped to the new values
 -(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Media.VIDEO_CONTROL_EMBEDDED");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"6.0.0", @"Media.VIDEO_CONTROL_EMBEDDED");
     return [self VIDEO_CONTROL_EMBEDDED];
 }
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
@@ -969,6 +969,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)switchCamera:(id)args
 {
+    ENSURE_TYPE(args, NSArray);
+    
+    // TIMOB-17951
+    if ([args objectAtIndex:0] == [NSNull null]) {
+        return;
+    }
+    
     ENSURE_SINGLE_ARG(args,NSNumber);
     ENSURE_UI_THREAD(switchCamera,args);
     
@@ -1766,9 +1773,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
 #if IS_XCODE_7_1
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
     TiUIiOSLivePhoto *livePhoto = nil;
-#endif
 #endif
     TiBlob *thumbnail = nil;
 
@@ -1886,18 +1891,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 resultImage = (editedImage != nil) ? editedImage : originalImage;
             }
             
-            media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
+            media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [media setImage:resultImage];
+
             if (saveToRoll) {
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
         }
         
 #if IS_XCODE_7_1
-#ifdef  USE_TI_UIIOSLIVEPHOTOVIEW
         if(isLivePhoto) {
-            livePhoto = [[TiUIiOSLivePhoto alloc] initWithLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
+            livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [livePhoto setLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         }
-#endif
 #endif
         
     }
@@ -1910,12 +1916,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
 #if IS_XCODE_7_1
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
-
     if (livePhoto != nil) {
         [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
-#endif
 #endif
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
