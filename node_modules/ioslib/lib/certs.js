@@ -166,7 +166,7 @@ function detect(options, callback) {
 								if (!code) {
 									var tmp = [];
 									parseCerts(out, tmp);
-									results.certs.wwdr = tmp.length && tmp[0].invalid === false;
+									results.certs.wwdr = results.certs.wwdr || (tmp.length && tmp[0].invalid === false);
 								}
 								next();
 							});

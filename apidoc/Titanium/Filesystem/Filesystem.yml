@@ -106,7 +106,7 @@ methods:
         type: String
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: isExternalStoragePresent
     summary: Returns `true` if the device supports external storage *and* the external storage
@@ -123,7 +123,7 @@ methods:
     summary: Returns `true` if the app has storage permissions.
     returns:
         type: Boolean
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: requestStoragePermissions
     summary: Requests for storage permissions
@@ -135,7 +135,7 @@ methods:
       - name: callback
         summary: Function to call upon user decision to grant storage access
         type: Callback<RequestStorageAccessResult>
-    since: "6.0.0"
+    since: "5.4.0"
 
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.

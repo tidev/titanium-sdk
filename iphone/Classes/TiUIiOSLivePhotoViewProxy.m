@@ -32,6 +32,7 @@
 
 -(void)startPlaybackWithStyle:(id)args
 {
+    ENSURE_UI_THREAD(startPlaybackWithStyle, args);
     ENSURE_TYPE_OR_NIL(args, NSArray);
     id value = [args objectAtIndex:0];
     ENSURE_TYPE_OR_NIL(value, NSNumber);
@@ -41,11 +42,13 @@
 
 -(void)stopPlayback:(id)unused
 {
+    ENSURE_UI_THREAD(stopPlayback, unused);
     [[[self livePhotoView] livePhotoView] stopPlayback];
 }
 
 -(void)setMuted:(NSNumber*)value
 {
+    ENSURE_UI_THREAD(setMuted, value);
     ENSURE_TYPE(value, NSNumber);
     [self replaceValue:value forKey:@"muted" notification:YES];
 

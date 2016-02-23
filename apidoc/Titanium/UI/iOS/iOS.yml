@@ -893,7 +893,7 @@ properties:
         Creates a blurring effect in the view. The area of the view is lighter in hue than the underlying view.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_LIGHT
@@ -904,7 +904,7 @@ properties:
         of the underlying view.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_DARK
@@ -914,7 +914,7 @@ properties:
         Creates a blurring effect in the view. The area of the view is darker in hue than the underlying view.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "8.0"}}
 
   - name: AD_SIZE_PORTRAIT

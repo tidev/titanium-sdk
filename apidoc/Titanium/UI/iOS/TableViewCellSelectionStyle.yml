@@ -4,7 +4,7 @@ summary: |
     A set of constants for the style that can be used for the `selectionStyle` property of 
     <Titanium.UI.TableViewRow>.
 extends: Titanium.Proxy
-since: "6.0.0"
+since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
 

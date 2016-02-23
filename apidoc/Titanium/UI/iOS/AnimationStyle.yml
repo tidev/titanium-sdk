@@ -3,7 +3,7 @@ name: Titanium.UI.iOS.AnimationStyle
 summary: A set of constants for the animation styles used for view transitions.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
-since: "6.0.0"
+since: "5.4.0"
 createable: false
 
 properties:

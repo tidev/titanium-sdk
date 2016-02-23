@@ -67,8 +67,8 @@ module.exports = function (grunt) {
 			}
 
 			grunt.log.writeln('Building node-ios-device binaries');
-			exec('make', { cwd: path.join(__dirname, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device') }, function (err, stdout, stderr) {
-				rm(path.join(__dirname, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device', 'build'));
+			exec('make', { cwd: path.join(__dirname, 'node_modules', 'node-ios-device') }, function (err, stdout, stderr) {
+				rm(path.join(__dirname, 'node_modules', 'node-ios-device', 'build'));
 				done(err);
 			});
 		});

@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiProxy.h"
 #import <Photos/Photos.h>
 
@@ -13,7 +12,4 @@
 
 @property(nonatomic,retain) PHLivePhoto *livePhoto;
 
--(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto;
-
 @end
-#endif
