@@ -580,7 +580,7 @@ static NSDictionary* iOS9propertyKeys;
 		return nil;
 	}
 
-    CFDataRef imageData = ABPersonCopyImageData([self record]);
+	CFDataRef imageData = ABPersonCopyImageData([self record]);
 	if (imageData != NULL)
 	{
 		TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
@@ -606,7 +606,7 @@ static NSDictionary* iOS9propertyKeys;
 		return;
 	}
 
-    ABRecordSetValue([self record], kABPersonBirthdayProperty, (CFDateRef)[TiUtils dateForUTCDate:date], NULL);
+	ABRecordSetValue([self record], kABPersonBirthdayProperty, (CFDateRef)[TiUtils dateForUTCDate:date], NULL);
 }
 
 -(id)valueForUndefinedKey:(NSString *)key

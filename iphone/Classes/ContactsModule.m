@@ -349,7 +349,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	RELEASE_TO_NIL(picker)
     RELEASE_TO_NIL(contactPicker)
 
-    cancelCallback = [[args objectForKey:@"cancel"] retain];
+	cancelCallback = [[args objectForKey:@"cancel"] retain];
 	selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
 	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
 
@@ -371,7 +371,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         if (fields != nil) {
             NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
             for (id field in fields) {
-                id property = nil;
+				id property = nil;
 				if (property = [[[TiContactsPerson iOS9propertyKeys] allKeysForObject:field] objectAtIndex:0]) {
                     [pickerFields addObject:property];
                 }
@@ -778,7 +778,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		return;
 	}
 
-    [self removeRecord:[arg record]];
+	[self removeRecord:[arg record]];
 }
 
 -(TiContactsGroup*)createGroup:(id)arg

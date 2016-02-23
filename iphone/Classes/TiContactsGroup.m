@@ -227,7 +227,7 @@
 		}
 	}
 
-    int sortType = [value intValue];
+	int sortType = [value intValue];
 	switch(sortType) {
 		case kABPersonSortByFirstName:
 		case kABPersonSortByLastName:
