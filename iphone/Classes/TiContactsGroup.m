@@ -80,18 +80,18 @@
 
 -(NSString*)name
 {
-	if (![NSThread isMainThread]) {
-		__block id result;
-		TiThreadPerformOnMainThread(^{result = [[self name] retain];}, YES);
-		return [result autorelease];
-	}
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self name] retain];}, YES);
+        return [result autorelease];
+    }
 
     if ([TiUtils isIOS9OrGreater]) {
-		if ([group name]) {
-			return [group name];
-		}
-		return @"<unamed group>";
-	}
+        if ([group name]) {
+            return [group name];
+        }
+        return @"<unamed group>";
+    }
 
     CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);
     NSString* name = @"<unnamed group>";
@@ -108,7 +108,7 @@
 	ENSURE_SINGLE_ARG(arg,NSString)
 	ENSURE_UI_THREAD(setName,arg)
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		group.name = arg;
 		return;
 	}

@@ -1764,9 +1764,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
     TiUIiOSLivePhoto *livePhoto = nil;
-#endif
     TiBlob *thumbnail = nil;
 
     BOOL imageWrittenToAlbum = NO;
@@ -1891,12 +1889,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
         }
         
-#ifdef  USE_TI_UIIOSLIVEPHOTOVIEW
         if(isLivePhoto) {
             livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
             [livePhoto setLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         }
-#endif
     }
 	
     NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
@@ -1906,11 +1902,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (thumbnail != nil) {
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
     if (livePhoto != nil) {
         [dictionary setObject:livePhoto forKey:@"livePhoto"];
     }
-#endif
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }

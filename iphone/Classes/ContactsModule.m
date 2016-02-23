@@ -285,7 +285,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         return [NSNumber numberWithInt:result];
     }
 
-    ABAuthorizationStatus result = ABAddressBookGetAuthorizationStatus();
+	ABAuthorizationStatus result = ABAddressBookGetAuthorizationStatus();
 	return [NSNumber numberWithLong:result];
 }
 
@@ -293,7 +293,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 {
 	ENSURE_UI_THREAD(save, unused)
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [self contactStore];
 		if (ourContactStore == NULL) {
 			return;
@@ -384,7 +384,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         
     }
 
-    picker = [[ABPeoplePickerNavigationController alloc] init];
+	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
 	
     if ([TiUtils isIOS8OrGreater]) {
@@ -669,7 +669,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         return groups;
     }
 
-    ABAddressBookRef ourAddressBook = [self addressBook];
+	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		return nil;
 	}
@@ -700,7 +700,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		return [result autorelease];
 	}
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [self contactStore];
 		if (ourContactStore == NULL) {
 			[self throwException:@"Cannot access address book"
@@ -771,7 +771,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(removePerson,arg)
 
-    if([TiUtils isIOS9OrGreater]) {
+	if([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		saveRequest = nil;
 		saveRequest = [person getSaveRequestForDeletion];
@@ -791,7 +791,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		return [result autorelease];
 	}
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		CNContactStore *ourContactStore = [self contactStore];
 		if (ourContactStore == NULL) {
 			[self throwException:@"Cannot access address book"
@@ -814,7 +814,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		return newGroup;
 	}
 
-    ABAddressBookRef ourAddressBook = [self addressBook];
+	ABAddressBookRef ourAddressBook = [self addressBook];
 	if (ourAddressBook == NULL) {
 		[self throwException:@"Cannot access address book"
 				   subreason:nil
@@ -858,14 +858,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
 	ENSURE_UI_THREAD(removeGroup,arg)
 
-    if([TiUtils isIOS9OrGreater]) {
+	if([TiUtils isIOS9OrGreater]) {
 		TiContactsGroup *group = arg;
 		saveRequest = nil;
 		saveRequest = [group getSaveRequestForDeletion];
 		return;
 	}
 
-    [self removeRecord:[arg record]];
+	[self removeRecord:[arg record]];
 }
 
 #pragma mark Properties
