@@ -71,7 +71,6 @@ import ti.modules.titanium.network.httpurlconnection.FileEntity;
 import ti.modules.titanium.network.httpurlconnection.HttpUrlConnectionUtils;
 import ti.modules.titanium.network.httpurlconnection.JsonBody;
 import ti.modules.titanium.network.httpurlconnection.NameValuePair;
-import ti.modules.titanium.network.httpurlconnection.NullHostNameVerifier;
 import ti.modules.titanium.network.httpurlconnection.StringBody;
 import ti.modules.titanium.network.httpurlconnection.StringEntity;
 import ti.modules.titanium.network.httpurlconnection.FileBody;
@@ -399,20 +398,6 @@ public class TiHTTPClient
 			this.notify();
 		}
 		return readyState;
-	}
-	
-	public boolean validatesSecureCertificate()
-	{
-		if (proxy.hasProperty("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
-
-		} else {
-			if (TiApplication.getInstance().getDeployType().equals(
-					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/*
@@ -890,7 +875,7 @@ public class TiHTTPClient
 		return 0;
 	}
 	
-	private void setUpSSL(boolean validating, HttpsURLConnection securedConnection)
+	private void setUpSSL(HttpsURLConnection securedConnection)
 	{
 		SSLSocketFactory sslSocketFactory = null;
 
@@ -928,15 +913,7 @@ public class TiHTTPClient
 		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 		            sslSocketFactory = null;
 		        }
-		    } else if (!validating) {
-		        TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-		        try {
-		            sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
-		        } catch(Exception e) {
-		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-		            sslSocketFactory = null;
-		        }
-		    } else {
+		    }  else {
 		        try {
 		            sslSocketFactory = new TiSocketFactory(null, null, tlsVersion);
 		        } catch(Exception e) {
@@ -948,12 +925,6 @@ public class TiHTTPClient
 		
 		if (sslSocketFactory != null) {
 			securedConnection.setSSLSocketFactory(sslSocketFactory);
-		} else if (!validating) {
-			securedConnection.setSSLSocketFactory(new NonValidatingSSLSocketFactory());
-		} 
-		
-		if (!validating) {
-			securedConnection.setHostnameVerifier(new NullHostNameVerifier());
 		}
 		// Fortunately, HttpsURLConnection supports SNI since Android 2.3.
 		// We don't have to handle SNI explicitly 
@@ -1119,7 +1090,7 @@ public class TiHTTPClient
 					
 					if (client instanceof HttpsURLConnection) {
 					    HttpsURLConnection securedConnection = (HttpsURLConnection) client;
-					    setUpSSL(validatesSecureCertificate(), securedConnection);
+					    setUpSSL(securedConnection);
 					}					
 								
 					if (timeout != -1) {
