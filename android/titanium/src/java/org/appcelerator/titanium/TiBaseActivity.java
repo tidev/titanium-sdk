@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -93,7 +94,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
+	// Permission Request Handling - TBD: are Krollxxx weak references?
+	// TODO does it make sense to have statically registered Callbacks??
+	private static ConcurrentHashMap<Integer,KrollObject> permissionCallbackContexts = new ConcurrentHashMap<Integer, KrollObject>();
+	private static ConcurrentHashMap<Integer,KrollFunction> permissionRequestCallbacks = new ConcurrentHashMap<Integer, KrollFunction>();
+
+	// mark as deprecated, we have no real control over usage and refactoring is not really possible due
+	// to direct access without a method based API. Used e.g in Titanium Media module
+	@Deprecated
 	public static KrollObject storageCallbackContext, cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
+	@Deprecated
 	public static KrollFunction storagePermissionCallback, cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
 
 	protected View layout;
@@ -421,7 +431,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return new TiCompositeLayout(this, arrangement, null);
 	}
 
-	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
+	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context,String permission) {
 		if (callback == null) {
 			return;
 		}
@@ -444,8 +454,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode,
-		String permissions[], int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode,	String permissions[], int[] grantResults) {
+		if(!permissionRequestCallbacks.isEmpty()) {
+			handlePermissionRequestResult(requestCode,permissions,grantResults);
+			return;
+		}
+		// old static implementation
 		switch (requestCode) {
 			case TiC.PERMISSION_CODE_CAMERA: {
 				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
@@ -472,6 +486,21 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				return;
 			}
 
+		}
+	}
+
+	private void handlePermissionRequestResult(int requestCode, String[] permissions, int[] grantResults) {
+		permissionCallback(grantResults,permissionRequestCallbacks.get(requestCode),
+				permissionCallbackContexts.get(requestCode),"Permission "+requestCode);
+	}
+
+	public static void registerPermissionRequestCallback(int permissionCode,KrollFunction callback,KrollObject context) {
+		// TODO shall we assert any pre conditions here? like valid permission code, duplicate registration
+		if(callback != null) {
+			permissionRequestCallbacks.put(permissionCode,callback);
+		}
+		if(context != null) {
+			permissionCallbackContexts.put(permissionCode,context);
 		}
 	}
 
