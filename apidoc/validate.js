@@ -65,6 +65,7 @@ var validSyntax = {
 				'removed' : 'String',
 				'notes' : 'String'
 			},
+			'since': 'Since',
 			'exclude-platforms' : [common.VALID_PLATFORMS],
 			'constants' : 'Constants'
 		}],
