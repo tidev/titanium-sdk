@@ -1023,6 +1023,139 @@ properties:
     constants: Titanium.UI.Android.PIXEL_FORMAT_*
     since: "1.8.0"
 
+  - name: activityExitTransition
+    summary: The type of transition used when activity is exiting. 
+    description: |
+        Activity A's exit transition determines how views in A are animated when A starts B.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false or 
+        there is no shared element between the participating activities.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.  
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_EXPLODE, Titanium.UI.Android.TRANSITION_FADE_*, 
+                 Titanium.UI.Android.TRANSITION_SLIDE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityEnterTransition
+    summary: The type of transition used when activity is entering. 
+    description: |
+        Activity B's enter transition determines how views in B are animated when A starts B.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false or 
+        there is no shared element between the participating activities.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_EXPLODE, Titanium.UI.Android.TRANSITION_FADE_*, 
+                 Titanium.UI.Android.TRANSITION_SLIDE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: If not specified uses platform theme transition. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityReturnTransition
+    summary: The type of transition used when returning from a previously started activity. 
+    description: |
+        Activity B's return transition determines how views in B are animated when B returns to A.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false or 
+        there is no shared element between the participating activities.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_EXPLODE, Titanium.UI.Android.TRANSITION_FADE_*, 
+                 Titanium.UI.Android.TRANSITION_SLIDE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: If not specified uses `activityEnterTransition`. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activityReenterTransition
+    summary: The type of transition used when reentering to a previously started activity. 
+    description: |
+        Activity A's reenter transition determines how views in A are animated when B returns to A.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false or 
+        there is no shared element between the participating activities.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_EXPLODE, Titanium.UI.Android.TRANSITION_FADE_*, 
+                 Titanium.UI.Android.TRANSITION_SLIDE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: If not specified uses `activityExitTransition`. 
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementExitTransition
+    summary: The type of exit transition used when animating shared elements between two activities.
+    description: |
+        Activity A's shared element exit transition animates shared elements before they transition from A to B
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: | 
+        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementEnterTransition
+    summary: The type of enter transition used when animating shared elements between two activities.
+    description: |
+        Activity B's shared element enter transition determines how shared elements animate from A to B.
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: |
+        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementReturnTransition
+    summary: The type of return transition used when animating shared elements between two activities.
+    description: |
+        Activity B's shared element return transition determines how shared elements animate from B to A. 
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: |
+        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+  - name: activitySharedElementReenterTransition
+    summary: The type of reenter transition used when animating shared elements between two activities.
+    description: |
+        Activity A's shared element reenter transition animates shared elements after they have transitioned from B to A. 
+        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
+        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
+        for more information.
+    type: Number
+    constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
+    default: |
+        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+    since: "5.2.0"
+    availability: creation
+    platforms: [android]
+    osver: {android: {min: 5.0}}
+
+
 description: |
     To create a window, use the <Titanium.UI.createWindow> method or a **`<Window>`** Alloy element.
 
@@ -1427,24 +1560,9 @@ description: |
     `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
     and then available via <Titanium.App.Android.R>.
 
-    #### Material design activity transitions in Android
+    #### Material design transitions in Android
 
-    Activity transitions in material design apps provide visual connections between different states through 
-    motion and transformations between common elements.
-
-    As an example, you may wish for the views move in or out from the center when transitioning between two activities. 
-    These are called content transitions which animates the whole content between transitions. 
-    
-        var win = Ti.UI.createWindow({
-            title: 'RSS Feed',
-            activityExitTransition: Titanium.UI.Android.TRANSITION_EXPLODE,
-            activityReenterTransition: Titanium.UI.Android.TRANSITION_EXPLODE,
-        });
-
-    Use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition` and `activityReturnTransition` to customize 
-    the content transitions. 
-    
-    Also you can provide transition between common elements among participating activities. For example in a master-detail pattern,
+    You can provide transition between common elements among participating activities. For example in a master-detail pattern,
     clicking on a row item animates the common elements of image, title smoothly into details activity as if they are part of
     the same scene. This seamless animation is called shared element transition and can be achieved by the following steps. 
 
@@ -1477,6 +1595,12 @@ description: |
         // Before opening window B specify the common UI elements. 
         windowB.addSharedElement(titleInWinA, "title");
         windowB.open();
+
+    Further you can use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition` and `activityReturnTransition` to customize 
+    the way activities transition into the scene. Currently activity transition will work only when atleast a shared element is used between the participating 
+    activities.
+
+    Note that specifying the transitions is not mandatory. If not specified it defaults to Material theme transition. 
 
     See the official Android [Activity Transitions](http://developer.android.com/training/material/animations.html#Transitions) 
     documentation for more information and supported transitons.
@@ -1660,124 +1784,6 @@ properties:
     type: Number
     platforms: [android]
     since: "3.1.0"
-
-  - name: activityExitTransition
-    summary: The type of transition used when activity is exiting. 
-    description: |
-        Activity A's exit transition determines how views in A are animated when A starts B.
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: If not specified uses platform theme transition. 
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activityEnterTransition
-    summary: The type of transition used when activity is entering. 
-    description: |
-        Activity B's enter transition determines how views in B are animated when A starts B.
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: If not specified uses platform theme transition. 
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activityReturnTransition
-    summary: The type of transition used when returning from a previously started activity. 
-    description: |
-        Activity B's return transition determines how views in B are animated when B returns to A.
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: If not specified uses platform theme transition. 
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activityReenterTransition
-    summary: The type of transition used when reentering to a previously started activity. 
-    description: |
-        Activity A's reenter transition determines how views in A are animated when B returns to A.
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: If not specified uses platform theme transition. 
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activitySharedElementExitTransition
-    summary: The type of exit transition used when animating shared elements between two activities.
-    description: |
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activitySharedElementEnterTransition
-    summary: The type of enter transition used when animating shared elements between two activities.
-    description: |
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activitySharedElementReturnTransition
-    summary: The type of return transition used when animating shared elements between two activities.
-    description: |
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-  - name: activitySharedElementReenterTransition
-    summary: The type of reenter transition used when animating shared elements between two activities.
-    description: |
-        Applicable for Android 5.0 and above. This value will be ignored if `animated` is set to false.
-        See "Material design activity transitions in Android" in the main description of Titanium.UI.Window
-        for more information.
-    type: Number
-    constants: Titanium.UI.Android.TRANSITION_*
-    default: Titanium.UI.Android.TRANSITION_CHANGE_BOUNDS
-    since: "5.2.0"
-    availability: creation
-    platforms: [android]
-    osver: {android: {min: 5.0}}
-
-
 ---
 name: windowToolbarParam
 summary: Dictionary of options for the <Titanium.UI.Window.setToolbar> method.
