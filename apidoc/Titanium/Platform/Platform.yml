@@ -27,6 +27,8 @@ methods:
     description: |
         On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
         unless the URL is empty or undefined.
+        
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
     platforms: [iphone, ipad]

@@ -108,6 +108,7 @@ function iOSBuilder() {
 
 	// when true and building an app with a watch extension for the simulator and the --launch-watch-app
 	// flag is passed in, then show the external display and launch the watch app
+	this.hasWatchAppV1 = false;
 	this.hasWatchAppV2orNewer = false;
 
 	// if this app has any watch apps, then we need to know the min watchOS version for one of them
@@ -1487,20 +1488,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
-						if (targetInfo.isWatchAppV1Extension) {
-							logger.error(__('watchOS 1 app detected'));
-							logger.error(__('Titanium %s does not support watchOS 1 apps', this.titaniumSdkVersion) + '\n');
-							process.exit(1);
-						}
-
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if (targetInfo.isWatchAppV2orNewer
+						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV1) {
+							this.hasWatchAppV1 = true;
+							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
+						} else if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
@@ -1542,7 +1540,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 												logger.error(__('iOS extension "%s" WatchKit App bundle identifier must be different from the Titanium app\'s id "%s".', ext.projectName, appId) + '\n');
 												process.exit(1);
 											}
-										} else if (targetInfo.isWatchAppV2orNewer) {
+										} else if (targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer) {
 											logger.error(__('The "%s" iOS extension "%s" target\'s Info.plist is missing the WKWatchKitApp property, yet the product type is of a watch: %s', ext.projectName, targetName, productType) + '\n');
 											process.exit(1);
 										}
@@ -1690,6 +1688,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					var minVer = this.tiapp.ios['min-ios-ver'] && appc.version.gt(this.tiapp.ios['min-ios-ver'], this.minSupportedIosSdk) ? this.tiapp.ios['min-ios-ver'] : this.minSupportedIosSdk;
 					if (this.hasWatchAppV2orNewer && appc.version.lt(minVer, '9.0')) {
 						minVer = '9.0';
+					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
+						minVer = '8.4';
 					}
 
 					var xcodeInfo = this.iosInfo.xcode;
@@ -1729,13 +1729,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 
 				// if we found a watch app and --watch-device-id was set, but --launch-watch-app was not, then set it
-				if (this.hasWatchAppV2orNewer && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
+				if ((this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
 					cli.argv['launch-watch-app'] = true;
 				}
 
 				if (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']) {
 					// make sure we have a watch app
-					if (!this.hasWatchAppV2orNewer) {
+					if (!this.hasWatchAppV1 && !this.hasWatchAppV2orNewer) {
 						logger.warn(__('%s flag was set, however there are no iOS extensions containing a watch app.', cli.argv['launch-watch-app'] ? '--launch-watch-app' : '--launch-watch-app-only'));
 						logger.warn(__('Disabling launch watch app flag'));
 						cli.argv['launch-watch-app'] = cli.argv['launch-watch-app-only'] = false;
@@ -1759,7 +1759,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					iosVersion:             this.iosSdkVersion,
 					simType:                deviceFamily === 'ipad' ? 'ipad' : 'iphone',
 					simVersion:             this.iosSdkVersion,
-					watchAppBeingInstalled: this.hasWatchAppV2orNewer && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
+					watchAppBeingInstalled: (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
 					watchHandleOrUDID:      cli.argv['watch-device-id'],
 					watchMinOSVersion:      this.watchMinOSVersion,
 					logger: function (msg) {
@@ -3050,7 +3050,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 				}, this);
 
-				if (targetInfo.isWatchAppV2orNewer) {
+				if (targetInfo.isWatchAppV1Extension) {
+					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'PlugIns', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
+				} else if (targetInfo.isWatchAppV2orNewer) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'Watch', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
 				}
 
@@ -3126,7 +3128,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (targetInfo.isWatchAppV2orNewer) {
+					if (targetInfo.isWatchAppV1Extension) {
+						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
+					} else if (targetInfo.isWatchAppV2orNewer) {
 						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
 					}
 				}
@@ -3136,12 +3140,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
-	// if any extensions contain a watch app, we must force the min iOS deployment target to 9.0
-	if (this.hasWatchAppV2orNewer) {
+	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
+	if (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) {
 		// TODO: Make sure the version of Xcode can support this version of watch app
 
 		var once = 0,
-			iosDeploymentTarget = '9.0';
+			iosDeploymentTarget = this.hasWatchAppV2orNewer ? '9.0' : '8.2';
 
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -4928,13 +4932,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				found = {};
 
 			fs.existsSync(launchImageDir) || wrench.mkdirSyncRecursive(launchImageDir);
-
-			Object.keys(lookup).forEach(function (key) {
-				if (appc.version.lt(this.minIosVer, lookup[key].minSysVer)) {
-					// remove unsupported
-					delete lookup[key];
-				}
-			}, this);
 
 			Object.keys(launchImages).forEach(function (filename) {
 				var info = launchImages[filename],

@@ -407,7 +407,7 @@ properties:
         Safari, it is opt-in, by way of this property, rather default behavior for this class.
     type: Boolean
     default: false
-    since: "6.0.0"
+    since: "5.4.0"
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
 

@@ -230,7 +230,6 @@ public class TitaniumModule extends KrollModule
 	public void alert(Object message)
 	{
 		String msg = (message == null? null : message.toString());
-		Log.i("ALERT", msg);
 
 		/* TODO - look at this along with the other service stuff
 		if (invocation.getTiContext().isServiceContext()) {

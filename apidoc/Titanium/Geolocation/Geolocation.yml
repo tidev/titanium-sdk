@@ -244,7 +244,9 @@ methods:
     description: |
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
-        the user has to manually enable the permission in device settings.
+        the user has to manually enable the permission in device settings. If the user asks for permissions or 
+        tries to get unauthorized location information, then the app should call the request method to show 
+        the permission settings.
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.

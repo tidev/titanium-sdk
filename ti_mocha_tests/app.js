@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,6 +25,9 @@ require('./ti.utils.test');
 require('./ti.analytics.test');
 require('./ti.ui.textfield.test');
 require('./ti.network.cookie.test');
+require('./ti.ui.window.test');
+require('./ti.ui.attributedString.test');
+require('./ti.calendar.test');
 /*require('./ti.accelerometer.test');
 require('./ti.app.test');
 require('./ti.app.properties.test');

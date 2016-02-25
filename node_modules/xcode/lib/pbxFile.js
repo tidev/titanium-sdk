@@ -94,8 +94,13 @@ function defaultEncoding(fileRef) {
 }
 
 function detectGroup(fileRef) {
-    var filetype = fileRef.lastKnownFileType || fileRef.explicitFileType,
+    var extension = path.extname(fileRef.basename).substring(1),
+        filetype = fileRef.lastKnownFileType || fileRef.explicitFileType,
         groupName = GROUP_BY_FILETYPE[unquoted(filetype)];
+
+    if (extension === 'xcdatamodeld') {
+        return 'Sources';
+    }
 
     if (!groupName) {
         return DEFAULT_GROUP;
@@ -154,6 +159,7 @@ function pbxFile(filepath, opt) {
     
     self = this;
 
+    this.basename = path.basename(filepath);
     this.lastKnownFileType = opt.lastKnownFileType || detectType(filepath);
     this.group = detectGroup(self);
 
@@ -163,7 +169,6 @@ function pbxFile(filepath, opt) {
         this.dirname = path.dirname(filepath);
     }
 
-    this.basename = path.basename(filepath);
     this.path = defaultPath(this, filepath);
     this.fileEncoding = this.defaultEncoding = opt.defaultEncoding || defaultEncoding(self);
 

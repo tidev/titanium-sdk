@@ -104,6 +104,7 @@ events:
             The current content size of the scroll view defined by its `width` and `height` properties.
         type: Dictionary
         platforms: [iphone, ipad]
+        since: "5.2.0"
 
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
