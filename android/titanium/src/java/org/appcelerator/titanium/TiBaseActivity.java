@@ -7,7 +7,9 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -97,24 +99,24 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	public static class PermissionContextData {
 		private final Integer requestCode;
-		private final WeakReference<KrollObject> context;
-		private final WeakReference<KrollFunction> callback;
+		private final KrollObject context;
+		private final KrollFunction callback;
 		private final String[] permissions;
 
 		public PermissionContextData(Integer requestCode, KrollFunction callback, KrollObject context,String... perms){
 			this.requestCode = requestCode;
-			this.callback = new WeakReference<KrollFunction>(callback);
-			this.context = new WeakReference<KrollObject>(context);
+			this.callback = callback;
+			this.context = context;
 			this.permissions = perms;
 		}
 		public Integer getRequestCode(){
 			return requestCode;
 		}
 		public KrollFunction getCallback() {
-			return callback.get();
+			return callback;
 		}
 		public KrollObject getContext() {
-			return context.get();
+			return context;
 		}
 		public String[] getPermissions(){return permissions;}
 	}
@@ -495,23 +497,33 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if(cbd == null)
 			return;
 
+		List<String> deniedPerms = new ArrayList<String>(permissions.length);
 		boolean granted = true;
 		for (int i = 0; i < grantResults.length; ++i) {
 			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
 				granted = false;
-				break;
+				deniedPerms.add(permissions[i]);
 			}
 		}
+		KrollDict response = new KrollDict();
 		if (granted) {
-			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(0, null);
 			response.put("requestCode",requestCode);
-			cbd.getCallback().callAsync(cbd.getContext(), response);
+			response.put("permissions",permissions);
 		} else {
-			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(-1, "One or more permission(s) were denied");
 			response.put("requestCode",requestCode);
-			cbd.getCallback().callAsync(cbd.getContext(), response);
+			response.put("permissions",permissions);
+			String[] denied  = deniedPerms.toArray(new String[deniedPerms.size()]);
+			response.put("denied",denied);
+		}
+		KrollFunction callback = cbd.getCallback();
+		if( callback != null) {
+			KrollObject context = cbd.getContext();
+			if(context==null) Log.w("Permissions","Callback context object is null");
+			callback.callAsync(context, response);
+		} else {
+			Log.w("Permissions","Callback function has been garbage collected!?");
 		}
 	}
 
