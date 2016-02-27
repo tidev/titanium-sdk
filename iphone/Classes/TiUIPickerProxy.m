@@ -315,8 +315,18 @@ NSArray* pickerKeySequence;
 	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight);
 }
 
-USE_VIEW_FOR_VERIFY_HEIGHT
-USE_VIEW_FOR_VERIFY_WIDTH
+//USE_VIEW_FOR_VERIFY_HEIGHT
+//-(CGFloat) verifyHeight: (CGFloat)value
+//{
+//    return [[self view] verifyHeight:value];
+//}
+//
+//USE_VIEW_FOR_VERIFY_WIDTH
+//-(CGFloat) verifyWidth: (CGFloat)value
+//{
+//    return [[self view] verifyWidth:value];
+//}
+
 
 
 -(void)reloadColumn:(id)column

@@ -26,48 +26,40 @@
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
 
--(CGFloat)verifyHeight:(CGFloat)suggestedHeight
-{
-	// pickers have a forced height so we use it's height
-	// instead of letting the user set it
-	return picker.frame.size.height;
-}
-
--(CGFloat)verifyWidth:(CGFloat)suggestedWidth
-{
-    if (suggestedWidth <= 0 && picker != nil) {
-        return picker.frame.size.width;
-    }
-    else {
-        return suggestedWidth;
-    }
-}
-
 -(UIControl*)picker 
 {
 	if (picker==nil)
 	{
-        float width = 320;
-        float height = 216;
-        
+        id width = @320;
+        id height = @216;
+
         if ([TiUtils isIOS9OrGreater]) {
-            width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-            height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-        }
-    
-        [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
-        [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+            width  = [self.proxy valueForKey:@"width"];
+            height = [self.proxy valueForKey:@"height"];
             
+            if (!width) {
+                width = @320;
+            }
+
+            if (!height) {
+                height = @216;
+            }
+        }
+        
+        [[self proxy ]setValue:width forKey:@"width"];
+        [[self proxy ]setValue:height forKey:@"height"];
+
+        
         if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:[self bounds]];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = [[UIDatePicker alloc] initWithFrame:[self bounds]];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -90,6 +82,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+    [super frameSizeChanged:frame bounds:bounds];
 	if (picker!=nil && !CGRectIsEmpty(bounds))
 	{
 		[picker setFrame:bounds];
@@ -450,7 +443,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
         }
     }
 }
-
 
 @end
 
