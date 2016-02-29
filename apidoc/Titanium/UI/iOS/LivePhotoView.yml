@@ -14,8 +14,19 @@ extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "5.2.0"
 osver: {ios:{min: "9.1"}}
+excludes:
+    events: [click,dblclick,doubletap,longpress,pinch,postlayout,singletap,swipe,
+            touchcancel,touchend,touchmove,touchstart,twofingertap]
 
 properties:
+  - name: livePhoto
+    summary: The Live Photo displayed in the view.
+    description: |
+        You receive a new live photo object by selecting an existing photo from the photo gallery. 
+        Note: iOS 9.1 only allows to select existing photos from  the gallery, capturing new live 
+        photos is not supported by the iOS public API, yet.
+    type: [Titanium.UI.iOS.LivePhoto]
+
   - name: muted
     summary: | 
         A Boolean value that determines whether the view plays the audio content of its Live Photo.
