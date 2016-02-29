@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.widget.picker.TiUIPicker;
 import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUITimeSpinnerNumberPicker;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -64,6 +65,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_FORCE_LAYOUT = MSG_FIRST_ID + 107;
 	private static final int MSG_SHOW_DATE_PICKER_DIALOG = MSG_FIRST_ID + 108;
 	private boolean useSpinner = false;
+	private boolean nativeSpinner = false;
 
 	public PickerProxy()
 	{
@@ -78,17 +80,20 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 
 	@Override
 	public void handleCreationDict(KrollDict dict) {
-		super.handleCreationDict(dict);
-		if (dict.containsKey("useSpinner")) {
-			useSpinner = TiConvert.toBoolean(dict, "useSpinner");
-			Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
-		}
-		if (hasProperty("type")) {
-			type = TiConvert.toInt(getProperty("type"));
-		}
-		if (dict.containsKey("columns")) {
-			setColumns(dict.get("columns"));
-		}
+	    super.handleCreationDict(dict);
+	    if (dict.containsKey("useSpinner")) {
+	        useSpinner = TiConvert.toBoolean(dict, "useSpinner");
+	        Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
+	    }
+	    if (dict.containsKey("nativeSpinner")) {
+	        nativeSpinner = TiConvert.toBoolean(dict, "nativeSpinner");
+	    }
+	    if (hasProperty("type")) {
+	        type = TiConvert.toInt(getProperty("type"));
+	    }
+	    if (dict.containsKey("columns")) {
+	        setColumns(dict.get("columns"));
+	    }
 	}
 
 	@Override
@@ -109,11 +114,14 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 				return createDatePicker(activity);
 			}
 		} else if (type == UIModule.PICKER_TYPE_TIME) {
-			if (useSpinner) {
-				return createTimeSpinner(activity);
-			} else {
-				return createTimePicker(activity);
-			}
+		    if (nativeSpinner) {
+		        return createTimeSpinnerNumberPicker(activity);
+		    }
+		    if (useSpinner) {
+		        return createTimeSpinner(activity);
+		    } else {
+		        return createTimePicker(activity);
+		    }
 		} else {
 			Log.w(TAG, "Unknown picker type");
 			return null;
@@ -134,6 +142,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private TiUIView createTimePicker(Activity activity)
 	{
 		return new TiUITimePicker(this, activity);
+	}
+	
+	private TiUIView createTimeSpinnerNumberPicker(Activity activity)
+	{
+	    return new TiUITimeSpinnerNumberPicker(this, activity);
 	}
 
 	private TiUIView createTimeSpinner(Activity activity)
