@@ -22,10 +22,6 @@
 #import "TiExceptionHandler.h"
 #import "TiApp.h"
 
-#if IS_XCODE_7_3
-#import <WatchConnectivity/WatchConnectivity.h>
-#endif
-
 // for checking version
 #import <sys/utsname.h>
 
@@ -208,7 +204,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS9_3OrGreater
 {
 #if IS_XCODE_7_3
-    return [WCSession instancesRespondToSelector:@selector(activationState)];
+    return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
 #else
     return NO;
 #endif
