@@ -705,7 +705,7 @@ static NSDictionary* iOS9propertyKeys;
 
 	id property = nil;
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		NSArray *allKeys = [[TiContactsPerson iOS9propertyKeys] allKeysForObject:key];
 		//key is undefined
 		if ([allKeys count] != 1) {
