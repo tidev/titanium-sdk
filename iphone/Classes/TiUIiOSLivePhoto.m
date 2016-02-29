@@ -10,6 +10,11 @@
 
 @implementation TiUIiOSLivePhoto
 
+-(NSString *)apiName
+{
+    return @"Ti.UI.iOS.LivePhoto";
+}
+
 -(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto
 {
     if(self = [self init]) {
