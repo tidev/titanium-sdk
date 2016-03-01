@@ -36,7 +36,7 @@ exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = __('Builds an existing app or module project.');
 
-exports.config = function (logger, config, cli) {
+exports.config = function config(logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
 
 	// start patching the logger here
@@ -44,6 +44,8 @@ exports.config = function (logger, config, cli) {
 
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
+			// note: it's currently impossible for the module build to declare any
+			// config options/flags.
 			ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
 				var conf = {
 					flags: {
@@ -229,7 +231,7 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
-exports.validate = function (logger, config, cli) {
+exports.validate = function validate(logger, config, cli) {
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
 
@@ -275,9 +277,8 @@ exports.validate = function (logger, config, cli) {
 	}
 };
 
-exports.run = function (logger, config, cli, finished) {
-
-	var buildFile = (cli.argv.type === 'module') ? '_buildModule.js' :'_build.js',
+exports.run = function run(logger, config, cli, finished) {
+	var buildFile = cli.argv.type === 'module' ? '_buildModule.js' :'_build.js',
 		platform = ti.resolvePlatform(cli.argv.platform),
 		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile),
 		counter = 0;

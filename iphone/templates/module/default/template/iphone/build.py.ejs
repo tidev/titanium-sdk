@@ -259,6 +259,13 @@ def package_module(manifest,mf,config):
 
 
 if __name__ == '__main__':
+	print "**************************************************************"
+	print "  WARNING!"
+	print "    This Python script is deprecated!"
+	print "    Please use 'ti build -p ios --build-only' instead"
+	print "**************************************************************"
+	print ""
+
 	manifest,mf = validate_manifest()
 	validate_license()
 	config = read_ti_xcconfig()
