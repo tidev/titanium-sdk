@@ -2095,7 +2095,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
 	this.xcodeAppDir            = path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
@@ -4292,6 +4292,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase()));
 		walk(path.join(module.modulePath, 'platform', 'iphone'), this.buildDir);
 		walk(path.join(module.modulePath, 'platform', 'ios'), this.buildDir);
+		walk(path.join(module.modulePath, 'Resources'), this.xcodeAppDir);
 	}, this);
 
 	this.logger.info(__('Analyzing localized launch images'));
