@@ -9,14 +9,16 @@
 #import "TiScrollableView.h"
 #import "TiScrollView.h"
 #import "TiTextField.h"
-//#import "TiSwitch.h"
+#import "TiSwitch.h"
 #import "TiToolbar.h"
-//#import "TiUtils.h"
+#import "TiView.h"
 #import "TiLabel.h"
 #import "TiButton.h"
+#import "TiTableView.h"
 
 #define FILL @"FILL"
 #define SIZE @"SIZE"
+
 
 
 @implementation ViewController
@@ -35,39 +37,72 @@
     
     [super viewDidLoad];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiLayoutView* myView = [[TiLayoutView alloc] init];
+
+    TiLayoutView* parentView = [[TiLayoutView alloc] init];
+    [parentView setWidth:@300];
+    [parentView setHeight:@"SIZE"];
+    [parentView setLayout_:@"vertical"];
+    [parentView setBackgroundColor:[UIColor lightGrayColor]];
+    
+    TiLayoutView* view = [[TiLayoutView alloc] init];
+    [view setWidth:@"100"];
+    [view setHeight:@"100"];
+    [view setViewName:@"this_view"];
+    [view setBackgroundColor:[UIColor redColor]];
+
+    TiLabel* label = [[TiLabel alloc] init];
+    [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham"];
+
+    [parentView addSubview:view];
+    [parentView addSubview:label];
+
+    [myView addSubview:parentView];
+    [[self view] addSubview:myView];
+
+    
+    CGFloat height = [parentView heightIfWidthWere:300];
+    NSLog(@"Height: %f", height);
+
+    [parentView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        NSLog(@"Height: %f", rect.size.height);
+    }];
+
+
+    NSMutableArray* array = [NSMutableArray array];
+    //
+    for (NSInteger i =0; i < 100; i++) {
         
-        UIView* thisView = [self view];
-        
-        TiLayoutView* window = [[TiLayoutView alloc] init];
-        [window setOnLayout:^(TiLayoutView *s, CGRect r) {
-            NSLog(@"here");
-        }];
-        
-        TiToolbar* toolbar = [[TiToolbar alloc] init];
-        [window insertSubview:toolbar atIndex:0];
-        
-        toolbar.backgroundColor = [UIColor grayColor];
-        
-        UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-        UIBarButtonItem* button1 = [[UIBarButtonItem alloc] initWithTitle:@"meh 1" style:UIBarButtonItemStylePlain target:nil action:nil];
-        
-        TiTextField* textField = [[TiTextField alloc] init];
-        textField.viewName = @"TiUITextField";
-        
-        button1.width = 33;
-        
-        textField.backgroundColor = [UIColor yellowColor];
-        textField.width = @200;
-        textField.height = @32;
-        
-        [toolbar setItems:@[flexSpace, button1, flexSpace, textField, flexSpace]];
+        TiTableViewRow* row = [[TiTableViewRow alloc] init];
+        [row setLayout_:@"vertical"];
+        [row setHeight_:@"SIZE"];
         
         
-        [thisView addSubview:window];
-        [thisView bringSubviewToFront:window];
-        
-        NSLog(@"Done");
-    });
+        if (i % 2) {
+            TiLabel* label = [[TiLabel alloc] init];
+            [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham"];
+            TiView* v = [[TiView alloc] init];
+            [v setWidth:@"100"];
+            [v setHeight:@"100"];
+            [v setBackgroundColor: [UIColor redColor]];
+            [row addSubview:label];
+            [row addSubview:v];
+            [[row parentView] setViewName: @"1"];
+        } else {
+            TiLabel* label = [[TiLabel alloc] init];
+            [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham. Picanha tenderloin rump ball tip."];
+            [row addSubview:label];
+            [[row parentView] setViewName: @"2"];
+        }
+        [array addObject:row];
+    }
+
+    
+    TiTableView* table = [[TiTableView alloc] init];
+    [table setTableData:array];
+    
+    [myView addSubview:table];
+    [[self view] addSubview:myView];
+    
 }
 @end

@@ -211,6 +211,14 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    if ([self class] == [TiUIView class]) {
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+    }
+}
 - (id) init
 {
 	self = [super init];

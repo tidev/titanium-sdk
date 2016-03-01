@@ -2485,6 +2485,11 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
+#ifdef TI_USE_AUTOLAYOUT
+    if (rowWidth == 0) {
+        rowWidth = [[[[[UIApplication sharedApplication] delegate] window] rootViewController] view].bounds.size.width;
+    }
+#endif
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -2509,8 +2514,15 @@ return result;	\
     return rowWidth;
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(CGFloat)tableView:(UITableView*)ourTableView estimatedHeightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    return 45;
+}
+#endif
+
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{    
+{
 	NSIndexPath* index = indexPath;
 	if (ourTableView != tableview) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
