@@ -19,7 +19,8 @@ description: |
     By default, the spinner is automatically sized to fit its content and can overflow
     to additional spinner rows. The size of the picker can be adjusted with the `width`
     and `height` properties, but may omit picker columns or cut off picker rows
-    if the size is set too small.
+    if the size is set too small. This property is deprecated. Please use the default
+    Android native "dropdown" style by not setting `useSpinner` to `true`.
 
     On iOS, the `height` property is only available in iOS 9 and later.
     By default, the size of the picker, including its background, is fixed at the
@@ -400,6 +401,9 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+    deprecated:
+      since: 5.2.1
+      notes: This property is deprecated. Please use the default native "dropdown" style.
     
   - name: value
     summary: Date and time value for Date and Time pickers.

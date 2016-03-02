@@ -4,9 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+//This test should only be ran locally as permissions are required.
 var should = require('./should');
 
-describe("Titanium.UI.Calendar.defaultCalendar", function() {
+describe.skip("Titanium.UI.Calendar.defaultCalendar", function() {
     it("Titanium.UI.Calendar.defaultCalendar", function(finish) {
 
     var date1 = new Date(new Date().getTime() + 3000),

@@ -24,6 +24,7 @@ require('./ti.ui.slider.test');
 require('./ti.utils.test');
 require('./ti.analytics.test');
 require('./ti.ui.textfield.test');
+require('./ti.network.cookie.test');
 require('./ti.ui.window.test');
 require('./ti.ui.attributedString.test');
 require('./ti.calendar.test');
