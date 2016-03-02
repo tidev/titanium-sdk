@@ -172,7 +172,6 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 -(void)addSubview:(nonnull UIView *)view
 {
     WRAP_TI_VIEW(view)
-    [wrapperView setBackgroundColor:[UIColor redColor]];
     [[self contentView] addSubview:wrapperView];
 }
 
@@ -235,7 +234,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 	if (_scrollView==nil)
 	{        
         _scrollView = [[UIScrollView alloc] init];
-            [_scrollView setDelegate:self];
+        [_scrollView setDelegate:self];
         [_scrollView setPagingEnabled:YES];
         [_scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_scrollView setShowsHorizontalScrollIndicator:NO];
@@ -789,8 +788,8 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
         pageChanged = YES;
         cacheSize = minCacheSize;
         [pageControl setCurrentPage:nextPage];
-#endif
         currentPage = nextPage;
+#endif
         [self.proxy replaceValue:NUMINTEGER(currentPage) forKey:@"currentPage" notification:NO];
 #ifndef TI_USE_AUTOLAYOUT
         cacheSize = curCacheSize;

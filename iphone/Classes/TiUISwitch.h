@@ -10,8 +10,8 @@
 @interface TiUISwitch : TiUIView<LayoutAutosizing> {
 @private
 	UISwitch *switchView;
-    BOOL firstInit;
-    BOOL animated;
+	BOOL firstInit;
+	BOOL animated;
 }
 
 - (IBAction)switchChanged:(id)sender;
