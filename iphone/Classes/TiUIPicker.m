@@ -30,25 +30,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
-        id width = @320;
-        id height = @216;
-
-        if ([TiUtils isIOS9OrGreater]) {
-            width  = [self.proxy valueForKey:@"width"];
-            height = [self.proxy valueForKey:@"height"];
-            
-            if (!width) {
-                width = @320;
-            }
-
-            if (!height) {
-                height = @216;
-            }
-        }
-        
-        [[self proxy ]setValue:width forKey:@"width"];
-        [[self proxy ]setValue:height forKey:@"height"];
-
         
         if (type == -1)
 		{
@@ -66,7 +47,25 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		}
 		[picker setBackgroundColor:[UIColor whiteColor]];
 		[self addSubview:picker];
-	}
+#ifndef TI_USE_AUTOLAYOUT
+        [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self addConstraints: [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[picker]|" options:NSLayoutFormatAlignAllLeft metrics:0 views:NSDictionaryOfVariableBindings(picker)]];
+        [self addConstraints: [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[picker]|" options:NSLayoutFormatAlignAllLeft metrics:0 views:NSDictionaryOfVariableBindings(picker)]];
+        
+        [self setNeedsLayout];
+        [self layoutIfNeeded];
+        [self layoutSubviews];
+                
+        if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width))
+        {
+            [(TiViewProxy*)[self proxy] layoutProperties]->width = TiDimensionMake(TiDimensionTypeDip, self.bounds.size.width);
+        }
+        if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->height))
+        {
+            [(TiViewProxy*)[self proxy] layoutProperties]->height = TiDimensionMake(TiDimensionTypeDip, self.bounds.size.height);
+        }
+#endif
+    }
 	return picker;
 }
 
@@ -83,13 +82,16 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [super frameSizeChanged:frame bounds:bounds];
-	if (picker!=nil && !CGRectIsEmpty(bounds))
-	{
-		[picker setFrame:bounds];
-		if (![self isDatePicker]) {
-			[(UIPickerView*)picker reloadAllComponents];
-		}
-	}
+    if (picker!=nil && !CGRectIsEmpty(bounds))
+    {
+        [picker setFrame:bounds];
+        if (![self isDatePicker]) {
+            [(UIPickerView*)picker reloadAllComponents];
+        }
+    }
+    if (![self isDatePicker]) {
+        [(UIPickerView*)picker reloadAllComponents];
+    }
     [super frameSizeChanged:frame bounds:bounds];
 }
 
