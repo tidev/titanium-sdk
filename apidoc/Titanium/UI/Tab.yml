@@ -311,7 +311,7 @@ events:
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
-    since: "5.2.0"
+    since: {android: "3.5.1 ",  iphone: "5.2.0", ipad: "5.2.0"}
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -359,7 +359,7 @@ events:
 
   - name: selected
     summary: Fired when the tab is selected.
-    since: "5.2.0"
+    since: {android: "3.5.1 ",  iphone: "5.2.0", ipad: "5.2.0"}
     properties:
       - name: index
         summary: Index of the current active tab.
