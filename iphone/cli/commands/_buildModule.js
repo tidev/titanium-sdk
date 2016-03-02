@@ -29,7 +29,6 @@ var appc = require('node-appc'),
 	util = require('util'),
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
@@ -298,6 +297,8 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				return cb();
 			}
 
+			fs.existsSync(this.assetsDir) || wrench.mkdirSyncRecursive(this.assetsDir);
+
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
 				[ this.moduleId, this.assetsDir, this.moduleGuid ],
@@ -308,25 +309,33 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 2. compile all other js files in assets dir
 		function (cb) {
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) === '.js' && this.jsFilesToEncrypt.indexOf(file) === -1) {
-					this.jsFilesToEncrypt.push(file);
+			try {
+				if (!fs.existsSync(this.assetsDir)) {
+					throw new Error();
 				}
-			}.bind(this));
 
-			var jsFilesCount = this.jsFilesToEncrypt.length;
+				this.dirWalker(this.assetsDir, function (file) {
+					if (path.extname(file) === '.js' && this.jsFilesToEncrypt.indexOf(file) === -1) {
+						this.jsFilesToEncrypt.push(file);
+					}
+				}.bind(this));
 
-			if (jsFilesCount === 0 || ( fs.existsSync(jsFile) && jsFilesCount === 1)) {
-				renderData.allEncryptedAssets = renderData.mainEncryptedAsset;
-				renderData.allEncryptedAssetsReturn = 'return nil;';
-				cb();
-			} else {
+				var jsFilesCount = this.jsFilesToEncrypt.length;
+
+				if (jsFilesCount === 0 || ( fs.existsSync(jsFile) && jsFilesCount === 1)) {
+					throw new Error();
+				}
+
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'),
 					[ this.moduleId, this.assetsDir, this.moduleGuid ],
 					{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets' },
 					cb
 				);
+			} catch (e) {
+				renderData.allEncryptedAssets = renderData.mainEncryptedAsset;
+				renderData.allEncryptedAssetsReturn = 'return nil;';
+				cb();
 			}
 		},
 
@@ -557,11 +566,13 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		}
 
 		// 5. assets folder, not including js files
-		this.dirWalker(this.assetsDir, function (file) {
-			if (path.extname(file) != '.js') {
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
-			}
-		}.bind(this));
+		if (fs.existsSync(this.assetsDir)) {
+			this.dirWalker(this.assetsDir, function (file) {
+				if (path.extname(file) != '.js') {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
+				}
+			}.bind(this));
+		}
 
 		// 6. the merge *.a file
 		// 7. LICENSE file
@@ -643,8 +654,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 		});
 	}
 
-	var tasks = [
-
+	series(this, [
 		function (cb) {
 			// 1. create temp dir
 			do {
@@ -683,7 +693,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			fs.writeFileSync(path.join(tmpProjectDir, 'tiapp.xml'), result);
 
 			// 4. copy files in example to Resource
-			afs.copyDirSyncRecursive(
+			appc.fs.copyDirSyncRecursive(
 				this.exampleDir,
 				path.join(tmpProjectDir, 'Resources'),
 				{
@@ -713,9 +723,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 				cb
 			);
 		}
-	];
-
-	appc.async.series(this, tasks, next);
+	], next);
 };
 
 // create the builder instance and expose the public api
