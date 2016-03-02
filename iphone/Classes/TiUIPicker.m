@@ -55,14 +55,23 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
         [self setNeedsLayout];
         [self layoutIfNeeded];
         [self layoutSubviews];
-                
+        float width  =  self.bounds.size.height;
+        float height = self.bounds.size.width;
+        if (![TiUtils isIOS9OrGreater])
+        {
+            width  = 320;
+            height = 216;
+            //TIMOB-20028
+            [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
+            [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+        }
         if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width))
         {
-            [(TiViewProxy*)[self proxy] layoutProperties]->width = TiDimensionMake(TiDimensionTypeDip, self.bounds.size.width);
+            [(TiViewProxy*)[self proxy] layoutProperties]->width = TiDimensionMake(TiDimensionTypeDip, width);
         }
         if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->height))
         {
-            [(TiViewProxy*)[self proxy] layoutProperties]->height = TiDimensionMake(TiDimensionTypeDip, self.bounds.size.height);
+            [(TiViewProxy*)[self proxy] layoutProperties]->height = TiDimensionMake(TiDimensionTypeDip, height);
         }
 #endif
     }
