@@ -2657,6 +2657,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		gccDefs.push('KROLL_COVERAGE=1');
 	}
 
+	if (this.enableLaunchScreenStoryboard) {
+		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
+	}
+
 	if (this.defaultBackgroundColor) {
 		gccDefs.push(
 			'DEFAULT_BGCOLOR_RED=' + this.defaultBackgroundColor.red,
