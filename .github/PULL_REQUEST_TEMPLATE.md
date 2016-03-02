@@ -1,3 +1,5 @@
-**JIRA**: https://jira.appcelerator.org/browse/TIMOB-[TICKET-NUMBER]
+**JIRA:** https://jira.appcelerator.org/browse/[TICKET]
 
-**Additional description (optional)**: 
+Provide a clear PR title prefixed with `[TICKET]`
+
+**Optional Description:**
