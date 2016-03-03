@@ -434,12 +434,9 @@
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
         
-#if IS_XCODE_7
         if ([TiUtils isIOS9OrGreater]) {
             tableview.cellLayoutMarginsFollowReadableWidth = NO;
         }
-#endif
-        
 	}
 	if ([tableview superview] != self)
 	{
