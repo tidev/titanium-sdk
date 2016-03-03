@@ -290,8 +290,11 @@
             return NO;
         }
         NSRange theRange = NSMakeRange(0, 0);
+        NSString *url = nil;
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
         TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
-        NSString *url = [tempString getLink:idx];
+        url = [tempString getLink:idx];
+#endif
         if(url != nil && url.length) {
             NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                        url, @"url",
