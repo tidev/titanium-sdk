@@ -61,9 +61,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
         {
             width  = 320;
             height = 216;
-            //TIMOB-20028
-            [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
-            [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
         }
         if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width))
         {
