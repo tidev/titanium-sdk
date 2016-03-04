@@ -194,7 +194,9 @@ events:
         Available on iOS 4.0 and later.
         
         This event fires when the user leaves the application or for certain types of temporary interruptions 
-        such as a notification or incoming phone call.  
+        such as a notification or incoming phone call. If building an IPad application with split view enabled,
+        the event will be called ones the application is put in the background and a different split view
+        application is focused.
         
         See the `applicationWillResignActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
