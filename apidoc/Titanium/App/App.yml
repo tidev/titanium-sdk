@@ -194,8 +194,8 @@ events:
         Available on iOS 4.0 and later.
         
         This event fires when the user leaves the application or for certain types of temporary interruptions 
-        such as a notification or incoming phone call. If building an IPad application with split view enabled,
-        the event will be called ones the application is put in the background and a different split view
+        such as a notification or incoming phone call. On an iPad application with split view enabled,
+        the event will be called once the application is put in the background and a different split view
         application is focused.
         
         See the `applicationWillResignActive` section of the official Apple documentation about 
@@ -295,8 +295,8 @@ events:
     summary: Fired when the application returns to the foreground.
     description: |
         This event fires when the application enters the foreground with the `resume` event or 
-        returns to focus after a notification or incoming phone call. If building an iPad application
-        with a split view enabled, this event will be called every time the application resized.
+        returns to focus after a notification or incoming phone call. On an iPad with split view enabled,
+        this event will be called every time the application resized.
 
         See the `applicationDidBecomeActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
