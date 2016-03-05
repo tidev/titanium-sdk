@@ -56,7 +56,6 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     ENSURE_TYPE([args objectForKey:@"view"], TiViewProxy);
-    ENSURE_UI_THREAD_1_ARG(args);
     
     TiViewProxy *sourceView = [args objectForKey:@"view"];
     UIMenuControllerArrowDirection arrowDirection = [TiUtils intValue:@"arrowDirection" properties:args def:UIMenuControllerArrowDefault];
@@ -82,7 +81,13 @@
 
 -(void)hide:(id)args
 {
-    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    id params = [args objectAtIndex:0];
+    ENSURE_TYPE_OR_NIL(params, NSDictionary);
+    BOOL animated = YES;
+    
+    if (params != nil) {
+        animated = [TiUtils boolValue:@"animated" properties:params def:YES];
+    }
     
     [[UIMenuController sharedMenuController] setMenuVisible:NO animated:animated];
 }

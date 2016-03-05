@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 #import "TiModule.h"
 #import <WatchConnectivity/watchConnectivity.h>
 
@@ -18,4 +17,3 @@
 @property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_ACTIVATED;
 
 @end
-#endif

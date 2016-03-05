@@ -6,9 +6,7 @@
  */
 
 #import "TiAppiOSUserActivityProxy.h"
-#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
-#endif
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
@@ -103,7 +101,7 @@
     if([props objectForKey:@"needsSave"]){
         [_userActivity setNeedsSave:[TiUtils boolValue:@"needsSave" properties:props]];
     }
-#if IS_XCODE_7
+
     if([TiUtils isIOS9OrGreater]){
         if([props objectForKey:@"eligibleForPublicIndexing"]){
             [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
@@ -130,7 +128,7 @@
             [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
         }
     }
-#endif
+
     _userActivity.delegate = self;
 }
 
@@ -302,7 +300,6 @@
 #pragma mark Add ContentAttributeSet
 -(void)addContentAttributeSet:(id)contentAttributeSet
 {
-#if IS_XCODE_7
 #if defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
     ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
     ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
@@ -311,11 +308,9 @@
     }
     _userActivity.contentAttributeSet = ((TiAppiOSSearchableItemAttributeSetProxy*)contentAttributeSet).attributes;
 #endif
-#endif
 }
 
 #pragma mark iOS 9 UserActivity Methods
-#if IS_XCODE_7
 -(NSNumber*)eligibleForPublicIndexing
 {
     if(![TiUtils isIOS9OrGreater]){
@@ -438,7 +433,6 @@
     }
     [_userActivity resignCurrent];
 }
-#endif
 @end
 
 #endif

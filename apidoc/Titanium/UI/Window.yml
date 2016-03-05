@@ -95,6 +95,40 @@ methods:
         optional: true
     platforms: [iphone, ipad]
 
+  - name: showToolbar
+    summary: Makes the bottom toolbar visible.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
+        It will not have any effect on toolbars added manually to the window.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the toolbar will be animated (default) while being shown.
+        type: Dictionary
+        optional: true
+        default: true
+    platforms: [iphone, ipad]
+    since: "5.4.0"
+
+  - name: hideToolbar
+    summary: Makes the bottom toolbar invisible.
+    description: |
+        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
+        It will not have any effect on toolbars added manually to the window.
+    parameters:
+      - name: options
+        summary: |
+            Options dictionary supporting a single `animated` boolean property to determine whether
+            the toolbar will be animated (default) while being hidden.
+        type: Dictionary
+        optional: true
+        default: true
+    platforms: [iphone, ipad]
+    since: "5.4.0"
+
 events:
   - name: android:back
     deprecated:
@@ -552,16 +586,7 @@ properties:
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
     type: Number
-  
-  - name: onBack
-    summary: |
-        Callback function that overrides the default behavior when the user presses the **Back** 
-        button.
-    description: |
-        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
-        callback if you explicitly want to override the back button behavior.
-    type: Callback<Object>
-  
+
   - name: orientationModes
     summary: |
         Array of supported orientation modes, specified using the orientation

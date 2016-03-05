@@ -2,7 +2,7 @@
 name: Titanium.UI.iOS.StatusBar
 summary: A set of constants for the status bar style.
 extends: Titanium.Proxy
-since: "6.0.0"
+since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
 
@@ -91,4 +91,4 @@ properties:
         [LIGHT_CONTENT](Titanium.UI.iOS.StatusBar.LIGHT_CONTENT),
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"

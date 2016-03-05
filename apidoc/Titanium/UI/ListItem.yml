@@ -352,8 +352,8 @@ examples:
         index.js
 
             <!-- controllers/index.js -->
-            listView.addEventListener('itemclick', function(e){
-                var item = section.getItemAt(e.itemIndex);
+            $.listView.addEventListener('itemclick', function(e){
+                var item = $.section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
@@ -362,7 +362,7 @@ examples:
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
-                section.updateItemAt(e.itemIndex, item);
+                $.section.updateItemAt(e.itemIndex, item);
             });
 
   - title: List Items with an Item Template

@@ -1,0 +1,21 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "mocha": true
+  },
+  "extends": "eslint",
+  "rules": {
+    "indent": 0,
+    "space-after-keywords": 0,
+    "require-jsdoc": 0,
+    "quotes": 0,
+    "eqeqeq": 0,
+    "default-case": 0,
+    "spaced-comment": 0,
+    "no-nested-ternary": 0,
+    "curly": 0,
+    "no-underscore-dangle": 0,
+    "strict": 0
+  }
+}

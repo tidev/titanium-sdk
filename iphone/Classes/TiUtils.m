@@ -1156,7 +1156,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
-#if IS_XCODE_7
     if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
@@ -1166,14 +1165,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
          [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
          nil];
         
-#if IS_XCODE_7_1
         if ([self isIOS9_1OrGreater]) {
             [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
         }
-#endif
+
         return dict;
     }
-#endif
+    
     return [self pointToDictionary:point];
 }
 
@@ -1969,23 +1967,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(BOOL)forceTouchSupported
 {
-#if IS_XCODE_7
     if ([self isIOS9OrGreater] == NO) {
         return NO;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
-#else
-    return NO;
-#endif
 }
 
 +(BOOL)livePhotoSupported
 {
-#if IS_XCODE_7_1
     return [self isIOS9_1OrGreater] == YES;
-#else
-    return NO;
-#endif
 }
 
 +(NSString*)currentArchitecture
@@ -2007,15 +1997,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(BOOL)validatePencilWithTouch:(UITouch*)touch
 {
-#if IS_XCODE_7_1
     if ([self isIOS9_1OrGreater]) {
         return [touch type] == UITouchTypeStylus;
     } else {
         return NO;
     }
-#else
-    return NO;
-#endif
 }
 
 @end

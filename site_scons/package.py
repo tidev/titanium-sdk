@@ -437,14 +437,8 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 	zip_dir(zf, os.path.join(top_dir, 'cli'), '%s/cli' % basepath, ignore_paths=ignore_paths)
 
 	# ignore node_modules dirs
-	pkgJson = simplejson.loads(open(os.path.join(top_dir, 'package.json'), 'r').read())
-	for dep in pkgJson['dependencies']:
-		dir = os.path.join(top_dir, 'node_modules', dep)
-		print 'Adding %s' % dir
-		zip_dir(zf, dir, '%s/node_modules/%s' % (basepath, dep))
-	dir = os.path.join(top_dir, 'node_modules', 'titanium-sdk')
-	print 'Adding %s' % dir
-	zip_dir(zf, dir, '%s/node_modules/titanium-sdk' % basepath)
+	ignore_paths.append(os.path.join(top_dir, 'node_modules', '.bin'))
+	zip_dir(zf, os.path.join(top_dir, 'node_modules'), '%s/node_modules' % basepath, ignore_paths=ignore_paths)
 
 	manifest_json = '''{
 	"name": "%s",

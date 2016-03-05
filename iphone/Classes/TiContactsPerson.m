@@ -61,7 +61,6 @@ static NSDictionary* iOS9propertyKeys;
 	return self;
 }
 
-#if IS_XCODE_7
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
@@ -71,7 +70,6 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return self;
 }
-#endif
 
 -(void)dealloc
 {
@@ -87,14 +85,11 @@ static NSDictionary* iOS9propertyKeys;
     return @"Ti.Contacts.Person";
 }
 
-#if IS_XCODE_7
 -(CNMutableContact*)nativePerson
 {
     return person;
 }
-#endif
 
-#if IS_XCODE_7
 -(NSDictionary*)getiOS9ContactProperties: (CNMutableContact*) contact
 {
 	if (contact == nil) {
@@ -118,7 +113,6 @@ static NSDictionary* iOS9propertyKeys;
 	RELEASE_TO_NIL(dict);
 	return result;
 }
-#endif
 
 #pragma mark Property dictionaries
 
@@ -149,7 +143,6 @@ static NSDictionary* iOS9propertyKeys;
 	return contactProperties;
 }
 
-#if IS_XCODE_7
 +(NSDictionary*)iOS9propertyKeys
 {
 	if (iOS9propertyKeys == nil) {
@@ -182,7 +175,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return iOS9propertyKeys;
 }
-#endif
+
 +(NSDictionary*)multiValueProperties
 {
 	if (multiValueProperties == nil) {
@@ -265,7 +258,6 @@ static NSDictionary* iOS9propertyKeys;
 	return multiValueLabels;
 }
 
-#if IS_XCODE_7
 +(NSDictionary*)iOS9multiValueLabels
 {
 	if (iOS9multiValueLabels == nil) {
@@ -315,13 +307,14 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	return iOS9multiValueLabels;
 }
+
 -(void)updateiOS9ContactProperties
 {
     RELEASE_TO_NIL(iOS9contactProperties)
 	iOS9contactProperties = nil;
 	[self getiOS9ContactProperties:person];
 }
-#endif
+
 #pragma mark Multi-value property management
 
 -(NSDictionary*)dictionaryFromMultiValue:(ABMultiValueRef)multiValue defaultKey:(NSString*)defaultKey
@@ -368,7 +361,7 @@ static NSDictionary* iOS9propertyKeys;
 	
 	return dict;
 }
-#if IS_XCODE_7
+
 -(NSDictionary*)dictionaryFromiOS9MultiValueArray:(NSArray *)property
 {
 	NSMutableDictionary *multiValueDict = [NSMutableDictionary dictionaryWithCapacity:[property count]];
@@ -444,7 +437,7 @@ static NSDictionary* iOS9propertyKeys;
 	NSDictionary *result = [NSDictionary dictionaryWithDictionary:multiValueDict];
 	return result;
 }
-#endif
+
 -(ABMultiValueRef)dictionaryToMultiValue:(NSDictionary*)dict type:(ABPropertyType)type
 {
 	ABMutableMultiValueRef multiValue = ABMultiValueCreateMutable(type);
@@ -474,7 +467,7 @@ static NSDictionary* iOS9propertyKeys;
     }
 	return NUMINT(recordId);
 }
-#if IS_XCODE_7
+
 //only for iOS9
 -(NSString*)identifier
 {
@@ -484,7 +477,7 @@ static NSDictionary* iOS9propertyKeys;
     DebugLog(@"[WARN] this property is only used for iOS9 and greater.");
     return NULL;
 }
-#endif
+
 -(NSString*)fullName
 {
 	if (![NSThread isMainThread]) {
@@ -493,7 +486,6 @@ static NSDictionary* iOS9propertyKeys;
 		return [result autorelease];
 	}
 	
-#if IS_XCODE_7
 	if ([TiUtils isIOS9OrGreater]) {
 		//composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
 		NSMutableString* compositeName = [[NSMutableString alloc] init];
@@ -526,7 +518,7 @@ static NSDictionary* iOS9propertyKeys;
         RELEASE_TO_NIL(compositeName)
 		return @"No name";
 	}
-#endif
+
     CFStringRef name = ABRecordCopyCompositeName([self record]);
 	NSString* nameStr = @"No name";
 	if (name != NULL) {
@@ -579,7 +571,7 @@ static NSDictionary* iOS9propertyKeys;
 		TiThreadPerformOnMainThread(^{result = [[self image] retain];}, YES);
 		return [result autorelease];
 	}
-#if IS_XCODE_7
+
 	if ([TiUtils isIOS9OrGreater]) {
 		if (person.imageDataAvailable == YES) {
 			TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
@@ -587,7 +579,7 @@ static NSDictionary* iOS9propertyKeys;
 		}
 		return nil;
 	}
-#endif
+
 	CFDataRef imageData = ABPersonCopyImageData([self record]);
 	if (imageData != NULL)
 	{
@@ -605,7 +597,7 @@ static NSDictionary* iOS9propertyKeys;
 -(void)setBirthday:(NSString*)date
 {
 	ENSURE_UI_THREAD(setBirthday, date)
-#if IS_XCODE_7
+
 	if ([TiUtils isIOS9OrGreater]) {
 		NSDate *saveDate = [TiUtils dateForUTCDate:date];
 		unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
@@ -613,7 +605,7 @@ static NSDictionary* iOS9propertyKeys;
 		person.birthday = [cal components:unitFlags fromDate:saveDate];
 		return;
 	}
-#endif
+
 	ABRecordSetValue([self record], kABPersonBirthdayProperty, (CFDateRef)[TiUtils dateForUTCDate:date], NULL);
 }
 
@@ -625,8 +617,8 @@ static NSDictionary* iOS9propertyKeys;
 		return [result autorelease];
 	}
 	id property = nil;
-#if IS_XCODE_7
-	if ([TiUtils isIOS9OrGreater]) {
+
+    if ([TiUtils isIOS9OrGreater]) {
 		//birthday property managed seperately
 		if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
 			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
@@ -667,7 +659,7 @@ static NSDictionary* iOS9propertyKeys;
 			return result;
 		}
 	}
-#endif
+
     // Single-value property
 	if (property = [[TiContactsPerson contactProperties] valueForKey:key]) {
 		// Okay, we have to do the bridging ourselves so that the result is autoreleased.
@@ -712,7 +704,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 
 	id property = nil;
-#if IS_XCODE_7
+
 	if ([TiUtils isIOS9OrGreater]) {
 		NSArray *allKeys = [[TiContactsPerson iOS9propertyKeys] allKeysForObject:key];
 		//key is undefined
@@ -892,7 +884,7 @@ static NSDictionary* iOS9propertyKeys;
 		}
 		return;
 	}
-#endif
+
     // Single-value property
 	if (property = [[TiContactsPerson contactProperties] valueForKey:key]) {
 		CFErrorRef error;
@@ -938,7 +930,6 @@ static NSDictionary* iOS9propertyKeys;
 	}
 }
 
-#if IS_XCODE_7
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
@@ -966,7 +957,7 @@ static NSDictionary* iOS9propertyKeys;
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }
-#endif
+
 @end
 
 #endif

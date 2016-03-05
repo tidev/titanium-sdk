@@ -11,18 +11,6 @@
 #include "ThirdpartyNS.h"
 #import <AvailabilityInternal.h>
 
-#ifdef __IPHONE_9_0
-#define IS_XCODE_7 true
-#else
-#define IS_XCODE_7 false
-#endif
-
-#ifdef __IPHONE_9_1
-#define IS_XCODE_7_1 true
-#else
-#define IS_XCODE_7_1 false
-#endif
-
 #ifdef __IPHONE_9_3
 #define IS_XCODE_7_3 true
 #else
