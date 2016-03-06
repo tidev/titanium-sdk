@@ -549,16 +549,7 @@ public class TiHTTPClient
 
 	public boolean validatesSecureCertificate()
 	{
-		if (proxy.hasProperty("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
-
-		} else {
-			if (TiApplication.getInstance().getDeployType().equals(
-					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
-				return true;
-			}
-		}
-		return false;
+		return true;
 	}
 
 	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
@@ -794,7 +785,7 @@ public class TiHTTPClient
 			if (value == null) {
 				// If value is null, remove header
 				headers.remove(header);
-			} else {		
+			} else {
 				if (headers.containsKey(header)){
 					// Appends a value to a header
 					// If it is a cookie, use ';'. If not, use ','.
@@ -807,7 +798,7 @@ public class TiHTTPClient
 					headers.put(header, value);
 				}
 			}
-			
+
 		} else {
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
 		}
@@ -1132,14 +1123,6 @@ public class TiHTTPClient
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
 				}
-			} else if (!validating) {
-				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-				try {
-					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
-				} catch(Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
 			}
 		}
 
@@ -1149,8 +1132,6 @@ public class TiHTTPClient
 
 		if (sslSocketFactory != null) {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-		} else if (!validating) {
-			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 		} else {
 			try {
 				client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new TLSSNISocketFactory(tlsVersion), 443));
