@@ -549,16 +549,7 @@ public class TiHTTPClient
 
 	public boolean validatesSecureCertificate()
 	{
-		if (proxy.hasProperty("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
-
-		} else {
-			if (TiApplication.getInstance().getDeployType().equals(
-					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
-				return true;
-			}
-		}
-		return false;
+		return true;
 	}
 	
 	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
@@ -1110,14 +1101,6 @@ public class TiHTTPClient
 					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
 					sslSocketFactory = null;
 				}
-			} else if (!validating) {
-				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-				try {
-					sslSocketFactory = new TiSocketFactory(null, trustManagerArray);
-				} catch(Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
 			}
 		}
 		
@@ -1127,8 +1110,6 @@ public class TiHTTPClient
 		
 		if (sslSocketFactory != null) {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
-		} else if (!validating) {
-			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new NonValidatingSSLSocketFactory(), 443));
 		} else {
 			client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
 		}
