@@ -358,7 +358,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			}.bind(this));
 
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-			fs.writeFileSync('metadata.json', JSON.stringify({ "exports": this.metaData }));
+			fs.writeFileSync(this.metaDataFile, JSON.stringify({ "exports": this.metaData }));
 
 			cb();
 		}
