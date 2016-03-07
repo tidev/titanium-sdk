@@ -144,10 +144,14 @@ exports.config = function config(logger, config, cli) {
 
 									var manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
 
-									timodule.properties || (timodule.properties = {});
+									// if they didn't explicitly set --platform and we have a platform in the manifest,
+									// then just use that and skip the platform prompting
+									if (!cli.argv.platform && manifest.platform) {
+										cli.argv.platform = ti.resolvePlatform(manifest.platform);
+										conf.options.platform.required = false;
+									}
 
-									// make sure the module manifest is sane
-									ti.validateModuleManifest(logger, cli, manifest);
+									timodule.properties || (timodule.properties = {});
 
 									cli.argv.type = 'module';
 
@@ -234,6 +238,9 @@ exports.config = function config(logger, config, cli) {
 exports.validate = function validate(logger, config, cli) {
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
+
+		// make sure the module manifest is sane
+		ti.validateModuleManifest(logger, cli, cli.manifest);
 
 		return function (finished) {
 			logger.log.init(function () {
