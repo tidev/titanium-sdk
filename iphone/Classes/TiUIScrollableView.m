@@ -103,6 +103,7 @@
         _constraintAdded = YES;
         _scrollView = [self scrollview];
         _dotsView = [self pagecontrol];
+        [super addSubview:_dotsView];
         NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);
         [_scrollView addConstraints:TI_CONSTR(@"V:|[_contentView(_scrollView)]|", views)];
         [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
