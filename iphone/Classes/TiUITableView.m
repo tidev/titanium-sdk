@@ -113,7 +113,7 @@
         if ([proxy _hasListeners:@"touchstart"])
         {
             UITouch *touch = [touches anyObject];
-            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+            NSDictionary* evt = [self payloadWithTouch:touch];
             [proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
         }
     }
@@ -142,7 +142,7 @@
         if ([proxy _hasListeners:@"touchend"])
         {
             UITouch *touch = [touches anyObject];
-            NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+            NSDictionary* evt = [self payloadWithTouch:touch];
             [proxy fireEvent:@"touchend" withObject:evt propagate:YES];
         }
     }
@@ -283,7 +283,12 @@
 	}
 }
 
-
+- (NSMutableDictionary*)payloadWithTouch:(UITouch*)touch {
+    NSDictionary* touchProps = [TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]];
+    NSMutableDictionary* payload = [proxy createEventObject:nil];
+    [payload addEntriesFromDictionary:touchProps];
+    return payload;
+}
 
 @end
 
@@ -434,12 +439,9 @@
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
         
-#if IS_XCODE_7
         if ([TiUtils isIOS9OrGreater]) {
             tableview.cellLayoutMarginsFollowReadableWidth = NO;
         }
-#endif
-        
 	}
 	if ([tableview superview] != self)
 	{
@@ -1659,7 +1661,7 @@
 -(void)setSeparatorInsets_:(id)arg
 {
     [self tableView];
-    DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"6.0.0", @"UI.TableView.tableSeparatorInsets")
+    DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
     [self setTableSeparatorInsets_:arg];
 }
 

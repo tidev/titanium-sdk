@@ -201,6 +201,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[self shutdownLocationManager];
 	RELEASE_TO_NIL(tempManager);
 	RELEASE_TO_NIL(locationPermissionManager);
+	RELEASE_TO_NIL(iOS7PermissionManager);
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
@@ -323,9 +324,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         }
         //This is set to NO by default for > iOS9.
         if ([TiUtils isIOS9OrGreater]) {
-#if IS_XCODE_7
             locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
-#endif
         }
 
         locationManager.activityType = activityType;
@@ -824,15 +823,16 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(NSNumber*)hasLocationPermissions:(id)args
 {
-    id value = [args objectAtIndex:0];
-    
-    ENSURE_TYPE(value, NSNumber);
-
-    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
     BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
-    
-    return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    if ([TiUtils isIOS8OrGreater]) {
+        id value = [args objectAtIndex:0];
+        ENSURE_TYPE(value, NSNumber);
+        CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    } else {
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == kCLAuthorizationStatusAuthorized);
+    }
 }
 
 -(void)requestAuthorization:(id)value
@@ -841,9 +841,36 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self requestLocationPermissions:@[value, [NSNull null]]];
 }
 
+- (void)requestLocationPermissioniOS7:(id)args {
+    // Store the authorization callback for later usage
+    if([args count] == 2) {
+        RELEASE_TO_NIL(authorizationCallback);
+        ENSURE_TYPE([args objectAtIndex:1], KrollCallback);
+        authorizationCallback = [[args objectAtIndex:1] retain];
+    } 
+
+    if (!iOS7PermissionManager) {
+        iOS7PermissionManager = [CLLocationManager new];
+        iOS7PermissionManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
+        iOS7PermissionManager.delegate = self;
+    }
+
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        // iOS7 shows permission alert only when location update is requested. Here we trick iOS7 to show
+        // permission alert so that our API is in parity with iOS8+ behavior.
+        [iOS7PermissionManager startUpdatingLocation];
+    } else {
+        [self locationManager:iOS7PermissionManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
+    }
+}
+
 -(void)requestLocationPermissions:(id)args
 {
     if (![TiUtils isIOS8OrGreater]) {
+        // It is required that delegate is created and permission is presented in main thread.
+        TiThreadPerformOnMainThread(^{
+            [self requestLocationPermissioniOS7:args];
+        }, NO);
         return;
     }
     
@@ -1083,6 +1110,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                            NUMINT([CLLocationManager authorizationStatus]),@"authorizationStatus",nil];
 
+    if ([manager isEqual:iOS7PermissionManager] && (status != kCLAuthorizationStatusNotDetermined)) {
+        [manager stopUpdatingLocation];
+    }
+    
     // Still using this event for changes being made outside the app (e.g. disable all location services on the device).
     if ([self _hasListeners:@"authorization"]) {
         [self fireEvent:@"authorization" withObject:event];
@@ -1117,7 +1148,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 //Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
--(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+    if ([manager isEqual:iOS7PermissionManager]) {
+        // Used only to simulate permission alert. So ignore this update.
+        return;
+    }
+    
     NSDictionary *todict = [self locationDictionary:[locations lastObject]];
     
 	//Must use dictionary because of singleshot.

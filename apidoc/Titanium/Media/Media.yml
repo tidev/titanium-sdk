@@ -1526,10 +1526,10 @@ properties:
     default: false
   - name: mediaTypes 
     summary: | 
-        Array of media type constants to allow. If you want to allow live photos with
-        Titanium.Media.MEDIA_TYPE_LIVEPHOTO on iOS 9.1 and later, you also need to specify
-        at least Titanium.Media.MEDIA_TYPE_PHOTO as a fallback.
-    constants: Titanium.Media.MEDIA_TYPE_*
+        Array of media type constants to allow. Note: iOS 9.1 only allows to
+        select existing photos from the gallery, capturing new live photos is 
+        not supported by the iOS public API, yet.
+    constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
     platforms: [iphone, ipad]
@@ -1613,7 +1613,8 @@ properties:
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
   - name: autohide 
-    summary: Specifies if the photo gallery should be hidden automatically after the media
+    summary: | 
+        Specifies if the photo gallery should be hidden automatically after the media
         selection is completed.
     type: Boolean
     default: true
@@ -1629,10 +1630,13 @@ properties:
     platforms: [iphone, ipad]
   - name: mediaTypes 
     summary: |
-        Array of media type constants to allow.
+        Array of media type constants to allow. If you want to allow live photos with 
+        <Titanium.Media.MEDIA_TYPE_LIVEPHOTO> on iOS 9.1 and later, you also need to specify 
+        at least <Titanium.Media.MEDIA_TYPE_PHOTO> as a fallback. If you do not allow live
+        photos, they still can be selected, but will be represented as a normal photo (static).
     type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
-    default: Both photo and video allowed.
+    default: Only photo and video allowed.
     platforms: [iphone, ipad]
   - name: popoverView 
     summary: View to position the photo gallery popover on top of.
@@ -1704,7 +1708,8 @@ properties:
     type: Number
 ---
 name: PreviewRectType
-summary: Simple object for describing the preview image rectangle.
+summary: |
+    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used. 
 properties:
   - name: width
     summary: Width preview image, in pixels.

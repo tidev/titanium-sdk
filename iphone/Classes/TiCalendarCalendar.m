@@ -150,17 +150,21 @@
     return NULL;
 }
 
--(NSArray*)getEventsBeteenDates:(id)args
+-(NSArray*)getEventsBetweenDates:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString* start = nil;
-    NSString* end = nil;
+    NSDate *start = nil;
+    NSDate *end = nil;
     
-    ENSURE_ARG_AT_INDEX(start, args, 0, NSString);
-    ENSURE_ARG_AT_INDEX(end, args, 1, NSString);
-
-    NSArray* events = [self _fetchAllEventsbetweenDate:[TiUtils dateForUTCDate:start]
-                                              andDate:[TiUtils dateForUTCDate:end]];
+    if ([[args objectAtIndex:0] isKindOfClass:[NSDate class]] && [[args objectAtIndex:1] isKindOfClass:[NSDate class]]){
+        start = [args objectAtIndex:0];
+        end =  [args objectAtIndex:1];
+    } else if ([[args objectAtIndex:0] isKindOfClass:[NSString class]] && [[args objectAtIndex:1] isKindOfClass:[NSString class]]) {
+        start = [TiUtils dateForUTCDate:[args objectAtIndex:0]];
+        end   = [TiUtils dateForUTCDate:[args objectAtIndex:1]];
+    }
+    NSArray* events = [self _fetchAllEventsbetweenDate:start
+                                              andDate:end];
     return [TiCalendarEvent convertEvents:events withContext:[self executionContext]  calendar:[self calendar]  module:module];
 }
 

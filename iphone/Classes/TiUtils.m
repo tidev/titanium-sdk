@@ -1147,8 +1147,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
-#if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1157,14 +1156,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
          [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
          nil];
         
-#if IS_XCODE_7_1
         if ([self isIOS9_1OrGreater]) {
             [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
         }
-#endif
+
         return dict;
     }
-#endif
     
     return [self pointToDictionary:point];
 }
@@ -1872,6 +1869,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     else if ([image isKindOfClass:[NSString class]]) {
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil)
+        {
+            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+        }
         if (resultImage==nil && [image isEqualToString:@"Default.png"])
         {
             // special case where we're asking for Default.png and it's in Bundle not path
@@ -1886,7 +1887,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
     }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
+        resultImage = [(TiBlob*)image image];
     }
     return resultImage;
 }
@@ -1957,23 +1958,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(BOOL)forceTouchSupported
 {
-#if IS_XCODE_7
     if ([self isIOS9OrGreater] == NO) {
         return NO;
     }
     return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
-#else
-    return NO;
-#endif
 }
 
 +(BOOL)livePhotoSupported
 {
-#if IS_XCODE_7_1
     return [self isIOS9_1OrGreater] == YES;
-#else
-    return NO;
-#endif
 }
 
 +(NSString*)currentArchitecture
@@ -1991,6 +1984,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return @"i386";
 #endif
     return @"Unknown";
+}
+
++(BOOL)validatePencilWithTouch:(UITouch*)touch
+{
+    if ([self isIOS9_1OrGreater]) {
+        return [touch type] == UITouchTypeStylus;
+    } else {
+        return NO;
+    }
 }
 
 @end

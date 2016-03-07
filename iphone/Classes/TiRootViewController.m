@@ -122,11 +122,11 @@
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
-		 if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] == NSOrderedAscending) {
-			defaultImageView = [[UIImageView alloc] init];
-			[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-			[defaultImageView setContentMode:UIViewContentModeScaleToFill];
-		}
+#ifndef LAUNCHSCREEN_STORYBOARD
+        defaultImageView = [[UIImageView alloc] init];
+        [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+        [defaultImageView setContentMode:UIViewContentModeScaleToFill];
+#endif
 		
         [self processInfoPlist];
         
@@ -1222,7 +1222,7 @@
             return retVal;
         }
     }
-    return [self orientationFlags];
+    return (UIInterfaceOrientationMask)[self orientationFlags];
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation

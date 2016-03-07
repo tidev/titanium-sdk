@@ -27,6 +27,7 @@
 -(UIViewController*)controller;
 -(void)setToolbar:(id)items withObject:(id)properties;
 -(void)setMasterPopupVisible_:(id)value;
+- (void)fireEvent:(NSString*)event withSource:(NSString*)source visibilityChanged:(BOOL)changed;
 
 @end
 

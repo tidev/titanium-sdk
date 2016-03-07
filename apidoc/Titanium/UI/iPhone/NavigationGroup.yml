@@ -35,20 +35,20 @@ methods:
       - name: window
         summary: Window to close.
         type: Titanium.UI.Window
-        
+
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
             will be animated (default) while being closed.
         type: Dictionary
-        
+
   - name: open
     summary: Opens a window within the navigation group.
     parameters:
       - name: window
         summary: Window to open.
         type: Titanium.UI.Window
-        
+
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 

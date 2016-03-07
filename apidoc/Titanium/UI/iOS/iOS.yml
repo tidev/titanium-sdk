@@ -886,6 +886,37 @@ properties:
     type: Number
     permission: read-only
 
+  - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is lighter in hue than the underlying view.
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: BLUR_EFFECT_STYLE_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is the same approximate hue 
+        of the underlying view.
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    osver: {ios: {min: "8.0"}}
+
+  - name: BLUR_EFFECT_STYLE_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is darker in hue than the underlying view.
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    osver: {ios: {min: "8.0"}}
+
   - name: AD_SIZE_PORTRAIT
     summary: |
         Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
@@ -1477,7 +1508,15 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
-                                                                                                              
+
+  - name: appBadge
+    summary: Value of the badge for the application's springboard icon.
+    type: Number
+
+  - name: appSupportsShakeToEdit
+    summary: Determines whether the shake to edit system-wide capability is enabled.
+    type: Boolean
+
 methods:
   - name: createTransitionAnimation
     summary: |

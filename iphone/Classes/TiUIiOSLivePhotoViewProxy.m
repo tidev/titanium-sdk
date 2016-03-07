@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoViewProxy.h"
 #import "TiUtils.h"
@@ -33,6 +32,7 @@
 
 -(void)startPlaybackWithStyle:(id)args
 {
+    ENSURE_UI_THREAD(startPlaybackWithStyle, args);
     ENSURE_TYPE_OR_NIL(args, NSArray);
     id value = [args objectAtIndex:0];
     ENSURE_TYPE_OR_NIL(value, NSNumber);
@@ -42,11 +42,13 @@
 
 -(void)stopPlayback:(id)unused
 {
+    ENSURE_UI_THREAD(stopPlayback, unused);
     [[[self livePhotoView] livePhotoView] stopPlayback];
 }
 
 -(void)setMuted:(NSNumber*)value
 {
+    ENSURE_UI_THREAD(setMuted, value);
     ENSURE_TYPE(value, NSNumber);
     [self replaceValue:value forKey:@"muted" notification:YES];
 
@@ -75,5 +77,4 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 }
 
 @end
-#endif
 #endif

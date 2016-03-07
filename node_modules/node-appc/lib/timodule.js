@@ -4,7 +4,7 @@
  * @module timodule
  *
  * @copyright
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -279,7 +279,10 @@ function find(modulesOrParams, platforms, deployType, sdkVersion, searchPaths, l
 
 							tmp = util.mix({}, module, info);
 							if (params.sdkVersion && info.manifest && info.manifest.minsdk && version.gt(info.manifest.minsdk, params.sdkVersion)) {
-								params.logger && params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+								if (params.logger) {
+									params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+									params.logger.debug(__('Module %s requires Titanium SDK %s or newer, but the selected SDK is %s', tmp.id.cyan, info.manifest.minsdk, params.sdkVersion));
+								}
 								result.incompatible.push(tmp);
 								return;
 							}

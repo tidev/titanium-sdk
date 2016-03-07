@@ -14,8 +14,19 @@ extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "5.2.0"
 osver: {ios:{min: "9.1"}}
+excludes:
+    events: [click,dblclick,doubletap,longpress,pinch,postlayout,singletap,swipe,
+            touchcancel,touchend,touchmove,touchstart,twofingertap]
 
 properties:
+  - name: livePhoto
+    summary: The Live Photo displayed in the view.
+    description: |
+        You receive a new live photo object by selecting an existing photo from the photo gallery. 
+        Note: iOS 9.1 only allows to select existing photos from  the gallery, capturing new live 
+        photos is not supported by the iOS public API, yet.
+    type: [Titanium.UI.iOS.LivePhoto]
+
   - name: muted
     summary: | 
         A Boolean value that determines whether the view plays the audio content of its Live Photo.
@@ -26,7 +37,7 @@ properties:
     default: false
 
 methods:   
-  - name: startWithPlaybackStyle
+  - name: startPlaybackWithStyle
     summary: Begins playback of Live Photo content in the view.
     description: | 
         Use the `playbackStyle` parameter to choose whether to play the full motion and sound content of the 
@@ -40,7 +51,7 @@ methods:
         summary: An option for how much of the Live Photo's motion and sound content to play.
         type: Number
         constants: [Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL, Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_HINT]
-        default: Titanium.UI.iOS. LIVEPHOTO_PLAYBACK_STYLE_FULL
+        default: Titanium.UI.iOS.LIVEPHOTO_PLAYBACK_STYLE_FULL
 
   - name: stopPlayback
     summary: Ends playback of Live Photo content in the view.
@@ -59,14 +70,6 @@ events:
       - name: playbackStyle
         summary: Returns the `playbackStyle` that was provided to start the playback.
         type: Number
-
-properties:
-  - name: livePhoto
-    summary: The Live Photo displayed in the view.
-    description: |
-        You receive a new live photo object either by taking a new photo or
-        by selecting an existing photo from the photo gallery.
-    type: [Titanium.UI.iOS.LivePhoto]
 
 examples:
   - title: Basic LivePhotoView

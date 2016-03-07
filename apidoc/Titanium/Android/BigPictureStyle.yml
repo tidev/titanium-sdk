@@ -30,7 +30,7 @@ examples:
         // Send the notification.
         Titanium.Android.NotificationManager.notify(1, notification);
 
-since: "6.0.0"
+since: "5.4.0"
 platforms: [android]
 properties:
 

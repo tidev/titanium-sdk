@@ -2052,7 +2052,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+	if (this.tiapp['navbar-hidden'] != manifest.navbarHidden) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
 		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
@@ -2510,6 +2510,120 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 	}, this);
 
+	// genereate missing app icons
+	tasks.push(function (cb) {
+		this.currentBuildManifestFiles = this.currentBuildManifestFiles || {};
+
+		var lookup = {
+				// ../Resources/android/appicon.png
+				'default':	{ height: 128, width: 128, required: true },
+				// ../platform/android/res/drawable-[key]/appicon.png
+				'ldpi':		{ height: 36, width: 36, required: false },
+				'mdpi':		{ height: 48, width: 48, required: false },
+				'hdpi':		{ height: 72, width: 72, required: false },
+				'xhdpi':	{ height: 96, width: 96, required: false },
+				'xxhdpi':	{ height: 144, width: 144, required: false },
+				'xxxhdpi':	{ height: 192, width: 192, required: false }
+			},
+			possibleDefaultIcons = [
+				path.join(this.projectDir, 'platform', 'android', 'DefaultIcon.png'),
+				path.join(this.projectDir, 'DefaultIcon-android.png'),
+				path.join(this.projectDir, 'DefaultIcon.png')
+			],
+			missingIcons = [],
+			defaultIcon,
+			previousBuildManifestFiles = this.buildManifest && this.buildManifest.files,
+			defaultIconChanged = false;
+
+		possibleDefaultIcons.some(function (icon) {
+			if (fs.existsSync(icon)) {
+				defaultIcon = icon;
+				return true;
+			}
+		});
+
+		if (defaultIcon) {
+			var currDefaultIconHash = this.hash(fs.readFileSync(defaultIcon)),
+				defaultIconRelative = path.relative(this.projectDir, defaultIcon),
+				prevDefaultIcon = previousBuildManifestFiles && previousBuildManifestFiles[defaultIconRelative],
+				prevDefaultIconHash = prevDefaultIcon && prevDefaultIcon.hash;
+
+			this.currentBuildManifestFiles[defaultIconRelative] = {
+				hash: currDefaultIconHash
+			};
+
+			defaultIconChanged = prevDefaultIconHash !== currDefaultIconHash;
+		}
+
+		Object.keys(lookup).forEach(function (key) {
+			var icon = lookup[key],
+				source,
+				dest,
+				destFinal,
+				description,
+				resDrawable;
+
+			if (key === 'default') {
+				dest = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
+				destFinal = dest;
+				description = path.join('Resources', 'android', this.tiapp.icon);
+			} else {
+				resDrawable = path.join('res', 'drawable' + '-' + key, this.tiapp.icon);
+				dest = path.join(this.buildBinAssetsDir, resDrawable);
+				destFinal = path.join(this.buildDir, resDrawable);
+				description = path.join('platform', 'android', resDrawable);
+			}
+
+			source = path.join(this.projectDir, description);
+
+			// the icon exists in project, should have been copied to build
+			if (fs.existsSync(source)) {
+				this.logger.trace(__('Found %sx%s app icon: %s', icon.width, icon.height, source.cyan));
+				return;
+			}
+
+			// the app icon was previously resized
+			if (!defaultIconChanged && fs.existsSync(dest)) {
+				this.logger.trace(__('Found %sx%s app icon: %s', icon.width, icon.height, dest.cyan));
+
+				// since we always destroy and rebuild the res directory
+				// copy over the previously genereated icons to ../build/android/res
+				if (!fs.existsSync(destFinal)) {
+					copyFile.call(this, dest, destFinal);
+				}
+				return;
+			}
+
+			// generated icons will be placed under ../build/android/bin/assets/res/drawable-[density]
+			fs.existsSync(path.dirname(dest)) || wrench.mkdirSyncRecursive(path.dirname(dest));
+			missingIcons.push({
+				description: description,
+				file: dest,
+				width: icon.width,
+				height: icon.height,
+				required: icon.required
+			});
+
+		}, this);
+
+		if (missingIcons.length) {
+			this.generateAppIcons(missingIcons, function () {
+				// copy generated app icons from ../build/android/bin/assets/res to ../build/android/res
+				var source = path.join(_t.buildBinAssetsDir, 'res');
+				if (fs.existsSync(source)) {
+					copyDir.call(_t, {
+						src: source,
+						dest: _t.buildResDir
+					}, cb);
+				} else {
+					cb();
+				}
+			});
+		} else {
+			cb();
+		}
+	});
+
 	appc.async.series(this, tasks, function (err, results) {
 		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
@@ -2942,7 +3056,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 			// make sure that the module was not built before 1.8.0.1
 			if (~~module.manifest.apiversion < 2) {
-				this.logger.error(__('The "apiversion" for "%s" in the module manifest is less than version 2.', id.cyan));
+				this.logger.error(__('The "apiversion" for "%s" in the module manifest is less than version 2.', module.manifest.moduleid.cyan));
 				this.logger.error(__('The module was likely built against a Titanium SDK 1.8.0.1 or older.'));
 				this.logger.error(__('Please use a version of the module that has "apiversion" 2 or greater'));
 				this.logger.log();
@@ -4158,6 +4272,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})({
+		files: this.currentBuildManifestFiles,
 		target: this.target,
 		deployType: this.deployType,
 		classname: this.classname,

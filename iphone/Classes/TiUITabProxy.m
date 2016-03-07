@@ -269,9 +269,10 @@
 
 -(void)closeWindow:(NSArray*)args
 {
-	TiWindowProxy *window = [args objectAtIndex:0];
-	ENSURE_TYPE(window,TiWindowProxy);
-    if (window == rootWindow) {
+    TiWindowProxy *window = [args objectAtIndex:0];
+    ENSURE_TYPE(window,TiWindowProxy);
+    
+    if (window == rootWindow && ![[TiApp app] willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
         return;
     }
@@ -570,12 +571,24 @@
     
     if (iconInsets != nil) {
         if(UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
-            [ourItem setImageInsets:[TiUtils contentInsets:iconInsets]];
+            [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
         }
     }
     
     [ourItem setBadgeValue:badgeValue];
     [rootController setTabBarItem:ourItem];
+}
+
+-(UIEdgeInsets)calculateIconInsets:(id)value
+{
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        NSDictionary *dict = (NSDictionary*)value;
+        CGFloat top = [TiUtils floatValue:@"top" properties:dict def:0];
+        CGFloat left = [TiUtils floatValue:@"left" properties:dict def:0];
+        return UIEdgeInsetsMake(top, left, -top, -left);
+    }
+    return UIEdgeInsetsMake(0,0,0,0);
 }
 
 -(void)setTitle:(id)title

@@ -357,18 +357,6 @@ properties:
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
 
-  - name: navBarHidden
-    summary: Hide the nav bar (`true`) or show the nav bar (`false`) for this tab group.
-    description: |
-        On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
-        show and hide the nav bar for a tab group. On Android, the nav bar can only be
-        shown or hidden for the whole tab group. Setting this property to true disables 
-        the Action Bar since it is part of the navigation title bar.
-    platforms: [android]
-    default: false
-    type: Boolean
-    since: 3.0.0
-
   - name: swipeable
     summary: |
         Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.

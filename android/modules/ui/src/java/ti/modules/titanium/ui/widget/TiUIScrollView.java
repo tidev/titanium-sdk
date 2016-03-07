@@ -207,6 +207,16 @@ public class TiUIScrollView extends TiUIView
 			layout.addView(child, params);
 		}
 
+		@Override
+		public void addView(View child, int index, android.view.ViewGroup.LayoutParams params)
+		{
+			if (index < 0) {
+				super.addView(child, index, params);
+				return;
+			}
+			layout.addView(child, index, params);
+		}
+
 		public void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
@@ -311,6 +321,16 @@ public class TiUIScrollView extends TiUIView
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
+		}
+
+		@Override
+		public void addView(View child, int index, android.view.ViewGroup.LayoutParams params)
+		{
+			if (index < 0) {
+				super.addView(child, index, params);
+				return;
+			}
+			layout.addView(child, index, params);
 		}
 
 		public void onDraw(Canvas canvas)

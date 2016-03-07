@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,37 +12,95 @@ var path = require('path'),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec,
 	sdkPath,
+	sdkVersion,
+	sdkPackage,
+	selectedSDK,
 	iosTestResults,
 	androidTestResults,
 	iosJsonResults,
 	androidJsonResults,
 	maxFailedTestCount = 0,
 	runningOnTravis = false,
-	runningOnJenkins = false;
+	runningOnJenkins = false,
+	runningOnSGJenkins = false,
+	skipScons = false,
+	glob = require('glob'),
+	totalAPI = 0,
+	totalAPITest = 0;
 
 function getSDKInstallDir(next) {
 	var prc = exec('titanium info -o json -t titanium', function (error, stdout, stderr) {
-		var out,
-			selectedSDK;
+		var out;
 		if (error !== null) {
 		  next('Failed to get SDK install dir: ' + error);
 		}
-
 		out = JSON.parse(stdout);
 		selectedSDK = out['titaniumCLI']['selectedSDK'];
-
 		sdkPath = out['titanium'][selectedSDK]['path'];
 		next();
 	});
 }
 
-function generateProject(next) {
-	var projectDir = path.join(__dirname, 'testApp'),
-		prc;
+function clearPreviousApp(next) {
+	var projectDir = path.join(__dirname, 'testApp');
 	// If the project already exists, wipe it
 	if (fs.existsSync(projectDir)) {
 		wrench.rmdirSyncRecursive(projectDir);
 	}
+	next();
+}
+
+function sconsSDK(next) {
+	var out = JSON.parse(fs.readFileSync('./package.json','utf8')),
+		versionTag,
+		prc;
+	if (skipScons == true) {
+		console.log('Skipping scons');
+		next();
+	}
+	else {
+		sdkVersion = out['version'] + '.apiTest';
+		versionTag = 'version_tag=' + sdkVersion;
+		prc = spawn('scons', [versionTag]);
+		prc.stdout.on('data', function (data) {
+			console.log(data.toString());
+		});	
+		prc.on('close', function (code) {
+			if (code != 0) {
+				next("Failed to scons SDK");
+			} else {
+				next();
+			}
+		});	
+	}
+}
+
+function installSDK(next) {
+	var sdkPackageFile = 'mobilesdk-' + sdkVersion + '-osx.zip',
+		prc;
+	if (skipScons == true) {
+		console.log('skipping sdk install');
+		next();
+	}
+	else {
+		sdkPackage = path.join(__dirname,'..','..','dist', sdkPackageFile);
+		prc = spawn('titanium', ['sdk', 'install', sdkPackage, '-d']);
+		prc.stdout.on('data', function (data) {
+			console.log(data.toString());
+		});	
+		prc.on('close', function (code) {
+			if (code != 0) {
+				next("Failed to install SDK");
+			} else {
+				next();
+			}
+		});
+	}
+}
+
+function generateProject(next) {
+	var projectDir = path.join(__dirname, 'testApp'),
+		prc;
 	prc = spawn('titanium', ['create', '--force', '--type', 'app', '--platforms', 'android,ios', '--name', 'testApp', '--id', 'com.appcelerator.testApp.testing', '--url', 'http://www.appcelerator.com', '--workspace-dir', __dirname, '--no-prompt']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
@@ -219,12 +277,12 @@ function runAndroidBuild(next, count) {
 	});
 }
 
-function parseIOSTestResults(testResults, next) {
-	if (!testResults) {
+function parseIOSTestResults(next) {	
+	if (!iosTestResults) {
 		next();
 	} else {
 		// preserve newlines, etc - use valid JSON
-		testResults = testResults.replace(/\\n/g, "\\n")  
+		iosTestResults = iosTestResults.replace(/\\n/g, "\\n")  
 				   .replace(/\\'/g, "\\'")
 				   .replace(/\\"/g, '\\"')
 				   .replace(/\\&/g, "\\&")
@@ -233,18 +291,18 @@ function parseIOSTestResults(testResults, next) {
 				   .replace(/\\b/g, "\\b")
 				   .replace(/\\f/g, "\\f");
 		// remove non-printable and other non-valid JSON chars
-		testResults = testResults.replace(/[\u0000-\u0019]+/g,""); 
-		iosJsonResults = JSON.parse(testResults);
+		iosTestResults = iosTestResults.replace(/[\u0000-\u0019]+/g,""); 
+		iosJsonResults = JSON.parse(iosTestResults);
 		next();
 	}
 }
 
-function parseAndroidTestResults(testResults, next) {
-	if (!testResults) {
+function parseAndroidTestResults(next) {	
+	if (!androidTestResults) {
 		next();
 	} else {
 		// preserve newlines, etc - use valid JSON
-		testResults = testResults.replace(/\\n/g, "\\n")  
+		androidTestResults = androidTestResults.replace(/\\n/g, "\\n")  
 				   .replace(/\\'/g, "\\'")
 				   .replace(/\\"/g, '\\"')
 				   .replace(/\\&/g, "\\&")
@@ -253,15 +311,79 @@ function parseAndroidTestResults(testResults, next) {
 				   .replace(/\\b/g, "\\b")
 				   .replace(/\\f/g, "\\f");
 		// remove non-printable and other non-valid JSON chars
-		testResults = testResults.replace(/[\u0000-\u0019]+/g,""); 
-		androidJsonResults = JSON.parse(testResults);
+		androidTestResults = androidTestResults.replace(/[\u0000-\u0019]+/g,""); 
+		androidJsonResults = JSON.parse(androidTestResults);
 		next();
 	}
 }
+
+function getTotalAPI(next) {
+	fs.readFile('./dist/api.jsca','utf8', function(err, data) {
+		if (err) {
+			next('Error getting Total API');
+		}
+		else {
+			totalAPI = data.types.length;
+			next();
+		}
+	})
+	next();
+}
+
+function getTotalAPITest(next) {
+	glob("./ti_mocha_tests/*.test.js", function(err, files) {
+		if(err) {
+			console.log('Error reading ti_mocha_tests');
+			next('Error reading ti_mocha_tests');
+		}
+		else {
+			totalAPITest = files.length;
+			next();
+		}
+	});
+}
+
+function cleanUp(next) {
+	var prc, 
+		out,
+		sdkPackageFile;
+	if (skipScons) {
+		out = JSON.parse(fs.readFileSync('./package.json','utf8'));
+		sdkVersion = out['version'] + '.apiTest';
+		sdkPackageFile = 'mobilesdk-' + sdkVersion + '-osx.zip';
+		sdkPackage = path.join(__dirname,'..','..','dist', sdkPackageFile);
+	}
+	// If the project already exists, wipe it
+	if (fs.existsSync(sdkPackage)) {
+		fs.unlinkSync(sdkPackage);
+	}
+	prc = spawn('titanium', ['sdk', 'uninstall', sdkVersion,'--force']);
+	prc.on('close', function (code) {
+		if (code != 0) {
+			next("Failed to uninstall SDK");
+		} else {
+			next();
+		}
+	});	
+}
+
+function killiOSSimulator(next) {
+	var prc = spawn('killall', ['Simulator']);
+	prc.on('close', function (code) {
+		next();
+	});		
+}
+
+function killAndroidSimulator(next) {
+//should kill genymotion
+	next();
+}
 /**
- * Finds the SDK, generates a Titanium mobile project, sets up the project, copies unit tests into it from ti_mocha_tests,
- * and then runs the project in a ios simulator and android emulator which will run the mocha unit tests. The test results are piped to
- * the CLi, which takes them, and compared to the minimum health threshold. If it falls below the threshold, process exits with a fail.
+ * Finds the existing SDK, Scons the new SDK, install the new SDK ,generates a Titanium mobile project, 
+ * sets up the project, copies unit tests into it from ti_mocha_tests, and then runs the project in a ios simulator 
+ * and android emulator which will run the mocha unit tests. The test results are piped to
+ * the CLi. If any unit test fails, process exits with a fail. After which the API coverage is calculated. If the coverage
+ * falls below the previous build, process exits with a fail.
  */
 function test(callback) {
 
@@ -274,17 +396,44 @@ function test(callback) {
 			runningOnJenkins = true;
 			console.log('Skip Automated Tests on Jenkins');
 		};
+		if (val == 'run-on-sg-jenkins') {
+			runningOnSGJenkins = true;
+			console.log('Run Build and Automated Tests on SG Jenkins');
+		};
+		if (val == 'skip-scons') {
+			skipScons = true;
+			console.log('Skip scons. This assumes you ran npm test at least once already');
+		};		
 	});
-	//Skip these tests if built on Jenkins. Should integrate into Jenkins in the future.
-	if (runningOnJenkins == false) {
+	//Only test local and on SGJenkins machine.
+	if (runningOnJenkins == false && runningOnTravis == false) {
 		async.series([
+			//scons here depending on flag and install
 			function (next) {
 				getSDKInstallDir(next);
 			},
 			function (next) {
+				clearPreviousApp(next);
+			},
+			function (next) {
+				console.log("Scons SDK");
+				sconsSDK(next);
+			},
+			function (next) {
+				console.log("Install SDK");
+				installSDK(next);
+			},		
+//			function (next) {
+//				console.log("Kill iOS simulator");
+//				killiOSSimulator(next);
+//			},
+//			function (next) {
+//				console.log("Kill Android simulator");
+//				killAndroidSimulator(next);
+//			},
+			function (next) {
 				console.log("Generating project");
 				generateProject(next);
-
 			},
 			function (next) {
 				console.log("Adding properties for tiapp.xml");
@@ -296,17 +445,17 @@ function test(callback) {
 			},
 			function (next) {
 				console.log("Launching android test project in emulator");
-				runAndroidBuild(next, 1);
+				runAndroidBuild(next, 2);
 			},
 			function (next) {
-				parseAndroidTestResults(androidTestResults, next);
+				parseAndroidTestResults(next);
 			},		
 			function (next) {
 				console.log("Launching ios test project in simulator");
-				runIOSBuild(next, 1);
+				runIOSBuild(next, 2);
 			},
 			function (next) {
-				parseIOSTestResults(iosTestResults, next);
+				parseIOSTestResults(next);
 			}
 		], function(err) {
 			callback(err, {
@@ -332,9 +481,22 @@ if (module.id === ".") {
 			androidFailedTestsCount = 0,
 			androidAllTestsCount = 0,
 			iosFailedTests = [],
-			androidFailedTests = [];
+			androidFailedTests = [],
+			buildStatus = 0;
 		if (err) {
 			console.error(err.toString().red);
+			if (runningOnSGJenkins) {
+				async.series([
+					function(next) {
+						cleanUp(next);
+					}],
+					function (err) {
+						if (err) {
+							console.error(err.toString().red);
+						}
+					}
+				);
+			}
 			process.exit(1);
 		} else {
 			if (typeof finalResults.iosResults !== 'undefined' && finalResults.iosResults){
@@ -380,10 +542,66 @@ if (module.id === ".") {
 			console.log('Total: passed %d / skipped %d / failed %d',iosPassedTestsCount + androidPassedTestsCount,iosSkippedTestsCount + androidSkippedTestsCount, iosFailedTestsCount + androidFailedTestsCount);
 			//need something here to put the failed tests and the health somewhere visible outside of travis
 			if(androidFailedTestsCount + iosFailedTestsCount > maxFailedTestCount) {
-				console.log('\n%d unit tests failed. Failing travis build.', androidFailedTestsCount + iosFailedTestsCount);
+				console.log('\n%d unit tests failed.', androidFailedTestsCount + iosFailedTestsCount);
+				if (runningOnSGJenkins) {
+					async.series([
+						function(next) {
+							cleanUp(next);
+						}],
+						function (err) {
+							if (err) {
+								console.error(err.toString().red);
+							}
+						}
+					);
+				}
 				process.exit(1);
 			}
-			process.exit(0);
+			console.log('\n--------------Calculating coverage--------------------');
+			async.series([
+				function (next) {
+					getTotalAPI(next);
+				},
+				function (next) {
+					getTotalAPITest(next);
+				}],
+				function (err) {
+					if (err) {
+						console.error(err.toString().red);
+						if (runningOnSGJenkins) {
+							async.series([
+								function(next) {
+									cleanUp(next);
+								}], 
+								function (err) {
+									if (err) {
+										console.error(err.toString().red);
+									}
+								}
+							);
+						}
+						process.exit(1);
+					}
+					//var apiCoverage = totalAPITest/totalAPI*100;
+					//console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
+					console.log('API Coverage: %d', totalAPITest);
+					//send coverage info to server
+					if (runningOnSGJenkins) {
+						async.series([
+							function(next) {
+								cleanUp(next);
+							}], 
+							function (err) {
+								if (err) {
+									console.error(err.toString().red);
+									process.exit(1);
+								}
+							}
+						);
+					}					
+					process.exit(0);
+				}
+			);
 		}
 	});
 }

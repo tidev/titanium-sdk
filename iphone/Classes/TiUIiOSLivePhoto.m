@@ -5,11 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if IS_XCODE_7_1
-#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhoto.h"
 
 @implementation TiUIiOSLivePhoto
+
+-(NSString *)apiName
+{
+    return @"Ti.UI.iOS.LivePhoto";
+}
 
 -(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto
 {
@@ -21,5 +24,3 @@
 }
 
 @end
-#endif
-#endif
