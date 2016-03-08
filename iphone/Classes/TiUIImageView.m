@@ -34,6 +34,15 @@
 
 DEFINE_EXCEPTIONS
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(void)dealloc
 {
 	if (timer!=nil)

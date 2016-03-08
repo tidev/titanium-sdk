@@ -235,6 +235,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -243,6 +244,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 @end
 

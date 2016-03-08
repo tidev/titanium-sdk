@@ -7,6 +7,22 @@
 
 #import "TiLayoutView.h"
 
+@interface TiTableViewRow : UITableViewCell
+{
+    CGFloat _width;
+    CGFloat _height;
+    TiDimension _tiHeight;
+}
+
+@property (nonatomic, retain) TiLayoutView* parentView;
+
+-(CGFloat)heightFromWidth:(CGFloat)width;
+-(void)setHeight_:(id)args;
+-(void)setLayout_:(id)args;
+@end
+
 @interface TiTableView : TiLayoutView<UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, retain) NSArray* tableData;
 
 @end

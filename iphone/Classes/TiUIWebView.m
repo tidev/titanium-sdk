@@ -66,6 +66,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @implementation TiUIWebView
 @synthesize reloadData, reloadDataProperties;
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	if (webview!=nil)

@@ -40,6 +40,7 @@
     return @"Ti.UI.iOS.AdView";
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -48,7 +49,7 @@
 {
     return TiDimensionAutoSize;
 }
-
+#endif
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
 {
     int width = MAX(suggestedWidth,[(TiUIiOSAdView*)[self view] contentWidthForWidth:suggestedWidth]);

@@ -18,6 +18,15 @@
 
 #pragma mark Internal
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(picker);

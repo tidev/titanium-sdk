@@ -147,6 +147,7 @@
 	}
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -155,6 +156,7 @@
 {
     return TiDimensionAutoSize;
 }
+#endif
 @end
 
 #endif
