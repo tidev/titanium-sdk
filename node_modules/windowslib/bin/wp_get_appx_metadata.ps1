@@ -29,6 +29,5 @@ $manifest.Xml = [xml](get-content $manifest.Path)
 Remove-Item $zipFilePath
 Remove-Item $manifest.Path
 
-$var=@($manifest.Xml.Package.Identity.Name,$manifest.Xml.Package.PhoneIdentity.PhoneProductId)[![String]::IsNullOrEm
-pty($manifest.Xml.Package.PhoneIdentity.PhoneProductId)]
+$var=@($manifest.Xml.Package.Identity.Name,$manifest.Xml.Package.PhoneIdentity.PhoneProductId)[![String]::IsNullOrEmpty($manifest.Xml.Package.PhoneIdentity.PhoneProductId)]
 $var
