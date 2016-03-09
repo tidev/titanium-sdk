@@ -2330,7 +2330,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
 
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            
+            dispatch_block_t block = ^{
+                [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            };
+#ifdef TI_USE_KROLL_THREAD
+            block();
+#else
+            TiThreadPerformOnMainThread(block, NO);
+#endif
         }
 	}
 #ifdef VERBOSE
