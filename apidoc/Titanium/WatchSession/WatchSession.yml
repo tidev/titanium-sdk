@@ -59,8 +59,11 @@ methods:
         Sends a message to the installed watchapp on the apple watch in the foreground. 
     parameters: 
       - name: message
-        summary: Message to send to apple watch.
+        summary: | 
+            Message to send to apple watch. This property is required and the key of the dictionary 
+            needs to be a String.
         type: Dictionary
+        optional: false
       - name: reply
         summary: |
             Function to be called upon receiving a reply from the watch app.
