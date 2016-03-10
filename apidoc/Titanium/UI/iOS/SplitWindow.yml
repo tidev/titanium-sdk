@@ -35,7 +35,7 @@ extends: Titanium.UI.Window
 platforms: [iphone,ipad]
 since: "3.6.0"
 excludes:
-    properties: [transitionAnimation]
+    properties: [transitionAnimation, swipeToClose]
 
 methods:
   - name: setShowMasterInPortrait
