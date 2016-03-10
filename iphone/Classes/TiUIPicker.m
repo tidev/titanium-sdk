@@ -35,52 +35,63 @@
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
 
+-(CGFloat)verifyHeight:(CGFloat)suggestedHeight
+{
+	// pickers have a forced height so we use it's height
+	// instead of letting the user set it
+	return picker.frame.size.height;
+}
+
+-(CGFloat)verifyWidth:(CGFloat)suggestedWidth
+{
+    if (suggestedWidth <= 0 && picker != nil) {
+        return picker.frame.size.width;
+    }
+    else {
+        return suggestedWidth;
+    }
+}
+
 -(UIControl*)picker 
 {
 	if (picker==nil)
 	{
+        float width = 320;
+        float height = 216;
+        
+        if ([TiUtils isIOS9OrGreater]) {
+            width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+            height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
+        }
+        
+        NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
+        NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
+        NSNumberFormatter *shouldSize = [[[NSNumberFormatter alloc] init] autorelease];
+        
+        if ([shouldSize numberFromString:widthString] != nil) {
+        [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
+        }
+        if ([shouldSize numberFromString:heightString] != nil) {
+        [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+        }
         
         if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:[self bounds]];
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:[self bounds]];
+			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
 		[picker setBackgroundColor:[UIColor whiteColor]];
 		[self addSubview:picker];
-#ifndef TI_USE_AUTOLAYOUT
-        [self setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [self addConstraints: [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[picker]|" options:NSLayoutFormatAlignAllLeft metrics:0 views:NSDictionaryOfVariableBindings(picker)]];
-        [self addConstraints: [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[picker]|" options:NSLayoutFormatAlignAllLeft metrics:0 views:NSDictionaryOfVariableBindings(picker)]];
-        
-        [self setNeedsLayout];
-        [self layoutIfNeeded];
-        [self layoutSubviews];
-        float width  =  self.bounds.size.height;
-        float height = self.bounds.size.width;
-        if (![TiUtils isIOS9OrGreater])
-        {
-            width  = 320;
-            height = 216;
-        }
-        if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->width))
-        {
-            [(TiViewProxy*)[self proxy] layoutProperties]->width = TiDimensionMake(TiDimensionTypeDip, width);
-        }
-        if (TiDimensionIsUndefined([(TiViewProxy*)[self proxy] layoutProperties]->height))
-        {
-            [(TiViewProxy*)[self proxy] layoutProperties]->height = TiDimensionMake(TiDimensionTypeDip, height);
-        }
-#endif
-    }
+	}
 	return picker;
 }
 
@@ -96,17 +107,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [super frameSizeChanged:frame bounds:bounds];
-    if (picker!=nil && !CGRectIsEmpty(bounds))
-    {
-        [picker setFrame:bounds];
-        if (![self isDatePicker]) {
-            [(UIPickerView*)picker reloadAllComponents];
-        }
-    }
-    if (![self isDatePicker]) {
-        [(UIPickerView*)picker reloadAllComponents];
-    }
+	if (picker!=nil && !CGRectIsEmpty(bounds))
+	{
+		[picker setFrame:bounds];
+		if (![self isDatePicker]) {
+			[(UIPickerView*)picker reloadAllComponents];
+		}
+	}
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -460,6 +467,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
         }
     }
 }
+
 
 @end
 
