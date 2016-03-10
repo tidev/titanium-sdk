@@ -35,7 +35,7 @@ extends: Titanium.UI.Window
 platforms: [ipad]
 since: "1.2"
 excludes:
-    properties: [transitionAnimation]
+    properties: [transitionAnimation, swipeToClose]
 
 events:
   - name: visible
