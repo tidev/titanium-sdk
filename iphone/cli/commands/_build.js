@@ -4287,8 +4287,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	});
 
 	this.logger.info(__('Analyzing platform files'));
-	walk(path.join(this.projectDir, 'platform', 'iphone'), this.buildDir);
-	walk(path.join(this.projectDir, 'platform', 'ios'), this.buildDir);
+	walk(path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'iphone'), this.buildDir);
+	walk(path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'ios'), this.buildDir);
 
 	this.logger.info(__('Analyzing module files'));
 	this.modules.forEach(function (module) {
