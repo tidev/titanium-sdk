@@ -56,33 +56,33 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
-        float width = 320;
-        float height = 216;
+		float width = 320;
+		float height = 216;
         
-        if ([TiUtils isIOS9OrGreater]) {
-            width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-            height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-        }
+		if ([TiUtils isIOS9OrGreater]) {
+			width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+			height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
+		}
         
-        NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
-        NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
-        NSNumberFormatter *shouldSize = [[[NSNumberFormatter alloc] init] autorelease];
+		NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
+		NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
+		NSNumberFormatter *shouldSize = [[[NSNumberFormatter alloc] init] autorelease];
         
-        if ([shouldSize numberFromString:widthString] != nil) {
-        [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
-        }
-        if ([shouldSize numberFromString:heightString] != nil) {
-        [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
-        }
+		if ([shouldSize numberFromString:widthString] != nil) {
+			[[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
+		}
+		if ([shouldSize numberFromString:heightString] != nil) {
+			[[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+		}
         
-        if (type == -1)
+		if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
 			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
-		else 
+		else
 		{
 			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
