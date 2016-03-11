@@ -293,7 +293,7 @@
 #ifdef TI_USE_AUTOLAYOUT
 		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
 #endif
-        ((UITextField *)textWidgetView).delegate = self;
+		((UITextField *)textWidgetView).delegate = self;
 		((UITextField *)textWidgetView).text = @"";
 		((UITextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
 		((UITextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
