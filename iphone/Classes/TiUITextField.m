@@ -290,13 +290,15 @@
 	if (textWidgetView==nil)
 	{
 		textWidgetView = [[TiTextField alloc] init];
+#ifdef TI_USE_AUTOLAYOUT
 		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
-		((UITextField *)textWidgetView).delegate = self;
+#endif
+        ((UITextField *)textWidgetView).delegate = self;
 		((UITextField *)textWidgetView).text = @"";
 		((UITextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
 		((UITextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		[(UITextField *)textWidgetView configure];
-		[(UITextField *)textWidgetView setTouchHandler:self];
+		[(TiTextField *)textWidgetView configure];
+		[(TiTextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
 		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
