@@ -13,12 +13,15 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.titanium.util.TiShadowHelper;
 
 import android.content.Intent;
 
 public class TiJSService extends TiBaseService
 {
 	protected String url = null;
+	protected TiShadowHelper tiShadowHelper;
+	protected Boolean isTishadow = tiShadowHelper.isTishadow();
 	private static final String TAG = "TiJSService";
 
 	public TiJSService(String url)
@@ -64,14 +67,26 @@ public class TiJSService extends TiBaseService
 		}
 
 		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
-			fullUrl = fullUrl.replaceAll("app:/", "Resources");
+			if(isTishadow){
+				fullUrl = fullUrl.replaceAll("app://", "");
+			}else{
+				fullUrl = fullUrl.replaceAll("app:/", "Resources");
+			}
 
 		} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
 		}
+		
+		if(isTishadow){
+			fullUrl = tiShadowHelper.getDataDirectory()+fullUrl;
+		}
 
 		proxy.fireEvent(TiC.EVENT_RESUME, new KrollDict());
-		KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
+		if(isTishadow){
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readFile(fullUrl), fullUrl, proxy);
+		}else{
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
+		}
 		proxy.fireEvent(TiC.EVENT_PAUSE, new KrollDict());
 		proxy.fireEvent(TiC.EVENT_STOP, new KrollDict()); // this basic JS Service class only runs once.
 

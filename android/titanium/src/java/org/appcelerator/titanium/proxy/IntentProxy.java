@@ -78,6 +78,8 @@ public class IntentProxy extends KrollProxy
 		int start = 0;
 		if (parts.get(0).equals("app:") && parts.size() >= 3) {
 			start = 2;
+		}else if(parts.get(0).equals("appdata-private:") && parts.size() >= 5){
+			start = 4;
 		}
 		
 		String className = TextUtils.join("_", parts.subList(start, parts.size()));
