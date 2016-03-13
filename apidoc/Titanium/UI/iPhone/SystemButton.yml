@@ -34,7 +34,7 @@ since: "0.8"
 platforms: [iphone, ipad]
 createable: false
 deprecated:
-    since: "6.0.0"
+    since: "5.4.0"
     notes: Use [Titanium.UI.iOS.SystemButton](Titanium.UI.iOS.SystemButton) instead.
 
 properties:
