@@ -547,7 +547,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     [self tableView];
     DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.tableSeparatorInsets");
-    [self setTableSeparatorInsets_:arg];
 }
 -(void)setTableSeparatorInsets_:(id)arg
 {
@@ -556,12 +555,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-        [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        [[self tableView] setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
     } else {
-        [_tableView setSeparatorInset:_defaultSeparatorInsets];
+        [[self tableView ] setSeparatorInset:_defaultSeparatorInsets];
     }
     if (![searchController isActive]) {
-        [_tableView setNeedsDisplay];
+        [[self tableView] setNeedsDisplay];
     }
 }
 
@@ -576,7 +575,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
     }
     if (![searchController isActive]) {
-        [_tableView setNeedsDisplay];
+        [[self tableView] setNeedsDisplay];
     }
 }
 
