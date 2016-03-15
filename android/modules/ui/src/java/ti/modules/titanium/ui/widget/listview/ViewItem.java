@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class ViewItem {
@@ -55,6 +56,13 @@ public class ViewItem {
 				applyProperty(property, value);
 			}
 		}
+
+		//backgroundImage and backgroundColor needs to be processed together
+		if (this.properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR) && diffProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
+				&& !diffProperties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			diffProperties.put(TiC.PROPERTY_BACKGROUND_COLOR, this.properties.get(TiC.PROPERTY_BACKGROUND_COLOR));
+		}
+
 		return diffProperties;
 		
 	}
