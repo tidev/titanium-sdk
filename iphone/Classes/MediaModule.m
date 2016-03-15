@@ -1279,7 +1279,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
+        
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1290,7 +1295,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"cancel",event,listener]];
+#endif
 	}
 }
 
@@ -1303,7 +1313,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	}
 	if (listener!=nil)
 	{
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,listener]];
+#endif
 	}
 }
 
@@ -1626,7 +1640,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:blob forKey:@"image"];
+
+#ifdef TI_USE_KROLL_THREAD
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1635,7 +1654,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:blob forKey:@"image"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
 }
 
@@ -1647,7 +1671,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:path forKey:@"path"];
-			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];			
+
+#ifdef TI_USE_KROLL_THREAD
+			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1656,7 +1685,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:path forKey:@"path"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
     
     // This object was retained for use in this callback; release it.
@@ -1963,7 +1997,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[event setObject:media forKey:@"media"];
+        
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1977,7 +2016,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
 		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1991,7 +2035,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
