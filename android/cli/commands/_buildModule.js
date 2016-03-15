@@ -11,86 +11,25 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
-var ADB = require('titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
-	android = require('titanium-sdk/lib/android'),
+var AdmZip = require('adm-zip'),
 	androidDetect = require('../lib/detect').detect,
-	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/core'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
 	crypto = require('crypto'),
-	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
-	exec = require('child_process').exec,
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
-	fields = require('fields'),
 	fs = require('fs'),
-	i18n = require('titanium-sdk/lib/i18n'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn,
 
-	afs = appc.fs,
-	i18nLib = appc.i18n(__dirname),
-	__ = i18nLib.__,
-	__n = i18nLib.__n,
-	version = appc.version,
-	xml = appc.xml;
-
-// Archiver 0.4.10 has a problem where the stack size is exceeded if the project
-// has lots and lots of files. Below is a function copied directly from
-// lib/archiver/core.js and modified to use a setTimeout to collapse the call
-// stack. Copyright (c) 2012-2013 Chris Talkington, contributors.
-archiverCore.prototype._processQueue = function _processQueue() {
-	if (this.archiver.processing) {
-		return;
-	}
-
-	if (this.archiver.queue.length > 0) {
-		var next = this.archiver.queue.shift();
-		var nextCallback = function(err, file) {
-			next.callback(err);
-
-			if (!err) {
-				this.archiver.files.push(file);
-				this.archiver.processing = false;
-				// do a setTimeout to collapse the call stack
-				setTimeout(function () {
-					this._processQueue();
-				}.bind(this), 0);
-			}
-		}.bind(this);
-
-		this.archiver.processing = true;
-
-		this._processFile(next.source, next.data, nextCallback);
-	} else if (this.archiver.finalized && this.archiver.writableEndCalled === false) {
-		this.archiver.writableEndCalled = true;
-		this.end();
-	} else if (this.archiver.finalize && this.archiver.queue.length === 0) {
-		this._finalize();
-	}
-};
-
-function hash(s) {
-	return crypto.createHash('md5').update(s || '').digest('hex');
-}
-
-function randomStr (len) {
-	return crypto.randomBytes(Math.ceil(len * 3 / 4))
-		.toString('base64')
-		.slice(0, len)
-		.replace(/\+/g, '0')
-		.replace(/\//g, '0');
-}
+	__ = appc.i18n(__dirname).__,
+	version = appc.version;
 
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -102,13 +41,12 @@ function AndroidModuleBuilder() {
 
 util.inherits(AndroidModuleBuilder, Builder);
 
-AndroidModuleBuilder.prototype.config = function config(logger, config, cli) {
-	Builder.prototype.config.apply(this, arguments);
-};
-
 AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.config.apply(this, arguments);
+	Builder.prototype.validate.apply(this, arguments);
 
 	this.projectDir = cli.argv['project-dir'];
+	this.buildOnly = cli.argv['build-only'];
 
 	this.cli = cli;
 	this.logger = logger;
@@ -281,20 +219,15 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 
 };
 
-AndroidModuleBuilder.prototype.dirWalker = function (currentPath, callback) {
-	var files = fs.readdirSync(currentPath),
-		i;
-
-	for (i in files) {
-		var currentFile = path.join(currentPath, files[i]),
-			stats = fs.statSync(currentFile);
-
-		if (stats.isFile()) {
-			callback(currentFile);
-		} else if (stats.isDirectory()) {
+AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
+	fs.readdirSync(currentPath).forEach(function (name, i, arr) {
+		var currentFile = path.join(currentPath, name);
+		if (fs.statSync(currentFile).isDirectory()) {
 			this.dirWalker(currentFile, callback);
+		} else {
+			callback(currentFile, name, i, arr);
 		}
-	}
+	}, this);
 };
 
 AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
@@ -341,8 +274,8 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
-	['assets', 'documentation', 'example', 'platform'].forEach(function (folder) {
-		var dirName = folder+'Dir';
+	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
+		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
 			this[dirName] = path.join(this.projectDir, '..', folder);
@@ -403,9 +336,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	next();
 };
 
-AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
-	console.log("--- AndroidModuleBuilder loginfo");
-
+AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('javac Max Memory: %s', this.javacMaxMemory));
 	this.logger.info(__('javac Source: %s', this.javacSource));
 	this.logger.info(__('javac Target: %s', this.javacTarget));
@@ -416,8 +347,7 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Documentation Dir: %s', this.documentationDir.cyan));
 	this.logger.info(__('Example Dir: %s', this.exampleDir.cyan));
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
-
-	next();
+	this.logger.info(__('Resources Dir: %s', this.resourcesDir.cyan));
 };
 
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
@@ -1341,7 +1271,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		function (cb) {
 			// Generate documentation
 			if (fs.existsSync(this.documentationDir)) {
-				var markdown = require( 'markdown' ).markdown;
 				var files = fs.readdirSync(this.documentationDir);
 				for (var i in files) {
 					var file = files[i],
@@ -1431,30 +1360,52 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				this.logger.info(__('Creating module zip'));
 
 				// 1. documentation folder
-				this.documentation.forEach(function (item) {
-					var fileName = Object.keys(item),
-						content = item[fileName],
-						filePath;
+				var mdRegExp = /\.md$/;
+				(function walk(dir, parent) {
+					if (!fs.existsSync(dir)) return;
 
-					fileName = fileName.toString().replace('.md', '.html');
-					filePath = path.join(moduleFolder, 'documentation', fileName);
+					fs.readdirSync(dir).forEach(function (name) {
+						var file = path.join(dir, name);
+						if (!fs.existsSync(file)) return;
+						if (fs.statSync(file).isDirectory()) {
+							return walk(file, path.join(parent, name));
+						}
 
-					dest.append(content, { name: filePath });
+						var contents = fs.readFileSync(file).toString();
 
-				}, this);
+						if (mdRegExp.test(name)) {
+							contents = markdown.toHTML(contents);
+							name = name.replace(/\.md$/, '.html');
+						}
 
+						dest.append(contents, { name: path.join(parent, name) });
+					});
+				}(this.documentationDir, path.join(moduleFolder, 'documentation')));
+
+				// 2. example folder
 				this.dirWalker(this.exampleDir, function (file) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'example', path.relative(this.exampleDir, file)) });
 				}.bind(this));
 
+				// 3. platform folder
 				if (fs.existsSync(this.platformDir)) {
 					this.dirWalker(this.platformDir, function (file) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform', path.relative(this.platformDir, file)) });
 					}.bind(this));
 				}
 
+				// 4. Resources folder
+				if (fs.existsSync(this.resourcesDir)) {
+					this.dirWalker(this.resourcesDir, function (file, name) {
+						if (name !== 'README.md') {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'Resources', path.relative(this.resourcesDir, file)) });
+						}
+					}.bind(this));
+				}
+
+				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) != '.js' && path.basename(file) != 'README') {
+					if (path.extname(file) !== '.js' && path.basename(file) != 'README') {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
@@ -1492,8 +1443,12 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 };
 
 AndroidModuleBuilder.prototype.runModule = function (next) {
+	if (this.buildOnly) {
+		return next();
+	}
+
 	var tmpName,
-		tmpDir,
+		tmpDir = temp.path('ti-android-module-build-'),
 		tmpProjectDir;
 
 	function checkLine(line, logger) {
@@ -1514,7 +1469,6 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 	}
 
 	function runTiCommand(cmd, args, logger, callback) {
-
 		// when calling a Windows batch file, we need to escape ampersands in the command
 		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
 			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
@@ -1527,21 +1481,17 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			data.toString().split('\n').forEach(function (line) {
 				checkLine(line, logger);
 			});
-
 		});
 
 		child.stderr.on('data', function (data) {
 			data.toString().split('\n').forEach(function (line) {
 				checkLine(line, logger);
 			});
-
 		});
 
 		child.on('close', function (code) {
 			if (code) {
 				logger.error(__('Failed to run ti %s', args[0]));
-				logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
 				logger.log();
 				process.exit(1);
 			}
@@ -1554,12 +1504,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 
 		function (cb) {
 			// 1. create temp dir
-			do {
-				tmpName = 'm' + randomStr(6) + 'ti';
-				tmpDir = path.join(process.env.TMPDIR, tmpName);
-			} while(fs.existsSync(tmpDir));
-
-			fs.mkdirSync(tmpDir);
+			wrench.mkdirSyncRecursive(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
@@ -1592,7 +1537,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			fs.writeFileSync(path.join(tmpProjectDir, 'tiapp.xml'), result);
 
 			// 4. copy files in example to Resource
-			afs.copyDirSyncRecursive(
+			appc.fs.copyDirSyncRecursive(
 				this.exampleDir,
 				path.join(tmpProjectDir, 'Resources'),
 				{
