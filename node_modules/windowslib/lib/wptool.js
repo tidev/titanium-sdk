@@ -768,7 +768,19 @@ function wpToolInstall(deployCmd, device, appPath, options, callback) {
 				ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to install app (code %s): %s', code, out));
 			callback(ex);
 		} else {
-			callback(null, device);
+			var errmsg = /failed\. (\w*)\r?\n(.*)/.exec(out);
+			if (errmsg) {
+				var err = errmsg[1],
+					msg = errmsg[2];
+
+				if (err == '0x80073CF9') {
+					callback(new Error('A debug application is already installed, please remove existing debug application'));
+				} else {
+					callback(new Error(__('Failed to install app (code %s): %s', err, msg)));
+				}
+			} else {
+				callback(null, device);
+			}
 		}
 	});
 	if (options.timeout) {
