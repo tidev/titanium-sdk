@@ -224,9 +224,9 @@ public class TiUILabel extends TiUIView
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
  		}
  		
-		if (d.containsKey(TiC.PROPERTY_MINIMUMFONTSIZE)) {
+		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
 			//it enables font scaling to fit and forces the label content to be limited to a single line.
-			minimumFontSize =  TiConvert.toString(d, TiC.PROPERTY_MINIMUMFONTSIZE);
+			minimumFontSize =  TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE);
 			tv.setSingleLine(true);
 			tv.setEllipsize(TruncateAt.END);
 		}
@@ -360,7 +360,7 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_MINIMUMFONTSIZE)) {
+		} else if (key.equals(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
 			minimumFontSize = TiConvert.toString(newValue);
 			tv.setSingleLine(true);
 			tv.setEllipsize(TruncateAt.END);
