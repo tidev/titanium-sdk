@@ -45,136 +45,131 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 	Builder.prototype.config.apply(this, arguments);
 	Builder.prototype.validate.apply(this, arguments);
 
-	this.projectDir = cli.argv['project-dir'];
-	this.buildOnly = cli.argv['build-only'];
+	return function (finished) {
+		this.projectDir = cli.argv['project-dir'];
+		this.buildOnly = cli.argv['build-only'];
 
-	this.cli = cli;
-	this.logger = logger;
+		this.cli = cli;
+		this.logger = logger;
 
-	this.manifest = this.cli.manifest;
+		this.manifest = this.cli.manifest;
 
-	// detect android environment
-	androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
-		this.androidInfo = androidInfo;
-		null;
-	}.bind(this));
+		// detect android environment
+		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
+			this.androidInfo = androidInfo;
 
-	if (!this.androidInfo.ndk.path) {
-		logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
-		process.exit(1);
-	}
-
-	var targetSDKMap = {};
-	Object.keys(this.androidInfo.targets).forEach(function (id) {
-		var t = this.androidInfo.targets[id];
-		if (t.type == 'platform') {
-			targetSDKMap[t.id.replace('android-', '')] = t;
-		}
-	}, this);
-
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(),
-			i = levels.length - 1;
-
-		for (; i >= 0; i--) {
-			if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
-				break;
-			}
-		}
-
-		if (!this.targetSDK) {
-			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
-			process.exit(1);
-		}
-	}
-
-	// check that we have this target sdk installed
-	this.androidTargetSDK = targetSDKMap[this.targetSDK];
-
-	if (!this.androidTargetSDK) {
-		logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
-
-		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
-			return ver > this.minSupportedApiLevel;
-		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
-
-		if (sdks.length) {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-			logger.log(
-				appc.string.wrap(
-					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-					config.get('cli.width', 100)
-				)
-			);
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <android>'.grey);
-			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk '
-				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-				+ 'android:targetSdkVersion="' + sdks[0] + '" '
-				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-				+ '/>').magenta);
-			logger.log('        </manifest>'.grey);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-		} else {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-		}
-		process.exit(1);
-	}
-
-	if (!this.androidTargetSDK.androidJar) {
-		logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.targetSDK < this.minSDK) {
-		logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.maxSDK && this.maxSDK < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
-		// print warning that version this.targetSDK is not tested
-		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
-	}
-
-	// get the javac params
-	this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-	this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-	this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
-	this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
-
-	this.jdkInfo = null;
-
-	return function(finished) {
-		// detect java development kit
-		appc.jdk.detect(config, null, function (jdkInfo) {
-			if (!jdkInfo.version) {
-				logger.error(__('Unable to locate the Java Development Kit') + '\n');
-				logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
+			if (!this.androidInfo.ndk.path) {
+				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
 				process.exit(1);
 			}
 
-			if (!version.satisfies(jdkInfo.version, this.packageJson.vendorDependencies.java)) {
-				logger.error(__('JDK version %s detected, but only version %s is supported', jdkInfo.version, this.packageJson.vendorDependencies.java) + '\n');
+			var targetSDKMap = {};
+			Object.keys(this.androidInfo.targets).forEach(function (id) {
+				var t = this.androidInfo.targets[id];
+				if (t.type == 'platform') {
+					targetSDKMap[t.id.replace('android-', '')] = t;
+				}
+			}, this);
+
+			// if no target sdk, then default to most recent supported/installed
+			if (!this.targetSDK) {
+				var levels = Object.keys(targetSDKMap).sort(),
+					i = levels.length - 1;
+
+				for (; i >= 0; i--) {
+					if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
+						this.targetSDK = levels[i];
+						break;
+					}
+				}
+
+				if (!this.targetSDK) {
+					logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+					process.exit(1);
+				}
+			}
+
+			// check that we have this target sdk installed
+			this.androidTargetSDK = targetSDKMap[this.targetSDK];
+
+			if (!this.androidTargetSDK) {
+				logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
+
+				var sdks = Object.keys(targetSDKMap).filter(function (ver) {
+					return ver > this.minSupportedApiLevel;
+				}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
+
+				if (sdks.length) {
+					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+					logger.log(
+						appc.string.wrap(
+							__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+							config.get('cli.width', 100)
+						)
+					);
+					logger.log();
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <android>'.grey);
+					logger.log('        <manifest>'.grey);
+					logger.log(('            <uses-sdk '
+						+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+						+ 'android:targetSdkVersion="' + sdks[0] + '" '
+						+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+						+ '/>').magenta);
+					logger.log('        </manifest>'.grey);
+					logger.log('    </android>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+				} else {
+					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
+				}
 				process.exit(1);
 			}
 
-			this.jdkInfo = jdkInfo;
+			if (!this.androidTargetSDK.androidJar) {
+				logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
+				process.exit(1);
+			}
 
+			if (this.targetSDK < this.minSDK) {
+				logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
+				process.exit(1);
+			}
+
+			if (this.maxSDK && this.maxSDK < this.targetSDK) {
+				logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+				process.exit(1);
+			}
+
+			if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
+				// print warning that version this.targetSDK is not tested
+				logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
+			}
+
+			// get the javac params
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
+			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
+			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+			this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+
+			// detect java development kit
+			appc.jdk.detect(config, null, function (jdkInfo) {
+				if (!jdkInfo.version) {
+					logger.error(__('Unable to locate the Java Development Kit') + '\n');
+					logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
+					process.exit(1);
+				}
+
+				if (!version.satisfies(jdkInfo.version, this.packageJson.vendorDependencies.java)) {
+					logger.error(__('JDK version %s detected, but only version %s is supported', jdkInfo.version, this.packageJson.vendorDependencies.java) + '\n');
+					process.exit(1);
+				}
+
+				this.jdkInfo = jdkInfo;
+
+				finished();
+			}.bind(this));
 		}.bind(this));
-
-		finished();
-
 	}.bind(this);
 };
 
@@ -713,7 +708,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 	var tasks = [
 		function (cb) {
-
 			Object.keys(bindingJson.proxies).forEach(function (proxy) {
 				var fullApi = getFullApiName(bindingJson.proxies[proxy]),
 					tree = apiTree,
@@ -754,7 +748,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		},
 
 		function (cb) {
-
 			var bootstrapJS = processNode(apiTree, '', 0);
 
 			var bootstrapContext = {
@@ -812,7 +805,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 	];
 
 	appc.async.series(this, tasks, next);
-
 };
 
 AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
@@ -1405,7 +1397,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) !== '.js' && path.basename(file) != 'README') {
+					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
