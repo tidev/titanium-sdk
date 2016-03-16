@@ -149,7 +149,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		{
 			UIImage *image = board.image;
 			if (image) {
-				return [[[TiBlob alloc] initWithImage: image] autorelease];
+				return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 			} else {
 				return nil;
 			}
@@ -160,7 +160,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 			NSData *data = [board dataForPasteboardType: mimeTypeToUTType(mimeType)];
 
 			if (data) {
-				return [[[TiBlob alloc] initWithData: data mimetype: mimeType] autorelease];
+				return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimeType] autorelease];
 			} else {
 				return nil;
 			}

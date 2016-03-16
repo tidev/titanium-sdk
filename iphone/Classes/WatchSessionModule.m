@@ -377,7 +377,7 @@
             [dict addEntriesFromDictionary:errorinfo];
         }
         else {
-            downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+            downloadedData = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[destinationURL path]] autorelease];
             NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                       NUMINT(0), @"errorCode",
                                       @"", @"message",

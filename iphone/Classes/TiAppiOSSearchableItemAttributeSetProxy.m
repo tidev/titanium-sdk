@@ -139,7 +139,7 @@
 //Optional image data for thumbnail for this item
 -(TiBlob*)thumbnailData
 {
-    return [[[TiBlob alloc] initWithData:_attributes.thumbnailData mimetype:_attributes.contentType] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:_attributes.thumbnailData mimetype:_attributes.contentType] autorelease];
 }
 
 -(void)setThumbnailData:(id)value

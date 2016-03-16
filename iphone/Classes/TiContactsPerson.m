@@ -574,7 +574,7 @@ static NSDictionary* iOS9propertyKeys;
 
 	if ([TiUtils isIOS9OrGreater]) {
 		if (person.imageDataAvailable == YES) {
-			TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
+			TiBlob* imageBlob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImage imageWithData:person.imageData]] autorelease];
 			return imageBlob;
 		}
 		return nil;
@@ -583,7 +583,7 @@ static NSDictionary* iOS9propertyKeys;
 	CFDataRef imageData = ABPersonCopyImageData([self record]);
 	if (imageData != NULL)
 	{
-		TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
+		TiBlob* imageBlob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
 		CFRelease(imageData);
 		
 		return imageBlob;

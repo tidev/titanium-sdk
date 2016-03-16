@@ -774,7 +774,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
     }
     
-    TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+    TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
     NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
     [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
@@ -1619,13 +1619,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(void)saveCompletedForImage:(UIImage*)image error:(NSError*)error contextInfo:(void*)contextInfo
 {
 	NSDictionary* saveCallbacks = (NSDictionary*)contextInfo;
-	TiBlob* blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+	TiBlob* blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
     
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:blob forKey:@"image"];
+
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		}
 		return;
@@ -1635,6 +1636,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:blob forKey:@"image"];
+
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
 }
@@ -1647,7 +1649,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:path forKey:@"path"];
-			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];			
+
+			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
 		}
 		return;
 	}
@@ -1656,6 +1659,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:path forKey:@"path"];
+
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
 	}
     
@@ -1665,7 +1669,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)handleTrimmedVideo:(NSURL*)theURL withDictionary:(NSDictionary*)dictionary
 {
-    TiBlob* media = [[[TiBlob alloc] initWithFile:[theURL path]] autorelease];
+    TiBlob* media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[theURL path]] autorelease];
     NSMutableDictionary* eventDict = [NSMutableDictionary dictionaryWithDictionary:dictionary];
     [eventDict setObject:media forKey:@"media"];
     if (saveToRoll) {
@@ -1772,7 +1776,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (isVideo) {
 
         UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-        thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
+        thumbnail = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:thumbnailImage] autorelease];
 
         if (picker.allowsEditing) {
             NSNumber *startTime = [editingInfo objectForKey:@"_UIImagePickerControllerVideoEditingStart"];
@@ -1818,7 +1822,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
         }
         
-        media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+        media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
         if ([media mimeType] == nil) {
             [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
         }
@@ -1831,7 +1835,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
         if ((mediaURL!=nil) && (editedImage == nil)) {
             
-            media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+            media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
             [media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
 			
             if (saveToRoll) {
@@ -1963,6 +1967,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[event setObject:media forKey:@"media"];
+        
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1977,6 +1982,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
 		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
+
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
@@ -1991,6 +1997,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
+
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }

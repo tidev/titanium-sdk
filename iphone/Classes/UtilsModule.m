@@ -62,7 +62,7 @@
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
+		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
 	return nil;
 }
@@ -92,7 +92,7 @@
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
+		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
 	}
 	free(base64Result);
 	return nil;
