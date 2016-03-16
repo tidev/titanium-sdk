@@ -287,7 +287,7 @@ const CFOptionFlags writeStreamEventFlags =
         free(buffer);
     }
 
-    TiBlob* dataBlob = [[[TiBlob alloc] initWithData:data mimetype:@"application/octet-stream"] autorelease];
+    TiBlob* dataBlob = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andData:data mimetype:@"application/octet-stream"] autorelease];
     [self fireEvent:@"read" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:remoteSocket], @"from",
                                                                                     dataBlob, @"data",
                                                                                     nil]];

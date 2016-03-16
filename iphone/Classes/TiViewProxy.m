@@ -634,7 +634,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }
     }
     callback = (KrollCallback*)obj;
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
+	TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
