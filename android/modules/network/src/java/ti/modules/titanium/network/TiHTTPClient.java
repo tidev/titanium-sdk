@@ -612,7 +612,7 @@ public class TiHTTPClient
 	public String getAllResponseHeaders()
 	{
 		String result = "";
-		if(!responseHeaders.isEmpty()){
+		if(responseHeaders!=null && !responseHeaders.isEmpty()){
 			StringBuilder sb = new StringBuilder(256);
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
 			
