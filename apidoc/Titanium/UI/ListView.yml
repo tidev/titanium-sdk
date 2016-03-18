@@ -851,7 +851,7 @@ properties:
     summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
     deprecated:
         since: "5.2.0"
-        notes: Use tableSeparatorInsets instead
+        notes: Use listSeparatorInsets instead
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
@@ -879,6 +879,9 @@ properties:
     availability: creation
 
   - name: tableSeparatorInsets
+    deprecated:
+        since: "5.4.0"
+        notes: Use listSeparatorInsets instead
     summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
@@ -891,13 +894,30 @@ properties:
                  left:10,
                  right:10
              });
- 
- 
+  
     type: Dictionary
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
 
+  - name: listSeparatorInsets
+    summary: The insets for the list view header and footer. This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. If the rowSeparatorInsets is not set, the listSeparatorInsets will also set the cell insets.
+ 
+        For example:
+ 
+             listView.setListSeparatorInsets({
+                 left:10,
+                 right:10
+             });
+  
+    type: Dictionary
+    since: "5.4.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
 
   - name: rowSeparatorInsets
     summary: The insets for list view cells (applies to all cells). This property is applicable on iOS 7 and greater.
