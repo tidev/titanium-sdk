@@ -546,9 +546,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setSeparatorInsets_:(id)arg
 {
     [self tableView];
-    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.tableSeparatorInsets");
+    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
 }
+
 -(void)setTableSeparatorInsets_:(id)arg
+{
+    DEPRECATED_REPLACED(@"UI.ListView.tableSeparatorInsets", @"5.4.0", @"UI.ListView.listSeparatorInsets");
+    [self setListSeparatorInsets_:arg];
+}
+
+-(void)setListSeparatorInsets_:(id)arg
 {
     [self tableView];
     
