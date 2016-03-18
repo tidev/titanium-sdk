@@ -432,9 +432,9 @@ describe("filesystem", function() {
 		finish();
 	});
 	//TIMOB-20440
-	it(“applicationDataDirectory”, function(finish) {
+	it("applicationDataDirectory", function(finish) {
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'filter.txt');
-		var text = “testing a file”;
+		var text = "testing a file";
 		file.write(text);
 		should(file.exists()).be.true;
 		var blob = file.read();
