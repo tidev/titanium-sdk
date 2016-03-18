@@ -545,8 +545,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    [self tableView];
     DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
+    [self setListSeparatorInsets_:arg];
 }
 
 -(void)setTableSeparatorInsets_:(id)arg
@@ -573,10 +573,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setRowSeparatorInsets_:(id)arg
 {
-    [self tableView];
-    
     if ([arg isKindOfClass:[NSDictionary class]]) {
-        
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
         _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
