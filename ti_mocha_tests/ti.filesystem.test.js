@@ -447,7 +447,7 @@ describe("filesystem", function() {
 		should(readText).eql(text);
 		file.deleteFile();
 		finish();
-	}
+	});
 	//TIMOB-4469
 	it("existsMethod", function(finish) {
 		should(Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, "app.js").exists()).be.true;
