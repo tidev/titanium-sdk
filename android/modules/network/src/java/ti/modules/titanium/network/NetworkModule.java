@@ -473,20 +473,20 @@ public class NetworkModule extends KrollModule {
 	public void addSystemCookie(CookieProxy cookieURLConnectionProxy)
 	{
 		HttpCookie cookie = cookieURLConnectionProxy.getHTTPCookie();
-		String cookieString = cookie.getName() + "=" + cookie.getValue();
+		String cookieString = cookie.getName() + "=" + cookie.getValue() + ";";
 		String domain = cookie.getDomain();
 		if (domain == null) {
 			Log.w(TAG, "Unable to add system cookie. Need to provide domain.");
 			return;
 		}
-		cookieString += "; domain=" + domain;
+		//cookieString += " Domain=" + domain + ";";
 
 		String path = cookie.getPath();
 		//Date expiryDate = cookie.getExpiryDate();
 		boolean secure = cookie.getSecure();
 		boolean httponly = TiConvert.toBoolean(cookieURLConnectionProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
 		if (path != null) {
-			cookieString += "; path=" + path;
+			cookieString += " Path=" + path + ";";
 		}
 		/*
 		if (expiryDate != null) {
@@ -494,10 +494,10 @@ public class NetworkModule extends KrollModule {
 		}
 		*/
 		if (secure) {
-			cookieString += "; secure";
+			cookieString += " Secure;";
 		}
 		if (httponly) {
-			cookieString += " httponly";
+			cookieString += " Httponly";
 		}
 		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
 		CookieManager cookieManager = CookieManager.getInstance();

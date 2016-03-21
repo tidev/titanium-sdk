@@ -15,6 +15,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TiUIiOSAdView
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(adview);

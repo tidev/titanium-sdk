@@ -62,6 +62,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
+    UIEdgeInsets _rowSeparatorInsets;
+    
     
     NSMutableDictionary* _measureProxies;
     
@@ -69,6 +71,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL canFireScrollEnd;
     BOOL isScrollingToTop;
 }
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (id)init
 {
@@ -198,12 +209,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
         }
         
-#if IS_XCODE_7
         if ([TiUtils isIOS9OrGreater]) {
             _tableView.cellLayoutMarginsFollowReadableWidth = NO;
-        }
-#endif
-        
+        }        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -537,16 +545,33 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    [self tableView];
+    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.tableSeparatorInsets");
+    [self setTableSeparatorInsets_:arg];
+}
+
+-(void)setTableSeparatorInsets_:(id)arg
+{
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-        [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        [[self tableView] setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
     } else {
-        [_tableView setSeparatorInset:_defaultSeparatorInsets];
+        [[self tableView ] setSeparatorInset:_defaultSeparatorInsets];
     }
     if (![searchController isActive]) {
-        [_tableView setNeedsDisplay];
+        [[self tableView] setNeedsDisplay];
+    }
+}
+
+-(void)setRowSeparatorInsets_:(id)arg
+{
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+        _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (![searchController isActive]) {
+        [[self tableView] setNeedsDisplay];
     }
 }
 
@@ -1394,7 +1419,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:NO];
     }
-
+    
+    if (_rowSeparatorInsets.left != 0 || _rowSeparatorInsets.right != 0) {
+        [cell setSeparatorInset:_rowSeparatorInsets];
+    }
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
     return cell;
@@ -1681,7 +1709,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
+    // send indexPath of tableView which could be self.tableView or searchController.searchResultsTableView
+    [self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -1958,12 +1987,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (![self.proxy _hasListeners:eventName]) {
 		return;
 	}
-	TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
-	NSDictionary *item = [section itemAtIndex:indexPath.row];
+
+	// return sectionIndex, itemIndex of item in original table(self.tableView),
+	// not results table(searchController.searchResultsTableView)
+	NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+	
+	TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+	NSDictionary *item = [section itemAtIndex:realIndexPath.row];
 	NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										NUMINTEGER(indexPath.section), @"sectionIndex",
-										NUMINTEGER(indexPath.row), @"itemIndex",
+										NUMINTEGER(realIndexPath.section), @"sectionIndex",
+										NUMINTEGER(realIndexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -1973,9 +2007,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 		[eventObject setObject:itemId forKey:@"itemId"];
 	}
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
+
+	CGPoint convertedPoint = [tableView convertPoint:tapPoint toView:cell.contentView];
+	// if searchController is active, tableView.contentOffset.y = -44
+	// else tableView.contentOffset.y = 0
+	if ([searchController isActive]) {
+		convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
+	}
+	
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
-		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, [tableView convertPoint:tapPoint toView:contentView]);
+		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, convertedPoint);
 		if (tapViewProxy != nil) {
 			[eventObject setObject:[tapViewProxy valueForKey:@"bindId"] forKey:@"bindId"];
 		}

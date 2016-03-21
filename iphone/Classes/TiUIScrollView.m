@@ -12,6 +12,7 @@
 
 @implementation TiUIScrollViewImpl
 
+
 -(void)setTouchHandler:(TiUIView*)handler
 {
     //Assign only. No retain
@@ -72,6 +73,15 @@
 @implementation TiUIScrollView
 @synthesize contentWidth;
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 - (void) dealloc
 {
 #ifndef TI_USE_AUTOLAYOUT
@@ -114,9 +124,6 @@
         [contentView setDefaultWidth:TiDimensionAutoSize];
         
         [scrollView addSubview:contentView];
-        
-        [self setDefaultHeight:TiDimensionAutoFill];
-        [self setDefaultWidth:TiDimensionAutoFill];
         
         [super addSubview:scrollView];
         

@@ -8,7 +8,7 @@ platforms: [iphone, ipad]
 since: "0.9"
 createable: false
 deprecated:
-    since: "6.0.0"
+    since: "5.4.0"
     notes: Use [Titanium.UI.iOS.TableViewStyle](Titanium.UI.iOS.TableViewStyle) instead.
 
 properties:

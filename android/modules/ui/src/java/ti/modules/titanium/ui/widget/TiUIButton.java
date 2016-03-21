@@ -28,7 +28,7 @@ public class TiUIButton extends TiUIView
 {
 	private static final String TAG = "TiUIButton";
 	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
-	
+
 	private int defaultColor;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -74,8 +74,8 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDensityScaledDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) || d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			// Reset the padding here if the background color/image is set. By default the padding will be calculated
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			// Reset the padding here if the background color is set. By default the padding will be calculated
 			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
 			btn.setPadding(8, 0, 8, 0);
 		}

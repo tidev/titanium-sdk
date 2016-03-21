@@ -313,7 +313,7 @@ FILENOOP(setHidden:(id)x);
 {
 	BOOL exists = [fm fileExistsAtPath:path];
 	if(!exists) return nil;
-	return [[[TiBlob alloc] initWithFile:path] autorelease];
+	return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:path] autorelease];
 }
 
 -(id)append:(id)args

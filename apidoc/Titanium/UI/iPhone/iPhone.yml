@@ -187,7 +187,7 @@ properties:
     summary: Determines whether the shake to edit system-wide capability is enabled.
     type: Boolean
     deprecated:
-        since: "6.0.0"
+        since: "5.4.0"
         notes: Use [Titanium.UI.iOS.appSupportsShakeToEdit](Titanium.UI.iOS.appSupportsShakeToEdit) instead.
 
   - name: statusBarHidden

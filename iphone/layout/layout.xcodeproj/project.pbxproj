@@ -18,6 +18,7 @@
 		B63761751BC6E0E50070A695 /* TiLayoutDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761721BC6E0E50070A695 /* TiLayoutDimension.m */; settings = {ASSET_TAGS = (); }; };
 		B63761761BC6E0E50070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761741BC6E0E50070A695 /* TiLayoutView.m */; settings = {ASSET_TAGS = (); }; };
 		B6413FDA1BB9BF3E00C72716 /* TiButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B6413FD91BB9BF3E00C72716 /* TiButton.m */; settings = {ASSET_TAGS = (); }; };
+		B66EC29A1C34A94E0038AC2E /* TiView.m in Sources */ = {isa = PBXBuildFile; fileRef = B66EC2991C34A94E0038AC2E /* TiView.m */; settings = {ASSET_TAGS = (); }; };
 		B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECC1B7155BE00DF0FBC /* main.m */; };
 		B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECF1B7155BE00DF0FBC /* AppDelegate.m */; };
 		B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FED21B7155BE00DF0FBC /* ViewController.m */; };
@@ -60,6 +61,8 @@
 		B63761741BC6E0E50070A695 /* TiLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLayoutView.m; path = ../../Classes/Layout/TiLayoutView.m; sourceTree = "<group>"; };
 		B6413FD81BB9BF3E00C72716 /* TiButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiButton.h; sourceTree = "<group>"; };
 		B6413FD91BB9BF3E00C72716 /* TiButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiButton.m; sourceTree = "<group>"; };
+		B66EC2981C34A94E0038AC2E /* TiView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiView.h; sourceTree = "<group>"; };
+		B66EC2991C34A94E0038AC2E /* TiView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiView.m; sourceTree = "<group>"; };
 		B6A0FEC81B7155BE00DF0FBC /* layout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = layout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6A0FECC1B7155BE00DF0FBC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B6A0FECE1B7155BE00DF0FBC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -183,6 +186,8 @@
 				B63761531BC5A3650070A695 /* TiLabel.m */,
 				B6413FD81BB9BF3E00C72716 /* TiButton.h */,
 				B6413FD91BB9BF3E00C72716 /* TiButton.m */,
+				B66EC2981C34A94E0038AC2E /* TiView.h */,
+				B66EC2991C34A94E0038AC2E /* TiView.m */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -306,6 +311,7 @@
 				B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */,
 				B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */,
 				B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */,
+				B66EC29A1C34A94E0038AC2E /* TiView.m in Sources */,
 				B63761761BC6E0E50070A695 /* TiLayoutView.m in Sources */,
 				B63761751BC6E0E50070A695 /* TiLayoutDimension.m in Sources */,
 				B6A0FF101B7159BD00DF0FBC /* TiUtils.m in Sources */,

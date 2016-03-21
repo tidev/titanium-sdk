@@ -2076,8 +2076,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
-
-	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] === true);
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -2095,7 +2094,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
 	this.xcodeAppDir            = path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
@@ -2656,6 +2655,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
 		gccDefs.push('KROLL_COVERAGE=1');
+	}
+
+	if (this.enableLaunchScreenStoryboard) {
+		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
 	}
 
 	if (this.defaultBackgroundColor) {
@@ -4292,6 +4295,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase()));
 		walk(path.join(module.modulePath, 'platform', 'iphone'), this.buildDir);
 		walk(path.join(module.modulePath, 'platform', 'ios'), this.buildDir);
+		walk(path.join(module.modulePath, 'Resources'), this.xcodeAppDir);
 	}, this);
 
 	this.logger.info(__('Analyzing localized launch images'));

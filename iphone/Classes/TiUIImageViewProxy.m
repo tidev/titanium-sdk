@@ -151,13 +151,13 @@ static NSArray* imageKeySequence;
 		
 		if (image!=nil)
 		{
-			return [[[TiBlob alloc] initWithImage:image] autorelease];
+			return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 		}
 
 		// we're on the non-UI thread, we need to block to load
 
 		image = [[ImageLoader sharedLoader] loadRemote:url_];
-		return [[[TiBlob alloc] initWithImage:image] autorelease];
+		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 	}
 	return nil;
 }
@@ -235,6 +235,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -243,6 +244,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 @end
 

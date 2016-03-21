@@ -40,6 +40,15 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 @implementation TiUIiPadSplitWindow
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);

@@ -8,37 +8,18 @@
 #import "ViewController.h"
 #import "TiScrollableView.h"
 #import "TiScrollView.h"
-//#import "TiTextField.h"
-//#import "TiSwitch.h"
-//#import "TiToolbar.h"
-//#import "TiUtils.h"
+#import "TiTextField.h"
+#import "TiSwitch.h"
+#import "TiToolbar.h"
+#import "TiView.h"
 #import "TiLabel.h"
 #import "TiButton.h"
+#import "TiTableView.h"
 
 #define FILL @"FILL"
 #define SIZE @"SIZE"
 
 
-static TiLayoutView* createWindow(TiLayoutView* parent)
-{
-    TiLayoutView* window = [[TiLayoutView alloc] init];
-    [window setWidth_:@320];
-    [window setHeight_:@480];
-    [window setBackgroundColor:[UIColor whiteColor]];
-    [window setViewName:@"window"];
-    [parent addSubview:window];
-    return window;
-}
-
-static NSMutableArray* viewControllers = nil;
-
-
-
-@interface ViewController ()
-{
-    TiLayoutView* contentView;
-}
-@end
 
 @implementation ViewController
 
@@ -49,71 +30,17 @@ static NSMutableArray* viewControllers = nil;
     CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
     return [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
 }
+// UIBarButtonItem *fixedItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
-
     
-    TiLayoutView* window = [[TiLayoutView alloc] init];
+    TiLayoutView* myView = [[TiLayoutView alloc] init];
+    [[self view] addSubview:myView];
     
+    // Write your quicky tests here
     
-    {
-        TiScrollView* scrollView = [[TiScrollView alloc] init];
-        scrollView.top = @10;
-        scrollView.left = @10;
-        scrollView.width = @100;
-        scrollView.height = @150;
-        scrollView.backgroundColor = [UIColor greenColor];
-        
-        TiLayoutView* view = [[TiLayoutView alloc] init];
-        view.width = @150;
-        view.height = @200;
-        view.top = @10;
-        view.backgroundColor = [UIColor grayColor];
-        
-        TiLabel* label = [[TiLabel alloc] init];
-        label.width = @"SIZE";
-        label.height = @"SIZE";
-        label.text = @"Bounce:true, vertbar:false";
-        label.backgroundColor = [UIColor yellowColor];
-        
-        
-        
-        [view addSubview:label];
-        [scrollView addSubview:view];
-        
-        [window addSubview:scrollView];
-    }
-
-    {
-        TiScrollView* scrollView = [[TiScrollView alloc] init];
-        scrollView.top = @10;
-        scrollView.right = @10;
-        scrollView.width = @100;
-        scrollView.height = @150;
-        scrollView.backgroundColor = [UIColor greenColor];
-        
-        TiLayoutView* view = [[TiLayoutView alloc] init];
-        view.width = @150;
-        view.height = @200;
-        view.top = @10;
-        view.backgroundColor = [UIColor grayColor];
-        
-        TiLabel* label = [[TiLabel alloc] init];
-        label.text = @"Bounce:true, horzbar:false";
-        label.width = @"SIZE";
-        label.height = @"SIZE";
-        label.backgroundColor = [UIColor yellowColor];
-        
-        
-        
-        [view addSubview:label];
-        [scrollView addSubview:view];
-        
-        [window addSubview:scrollView];
-    }
-
-    [[self view] addSubview:window];
-
 }
 @end
