@@ -178,7 +178,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 
 	appc.async.series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', this, next);
+			cli.emit('build.module.pre.construct', this, next);
 		},
 
 		'doAnalytics',
@@ -186,7 +186,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'loginfo',
 
 		function (next) {
-			cli.emit('build.pre.compile', this, next);
+			cli.emit('build.module.pre.compile', this, next);
 		},
 
 		'compileAidlFiles',
@@ -204,10 +204,10 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'runModule',
 
 		function (next) {
-			cli.emit('build.post.compile', this, next);
+			cli.emit('build.module.post.compile', this, next);
 		}
 	], function (err) {
-		cli.emit('build.finalize', this, function () {
+		cli.emit('build.module.finalize', this, function () {
 			finished(err);
 		});
 	});

@@ -85,12 +85,17 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 	series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', this, next);
+			cli.emit('build.module.pre.construct', this, next);
 		},
 
 		'doAnalytics',
 		'initialize',
 		'loginfo',
+
+		function (next) {
+			cli.emit('build.module.pre.compile', this, next);
+		},
+
 		'processLicense',
 		'processTiXcconfig',
 		'compileJS',
@@ -98,9 +103,13 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createUniBinary',
 		'verifyBuildArch',
 		'packageModule',
-		'runModule'
+		'runModule',
+
+		function (next) {
+			cli.emit('build.module.post.compile', this, next);
+		}
 	], function (err) {
-		cli.emit('build.finalize', this, function () {
+		cli.emit('build.module.finalize', this, function () {
 			finished(err);
 		});
 	});
@@ -453,6 +462,7 @@ iOSModuleBuilder.prototype.createUniBinary = function createUniBinary(next) {
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	var args = [ '-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a') ];
+<<<<<<< HEAD
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
 		if (code) {
@@ -465,6 +475,20 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 			buildArchs    = out.substr(out.lastIndexOf(':') + 1).trim().split(' '),
 			buildDiff     = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
+=======
+
+	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Unable to determine the compiled module\'s architecture (code %s):', code));
+			this.logger.error(err.trim() + '\n');
+			process.exit(1);
+		}
+
+		var manifestArchs = this.manifest.architectures.split(' '),
+			buildArchs    = out.substr(out.lastIndexOf(':') + 1).trim().split(' '),
+			buildDiff     = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
+
+>>>>>>> appcelerator/master
 		if (buildArchs.length !== manifestArchs.length || buildDiff.length > 0) {
 			this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
 			this.logger.error(__('Architectures in manifest: %s', manifestArchs.join(', ')));
@@ -556,6 +580,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 				}
 			}.bind(this));
 		}
+<<<<<<< HEAD
 
 		// 5. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
@@ -566,6 +591,18 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
+=======
+
+		// 5. assets folder, not including js files
+		if (fs.existsSync(this.assetsDir)) {
+			this.dirWalker(this.assetsDir, function (file) {
+				if (path.extname(file) != '.js') {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
+				}
+			}.bind(this));
+		}
+
+>>>>>>> appcelerator/master
 		// 6. the merge *.a file
 		// 7. LICENSE file
 		// 8. manifest
