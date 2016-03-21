@@ -14,7 +14,7 @@ Currently, Titanium supports mobile smartphone operating systems such as Apple i
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.
 
-*[Download Pre-built Titanium](https://github.com/appcelerator/titanium_mobile/releases)*
+*[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 
 Features
