@@ -431,6 +431,23 @@ describe("filesystem", function() {
 		}
 		finish();
 	});
+	//TIMOB-20440
+	it("applicationDataDirectory", function(finish) {
+		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'filter.txt');
+		var text = "testing a file";
+		file.write(text);
+		should(file.exists()).be.true;
+		var blob = file.read();
+		should(blob).not.be.null;
+		var readText = blob.text;
+		should(readText).not.be.null;
+		should(readText).not.be.type("undefined");
+		should(readText).be.a.String;
+		should(readText.length).eql(text.length);
+		should(readText).eql(text);
+		file.deleteFile();
+		finish();
+	}
 	//TIMOB-4469
 	it("existsMethod", function(finish) {
 		should(Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, "app.js").exists()).be.true;
