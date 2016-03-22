@@ -545,12 +545,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSeparatorInsets_:(id)arg
 {
+<<<<<<< HEAD
+    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.tableSeparatorInsets");
+    [self setTableSeparatorInsets_:arg];
+=======
     DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
     [self setListSeparatorInsets_:arg];
+>>>>>>> appcelerator/master
 }
 
 -(void)setTableSeparatorInsets_:(id)arg
 {
+<<<<<<< HEAD
+=======
     DEPRECATED_REPLACED(@"UI.ListView.tableSeparatorInsets", @"5.4.0", @"UI.ListView.listSeparatorInsets");
     [self setListSeparatorInsets_:arg];
 }
@@ -559,12 +566,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     [self tableView];
     
+>>>>>>> appcelerator/master
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
         [[self tableView] setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
     } else {
         [[self tableView ] setSeparatorInset:_defaultSeparatorInsets];
+<<<<<<< HEAD
     }
     if (![searchController isActive]) {
         [[self tableView] setNeedsDisplay];
@@ -580,6 +589,23 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     if (![searchController isActive]) {
         [[self tableView] setNeedsDisplay];
+=======
+    }
+    if (![searchController isActive]) {
+        [[self tableView] setNeedsDisplay];
+    }
+}
+
+-(void)setRowSeparatorInsets_:(id)arg
+{
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+        _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (![searchController isActive]) {
+        [[self tableView] setNeedsDisplay];
+>>>>>>> appcelerator/master
     }
 }
 

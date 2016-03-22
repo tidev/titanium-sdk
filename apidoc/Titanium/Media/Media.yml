@@ -1790,4 +1790,3 @@ properties:
   - name: outputs
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<Object>
-

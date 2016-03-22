@@ -965,6 +965,20 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     
+  - name: AnimationOption
+    summary: |
+      Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+    since: 5.1.0
+    platforms: [android]
+    description: |
+      Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
+    properties:
+      - name: animated
+        summary: Determines whether to enable a circular reveal animation.
+        type: Boolean
+        default: false
+        osver: {android: {min: 5.0}}
+    
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
     description: |
@@ -1201,6 +1215,32 @@ properties:
     platforms: [iphone, ipad]
     since: "3.3.0"
 
+  - name: Dimension
+    summary: A simple object consisting of the position and size measurements.
+    since: "2.0.0"
+    description: |
+      When a dimension is returned by the [rect](Titanium.UI.View.rect) property, `x` represents the 
+      view's left position, and `y` represents the view's top position. 
+  
+      The [size](Titanium.UI.View.size) property returns a dimension object with `x` and `y` both set 
+      to 0.
+    properties:
+      - name: height
+        summary: The height measurement.
+        type: Number
+
+      - name: width
+        summary: The width measurement.
+        type: Number
+    
+      - name: x
+        summary: The x-axis coordinate of the position.
+        type: Number
+    
+      - name: y
+        summary: The y-axis coordinate of the position.
+        type: Number
+
   - name: elevation
     summary: Base elevation of the view relative to its parent in pixels.
     description: |
@@ -1221,6 +1261,68 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+    
+  - name: Gradient
+    summary: A simple object defining a color gradient.
+    platforms: [iphone, ipad, mobileweb]
+    since: "1.8.0"
+    properties:
+      - name: type
+        summary: Type of gradient, either 'linear' or 'radial'.
+        type: String
+        default: linear
+    
+      - name: startPoint
+        summary: Start point for the gradient.
+        type: Point
+        default: {x: 0.0, y: 0.0}
+    
+      - name: endPoint
+        summary: End point for the gradient.
+        type: Point
+        default: {x: 0.0, y: 1.0}
+    
+      - name: startRadius
+        summary: For a radial gradient, the radius at the `startPoint`.
+        type: Number
+    
+      - name: endRadius
+        summary: For a radial gradient, the radius at the `endPoint`.
+        type: Number
+    
+      - name: colors
+        summary: |
+            An array of colors, as a color name or hex triplet.
+        description: |
+            For information about color values, see the "Colors" section of <Titanium.UI>. 
+        type: [ Array<String>, Array<GradientColorRef> ]
+    
+      - name: backfillStart
+        summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+        type: Boolean
+        default: false
+        platforms: [iphone, ipad]
+    
+      - name: backfillEnd
+        summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+        type: Boolean
+        default: false
+        platforms: [iphone, ipad]
+    
+  - name: GradientColorRef
+    summary: A simple object consisting of a color and an offset.
+    properties:
+      - name: color
+        summary: |
+            Color value at this point in the gradient, as a color name or hex triplet.
+        description: |
+            For information about color values, see the "Colors" section of <Titanium.UI>. 
+        type: String
+    
+      - name: offset
+        summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
+        type: Number
+
     
   - name: height
     summary: View height, in platform-specific units.
@@ -1395,6 +1497,19 @@ properties:
     since: "3.3.0"
     availability: creation
     platforms: [android]
+
+  - name: Point
+    summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
+    since: "1.8.0"
+    platforms: [android, iphone, ipad]
+    properties:
+      - name: x
+        type: Number
+        summary: The x-axis coordinate of this point.
+    
+      - name: y
+        type: Number
+        summary: The y-axis coordinate of this point.
 
   - name: pullBackgroundColor
     summary: Background color of the wrapper view when this view is used as either <Titanium.UI.ListView.pullView> or <Titanium.UI.TableView.headerPullView>.
@@ -1631,118 +1746,4 @@ examples:
             <Alloy>
                 <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
             </Alloy>
-
----
-name: Point
-summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
-since: "1.8.0"
-platforms: [android, iphone, ipad]
-properties:
-  - name: x
-    type: Number
-    summary: The x-axis coordinate of this point.
-    
-  - name: y
-    type: Number
-    summary: The y-axis coordinate of this point.
----
-name: Gradient
-summary: A simple object defining a color gradient.
-platforms: [iphone, ipad, mobileweb]
-since: "1.8.0"
-properties:
-  - name: type
-    summary: Type of gradient, either 'linear' or 'radial'.
-    type: String
-    default: linear
-    
-  - name: startPoint
-    summary: Start point for the gradient.
-    type: Point
-    default: {x: 0.0, y: 0.0}
-    
-  - name: endPoint
-    summary: End point for the gradient.
-    type: Point
-    default: {x: 0.0, y: 1.0}
-    
-  - name: startRadius
-    summary: For a radial gradient, the radius at the `startPoint`.
-    type: Number
-    
-  - name: endRadius
-    summary: For a radial gradient, the radius at the `endPoint`.
-    type: Number
-    
-  - name: colors
-    summary: |
-        An array of colors, as a color name or hex triplet.
-    description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: [ Array<String>, Array<GradientColorRef> ]
-    
-  - name: backfillStart
-    summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
-    type: Boolean
-    default: false
-    platforms: [iphone, ipad]
-    
-  - name: backfillEnd
-    summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
-    type: Boolean
-    default: false
-    platforms: [iphone, ipad]
-
----
-name: GradientColorRef
-summary: A simple object consisting of a color and an offset.
-properties:
-  - name: color
-    summary: |
-        Color value at this point in the gradient, as a color name or hex triplet.
-    description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
-    
-  - name: offset
-    summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
-    type: Number
-
----
-name: Dimension
-summary: A simple object consisting of the position and size measurements.
-since: "2.0.0"
-description: |
-  When a dimension is returned by the [rect](Titanium.UI.View.rect) property, `x` represents the 
-  view's left position, and `y` represents the view's top position. 
-  
-  The [size](Titanium.UI.View.size) property returns a dimension object with `x` and `y` both set 
-  to 0.
-properties:
-  - name: height
-    summary: The height measurement.
-    type: Number
-
-  - name: width
-    summary: The width measurement.
-    type: Number
-    
-  - name: x
-    summary: The x-axis coordinate of the position.
-    type: Number
-    
-  - name: y
-    summary: The y-axis coordinate of the position.
-    type: Number
-
----
-name: AnimationOption
-summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
-since: 5.1.0
-platforms: [android]
-properties:
-  - name: animated
-    summary: Determines whether to enable a circular reveal animation.
-    type: Boolean
-    default: false
-    osver: {android: {min: 5.0}}
+            
