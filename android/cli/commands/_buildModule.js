@@ -1034,7 +1034,6 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 	var tasks = [
 
 		function (cb) {
-
 			fs.writeFileSync(
 				path.join(this.buildGenJniDir, 'Android.mk'),
 				ejs.render(fs.readFileSync(this.androidMkTemplateFile).toString(), {
@@ -1053,14 +1052,13 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 		},
 
 		function (cb) {
-
 			this.logger.info('Starting directory: ' + process.cwd());
 			try {
 				process.chdir(this.buildGenDir);
 				this.logger.info('New directory: ' + process.cwd());
 
 				appc.subprocess.run(
-					path.join(this.androidInfo.ndk.path, 'ndk-build'),
+					this.androidInfo.ndk.executables.ndkbuild,
 					[
 						'TI_MOBILE_SDK='+this.titaniumSdkPath,
 						'NDK_PROJECT_PATH='+this.buildGenDir,
@@ -1140,7 +1138,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 		this.logger.info('New directory: ' + process.cwd());
 
 		appc.subprocess.run(
-			path.join(this.androidInfo.ndk.path, 'ndk-build'),
+			this.androidInfo.ndk.executables.ndkbuild,
 			[
 				'TI_MOBILE_SDK='+this.titaniumSdkPath,
 				'NDK_PROJECT_PATH='+this.buildGenJniLocalDir,
