@@ -29,6 +29,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
+import android.graphics.PorterDuff.Mode;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
 {
@@ -61,7 +63,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	private boolean viewHeightDefined;
 
 	private int orientation;
-	
+	private int tintColor;
 	private WeakReference<TiViewProxy> proxy;
 
 	public TiImageView(Context context) {
@@ -484,4 +486,18 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		}
 		return true;
 	}
+	
+	public void setTintColor(String color){
+		this.tintColor = TiColorHelper.parseColor(color);
+		if (this.tintColor == 0) {
+			imageView.clearColorFilter();
+		} else {
+			imageView.setColorFilter(this.tintColor, Mode.MULTIPLY);
+		}
+	}
+
+	public int getTintColor(){
+		return tintColor;
+	}
+	
 }
