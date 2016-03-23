@@ -34,137 +34,137 @@ properties:
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_AXIS_PULL_AFTER
     summary: Raw bit controlling how the right/bottom edge is placed.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_AXIS_PULL_BEFORE
     summary: Raw bit controlling how the left/top edge is placed.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_AXIS_SPECIFIED
     summary: Raw bit indicating the gravity for an axis has been specified.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_AXIS_X_SHIFT
     summary: Bits defining the horizontal axis.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_AXIS_Y_SHIFT
     summary: Bits defining the vertical axis.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_BOTTOM
     summary: Push object to the bottom of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_CENTER
     summary: Place the object in the center of its container in both the vertical and horizontal axis, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_CENTER_HORIZONTAL
     summary: Place object in the horizontal center of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_CENTER_VERTICAL
     summary: Place object in the vertical center of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_CLIP_HORIZONTAL
     summary: Flag to clip the edges of the object to its container along the horizontal axis.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_CLIP_VERTICAL
     summary: Flag to clip the edges of the object to its container along the vertical axis.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_DISPLAY_CLIP_HORIZONTAL
     summary: Special constant to enable clipping to an overall display along the horizontal dimension.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_DISPLAY_CLIP_VERTICAL
     summary: Special constant to enable clipping to an overall display along the vertical dimension.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_END
     summary: Push object to x-axis position at the end of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_FILL
     summary: Grow the horizontal and vertical size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_FILL_HORIZONTAL
     summary: Grow the horizontal size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_FILL_VERTICAL
     summary: Grow the vertical size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_HORIZONTAL_GRAVITY_MASK
     summary: Binary mask to get the absolute horizontal gravity of a gravity.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_LEFT
     summary: Push object to the left of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_NO_GRAVITY
     summary: Constant indicating that no gravity has been set
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_RELATIVE_HORIZONTAL_GRAVITY_MASK
     summary: Binary mask for the horizontal gravity and script specific direction bit.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_RELATIVE_LAYOUT_DIRECTION
     summary: Raw bit controlling whether the layout direction is relative or not (GRAVITY_START/GRAVITY_END instead of absolute GRAVITY_LEFT/GRAVITY_RIGHT).
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_RIGHT
     summary: Push object to the right of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_START
     summary: Push object to x-axis position at the start of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_TOP
     summary: Push object to the top of its container, not changing its size.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
   - name: GRAVITY_VERTICAL_GRAVITY_MASK
     summary: Binary mask to get the vertical gravity of a gravity.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.4.0"
     
   - name: LINKIFY_ALL
     deprecated:
