@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.view.Gravity;
+import android.support.v4.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 
@@ -96,17 +97,17 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int GRAVITY_CLIP_VERTICAL = Gravity.CLIP_VERTICAL;
 	@Kroll.constant public static final int GRAVITY_DISPLAY_CLIP_HORIZONTAL = Gravity.DISPLAY_CLIP_HORIZONTAL;
 	@Kroll.constant public static final int GRAVITY_DISPLAY_CLIP_VERTICAL = Gravity.DISPLAY_CLIP_VERTICAL;
-	@Kroll.constant public static final int GRAVITY_END = Gravity.END;
+	@Kroll.constant public static final int GRAVITY_END = GravityCompat.END;
 	@Kroll.constant public static final int GRAVITY_FILL = Gravity.FILL;
 	@Kroll.constant public static final int GRAVITY_FILL_HORIZONTAL = Gravity.FILL_HORIZONTAL;
 	@Kroll.constant public static final int GRAVITY_FILL_VERTICAL = Gravity.FILL_VERTICAL;
 	@Kroll.constant public static final int GRAVITY_HORIZONTAL_GRAVITY_MASK = Gravity.HORIZONTAL_GRAVITY_MASK;
 	@Kroll.constant public static final int GRAVITY_LEFT = Gravity.LEFT;
 	@Kroll.constant public static final int GRAVITY_NO_GRAVITY = Gravity.NO_GRAVITY;
-	@Kroll.constant public static final int GRAVITY_RELATIVE_HORIZONTAL_GRAVITY_MASK = Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
-	@Kroll.constant public static final int GRAVITY_RELATIVE_LAYOUT_DIRECTION = Gravity.RELATIVE_LAYOUT_DIRECTION;
+	@Kroll.constant public static final int GRAVITY_RELATIVE_HORIZONTAL_GRAVITY_MASK = GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK;
+	@Kroll.constant public static final int GRAVITY_RELATIVE_LAYOUT_DIRECTION = GravityCompat.RELATIVE_LAYOUT_DIRECTION;
 	@Kroll.constant public static final int GRAVITY_RIGHT = Gravity.RIGHT;
-	@Kroll.constant public static final int GRAVITY_START = Gravity.START;
+	@Kroll.constant public static final int GRAVITY_START = GravityCompat.START;
 	@Kroll.constant public static final int GRAVITY_TOP = Gravity.TOP;
 	@Kroll.constant public static final int GRAVITY_VERTICAL_GRAVITY_MASK = Gravity.VERTICAL_GRAVITY_MASK;
 
