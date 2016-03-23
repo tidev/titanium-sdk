@@ -56,6 +56,7 @@ properties:
     summary: Determines the location at which the notification should appear on the screen.
     type: Number
     constants: Titanium.UI.Android.GRAVITY_*
+    platforms: [android]
   - name: xOffset
     summary: X offset from the default position, in pixels.
     type: Number
