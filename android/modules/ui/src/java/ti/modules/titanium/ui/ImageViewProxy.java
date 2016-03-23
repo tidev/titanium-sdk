@@ -46,51 +46,61 @@ public class ImageViewProxy extends ViewProxy
 	private TiUIImageView getImageView() {
 		return (TiUIImageView) getOrCreateView();
 	}
-	
+
 	@Kroll.method
 	public void start() {
 		getImageView().start();
 	}
-	
+
 	@Kroll.method
 	public void stop() {
 		getImageView().stop();
 	}
-	
+
 	@Kroll.method
 	public void pause() {
 		getImageView().pause();
 	}
-	
+
 	@Kroll.method
 	public void resume() {
 		getImageView().resume();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getAnimating() {
 		return getImageView().isAnimating();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
-	public boolean getPaused() 
+	public boolean getPaused()
 	{
 		return getImageView().isPaused();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getReverse() {
 		return getImageView().isReverse();
 	}
-	
+
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setReverse(boolean reverse) {
 		getImageView().setReverse(reverse);
 	}
-	
+
 	@Kroll.method
 	public TiBlob toBlob() {
 		return getImageView().toBlob();
+	}
+
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
+	public void setTintColor(String color) {
+		getImageView().setTintColor(color);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public int getTintColor() {
+		return getImageView().getTintColor();
 	}
 
 	@Override
