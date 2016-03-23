@@ -847,7 +847,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 		}
-		
+		if (d.containsKey("tintColor")) {
+			setTintColor(d.getString("tintColor"));
+		}
 
 		// If height and width is not defined, disable scaling for scrollview since an image
 		// can extend beyond the screensize in scrollview.
