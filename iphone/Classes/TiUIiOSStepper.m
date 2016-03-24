@@ -21,7 +21,6 @@
         [stepper addTarget:self action:@selector(stepperChanged:) forControlEvents:UIControlEventValueChanged];
         [stepper addTarget:self action:@selector(stepperTouch:forEvent:) forControlEvents:UIControlEventTouchDown];
         [self addSubview:stepper];
-
     }
     return stepper;
 }
@@ -76,6 +75,7 @@
     [[self stepper] setTintColor:[[TiUtils colorValue:value] color]];
 }
 
+#pragma mark backgroundImage
 -(void)setBackgroundImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:YES];
@@ -94,12 +94,7 @@
     [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateDisabled];
 }
 
--(void)setBackgroundFocusedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:YES];
-    [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateSelected];
-}
-#pragma mark Decrement backGroundImage
+#pragma mark Decrement backgroundImage
 -(void)setDecrementImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
@@ -111,17 +106,13 @@
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
     [[self stepper] setDecrementImage:[self loadImage:value] forState:UIControlStateSelected];
 }
+
 -(void)setDecrementDisabledImage_:(id)value
 {
     [[self stepper] setDecrementImage:[self loadImage:value] forState:UIControlStateDisabled];
 }
--(void)setDecrementFocusedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setDecrementImage:[self loadImage:value] forState:UIControlStateFocused];
-}
 
-#pragma mark Increment backGroundImage
+#pragma mark Increment backgroundImage
 -(void)setIncrementImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
@@ -133,17 +124,12 @@
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
     [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateSelected];
 }
+
 -(void)setIncrementDisabledImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
     [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateDisabled];
 }
--(void)setIncrementFocusedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateFocused];
-}
-
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
