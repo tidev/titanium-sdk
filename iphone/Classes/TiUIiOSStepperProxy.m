@@ -18,10 +18,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     return @"Ti.UI.iOS.Stepper";
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
-{
-    [super _initWithProperties:properties];
-}
 
 
 #ifndef TI_USE_AUTOLAYOUT
@@ -35,15 +31,6 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 }
 #endif
 
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-    return [[(TiUIiOSStepper*)[self view] stepper] superview];
-}
 
--(NSNumber*)value
-{
-    NSNumber *value = [NSNumber numberWithDouble:[[(TiUIiOSStepper*)[self view] stepper] value]];
-    return value;
-}
 @end
 #endif

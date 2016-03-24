@@ -11,8 +11,8 @@
 @private
     UIStepper *stepper;
     UIImage *backgroundImageCache;
+    bool touchStarted;
 }
 -(UIStepper*)stepper;
-
 @end
 #endif

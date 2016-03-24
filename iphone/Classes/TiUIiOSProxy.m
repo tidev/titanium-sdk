@@ -722,7 +722,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 #ifdef USE_TI_UIIOSSTEPPER
 -(id)createStepper:(id)args
 {
-    return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
 }
 #endif
 

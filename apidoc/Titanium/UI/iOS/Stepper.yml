@@ -5,35 +5,40 @@ summary: |
 description: |
     <table id="IOS Stepper">
       <tr>
-        <td><img src="images/stepper/stepper.png" height="50" /></td>
-        <td><img src="images/stepper/stepper_customImages" height="51" /></td>
+        <td><img src="images/stepper/Stepper.png" height="50" /></td>
+        <td><img src="images/stepper/Stepper_customImages.png" height="51" /></td>
       </tr>
-      <tr><th>iOS</th></tr>
+      <tr><th colspan="2">iOS</th></tr>
     </table>
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.
-    Use the <Titanium.UI.createstepper> method or a **`<stepper>`** Alloy element to create a stepper 
-    (see [Examples](#!/api/Titanium.UI.stepper-examples)) .
+    Use the <Titanium.UI.createStepper> method or a **`<stepper>`** Alloy element to create a stepper
+    (see [Examples](#!/api/Titanium.UI.iOS.Stepper-examples)) .
 
     * When assigning a custom image to the `backgroundImage` property, the image must be
     partially or wholly transparent for the background color or background gradient to be visible.
     * Similarly, for an assigned background gradient to show through, the `backgroundColor` may need to be
     set to 'transparent'.
 
-    *Note that the stepper cannot be re-sized.
+    * Note that the stepper cannot be re-sized.
 
 extends: Titanium.UI.View
 since: "5.4.0"
-methods: 
-
+excludes:
+    events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, twofingertap]
 properties:
+
+  - name: enabled
+    summary: Determines if the stepper is enabled or disabled.
+    type: Boolean
 
   - name: value
     summary: The current value of the stepper.
     type: Number
 
-  - name: continous
+  - name: continuous
     summary: |
         If YES, value change events are sent immediately when the value changes during user interaction.
         If NO, a value change event is sent when user interaction ends.
@@ -48,28 +53,35 @@ properties:
 
   - name: wraps
     summary: |
-        If YES, incrementing beyond maximumValue sets value to minimumValue; likewise, decrementing below
-        minimumValue sets value to maximumValue. If NO, the stepper does not increment beyond maximumValue nor
-        does it decrement below minimumValue but rather holds at those values.
+        If YES, incrementing beyond <Ti.UI.iOS.Stepper.maximum> sets value to <Ti.UI.iOS.Stepper.minimum>. likewise, decrementing below
+        <Ti.UI.iOS.Stepper.minimum> sets value to <Ti.UI.iOS.Stepper.maximum>. If NO, the stepper does not increment beyond <Ti.UI.iOS.Stepper.maximum> nor
+        does it decrement below <Ti.UI.iOS.Stepper.minimum> but rather holds at those values.
         The default value is NO.
     type: Boolean
 
-  - name: minimumValue
-    summary: The miniumum value the stepper will be set to, the value must be smaller than the maximumValue.
+  - name: minimum
+    summary: |
+        The minimum value the stepper will be set to, the value must be smaller than the maximumValue.
+        If you attempt to set a value equal to or greater than maximum, the system will default the 
+        value to 0.
     type: Number
 
-  - name: minimumValue
-    summary: The maximum value the stepper will be set to, the value must be greater than the miniumumValue.
+  - name: maximum
+    summary: |
+        The maximum value the stepper will be set to, the value must be greater than the minimum.
+        If you attempt to set a value equal to or lower than minimum, the system will default the 
+        value to 100.
     type: Number
 
-  - name: minimumValue
-    summary: The value the stepper will decrement and increment by.
+  - name: steps
+    summary: |
+        The value the stepper will increment and decrement by, default value for this property is 1.When setting
+        a new value, it must be greater than 1.
     type: Number
 
   - name: tintColor
     summary: Sets the color for the widget, any backgroundImages added will be set to the same color.
     description: |
-        Default color is blue
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
 
@@ -83,23 +95,6 @@ properties:
         is unset, the image will be darkened to indicate being selected.
     type: String
 
-  - name: backgroundDisabledImage
-    summary: |
-        Background image for the stepper in its disabled state, specified as a local file path
-        or URL. 
-    description: |
-        Also sets the background image for the other stepper states (normal, focused, selected), 
-        unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
-    type: String
-    platforms: [android, iphone, ipad, mobileweb]
-
-  - name: backgroundSelectedImage
-    summary: |
-        Background image for the stepper in its selected state, specified as a local file 
-        path or URL.
-    type: String
-    platforms: [iphone, ipad]
-
   - name: decrementImage
     summary: |
         Background image for the stepper decrement button in its normal state, specified as a local
@@ -108,21 +103,14 @@ properties:
         Also sets the background image for the other stepper states (disabled, focused, selected),
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
-    platforms: [iphone, ipad]
 
   - name: decrementDisabledImage
     summary: |
-        Background image for the stepper decrement button in its dissabled state, specified as a local
-        file path or URL.
+        Background image for the stepper decrement button in its disabled state, specified as a local
+        file path or URL. The decrement button enters a disabled state ones the value is equal to the
+        minimumValue , setting the enabled property to false will have no effect to decrement button state.
     type: String
-    platforms: [iphone, ipad]
 
-  - name: decrementSelectedImage
-    summary: |
-        Background image for the stepper decrement button in its selected state, specified as a local
-        file path or URL.
-    type: String
-    platforms: [iphone, ipad]
 
   - name: incrementImage
     summary: |
@@ -132,39 +120,67 @@ properties:
         Also sets the background image for the other stepper states (disabled, focused, selected),
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
-    platforms: [iphone, ipad]
 
   - name: incrementDisabledImage
     summary: |
-        Background image for the stepper increment button in its dissabled state, specified as a local
-        file path or URL.
+        Background image for the stepper increment button in its disabled state, specified as a local
+        file path or URL.The increment button enters a disabled state ones the value is equal to the
+        maximumValue , setting the enabled property to false will have no effect to increment button state.
     type: String
-    platforms: [iphone, ipad]
 
-  - name: incrementSelectedImage
-    summary: |
-        Background image for the stepper increment button in its selected state, specified as a local
-        file path or URL.
-    type: String
-    platforms: [iphone, ipad]
+events:
+  - name: change
+    summary: Fired every time the stepper value changes.
+    properties:
+      - name: value
+        summary: Current value of the stepper.
+        type: Number
+      - name: minimum
+        summary: The minimum value of the stepper.
+        type: Number
+      - name: maximum
+        summary: The maximum value of the stepper.
+        type: Number
 
 examples:
   - title: Simple stepper Example
     example: |
-        var win = Ti.UI.createWindow({
-        backgroundColor: '#fff'
-        });
+            var win = Ti.UI.createWindow({
+                backgroundColor: '#fff'
+            });
 
-        var stepper = Ti.UI.iOS.createStepper({
-        top: 20,
-        left: 100,
-        tintColor:"green",
-        stepValue:3
-        });
+            var stepper = Ti.UI.iOS.createStepper({
+                top: 20,
+                tintColor:"green",
+                steps:3,
+                maximum:30,
+                minimum:0
+            });
 
-        stepper.addEventListener("change",function(e){
-        Ti.API.info(e.value);
-        });
+            stepper.addEventListener("change",function(e){
+                Ti.API.info(e.value);
+            });
 
-        win.add(stepper);
-        win.open();
+            win.add(stepper);
+            win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        stepper.xml:
+
+            <Alloy>
+                <Window class="container">
+                    <Stepper id="stepper" onClick="doClick" 
+                         top="30" tintColor="green" steps ="3" />
+                </Window>
+            </Alloy>
+
+        stepper.js:
+
+            function doClick(e) {
+                alert($.stepper.value);
+            }
+
+            $.index.open();

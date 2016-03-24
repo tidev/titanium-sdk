@@ -13,13 +13,13 @@
 
 -(UIStepper*)stepper
 {
-    if (stepper ==nil)
+    if (stepper == nil)
     {
-        stepper = [[[UIStepper alloc]init] retain];
+        stepper = [[UIStepper alloc] init];
         [stepper setMaximumValue:100];
         [stepper setMinimumValue:0];
         [stepper addTarget:self action:@selector(stepperChanged:) forControlEvents:UIControlEventValueChanged];
-        [stepper addTarget:self action:@selector(stepperTouch:forEvent:) forControlEvents:UIControlEventTouchDown];
+        [stepper addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
         [self addSubview:stepper];
     }
     return stepper;
@@ -28,107 +28,142 @@
 -(void)dealloc
 {
     [stepper removeTarget:self action:@selector(stepperChanged:) forControlEvents:UIControlEventValueChanged];
-    [stepper removeTarget:self action:@selector(stepperTouch:forEvent:) forControlEvents:UIControlEventTouchDown];
+    [stepper removeTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
     RELEASE_TO_NIL(stepper);
     RELEASE_TO_NIL(backgroundImageCache);
     [super dealloc];
 }
+
 -(void)setContinuous_:(id)value
 {
-    [[self stepper] setContinuous:[TiUtils boolValue:value]];
+    ENSURE_TYPE(value, NSNumber);
+    [[self stepper] setContinuous:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setAutorepeat_:(id)value
 {
-    [[self stepper] setAutorepeat:[TiUtils boolValue:value]];
+    ENSURE_TYPE(value, NSNumber);
+    [[self stepper] setAutorepeat:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setWraps_:(id)value
 {
-   [[self stepper] setWraps:[TiUtils boolValue:value]];
+    ENSURE_TYPE(value, NSNumber);
+    [[self stepper] setWraps:[TiUtils boolValue:value def:NO]];
 }
 
--(void)setMaximumValue_:(id)value
+-(void)setMaximum_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber)
-    [[self stepper] setMaximumValue:[TiUtils doubleValue:value]];
+    ENSURE_TYPE(value, NSNumber);
+    double newValue = [TiUtils doubleValue:value];
+    
+    if ([[self stepper] minimumValue] >= newValue) {
+        NSLog(@"[WARN] The maximum value must not be smaller or equal to the minimum value");
+    } else {
+        [[self stepper] setMaximumValue:newValue];
+    }
 }
 
--(void)setMinimumValue_:(id)value
+-(void)setMinimum_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber)
-    [[self stepper] setMinimumValue:[TiUtils doubleValue:value]];
+    ENSURE_TYPE(value, NSNumber);
+    double newValue = [TiUtils doubleValue:value];
+    
+    if ([[self stepper] maximumValue] <= newValue) {
+        NSLog(@"[WARN] The maximum value must not be smaller or equal to the minimum value");
+    } else {
+        [[self stepper] setMinimumValue:newValue];
+    }
 }
 
--(void)setStepValue_:(id)value
+-(void)setSteps_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber)
-    NSNumber *stepValue = (NSNumber*)value;
+    ENSURE_TYPE(value, NSNumber);
+    NSNumber *stepValue = [NSNumber numberWithDouble:[TiUtils doubleValue:value]];
     if (stepValue > 0) {
         [[self stepper] setStepValue:[TiUtils doubleValue:value]];
     } else {
-        NSLog(@"[WARN]: The stepValue must be bigger than 0");
+        NSLog(@"[WARN] The steps must be bigger than 0.");
     }
 }
--(void)setTintColor_:(id)value
+
+-(void)setValue_:(id)value
 {
-    [[self stepper] setTintColor:[[TiUtils colorValue:value] color]];
+    ENSURE_TYPE(value, NSNumber);
+    double newValue = [TiUtils doubleValue:value];
+    
+    if (newValue < [[self stepper] maximumValue] && newValue > [[self stepper] minimumValue]) {
+        [[self stepper] setValue:newValue];
+    } else {
+        NSNumber *currentValue = [NSNumber numberWithDouble:[[self stepper] value]];
+        [self.proxy replaceValue:currentValue forKey:@"value" notification:NO];
+        NSLog(@"[WARN] The value passed in must be smaller than the maximum and bigger than the minimum stepper values");
+    }
 }
 
+-(void)setTintColor_:(id)value
+{
+    TiColor *color = [TiUtils colorValue:value];
+    if (color != nil) {
+        [[self stepper] setTintColor:[[TiUtils colorValue:color] color]];
+    }
+}
+
+-(void)setEnabled_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self stepper] setEnabled:[TiUtils boolValue:value]];
+}
+
+-(NSNumber*)value
+{
+    return NUMDOUBLE([[self stepper] value]);
+}
 #pragma mark backgroundImage
+
 -(void)setBackgroundImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:YES];
-    [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
-}
-
--(void)setBackgroundSelectedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:YES];
-    [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateHighlighted];
-}
-
--(void)setBackgroundDisabledImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:YES];
-    [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateDisabled];
+    if (backgroundImageCache != nil) {
+        [[self stepper] setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
+    }
 }
 
 #pragma mark Decrement backgroundImage
+
 -(void)setDecrementImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setDecrementImage:backgroundImageCache forState:UIControlStateNormal];
-}
-
--(void)setDecrementSelectedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setDecrementImage:[self loadImage:value] forState:UIControlStateSelected];
+    if (backgroundImageCache != nil) {
+        [[self stepper] setDecrementImage:backgroundImageCache forState:UIControlStateNormal];
+    }
 }
 
 -(void)setDecrementDisabledImage_:(id)value
 {
-    [[self stepper] setDecrementImage:[self loadImage:value] forState:UIControlStateDisabled];
+    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
+    if (backgroundImageCache != nil) {
+        [[self stepper] setDecrementImage:backgroundImageCache forState:UIControlStateDisabled];
+    }
 }
 
-#pragma mark Increment backgroundImage
+#pragma mark Increment backgroundImage\
+
 -(void)setIncrementImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateNormal];
+    if (backgroundImageCache != nil) {
+        [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateNormal];
+    }
 }
 
--(void)setIncrementSelectedImage_:(id)value
-{
-    backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateSelected];
-}
 
 -(void)setIncrementDisabledImage_:(id)value
 {
     backgroundImageCache = [self imageWithImage:[self loadImage:value] fullScale:NO];
-    [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateDisabled];
+    if (backgroundImageCache != nil) {
+        [[self stepper] setIncrementImage:backgroundImageCache forState:UIControlStateDisabled];
+    }
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -157,23 +192,56 @@
 - (IBAction)stepperChanged:(id)sender
 {
     NSNumber *newValue = [NSNumber numberWithDouble:[[self stepper] value]];
-    [self.proxy replaceValue:newValue forKey:@"value" notification:YES];
+    [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
     
     if ([self.proxy _hasListeners:@"change"]) {
-        [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                    [NSNumber numberWithDouble:stepper.value],@"value",
+                                                    [NSNumber numberWithDouble:stepper.minimumValue],@"minimum",
+                                                    [NSNumber numberWithFloat:stepper.maximumValue],@"maximum",
+                                                    nil]];
     }
 }
 
-- (IBAction)stepperTouch:(id)sender forEvent:(UIEvent *)event
+- (void)controlAction:(id)sender forEvent:(UIEvent *)event
 {
     UITouch *touch = [[event allTouches] anyObject];
-    if([self.proxy _hasListeners:@"click"]) {
-        [self.proxy fireEvent:@"click" withObject:[NSDictionary
-                                                   dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch
-                                                                                andPoint:[touch locationInView:self]]]];
+    NSString *fireEvent;
+    NSString * fireActionEvent = nil;
+    switch (touch.phase) {
+        case UITouchPhaseBegan:
+            if (touchStarted) {
+                return;
+            }
+            touchStarted = YES;
+            fireEvent = @"touchstart";
+            break;
+        case UITouchPhaseMoved:
+            fireEvent = @"touchmove";
+            break;
+        case UITouchPhaseEnded:
+            touchStarted = NO;
+            fireEvent = @"touchend";
+            if (stepper.highlighted) {
+                fireActionEvent = [touch tapCount] == 1 ? @"click" : ([touch tapCount] == 2 ? @"dblclick" : nil);
+            }
+            break;
+        case UITouchPhaseCancelled:
+            touchStarted = NO;
+            fireEvent = @"touchcancel";
+            break;
+        default:
+            return;
+    }
+    
+    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+    if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
+        [self.proxy fireEvent:fireActionEvent withObject:evt];
+    }
+    if ([self.proxy _hasListeners:fireEvent]) {
+        [self.proxy fireEvent:fireEvent withObject:evt];
     }
 }
-
 
 -(UIImage *)imageWithImage:(UIImage *)image fullScale:(bool)full {
     //UIGraphicsBeginImageContext(newSize);
@@ -196,7 +264,7 @@
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         [theView release];
-        return [image retain];
+        return [[image retain] autorelease];
     }
     return image;
 }
