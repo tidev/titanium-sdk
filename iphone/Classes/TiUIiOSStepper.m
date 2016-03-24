@@ -4,12 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#import "TiUIStepper.h"
-#import "TiUIStepperProxy.h"
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepper.h"
+#import "TiUIiOSStepperProxy.h"
 #import "TiUtils.h"
 
-@implementation TiUIStepper
+@implementation TiUIiOSStepper
 
 -(UIStepper*)stepper
 {
@@ -26,6 +26,14 @@
     return stepper;
 }
 
+-(void)dealloc
+{
+    [stepper removeTarget:self action:@selector(stepperChanged:) forControlEvents:UIControlEventValueChanged];
+    [stepper removeTarget:self action:@selector(stepperTouch:forEvent:) forControlEvents:UIControlEventTouchDown];
+    RELEASE_TO_NIL(stepper);
+    RELEASE_TO_NIL(backgroundImageCache);
+    [super dealloc];
+}
 -(void)setContinuous_:(id)value
 {
     [[self stepper] setContinuous:[TiUtils boolValue:value]];
@@ -207,3 +215,4 @@
     return image;
 }
 @end
+#endif

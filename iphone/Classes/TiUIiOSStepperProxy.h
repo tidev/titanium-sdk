@@ -4,14 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiViewProxy.h"
 
-#import "TiUIView.h"
-
-@interface TiUIStepper : TiUIView {
-@private
-    UIStepper *stepper;
-    UIImage *backgroundImageCache;
-}
--(UIStepper*)stepper;
+@interface TiUIiOSStepperProxy : TiViewProxy
 
 @end
+#endif

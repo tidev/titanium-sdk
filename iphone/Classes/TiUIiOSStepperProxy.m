@@ -4,18 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UISTEPPER
-#import "TiUIStepperProxy.h"
-#import "TiUIStepper.h"
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepperProxy.h"
+#import "TiUIiOSStepper.h"
 
-@implementation TiUIStepperProxy
+@implementation TiUIiOSStepperProxy
 
 USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(NSString*)apiName
 {
-    return @"Ti.UI.Stepper";
+    return @"Ti.UI.iOS.Stepper";
 }
 
 -(void)_initWithProperties:(NSDictionary *)properties
@@ -37,12 +37,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
-    return [[(TiUIStepper*)[self view] stepper] superview];
+    return [[(TiUIiOSStepper*)[self view] stepper] superview];
 }
 
 -(NSNumber*)value
 {
-    NSNumber *value = [NSNumber numberWithDouble:[[(TiUIStepper*)[self view] stepper] value]];
+    NSNumber *value = [NSNumber numberWithDouble:[[(TiUIiOSStepper*)[self view] stepper] value]];
     return value;
 }
 @end
