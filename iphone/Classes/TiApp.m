@@ -858,7 +858,13 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 -(void)applicationWillResignActive:(UIApplication *)application
 {
     if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+        UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+        UIViewController *vc = [sb instantiateInitialViewController];
+        [[[self controller] topPresentedController] presentViewController:vc animated:NO completion:nil];
+#else
         [window addSubview:[self splashScreenImage]];
+#endif
     }
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
@@ -876,11 +882,20 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    if(splashScreenImage != nil) {
-        [[self splashScreenImage] removeFromSuperview];
-        RELEASE_TO_NIL(splashScreenImage);
+    // We should think about placing this inside "applicationWillBecomeActive" instead to make
+    // the UI re-useable again more quickly
+    if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+        [[[self controller] topPresentedController] dismissViewControllerAnimated:NO completion:nil];
+#else
+        if(splashScreenImage != nil) {
+            [[self splashScreenImage] removeFromSuperview];
+            RELEASE_TO_NIL(splashScreenImage);
+        }
+#endif
     }
-	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
+
+    // NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
     
