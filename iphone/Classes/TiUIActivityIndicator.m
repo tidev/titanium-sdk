@@ -120,7 +120,6 @@
 	if (messageLabel==nil)
 	{
 		messageLabel=[[UILabel alloc] init];
-		[messageLabel setBackgroundColor:[UIColor clearColor]];
 
 		if (fontDesc != nil)
 		{
@@ -135,6 +134,7 @@
 		
 #ifdef TI_USE_AUTOLAYOUT
         [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+
         [backgroundView addSubview:messageLabel];
 #else
 		[self setNeedsLayout];
@@ -276,9 +276,6 @@
         NSDictionary* views = NSDictionaryOfVariableBindings(indicatorView, messageLabel, backgroundView);
         [backgroundView addConstraints:TI_CONSTR(@"H:|[indicatorView]-[messageLabel]|", views)];
         
-        // Make the backgroundView as small as the biggest of the two
-        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[messageLabel]-(>=0)-|", views)];
-        [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[indicatorView]-(>=0)-|", views)];
         // Center both verically
         [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
                                                                    attribute:NSLayoutAttributeCenterY
