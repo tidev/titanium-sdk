@@ -631,7 +631,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	else {
 		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
 	}
-	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
+    
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 session.configuration.identifier,@"sessionIdentifier",
+                                 [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",
+                                 downloadedData,@"data", nil];
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
 }
 
@@ -640,6 +644,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
     //FunctionName();
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                          session.configuration.identifier,@"sessionIdentifier",
                                           [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier], @"taskIdentifier",
                                           [NSNumber numberWithUnsignedLongLong:bytesWritten], @"bytesWritten",
                                           [NSNumber numberWithUnsignedLongLong:totalBytesWritten], @"totalBytesWritten",
@@ -652,6 +657,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(task.taskIdentifier),@"taskIdentifier",
+                                 session.configuration.identifier,@"sessionIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -663,6 +669,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     //FunctionName();
     
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 session.configuration.identifier,@"sessionIdentifier",
                                  [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                           nil];
     if (error) {
@@ -690,6 +697,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
 {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 session.configuration.identifier,@"sessionIdentifier",
+                                 nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionEventsCompleted object:self userInfo:nil];
 }
 
