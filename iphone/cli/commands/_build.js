@@ -3131,7 +3131,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (targetInfo.isWatchAppV1Extension) {
+					if (targetInfo.isWatchAppV1Extension || targetInfo.isExtension) {
 						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
 					} else if (targetInfo.isWatchAppV2orNewer) {
 						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
