@@ -38,6 +38,8 @@
 	RELEASE_TO_NIL(pageControl);
 #endif
     RELEASE_TO_NIL(pageControlBackgroundColor);
+	RELEASE_TO_NIL(pageIndicatorTintColor);
+	RELEASE_TO_NIL(currentPageIndicatorTintColor);
 	[super dealloc];
 }
 
@@ -49,6 +51,8 @@
 #endif
         pageControlHeight=20;
         pageControlBackgroundColor = [[UIColor blackColor] retain];
+        pageIndicatorTintColor = [[UIColor colorWithWhite:1.0 alpha:0.3] retain];
+        currentPageIndicatorTintColor = [[UIColor whiteColor] retain];
         pagingControlOnTop = NO;
         overlayEnabled = NO;
         pagingControlAlpha = 1.0;
@@ -100,6 +104,8 @@
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
 		[pageControl addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
 		[pageControl setBackgroundColor:pageControlBackgroundColor];
+		[pageControl setPageIndicatorTintColor:pageIndicatorTintColor];
+		[pageControl setCurrentPageIndicatorTintColor:currentPageIndicatorTintColor];
 		[self addSubview:pageControl];
 	}
 	return pageControl;
@@ -278,6 +284,8 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #endif
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
+        [pg setCurrentPageIndicatorTintColor:currentPageIndicatorTintColor];
+        [pg setPageIndicatorTintColor:pageIndicatorTintColor];
 		pg.currentPage = currentPage;
         pg.alpha = pagingControlAlpha;
         pg.backgroundColor = pageControlBackgroundColor;
@@ -617,6 +625,28 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
         pageControlBackgroundColor = [[val _color] retain];
         if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
             [[self pagecontrol] setBackgroundColor:pageControlBackgroundColor];
+        }
+    }
+}
+-(void)setPageIndicatorTintColor_:(id)args
+{
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(pageIndicatorTintColor);
+        pageIndicatorTintColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setPageIndicatorTintColor:pageIndicatorTintColor];
+        }
+    }
+}
+-(void)setCurrentPageIndicatorTintColor_:(id)args
+{
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(currentPageIndicatorTintColor);
+        currentPageIndicatorTintColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorTintColor];
         }
     }
 }

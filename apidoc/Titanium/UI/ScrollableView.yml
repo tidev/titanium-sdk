@@ -283,7 +283,16 @@ properties:
         Since Titanium Mobile Release 3.3.0, using this property to change current page changes the 
         page without animation on iOS and Android.
     type: Number
-    
+  
+  - name: currentPageIndicatorTintColor
+    summary: Tint color for the current page of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: white
+    platforms: [iphone,ipad]
+    since: "6.0.0"
+  
   - name: disableBounce
     summary: Determines whether page bouncing effect is disabled.
     type: Boolean
@@ -311,6 +320,15 @@ properties:
     type: Number
     default: 20
     platforms: [iphone,ipad]
+    
+  - name: pageIndicatorTintColor
+    summary: Tint color of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: semi-transparent
+    platforms: [iphone,ipad]
+    since: "6.0.0"
     
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
