@@ -40,9 +40,6 @@
     BOOL overlayEnabled;
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
-
-    
-    
 }
 
 #pragma mark - Titanium Internal Use Only

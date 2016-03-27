@@ -214,7 +214,6 @@ events:
     since: "2.1.0"
     platforms: [mobileweb]
 
-
   - name: dragEnd
     deprecated:
        since: "3.0.0"
@@ -230,7 +229,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
 
-
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
     properties:
@@ -242,7 +240,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
     since: '3.0.0'
-
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -274,7 +271,7 @@ properties:
         values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved 
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
-    platforms: [android,  iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: {android: "4.1.0"}
     
   - name: currentPage
@@ -289,9 +286,10 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    default: white (system-default)
-    platforms: [iphone,ipad]  
-  
+    default: undefined (system-default white)
+    platforms: [iphone, ipad]  
+    since: "5.4.0"
+
   - name: disableBounce
     summary: Determines whether page bouncing effect is disabled.
     type: Boolean
@@ -325,15 +323,15 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    default: gray (system-default)
-    platforms: [iphone,ipad]
+    default: undefined (system-default gray)
+    platforms: [iphone, ipad]
+    since: "5.4.0"
     
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
     description: Set to `true` to show paging control.
     type: Boolean
     default: false
-
 
   - name: pagingControlTimeout
     summary: Number of milliseconds to wait before hiding the paging control.
