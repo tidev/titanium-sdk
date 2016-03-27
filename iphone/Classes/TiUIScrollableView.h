@@ -33,6 +33,7 @@
 	UIColor *pageControlBackgroundColor;
 	UIColor *pageIndicatorColor;
 	UIColor *currentPageIndicatorColor;
+	CGFloat pagingControlAlpha;
 	CGFloat pageControlHeight;
 	BOOL handlingPageControlEvent;
     BOOL scrollingEnabled;

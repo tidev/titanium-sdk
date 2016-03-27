@@ -45,7 +45,7 @@
 
 -(id)init
 {
-	if (self = [super init]) {
+    if (self = [super init]) {
 #ifndef TI_USE_AUTOLAYOUT
         cacheSize = 3;
 #endif
@@ -53,15 +53,12 @@
         pageControlBackgroundColor = nil;
         pageIndicatorColor = nil;
         currentPageIndicatorColor = nil;
+        pagingControlAlpha = 1.0;
         pagingControlOnTop = NO;
         overlayEnabled = NO;
         showPageControl = YES;
-	}
-	return self;
-}
-
--(void)initializerState
-{
+    }
+    return self;
 }
 
 #ifndef TI_USE_AUTOLAYOUT
@@ -275,19 +272,19 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 -(void)refreshPageControl
 {
-	if (showPageControl)
-	{
-		UIPageControl *pg = [self pagecontrol];
+    if (showPageControl) {
+        UIPageControl *pg = [self pagecontrol];
 #ifndef TI_USE_AUTOLAYOUT
-		[pg setFrame:[self pageControlRect]];
+        [pg setFrame:[self pageControlRect]];
 #endif
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
         [pg setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
         [pg setPageIndicatorTintColor:pageIndicatorColor];
-		pg.currentPage = currentPage;
-        pg.backgroundColor = pageControlBackgroundColor;
-	}	
+        [pg setAlpha:pagingControlAlpha];
+        [pg setCurrentPage:currentPage];
+        [pg setBackgroundColor:pageControlBackgroundColor];
+    }
 }
 
 -(void)renderViewForIndex:(int)index
@@ -648,6 +645,24 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
             [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
         }
     }
+}
+
+-(void)setPagingControlAlpha_:(id)args
+{
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = _scrollView;
+#endif
+    pagingControlAlpha = [TiUtils floatValue:args def:1.0];
+    if(pagingControlAlpha > 1.0){
+        pagingControlAlpha = 1;
+    }
+    if(pagingControlAlpha < 0.0 ){
+        pagingControlAlpha = 0;
+    }
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
+        [[self pagecontrol] setAlpha:pagingControlAlpha];
+    }
+    
 }
 
 -(void)setPagingControlOnTop_:(id)args

@@ -21,6 +21,7 @@
     [self initializeProperty:@"currentPageIndicatorTintColor" defaultValue:nil];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];
+    [self initializeProperty:@"pagingControlAlpha" defaultValue:NUMFLOAT(1.0)];
     [self initializeProperty:@"overlayEnabled" defaultValue:NUMBOOL(NO)];
     [self initializeProperty:@"pagingControlOnTop" defaultValue:NUMBOOL(NO)];
     [super _initWithProperties:properties];
