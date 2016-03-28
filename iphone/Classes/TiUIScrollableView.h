@@ -31,17 +31,16 @@
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
+	UIColor *pageIndicatorColor;
+	UIColor *currentPageIndicatorColor;
+	CGFloat pagingControlAlpha;
 	CGFloat pageControlHeight;
-    CGFloat pagingControlAlpha;
 	BOOL handlingPageControlEvent;
     BOOL scrollingEnabled;
     BOOL pagingControlOnTop;
     BOOL overlayEnabled;
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
-
-    
-    
 }
 
 #pragma mark - Titanium Internal Use Only
