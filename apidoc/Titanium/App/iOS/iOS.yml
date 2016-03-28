@@ -849,7 +849,9 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: The `urlSession` session identifier. If it does not exist, this property is not provided.
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
         type: String
 
       - name: bytesWritten
@@ -880,7 +882,9 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: The `urlSession` session identifier. If it does not exist, this property is not provided.
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
         type: String
 
       - name: bytesSent
@@ -911,7 +915,9 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: The `urlSession` session identifier. If it does not exist, this property is not provided.
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
         type: String
 
       - name: data
@@ -936,7 +942,9 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: The `urlSession` session identifier. If it does not exist, this property is not provided.
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
         type: String
 
       - name: success
@@ -974,7 +982,9 @@ events:
         this method.
     properties:
       - name: sessionIdentifier
-        summary: The `urlSession` session identifier. If it does not exist, this property is not provided.
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
         type: String
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
