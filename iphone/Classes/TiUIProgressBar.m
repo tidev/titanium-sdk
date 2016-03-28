@@ -93,7 +93,6 @@
 	if (messageLabel==nil)
 	{
 		messageLabel=[[UILabel alloc] init];
-		[messageLabel setBackgroundColor:[UIColor clearColor]];
 		
 #ifdef TI_USE_AUTOLAYOUT
         [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
