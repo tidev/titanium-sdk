@@ -128,6 +128,7 @@
         [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
         NSString *dotsViewConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pageControlHeight];
         [self addConstraints:TI_CONSTR(dotsViewConstraints, views)];
+        [NSLayoutConstraint deactivateConstraints:[_dotsView constraints]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];

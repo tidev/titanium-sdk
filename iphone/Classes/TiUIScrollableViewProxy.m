@@ -84,7 +84,7 @@
 	for (id oldViewProxy in viewProxies)
 	{
 #ifdef TI_USE_AUTOLAYOUT
-		[self removeView:oldViewProxy];
+		[self makeViewPerformSelector:@selector(removeSubview:) withObject:[oldViewProxy view] createIfNeeded:NO waitUntilDone:NO];
 #else
 		[[oldViewProxy view] removeFromSuperview];
 #endif
