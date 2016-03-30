@@ -214,6 +214,7 @@
 		fetchRequest.sortOrder = sortOrder;
 		fetchRequest.mutableObjects = YES;
 		BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
+			// Observer is module because we want all changes to be propagated and the respective CNSaveRequest is updated.
 			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                                              contactId:(CNMutableContact*)contact
                                                                                 module:module

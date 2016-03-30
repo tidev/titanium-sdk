@@ -605,9 +605,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		//this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
         CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
         BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
-            TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
-                                                                             contactId:(CNMutableContact*)contact
-                                                                                module:self observer:self] autorelease];
+            TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:self observer:self] autorelease];
             [peopleRefs addObject:person];
         }];
 		RELEASE_TO_NIL(fetchRequest)
@@ -719,10 +717,10 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		}
 		NSError *error = nil;
 		CNMutableContact *newContact = [[CNMutableContact alloc] init];
+		// We dont set observer here because we dont want to be notified when props are being added to a newly created contact.
 		TiContactsPerson* newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                                             contactId:newContact
-                                                                               module:self
-                                                                             observer:nil] autorelease];
+                                                                               module:self] autorelease];
 		RELEASE_TO_NIL(newContact);
 		[newPerson setValuesForKeysWithDictionary:arg];
 		[newPerson updateiOS9ContactProperties];

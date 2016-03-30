@@ -62,15 +62,22 @@ static NSDictionary* iOS9propertyKeys;
 }
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context
+				contactId:(CNMutableContact*)person_
+				   module:(ContactsModule*)module_ {
+	return [self _initWithPageContext:context contactId:person_ module:module_ observer:nil];
+}
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context
                 contactId:(CNMutableContact*)person_
                    module:(ContactsModule*)module_
                  observer:(id<TiContactsPersonUpdateObserver>) observer_ {
     
 	if (self = [super _initWithPageContext:context]) {
-		if (![person_ isMemberOfClass:[CNMutableContact class]])
+		if (![person_ isMemberOfClass:[CNMutableContact class]]) {
 			person = [person_ mutableCopy];
-		else
+		} else {
 			person = [person_ retain];
+		}
 		module = module_;
 		[self setObserver:observer_];
 		iOS9contactProperties = [[self getiOS9ContactProperties: person_] retain];
@@ -80,6 +87,7 @@ static NSDictionary* iOS9propertyKeys;
 
 -(void)dealloc
 {
+    [self setObserver:nil];
     RELEASE_TO_NIL(iOS9contactProperties)
     if (record != NULL) {
         CFRelease(record);
@@ -968,8 +976,8 @@ static NSDictionary* iOS9propertyKeys;
 }
 
 - (void)checkAndNotifyObserver {
-	if (self.observer && [self.observer respondsToSelector:@selector(didUpdatePerson:)]) {
-		[self.observer didUpdatePerson:self];
+	if ([self observer] && [[self observer] respondsToSelector:@selector(didUpdatePerson:)]) {
+		[[self observer] didUpdatePerson:self];
 	}
 }
 

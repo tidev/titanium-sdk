@@ -44,6 +44,9 @@
 +(NSDictionary*)iOS9multiValueLabels;
 +(NSDictionary*)iOS9propertyKeys;
 -(id)_initWithPageContext:(id<TiEvaluator>)context
+				contactId:(CNMutableContact*)person_
+				   module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context
                 contactId:(CNMutableContact*)person_
                    module:(ContactsModule*)module_
                  observer:(id<TiContactsPersonUpdateObserver>) observer_;
