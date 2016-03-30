@@ -297,7 +297,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	OSSpinLockLock(&proxyLock);
 	CFDictionaryRef oldProxies = registeredProxies;
-    CFRelease(registeredProxies);
+	CFRelease(registeredProxies);
 	OSSpinLockUnlock(&proxyLock);
 	
 	for (id thisProxy in (NSDictionary *)oldProxies)
