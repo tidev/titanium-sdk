@@ -348,8 +348,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)configureTitle:(UITableViewCell*)cell
 {
 	UILabel * textLabel = [cell textLabel];
+	NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
 
-	NSString *title = [self valueForKey:@"title"];
 	if (title!=nil)
 	{
 		[textLabel setText:title]; //UILabel already checks to see if it hasn't changed.
