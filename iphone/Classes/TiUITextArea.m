@@ -267,7 +267,12 @@
 			return NO;
 		}
 	}
-	
+    
+    if ([self.proxy _hasListeners:@"keyboardPress"]) {
+        NSDictionary *evt = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:text],@"key", nil];
+        [self.proxy fireEvent:@"keyboardPress" withObject:evt];
+    }
+    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;
