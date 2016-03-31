@@ -146,38 +146,6 @@ implements NumberPicker.OnValueChangeListener {
         if (key.equals(TiC.PROPERTY_VALUE)) {
             Date date = (Date)newValue;
             setValue(date.getTime());
-        } else if (key.equals("format24")) {
-            boolean is24HourFormat = TiConvert.toBoolean( newValue );
-            ignoreItemSelection = true;
-            suppressChangeEvent = true;
-            DecimalFormat formatter = new DecimalFormat("00");
-            hoursString = generateNumbers(is24HourFormat ? 0 : 1, is24HourFormat ? 23 : 12, formatter, 6, 1);
-            hoursWheel.setDisplayedValues(hoursString);
-            hoursWheel.setMaxValue(hoursString.length - 1);
-            hoursWheel.setMinValue(0);
-            LinearLayout vg = (LinearLayout)nativeView;
-            if (is24HourFormat && vg.indexOfChild(amPmWheel) >= 0) {
-                vg.removeView(amPmWheel);
-            } else if (!is24HourFormat && vg.getChildCount() < 3) {
-                amPmWheel = makeAmPmWheel(hoursWheel.getContext());
-                vg.addView(amPmWheel);
-            }
-            setValue(calendar.getTimeInMillis() , true); // updates the time display
-            ignoreItemSelection = false;
-            suppressChangeEvent = false;
-        } else if (key.equals(TiC.PROPERTY_MINUTE_INTERVAL)) {
-            int interval = TiConvert.toInt(newValue);
-            if((interval > 0) && (interval <= 30) && (60 % interval == 0)  ){
-                DecimalFormat formatter = new DecimalFormat("00");
-                minutesString = generateNumbers(0, 59, formatter, 6, interval);
-                minutesWheel.setDisplayedValues(minutesString);
-                minutesWheel.setMaxValue(minutesString.length - 1);
-                minutesWheel.setMinValue(0);
-            } else {
-                // Reject it
-                Log.w(TAG, "Ignoring illegal minuteInterval value: " + interval);
-                proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue);
-            }
         }
 
         super.propertyChanged(key, oldValue, newValue, proxy);
