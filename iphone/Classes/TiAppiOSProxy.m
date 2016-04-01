@@ -575,6 +575,8 @@
     
 	id region = [args objectForKey:@"region"];
 	if (region!=nil) {
+        ENSURE_TYPE(region, NSDictionary);
+        
 		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
 		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
 		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
