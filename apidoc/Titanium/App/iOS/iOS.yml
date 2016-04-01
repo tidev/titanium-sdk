@@ -1118,6 +1118,12 @@ properties:
     type: String
     optional: true
 
+  - name: alertTitle
+    summary: Alert title to display. Available since Titanium SDK 5.4.0.
+    type: String
+    optional: true
+    since: "5.4.0"
+
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
     type: String
@@ -1160,6 +1166,33 @@ properties:
     summary: Data to pass to the application with the notification event.
     type: Dictionary
     optional: true
+
+  - name: region
+    summary: Region the notification will be triggered in.
+    type: Dictionary
+    optional: true
+    since: "5.4.0"
+    parameters:
+      - name: latitude
+        summary: Latitude of the location center, in decimal degrees.
+        type: Number
+        optional: false
+
+      - name: longitude
+        summary: Longitude of the location center, in decimal degrees.
+        type: Number
+        optional: false
+
+      - name: triggersOnce
+        summary: Longitude of the location center, in decimal degrees.
+        default: true
+        type: Boolean
+        optional: true
+
+      - name: identifier
+        summary: Identifier of the region.
+        type: String
+        optional: true
 
 ---
 name: UserNotificationSettings
