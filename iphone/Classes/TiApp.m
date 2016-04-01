@@ -988,7 +988,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark Handoff Delegates
 
-#if defined(USE_TI_APPIOSUSERACTIVITY) || defined (USE_TI_APPIOSSEARCHABLEINDEX)
+#ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
