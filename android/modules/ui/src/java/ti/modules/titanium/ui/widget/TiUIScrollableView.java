@@ -290,18 +290,18 @@ public class TiUIScrollableView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
 		}
-
+		
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
 
-    		if (d.containsKey("cacheSize")) {
-        		int cacheSize = TiConvert.toInt(d.get("cacheSize"));
-        		mPager.setOffscreenPageLimit(cacheSize);
-    		}
-
+		if (d.containsKey("cacheSize")) {
+    		int cacheSize = TiConvert.toInt(d.get("cacheSize"));
+    		mPager.setOffscreenPageLimit(cacheSize);
+		}
+		
 		super.processProperties(d);
 
 	}
@@ -447,14 +447,17 @@ public class TiUIScrollableView extends TiUIView
 	public void setViews(Object viewsObject)
 	{
 		boolean changed = false;
-		if (viewsObject instanceof Object[] && mViews.size() > 0 &&
-		((Object[])viewsObject).length == 0) {
-			changed = true;
-		}
+		int oldSize = mViews.size();
+
 		clearViewsList();
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
+
+			if (oldSize > 0 && views.length == 0) {
+				changed = true;
+			}
+
 			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
