@@ -348,6 +348,7 @@ public class TiUIScrollableView extends TiUIView
 				setCurrentPage(mCurIndex - 1);
 			}
 			mViews.remove(proxy);
+			proxy.releaseViews();
 			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
