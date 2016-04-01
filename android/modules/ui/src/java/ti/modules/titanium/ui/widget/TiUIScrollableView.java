@@ -344,7 +344,7 @@ public class TiUIScrollableView extends TiUIView
 	public void removeView(TiViewProxy proxy)
 	{
 		if (mViews.contains(proxy)) {
-			if(mCurIndex > 0 && mCurIndex == (mViews.size() - 1)) {
+			if (mCurIndex > 0 && mCurIndex == (mViews.size() - 1)) {
 				setCurrentPage(mCurIndex - 1);
 			}
 			mViews.remove(proxy);
