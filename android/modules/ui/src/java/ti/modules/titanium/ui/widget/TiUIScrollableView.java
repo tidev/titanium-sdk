@@ -447,6 +447,10 @@ public class TiUIScrollableView extends TiUIView
 	public void setViews(Object viewsObject)
 	{
 		boolean changed = false;
+		if (viewsObject instanceof Object[] && mViews.size() > 0 &&
+		((Object[])viewsObject).length == 0) {
+			changed = true;
+		}
 		clearViewsList();
 
 		if (viewsObject instanceof Object[]) {
