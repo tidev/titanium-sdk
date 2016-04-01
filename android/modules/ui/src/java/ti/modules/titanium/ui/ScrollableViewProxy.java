@@ -44,7 +44,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_REMOVE_VIEW = MSG_FIRST_ID + 108;
 	public static final int MSG_SET_ENABLED = MSG_FIRST_ID + 109;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
+
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
 
 	protected AtomicBoolean inScroll;
@@ -106,7 +106,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				break;
 			case MSG_SET_VIEWS: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object views = holder.getArg(); 
+				Object views = holder.getArg();
 				getView().setViews(views);
 				holder.setResult(null);
 				handled = true;
@@ -126,7 +126,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			}
 			case MSG_REMOVE_VIEW: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object view = holder.getArg(); 
+				Object view = holder.getArg();
 				if (view instanceof TiViewProxy) {
 					getView().removeView((TiViewProxy) view);
 					handled = true;
@@ -289,7 +289,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
 	}
-	
+
 	@Override
 	public void setActivity(Activity activity)
 	{

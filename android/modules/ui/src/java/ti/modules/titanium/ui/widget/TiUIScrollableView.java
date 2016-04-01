@@ -132,7 +132,7 @@ public class TiUIScrollableView extends TiUIView
 
 					// If we don't use this state variable to check if it's a valid
 					// scroll, this event will fire when the view is first created
-					// because on creation, the scroll state is initialized to 
+					// because on creation, the scroll state is initialized to
 					// `idle` and this handler is called.
 					isValidScroll = false;
 				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
@@ -272,7 +272,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
 			setViews(d.get(TiC.PROPERTY_VIEWS));
-		} 
+		}
 
 		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
 			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
@@ -290,7 +290,7 @@ public class TiUIScrollableView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
 				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
@@ -301,7 +301,7 @@ public class TiUIScrollableView extends TiUIView
         		int cacheSize = TiConvert.toInt(d.get("cacheSize"));
         		mPager.setOffscreenPageLimit(cacheSize);
     		}
-    		
+
 		super.processProperties(d);
 
 	}
@@ -344,6 +344,9 @@ public class TiUIScrollableView extends TiUIView
 	public void removeView(TiViewProxy proxy)
 	{
 		if (mViews.contains(proxy)) {
+			if(mCurIndex > 0 && mCurIndex == (mViews.size() - 1)) {
+				setCurrentPage(mCurIndex - 1);
+			}
 			mViews.remove(proxy);
 			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
