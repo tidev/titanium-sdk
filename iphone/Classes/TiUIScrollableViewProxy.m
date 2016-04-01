@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -101,7 +101,7 @@
 #ifdef TI_USE_AUTOLAYOUT
 	for (TiViewProxy* proxy in viewProxies)
 	{
-		[[self view] addSubview:[proxy view]];
+		[self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
 	}
 #endif
 	[self unlockViews];

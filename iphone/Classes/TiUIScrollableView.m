@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -126,8 +126,8 @@
         NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);
         [_scrollView addConstraints:TI_CONSTR(@"V:|[_contentView(_scrollView)]|", views)];
         [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
-        NSString *dotsViewConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pageControlHeight];
-        [self addConstraints:TI_CONSTR(dotsViewConstraints, views)];
+        NSString *dotsViewHeightConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pageControlHeight];
+        [self addConstraints:TI_CONSTR(dotsViewHeightConstraints, views)];
         [NSLayoutConstraint deactivateConstraints:[_dotsView constraints]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
@@ -677,6 +677,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 	[self refreshScrollView:[self bounds] readd:YES];
 #else
 	[self addSubview:[viewproxy view]];
+	[self layoutSubviews];
 	[self refreshPageControl];
 #endif
 }
