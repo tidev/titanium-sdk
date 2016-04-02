@@ -1171,10 +1171,10 @@ properties:
     summary: | 
         Region the notification will be triggered in. Allowed parameter are:
         
-        * `latitude`: Latitude of the location center, in decimal degrees (required).
-        * `longitude`: Longitude of the location center, in decimal degrees (required).
-        * `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
-        * `identifier`: Identifier of the region (optional).
+        - `latitude`: Latitude of the location center, in decimal degrees (required).
+        - `longitude`: Longitude of the location center, in decimal degrees (required).
+        - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
+        - `identifier`: Identifier of the region (optional).
     type: Dictionary
     optional: true
     since: "5.4.0"
