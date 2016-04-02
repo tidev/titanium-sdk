@@ -620,9 +620,9 @@ public class TiUIText extends TiUIView
 
 		// http://stackoverflow.com/a/35527348/1504248
 		Editable text = tv.getText();
-        if (text.length() > 0) {
-            text.replace(0, 1, text.subSequence(0, 1), 0, 1);
-        }
+		if (text.length() > 0) {
+			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+		}
 			
 		tv.setSelection(start, end);
 	}
