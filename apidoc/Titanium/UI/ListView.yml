@@ -291,6 +291,38 @@ events:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
+        
+  - name: insert
+    summary: Fired when a list row is inserted by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
 
   - name: dragstart
     summary: Fired when the user starts dragging the list view.
