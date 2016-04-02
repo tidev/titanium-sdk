@@ -707,6 +707,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ADD = "add";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MULTIPLY = "multiply";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ANCHOR_POINT = "anchorPoint";
 
 	/**
