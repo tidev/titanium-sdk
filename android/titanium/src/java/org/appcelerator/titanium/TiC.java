@@ -437,6 +437,15 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_Y = "y";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FORCE = "force";
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_SIZE = "size";
 
 	/**
 	 * @module.api
