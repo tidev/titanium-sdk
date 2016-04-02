@@ -409,8 +409,7 @@ events:
         
       - name: size
         summary: |
-            The current size of the touch area.
-            Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available Android devices.
         type: Number
         
       - name: maximumPossibleForce
@@ -454,8 +453,7 @@ events:
         
       - name: size
         summary: |
-            The current size of the touch area.
-            Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available Android devices.
         type: Number
 
       - name: maximumPossibleForce
@@ -498,8 +496,7 @@ events:
         
       - name: size
         summary: |
-            The current size of the touch area.
-            Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available Android devices.
         type: Number
         
       - name: maximumPossibleForce
@@ -540,8 +537,7 @@ events:
         
       - name: size
         summary: |
-            The current size of the touch area.
-            Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available Android devices.
         type: Number
 
       - name: maximumPossibleForce
