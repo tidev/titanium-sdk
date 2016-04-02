@@ -214,8 +214,38 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
+		
+		setTextPadding(d);
 	}
 
+	private void setTextPadding(KrollDict d)
+	{
+		int paddingLeft = 0;
+		int paddingRight = 0;
+		int paddingTop = 0;
+		int paddingBottom = 0;
+		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
+			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT);
+		} else {
+			paddingLeft = tv.getPaddingLeft();
+		}
+		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
+			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT);
+		} else {
+			paddingRight = tv.getPaddingRight();
+		}
+		if (d.containsKey(TiC.PROPERTY_PADDING_TOP)) {
+			paddingTop = TiConvert.toInt(d, TiC.PROPERTY_PADDING_TOP);
+		} else {
+			paddingTop = tv.getPaddingTop();
+		}
+		if (d.containsKey(TiC.PROPERTY_PADDING_BOTTOM)) {
+			paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_PADDING_BOTTOM);
+		} else {
+			paddingBottom = tv.getPaddingBottom();
+		}
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -281,6 +311,9 @@ public class TiUIText extends TiUIView
 			setAttributedStringHint((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringText((AttributedStringProxy)newValue);
+		} else if (key.equals(TiC.PROPERTY_PADDING_TOP) || key.equals(TiC.PROPERTY_PADDING_BOTTOM) 
+			|| key.equals(TiC.PROPERTY_PADDING_RIGHT) || key.equals(TiC.PROPERTY_PADDING_LEFT)) {
+			setTextPadding(proxy.getProperties());
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
