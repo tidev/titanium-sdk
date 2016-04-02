@@ -45,6 +45,26 @@ methods:
         See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
     
+  - name: paddingLeft
+    summary: Left padding of this TextArea.
+    type: Number
+    platforms: [android]
+  
+  - name: paddingRight
+    summary: Right padding of this TextArea.
+    type: Number
+    platforms: [android]
+  
+  - name: paddingBottom
+    summary: Bottom padding of this TextArea.
+    type: Number
+    platforms: [android]
+  
+  - name: paddingTop
+    summary: Top padding of this TextArea.
+    type: Number
+    platforms: [android]    
+    
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]

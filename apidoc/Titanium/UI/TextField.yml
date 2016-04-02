@@ -414,12 +414,22 @@ properties:
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+
+   - name: paddingBottom
+    summary: Bottom padding of this text field.
+    type: Number
+    platforms: [android]
+
+   - name: paddingTop
+    summary: Top padding of this text field.
+    type: Number
+    platforms: [android]
     
   - name: passwordMask
     summary: Obscure the input text from the user.
