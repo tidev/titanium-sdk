@@ -49,21 +49,29 @@ methods:
     summary: Left padding of this TextArea.
     type: Number
     platforms: [android]
+    since:
+        android: 5.4.0    
   
   - name: paddingRight
     summary: Right padding of this TextArea.
     type: Number
     platforms: [android]
+    since:
+        android: 5.4.0    
   
   - name: paddingBottom
     summary: Bottom padding of this TextArea.
     type: Number
     platforms: [android]
+    since:
+        android: 5.4.0    
   
   - name: paddingTop
     summary: Top padding of this TextArea.
     type: Number
     platforms: [android]    
+    since:
+        android: 5.4.0    
     
   - name: setSelection
     summary: Selects the text in range (start, end).
