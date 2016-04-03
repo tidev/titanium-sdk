@@ -17,8 +17,6 @@
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
 
-static const char* backupAttr = "com.apple.MobileBackup";
-
 @implementation TiFilesystemFileProxy
 
 -(id)initWithFile:(NSString*)path_
@@ -492,19 +490,19 @@ FILENOOP(setHidden:(id)x);
 
 -(NSNumber*)remoteBackup
 {
-    NSURL *URL= [NSURL fileURLWithPath: [self path]];
+    NSURL *URL = [NSURL fileURLWithPath: [self path]];
     NSError *error;
-    NSNumber *result = nil;
+    NSNumber *isExcluced;
    
-    BOOL success = [URL getResourceValue:&result
+    BOOL success = [URL getResourceValue:&isExcluced
                                   forKey:NSURLIsExcludedFromBackupKey error:&error];
     if (!success) {
         // Doesn't matter what error is set to; this means that we're backing up.
         return NUMBOOL(YES);
     }
 
-    // A value of 0 means backup, so:
-    return NUMBOOL([result isEqualToNumber:@YES] ? NO : YES);
+    // A value of @FALSE means backup, so:
+    return NUMBOOL([isExcluced isEqualToNumber:@YES] ? NO : YES);
 }
 
 -(void)setRemoteBackup:(id)value
@@ -515,8 +513,8 @@ FILENOOP(setHidden:(id)x);
     NSURL *URL= [NSURL fileURLWithPath: [self path]];
     NSError *error;
     
-    BOOL success = [URL setResourceValue: NUMBOOL(isExcluced)
-                                  forKey: NSURLIsExcludedFromBackupKey error: &error];
+    BOOL success = [URL setResourceValue:NUMBOOL(isExcluced)
+                                  forKey:NSURLIsExcludedFromBackupKey error:&error];
     if (!success) {
         [self throwException:@"Error setting remote backup flag:"
                    subreason:[error localizedDescription]
