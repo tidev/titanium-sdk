@@ -492,33 +492,35 @@ FILENOOP(setHidden:(id)x);
 
 -(NSNumber*)remoteBackup
 {
-    u_int8_t value;
-    const char* fullPath = [[self path] fileSystemRepresentation];
-    
-    ssize_t result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
-    if (result == -1) {
-        // Doesn't matter what errno is set to; this means that we're backing up.
-        return [NSNumber numberWithBool:YES];
+    NSURL *URL= [NSURL fileURLWithPath: [self path]];
+    NSError *error;
+    NSNumber *result = nil;
+   
+    BOOL success = [URL getResourceValue:&result
+                                  forKey:NSURLIsExcludedFromBackupKey error:&error];
+    if (!success) {
+        // Doesn't matter what error is set to; this means that we're backing up.
+        return NUMBOOL(YES);
     }
 
     // A value of 0 means backup, so:
-    return [NSNumber numberWithBool:!value];
+    return NUMBOOL([result isEqualToNumber:@YES] ? NO : YES);
 }
 
--(void)setRemoteBackup:(NSNumber *)remoteBackup
+-(void)setRemoteBackup:(id)value
 {
-    // Value of 1 means nobackup
-    u_int8_t value = ![TiUtils boolValue:remoteBackup def:YES];
-    const char* fullPath = [[self path] fileSystemRepresentation];
+    ENSURE_TYPE(value, NSNumber);
     
-    int result = setxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
-    if (result != 0) {
-        // Throw an exception with the errno
-        char* errmsg = strerror(errno);
-        [self throwException:@"Error setting remote backup flag:" 
-                   subreason:[NSString stringWithUTF8String:errmsg] 
+    BOOL isExcluced = ![TiUtils boolValue:value def:YES];
+    NSURL *URL= [NSURL fileURLWithPath: [self path]];
+    NSError *error;
+    
+    BOOL success = [URL setResourceValue: NUMBOOL(isExcluced)
+                                  forKey: NSURLIsExcludedFromBackupKey error: &error];
+    if (!success) {
+        [self throwException:@"Error setting remote backup flag:"
+                   subreason:[error localizedDescription]
                     location:CODELOCATION];
-        return;
     }
 }
 
