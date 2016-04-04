@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -73,8 +73,8 @@
 
 -(void)setViews:(id)args
 {
-#ifndef TI_USE_AUTOLAYOUT
-    ENSURE_UI_THREAD(setViews, args)
+#if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
+	ENSURE_UI_THREAD(setViews, args)
 #endif
 	ENSURE_ARRAY(args);
 	for (id newViewProxy in args)
@@ -85,7 +85,11 @@
 	[self lockViewsForWriting];
 	for (id oldViewProxy in viewProxies)
 	{
-        [[oldViewProxy view] removeFromSuperview];
+#ifdef TI_USE_AUTOLAYOUT
+		[self makeViewPerformSelector:@selector(removeSubview:) withObject:[oldViewProxy view] createIfNeeded:NO waitUntilDone:NO];
+#else
+		[[oldViewProxy view] removeFromSuperview];
+#endif
 		if (![args containsObject:oldViewProxy])
 		{
 			[oldViewProxy setParent:nil];
@@ -97,13 +101,13 @@
 	viewProxies = [args mutableCopy];
     
 #ifdef TI_USE_AUTOLAYOUT
-    for (TiViewProxy* proxy in viewProxies)
-    {
-        [[self view] addSubview:[proxy view]];
-    }
+	for (TiViewProxy* proxy in viewProxies)
+	{
+		[self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
+	}
 #endif
-    [self unlockViews];
-    [self replaceValue:args forKey:@"views" notification:YES];
+	[self unlockViews];
+	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
 -(void)addView:(id)args
@@ -127,6 +131,9 @@
 
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
+#if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
+	ENSURE_UI_THREAD(removeView, args)
+#endif
 	ENSURE_SINGLE_ARG(args,NSObject);
 
 	[self lockViewsForWriting];
@@ -164,7 +171,9 @@
 				[args class]] location:CODELOCATION];
 		return;
 	}
-
+#ifdef TI_USE_AUTOLAYOUT
+	args = doomedView;
+#endif
 	TiThreadPerformOnMainThread(^{[doomedView detachView];}, NO);
 	[self forgetProxy:doomedView];
 	[viewProxies removeObject:doomedView];
