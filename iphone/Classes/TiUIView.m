@@ -1375,6 +1375,14 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+- (void)processKeyPressed:(id)key
+{
+    if ([self.proxy _hasListeners:@"keyPressed"]) {
+        NSDictionary *evt = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:key],@"keyCode", nil];
+        [self.proxy fireEvent:@"keyPressed" withObject:evt];
+    }
+}
+
 #pragma mark Listener management
 
 -(void)removeGestureRecognizerOfClass:(Class)c

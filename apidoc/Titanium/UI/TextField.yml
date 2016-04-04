@@ -573,6 +573,14 @@ events:
         summary: Value of this text area.
         type: String
 
+  - name: keyPressed
+    summary: Fired when the text field keyboard is pressed.
+    properties:
+      - name: keyCode
+        summary: The specific key clicked.
+        type: String
+    platforms: [iphone, ipad]
+    
 examples:
   - title: Basic Text Field with rounded border
     example: |
