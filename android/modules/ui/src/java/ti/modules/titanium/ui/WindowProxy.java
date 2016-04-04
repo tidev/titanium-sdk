@@ -36,7 +36,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -136,35 +135,31 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-	    Activity topActivity = TiApplication.getAppCurrentActivity();
-	    // Don't open if app is closing or closed
-	    if (topActivity == null || topActivity.isFinishing()) {
-	        return;
-	    }
-	    Intent intent = new Intent(topActivity, TiActivity.class);
-	    fillIntent(topActivity, intent);
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		// Don't open if app is closing or closed
+		if (topActivity == null || topActivity.isFinishing()) {
+			return;
+		}
+		Intent intent = new Intent(topActivity, TiActivity.class);
+		fillIntent(topActivity, intent);
 
-	    int windowId = TiActivityWindows.addWindow(this);
-	    intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-	    intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+		int windowId = TiActivityWindows.addWindow(this);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-	    boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-	    if (!animated) {
-	        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-	        topActivity.startActivity(intent);
-	        topActivity.overridePendingTransition(0, 0); // Suppress default transition.
-	    } else if (options.containsKey(TiC.INTENT_PROPERTY_ENTER_ANIMATION)
-	            || options.containsKey(TiC.INTENT_PROPERTY_EXIT_ANIMATION)) {
-	        topActivity.startActivity(intent);
-	        topActivity.overridePendingTransition(TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_ENTER_ANIMATION), 0),
-	                TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_EXIT_ANIMATION), 0));
-	    } else {
-	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-	            topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
-	        } else {
-	            topActivity.startActivity(intent);
-	        }
-	    }
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+		if (!animated) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			topActivity.startActivity(intent);
+			topActivity.overridePendingTransition(0, 0); // Suppress default transition.
+		} else if (options.containsKey(TiC.INTENT_PROPERTY_ENTER_ANIMATION)
+			|| options.containsKey(TiC.INTENT_PROPERTY_EXIT_ANIMATION)) {
+			topActivity.startActivity(intent);
+			topActivity.overridePendingTransition(TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_ENTER_ANIMATION), 0),
+				TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_EXIT_ANIMATION), 0));
+		} else {
+			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+		}
 	}
 
 	@Override

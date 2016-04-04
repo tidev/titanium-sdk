@@ -25,7 +25,6 @@ var appc = require('node-appc'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	spawn = require('child_process').spawn,
-	temp = require('temp'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	wrench = require('wrench'),
@@ -33,6 +32,14 @@ var appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
+
+function randomStr(len) {
+	return crypto.randomBytes(Math.ceil(len * 3 / 4))
+		.toString('base64')
+		.slice(0, len)
+		.replace(/\+/g, '0')
+		.replace(/\//g, '0');
+}
 
 function iOSModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -85,17 +92,12 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 	series(this, [
 		function (next) {
-			cli.emit('build.module.pre.construct', this, next);
+			cli.emit('build.pre.construct', this, next);
 		},
 
 		'doAnalytics',
 		'initialize',
 		'loginfo',
-
-		function (next) {
-			cli.emit('build.module.pre.compile', this, next);
-		},
-
 		'processLicense',
 		'processTiXcconfig',
 		'compileJS',
@@ -103,13 +105,9 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createUniBinary',
 		'verifyBuildArch',
 		'packageModule',
-		'runModule',
-
-		function (next) {
-			cli.emit('build.module.post.compile', this, next);
-		}
+		'runModule'
 	], function (err) {
-		cli.emit('build.module.finalize', this, function () {
+		cli.emit('build.finalize', this, function () {
 			finished(err);
 		});
 	});
@@ -550,6 +548,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
 		}.bind(this));
 
+
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
 			this.dirWalker(this.platformDir, function (file) {
@@ -600,7 +599,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 	}
 
 	var tmpName,
-		tmpDir = temp.path('ti-ios-module-build-'),
+		tmpDir,
 		tmpProjectDir;
 
 	function checkLine(line, logger) {
@@ -658,7 +657,12 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 	series(this, [
 		function (cb) {
 			// 1. create temp dir
-			wrench.mkdirSyncRecursive(tmpDir);
+			do {
+				tmpName = 'm' + randomStr(6) + 'ti';
+				tmpDir = path.join(process.env.TMPDIR, tmpName);
+			} while(fs.existsSync(tmpDir));
+
+			fs.mkdirSync(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));

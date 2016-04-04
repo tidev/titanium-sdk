@@ -2076,13 +2076,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
-	// Remove this check on 6.0.0
-	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
-		this.logger.info(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
-		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
-	} else {
-		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
-	}
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -3137,10 +3131,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (targetInfo.isWatchAppV2orNewer) {
-						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
-					} else {
+					if (targetInfo.isWatchAppV1Extension) {
 						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
+					} else if (targetInfo.isWatchAppV2orNewer) {
+						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
 					}
 				}
 			}, this);

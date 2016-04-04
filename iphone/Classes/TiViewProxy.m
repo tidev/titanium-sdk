@@ -634,7 +634,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }
     }
     callback = (KrollCallback*)obj;
-	TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
+	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
@@ -2330,15 +2330,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
 
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            
-            dispatch_block_t block = ^{
-                [self fireEvent:@"postlayout" withObject:nil propagate:NO];
-            };
-#ifdef TI_USE_KROLL_THREAD
-            block();
-#else
-            TiThreadPerformOnMainThread(block, NO);
-#endif
+            [self fireEvent:@"postlayout" withObject:nil propagate:NO];
         }
 	}
 #ifdef VERBOSE

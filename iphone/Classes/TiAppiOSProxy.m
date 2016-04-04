@@ -16,12 +16,10 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
-
-#import <MobileCoreServices/MobileCoreServices.h>
-#import <CoreLocation/CLCircularRegion.h>
 
 @implementation TiAppiOSProxy
 
@@ -554,10 +552,6 @@
 	id alertBody = [args objectForKey:@"alertBody"];
 	if (alertBody!=nil) {
 		localNotif.alertBody = alertBody;
-    }
-	id alertTitle = [args objectForKey:@"alertTitle"];
-	if (alertTitle!=nil) {
-		localNotif.alertTitle = alertTitle;
 	}
 	id alertAction = [args objectForKey:@"alertAction"];
 	if (alertAction!=nil) {
@@ -571,29 +565,6 @@
 	id badge = [args objectForKey:@"badge"];
 	if (badge!=nil) {
 		localNotif.applicationIconBadgeNumber = [TiUtils intValue:badge];
-	}
-    
-	id region = [args objectForKey:@"region"];
-	if (region!=nil) {
-        ENSURE_TYPE(region, NSDictionary);
-        
-		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
-		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
-		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
-
-		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
-        
-		if (!CLLocationCoordinate2DIsValid(center)) {
-			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
-			return;
-		}
-        
-		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
-                                                              radius:kCLDistanceFilterNone
-                                                          identifier:identifier ? identifier : @"notification"];
-		
-		localNotif.regionTriggersOnce = regionTriggersOnce;
 	}
 
 	id sound = [args objectForKey:@"sound"];

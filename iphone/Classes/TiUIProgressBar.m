@@ -21,13 +21,13 @@
 }
 #endif
 
--(id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
+-(id)initWithStyle:(UIProgressViewStyle)style_
 {
 	if (self = [super initWithFrame:CGRectZero])
 	{
-		style = _style;
-		min = _min;
-		max = _max;
+		style = style_;
+		min = 0;
+		max = 1;
 		[self setHidden:YES];
         
 #ifdef TI_USE_AUTOLAYOUT
@@ -93,6 +93,7 @@
 	if (messageLabel==nil)
 	{
 		messageLabel=[[UILabel alloc] init];
+		[messageLabel setBackgroundColor:[UIColor clearColor]];
 		
 #ifdef TI_USE_AUTOLAYOUT
         [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];

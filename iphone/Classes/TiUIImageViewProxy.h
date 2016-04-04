@@ -9,7 +9,7 @@
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 
-@interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate, TiProxyDelegate> {
+@interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate> {
 	ImageLoaderRequest *urlRequest;
     NSURL* imageURL;
 }

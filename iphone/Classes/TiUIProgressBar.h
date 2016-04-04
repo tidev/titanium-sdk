@@ -24,7 +24,7 @@
 #endif
 }
 
--(id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
+-(id)initWithStyle:(UIProgressViewStyle)style;
 
 @end
 

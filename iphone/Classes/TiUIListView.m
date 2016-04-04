@@ -62,8 +62,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
-    UIEdgeInsets _rowSeparatorInsets;
-    
     
     NSMutableDictionary* _measureProxies;
     
@@ -545,41 +543,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
-    [self setListSeparatorInsets_:arg];
-}
-
--(void)setTableSeparatorInsets_:(id)arg
-{
-    DEPRECATED_REPLACED(@"UI.ListView.tableSeparatorInsets", @"5.4.0", @"UI.ListView.listSeparatorInsets");
-    [self setListSeparatorInsets_:arg];
-}
-
--(void)setListSeparatorInsets_:(id)arg
-{
     [self tableView];
-    
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-        [[self tableView] setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
     } else {
-        [[self tableView ] setSeparatorInset:_defaultSeparatorInsets];
+        [_tableView setSeparatorInset:_defaultSeparatorInsets];
     }
     if (![searchController isActive]) {
-        [[self tableView] setNeedsDisplay];
-    }
-}
-
--(void)setRowSeparatorInsets_:(id)arg
-{
-    if ([arg isKindOfClass:[NSDictionary class]]) {
-        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
-        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-        _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
-    }
-    if (![searchController isActive]) {
-        [[self tableView] setNeedsDisplay];
+        [_tableView setNeedsDisplay];
     }
 }
 
@@ -1427,10 +1400,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         [cell setPosition:TiCellBackgroundViewPositionMiddle isGrouped:NO];
     }
-    
-    if (_rowSeparatorInsets.left != 0 || _rowSeparatorInsets.right != 0) {
-        [cell setSeparatorInset:_rowSeparatorInsets];
-    }
+
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
     return cell;

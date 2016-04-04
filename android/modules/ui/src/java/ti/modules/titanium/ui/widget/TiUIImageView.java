@@ -80,8 +80,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final int SET_IMAGE = 10001;
 	private static final int START = 10002;
 	private static final int STOP = 10003;
-	private static final int SET_TINT = 10004;
-	
+
 	// This handles the memory cache of images.
 	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
@@ -214,9 +213,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		case STOP:
 			handleStop();
 			return true;
-		case SET_TINT:
-			handleTint((String) msg.obj);
-			return true;			
 			
 		default: return false;
 		
@@ -847,9 +843,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 		}
-		if (d.containsKey("tintColor")) {
-			setTintColor(d.getString("tintColor"));
-		}
+		
 
 		// If height and width is not defined, disable scaling for scrollview since an image
 		// can extend beyond the screensize in scrollview.
@@ -959,25 +953,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		return null;
 	}
 
-
-	public void setTintColor(String color){
-		if (!TiApplication.isUIThread()) {
-			Message message = mainHandler.obtainMessage(SET_TINT, color);
-			message.sendToTarget();
-		} else {
-			handleTint(color);
-		}
-	}
-
-	public void handleTint(String color){
-		TiImageView view = getView();
-		view.setTintColor(color);
-	}
-
-	public int getTintColor(){
-		TiImageView view = getView();
-		return view.getTintColor();
-	}
 
 	@Override
 	public void release()

@@ -68,7 +68,7 @@
 
 -(id)blob
 {
-	return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:path] autorelease];
+	return [[[TiBlob alloc] initWithFile:path] autorelease];
 }
 
 -(id)toBlob:(id)args

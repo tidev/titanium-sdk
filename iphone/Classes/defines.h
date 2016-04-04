@@ -6,7 +6,6 @@
 //
 
 // MODULES
-#define LAUNCHSCREEN_STORYBOARD
 
 #define USE_TI_STREAM
 #define USE_TI_CODEC
