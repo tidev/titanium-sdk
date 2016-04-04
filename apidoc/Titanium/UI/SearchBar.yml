@@ -132,6 +132,14 @@ events:
         summary: Value of the search bar.
         type: String
 
+  - name: keyPressed
+    summary: Fired when the search bar keyboard is pressed.
+    properties:
+      - name: keyCode
+        summary: The specific key clicked.
+        type: String
+    platforms: [iphone, ipad]
+
 properties:
 
   - name: autocapitalization

@@ -431,6 +431,14 @@ events:
         type: textAreaSelectedParams
     platforms: [iphone, ipad]
 
+  - name: keyPressed
+    summary: Fired when the text area keyboard is pressed.
+    properties:
+      - name: keyCode
+        summary: The specific key clicked.
+        type: String
+    platforms: [iphone, ipad]
+
 examples:
   - title: Basic Text Area with Customizations
     example: |
