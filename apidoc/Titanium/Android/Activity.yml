@@ -56,16 +56,18 @@ description: |
     re-intiializes the application. The benefit to this approach is that it avoids a full
     application restart, which occurs with the first option.
 
-            var initialLaunchPerformed = false;
-            Ti.Android.currentActivity.addEventListener("resume", function() {
-                if (!initialLaunchPerformed) {
-                    initialLaunchPerformed = true;
-                    return;
-                }
-                // If we reach this point the root activity is being resumed for the second (or greater time).
-                // Re-run the application-specific start-up code again.
-                runApplication();
-            });   
+            if(Ti.Platform.osname == "android") {
+                var initialLaunchPerformed = false;
+                Ti.Android.currentActivity.onResume = function() {
+                    if (!initialLaunchPerformed) {
+                        initialLaunchPerformed = true;
+                        return;
+                    }
+                    // If we reach this point the root activity is being resumed for the second (or greater time).
+                    // Re-run the application-specific start-up code again.
+                    runApplication();
+                };
+            }
 
             function runApplication() {
                 // Start-up code here...

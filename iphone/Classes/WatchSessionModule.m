@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 
 #import "WatchSessionModule.h"
 #import "TiUtils.h"
@@ -378,7 +377,7 @@
             [dict addEntriesFromDictionary:errorinfo];
         }
         else {
-            downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+            downloadedData = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[destinationURL path]] autorelease];
             NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                       NUMINT(0), @"errorCode",
                                       @"", @"message",
@@ -416,5 +415,3 @@
 }
 
 @end
-
-#endif

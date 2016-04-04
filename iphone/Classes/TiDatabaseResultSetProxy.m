@@ -153,7 +153,7 @@
 	{
 	    id result = [results objectForColumnIndex:[TiUtils intValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
-			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+			result = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:result mimetype:@"application/octet-stream"] autorelease];
 		}
 
 		if([args count] > 1) {
@@ -173,7 +173,7 @@
 	{
 		id result = [results objectForColumn:[TiUtils stringValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
-			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+			result = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:result mimetype:@"application/octet-stream"] autorelease];
 		}
  	    if([args count] > 1) {
 		   //cast result on the way out if type constant was passed

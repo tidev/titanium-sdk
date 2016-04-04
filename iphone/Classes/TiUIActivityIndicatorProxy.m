@@ -40,6 +40,7 @@
     return @"Ti.UI.ActivityIndicator";
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -48,6 +49,7 @@
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 #ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_WIDTH

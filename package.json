@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "6.0.0",
+  "version": "5.4.0",
   "keywords": [
     "appcelerator",
     "titanium",
@@ -38,7 +38,7 @@
     "temp": "0.8.3",
     "uglify-js": "2.6.1",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.3",
+    "windowslib": "0.4.4",
     "wrench": "1.5.8",
     "xcode": "0.8.3",
     "xmldom": "0.1.22",

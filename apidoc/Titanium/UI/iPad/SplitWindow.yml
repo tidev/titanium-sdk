@@ -2,7 +2,7 @@
 name: Titanium.UI.iPad.SplitWindow
 deprecated:
     since: 3.6.0
-    notes: Use <Titanium.UI.iOS.SplitWindow> instead.
+    notes: Use [Titanium.UI.iOS.SplitWindow](Titanium.UI.iOS.SplitWindow) instead.
     removed: "6.0.0"
 summary: |
     A SplitWindow is a window that manages the presentation of two side-by-side view 
@@ -30,12 +30,11 @@ description: |
     use a <Titanium.UI.iOS.NavigationWindow>. See examples below.
     
     The SplitWindow is a top-level window and cannot be contained within another window or view.
-    ![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
 extends: Titanium.UI.Window
 platforms: [ipad]
 since: "1.2"
 excludes:
-    properties: [transitionAnimation]
+    properties: [transitionAnimation, swipeToClose]
 
 events:
   - name: visible

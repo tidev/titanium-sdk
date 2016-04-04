@@ -27,7 +27,6 @@
 //    self.window.rootViewController = stackedViewControllers;
 
     self.window.rootViewController = [[ViewController alloc] init];
-
     [self.window makeKeyAndVisible];
     return YES;
 }

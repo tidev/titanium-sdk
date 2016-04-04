@@ -8,7 +8,7 @@
 #define TI_UNIT_TESTS
 
 #import <XCTest/XCTest.h>
-#import "TiLayoutView.h"
+#import "TiView.h"
 #import "TiLabel.h"
 #import "TiToolbar.h"
 #import "TiSwitch.h"
@@ -21,9 +21,9 @@ while(!DONE) { \
 }
 
 
-static TiLayoutView* createWindow(TiLayoutView* parent)
+static TiView* createWindow(TiView* parent)
 {
-    TiLayoutView* window = [[TiLayoutView alloc] init];
+    TiView* window = [[TiView alloc] init];
     [window setWidth_:@320];
     [window setHeight_:@480];
     [window setBackgroundColor:[UIColor whiteColor]];
@@ -34,7 +34,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 
 @interface layoutTests : XCTestCase
 {
-    TiLayoutView* myView;
+    TiView* myView;
 }
 @end
 
@@ -43,7 +43,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)setUp {
     [super setUp];
     ViewController* controller = (ViewController*)[[[UIApplication sharedApplication] keyWindow] rootViewController];
-    myView = [[TiLayoutView alloc] init];
+    myView = [[TiView alloc] init];
     [[controller view] addSubview:myView];
     [myView setLayout:@"absolute"];
 }
@@ -56,7 +56,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 -(void)test_AbsoluteLayout_SimpleWidthAndHeight
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     
     [view setBackgroundColor:[UIColor redColor]];
     [view setViewName:@"test view"];
@@ -79,7 +79,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)test_AbsoluteLayout_LeftPropery
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor redColor]];
     [view setViewName:@"test view"];
     
@@ -100,7 +100,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)test_AbsoluteLayout_RightPropery
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor redColor]];
     [view setViewName:@"test view"];
     [view setRight_:@"20"];
@@ -120,7 +120,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)test_AbsoluteLayout_TopPropery
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor redColor]];
     [view setViewName:@"test view"];
     [view setTop_:@"20"];
@@ -139,7 +139,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 - (void)test_AbsoluteLayout_BottomPropery
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor redColor]];
     [view setViewName:@"test view"];
     [view setBottom_:@"20"];
@@ -159,9 +159,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setViewName:@"test_view"];
     [view setBackgroundColor:[UIColor redColor]];
     
@@ -184,9 +184,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setViewName:@"test_view"];
     [view setBackgroundColor:[UIColor redColor]];
     
@@ -209,9 +209,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setViewName:@"test_view"];
     [view setBackgroundColor:[UIColor redColor]];
     
@@ -234,9 +234,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setViewName:@"test_view"];
     [view setBackgroundColor:[UIColor redColor]];
     
@@ -259,9 +259,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setViewName:@"test_view"];
     [view setBackgroundColor:[UIColor redColor]];
     
@@ -291,7 +291,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 -(void)test_AbsoluteLayout_PercentageSize
 {
     __block BOOL done = NO;
-    TiLayoutView *view = [[TiLayoutView alloc] init];
+    TiView *view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor brownColor]];
     [view setWidth_:@"50%"];
     [view setHeight_:@"50%"];
@@ -310,12 +310,12 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 -(void)test_AbsoluteLayout_PercentageMarginLeftTop
 {
     __block BOOL done = NO;
-    TiLayoutView* superview = [[TiLayoutView alloc] init];
+    TiView* superview = [[TiView alloc] init];
     [superview setViewName:@"superview"];
     [superview setWidth_:@"550"];
     [superview setHeight_:@"550"];
     
-    TiLayoutView *view = [[TiLayoutView alloc] init];
+    TiView *view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor brownColor]];
     [view setWidth_:@"50"];
     [view setHeight_:@"50"];
@@ -324,7 +324,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [view setViewName:@"test view"];
     [view setOnLayout: ^(TiLayoutView* sender, CGRect rect)
      {
-         TiLayoutView* superview = (TiLayoutView*)[sender superview];
+         TiView* superview = (TiView*)[sender superview];
          
          CGFloat top = superview.frame.size.height * 0.10;
          CGFloat left = superview.frame.size.width * 0.10;
@@ -344,11 +344,11 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* superview = [[TiLayoutView alloc] init];
+    TiView* superview = [[TiView alloc] init];
     [superview setWidth_:@"500"];
     [superview setHeight_:@"500"];
     
-    TiLayoutView *view = [[TiLayoutView alloc] init];
+    TiView *view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor brownColor]];
     [view setWidth_:@"50"];
     [view setHeight_:@"50"];
@@ -357,7 +357,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [view setViewName:@"test view"];
     [view setOnLayout: ^(TiLayoutView* sender, CGRect rect)
      {
-         TiLayoutView* superview = (TiLayoutView*)[sender superview];
+         TiView* superview = (TiView*)[sender superview];
          
          CGFloat top = superview.frame.size.height - (superview.frame.size.height * 0.20) - rect.size.height;
          CGFloat left = superview.frame.size.width - (superview.frame.size.width * 0.20) - rect.size.width;
@@ -377,11 +377,11 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView* superview = [[TiLayoutView alloc] init];
+    TiView* superview = [[TiView alloc] init];
     [superview setWidth_:@"500"];
     [superview setHeight_:@"500"];
     
-    TiLayoutView *view = [[TiLayoutView alloc] init];
+    TiView *view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor brownColor]];
     [view setLeft_:@"10%"];
     [view setRight_:@"20%"];
@@ -394,7 +394,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
          // Workaround!
          //         if (rect.origin.x < 0 || rect.origin.y < 0) return;
          
-         TiLayoutView* superview = (TiLayoutView*)[sender superview];
+         TiView* superview = (TiView*)[sender superview];
          
          CGFloat top = superview.frame.size.height * 0.30;
          CGFloat left = superview.frame.size.width * 0.10;
@@ -418,7 +418,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 {
     __block BOOL done = NO;
     
-    TiLayoutView *view = [[TiLayoutView alloc] init];
+    TiView *view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor brownColor]];
     [view setLeft_:@"10"];
     [view setRight_:@"20"];
@@ -429,7 +429,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [view setOnLayout: ^(TiLayoutView* sender, CGRect rect)
      {
          
-         TiLayoutView* superview = (TiLayoutView*)[sender superview];
+         TiView* superview = (TiView*)[sender superview];
          
          CGFloat top = 30;
          CGFloat left = 10;
@@ -452,11 +452,11 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
 -(void)test_VerticalLayoutOneComponent
 {
     __block BOOL done = NO;
-    TiLayoutView* view = [[TiLayoutView alloc] init];
+    TiView* view = [[TiView alloc] init];
     [view setBackgroundColor:[UIColor darkGrayColor]];
     [view setViewName:@"view"];
     
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     [window setLayout_:@"vertical"];
     [window addSubview:view];
     
@@ -484,10 +484,9 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [label setBackgroundColor:[UIColor redColor]];
     [label setViewName:@"label"];
     
-    TiLayoutView* otherView = [[TiLayoutView alloc] init];
+    TiView* otherView = [[TiView alloc] init];
     [otherView setBackgroundColor:[UIColor darkGrayColor]];
     [otherView setViewName:@"otherView"];
-    
     
     [label setOnLayout:^(TiLayoutView *sender, CGRect rect) {
         XCTAssertEqualWithAccuracy(rect.origin.x, 10, 2);
@@ -504,7 +503,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
         done2 = YES;
     }];
 
-    TiLayoutView* window = createWindow(myView);
+    TiView* window = createWindow(myView);
     [window setLayout_:@"vertical"];
     [window addSubview:label];
     [window addSubview:otherView];
@@ -534,25 +533,25 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     __block BOOL doneSmall = NO;
     __block BOOL doneBlue = NO;
     
-    TiLayoutView* window = [[TiLayoutView alloc] init];
+    TiView* window = [[TiView alloc] init];
     [window setViewName:@"window"];
     [window setWidth_:@320];
     [window setHeight_:@480];
     [window setLayout_:@"vertical"];
     [window setBackgroundColor:[UIColor lightGrayColor]];
     
-    TiLayoutView* redView = [[TiLayoutView alloc] init];
+    TiView* redView = [[TiView alloc] init];
     [redView setViewName:@"red"];
     [redView setBackgroundColor:[UIColor redColor]];
     [redView setHeight_:@100];
     
-    TiLayoutView* sized = [[TiLayoutView alloc] init];
+    TiView* sized = [[TiView alloc] init];
     [sized setViewName:@"size"];
     [sized setHeight_:@"SIZE"];
     [sized setTop_:@10];
     [sized setBackgroundColor:[UIColor lightGrayColor]];
     {
-        TiLayoutView* small = [[TiLayoutView alloc] init];
+        TiView* small = [[TiView alloc] init];
         [small setViewName:@"size"];
         [small setHeight_:@20];
         [small setWidth_:@20];
@@ -568,7 +567,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
             doneSmall = YES;
         }];
     }
-    TiLayoutView* blueView = [[TiLayoutView alloc] init];
+    TiView* blueView = [[TiView alloc] init];
     [blueView setTop_:@10];
     [blueView setViewName:@"blue"];
     [blueView setBackgroundColor:[UIColor blueColor]];
@@ -620,7 +619,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     __block BOOL doneLabel2 = NO;
     __block BOOL doneLabel3 = NO;
     
-    TiLayoutView* window = [[TiLayoutView alloc] init];
+    TiView* window = [[TiView alloc] init];
     [window setViewName:@"window"];
     [window setWidth_:@320];
     [window setHeight_:@480];
@@ -696,7 +695,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     
     NSNumber* bigger = @300;
     for (int i = 0; i < 5; i++) {
-        TiLayoutView* view = [[TiLayoutView alloc] init];
+        TiView* view = [[TiView alloc] init];
         [view setBackgroundColor:[UIColor blueColor]];
         if (i == 2) {
             [view setHeight_:bigger];
@@ -731,7 +730,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     NSNumber* top = @10;
     NSNumber* bottom = @5;
     for (int i = 0; i < 5; i++) {
-        TiLayoutView* view = [[TiLayoutView alloc] init];
+        TiView* view = [[TiView alloc] init];
         [view setBackgroundColor:[UIColor blueColor]];
         if (i == 2) {
             [view setHeight_:bigger];
@@ -781,8 +780,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [toggle1 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
         XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
         XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
-        
-        XCTAssertEqualWithAccuracy(rect.origin.x, 16, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.x, 20, 1);
         XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
         
         done1 = YES;
@@ -790,8 +788,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [toggle2 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
         XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
         XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
-        
-        XCTAssertEqualWithAccuracy(rect.origin.x, 75, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.x, 79, 1);
         XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
         
         done2 = YES;
@@ -799,8 +796,7 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [toggle3 setOnLayout:^(TiLayoutView *sender, CGRect rect) {
         XCTAssertEqualWithAccuracy(rect.size.width, 49, 0);
         XCTAssertEqualWithAccuracy(rect.size.height, 31, 0);
-        
-        XCTAssertEqualWithAccuracy(rect.origin.x, 134, 1);
+        XCTAssertEqualWithAccuracy(rect.origin.x, 138, 1);
         XCTAssertEqualWithAccuracy(rect.origin.y, 6.5, 1);
         
         done3 = YES;
@@ -809,6 +805,111 @@ static TiLayoutView* createWindow(TiLayoutView* parent)
     [toolbar setItems:@[toggle1,toggle2,toggle3]];
 
     WAIT_FOR( (done1 && done2 && done3) );
+}
 
+-(void)test_CalculateHeight_AbsoluteLayout_BeforeAddingToSuperview
+{
+    __block BOOL done = NO;
+    // Parent
+    TiLayoutView* parentView = [[TiLayoutView alloc] init];
+    [parentView setWidth:@300];
+    [parentView setHeight:@500];
+    [parentView setBackgroundColor:[UIColor lightGrayColor]];
+    
+    // Test begins
+    TiLayoutView* view = [[TiLayoutView alloc] init];
+    [view setWidth:@"SIZE"];
+    [view setHeight:@"SIZE"];
+    [view setBackgroundColor:[UIColor redColor]];
+    
+    TiLabel* label = [[TiLabel alloc] init];
+    [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham"];
+    
+    [view addSubview:label];
+    CGFloat calculatedHeight = [view heightIfWidthWere:300];
+    
+    [view setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        CGFloat realHeight = rect.size.height;
+        
+        XCTAssertEqual(realHeight, calculatedHeight);
+        XCTAssertEqual(realHeight, 101.500000);
+        done = YES;
+    }];
+    
+    [parentView addSubview:view];
+    [myView addSubview:parentView];
+    WAIT_FOR(done);
+    
+}
+
+-(void)test_CalculateHeight_AbsoluteLayout_AfterAddingToSuperview
+{
+    __block BOOL done = NO;
+    // Parent
+    TiLayoutView* parentView = [[TiLayoutView alloc] init];
+    [parentView setWidth:@300];
+    [parentView setHeight:@500];
+    [parentView setBackgroundColor:[UIColor lightGrayColor]];
+    
+    // Test begins
+    TiLayoutView* view = [[TiLayoutView alloc] init];
+    [view setWidth:@"SIZE"];
+    [view setHeight:@"SIZE"];
+    [view setBackgroundColor:[UIColor redColor]];
+    
+    TiLabel* label = [[TiLabel alloc] init];
+    [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham"];
+    
+    [view addSubview:label];
+    
+    [parentView addSubview:view];
+    [myView addSubview:parentView];
+
+    CGFloat calculatedHeight = [view heightIfWidthWere:300];
+    
+    [view setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        CGFloat realHeight = rect.size.height;
+        XCTAssertEqual(realHeight, calculatedHeight);
+        XCTAssertEqual(realHeight, 101.500000);
+        done = YES;
+    }];
+    
+    WAIT_FOR(done);
+}
+
+-(void)test_CalculateHeight_VerticalLayout
+{
+    __block BOOL done = NO;
+    TiLayoutView* parentView = [[TiLayoutView alloc] init];
+    [parentView setWidth:@300];
+    [parentView setHeight:@"SIZE"];
+    [parentView setLayout_:@"vertical"];
+    [parentView setBackgroundColor:[UIColor lightGrayColor]];
+    
+    TiLayoutView* view = [[TiLayoutView alloc] init];
+    [view setWidth:@"100"];
+    [view setHeight:@"100"];
+    [view setViewName:@"this_view"];
+    [view setBackgroundColor:[UIColor redColor]];
+    
+    TiLabel* label = [[TiLabel alloc] init];
+    [label setText:@"Bacon ipsum dolor amet jowl boudin prosciutto capicola, tail ribeye flank. Pork belly chicken meatloaf picanha chuck frankfurter pig filet mignon jowl ham"];
+    
+    [parentView addSubview:view];
+    [parentView addSubview:label];
+    
+    
+    CGFloat calculatedHeight = [parentView heightIfWidthWere:300];
+    
+    [parentView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+        CGFloat realHeight = rect.size.height;
+        XCTAssertEqual(realHeight, calculatedHeight);
+        XCTAssertEqual(realHeight, 201.500000);
+        done = YES;
+    }];
+
+    [myView addSubview:parentView];
+    
+    WAIT_FOR(done);
 }
 @end

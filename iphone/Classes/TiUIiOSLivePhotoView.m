@@ -5,12 +5,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoView.h"
 #import "TiUIiOSLivePhotoViewProxy.h"
 
 @implementation TiUIiOSLivePhotoView
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
 
 - (TiUIiOSLivePhotoViewProxy *)livePhotoViewProxy
 {
@@ -167,5 +175,4 @@
 }
 
 @end
-#endif
 #endif

@@ -13,6 +13,15 @@
 
 @implementation TiUISlider
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	[sliderView removeTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];

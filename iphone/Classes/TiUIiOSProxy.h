@@ -246,6 +246,7 @@
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args;
+#endif
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 -(id)createSnapBehavior:(id)args;
 #endif
@@ -281,12 +282,8 @@
 #ifdef USE_TI_UIIOSBLURVIEW
 -(id)createBlurView:(id)args;
 #endif
-#endif
-
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
 #endif
-#endif
-@end
 
+@end

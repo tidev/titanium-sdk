@@ -41,6 +41,15 @@ function getSDKInstallDir(next) {
 	});
 }
 
+function clearPreviousApp(next) {
+	var projectDir = path.join(__dirname, 'testApp');
+	// If the project already exists, wipe it
+	if (fs.existsSync(projectDir)) {
+		wrench.rmdirSyncRecursive(projectDir);
+	}
+	next();
+}
+
 function sconsSDK(next) {
 	var out = JSON.parse(fs.readFileSync('./package.json','utf8')),
 		versionTag,
@@ -92,10 +101,6 @@ function installSDK(next) {
 function generateProject(next) {
 	var projectDir = path.join(__dirname, 'testApp'),
 		prc;
-	// If the project already exists, wipe it
-	if (fs.existsSync(projectDir)) {
-		wrench.rmdirSyncRecursive(projectDir);
-	}
 	prc = spawn('titanium', ['create', '--force', '--type', 'app', '--platforms', 'android,ios', '--name', 'testApp', '--id', 'com.appcelerator.testApp.testing', '--url', 'http://www.appcelerator.com', '--workspace-dir', __dirname, '--no-prompt']);
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
@@ -408,21 +413,24 @@ function test(callback) {
 				getSDKInstallDir(next);
 			},
 			function (next) {
+				clearPreviousApp(next);
+			},
+			function (next) {
 				console.log("Scons SDK");
 				sconsSDK(next);
 			},
 			function (next) {
 				console.log("Install SDK");
 				installSDK(next);
-			},
-			function (next) {
-				console.log("Kill iOS simulator");
-				killiOSSimulator(next);
-			},
-			function (next) {
-				console.log("Kill Android simulator");
-				killAndroidSimulator(next);
-			},
+			},		
+//			function (next) {
+//				console.log("Kill iOS simulator");
+//				killiOSSimulator(next);
+//			},
+//			function (next) {
+//				console.log("Kill Android simulator");
+//				killAndroidSimulator(next);
+//			},
 			function (next) {
 				console.log("Generating project");
 				generateProject(next);
@@ -477,16 +485,18 @@ if (module.id === ".") {
 			buildStatus = 0;
 		if (err) {
 			console.error(err.toString().red);
-			async.series([
-				function(next) {
-					cleanUp(next);
-				}],
-				function (err) {
-					if (err) {
-						console.error(err.toString().red);
+			if (runningOnSGJenkins) {
+				async.series([
+					function(next) {
+						cleanUp(next);
+					}],
+					function (err) {
+						if (err) {
+							console.error(err.toString().red);
+						}
 					}
-				}
-			);
+				);
+			}
 			process.exit(1);
 		} else {
 			if (typeof finalResults.iosResults !== 'undefined' && finalResults.iosResults){
@@ -533,16 +543,18 @@ if (module.id === ".") {
 			//need something here to put the failed tests and the health somewhere visible outside of travis
 			if(androidFailedTestsCount + iosFailedTestsCount > maxFailedTestCount) {
 				console.log('\n%d unit tests failed.', androidFailedTestsCount + iosFailedTestsCount);
-				async.series([
-					function(next) {
-						cleanUp(next);
-					}],
-					function (err) {
-						if (err) {
-							console.error(err.toString().red);
+				if (runningOnSGJenkins) {
+					async.series([
+						function(next) {
+							cleanUp(next);
+						}],
+						function (err) {
+							if (err) {
+								console.error(err.toString().red);
+							}
 						}
-					}
-				);
+					);
+				}
 				process.exit(1);
 			}
 			console.log('\n--------------Calculating coverage--------------------');
@@ -556,6 +568,25 @@ if (module.id === ".") {
 				function (err) {
 					if (err) {
 						console.error(err.toString().red);
+						if (runningOnSGJenkins) {
+							async.series([
+								function(next) {
+									cleanUp(next);
+								}], 
+								function (err) {
+									if (err) {
+										console.error(err.toString().red);
+									}
+								}
+							);
+						}
+						process.exit(1);
+					}
+					//var apiCoverage = totalAPITest/totalAPI*100;
+					//console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
+					console.log('API Coverage: %d', totalAPITest);
+					//send coverage info to server
+					if (runningOnSGJenkins) {
 						async.series([
 							function(next) {
 								cleanUp(next);
@@ -563,26 +594,11 @@ if (module.id === ".") {
 							function (err) {
 								if (err) {
 									console.error(err.toString().red);
+									process.exit(1);
 								}
 							}
 						);
-						process.exit(1);
-					}
-					//var apiCoverage = totalAPITest/totalAPI*100;
-					//console.log('API Coverage: %d / %d', totalAPITest, totalAPI);
-					console.log('API Coverage: %d', totalAPITest);
-					//send coverage info to server
-					async.series([
-						function(next) {
-							cleanUp(next);
-						}], 
-						function (err) {
-							if (err) {
-								console.error(err.toString().red);
-								process.exit(1);
-							}
-						}
-					);					
+					}					
 					process.exit(0);
 				}
 			);

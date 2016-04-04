@@ -162,7 +162,7 @@ properties:
     description: Use this property if you want to display a custom cancel title.
     type: String
     default: System-localized "Cancel"
-    since: "6.0.0"
+    since: "5.4.0"
     platforms: [iphone,ipad]
 
   - name: hintText

@@ -882,7 +882,7 @@ NSArray* moviePlayerKeys = nil;
 		if (value==nil)
 		{
 			UIImage *image = [userinfo valueForKey:MPMoviePlayerThumbnailImageKey];
-			TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+			TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 			[event setObject:blob forKey:@"image"];
 		}
 		[event setObject:[userinfo valueForKey:MPMoviePlayerThumbnailTimeKey] forKey:@"time"];

@@ -16,8 +16,12 @@
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
 
+@interface TiUIImageViewProxy ()
+@property (nonatomic, copy) NSString* loadEventState;
+@end
+
 @implementation TiUIImageViewProxy
-@synthesize imageURL;
+@synthesize imageURL, loadEventState;
 
 static NSArray* imageKeySequence;
 
@@ -47,10 +51,33 @@ static NSArray* imageKeySequence;
         [self willChangeSize];
     }
 #endif
+	
     if ([self _hasListeners:@"load"]) {
         NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
         [self fireEvent:@"load" withObject:event];
     }
+#ifdef TI_USE_KROLL_THREAD
+    else {
+        // Why do we do this?
+        // When running on kroll thread this is being called before the events are added.
+        // So we try to propagate this after the load event is added.
+        // TIMOB-20204
+        RELEASE_TO_NIL(self.loadEventState);
+        [self setLoadEventState:stateString];
+        [self setModelDelegate:self];
+    }
+#endif
+}
+
+-(void)listenerAdded:(NSString*)type count:(int)count {
+    if ([self _hasListeners:@"load"]) {
+        [self setModelDelegate:nil];
+        [self fireEvent:@"load" withObject:@{@"state": [self loadEventState]}];
+    }
+}
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy {
+    // left blank intentionally.
 }
 
 -(void)_configure
@@ -126,7 +153,8 @@ static NSArray* imageKeySequence;
     [self replaceValue:nil forKey:@"image" notification:NO];
     
     RELEASE_TO_NIL(imageURL);
-	[super dealloc];
+    RELEASE_TO_NIL(loadEventState);
+    [super dealloc];
 }
 
 -(id)toBlob:(id)args
@@ -151,13 +179,13 @@ static NSArray* imageKeySequence;
 		
 		if (image!=nil)
 		{
-			return [[[TiBlob alloc] initWithImage:image] autorelease];
+			return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 		}
 
 		// we're on the non-UI thread, we need to block to load
 
 		image = [[ImageLoader sharedLoader] loadRemote:url_];
-		return [[[TiBlob alloc] initWithImage:image] autorelease];
+		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 	}
 	return nil;
 }
@@ -235,6 +263,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -243,6 +272,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 @end
 

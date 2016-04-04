@@ -7,7 +7,7 @@
 var should = require('./should');
 
 describe("Titanium.UI.AttributedString", function() {
-    it("attributedString", function(finish) {
+    ("android" === Ti.Platform.osname ? it.skip : it)("attributedStringLinkTest", function(finish) {    
         var win = Titanium.UI.createWindow({
             backgroundColor: '#ddd',
         });

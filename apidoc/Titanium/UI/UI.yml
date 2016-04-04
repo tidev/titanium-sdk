@@ -1469,6 +1469,8 @@ properties:
     summary: Use a keyboard appearance suitable for entering text on an alert.
     type: Number
     permission: read-only
+    deprecated:
+        since: "5.4.0"
     platforms: [iphone, ipad]
 
   - name: KEYBOARD_APPEARANCE_DEFAULT

@@ -79,7 +79,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
-	private static OrientationEventListener orientationListener;
+	private OrientationEventListener orientationListener;
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -812,8 +812,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		TiWindowProxy topWindow = topWindowOnStack();
 
+		// Prevent default Android behavior for "back" press
+		// if the top window has a listener to handle the event.
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+		// TIMOB-19919 This code is being commented out/reverted till after 6.0.0
+		// As this is a breaking change.
+		/*
 		}
 		
 		// Override default Android behavior for "back" press
@@ -821,9 +826,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-			
+		*/
 		} else {
-			// If event is not handled by custom callback allow default behavior.
+		    // Original Comment: If event is not handled by any listeners allow default behavior.
+			// TIMOB-19919 Comment: If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
 		}
 	}
@@ -1038,7 +1044,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			if (orientationChangedListener != null && previousOrientation != currentOrientation) {
 				previousOrientation = currentOrientation;
 				orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
-			}	
+			}
 		}
 	}
 

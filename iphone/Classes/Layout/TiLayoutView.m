@@ -23,8 +23,10 @@ _Pragma("clang diagnostic pop") \
 #define IS_AUTOFILL TiDimensionIsAutoFill
 #define IS_DIP TiDimensionIsDip
 #define IS_UNDEFINED TiDimensionIsUndefined
-
 #define TI_VIEWS(...) NSDictionaryOfVariableBindings(__VA_ARGS__)
+
+#define ARGS_NOT_NULL (args != nil && ![args isKindOfClass:[NSNull class]])
+
 static inline NSString* TI_CONSTRAINT_STRING(NSLayoutConstraint* constraint)
 {
     return  [NSString stringWithFormat:@"<%p-%p-%li-%li-%li>",
@@ -180,11 +182,13 @@ DEFINE_EXCEPTIONS
 {
     if (_initialized) return;
     _initialized = YES;
+    [self setViewName_:NSStringFromClass([self class])];
     [self setClipsToBounds:YES];
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self setAutoresizingMask:UIViewAutoresizingNone];
     [self setHorizontalWrap:YES];
-    [self setDefaultHeight:TiDimensionAutoFill];
-    [self setDefaultWidth:TiDimensionAutoFill];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
     [self.layer addObserver:self forKeyPath:@"position" options:0 context:NULL];
     [self.layer addObserver:self forKeyPath:@"bounds" options:0 context:NULL];
 }
@@ -195,9 +199,10 @@ DEFINE_EXCEPTIONS
     dispatch_async(dispatch_get_main_queue(), ^{
         
         CGRect newRect = self.frame;
-        
         if (_isInToolbar && self.translatesAutoresizingMaskIntoConstraints == NO)
         {
+            [self setNeedsLayout];
+            [self layoutIfNeeded];
             [self setTranslatesAutoresizingMaskIntoConstraints:YES];
             [[self superview] setNeedsLayout];
             [[self superview] layoutIfNeeded];
@@ -206,8 +211,8 @@ DEFINE_EXCEPTIONS
         }
         if (_isToolbar)
         {
-//            [_innerView setNeedsLayout];
-//            [_innerView layoutIfNeeded];
+            [super setNeedsLayout];
+            [super layoutIfNeeded];
         }
         if (!CGRectEqualToRect(newRect, _oldRect))
         {
@@ -335,7 +340,7 @@ DEFINE_EXCEPTIONS
 -(void)setLeft_:(id)args
 {
     _tiLayoutConstraint.left = TiDimensionFromObject(args);
-    _tiLayoutConstraint.left_isSet = YES;
+    _tiLayoutConstraint.left_isSet = ARGS_NOT_NULL;
     _isLeftPercentage = IS_PERCENT(_tiLayoutConstraint.left);
     if (_isLeftPercentage && _leftPercentage != _tiLayoutConstraint.left.value) {
         _leftPercentage = _tiLayoutConstraint.left.value;
@@ -345,7 +350,7 @@ DEFINE_EXCEPTIONS
 -(void)setRight_:(id)args
 {
     _tiLayoutConstraint.right = TiDimensionFromObject(args);
-    _tiLayoutConstraint.right_isSet = YES;
+    _tiLayoutConstraint.right_isSet = ARGS_NOT_NULL;
     _isRightPercentage = IS_PERCENT(_tiLayoutConstraint.right);
     if (_isRightPercentage && _rightPercentage != _tiLayoutConstraint.right.value) {
         _rightPercentage = _tiLayoutConstraint.right.value;
@@ -355,7 +360,7 @@ DEFINE_EXCEPTIONS
 -(void)setTop_:(id)args
 {
     _tiLayoutConstraint.top = TiDimensionFromObject(args);
-    _tiLayoutConstraint.top_isSet = YES;
+    _tiLayoutConstraint.top_isSet = ARGS_NOT_NULL;
     _isTopPercentage = IS_PERCENT(_tiLayoutConstraint.top);
     if (_isTopPercentage && _topPercentage != _tiLayoutConstraint.top.value) {
         _topPercentage = _tiLayoutConstraint.top.value;
@@ -365,7 +370,7 @@ DEFINE_EXCEPTIONS
 -(void)setBottom_:(id)args
 {
     _tiLayoutConstraint.bottom = TiDimensionFromObject(args);
-    _tiLayoutConstraint.bottom_isSet = YES;
+    _tiLayoutConstraint.bottom_isSet = ARGS_NOT_NULL;
    _isBottomPercentage = IS_PERCENT(_tiLayoutConstraint.bottom);
     if (_isBottomPercentage && _bottomPercentage != _tiLayoutConstraint.bottom.value) {
         _bottomPercentage = _tiLayoutConstraint.bottom.value;
@@ -380,7 +385,7 @@ DEFINE_EXCEPTIONS
     } else {
         _tiLayoutConstraint.width = TiDimensionFromObject(args);
     }
-    _tiLayoutConstraint.width_isSet = YES;
+    _tiLayoutConstraint.width_isSet = ARGS_NOT_NULL;
     [self updateWidthAndHeight];
     [self updateMargins];
     [self setNeedsLayout];
@@ -394,7 +399,7 @@ DEFINE_EXCEPTIONS
     } else {
         _tiLayoutConstraint.height = TiDimensionFromObject(args);
     }
-    _tiLayoutConstraint.height_isSet = YES;
+    _tiLayoutConstraint.height_isSet = ARGS_NOT_NULL;
     [self updateWidthAndHeight];
     [self updateMargins];
     [self setNeedsLayout];
@@ -405,8 +410,8 @@ DEFINE_EXCEPTIONS
     ENSURE_SINGLE_ARG(args, NSDictionary)
     _tiLayoutConstraint.centerX = TiDimensionFromObject([args valueForKey:@"x"]);
     _tiLayoutConstraint.centerY = TiDimensionFromObject([args valueForKey:@"y"]);
-    _tiLayoutConstraint.centerX_isSet = YES;
-    _tiLayoutConstraint.centerY_isSet = YES;
+    _tiLayoutConstraint.centerX_isSet = !IS_UNDEFINED(_tiLayoutConstraint.centerX);
+    _tiLayoutConstraint.centerY_isSet = !IS_UNDEFINED(_tiLayoutConstraint.centerY);
     [self updateMargins];
 
 }
@@ -434,6 +439,47 @@ DEFINE_EXCEPTIONS
             }
         }
     } completion:callback];
+}
+
+-(CGFloat)heightIfWidthWere:(CGFloat)width
+{
+    if (_tiLayoutConstraint.height_isSet && IS_DIP(_tiLayoutConstraint.height)){
+        return TiDimensionCalculateValue(_tiLayoutConstraint.height, 1);
+    }
+    UIView*parent = [self superview];
+    if (parent != nil) {
+        [self removeFromSuperview];
+    }
+    UIView *dummyView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, 0)];
+    [dummyView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    [dummyView addSubview:self];
+    
+    [[[[[UIApplication sharedApplication] keyWindow] rootViewController] view] addSubview:dummyView];
+
+    [self updateWidthAndHeight];
+    [self layoutChildren];
+
+    [dummyView layoutIfNeeded];
+    
+    CGSize size = [dummyView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    [dummyView removeFromSuperview];
+    dummyView = nil;
+
+    [self removeFromSuperview];
+
+    _loaded = NO;
+    if (parent != nil) {
+        [parent addSubview:self];
+        TiLayoutView* viewToUpdate = nil;
+        if ([parent isKindOfClass:[TiLayoutView class]]) {
+            viewToUpdate = (TiLayoutView*)parent;
+        } else {
+            viewToUpdate = self;
+        }
+        [viewToUpdate updateWidthAndHeight];
+        [viewToUpdate layoutChildren];
+    }
+    return size.height;
 }
 
 -(void)removeFromSuperview
@@ -520,15 +566,22 @@ DEFINE_EXCEPTIONS
 
 -(void)didMoveToSuperview
 {
+    if ([[self viewName] isEqualToString:@"this_view"]) {
+        NSLog(@"break here");
+    }
+
     UIView *superview = [self superview];
     if (superview != nil && !_loaded) {
         if ([superview isKindOfClass:[UIToolbar class]] || [superview isKindOfClass:[UINavigationBar class]]) {
             _isInToolbar = YES;
         }
-        
+        if ([[self subviews] count] && [[[self subviews] objectAtIndex:0] isKindOfClass:[UIToolbar class]]) {
+            _isToolbar = YES;
+        }
         for (UIView* v in [self subviews]) {
             if (![v isKindOfClass:[TiLayoutView class]]) {
                 [v setTranslatesAutoresizingMaskIntoConstraints:NO];
+                [v setAutoresizingMask:UIViewAutoresizingNone];
                 [self addConstraints:TI_CONSTR(@"V:|[v]|", TI_VIEWS(v))];
                 [self addConstraints:TI_CONSTR(@"H:|[v]|", TI_VIEWS(v))];
                 break;
@@ -539,6 +592,7 @@ DEFINE_EXCEPTIONS
         [self updateWidthAndHeight];
         [self layoutChildren];
     }
+
     [super didMoveToSuperview];
 }
 
@@ -571,9 +625,6 @@ DEFINE_EXCEPTIONS
 
 -(void)addConstraint:(nonnull NSLayoutConstraint *)constraint
 {
-    if ([[self viewName] isEqualToString:@"button"]) {
-        NSLog(@"break here");
-    }
     if (!_constraintsAdded) _constraintsAdded = [NSMutableDictionary dictionary];
     NSString* description = TI_CONSTRAINT_STRING(constraint);
     
@@ -590,9 +641,6 @@ DEFINE_EXCEPTIONS
 
 -(void)removeConstraint:(nonnull NSLayoutConstraint *)constraint
 {
-    if ([[self viewName] isEqualToString:@"button"]) {
-        NSLog(@"break here");
-    }
     if (!_constraintsAdded) _constraintsAdded = [NSMutableDictionary dictionary];
     NSString* description = TI_CONSTRAINT_STRING(constraint);
     NSLayoutConstraint* currentConstraint = [_constraintsAdded valueForKey:description];
@@ -609,8 +657,6 @@ DEFINE_EXCEPTIONS
     UIView* superview = [self superview];
     if (superview == nil) return;
     
-    
-    
     TiDimension width = _tiLayoutConstraint.width;
     TiDimension height = _tiLayoutConstraint.height;
     TiDimension left = _tiLayoutConstraint.left;
@@ -624,16 +670,15 @@ DEFINE_EXCEPTIONS
     BOOL rightSet = _tiLayoutConstraint.right_isSet;
     BOOL topSet = _tiLayoutConstraint.top_isSet;
     BOOL bottomSet = _tiLayoutConstraint.bottom_isSet;
-
-    
-    if ([[self viewName] isEqualToString:@"THIS_ONE"]){
-        NSLog(@"Break Here");
-    }
     
     NSDictionary* viewsDict = TI_VIEWS(self, superview);
     
     if (![superview isKindOfClass:[TiLayoutView class]] && ![self isInToolbar])
     {
+        
+        if ([self isKindOfClass:NSClassFromString(@"TiTableViewRow")]) {
+            NSLog(@"break here");
+        }
         if ([superview isKindOfClass:[UITableView class]]) {
             return;
         }
@@ -703,29 +748,29 @@ DEFINE_EXCEPTIONS
     }
     if (IS_DIP(width)) {
         CGFloat value = TiDimensionCalculateValue(width, 1);
-        [self addConstraints: TI_CONSTR(TI_STRING(@"H:[self(%f)]", value), viewsDict)];
+        [self addConstraints: TI_CONSTR(TI_STRING(@"H:[self(%f@750)]", value), viewsDict)];
     }
     
     if (IS_DIP(height)) {
         CGFloat value = TiDimensionCalculateValue(height, 1);
-        [self addConstraints: TI_CONSTR(TI_STRING(@"V:[self(%f)]", value), viewsDict)];
+        [self addConstraints: TI_CONSTR(TI_STRING(@"V:[self(%f@750)]", value), viewsDict)];
     }
-    
-    
     
     if (![self isInToolbar]) {
         if (IS_AUTOFILL(height) || (IS_UNDEFINED(height) && IS_AUTOFILL(_defaultHeight))) {
-            [superview addConstraints: TI_CONSTR(TI_STRING(@"V:[self(superview@25)]"), viewsDict)];
+            [superview addConstraints: TI_CONSTR(TI_STRING(@"V:[self(superview@500)]"), viewsDict)];
         }
         
         if (IS_AUTOFILL(width) || (IS_UNDEFINED(width) && IS_AUTOFILL(_defaultWidth))) {
-            [superview addConstraints: TI_CONSTR(TI_STRING(@"H:[self(superview@25)]"), viewsDict)];
+            [superview addConstraints: TI_CONSTR(TI_STRING(@"H:[self(superview@500)]"), viewsDict)];
         }
 
         if (IS_AUTOSIZE(width) || (IS_UNDEFINED(width) && IS_AUTOSIZE(_defaultWidth))) {
+            [self addConstraints: TI_CONSTR(TI_STRING(@"H:[self(0@20)]"), viewsDict)]; // should try to be 0 width with a very low priority
             [superview addConstraints: TI_CONSTR(TI_STRING(@"H:[self(<=superview)]"), viewsDict)];
         }
         if (IS_AUTOSIZE(height) || (IS_UNDEFINED(height) && IS_AUTOSIZE(_defaultHeight))) {
+            [self addConstraints: TI_CONSTR(TI_STRING(@"V:[self(0@20)]"), viewsDict)]; // should try to be 0 height with a very low priority
             [superview addConstraints: TI_CONSTR(TI_STRING(@"V:[self(<=superview)]"), viewsDict)];
         }
     }

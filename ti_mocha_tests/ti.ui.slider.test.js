@@ -8,7 +8,7 @@ var should = require('./should');
 
 describe("ui_slider", function() {
 	//TIMOB-9672
-	it("sliderInTableViewRow", function(finish) {
+	it.skip("sliderInTableViewRow", function(finish) {
 		var win1 = Titanium.UI.createWindow({
 			backgroundColor: "#FFFFFF"
 		});

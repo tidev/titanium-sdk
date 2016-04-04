@@ -500,10 +500,10 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     TiBlob *blob;
     if([[self response] saveToFile]) {
-        blob = [[TiBlob alloc] initWithFile:[[self response] filePath]];
+        blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[[self response] filePath]];
     } else {
         NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];
-        blob = [[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType];
+        blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andData:[[self response] responseData] mimetype:contentType];
     }
     return [blob autorelease];
 }

@@ -6,10 +6,8 @@
  */
 #import "TiProxy.h"
 
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 @interface TiUIiOSApplicationShortcutsProxy : TiProxy {}
 
 @end
-#endif
 #endif
