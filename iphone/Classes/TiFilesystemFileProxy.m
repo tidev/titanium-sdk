@@ -492,9 +492,9 @@ FILENOOP(setHidden:(id)x);
 {
     NSURL *URL = [NSURL fileURLWithPath: [self path]];
     NSError *error;
-    NSNumber *isExcluced;
+    NSNumber *isExcluded;
    
-    BOOL success = [URL getResourceValue:&isExcluced
+    BOOL success = [URL getResourceValue:&isExcluded
                                   forKey:NSURLIsExcludedFromBackupKey error:&error];
     if (!success) {
         // Doesn't matter what error is set to; this means that we're backing up.
@@ -502,18 +502,18 @@ FILENOOP(setHidden:(id)x);
     }
 
     // A value of @FALSE means backup, so:
-    return NUMBOOL([isExcluced isEqualToNumber:@YES] ? NO : YES);
+    return NUMBOOL([isExcluded isEqualToNumber:@YES] ? NO : YES);
 }
 
 -(void)setRemoteBackup:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
     
-    BOOL isExcluced = ![TiUtils boolValue:value def:YES];
+    BOOL isExcluded = ![TiUtils boolValue:value def:YES];
     NSURL *URL= [NSURL fileURLWithPath: [self path]];
     NSError *error;
     
-    BOOL success = [URL setResourceValue:NUMBOOL(isExcluced)
+    BOOL success = [URL setResourceValue:NUMBOOL(isExcluded)
                                   forKey:NSURLIsExcludedFromBackupKey error:&error];
     if (!success) {
         [self throwException:@"Error setting remote backup flag:"
