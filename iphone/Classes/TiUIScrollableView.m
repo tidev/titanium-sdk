@@ -283,15 +283,17 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 	if (showPageControl)
 	{
 		UIPageControl *pg = [self pagecontrol];
-#ifndef TI_USE_AUTOLAYOUT
+#ifdef TI_USE_AUTOLAYOUT
+		NSInteger currentPage = _currentPage;
+#else
 		[pg setFrame:[self pageControlRect]];
 #endif
-        [pg setNumberOfPages:[[self proxy] viewCount]];
-        [pg setBackgroundColor:pageControlBackgroundColor];
+		[pg setNumberOfPages:[[self proxy] viewCount]];
+		[pg setBackgroundColor:pageControlBackgroundColor];
 		pg.currentPage = currentPage;
-        pg.alpha = pagingControlAlpha;
-        pg.backgroundColor = pageControlBackgroundColor;
-	}	
+		pg.alpha = pagingControlAlpha;
+		pg.backgroundColor = pageControlBackgroundColor;
+	}
 }
 
 -(void)renderViewForIndex:(int)index
@@ -409,6 +411,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 {
 #ifdef TI_USE_AUTOLAYOUT
 	UIScrollView* scrollview = [self scrollview];
+	NSInteger currentPage = _currentPage;
 #endif
 	NSInteger result = currentPage;
     if (scrollview != nil) {
@@ -686,6 +689,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 {
 #ifdef TI_USE_AUTOLAYOUT
 	UIPageControl* pageControl = [self pagecontrol];
+	NSInteger currentPage = _currentPage;
 #endif
 	NSInteger page = [self currentPage];
 	NSUInteger pageCount = [[self proxy] viewCount];
@@ -709,6 +713,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #ifdef TI_USE_AUTOLAYOUT
     UIScrollView* scrollview = [self scrollview];
     UIPageControl* pageControl = [self pagecontrol];
+    NSInteger currentPage = _currentPage;
 #endif
     int newPage = [TiUtils intValue:page];
     NSUInteger viewsCount = [[self proxy] viewCount];
@@ -783,6 +788,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #ifdef TI_USE_AUTOLAYOUT
 	UIScrollView* scrollview = [self scrollview];
 	UIPageControl* pageControl = [self pagecontrol];
+	NSInteger currentPage = _currentPage;
 #endif
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
