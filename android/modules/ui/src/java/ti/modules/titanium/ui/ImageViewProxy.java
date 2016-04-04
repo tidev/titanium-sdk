@@ -93,6 +93,16 @@ public class ImageViewProxy extends ViewProxy
 		return getImageView().toBlob();
 	}
 
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
+	public void setTintColor(String color) {
+		getImageView().setTintColor(color);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getTintColor() {
+			return getImageView().getTintColor();
+	}
+	
 	@Override
 	public String getApiName()
 	{

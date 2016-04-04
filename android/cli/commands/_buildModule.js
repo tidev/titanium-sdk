@@ -178,7 +178,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 
 	appc.async.series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', this, next);
+			cli.emit('build.module.pre.construct', this, next);
 		},
 
 		'doAnalytics',
@@ -186,7 +186,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'loginfo',
 
 		function (next) {
-			cli.emit('build.pre.compile', this, next);
+			cli.emit('build.module.pre.compile', this, next);
 		},
 
 		'compileAidlFiles',
@@ -204,10 +204,10 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'runModule',
 
 		function (next) {
-			cli.emit('build.post.compile', this, next);
+			cli.emit('build.module.post.compile', this, next);
 		}
 	], function (err) {
-		cli.emit('build.finalize', this, function () {
+		cli.emit('build.module.finalize', this, function () {
 			finished(err);
 		});
 	});
@@ -1034,7 +1034,6 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 	var tasks = [
 
 		function (cb) {
-
 			fs.writeFileSync(
 				path.join(this.buildGenJniDir, 'Android.mk'),
 				ejs.render(fs.readFileSync(this.androidMkTemplateFile).toString(), {
@@ -1053,14 +1052,13 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 		},
 
 		function (cb) {
-
 			this.logger.info('Starting directory: ' + process.cwd());
 			try {
 				process.chdir(this.buildGenDir);
 				this.logger.info('New directory: ' + process.cwd());
 
 				appc.subprocess.run(
-					path.join(this.androidInfo.ndk.path, 'ndk-build'),
+					this.androidInfo.ndk.executables.ndkbuild,
 					[
 						'TI_MOBILE_SDK='+this.titaniumSdkPath,
 						'NDK_PROJECT_PATH='+this.buildGenDir,
@@ -1140,7 +1138,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 		this.logger.info('New directory: ' + process.cwd());
 
 		appc.subprocess.run(
-			path.join(this.androidInfo.ndk.path, 'ndk-build'),
+			this.androidInfo.ndk.executables.ndkbuild,
 			[
 				'TI_MOBILE_SDK='+this.titaniumSdkPath,
 				'NDK_PROJECT_PATH='+this.buildGenJniLocalDir,

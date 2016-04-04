@@ -164,7 +164,7 @@ static BOOL alertShowing = NO;
             if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"placeholder"]] ?: @"";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]] ?: @"";
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
@@ -174,13 +174,13 @@ static BOOL alertShowing = NO;
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginPlaceholder"]] ?: @"Login";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
                 }];
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordPlaceholder"]] ?: @"Password";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
                     textField.secureTextEntry = YES;
                 }];
             }
@@ -283,4 +283,21 @@ static BOOL alertShowing = NO;
     }
 }
 
+-(void)setPlaceholder:(id)value
+{
+    DEPRECATED_REPLACED(@"UI.AlertDialog.placeholder", @"5.4.0", @"UI.AlertDialog.hintText");
+    [self setValue:value forKey:@"hintText"];
+}
+
+-(void)setLoginPlaceholder:(id)value
+{
+    DEPRECATED_REPLACED(@"UI.AlertDialog.loginPlaceholder", @"5.4.0", @"UI.AlertDialog.loginHintText");
+    [self setValue:value forKey:@"loginHintText"];
+}
+
+-(void)setPasswordPlaceholder:(id)value
+{
+    DEPRECATED_REPLACED(@"UI.AlertDialog.passwordPlaceholder", @"5.4.0", @"UI.AlertDialog.passwordHintText");
+    [self setValue:value forKey:@"passwordHintText"];
+}
 @end

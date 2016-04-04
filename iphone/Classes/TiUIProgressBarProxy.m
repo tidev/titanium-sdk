@@ -22,15 +22,17 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(TiUIView*)newView
 {
-	id styleObj = [self valueForKey:@"style"];
-	UIProgressViewStyle style = styleObj == nil ? UIProgressViewStyleDefault : [TiUtils intValue:styleObj];
-	return [[TiUIProgressBar alloc] initWithStyle:style];
+    UIProgressViewStyle style = [TiUtils intValue:[self valueForUndefinedKey:@"style"] def:UIProgressViewStyleDefault];
+    CGFloat min = [TiUtils floatValue:[self valueForUndefinedKey:@"min"] def:0];
+    CGFloat max = [TiUtils floatValue:[self valueForUndefinedKey:@"max"] def:1];
+
+    return [[TiUIProgressBar alloc] initWithStyle:style andMinimumValue:min maximumValue:max];
 }
 
 #ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+    return TiDimensionAutoFill;
 }
 -(TiDimension)defaultAutoHeightBehavior:(id)unused
 {

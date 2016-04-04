@@ -85,12 +85,17 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 	series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', this, next);
+			cli.emit('build.module.pre.construct', this, next);
 		},
 
 		'doAnalytics',
 		'initialize',
 		'loginfo',
+
+		function (next) {
+			cli.emit('build.module.pre.compile', this, next);
+		},
+
 		'processLicense',
 		'processTiXcconfig',
 		'compileJS',
@@ -98,9 +103,13 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createUniBinary',
 		'verifyBuildArch',
 		'packageModule',
-		'runModule'
+		'runModule',
+
+		function (next) {
+			cli.emit('build.module.post.compile', this, next);
+		}
 	], function (err) {
-		cli.emit('build.finalize', this, function () {
+		cli.emit('build.module.finalize', this, function () {
 			finished(err);
 		});
 	});

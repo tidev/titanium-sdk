@@ -63,6 +63,12 @@ public class ViewItem {
 			diffProperties.put(TiC.PROPERTY_BACKGROUND_COLOR, this.properties.get(TiC.PROPERTY_BACKGROUND_COLOR));
 		}
 
+		//if text is null, we can't filter out attributedString, otherwise we get an empty label. [TIMOB-20266]
+		if (this.properties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING) && diffProperties.containsKey(TiC.PROPERTY_TEXT)
+				&& diffProperties.get(TiC.PROPERTY_TEXT) == null && !diffProperties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			diffProperties.put(TiC.PROPERTY_ATTRIBUTED_STRING, this.properties.get(TiC.PROPERTY_ATTRIBUTED_STRING));
+		}
+
 		return diffProperties;
 		
 	}
