@@ -1375,11 +1375,10 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-- (void)processKeyPressed:(id)key
+- (void)processKeyPressed:(NSString*)key
 {
-    if ([self.proxy _hasListeners:@"keyPressed"]) {
-        NSDictionary *evt = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:key],@"keyCode", nil];
-        [self.proxy fireEvent:@"keyPressed" withObject:evt];
+    if ([self.proxy _hasListeners:@"keypressed"]) {
+        [self.proxy fireEvent:@"keypressed" withObject:@{@"keyCode": key}];
     }
 }
 
