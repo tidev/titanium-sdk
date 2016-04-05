@@ -732,7 +732,6 @@ static NSDictionary* iOS9propertyKeys;
 		//For single string properties
 		if ([value isKindOfClass:[NSString class]]) {
 			[person setValue:value forKey:property];
-			return;
 		}
 		
 		else if ([key isEqualToString:@"kind"]) {
