@@ -126,7 +126,7 @@
 		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
 	}
 	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
