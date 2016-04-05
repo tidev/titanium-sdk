@@ -181,14 +181,14 @@ properties:
     type: Number
     deprecated:
         since: "5.4.0"
-        notes: Use [Ti.UI.iOS.appBadge](Ti.UI.iOS.appBadge) instead.
+        notes: Use <a href = "#!/api/Titanium.UI.iOS-property-appBadge">Titanium.UI.iOS.appBadge</a> instead.
 
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
     type: Boolean
     deprecated:
         since: "5.4.0"
-        notes: Use [Titanium.UI.iOS.appSupportsShakeToEdit](Titanium.UI.iOS.appSupportsShakeToEdit) instead.
+        notes: Use <a href = "#!/api/Titanium.UI.iOS-property-appSupportsShakeToEdit">Titanium.UI.iOS.appSupportsShakeToEdit</a> instead instead.
 
   - name: statusBarHidden
     summary: Determines whether the status bar is hidden.
