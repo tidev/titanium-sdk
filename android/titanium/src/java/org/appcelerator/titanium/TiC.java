@@ -707,11 +707,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_ADD = "add";
 
 	/**
@@ -1736,6 +1731,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LINES = "lines";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 
 	/**
 	 * @module.api
