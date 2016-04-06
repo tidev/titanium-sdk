@@ -667,6 +667,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ADD = "add";
+    
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ADDRESS = "address";
 
 	/**
@@ -1925,6 +1930,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MOTHER = "mother";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MULTIPLY = "multiply";
+    
 	/**
 	 * @module.api
 	 */
