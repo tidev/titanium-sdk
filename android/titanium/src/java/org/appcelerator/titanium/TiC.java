@@ -1725,6 +1725,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 
 	/**
