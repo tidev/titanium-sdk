@@ -20,6 +20,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.support.v7.widget.AppCompatButton;
@@ -118,6 +119,10 @@ public class TiUIButton extends TiUIView
 			needShadow = true;
 			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
 		}
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
+			//setTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+			btn.getBackground().setColorFilter( TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR) , Mode.MULTIPLY);
+		}
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
@@ -167,6 +172,8 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)) , Mode.MULTIPLY);						
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
