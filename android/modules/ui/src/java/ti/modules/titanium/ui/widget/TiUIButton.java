@@ -120,7 +120,6 @@ public class TiUIButton extends TiUIView
 			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
-			//setTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
 			Object color = d.get(TiC.PROPERTY_TINT_COLOR);
 			if (color == null) {
 				btn.getBackground().clearColorFilter();
