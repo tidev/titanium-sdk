@@ -1690,6 +1690,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						minVer = '9.0';
 					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
 						minVer = '8.4';
+					} else if (this.tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(minVer, '8.0')) {
+						minVer = '8.0';
 					}
 
 					var xcodeInfo = this.iosInfo.xcode;
