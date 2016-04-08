@@ -121,7 +121,12 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
 			//setTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
-			btn.getBackground().setColorFilter( TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR) , Mode.MULTIPLY);
+			Object color = d.get(TiC.PROPERTY_TINT_COLOR);
+			if (color == null) {
+				btn.getBackground().clearColorFilter();
+			} else {
+				btn.getBackground().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR), Mode.MULTIPLY);
+			}
 		}
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -173,7 +178,11 @@ public class TiUIButton extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)) , Mode.MULTIPLY);						
+			if (newValue == null){
+				btn.getBackground().clearColorFilter();
+			} else {
+				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);						
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
