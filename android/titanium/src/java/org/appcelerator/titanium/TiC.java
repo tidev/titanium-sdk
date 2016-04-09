@@ -2755,6 +2755,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 
 	/**
 	 * @module.api
@@ -2795,6 +2805,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WHEN = "when";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WHICH_CAMERA = "whichCamera";
 
 	/**
 	 * @module.api
