@@ -416,9 +416,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			return;		
 		}
 
-		
-		videoFile = TiFileFactory.createDataFile("tia", ".mp4");
-		
+		if (saveToPhotoGallery) {
+			videoFile = MediaModule.createGalleryImageFile();
+		} else {
+			videoFile = TiFileFactory.createDataFile("tia", ".mp4");
+		}
 
 		recorder.setCamera(camera); // state "Initial"
 		recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER); // state "Initialized"
