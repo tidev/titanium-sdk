@@ -637,18 +637,7 @@ public class MediaModule extends KrollModule
 		{
 			try {
 				if (intentType == MediaStore.ACTION_VIDEO_CAPTURE){
-					/*File f = new File(fileName);
-					f.setWritable(true, false);
-					OutputStream outputStream = new FileOutputStream(f);
-					byte buffer[] = new byte[1024];
-					int length = 0;
-
-					while((length=inputStream.read(buffer)) > 0) {
-					outputStream.write(buffer,0,length);
-					}
-
-					outputStream.close();
-					inputStream.close();*/
+					// video
 				} else {
 					// bitmap
 					BitmapFactory.Options opts = new BitmapFactory.Options();
