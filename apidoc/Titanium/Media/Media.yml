@@ -1550,7 +1550,14 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since:
-        android: 5.4.0    
+        android: 5.4.0  
+  - name: whichCamera
+    summary: Opens the camera with the specified camera direction.
+    type: Number
+    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
+    platforms: [android]
+    since:
+        android: 5.4.0      
   - name: showControls 
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
