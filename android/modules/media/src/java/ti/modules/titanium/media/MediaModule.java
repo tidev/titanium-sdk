@@ -572,7 +572,7 @@ public class MediaModule extends KrollModule
 		return createExternalStorageFile(null);
 	}
 	protected static File createGalleryImageFile() {
-		return createGalleryImageFile(null);
+		return createGalleryImageFile(extension);
 	}
 	
 	private static File createExternalStorageFile(String extension) {
@@ -616,7 +616,6 @@ public class MediaModule extends KrollModule
 			Log.e(TAG, "Failed to create gallery image file: " + e.getMessage());
 			return null;
 		}
-
 		return imageFile;
 	}
 

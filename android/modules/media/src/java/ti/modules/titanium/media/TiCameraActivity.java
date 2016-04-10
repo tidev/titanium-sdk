@@ -373,12 +373,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
-			List<Size> pictSizes = param.getSupportedPictureSizes();
-			Size pictureSize = getOptimalPictureSize(pictSizes);
-			if (pictureSize != null) {
-				param.setPictureSize(pictureSize.width, pictureSize.height);
-			}
 		}
+		
+		List<Size> pictSizes = param.getSupportedPictureSizes();
+		Size pictureSize = getOptimalPictureSize(pictSizes);
+		if (pictureSize != null) {
+			param.setPictureSize(pictureSize.width, pictureSize.height);
+		}
+
 		camera.setParameters(param);
 
 		try {
@@ -561,7 +563,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				minAspectDiff = Math.abs(ratio - targetRatio);
 			}
 		}
-		
 		return optimalSize;
 	}
 	
