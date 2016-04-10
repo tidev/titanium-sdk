@@ -1512,6 +1512,7 @@ properties:
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
     type: Number
+    since: "5.4.0"
 
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
