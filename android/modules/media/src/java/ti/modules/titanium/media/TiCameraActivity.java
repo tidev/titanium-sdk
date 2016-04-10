@@ -158,9 +158,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// checks if device has only front facing camera and sets it
 		checkWhichCameraAsDefault();
 		
-		recorder = new MediaRecorder();
-		recorder.setOnInfoListener(this);
-		
 		// create camera preview
 		preview = new SurfaceView(this);
 		SurfaceHolder previewHolder = preview.getHolder();
@@ -189,6 +186,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void surfaceCreated(SurfaceHolder previewHolder)
 	{
 		try {
+			if (whichCamera == MediaModule.CAMERA_FRONT) {
+				openCamera(getFrontCameraId());
+			} else {
+				openCamera();
+			}
 			camera.setPreviewDisplay(previewHolder);
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
@@ -209,10 +211,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera = null;
 		}
 		
-		if (recorder != null) {
-			recorder.release();
-			recorder = null;
-		}
+		releaseMediaRecorder();
 	}
 
 	@Override
@@ -295,10 +294,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
 
-		if (recorder != null) {
-			recorder.release();
-			recorder = null;
-		}
+		releaseMediaRecorder();
 		
 		cameraActivity = null;
 	}
@@ -422,25 +418,37 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			videoFile = TiFileFactory.createDataFile("tia", ".mp4");
 		}
 
-		recorder.setCamera(camera); // state "Initial"
-		recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER); // state "Initialized"
+		if (recorder==null){
+			recorder = new MediaRecorder();
+			recorder.setOnInfoListener(cameraActivity);
+		}
+		recorder.setCamera(camera);
+		recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-		recorder.setProfile(CamcorderProfile.get(videoQuality));
+		
+		
+	
+		CamcorderProfile profile = CamcorderProfile.get(videoQuality);
+		if (optimalPreviewSize != null) {
+			profile.videoFrameWidth = optimalPreviewSize.width;
+	        profile.videoFrameHeight = optimalPreviewSize.height;
+		}		
+		recorder.setProfile(profile);
 		
 		if (videoMaximumDuration>0) {
 			recorder.setMaxDuration(videoMaximumDuration);
-			
 		}
+		
 		recorder.setOutputFile(videoFile.getPath());
 		try {
-			recorder.prepare(); // state "Prepared"
+			recorder.prepare();
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to prepare recorder: " + e.getMessage());
 			return;
 		}
 
 		try {
-			recorder.start();   // state "Recording"
+			recorder.start();
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to start recording: " + e.getMessage());
 			return;
@@ -450,12 +458,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	static public void stopVideoCapture()
 	{
 		try {
-			recorder.stop(); // state "Initial"
+			recorder.stop();
 		} catch (Exception e){
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to stop recording: " + e.getMessage());
 		}
-		recorder.reset(); // You can reuse the object by going back to setAudioSource() step
-
 		
 		try {
 			camera.reconnect();
@@ -470,7 +476,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				TiBlob theBlob = TiBlob.blobFromFile(theFile);
 				KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 				
-				// add previewRect to response
 				KrollDict previewRect = new KrollDict();
 				previewRect.put(TiC.PROPERTY_WIDTH, 0);
 				previewRect.put(TiC.PROPERTY_HEIGHT, 0);
@@ -485,9 +490,29 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				errorCallback.callAsync(callbackContext, response);
 			}
 		}
-		hide();
+		
+		releaseMediaRecorder();
+		
+		if (autohide) {
+			hide();
+		} else {
+			if (camera!=null){
+				camera.startPreview();
+			}
+		}
 			
 	}
+	
+	private static void releaseMediaRecorder(){
+	   if (recorder != null) {
+		   recorder.reset();
+		   recorder.release();
+		   recorder = null;
+		   if (camera !=null){
+			   camera.lock();
+		   }
+	   }
+   }
 	
 	public void onInfo(MediaRecorder mr, int what, int extra) { 
 		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
@@ -723,7 +748,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (backCameraId == Integer.MIN_VALUE && frontCameraId != Integer.MIN_VALUE) {
 			TiCameraActivity.whichCamera = MediaModule.CAMERA_FRONT;
 		} else {
-			TiCameraActivity.whichCamera = MediaModule.CAMERA_REAR;
+			//TiCameraActivity.whichCamera = MediaModule.CAMERA_REAR;				
 		}
 	}
 
