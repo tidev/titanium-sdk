@@ -208,6 +208,10 @@ public class MediaModule extends KrollModule
 				mediaType = MEDIA_TYPE_VIDEO;
 				intentType = MediaStore.ACTION_VIDEO_CAPTURE;
 				extension = ".mp4";
+			} else {
+				mediaType = MEDIA_TYPE_PHOTO;
+				intentType = MediaStore.ACTION_IMAGE_CAPTURE;
+				extension = ".jpg";
 			}
 		}
 		
@@ -323,6 +327,9 @@ public class MediaModule extends KrollModule
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)){
 				mediaType = MEDIA_TYPE_VIDEO;
 				extension = ".mp4";
+			} else {
+				mediaType = MEDIA_TYPE_PHOTO;
+				extension = ".jpg";
 			}
 		}
 		

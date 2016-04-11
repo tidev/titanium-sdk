@@ -56,7 +56,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private static final String TAG = "TiCameraActivity";
 	private static Camera camera;
 	private static Size optimalPreviewSize;
+	private static Size optimalVideoSize;
 	private static List<Size> supportedPreviewSizes;
+	private static List<Size> supportedVideoSizes;
 	private static int frontCameraId = Integer.MIN_VALUE; // cache
 	private static int backCameraId = Integer.MIN_VALUE; //cache
 	private static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
@@ -116,11 +118,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
+			final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        	final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        	setMeasuredDimension(width, height);
+		
 			int previewWidth = MeasureSpec.getSize(widthMeasureSpec);
 			int previewHeight = MeasureSpec.getSize(heightMeasureSpec);
 
 			// Set the preview size to the most optimal given the target size
 			optimalPreviewSize = getOptimalPreviewSize(supportedPreviewSizes, previewWidth, previewHeight);
+			optimalVideoSize = getOptimalPreviewSize(supportedVideoSizes, previewWidth, previewHeight);
 			if (optimalPreviewSize != null) {
 				if (previewWidth > previewHeight) {
 					aspectRatio = (double) optimalPreviewSize.width / optimalPreviewSize.height;
@@ -177,6 +184,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		setContentView(cameraLayout);
 		
 	}
+	
+	
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
@@ -370,13 +379,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
 			param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
 		}
-
+		
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
 		}
 		
 		List<Size> pictSizes = param.getSupportedPictureSizes();
 		Size pictureSize = getOptimalPictureSize(pictSizes);
+		
 		if (pictureSize != null) {
 			param.setPictureSize(pictureSize.width, pictureSize.height);
 		}
@@ -430,11 +440,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		
 	
-		CamcorderProfile profile = CamcorderProfile.get(videoQuality);
-		if (optimalPreviewSize != null) {
-			profile.videoFrameWidth = optimalPreviewSize.width;
-	        profile.videoFrameHeight = optimalPreviewSize.height;
-		}		
+		CamcorderProfile profile = CamcorderProfile.get(whichCamera, videoQuality);
+		
+		//Size videoSize = getOptimalPreviewSize(supportedVideoSizes);		
+		if (optimalVideoSize != null) {
+			Log.i("VID" , "opti: " + optimalVideoSize.width + " " + optimalVideoSize.height);	
+			profile.videoFrameWidth = optimalVideoSize.width;
+	        profile.videoFrameHeight = optimalVideoSize.height;
+		} else {
+			Size videoSize = getOptimalPictureSize(supportedVideoSizes);
+			Log.i("VID" , "calc: " + videoSize.width + " " + videoSize.height);		
+			profile.videoFrameWidth = videoSize.width;
+	        profile.videoFrameHeight = videoSize.height;
+		}
 		recorder.setProfile(profile);
 		
 		if (videoMaximumDuration>0) {
@@ -542,28 +560,38 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	 * @return the optimal size of the preview
 	 */
 	private static Size getOptimalPreviewSize(List<Size> sizes, int w, int h)
-	{
-		double targetRatio = 1;
-		if (w > h) {
-			targetRatio = (double) w / h;
-		} else {
-			targetRatio = (double) h / w;
-		}
-		if (sizes == null) {
-			return null;
-		}
-		Size optimalSize = null;
-		double minAspectDiff = Double.MAX_VALUE;
+	{		
+		final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) w / h;
+        if (sizes == null) return null;
 
-		// Try to find an size match aspect ratio and size
-		for (Size size : sizes) {
-			double ratio = (double) size.width / size.height;
-			if (Math.abs(ratio - targetRatio) < minAspectDiff) {
-				optimalSize = size;
-				minAspectDiff = Math.abs(ratio - targetRatio);
-			}
-		}
-		return optimalSize;
+        Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        // Try to find an size match aspect ratio and size
+        for (Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+		
+        // Cannot find the one match the aspect ratio, ignore the requirement
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+		Log.i("vid", "---> " + optimalSize.width + " "  + optimalSize.height);
+        return optimalSize;
 	}
 	
 	/**
@@ -620,6 +648,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				if (mediaType == MEDIA_TYPE_VIDEO) {
 					extension = ".mp4";
 				}
+				Log.i("EXT IN", " ex: " + extension);
 				imageFile = TiFileFactory.createDataFile("tia", extension);
 			}
 			
@@ -821,7 +850,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		supportedPreviewSizes = camera.getParameters()
 				.getSupportedPreviewSizes();
+		supportedVideoSizes = camera.getParameters()
+				.getSupportedVideoSizes();
 		optimalPreviewSize = null; // Re-calc'd in PreviewLayout.onMeasure.
+		optimalVideoSize = null; // Re-calc'd in PreviewLayout.onMeasure.
 	}
 
 	protected void switchCamera(int whichCamera)
