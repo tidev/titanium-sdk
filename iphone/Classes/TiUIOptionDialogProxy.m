@@ -18,11 +18,11 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(actionSheet);
+    RELEASE_TO_NIL(actionSheet);
     RELEASE_TO_NIL(dialogView);
     RELEASE_TO_NIL(tintColor);
-	RELEASE_TO_NIL_AUTORELEASE(alertController);
-	[super dealloc];
+    RELEASE_TO_NIL_AUTORELEASE(alertController);
+    [super dealloc];
 }
 
 -(NSMutableDictionary*)langConversionTable
