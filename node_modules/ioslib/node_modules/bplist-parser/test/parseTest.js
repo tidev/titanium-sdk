@@ -137,5 +137,23 @@ module.exports = {
       test.deepEqual(dict['$top']['root'], {UID:1});
       test.done();
     });
+  },
+  
+  'int64': function (test) {
+    var file = path.join(__dirname, "int64.bplist");
+    var startTime = new Date();
+
+    bplist.parseFile(file, function (err, dicts) {
+      if (err) {
+        throw err;
+      }
+
+      var endTime = new Date();
+      console.log('Parsed "' + file + '" in ' + (endTime - startTime) + 'ms');
+      var dict = dicts[0];
+      test.equal(dict['zero'], '0');
+      test.equal(dict['int64item'], '12345678901234567890');
+      test.done();
+    });
   }
 };
