@@ -1,0 +1,25 @@
+// See: http://code.google.com/p/google-diff-match-patch/wiki/API
+"use strict";
+
+exports.__esModule = true;
+exports.convertChangesToDMP = convertChangesToDMP;
+
+function convertChangesToDMP(changes) {
+  var ret = [],
+      change = undefined,
+      operation = undefined;
+  for (var i = 0; i < changes.length; i++) {
+    change = changes[i];
+    if (change.added) {
+      operation = 1;
+    } else if (change.removed) {
+      operation = -1;
+    } else {
+      operation = 0;
+    }
+
+    ret.push([operation, change.value]);
+  }
+  return ret;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9jb252ZXJ0L2RtcC5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7QUFDTyxTQUFTLG1CQUFtQixDQUFDLE9BQU8sRUFBRTtBQUMzQyxNQUFJLEdBQUcsR0FBRyxFQUFFO01BQ1IsTUFBTSxZQUFBO01BQ04sU0FBUyxZQUFBLENBQUM7QUFDZCxPQUFLLElBQUksQ0FBQyxHQUFHLENBQUMsRUFBRSxDQUFDLEdBQUcsT0FBTyxDQUFDLE1BQU0sRUFBRSxDQUFDLEVBQUUsRUFBRTtBQUN2QyxVQUFNLEdBQUcsT0FBTyxDQUFDLENBQUMsQ0FBQyxDQUFDO0FBQ3BCLFFBQUksTUFBTSxDQUFDLEtBQUssRUFBRTtBQUNoQixlQUFTLEdBQUcsQ0FBQyxDQUFDO0tBQ2YsTUFBTSxJQUFJLE1BQU0sQ0FBQyxPQUFPLEVBQUU7QUFDekIsZUFBUyxHQUFHLENBQUMsQ0FBQyxDQUFDO0tBQ2hCLE1BQU07QUFDTCxlQUFTLEdBQUcsQ0FBQyxDQUFDO0tBQ2Y7O0FBRUQsT0FBRyxDQUFDLElBQUksQ0FBQyxDQUFDLFNBQVMsRUFBRSxNQUFNLENBQUMsS0FBSyxDQUFDLENBQUMsQ0FBQztHQUNyQztBQUNELFNBQU8sR0FBRyxDQUFDO0NBQ1oiLCJmaWxlIjoiZG1wLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy8gU2VlOiBodHRwOi8vY29kZS5nb29nbGUuY29tL3AvZ29vZ2xlLWRpZmYtbWF0Y2gtcGF0Y2gvd2lraS9BUElcbmV4cG9ydCBmdW5jdGlvbiBjb252ZXJ0Q2hhbmdlc1RvRE1QKGNoYW5nZXMpIHtcbiAgbGV0IHJldCA9IFtdLFxuICAgICAgY2hhbmdlLFxuICAgICAgb3BlcmF0aW9uO1xuICBmb3IgKGxldCBpID0gMDsgaSA8IGNoYW5nZXMubGVuZ3RoOyBpKyspIHtcbiAgICBjaGFuZ2UgPSBjaGFuZ2VzW2ldO1xuICAgIGlmIChjaGFuZ2UuYWRkZWQpIHtcbiAgICAgIG9wZXJhdGlvbiA9IDE7XG4gICAgfSBlbHNlIGlmIChjaGFuZ2UucmVtb3ZlZCkge1xuICAgICAgb3BlcmF0aW9uID0gLTE7XG4gICAgfSBlbHNlIHtcbiAgICAgIG9wZXJhdGlvbiA9IDA7XG4gICAgfVxuXG4gICAgcmV0LnB1c2goW29wZXJhdGlvbiwgY2hhbmdlLnZhbHVlXSk7XG4gIH1cbiAgcmV0dXJuIHJldDtcbn1cbiJdfQ==

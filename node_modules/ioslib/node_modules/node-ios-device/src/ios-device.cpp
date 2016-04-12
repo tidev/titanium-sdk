@@ -1,6 +1,6 @@
 /**
  * node-ios-device
- * Copyright (c) 2013-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,10 @@
 #include <node.h>
 #include <v8.h>
 #include <stdlib.h>
+#include <string>
+#include <map>
+#include <thread>
+#include <boost/thread.hpp>
 #include "mobiledevice.h"
 
 using namespace v8;
@@ -25,13 +29,14 @@ typedef struct Listener {
  * Globals
  */
 static CFMutableDictionaryRef listeners;
-static CFMutableDictionaryRef connected_devices;
-static bool devices_changed;
+static CFMutableDictionaryRef connectedDevices;
+static bool devicesChanged;
+static boost::shared_mutex deviceInfoMutex;
 
 /*
  * Converts CFStringRef strings to C strings.
  */
-char* cfstring_to_cstr(CFStringRef str) {
+static char* cfstring_to_cstr(CFStringRef str) {
 	if (str != NULL) {
 		// add 1 to make sure there's enough buffer for the utf-8 string and the null character
 		CFIndex length = CFStringGetLength(str) + 1;
@@ -51,56 +56,111 @@ char* cfstring_to_cstr(CFStringRef str) {
  */
 class Device {
 public:
-	am_device device;
-	Nan::Persistent<Object> props;
+	am_device handle;
+	std::map<std::string, std::string> props;
 	bool connected;
+	CFStringRef udid;
 
 	service_conn_t logConnection;
 	CFSocketRef logSocket;
 	CFRunLoopSourceRef logSource;
 	Listener* logCallback;
 
-	Device(am_device& dev) : device(dev), connected(false), logSocket(NULL), logSource(NULL), logCallback(NULL) {
-		props.Reset(Nan::New<Object>());
-	}
+	Device(am_device& dev) : handle(dev), connected(false), logSocket(NULL), logSource(NULL), logCallback(NULL) {
+		this->udid = AMDeviceCopyDeviceIdentifier(dev);
 
-	// fetches info from the device and populates the JavaScript object
-	void populate(CFStringRef udid) {
-		Local<Object> p = Nan::New<Object>();
-
-		char* str = cfstring_to_cstr(udid);
+		char* str = cfstring_to_cstr(this->udid);
 		if (str != NULL) {
-			Nan::Set(p, Nan::New("udid").ToLocalChecked(), Nan::New(str).ToLocalChecked());
+			this->props["udid"] = std::string(str);
+			//this->setProp("udid", str);
 			free(str);
-		}
-
-		this->getProp(p, "name",            CFSTR("DeviceName"));
-		this->getProp(p, "buildVersion",    CFSTR("BuildVersion"));
-		this->getProp(p, "cpuArchitecture", CFSTR("CPUArchitecture"));
-		this->getProp(p, "deviceClass",     CFSTR("DeviceClass"));
-		this->getProp(p, "deviceColor",     CFSTR("DeviceColor"));
-		this->getProp(p, "hardwareModel",   CFSTR("HardwareModel"));
-		this->getProp(p, "modelNumber",     CFSTR("ModelNumber"));
-		this->getProp(p, "productType",     CFSTR("ProductType"));
-		this->getProp(p, "productVersion",  CFSTR("ProductVersion"));
-		this->getProp(p, "serialNumber",    CFSTR("SerialNumber"));
-
-		props.Reset(p);
-	}
-
-private:
-	void getProp(Local<Object>& p, const char* propName, CFStringRef name) {
-		CFStringRef value = AMDeviceCopyValue(this->device, 0, name);
-		if (value != NULL) {
-			char* str = cfstring_to_cstr(value);
-			CFRelease(value);
-			if (str != NULL) {
-				Nan::Set(p, Nan::New(propName).ToLocalChecked(), Nan::New(str).ToLocalChecked());
-				free(str);
-			}
 		}
 	}
 };
+
+class DeviceInfoBaton {
+public:
+	uv_work_t request;
+	Device* device;
+
+	DeviceInfoBaton(Device* dev) : device(dev) {
+		this->request.data = this;
+	}
+};
+
+static void setDeviceProperty(Device* device, const char* key, CFStringRef id) {
+	CFStringRef valueStr = AMDeviceCopyValue(device->handle, 0, id);
+	if (valueStr != NULL) {
+		char* value = cfstring_to_cstr(valueStr);
+		CFRelease(valueStr);
+		if (value != NULL) {
+			device->props[key] = std::string(value);
+			free(value);
+		}
+	}
+}
+
+//static void getDeviceInfo(uv_work_t *req) {
+static void getDeviceInfo(Device* device) {
+	boost::shared_lock<boost::shared_mutex> lock(deviceInfoMutex);
+	//DeviceInfoBaton* baton = static_cast<DeviceInfoBaton*>(req->data);
+	//Device* device = baton->device;
+
+	if (CFDictionaryContainsKey(connectedDevices, device->udid)) {
+		return;
+	}
+
+	// connect to the device and get its information
+	mach_error_t rval = AMDeviceConnect(device->handle);
+	if (rval != MDERR_OK) {
+		// if (rval == MDERR_SYSCALL) {
+		// 	printf("Failed to connect to device: setsockopt() failed\n");
+		// } else if (rval == MDERR_QUERY_FAILED) {
+		// 	printf("Failed to connect to device: the daemon query failed\n");
+		// } else if (rval == MDERR_INVALID_ARGUMENT) {
+		// 	printf("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff\n");
+		// } else {
+		// 	printf("Failed to connect to device (0x%x)\n", rval);
+		// }
+		return;
+	}
+
+	if (AMDeviceIsPaired(device->handle) != 1 && AMDevicePair(device->handle) != 1) {
+		// printf("Failed to pair device\n");
+		return;
+	}
+
+	rval = AMDeviceStartSession(device->handle);
+	if (rval == MDERR_OK) {
+		setDeviceProperty(device, "name",            CFSTR("DeviceName"));
+		setDeviceProperty(device, "buildVersion",    CFSTR("BuildVersion"));
+		setDeviceProperty(device, "cpuArchitecture", CFSTR("CPUArchitecture"));
+		setDeviceProperty(device, "deviceClass",     CFSTR("DeviceClass"));
+		setDeviceProperty(device, "deviceColor",     CFSTR("DeviceColor"));
+		setDeviceProperty(device, "hardwareModel",   CFSTR("HardwareModel"));
+		setDeviceProperty(device, "modelNumber",     CFSTR("ModelNumber"));
+		setDeviceProperty(device, "productType",     CFSTR("ProductType"));
+		setDeviceProperty(device, "productVersion",  CFSTR("ProductVersion"));
+		setDeviceProperty(device, "serialNumber",    CFSTR("SerialNumber"));
+
+		CFDictionarySetValue(connectedDevices, device->udid, device);
+		devicesChanged = true;
+
+		AMDeviceStopSession(device->handle);
+	// } else if (rval == MDERR_INVALID_ARGUMENT) {
+	// 	printf("Failed to start session: the lockdown connection has not been established\n");
+	// } else if (rval == MDERR_DICT_NOT_LOADED) {
+	// 	printf("Failed to start session: load_dict() failed\n");
+	// } else {
+	// 	printf("Failed to start session (0x%x)\n", rval);
+	}
+
+	AMDeviceDisconnect(device->handle);
+}
+
+// static void getDeviceInfoAfter(uv_work_t *req, int status) {
+// 	// decrement!
+// }
 
 /*
  * on()
@@ -163,11 +223,11 @@ NAN_METHOD(pump_run_loop) {
 		interval = intervalArg->NumberValue();
 	}
 
-	devices_changed = false;
+	devicesChanged = false;
 
 	CFRunLoopRunInMode(kCFRunLoopDefaultMode, interval, false);
 
-	if (devices_changed) {
+	if (devicesChanged) {
 		emit("devicesChanged");
 	}
 
@@ -180,15 +240,21 @@ NAN_METHOD(pump_run_loop) {
  * This should be called after pumpRunLoop() has been called.
  */
 NAN_METHOD(devices) {
+	boost::lock_guard<boost::shared_mutex> lock(deviceInfoMutex);
+
 	Local<Array> result = Nan::New<Array>();
 
-	CFIndex size = CFDictionaryGetCount(connected_devices);
+	CFIndex size = CFDictionaryGetCount(connectedDevices);
 	Device** values = (Device**)malloc(size * sizeof(Device*));
-	CFDictionaryGetKeysAndValues(connected_devices, NULL, (const void **)values);
+	CFDictionaryGetKeysAndValues(connectedDevices, NULL, (const void **)values);
 
 	for (CFIndex i = 0; i < size; i++) {
-		Nan::Persistent<Object>* obj = &values[i]->props;
-		Nan::Set(result, i, Nan::New<Object>(*obj));
+		Local<Object> p = Nan::New<Object>();
+		for (std::map<std::string, std::string>::iterator it = values[i]->props.begin(); it != values[i]->props.end(); ++it) {
+			Nan::Set(p, Nan::New(it->first).ToLocalChecked(), Nan::New(it->second).ToLocalChecked());
+		}
+
+		Nan::Set(result, i, p);
 	}
 
 	free(values);
@@ -200,62 +266,31 @@ NAN_METHOD(devices) {
  * The callback when a device notification is received.
  */
 void on_device_notification(am_device_notification_callback_info* info, void* arg) {
-	CFStringRef udid;
+	if (info->msg == ADNCI_MSG_CONNECTED) {
+		//DeviceInfoBaton* baton = new DeviceInfoBaton(new Device(info->dev));
+		std::thread(getDeviceInfo, new Device(info->dev)).detach();
+		//uv_queue_work(uv_default_loop(), &baton->request, getDeviceInfo, getDeviceInfoAfter);
 
-	switch (info->msg) {
-		case ADNCI_MSG_CONNECTED:
-			udid = AMDeviceCopyDeviceIdentifier(info->dev);
-			if (!CFDictionaryContainsKey(connected_devices, udid)) {
-				// connect to the device and get its information
-				if (AMDeviceConnect(info->dev) == MDERR_OK) {
-					if (AMDeviceIsPaired(info->dev) != 1 && AMDevicePair(info->dev) != 1) {
-						return;
-					}
+	} else if (info->msg == ADNCI_MSG_DISCONNECTED) {
+		CFStringRef udid = AMDeviceCopyDeviceIdentifier(info->dev);
+		if (CFDictionaryContainsKey(connectedDevices, udid)) {
+			// remove the device from the dictionary and destroy it
+			Device* device = (Device*)CFDictionaryGetValue(connectedDevices, udid);
+			CFDictionaryRemoveValue(connectedDevices, udid);
 
-					if (AMDeviceValidatePairing(info->dev) != MDERR_OK) {
-						if (AMDevicePair(info->dev) != 1) {
-							return;
-						}
-						if (AMDeviceValidatePairing(info->dev) != MDERR_OK) {
-							return;
-						}
-					}
-
-					if (AMDeviceStartSession(info->dev) == MDERR_OK) {
-						Device* device = new Device(info->dev);
-						device->populate(udid);
-						CFDictionarySetValue(connected_devices, udid, device);
-						devices_changed = true;
-
-						AMDeviceStopSession(info->dev);
-					}
-
-					AMDeviceDisconnect(info->dev);
-				}
+			if (device->logCallback) {
+				delete device->logCallback;
 			}
-			break;
-
-		case ADNCI_MSG_DISCONNECTED:
-			udid = AMDeviceCopyDeviceIdentifier(info->dev);
-			if (CFDictionaryContainsKey(connected_devices, udid)) {
-				// remove the device from the dictionary and destroy it
-				Device* device = (Device*)CFDictionaryGetValue(connected_devices, udid);
-				CFDictionaryRemoveValue(connected_devices, udid);
-
-				if (device->logCallback) {
-					delete device->logCallback;
-				}
-				if (device->logSource) {
-					CFRelease(device->logSource);
-				}
-				if (device->logSocket) {
-					CFRelease(device->logSocket);
-				}
-
-				delete device;
-				devices_changed = true;
+			if (device->logSource) {
+				CFRelease(device->logSource);
 			}
-			break;
+			if (device->logSocket) {
+				CFRelease(device->logSocket);
+			}
+
+			delete device;
+			devicesChanged = true;
+		}
 	}
 }
 
@@ -285,15 +320,15 @@ NAN_METHOD(installApp) {
 	char* udid = *udidValue;
 	CFStringRef udidStr = CFStringCreateWithCString(NULL, (char*)*udidValue, kCFStringEncodingUTF8);
 
-	if (!CFDictionaryContainsKey(connected_devices, (const void*)udidStr)) {
+	if (!CFDictionaryContainsKey(connectedDevices, (const void*)udidStr)) {
 		CFRelease(udidStr);
 		snprintf(tmp, 256, "Device \'%s\' not connected", udid);
 		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
 	}
 
-	Device* deviceObj = (Device*)CFDictionaryGetValue(connected_devices, udidStr);
+	Device* deviceObj = (Device*)CFDictionaryGetValue(connectedDevices, udidStr);
 	CFRelease(udidStr);
-	am_device* device = &deviceObj->device;
+	am_device* device = &deviceObj->handle;
 
 	// validate the 'appPath'
 	if (!info[1]->IsString()) {
@@ -501,8 +536,9 @@ NAN_METHOD(log) {
 	String::Utf8Value udidValue(udidHandle->ToString());
 	char* udid = *udidValue;
 	CFStringRef udidStr = CFStringCreateWithCString(NULL, (char*)*udidValue, kCFStringEncodingUTF8);
+	//std::lock_guard<std::mutex> lock(connectedDevicesMutex);
 
-	if (!CFDictionaryContainsKey(connected_devices, (const void*)udidStr)) {
+	if (!CFDictionaryContainsKey(connectedDevices, (const void*)udidStr)) {
 		CFRelease(udidStr);
 		snprintf(tmp, 256, "Device \'%s\' not connected", udid);
 		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
@@ -515,10 +551,10 @@ NAN_METHOD(log) {
 	Listener* logCallback = new Listener;
 	logCallback->callback.Reset(Local<Function>::Cast(info[1]));
 
-	Device* deviceObj = (Device*)CFDictionaryGetValue(connected_devices, udidStr);
+	Device* deviceObj = (Device*)CFDictionaryGetValue(connectedDevices, udidStr);
 	CFRelease(udidStr);
 
-	am_device* device = &deviceObj->device;
+	am_device* device = &deviceObj->handle;
 	mach_error_t rval;
 	service_conn_t connection;
 
@@ -628,18 +664,19 @@ NAN_METHOD(log) {
 
 static void cleanup(void *arg) {
 	// free up connected devices
-	CFIndex size = CFDictionaryGetCount(connected_devices);
+	//std::lock_guard<std::mutex> lock(connectedDevicesMutex);
+	CFIndex size = CFDictionaryGetCount(connectedDevices);
 	CFStringRef* keys = (CFStringRef*)malloc(size * sizeof(CFStringRef));
-	CFDictionaryGetKeysAndValues(connected_devices, (const void **)keys, NULL);
+	CFDictionaryGetKeysAndValues(connectedDevices, (const void **)keys, NULL);
 	CFIndex i = 0;
 
 	for (; i < size; i++) {
-		Device* device = (Device*)CFDictionaryGetValue(connected_devices, keys[i]);
-		CFDictionaryRemoveValue(connected_devices, keys[i]);
+		Device* device = (Device*)CFDictionaryGetValue(connectedDevices, keys[i]);
+		CFDictionaryRemoveValue(connectedDevices, keys[i]);
 
 		if (device->connected) {
-			AMDeviceStopSession(device->device);
-			AMDeviceDisconnect(device->device);
+			AMDeviceStopSession(device->handle);
+			AMDeviceDisconnect(device->handle);
 		}
 
 		if (device->logCallback) {
@@ -674,7 +711,7 @@ static void cleanup(void *arg) {
  * Wire up the JavaScript functions, initialize the dictionaries, and subscribe
  * to the device notifications.
  */
-void init(Handle<Object> exports) {
+static void init(Handle<Object> exports) {
 	exports->Set(Nan::New("on").ToLocalChecked(),          Nan::New<FunctionTemplate>(on)->GetFunction());
 	exports->Set(Nan::New("pumpRunLoop").ToLocalChecked(), Nan::New<FunctionTemplate>(pump_run_loop)->GetFunction());
 	exports->Set(Nan::New("devices").ToLocalChecked(),     Nan::New<FunctionTemplate>(devices)->GetFunction());
@@ -682,7 +719,7 @@ void init(Handle<Object> exports) {
 	exports->Set(Nan::New("log").ToLocalChecked(),         Nan::New<FunctionTemplate>(log)->GetFunction());
 
 	listeners = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);
-	connected_devices = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);
+	connectedDevices = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);
 
 	am_device_notification notification;
 	AMDeviceNotificationSubscribe(&on_device_notification, 0, 0, NULL, &notification);
