@@ -94,15 +94,23 @@ namespace wptool
 
 				Console.WriteLine("\t\"devices\": [");
 				foreach (ConnectableDevice dev in deviceList) {
+					string versionString = dev.Version.ToString();
 					if (!dev.IsEmulator()) {
 						if (j > 0) {
 							Console.WriteLine(",");
+						}
+						string sdk = "null";
+						if (versionString == "6.3") {
+							sdk = "\"8.1\"";
+						} else if (versionString == "10.0") {
+							sdk = "\"10.0\"";
 						}
 						Console.WriteLine("\t\t{\n");
 						Console.WriteLine("\t\t\t\"name\": \"" + dev.Name.Replace("\"", "\\\"") + "\",");
 						Console.WriteLine("\t\t\t\"udid\": " + id + ",");
 						Console.WriteLine("\t\t\t\"index\": " + id + ",");
-						Console.WriteLine("\t\t\t\"wpsdk\": null");
+						Console.WriteLine("\t\t\t\"version\": \"" + versionString + "\","); // windows 8.1: "6.3", windows 10: "10.0"
+						Console.WriteLine("\t\t\t\"wpsdk\": " + sdk);
 						Console.Write("\t\t}");
 						j++;
 					}
