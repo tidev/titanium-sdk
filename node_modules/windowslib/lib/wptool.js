@@ -740,7 +740,7 @@ function wpToolInstall(deployCmd, device, appPath, options, callback) {
 	}
 
 	var args = [
-			'install',
+			options.forceUnInstall ? 'uninstall' : 'install',
 			'-file',
 			appPath,
 			'-ip',
@@ -775,11 +775,21 @@ function wpToolInstall(deployCmd, device, appPath, options, callback) {
 
 				if (err == '0x80073CF9') {
 					callback(new Error('A debug application is already installed, please remove existing debug application'));
+				} else if (err == '0x80073CFB') {
+					// Provided package has the same identity as an already-installed package. Proceed uninstalling.
+					options.forceUnInstall = true;
+					wpToolInstall(deployCmd, device, appPath, options, callback);
 				} else {
 					callback(new Error(__('Failed to install app (code %s): %s', err, msg)));
 				}
 			} else {
-				callback(null, device);
+				// Provided package is uninstalled...proceed re-installing.
+				if (options.forceUnInstall) {
+					options.forceUnInstall = false;
+					wpToolInstall(deployCmd, device, appPath, options, callback);
+				} else {
+					callback(null, device);
+				}
 			}
 		}
 	});

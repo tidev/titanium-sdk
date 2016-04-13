@@ -1,3 +1,16 @@
+0.4.6 (4/12/2016)
+-------------------
+  * Fix to force uninstall then install if first install fails because an existing version is already installed for Win 10 mobile: https://jira.appcelerator.org/browse/TIMOB-23181
+
+0.4.5 (4/5/2016)
+-------------------
+  * [TIMOB-19673] Fix unescaped characters in vcvarsall
+
+0.4.4 (3/16/2016)
+-------------------
+  * [TIMOB-20566] Add support for Windows 10 devices
+  * Improve log output from certutil
+
 0.4.3 (2/17/2016)
 -------------------
   * Another fix for uninstalling store apps from Windows 8.1
