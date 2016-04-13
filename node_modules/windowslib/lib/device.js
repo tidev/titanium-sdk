@@ -59,8 +59,10 @@ function detect(options, callback) {
 				Object.keys(results).forEach(function (wpsdk) {
 					results[wpsdk].devices.forEach(function (dev) {
 						if (!tmp[dev.udid]) {
-							tmp[dev.udid] = 1;
+							tmp[dev.udid] = result.devices.length+1;
 							result.devices.push(dev);
+						} else if (dev.wpsdk) {
+							result.devices[tmp[dev.udid]-1] = dev;
 						}
 					});
 				});
