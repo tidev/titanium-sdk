@@ -175,7 +175,7 @@ function wptoolEnumerate(wpsdk, options, next) {
 			}
 			// Combine devices and emulators listings!
 			var combined = results[1];
-			combined.devices = results[0].devices;
+			combined.devices = results[0].devices.concat(combined.devices);
 			return next(null, combined);
 		});
 	});
