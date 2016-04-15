@@ -189,7 +189,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
-		startPreview(previewHolder);
+		// force initial onMeasure
+		previewLayout.prepareNewPreview(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				startPreview(preview.getHolder());
+			}
+		});
 	}
 
 	public void surfaceCreated(SurfaceHolder previewHolder)
@@ -444,14 +452,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		//Size videoSize = getOptimalPreviewSize(supportedVideoSizes);		
 		if (optimalVideoSize != null) {
-			Log.i("VID" , "opti: " + optimalVideoSize.width + " " + optimalVideoSize.height);	
 			profile.videoFrameWidth = optimalVideoSize.width;
 	        profile.videoFrameHeight = optimalVideoSize.height;
 		} else {
 			Size videoSize = getOptimalPictureSize(supportedVideoSizes);
-			Log.i("VID" , "calc: " + videoSize.width + " " + videoSize.height);		
-			profile.videoFrameWidth = videoSize.width;
-	        profile.videoFrameHeight = videoSize.height;
+			if (videoSize!=null){
+				profile.videoFrameWidth = videoSize.width;
+		        profile.videoFrameHeight = videoSize.height;
+			}
 		}
 		recorder.setProfile(profile);
 		
@@ -590,7 +598,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
                 }
             }
         }
-		Log.i("vid", "---> " + optimalSize.width + " "  + optimalSize.height);
         return optimalSize;
 	}
 	
@@ -648,7 +655,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				if (mediaType == MEDIA_TYPE_VIDEO) {
 					extension = ".mp4";
 				}
-				Log.i("EXT IN", " ex: " + extension);
 				imageFile = TiFileFactory.createDataFile("tia", extension);
 			}
 			
