@@ -215,32 +215,35 @@ public class TiUIText extends TiUIView
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
 		
-		setTextPadding(d);
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
+		}
+		
 	}
 
-	private void setTextPadding(KrollDict d)
+	private void setTextPadding(HashMap<String, Object> d)
 	{
 		int paddingLeft = 0;
 		int paddingRight = 0;
 		int paddingTop = 0;
 		int paddingBottom = 0;
-		if (d.containsKey(TiC.PROPERTY_PADDING_LEFT)) {
-			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_PADDING_LEFT);
+		if (d.containsKey(TiC.PROPERTY_LEFT)) {
+			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_LEFT);
 		} else {
 			paddingLeft = tv.getPaddingLeft();
 		}
-		if (d.containsKey(TiC.PROPERTY_PADDING_RIGHT)) {
-			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_PADDING_RIGHT);
+		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_RIGHT);
 		} else {
 			paddingRight = tv.getPaddingRight();
 		}
-		if (d.containsKey(TiC.PROPERTY_PADDING_TOP)) {
-			paddingTop = TiConvert.toInt(d, TiC.PROPERTY_PADDING_TOP);
+		if (d.containsKey(TiC.PROPERTY_TOP)) {
+			paddingTop = TiConvert.toInt(d, TiC.PROPERTY_TOP);
 		} else {
 			paddingTop = tv.getPaddingTop();
 		}
-		if (d.containsKey(TiC.PROPERTY_PADDING_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_PADDING_BOTTOM);
+		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_BOTTOM);
 		} else {
 			paddingBottom = tv.getPaddingBottom();
 		}
@@ -311,9 +314,8 @@ public class TiUIText extends TiUIView
 			setAttributedStringHint((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringText((AttributedStringProxy)newValue);
-		} else if (key.equals(TiC.PROPERTY_PADDING_TOP) || key.equals(TiC.PROPERTY_PADDING_BOTTOM) 
-			|| key.equals(TiC.PROPERTY_PADDING_RIGHT) || key.equals(TiC.PROPERTY_PADDING_LEFT)) {
-			setTextPadding(proxy.getProperties());
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
