@@ -49,6 +49,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.content.pm.PackageManager;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -71,7 +72,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private PreviewLayout previewLayout;
 	private FrameLayout cameraLayout;
 	private boolean previewRunning = false;
-	private int currentRotation;
+	private static int currentRotation;
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
@@ -87,6 +88,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static int videoQuality = VIDEO_QUALITY_HIGH;
 	public static String mediaType = MEDIA_TYPE_PHOTO;
 	public static int cameraType = 0;
+	private static int cameraRotation = 0;
 	private static MediaRecorder recorder;
 	private static File videoFile = null;
 
@@ -377,7 +379,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		camera.setDisplayOrientation(result);
 		param.setRotation(result2);
-
+		cameraRotation = result2;
+		
 		// Set appropriate focus mode if supported.
 		List<String> supportedFocusModes = param.getSupportedFocusModes();
 		if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -443,11 +446,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			recorder.setOnInfoListener(cameraActivity);
 		}
 		recorder.setCamera(camera);
-		recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 		
-		
-	
 		CamcorderProfile profile = CamcorderProfile.get(whichCamera, videoQuality);
 		
 		//Size videoSize = getOptimalPreviewSize(supportedVideoSizes);		
@@ -461,7 +461,22 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		        profile.videoFrameHeight = videoSize.height;
 			}
 		}
-		recorder.setProfile(profile);
+		
+		int result  = TiApplication.getInstance().getRootActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO");
+    	if (result == PackageManager.PERMISSION_GRANTED) {
+			recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	
+			recorder.setProfile(profile);		
+		} else {
+			// only video - no sound
+			Log.w(TAG, "To record audio please request RECORD_AUDIO permission");
+			recorder.setOutputFormat(profile.fileFormat);                  
+		    recorder.setVideoFrameRate(profile.videoFrameRate);                
+		    recorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);              
+		    recorder.setVideoEncodingBitRate(profile.videoBitRate);                
+		    recorder.setVideoEncoder(profile.videoCodec);		
+		}
+		
+		recorder.setOrientationHint(cameraRotation);
 		
 		if (videoMaximumDuration>0) {
 			recorder.setMaxDuration(videoMaximumDuration);
