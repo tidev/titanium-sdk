@@ -81,12 +81,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 	    super.handleCreationDict(dict);
-	    if (dict.containsKey("useSpinner")) {
-	        useSpinner = TiConvert.toBoolean(dict, "useSpinner");
+	    if (dict.containsKey(TiC.PROPERTY_USE_SPINNER)) {
+	        useSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_USE_SPINNER);
 	        Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
 	    }
-	    if (dict.containsKey("nativeSpinner")) {
-	        nativeSpinner = TiConvert.toBoolean(dict, "nativeSpinner");
+	    if (dict.containsKey(TiC.PROPERTY_NATIVE_SPINNER)) {
+	        nativeSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_NATIVE_SPINNER);
 	    }
 	    if (hasProperty("type")) {
 	        type = TiConvert.toInt(getProperty("type"));

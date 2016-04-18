@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -61,8 +61,8 @@ implements NumberPicker.OnValueChangeListener {
     
     private void createNativeView(Activity activity) {
         boolean format24 = true;
-        if ( proxy.hasProperty( "format24")  ) {
-            format24 = TiConvert.toBoolean( proxy.getProperty(  "format24" ) );
+        if (proxy.hasProperty("format24")) {
+            format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
         }
 
         int minuteInterval = 1;
@@ -93,7 +93,7 @@ implements NumberPicker.OnValueChangeListener {
         minutesWheel.setOnValueChangedListener(this);
         amPmWheel = null;
 
-        if ( !format24 ) {
+        if (!format24) {
             amPmWheel = makeAmPmWheel(activity);
         }
 
@@ -101,7 +101,7 @@ implements NumberPicker.OnValueChangeListener {
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.addView(hoursWheel);
         layout.addView(minutesWheel);
-        if ( !format24 ) {
+        if (!format24) {
             layout.addView(amPmWheel);
         }
 
@@ -133,7 +133,7 @@ implements NumberPicker.OnValueChangeListener {
             valueExistsInProxy = true;
         }
 
-        setValue(calendar.getTimeInMillis() , true);
+        setValue(calendar.getTimeInMillis());
 
         if (!valueExistsInProxy) {
             proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
@@ -152,20 +152,13 @@ implements NumberPicker.OnValueChangeListener {
     }
 
     public void setValue(long value) {
-        setValue(value, false);
-    }
-
-    public void setValue(long value, boolean suppressEvent) {
         boolean format24 = true;
         if (proxy.hasProperty("format24")) {
             format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
         }
         calendar.setTimeInMillis(value);
 
-        suppressChangeEvent = true;
-        ignoreItemSelection = true;
-
-        if ( !format24 ) {
+        if (!format24) {
             int hour = calendar.get(Calendar.HOUR);
             if (hour == 0) {
                 hoursWheel.setValue(11); // 12
@@ -181,8 +174,6 @@ implements NumberPicker.OnValueChangeListener {
             hoursWheel.setValue(calendar.get(Calendar.HOUR_OF_DAY));
         }
 
-        suppressChangeEvent = suppressEvent;
-        ignoreItemSelection = false;
         int found = 0;
         for(int x = 0; x < minutesString.length ; x++) {
             String minToFind = calendar.get(Calendar.MINUTE) + "";
@@ -191,7 +182,6 @@ implements NumberPicker.OnValueChangeListener {
             }
         }
         minutesWheel.setValue(found);
-        suppressChangeEvent = false;
     }
 
     @Override
@@ -221,11 +211,11 @@ implements NumberPicker.OnValueChangeListener {
             calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getValue());
         }
         Date dateval = calendar.getTime();
-        proxy.setProperty("value", dateval);
+        proxy.setProperty(TiC.PROPERTY_VALUE, dateval);
         if (!suppressChangeEvent) {
             KrollDict data = new KrollDict();
-            data.put("value", dateval);
-            fireEvent("change", data);
+            data.put(TiC.PROPERTY_VALUE, dateval);
+            fireEvent(TiC.EVENT_CHANGE, data);
         }
 
     }
