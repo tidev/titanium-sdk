@@ -5700,7 +5700,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 						fs.existsSync(file) && fs.unlinkSync(file);
 						fs.renameSync(output, file);
 					} else {
-						this.logger.warn(__('Unable to optimize %s; invalid png?'));
+						this.logger.warn(__('Unable to optimize %s; invalid png?', file));
 					}
 					cb();
 				}.bind(this));
