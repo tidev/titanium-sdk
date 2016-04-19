@@ -181,6 +181,36 @@ methods:
         summary: Options for the Service.
         type: ServiceIntentOptions
 
+  - name: hasPermission
+    summary: Returns `true` if the app has permission access.
+    parameters:
+      - name: permission
+        summary: |
+            The permission to check for access. This can be any of the constants listed here
+            with dangerous protection level: http://developer.android.com/intl/zh-cn/reference/android/Manifest.permission.html
+            For example, `android.permission.WRITE_CONTACTS`. 
+        type: String
+    returns:
+        type: Boolean 
+    since: "5.4.0"
+    
+  - name: requestPermissions
+    summary: Request for permission access.
+    parameters:
+      - name: permissions
+        summary: |
+            The permission(s) to request for access. This can be any of the constants listed here
+            with dangerous protection level: http://developer.android.com/intl/zh-cn/reference/android/Manifest.permission.html
+            Normal protection permissions are automatically enabled if they are included in the manifest. An example of a 
+            dangerous protection permission would be `android.permission.WRITE_CONTACTS`.
+            The requested permission(s) MUST also be included in the Android Manifest. 
+        type: Array<String>
+      - name: callback
+        summary: Function to call upon user decision to grant access.
+        optional: true
+        type: Callback<RequestPermissionAccessResult>
+    since: "5.4.0"
+
   - name: isServiceRunning
     summary: Check on state of Service.
     returns:
@@ -2195,3 +2225,7 @@ properties:
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
     constants: Titanium.Android.START_*
+---    
+name: RequestPermissionAccessResult
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse

@@ -66,11 +66,8 @@ public class CalendarModule extends KrollModule
 		if (hasCalendarPermissions()) {
 			return;
 		}
-		if (TiBaseActivity.calendarCallbackContext == null) {
-			TiBaseActivity.calendarCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.calendarPermissionCallback = permissionCallback;		
 
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback, getKrollObject());
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, TiC.PERMISSION_CODE_CALENDAR);
 		
