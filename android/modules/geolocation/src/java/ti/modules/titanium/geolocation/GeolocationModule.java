@@ -643,16 +643,14 @@ public class GeolocationModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.locationCallbackContext == null) {
-			TiBaseActivity.locationCallbackContext = getKrollObject();
-		}
-
+		KrollFunction permissionCB;
 		if (type instanceof KrollFunction && permissionCallback == null) {
-			TiBaseActivity.locationPermissionCallback = (KrollFunction) type;
+			permissionCB = (KrollFunction) type;
 		} else {
-			TiBaseActivity.locationPermissionCallback = permissionCallback;
+			permissionCB = permissionCallback;
 		}
 
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);		
 	}

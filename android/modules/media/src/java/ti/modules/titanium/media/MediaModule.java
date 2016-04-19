@@ -356,10 +356,6 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.cameraCallbackContext == null) {
-			TiBaseActivity.cameraCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.cameraPermissionCallback = permissionCallback;
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
 		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -368,8 +364,8 @@ public class MediaModule extends KrollModule
 		} else {
 	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
 		}
-		
 
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA,permissionCallback, getKrollObject());
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 		
