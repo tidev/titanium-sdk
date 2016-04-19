@@ -73,9 +73,6 @@
 
 -(void)setViews:(id)args
 {
-#if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
-	ENSURE_UI_THREAD(setViews, args)
-#endif
 	ENSURE_ARRAY(args);
 	for (id newViewProxy in args)
 	{
@@ -88,7 +85,9 @@
 #ifdef TI_USE_AUTOLAYOUT
 		[self makeViewPerformSelector:@selector(removeSubview:) withObject:[oldViewProxy view] createIfNeeded:NO waitUntilDone:NO];
 #else
-		[[oldViewProxy view] removeFromSuperview];
+		TiThreadPerformOnMainThread(^{
+		  [[oldViewProxy view] removeFromSuperview];
+		}, NO);
 #endif
 		if (![args containsObject:oldViewProxy])
 		{
@@ -126,7 +125,7 @@
 		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
 	}
 	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
