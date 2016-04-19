@@ -322,7 +322,11 @@ public class TiWebChromeClient extends WebChromeClient
 
         @Override
         public void callAsync(KrollObject krollObject, HashMap args) {
-            int resultCode = (int) args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            int resultCode = Activity.RESULT_CANCELED;
+            Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            if (objectResults instanceof Integer) {
+                resultCode = (Integer) objectResults;
+            }
             IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
             Intent data = null;
             if(intentProxy != null) {
@@ -367,7 +371,11 @@ public class TiWebChromeClient extends WebChromeClient
 
         @Override
         public void callAsync(KrollObject krollObject, HashMap args) {
-            int resultCode = (int) args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            int resultCode = Activity.RESULT_CANCELED;
+            Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
+            if (objectResults instanceof Integer) {
+                resultCode = (Integer) objectResults;
+            }
             IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
             Intent data = null;
             if(intentProxy != null) {
