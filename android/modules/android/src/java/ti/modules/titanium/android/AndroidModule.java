@@ -6,13 +6,18 @@
  */
 package ti.modules.titanium.android;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -269,6 +274,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
 	protected RProxy r;
+	private static final int REQUEST_CODE = 99;
 
 	public AndroidModule()
 	{
@@ -346,6 +352,41 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
+	@Kroll.method
+	public boolean hasPermission(String permission) {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
+	@Kroll.method
+	public void requestPermissions(String[] permissions, @Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (Build.VERSION.SDK_INT < 23) {
+			return;
+		}
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		ArrayList<String> filteredPermissions = new ArrayList<String>();
+		//filter out granted permissions
+		for (int i = 0; i < permissions.length; ++i) {
+			String perm = permissions[i];
+			if (currentActivity.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) {
+				continue;
+			}
+			filteredPermissions.add(perm);
+		}
+
+		if (filteredPermissions.size() == 0) {
+			Log.w(TAG, "Permission(s) already granted");
+			return;
+		}
+		TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
+		currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]), REQUEST_CODE);
+	}
 
 	@Kroll.method
 	public boolean isServiceRunning(IntentProxy intentProxy)

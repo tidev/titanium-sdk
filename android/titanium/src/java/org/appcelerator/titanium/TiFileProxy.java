@@ -275,11 +275,6 @@ public class TiFileProxy extends KrollProxy
 	{
 		try {
 
-			if (!TiFileHelper2.hasStoragePermission()) {
-				Log.e(TAG, "External storage permissions missing");
-				return false;
-			}
-
 			if (args != null && args.length > 0) {
 				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {

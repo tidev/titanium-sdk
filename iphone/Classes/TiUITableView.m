@@ -35,6 +35,7 @@
 @synthesize hitPoint,proxy;
 #pragma mark Touch event handling
 
+
 // TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
 // code which will allow better interactions with UIControl elements (such as buttons)
 // and table rows/cells.
@@ -295,6 +296,15 @@
 @implementation TiUITableView
 #pragma mark Internal 
 @synthesize searchString, viewWillDetach;
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 -(id)init
 {
@@ -1660,31 +1670,26 @@
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    [self tableView];
     DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
     [self setTableSeparatorInsets_:arg];
 }
 
 -(void)setTableSeparatorInsets_:(id)arg
 {
-    [self tableView];
-    
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
         CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
-        [tableview setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+        [[self tableView] setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
     } else {
-        [tableview setSeparatorInset:defaultSeparatorInsets];
+        [[self tableView] setSeparatorInset:defaultSeparatorInsets];
     }
     if (!searchActivated) {
-        [tableview setNeedsDisplay];
+        [[self tableView] setNeedsDisplay];
     }
 }
 
 -(void)setRowSeparatorInsets_:(id)arg
 {
-    [self tableView];
-    
     if ([arg isKindOfClass:[NSDictionary class]]) {
         
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
@@ -1692,10 +1697,9 @@
         rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
     }
     if (!searchActivated) {
-        [tableview setNeedsDisplay];
+        [[self tableView] setNeedsDisplay];
     }
 }
-
 
 -(void)setBackgroundColor_:(id)arg
 {
@@ -2477,6 +2481,11 @@ return result;	\
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = tableview.bounds.size.width;
+#ifdef TI_USE_AUTOLAYOUT
+    if (rowWidth == 0) {
+        rowWidth = [[[[[UIApplication sharedApplication] delegate] window] rootViewController] view].bounds.size.width;
+    }
+#endif
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -2501,8 +2510,15 @@ return result;	\
     return rowWidth;
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(CGFloat)tableView:(UITableView*)ourTableView estimatedHeightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    return 45;
+}
+#endif
+
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{    
+{
 	NSIndexPath* index = indexPath;
 	if (ourTableView != tableview) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];

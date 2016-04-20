@@ -106,6 +106,28 @@ static NSArray* touchEventsArray;
     }
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)setOnLayout:(id)callback
+{
+    ENSURE_SINGLE_ARG(callback, KrollCallback);
+    TiLayoutView* thisView = [self view];
+    if ([thisView onLayout] == nil) {
+        KrollCallback* __block _callback = [callback retain];
+        [thisView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+            [sender setOnLayout:nil];
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback: callback
+                                                                    eventObject: [TiUtils rectToDictionary:rect]
+                                                                     thisObject: self];
+            [[_callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+            RELEASE_TO_NIL(_callback);
+        }];
+    } else {
+        NSLog(@"[ERROR] onLayout can only be set once!");
+    }
+}
+#endif
+
 -(void)startLayout:(id)arg
 {
     DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
@@ -612,7 +634,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }
     }
     callback = (KrollCallback*)obj;
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
+	TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
@@ -1004,6 +1026,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Recognizers
 
+-(BOOL) implementsSelector:(SEL)inSelector {
+    return [self respondsToSelector:inSelector] && !( [super respondsToSelector:inSelector] && [self methodForSelector:inSelector] == [super methodForSelector:inSelector] );
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -1020,10 +1046,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		view = [self newView];
 
 #ifdef TI_USE_AUTOLAYOUT
-        if ([self respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoWidthBehavior:)]) {
             [view setDefaultWidth:[self defaultAutoWidthBehavior:nil]];
         }
-        if ([self respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoHeightBehavior:)]) {
             [view setDefaultHeight:[self defaultAutoHeightBehavior:nil]];
         }
 #endif
@@ -2304,7 +2330,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
 
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            
+            dispatch_block_t block = ^{
+                [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            };
+#ifdef TI_USE_KROLL_THREAD
+            block();
+#else
+            TiThreadPerformOnMainThread(block, NO);
+#endif
         }
 	}
 #ifdef VERBOSE

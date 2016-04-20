@@ -11,6 +11,12 @@
 #import <AddressBook/AddressBook.h>
 #import <Contacts/Contacts.h>
 
+@class TiContactsPerson;
+@protocol TiContactsPersonUpdateObserver <NSObject>
+@optional
+- (void)didUpdatePerson:(TiContactsPerson*)person;
+@end
+
 @class ContactsModule;
 
 @interface TiContactsPerson : TiProxy {
@@ -31,10 +37,19 @@
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 -(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_;
+
 @property(readonly,nonatomic) NSString* identifier;
+@property(assign, nonatomic) id<TiContactsPersonUpdateObserver> observer;
+
 +(NSDictionary*)iOS9multiValueLabels;
 +(NSDictionary*)iOS9propertyKeys;
--(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+				contactId:(CNMutableContact*)person_
+				   module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+                contactId:(CNMutableContact*)person_
+                   module:(ContactsModule*)module_
+                 observer:(id<TiContactsPersonUpdateObserver>) observer_;
 -(CNSaveRequest*)getSaveRequestForDeletion;
 -(CNSaveRequest*)getSaveRequestForAddition:(NSString*)containerIdentifier;
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group;

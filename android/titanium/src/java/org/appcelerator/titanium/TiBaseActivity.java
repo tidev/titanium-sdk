@@ -7,8 +7,11 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -93,8 +96,33 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
 
-	public static KrollObject storageCallbackContext, cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
-	public static KrollFunction storagePermissionCallback, cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
+
+	public static class PermissionContextData {
+		private final Integer requestCode;
+		private final KrollObject context;
+		private final KrollFunction callback;
+
+		public PermissionContextData(Integer requestCode, KrollFunction callback,
+									 KrollObject context) {
+			this.requestCode = requestCode;
+			this.callback = callback;
+			this.context = context;
+		}
+
+		public Integer getRequestCode() {
+			return requestCode;
+		}
+
+		public KrollFunction getCallback() {
+			return callback;
+		}
+
+		public KrollObject getContext() {
+			return context;
+		}
+	}
+
+	private static ConcurrentHashMap<Integer,PermissionContextData> callbackDataByPermission = new ConcurrentHashMap<Integer, PermissionContextData>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -421,57 +449,64 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return new TiCompositeLayout(this, arrangement, null);
 	}
 
-	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
-		if (callback == null) {
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		if (!callbackDataByPermission.isEmpty()) {
+			handlePermissionRequestResult(requestCode, permissions, grantResults);
+		}
+
+	}
+
+	private void handlePermissionRequestResult(Integer requestCode, String[] permissions, int[] grantResults) {
+		PermissionContextData cbd = callbackDataByPermission.get(requestCode);
+		if (cbd == null) {
 			return;
 		}
-		boolean granted = true;
+
+		String deniedPermissions = "";
 		for (int i = 0; i < grantResults.length; ++i) {
 			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-				granted = false;
-				break;
+				if (deniedPermissions.isEmpty()) {
+					deniedPermissions = permissions[i];
+				} else {
+					deniedPermissions = deniedPermissions + ", " + permissions[i];
+				}
 			}
 		}
-		if (granted) {
-			KrollDict response = new KrollDict();
+
+		KrollDict response = new KrollDict();
+
+		if (deniedPermissions.isEmpty()) {
 			response.putCodeAndMessage(0, null);
+		} else {
+			response.putCodeAndMessage(-1, "Permission(s) denied: " + deniedPermissions);
+		}
+
+		KrollFunction callback = cbd.getCallback();
+		if (callback != null) {
+			KrollObject context = cbd.getContext();
+			if (context == null) {
+				Log.w(TAG, "Permission callback context object is null");
+			}
 			callback.callAsync(context, response);
 		} else {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, "One or more permission(s) were denied");
-			callback.callAsync(context, response);
+			Log.w(TAG, "Permission callback function has not been set");
 		}
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode,
-		String permissions[], int[] grantResults) {
-		switch (requestCode) {
-			case TiC.PERMISSION_CODE_CAMERA: {
-				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
-				return;
-			}
-			case TiC.PERMISSION_CODE_OLD_CALENDAR: {
-				permissionCallback(grantResults, oldCalendarPermissionCallback, oldCalendarCallbackContext, "Calendar");
-				return;
-			}
-			case TiC.PERMISSION_CODE_CALENDAR: {
-				permissionCallback(grantResults, calendarPermissionCallback, calendarCallbackContext, "Calendar");
-				return;
-			}
-			case TiC.PERMISSION_CODE_LOCATION: {
-				permissionCallback(grantResults, locationPermissionCallback, locationCallbackContext, "Location");
-				return;
-			}
-			case TiC.PERMISSION_CODE_CONTACTS: {
-				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
-				return;
-			}
-			case TiC.PERMISSION_CODE_EXTERNAL_STORAGE: {
-				permissionCallback(grantResults, storagePermissionCallback, storageCallbackContext, "Storage");
-				return;
-			}
 
+	/**
+	 * register permission request result callback for activity
+	 *
+	 * @param requestCode request code (8 Bit) to associate callback with request
+	 * @param callback callback function which receives a KrollDict with success,
+	 *                 code, optional message and requestCode
+	 * @param context KrollObject as required by async callback pattern
+	 */
+	public static void registerPermissionRequestCallback(Integer requestCode, KrollFunction callback, KrollObject context) {
+		if (callback != null && context != null) {
+			callbackDataByPermission.put(requestCode, new PermissionContextData(requestCode, callback, context));
 		}
 	}
 

@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class ViewItem {
@@ -55,6 +56,19 @@ public class ViewItem {
 				applyProperty(property, value);
 			}
 		}
+
+		//backgroundImage and backgroundColor needs to be processed together
+		if (this.properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR) && diffProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
+				&& !diffProperties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			diffProperties.put(TiC.PROPERTY_BACKGROUND_COLOR, this.properties.get(TiC.PROPERTY_BACKGROUND_COLOR));
+		}
+
+		//if text is null, we can't filter out attributedString, otherwise we get an empty label. [TIMOB-20266]
+		if (this.properties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING) && diffProperties.containsKey(TiC.PROPERTY_TEXT)
+				&& diffProperties.get(TiC.PROPERTY_TEXT) == null && !diffProperties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			diffProperties.put(TiC.PROPERTY_ATTRIBUTED_STRING, this.properties.get(TiC.PROPERTY_ATTRIBUTED_STRING));
+		}
+
 		return diffProperties;
 		
 	}

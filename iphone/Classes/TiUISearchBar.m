@@ -19,6 +19,15 @@
 
 @implementation TiUISearchBar
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	[searchView setDelegate:nil];
@@ -285,7 +294,11 @@
 	}
 }
 
-
+- (BOOL)searchBar:(UISearchBar *)searchBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    [self processKeyPressed:text];
+    return YES;
+}
 @end
 
 #endif

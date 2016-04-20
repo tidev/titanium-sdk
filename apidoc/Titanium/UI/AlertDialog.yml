@@ -233,11 +233,23 @@ properties:
 
   - name: loginPlaceholder
     summary: Placeholder of the login text field inside the dialog.
+    deprecated:
+        since: "5.4.0"
+        notes: Use <Titanium.UI.AlertDialog.loginHintText> instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
+    platforms: [iphone, ipad]
+
+  - name: loginHintText
+    summary: Hint text of the login text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "5.4.0"
     platforms: [iphone, ipad]
 
   - name: loginReturnKeyType
@@ -287,11 +299,23 @@ properties:
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
+    deprecated:
+        since: "5.4.0"
+        notes: Use <Titanium.UI.AlertDialog.passwordHintText> instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
+    platforms: [iphone, ipad]
+
+  - name: passwordHintText
+    summary: Hint text of the password text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "5.4.0"
     platforms: [iphone, ipad]
 
   - name: passwordReturnKeyType
@@ -316,12 +340,25 @@ properties:
 
   - name: placeholder
     summary: Placeholder of the text field inside the dialog.
+    deprecated:
+        since: "5.4.0"
+        notes: Use <Titanium.UI.AlertDialog.hintText> instead.
     description: |
         Note that this property is only available if dialog `style` property is defined as
         <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: 5.1.0
+    platforms: [iphone, ipad]
+
+  - name: hintText
+    summary: Hint text of the text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    type: String
+    since: "5.4.0"
     platforms: [iphone, ipad]
 
   - name: persistent

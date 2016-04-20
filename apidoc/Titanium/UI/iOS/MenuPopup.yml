@@ -86,6 +86,7 @@ examples:
             win.open();
 
 ---
+
 name: MenuPopupShowParams
 summary: Dictionary of options for showing a menu popup with <Titanium.UI.iOS.MenuPopup.show>.
 platforms: [iphone,ipad]
@@ -99,13 +100,11 @@ properties:
     summary: The view where the menu pop is shown at.
     type: Titanium.UI.View
     optional: false
-
   - name: animated
     summary: Determines whether the menu popup should be opened or closed animated.
     type: Boolean
     default: true
     optional: true
-
   - name: arrowDirection
     summary: Indicates the arrow direction of the menu popup.
     description: Use this property to indicate the menu popups arrow to use. 

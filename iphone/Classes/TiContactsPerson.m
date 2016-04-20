@@ -61,11 +61,25 @@ static NSDictionary* iOS9propertyKeys;
 	return self;
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_
-{
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+				contactId:(CNMutableContact*)person_
+				   module:(ContactsModule*)module_ {
+	return [self _initWithPageContext:context contactId:person_ module:module_ observer:nil];
+}
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+                contactId:(CNMutableContact*)person_
+                   module:(ContactsModule*)module_
+                 observer:(id<TiContactsPersonUpdateObserver>) observer_ {
+    
 	if (self = [super _initWithPageContext:context]) {
-		person = [person_ retain];
+		if (![person_ isMemberOfClass:[CNMutableContact class]]) {
+			person = [person_ mutableCopy];
+		} else {
+			person = [person_ retain];
+		}
 		module = module_;
+		[self setObserver:observer_];
 		iOS9contactProperties = [[self getiOS9ContactProperties: person_] retain];
 	}
 	return self;
@@ -73,6 +87,7 @@ static NSDictionary* iOS9propertyKeys;
 
 -(void)dealloc
 {
+    [self setObserver:nil];
     RELEASE_TO_NIL(iOS9contactProperties)
     if (record != NULL) {
         CFRelease(record);
@@ -362,6 +377,7 @@ static NSDictionary* iOS9propertyKeys;
 	return dict;
 }
 
+
 -(NSDictionary*)dictionaryFromiOS9MultiValueArray:(NSArray *)property
 {
 	NSMutableDictionary *multiValueDict = [NSMutableDictionary dictionaryWithCapacity:[property count]];
@@ -574,16 +590,16 @@ static NSDictionary* iOS9propertyKeys;
 
 	if ([TiUtils isIOS9OrGreater]) {
 		if (person.imageDataAvailable == YES) {
-			TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:person.imageData]] autorelease];
+			TiBlob* imageBlob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImage imageWithData:person.imageData]] autorelease];
 			return imageBlob;
 		}
 		return nil;
 	}
-
+	
 	CFDataRef imageData = ABPersonCopyImageData([self record]);
 	if (imageData != NULL)
 	{
-		TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
+		TiBlob* imageBlob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
 		CFRelease(imageData);
 		
 		return imageBlob;
@@ -597,12 +613,12 @@ static NSDictionary* iOS9propertyKeys;
 -(void)setBirthday:(NSString*)date
 {
 	ENSURE_UI_THREAD(setBirthday, date)
-
 	if ([TiUtils isIOS9OrGreater]) {
 		NSDate *saveDate = [TiUtils dateForUTCDate:date];
 		unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
 		NSCalendar * cal = [NSCalendar currentCalendar];
 		person.birthday = [cal components:unitFlags fromDate:saveDate];
+		[self checkAndNotifyObserver];
 		return;
 	}
 
@@ -618,7 +634,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	id property = nil;
 
-    if ([TiUtils isIOS9OrGreater]) {
+	if ([TiUtils isIOS9OrGreater]) {
 		//birthday property managed seperately
 		if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
 			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
@@ -704,7 +720,6 @@ static NSDictionary* iOS9propertyKeys;
 	}
 
 	id property = nil;
-
 	if ([TiUtils isIOS9OrGreater]) {
 		NSArray *allKeys = [[TiContactsPerson iOS9propertyKeys] allKeysForObject:key];
 		//key is undefined
@@ -717,10 +732,9 @@ static NSDictionary* iOS9propertyKeys;
 		//For single string properties
 		if ([value isKindOfClass:[NSString class]]) {
 			[person setValue:value forKey:property];
-			return;
 		}
 		
-		if ([key isEqualToString:@"kind"]) {
+		else if ([key isEqualToString:@"kind"]) {
 			ENSURE_TYPE(value, NSNumber)
 			if ([module.CONTACTS_KIND_PERSON isEqualToNumber:value]) {
 				person.contactType = CNContactTypePerson;
@@ -728,10 +742,9 @@ static NSDictionary* iOS9propertyKeys;
 			else if ([module.CONTACTS_KIND_PERSON isEqualToNumber:value]) {
 				person.contactType = CNContactTypeOrganization;
 			}
-			return;
 		}
 
-		if ([key isEqualToString:@"alternateBirthday"]) {
+		else if ([key isEqualToString:@"alternateBirthday"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSDateComponents *comp = [[[NSDateComponents alloc] init] autorelease];
 			comp.era = [TiUtils doubleValue:[value objectForKey:@"era"]];
@@ -740,10 +753,9 @@ static NSDictionary* iOS9propertyKeys;
 			comp.year = [TiUtils doubleValue:[value objectForKey:@"year"]];
 			comp.calendar = [NSCalendar calendarWithIdentifier:[value objectForKey:@"calendarIdentifier"]];
 			person.nonGregorianBirthday = comp;
-			return;
 		}
 		
-		if ([key isEqualToString:@"phone"]) {
+		else if ([key isEqualToString:@"phone"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -757,9 +769,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setPhoneNumbers:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"email"]) {
+        
+		else if ([key isEqualToString:@"email"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -772,9 +784,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setEmailAddresses:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"url"]) {
+        
+		else if ([key isEqualToString:@"url"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -787,9 +799,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setUrlAddresses:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"date"]) {
+        
+		else if ([key isEqualToString:@"date"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -806,9 +818,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setDates:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"relatedNames"]) {
+        
+		else if ([key isEqualToString:@"relatedNames"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -822,9 +834,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setContactRelations:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"address"]) {
+        
+		else if ([key isEqualToString:@"address"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -844,9 +856,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setPostalAddresses:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"instantMessage"]) {
+        
+		else if ([key isEqualToString:@"instantMessage"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -860,9 +872,9 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setInstantMessageAddresses:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
-		if ([key isEqualToString:@"socialProfile"]) {
+        
+		else if ([key isEqualToString:@"socialProfile"]) {
 			ENSURE_TYPE(value, NSDictionary)
 			NSArray *keys = [value allKeys];
 			NSMutableArray *newObjects = [[NSMutableArray alloc] init];
@@ -880,8 +892,11 @@ static NSDictionary* iOS9propertyKeys;
 			}
 			[person setSocialProfiles:[NSArray arrayWithArray:newObjects]];
 			RELEASE_TO_NIL(newObjects)
-			return;
 		}
+		// Why we do this ?
+		// In >= iOS9 contacts are immutable as well. So when a change happens we should create an associated CNSaveRequest.
+		// By observing on this object the observer can update its CNSaveRequest accordingly.
+		[self checkAndNotifyObserver];
 		return;
 	}
 
@@ -951,6 +966,7 @@ static NSDictionary* iOS9propertyKeys;
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
+
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
@@ -958,6 +974,11 @@ static NSDictionary* iOS9propertyKeys;
 	return saveRequest;
 }
 
-@end
+- (void)checkAndNotifyObserver {
+	if ([self observer] && [[self observer] respondsToSelector:@selector(didUpdatePerson:)]) {
+		[[self observer] didUpdatePerson:self];
+	}
+}
 
+@end
 #endif

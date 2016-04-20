@@ -9,7 +9,9 @@ package ti.modules.titanium.media;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -53,6 +55,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
@@ -353,10 +356,6 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.cameraCallbackContext == null) {
-			TiBaseActivity.cameraCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.cameraPermissionCallback = permissionCallback;
 		String[] permissions = null;
 		if (!hasCameraPermission() && !hasStoragePermission()) {
 		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -365,8 +364,8 @@ public class MediaModule extends KrollModule
 		} else {
 	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
 		}
-		
 
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA,permissionCallback, getKrollObject());
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 		
@@ -910,8 +909,30 @@ public class MediaModule extends KrollModule
 
 	protected static KrollDict createDictForImage(String path, String mimeType) {
 		String[] parts = { path };
-		TiBlob imageData = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType);
+		TiBlob imageData;
+		// Workaround for TIMOB-19910. Image is in the Google Photos cloud and not on device.
+		if (path.startsWith("content://com.google.android.apps.photos.contentprovider")) {
+		    ParcelFileDescriptor parcelFileDescriptor;
+		    Bitmap image;
+		    try {
+		        parcelFileDescriptor = TiApplication.getInstance().getContentResolver().openFileDescriptor(Uri.parse(path), "r");
+		        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+		        image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+		        parcelFileDescriptor.close();
+		        imageData = TiBlob.blobFromImage(image);
+		    } catch (FileNotFoundException e) {
+		        imageData = createImageData(parts, mimeType);
+		    } catch (IOException e) {
+		        imageData = createImageData(parts, mimeType);
+		    }
+		} else {
+		    imageData = createImageData(parts, mimeType);
+		}
 		return createDictForImage(imageData, mimeType);
+	}
+
+	public static TiBlob createImageData(String[] parts, String mimeType){
+	    return TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType);
 	}
 
 	protected static KrollDict createDictForImage(TiBlob imageData, String mimeType) {

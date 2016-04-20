@@ -11,6 +11,15 @@
 
 @implementation TiUIiOSLivePhotoView
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 - (TiUIiOSLivePhotoViewProxy *)livePhotoViewProxy
 {
     return (TiUIiOSLivePhotoViewProxy *)self.proxy;
