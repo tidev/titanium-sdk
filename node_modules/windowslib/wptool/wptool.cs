@@ -173,7 +173,7 @@ namespace wptool
 
 				// ConnectableDevice throws an error when connecting to a physical Windows 10 device
 				// physical Windows 10 devices can be connected to using 127.0.0.1
-				if (connectableDevice.Version.Major == 10 && !connectableDevice.IsEmulator())
+				if (command == "connect" && connectableDevice.Version.Major == 10 && !connectableDevice.IsEmulator())
 				{
 					Console.WriteLine("{");
 					Console.WriteLine("\t\"success\": true,");
