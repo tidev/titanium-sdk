@@ -1,3 +1,15 @@
+0.4.9 (4/18/2016)
+-------------------
+  * [TIMOB-20611] Allow wptool to launch Windows 10 apps
+
+0.4.8 (4/14/2016)
+-------------------
+  * [TIMOB-20571] Combine device listings
+
+0.4.7 (4/13/2016)
+-------------------
+  * [TIMOB-20571] Add device version and wpsdk to enumerate
+
 0.4.6 (4/12/2016)
 -------------------
   * Fix to force uninstall then install if first install fails because an existing version is already installed for Win 10 mobile: https://jira.appcelerator.org/browse/TIMOB-23181
