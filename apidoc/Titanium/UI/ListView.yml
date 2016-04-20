@@ -291,6 +291,38 @@ events:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
+        
+  - name: insert
+    summary: Fired when a list row is inserted by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
 
   - name: dragstart
     summary: Fired when the user starts dragging the list view.
@@ -937,111 +969,6 @@ properties:
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
     
-  - name: ListViewAnimationProperties
-    summary: |
-      A simple object for specifying the animation properties to use when inserting or deleting
-      sections or cells, or scrolling the list.
-    description: |
-      These properties are only used on iOS. Not all properties apply to all methods.
-      `animationStyle` does not apply to the `scrollToItem` method.
-      `positon` only applies to the `scrollToItem` method.
-      Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
-    platforms: [iphone, ipad, android]
-    since: '3.1.0'
-    properties:
-    - name: animated
-      summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
-      type: Boolean
-      default: true
-    - name: animationStyle
-      summary: Type of animation to use for cell insertions and deletions.
-      type: Number
-      constants: Titanium.UI.iPhone.RowAnimationStyle.*
-      default: |
-        If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
-        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
-    - name: position
-      summary: Specifies what position to scroll the selected cell to.
-      type: Number
-      constants: Titanium.UI.iPhone.ListViewScrollPosition.*
-      default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
-      
-  - name: ListViewIndexEntry
-    summary: A simple object that represents an index entry in a `ListView`.
-    description: |
-      Used in conjunction with the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) property of the List View.
-    platforms: [iphone, ipad]
-    since: 3.2.0
-    properties:
-    - name: title
-      summary: Title to display in the index bar.
-      type: String
-    - name: index
-      summary: Section index associated with this title.
-      type: Number
-
-  - name: ListViewContentInsetOption
-    summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
-    description: |
-      On iOS, the optional parameters `animated` and `duration` to enable the animation and duration 
-      for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-    since: 3.2.0
-    platforms: [iphone, ipad]
-    properties:
-    - name: animated
-      summary: Determines whether the list view's content inset change is animated.
-      type: Boolean
-      default: false
-    - name: duration
-      summary: The duration in `milliseconds` for animation while the content inset is  being changed.
-      type: Number
-      
-  - name: ListViewMarkerProps
-    summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
-    description: |
-      Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
-
-        setMarker({sectionIndex:5, itemIndex:10});
-        addMarker({sectionIndex:7, itemIndex: 2});
-    since: 3.2.0
-    platforms: [iphone, ipad, android]
-    properties:
-    - name: sectionIndex
-      summary: The sectionIndex of the reference item.
-      type: Number
-    - name: itemIndex
-      summary: The itemIndex of the reference item.
-      type: Number
-
-  - name: ListViewEdgeInsets
-    summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-    description: |
-      On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
-      `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
-      For example
-
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
-    since: 3.2.0
-    platforms: [iphone, ipad]
-    properties:
-    - name: top
-      summary: Value specifying the top insets for the enclosing scroll view of the list view.
-      type: Number
-    
-    - name: left
-      summary: Value specifying the left insets for the enclosing scroll view of the list view.
-      type: Number
-    
-    - name: right
-      summary: Value specifying the right insets for the enclosing scroll view of the list view.
-      type: Number
-    
-    - name: bottom
-      summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
-      type: Number
-
 methods:
 
   - name: scrollToItem
@@ -1614,3 +1541,113 @@ examples:
                     </ListView>
                 </Window>
             </Alloy>
+
+---
+name: ListViewAnimationProperties
+summary: |
+    A simple object for specifying the animation properties to use when inserting or deleting
+    sections or cells, or scrolling the list.
+description: |
+    These properties are only used on iOS. Not all properties apply to all methods.
+    `animationStyle` does not apply to the `scrollToItem` method.
+    `positon` only applies to the `scrollToItem` method.
+    Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
+platforms: [iphone, ipad, android]
+since: '3.1.0'
+properties:
+  - name: animated
+    summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
+    type: Boolean
+    default: true
+  - name: animationStyle
+    summary: Type of animation to use for cell insertions and deletions.
+    type: Number
+    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    default: |
+        If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
+        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+  - name: position
+    summary: Specifies what position to scroll the selected cell to.
+    type: Number
+    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
+    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+
+---      
+name: ListViewIndexEntry
+summary: A simple object that represents an index entry in a `ListView`.
+description: |
+    Used in conjunction with the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) property of the List View.
+platforms: [iphone, ipad]
+since: 3.2.0
+properties:
+  - name: title
+    summary: Title to display in the index bar.
+    type: String
+  - name: index
+    summary: Section index associated with this title.
+    type: Number
+
+---
+name: ListViewContentInsetOption
+summary: Optional parameter for [setContentInsets](Titanium.UI.ListView.setContentInsets) method.
+description: |
+    On iOS, the optional parameters `animated` and `duration` to enable the animation and duration 
+    for animation while the content insets are updated. For example
+
+        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
+since: 3.2.0
+platforms: [iphone, ipad]
+properties:
+  - name: animated
+    summary: Determines whether the list view's content inset change is animated.
+    type: Boolean
+    default: false
+  - name: duration
+    summary: The duration in `milliseconds` for animation while the content inset is  being changed.
+    type: Number
+
+---     
+name: ListViewMarkerProps
+summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
+description: |
+    Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
+
+        setMarker({sectionIndex:5, itemIndex:10});
+        addMarker({sectionIndex:7, itemIndex: 2});
+since: 3.2.0
+platforms: [iphone, ipad, android]
+properties:
+  - name: sectionIndex
+    summary: The sectionIndex of the reference item.
+    type: Number
+  - name: itemIndex
+    summary: The itemIndex of the reference item.
+    type: Number
+
+---
+name: ListViewEdgeInsets
+summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
+description: |
+    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
+    `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
+    For example
+
+        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+since: 3.2.0
+platforms: [iphone, ipad]
+properties:
+  - name: top
+    summary: Value specifying the top insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: left
+    summary: Value specifying the left insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: right
+    summary: Value specifying the right insets for the enclosing scroll view of the list view.
+    type: Number
+    
+  - name: bottom
+    summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
+    type: Number

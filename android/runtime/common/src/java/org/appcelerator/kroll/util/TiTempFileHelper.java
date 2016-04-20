@@ -19,6 +19,7 @@ import org.appcelerator.kroll.common.Log;
 
 import android.app.Application;
 import android.os.Environment;
+import android.content.Context;
 
 /**
  * This class helps create and delete temporary files in the app's external cache directory.
@@ -38,11 +39,13 @@ public class TiTempFileHelper
 	private String previousExternalStorageState;
 	private String appPackageName;
 	private File internalCacheDir;
+	private Context context;
 
 	public TiTempFileHelper(Application app)
 	{
 		appPackageName = app.getPackageName();
 		internalCacheDir = app.getCacheDir();
+		context = app.getApplicationContext();
 
 		updateTempDir();
 	}
@@ -166,10 +169,8 @@ public class TiTempFileHelper
 			if (Environment.MEDIA_MOUNTED.equals(extState)) {
 
 				// See http://developer.android.com/guide/topics/data/data-storage.html#ExternalCache
-				// getExternalCacheDir() isn't available until API 8
-				File extStorage = Environment.getExternalStorageDirectory();
-				File dataDir = new File(new File(extStorage, "Android"), "data");
-				File externalCacheDir = new File(new File(dataDir, appPackageName), "cache");
+				// getExternalCacheDir() is available since API 8
+				File externalCacheDir = context.getExternalCacheDir();
 				tempDir = new File(externalCacheDir, TEMPDIR);
 			} else {
 				// Use internal storage cache if SD card is removed

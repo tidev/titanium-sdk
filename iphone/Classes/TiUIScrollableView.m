@@ -89,6 +89,9 @@
 	if (_dotsView==nil)
 	{
         _dotsView = [[UIPageControl alloc] init];
+        [_dotsView setBackgroundColor:pageControlBackgroundColor];
+        [_dotsView setPageIndicatorTintColor:pageIndicatorColor];
+        [_dotsView setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
         [_dotsView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_dotsView addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
         [super addSubview:_dotsView];
@@ -639,6 +642,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 }
 -(void)setPageIndicatorColor_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     TiColor* val = [TiUtils colorValue:args];
     if (val != nil) {
         RELEASE_TO_NIL(pageIndicatorColor);
@@ -651,6 +657,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 -(void)setCurrentPageIndicatorColor_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     TiColor* val = [TiUtils colorValue:args];
     if (val != nil) {
         RELEASE_TO_NIL(currentPageIndicatorColor);
@@ -792,13 +801,13 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 {
 #ifdef TI_USE_AUTOLAYOUT
 	UIScrollView* scrollview = [self scrollview];
+	NSInteger currentPage = _currentPage;
 #endif
 	NSInteger pageNum = [(UIPageControl *)sender currentPage];
 	[scrollview setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
 	handlingPageControlEvent = YES;
-	
-#ifndef TI_USE_AUTOLAYOUT
 	currentPage = pageNum;
+#ifndef TI_USE_AUTOLAYOUT
 	[self manageCache:currentPage];
 #endif
 	[self.proxy replaceValue:NUMINTEGER(pageNum) forKey:@"currentPage" notification:NO];
@@ -844,9 +853,9 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
         }
         pageChanged = YES;
         cacheSize = minCacheSize;
+#endif
         [pageControl setCurrentPage:nextPage];
         currentPage = nextPage;
-#endif
         [self.proxy replaceValue:NUMINTEGER(currentPage) forKey:@"currentPage" notification:NO];
 #ifndef TI_USE_AUTOLAYOUT
         cacheSize = curCacheSize;
@@ -899,6 +908,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
     UIScrollView* scrollview = _scrollView;
     UIPageControl* pageControl = _dotsView;
     NSInteger pageNum = _currentPage;
+	NSInteger currentPage = _currentPage;
 #endif
 
 	[self.proxy replaceValue:NUMINTEGER(pageNum) forKey:@"currentPage" notification:NO];
@@ -922,6 +932,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 	[self manageCache:currentPage];
 	[pageControl setCurrentPage:pageNum];
 #else
+    currentPage=pageNum;
     CGPoint contentOffset = [scrollView contentOffset];
     _currentPage = ceil(contentOffset.x / self.frame.size.width);
     [_dotsView setCurrentPage: _currentPage];

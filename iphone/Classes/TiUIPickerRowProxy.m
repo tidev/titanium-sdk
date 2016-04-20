@@ -30,7 +30,7 @@
     //Downside -> No touch events from pickerrow or its children
     //Upside -> It works and is performant. Accessibility is configured on the delegate
     
-    NSString *title = [self valueForKey:@"title"];
+    NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
     WebFont *pickerFont = [TiUtils fontValue:[self valueForKey:@"font"] def:[WebFont defaultFont]];
     if (title!=nil) {
         UILabel *pickerLabel = nil;
