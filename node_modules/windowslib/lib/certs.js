@@ -139,7 +139,11 @@ function thumbprint(certificateFile, password, callback) {
 			callback(new Error('No certificate was found at the path: "' + certificateFile + '"'));
 		}
 		else {
-			callback(null, out.split('Cert Hash(sha1): ')[1].split('\r')[0].split(' ').join('').toUpperCase());
+			try {
+				callback(null, out.split('Cert Hash(sha1): ')[1].split('\r')[0].split(' ').join('').toUpperCase());
+			} catch (E) {
+				callback(new Error('Unexpected output: ' + E.toString() + '\n' + out));
+			}
 		}
 	});
 }
