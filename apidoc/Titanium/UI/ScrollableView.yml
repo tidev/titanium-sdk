@@ -27,6 +27,19 @@ platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
 
 methods:
+  - name: insertViewsAt
+    summary: Inserts views at the specified position in the [views](Titanium.UI.ScrollableView.views) array.
+    parameters:
+      - name: position
+        summary: Position(index) in the [views](Titanium.UI.ScrollableView.views) array to insert the view
+        type: Number
+
+      - name: views
+        summary: Views to insert.
+        type: Array<Ti.UI.View>
+    since: 5.4.0
+    platforms: [android, iphone, ipad]
+
   - name: addView
     summary: Adds a new page to this Scrollable View.
     parameters:
