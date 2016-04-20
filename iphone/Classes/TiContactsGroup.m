@@ -143,7 +143,10 @@
 		CNContactFetchRequest *fetchRequest = [[CNContactFetchRequest alloc] initWithKeysToFetch:[ContactsModule contactKeysWithImage]];
 		fetchRequest.predicate = [CNContact predicateForContactsInGroupWithIdentifier:[group identifier]];
 		BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
-			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:module] autorelease];
+			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
+                                                                             contactId:(CNMutableContact*)contact
+                                                                                module:module
+                                                                              observer:module] autorelease];
 			[peopleRefs addObject:person];
 		}];
 		if (success) {
@@ -211,7 +214,11 @@
 		fetchRequest.sortOrder = sortOrder;
 		fetchRequest.mutableObjects = YES;
 		BOOL success = [ourContactStore enumerateContactsWithFetchRequest:fetchRequest error:&error usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop) {
-			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:module] autorelease];
+			// Observer is module because we want all changes to be propagated and the respective CNSaveRequest is updated.
+			TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
+                                                                             contactId:(CNMutableContact*)contact
+                                                                                module:module
+                                                                              observer:module] autorelease];
 			[peopleRefs addObject:person];
 		}];
 		RELEASE_TO_NIL(fetchRequest)
@@ -259,7 +266,6 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	ENSURE_UI_THREAD(add,arg);
-
 	if ([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
 		CNContactStore *ourContactStore = [module contactStore];

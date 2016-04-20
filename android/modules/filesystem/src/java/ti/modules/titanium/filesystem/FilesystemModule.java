@@ -104,12 +104,9 @@ public class FilesystemModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.storageCallbackContext == null) {
-			TiBaseActivity.storageCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.storagePermissionCallback = permissionCallback;
 		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, getKrollObject());
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
 
 	}

@@ -294,7 +294,11 @@
 	}
 }
 
-
+- (BOOL)searchBar:(UISearchBar *)searchBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    [self processKeyPressed:text];
+    return YES;
+}
 @end
 
 #endif

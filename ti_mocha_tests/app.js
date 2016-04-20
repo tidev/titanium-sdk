@@ -28,6 +28,7 @@ require('./ti.ui.textfield.test');
 require('./ti.ui.window.test');
 require('./ti.ui.attributedString.test');
 require('./ti.calendar.test');
+require('./ti.ui.scrollableview.test');
 /*require('./ti.accelerometer.test');
 require('./ti.app.test');
 require('./ti.app.properties.test');

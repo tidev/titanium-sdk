@@ -4,7 +4,7 @@
  * @module simulator
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -935,6 +935,7 @@ function launch(simHandleOrUDID, options, callback) {
 						var smsRegExp = / SpringBoard\[\d+\]\: SMS Plugin initialized/,
 							systemLogRegExp = new RegExp(' ' + handle.appName + '\\[(\\d+)\\]: (.*)'),
 							watchLogMsgRegExp = handle.type === 'ios' && watchAppId ? new RegExp('companionappd\\[(\\d+)\\]: \\((.+)\\) WatchKit: application \\(' + watchAppId + '\\),?\w*(.*)') : null,
+							xcode73WatchLogMsgRegExp = handle.type === 'ios' && watchAppId ? new RegExp('Installation of ' + watchAppId + ' (.*).') : null,
 							watchInstallRegExp = /install status: (\d+), message: (.*)$/,
 							successRegExp = /succeeded|success/i,
 							crash1RegExp = /^\*\*\* Terminating app/, // objective-c issue
@@ -955,6 +956,18 @@ function launch(simHandleOrUDID, options, callback) {
 
 							if (!booted || !handle.installing) {
 								return;
+							}
+
+							if (xcode73WatchLogMsgRegExp) {
+								if (m = line.match(xcode73WatchLogMsgRegExp)) {
+									if (m[1] === 'acknowledged') {
+										emitter.emit('log-debug', __('Watch App installed successfully!'));
+										handle.installed = true;
+									} else {
+										simEmitter.emit('error', new Error(__('Watch App installation failure')));
+									}
+									return;
+								}
 							}
 
 							if (watchLogMsgRegExp) {
