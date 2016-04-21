@@ -299,6 +299,7 @@ methods:
     type: Array<String>
     since: "5.4.0"
     platforms: [android]
+    availability: creation
 
 
 events:
