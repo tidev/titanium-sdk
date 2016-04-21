@@ -290,6 +290,17 @@ methods:
         summary: Forces the web view to destroy the iFrame (Mobile Web only).
         type: Boolean
 
+- name: blacklistedURLs
+    summary: |
+        An array of url strings to blacklist.
+    description: |
+        An array of url strings to blacklist. This will stop the webview from going to urls listed in
+        the blacklist.
+    type: Array<String>
+    since: "5.4.0"
+    platforms: [android]
+    availability: creation
+
 
 events:
 
