@@ -300,6 +300,12 @@ static NSArray* touchEventsArray;
 	// obfuscate this class name
 	static Class hlClassName = nil;
 	if (hlClassName == nil) hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop",@"Class"]);
+	if ([arg isKindOfClass:[NSArray class]]) {
+		for (id each in arg) {
+			[self remove:each];
+		}
+		return;
+	}
 	if ([arg isKindOfClass:[UIView class]] || (hlClassName != nil && [arg isKindOfClass:hlClassName])) {
 		
 		TiUIView *tmpView;
