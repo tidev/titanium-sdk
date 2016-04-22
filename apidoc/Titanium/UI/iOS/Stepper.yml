@@ -13,7 +13,7 @@ description: |
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.
-    Use the <Titanium.UI.createStepper> method or a **`<stepper>`** Alloy element to create a stepper
+    Use the <Titanium.UI.createStepper> method or a **`<Stepper>`** Alloy element to create a stepper
     (see [Examples](#!/api/Titanium.UI.iOS.Stepper-examples)) .
 
     * When assigning a custom image to the `backgroundImage` property, the image must be
