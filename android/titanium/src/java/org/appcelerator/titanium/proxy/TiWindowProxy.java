@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -527,12 +528,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity) {
-	    if (LOLLIPOP_OR_GREATER && !sharedElementPairs.isEmpty()) {
+	    if (hasActivityTransitions()) {
 	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
 	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
 	        return b;
 	    } else {
 	        return null;
 	    }
+	}
+	
+	/** 
+	 * @return true if this window has activity transitions  
+	 */
+	protected boolean hasActivityTransitions() {
+	    final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
+	    return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
 	}
 }
