@@ -401,7 +401,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (pictureSize != null) {
 			param.setPictureSize(pictureSize.width, pictureSize.height);
 		}
-
+		if (mediaType == MEDIA_TYPE_VIDEO) {
+			param.setRecordingHint(true);
+		}
 		camera.setParameters(param);
 
 		try {
