@@ -450,7 +450,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		CamcorderProfile profile = CamcorderProfile.get(whichCamera, videoQuality);
 		
-		//Size videoSize = getOptimalPreviewSize(supportedVideoSizes);		
 		if (optimalVideoSize != null) {
 			profile.videoFrameWidth = optimalVideoSize.width;
 	        profile.videoFrameHeight = optimalVideoSize.height;
@@ -461,7 +460,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		        profile.videoFrameHeight = videoSize.height;
 			}
 		}
-		
 		int result  = TiApplication.getInstance().getRootActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO");
     	if (result == PackageManager.PERMISSION_GRANTED) {
 			recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	
@@ -873,6 +871,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				.getSupportedPreviewSizes();
 		supportedVideoSizes = camera.getParameters()
 				.getSupportedVideoSizes();
+		if (supportedVideoSizes==null){
+			supportedVideoSizes = camera.getParameters()
+					.getSupportedPreviewSizes();
+		}
 		optimalPreviewSize = null; // Re-calc'd in PreviewLayout.onMeasure.
 		optimalVideoSize = null; // Re-calc'd in PreviewLayout.onMeasure.
 	}
