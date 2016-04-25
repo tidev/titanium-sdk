@@ -57,6 +57,7 @@ properties:
     type: Number
     constants: Titanium.UI.Android.GRAVITY_*
     platforms: [android]
+    since: "5.4.0"
   - name: xOffset
     summary: X offset from the default position, in pixels.
     type: Number
