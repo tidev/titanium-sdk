@@ -62,8 +62,6 @@ public class TiUINotification extends TiUIView
 			offsetY = TiConvert.toInt(proxy.getProperty("offsetY"));
 		}
 
-		// Left gravity off from the docco - not sure what your general opinion is about specifying the gravity
-		// So for now this is a hidden property
 		if (proxy.hasProperty("gravity")) {
 			gravity = TiConvert.toInt(proxy.getProperty("gravity"));
 		}
