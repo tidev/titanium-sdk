@@ -225,8 +225,7 @@ public class TiUIText extends TiUIView
 	{
 		int paddingLeft = 0;
 		int paddingRight = 0;
-		int paddingTop = 0;
-		int paddingBottom = 0;
+		
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
 			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_LEFT);
 		} else {
@@ -237,17 +236,9 @@ public class TiUIText extends TiUIView
 		} else {
 			paddingRight = tv.getPaddingRight();
 		}
-		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			paddingTop = TiConvert.toInt(d, TiC.PROPERTY_TOP);
-		} else {
-			paddingTop = tv.getPaddingTop();
-		}
-		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d, TiC.PROPERTY_BOTTOM);
-		} else {
-			paddingBottom = tv.getPaddingBottom();
-		}
-		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		
+		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
+		tv.setGravity(Gravity.CENTER_VERTICAL);
 	}
 
 	@Override

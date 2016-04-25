@@ -46,10 +46,26 @@ methods:
     platforms: [iphone, ipad]
     
   - name: padding
-    summary: Sets the padding of this TextArea.
+    summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: Padding
     platforms: [android, ios, ipad]
     since: 5.4.0
+    
+  - name: paddingLeft
+    summary: Left padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "5.4.0"
+        notes: Use padding instead    
+    
+  - name: paddingRight
+    summary: Right padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "5.4.0"
+        notes: Use padding instead    
     
   - name: setSelection
     summary: Selects the text in range (start, end).
@@ -538,11 +554,3 @@ properties:
   - name: right
     type: Number
     summary: Right padding
-    
-  - name: top
-    type: Number
-    summary: Top padding
-    
-  - name: bottom
-    type: Number
-    summary: Bottom padding
