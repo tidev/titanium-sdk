@@ -50,7 +50,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -73,7 +72,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private PreviewLayout previewLayout;
 	private FrameLayout cameraLayout;
 	private boolean previewRunning = false;
-	private static int currentRotation;
+	private int currentRotation;
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
