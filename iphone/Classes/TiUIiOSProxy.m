@@ -102,6 +102,10 @@
 #import "TiUIiOSBlurViewProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepperProxy.h"
+#endif
+
 @implementation TiUIiOSProxy
 
 #define FORGET_AND_RELEASE(x) \
@@ -712,6 +716,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 -(id)createBlurView:(id)args
 {
     return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSSTEPPER
+-(id)createStepper:(id)args
+{
+    return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
 }
 #endif
 

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,8 +27,8 @@
     BOOL enforceCacheRecalculation;
     NSInteger cacheSize;
     BOOL pageChanged;
-#endif
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
+#endif
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
 	UIColor *pageIndicatorColor;

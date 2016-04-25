@@ -101,6 +101,15 @@ public class TiWebViewClient extends WebViewClient
 	{
 		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
 
+		if (webView.getProxy().hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
+		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
+		    for(String site : blacklistedSites) {
+		        if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
+		            return true;
+		        }
+		    }
+		}
+
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
 			webView.getProxy().setPropertyAndFire(TiC.PROPERTY_URL, url);

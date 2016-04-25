@@ -132,7 +132,7 @@ public class TiUIScrollableView extends TiUIView
 
 					// If we don't use this state variable to check if it's a valid
 					// scroll, this event will fire when the view is first created
-					// because on creation, the scroll state is initialized to 
+					// because on creation, the scroll state is initialized to
 					// `idle` and this handler is called.
 					isValidScroll = false;
 				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
@@ -272,7 +272,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
 			setViews(d.get(TiC.PROPERTY_VIEWS));
-		} 
+		}
 
 		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
 			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
@@ -297,13 +297,12 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
-    		if (d.containsKey("cacheSize")) {
-        		int cacheSize = TiConvert.toInt(d.get("cacheSize"));
-        		mPager.setOffscreenPageLimit(cacheSize);
-    		}
-    		
+		if (d.containsKey("cacheSize")) {
+			int cacheSize = TiConvert.toInt(d.get("cacheSize"));
+			mPager.setOffscreenPageLimit(cacheSize);
+		}
+		
 		super.processProperties(d);
-
 	}
 
 	@Override
@@ -344,7 +343,11 @@ public class TiUIScrollableView extends TiUIView
 	public void removeView(TiViewProxy proxy)
 	{
 		if (mViews.contains(proxy)) {
+			if (mCurIndex > 0 && mCurIndex == (mViews.size() - 1)) {
+				setCurrentPage(mCurIndex - 1);
+			}
 			mViews.remove(proxy);
+			proxy.releaseViews();
 			proxy.setParent(null);
 			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 			mAdapter.notifyDataSetChanged();
@@ -443,10 +446,17 @@ public class TiUIScrollableView extends TiUIView
 	public void setViews(Object viewsObject)
 	{
 		boolean changed = false;
+		int oldSize = mViews.size();
+
 		clearViewsList();
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
+
+			if (oldSize > 0 && views.length == 0) {
+				changed = true;
+			}
+
 			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {

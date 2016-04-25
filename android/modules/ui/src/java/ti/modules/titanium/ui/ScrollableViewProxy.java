@@ -106,7 +106,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				break;
 			case MSG_SET_VIEWS: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object views = holder.getArg(); 
+				Object views = holder.getArg();
 				getView().setViews(views);
 				holder.setResult(null);
 				handled = true;
@@ -126,7 +126,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			}
 			case MSG_REMOVE_VIEW: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object view = holder.getArg(); 
+				Object view = holder.getArg();
 				if (view instanceof TiViewProxy) {
 					getView().removeView((TiViewProxy) view);
 					handled = true;

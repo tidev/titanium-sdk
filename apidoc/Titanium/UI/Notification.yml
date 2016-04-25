@@ -52,6 +52,12 @@ properties:
     type: Number
     constants: Titanium.UI.NOTIFICATION_DURATION_*
     default: <Titanium.UI.NOTIFICATION_DURATION_SHORT>
+  - name: gravity
+    summary: Determines the location at which the notification should appear on the screen.
+    type: Number
+    constants: Titanium.UI.Android.GRAVITY_*
+    platforms: [android]
+    since: "5.4.0"
   - name: xOffset
     summary: X offset from the default position, in pixels.
     type: Number

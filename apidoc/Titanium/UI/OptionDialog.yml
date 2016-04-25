@@ -71,7 +71,7 @@ excludes:
                  backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
                  backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
                  children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
-                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,top,touchEnabled,transform,
                  viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:

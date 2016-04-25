@@ -531,6 +531,8 @@
         return NO;
     }
     
+    [self processKeyPressed:string];
+    
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
