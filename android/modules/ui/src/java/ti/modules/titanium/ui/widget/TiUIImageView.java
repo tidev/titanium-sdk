@@ -847,7 +847,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 		}
-		if (d.containsKey("tintColor")) {
+		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
 			setTintColor(d.getString("tintColor"));
 		}
 
