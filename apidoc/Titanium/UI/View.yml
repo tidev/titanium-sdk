@@ -404,12 +404,12 @@ events:
       - name: force
         summary: |
             The current force value of the touch event.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on Android devices.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on some Android devices.
         type: Number
         
       - name: size
         summary: |
-            The current size of the touch area. Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available on some Android devices.
         type: Number
         
       - name: maximumPossibleForce
@@ -448,12 +448,12 @@ events:
       - name: force
         summary: |
             The current force value of the touch event.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on Android devices.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on some Android devices.
         type: Number
         
       - name: size
         summary: |
-            The current size of the touch area. Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available on some Android devices.
         type: Number
 
       - name: maximumPossibleForce
@@ -491,12 +491,12 @@ events:
       - name: force
         summary: |
             The current force value of the touch event.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on Android devices.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on some Android devices.
         type: Number
         
       - name: size
         summary: |
-            The current size of the touch area. Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available on some Android devices.
         type: Number
         
       - name: maximumPossibleForce
@@ -532,12 +532,12 @@ events:
       - name: force
         summary: |
             The current force value of the touch event.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on Android devices.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later and on some Android devices.
         type: Number
         
       - name: size
         summary: |
-            The current size of the touch area. Note: This property is only available Android devices.
+            The current size of the touch area. Note: This property is only available on some Android devices.
         type: Number
 
       - name: maximumPossibleForce
