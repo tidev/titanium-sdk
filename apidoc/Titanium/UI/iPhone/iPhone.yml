@@ -181,14 +181,14 @@ properties:
     type: Number
     deprecated:
         since: "5.4.0"
-        notes: Use [Ti.UI.iOS.appBadge](Ti.UI.iOS.appBadge) instead.
+        notes: Use Titanium.UI.iOS.appBadge instead.
 
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
     type: Boolean
     deprecated:
         since: "5.4.0"
-        notes: Use [Titanium.UI.iOS.appSupportsShakeToEdit](Titanium.UI.iOS.appSupportsShakeToEdit) instead.
+        notes: Use Titanium.UI.iOS.appSupportsShakeToEdit instead.
 
   - name: statusBarHidden
     summary: Determines whether the status bar is hidden.
@@ -199,7 +199,7 @@ properties:
     permission: read-only
     deprecated:
         since: "3.1.3"
-        notes: Use [Titanium.UI.windows.fullscreen](Titanium.UI.windows.fullscreen) instead.
+        notes: Use Titanium.UI.Window.fullscreen instead.
         removed: "6.0.0"
 
   - name: statusBarStyle
@@ -214,7 +214,7 @@ properties:
     permission: read-only
     deprecated:
         since: "3.1.3"
-        notes: Use [Titanium.UI.Window.statusBarStyle](Titanium.UI.Window.statusBarStyle) instead.
+        notes: Use Titanium.UI.Window.statusBarStyle instead.
         removed: "6.0.0"
 ---
 name: hideStatusBarParams

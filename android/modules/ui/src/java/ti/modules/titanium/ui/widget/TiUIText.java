@@ -616,7 +616,14 @@ public class TiUIText extends TiUIView
 		if (start < 0 || start > textLength || end < 0 || end > textLength) {
 			Log.w(TAG, "Invalid range for text selection. Ignoring.");
 			return;
-		}	
+		}
+
+		// http://stackoverflow.com/a/35527348/1504248
+		Editable text = tv.getText();
+		if (text.length() > 0) {
+			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+		}
+		
 		tv.setSelection(start, end);
 	}
 	

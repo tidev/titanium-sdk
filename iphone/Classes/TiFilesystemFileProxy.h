@@ -30,9 +30,6 @@
 @property(nonatomic,readonly) id executable;
 @property(nonatomic,readonly) id hidden;
 
-@property(nonatomic,readwrite,assign) NSNumber* remoteBackup;
-
-
 @end
 
 #endif

@@ -676,6 +676,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ADD = "add";
+    
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ADDRESS = "address";
 
 	/**
@@ -904,6 +909,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BIRTHDAY = "birthday";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
 	 * @module.api
@@ -1734,6 +1744,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 
 	/**
@@ -1929,6 +1944,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MOTHER = "mother";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MULTIPLY = "multiply";
+    
 	/**
 	 * @module.api
 	 */
@@ -2635,6 +2655,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
 	 * @module.api
