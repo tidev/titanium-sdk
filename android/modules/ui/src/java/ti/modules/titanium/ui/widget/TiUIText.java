@@ -238,7 +238,9 @@ public class TiUIText extends TiUIView
 		}
 		
 		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
-		tv.setGravity(Gravity.CENTER_VERTICAL);
+		if (field) {
+			tv.setGravity(Gravity.CENTER_VERTICAL);
+		}
 	}
 
 	@Override
