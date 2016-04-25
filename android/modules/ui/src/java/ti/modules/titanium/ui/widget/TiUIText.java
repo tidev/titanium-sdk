@@ -623,7 +623,7 @@ public class TiUIText extends TiUIView
 		if (text.length() > 0) {
 			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
 		}
-			
+		
 		tv.setSelection(start, end);
 	}
 	
