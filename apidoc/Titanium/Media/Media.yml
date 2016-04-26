@@ -171,10 +171,14 @@ methods:
     platforms: [iphone, ipad, android]
   - name: startVideoCapture
     summary: Starts video capture using the camera specified.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: 5.4.0
   - name: stopVideoCapture
     summary: Stops video capture using the camera specified.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: 5.4.0    
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -1532,15 +1536,28 @@ properties:
     constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: 5.4.0    
   - name: videoMaximumDuration
     summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: 5.4.0    
   - name: videoQuality 
     summary: Constant to indicate the video quality during capture. 
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: 5.4.0  
+  - name: whichCamera
+    summary: Opens the camera with the specified camera direction.
+    type: Number
+    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
+    platforms: [android]
+    since:
+        android: 5.4.0      
   - name: showControls 
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
@@ -1790,4 +1807,3 @@ properties:
   - name: outputs
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<Object>
-
