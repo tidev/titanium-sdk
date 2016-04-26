@@ -109,23 +109,45 @@
 	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
+-(void)insertViewsAt:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+    ENSURE_UI_THREAD(insertViewsAt, args);
+    ENSURE_TYPE([args objectAtIndex:0], NSNumber);
+    
+    NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    id arg = [args objectAtIndex:1];
+    
+    if ([arg isKindOfClass:[TiViewProxy class]]) {
+        [self _addView:arg atIndex:insertIndex];
+    } else if ([arg isKindOfClass:[NSArray class]]) {
+        for (id newViewProxy in arg) {
+            [self _addView:newViewProxy atIndex:insertIndex++];
+        }
+    }
+}
+
 -(void)addView:(id)args
 {
-	ENSURE_SINGLE_ARG(args,TiViewProxy);
+    ENSURE_SINGLE_ARG(args,TiViewProxy);
+    [self _addView:args atIndex:viewProxies ? [viewProxies count] : 0];
+}
 
-	[self lockViewsForWriting];
-	[self rememberProxy:args];
-	[args setParent:self];
-	if (viewProxies != nil)
-	{
-		[viewProxies addObject:args];
-	}
-	else
-	{
-		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
-	}
-	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+// Private, used to have only one method repsonsible for adding views
+-(void)_addView:(TiViewProxy*)proxy atIndex:(NSUInteger)index
+{
+    [self lockViewsForWriting];
+    [self rememberProxy:proxy];
+    [proxy setParent:self];
+    
+    if (viewProxies != nil) {
+        [viewProxies insertObject:proxy atIndex:index];
+    } else {
+        viewProxies = [[NSMutableArray alloc] initWithObjects:proxy,nil];
+    }
+    
+    [self unlockViews];
+    [self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args

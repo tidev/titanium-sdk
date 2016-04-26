@@ -340,6 +340,40 @@ public class TiUIScrollableView extends TiUIView
 		}
 	}
 
+	public void insertViewsAt(int insertIndex, Object object)
+	{
+		if (object instanceof TiViewProxy) {
+			// insert a single view at insertIndex
+			TiViewProxy proxy = (TiViewProxy) object;
+			if (!mViews.contains(proxy)) {
+				proxy.setActivity(this.proxy.getActivity());
+				proxy.setParent(this.proxy);
+				mViews.add(insertIndex, proxy);
+				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+				mAdapter.notifyDataSetChanged();
+			}
+		}
+		else if (object instanceof Object[]) {
+			// insert many views at insertIndex
+			boolean changed = false;
+			Object[] views = (Object[])object;
+			Activity activity = this.proxy.getActivity();
+			for (int i = 0; i < views.length; i++) {
+				if (views[i] instanceof TiViewProxy) {
+					TiViewProxy tv = (TiViewProxy)views[i];
+					tv.setActivity(activity);
+					tv.setParent(this.proxy);
+					mViews.add(insertIndex, tv);
+					changed = true;
+				}
+			}
+			if (changed) {
+				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
+				mAdapter.notifyDataSetChanged();
+			}
+		}
+	}
+
 	public void removeView(TiViewProxy proxy)
 	{
 		if (mViews.contains(proxy)) {
