@@ -122,7 +122,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		{
 			final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
 			final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        	setMeasuredDimension(width, height);
+			setMeasuredDimension(width, height);
 		
 			int previewWidth = MeasureSpec.getSize(widthMeasureSpec);
 			int previewHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -165,7 +165,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		// checks if device has only front facing camera and sets it
 		checkWhichCameraAsDefault();
-		
+
 		// create camera preview
 		preview = new SurfaceView(this);
 		SurfaceHolder previewHolder = preview.getHolder();
@@ -183,10 +183,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
 		setContentView(cameraLayout);
-		
+
 	}
-	
-	
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
@@ -453,12 +451,12 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		if (optimalVideoSize != null) {
 			profile.videoFrameWidth = optimalVideoSize.width;
-	        profile.videoFrameHeight = optimalVideoSize.height;
+			profile.videoFrameHeight = optimalVideoSize.height;
 		} else {
 			Size videoSize = getOptimalPictureSize(supportedVideoSizes);
-			if (videoSize!=null){
-				profile.videoFrameWidth = videoSize.width;
-		        profile.videoFrameHeight = videoSize.height;
+			if (videoSize != null) {
+			    profile.videoFrameWidth = videoSize.width;
+			    profile.videoFrameHeight = videoSize.height;
 			}
 		}
 		int result  = TiApplication.getInstance().getRootActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO");
@@ -468,11 +466,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		} else {
 			// only video - no sound
 			Log.w(TAG, "To record audio please request RECORD_AUDIO permission");
-			recorder.setOutputFormat(profile.fileFormat);                  
-		    recorder.setVideoFrameRate(profile.videoFrameRate);                
-		    recorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);              
-		    recorder.setVideoEncodingBitRate(profile.videoBitRate);                
-		    recorder.setVideoEncoder(profile.videoCodec);		
+			recorder.setOutputFormat(profile.fileFormat);
+			recorder.setVideoFrameRate(profile.videoFrameRate);
+			recorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+			recorder.setVideoEncodingBitRate(profile.videoBitRate);
+			recorder.setVideoEncoder(profile.videoCodec);
 		}
 		
 		recorder.setOrientationHint(cameraRotation);
@@ -583,36 +581,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	 */
 	private static Size getOptimalPreviewSize(List<Size> sizes, int w, int h)
 	{		
-		final double ASPECT_TOLERANCE = 0.1;
-    	double targetRatio = (double) w / h;
-    	if (sizes == null) return null;
+	    final double ASPECT_TOLERANCE = 0.1;
+	    double targetRatio = (double) w / h;
+	    if (sizes == null) return null;
 
-    	Size optimalSize = null;
-    	double minDiff = Double.MAX_VALUE;
+	    Size optimalSize = null;
+	    double minDiff = Double.MAX_VALUE;
 
-    	int targetHeight = h;
+	    int targetHeight = h;
 
-		// Try to find an size match aspect ratio and size
-		for (Size size : sizes) {
-		    double ratio = (double) size.width / size.height;
-		    if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-		    if (Math.abs(size.height - targetHeight) < minDiff) {
-		        optimalSize = size;
-		        minDiff = Math.abs(size.height - targetHeight);
-		    }
-		}
-		
-        // Cannot find the one match the aspect ratio, ignore the requirement
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
+	    // Try to find an size match aspect ratio and size
+	    for (Size size : sizes) {
+	        double ratio = (double) size.width / size.height;
+	        if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+	        if (Math.abs(size.height - targetHeight) < minDiff) {
+	            optimalSize = size;
+	            minDiff = Math.abs(size.height - targetHeight);
+	        }
+	    }
+
+	    // Cannot find the one match the aspect ratio, ignore the requirement
+	    if (optimalSize == null) {
+	        minDiff = Double.MAX_VALUE;
+	        for (Size size : sizes) {
+	            if (Math.abs(size.height - targetHeight) < minDiff) {
+	                optimalSize = size;
+	                minDiff = Math.abs(size.height - targetHeight);
+	            }
+	        }
+	    }
+	    return optimalSize;
 	}
 	
 	/**
@@ -797,8 +795,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		TiCameraActivity.getBackCameraId();
 		if (backCameraId == Integer.MIN_VALUE && frontCameraId != Integer.MIN_VALUE) {
 			TiCameraActivity.whichCamera = MediaModule.CAMERA_FRONT;
-		} else {
-			
 		}
 	}
 

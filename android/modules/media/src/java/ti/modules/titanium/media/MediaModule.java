@@ -120,7 +120,6 @@ public class MediaModule extends KrollModule
 
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
-	
 
 	@Kroll.constant public static final int CAMERA_FRONT = 0;
 	@Kroll.constant public static final int CAMERA_REAR = 1;
@@ -573,10 +572,11 @@ public class MediaModule extends KrollModule
 	{
 		return super.handleMessage(message);
 	}
-	
+
 	protected static File createExternalStorageFile() {
 		return createExternalStorageFile(null);
 	}
+
 	protected static File createGalleryImageFile() {
 		return createGalleryImageFile(extension);
 	}
