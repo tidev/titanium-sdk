@@ -311,12 +311,19 @@ static NSArray* touchEventsArray;
 		TiUIView *tmpView;
 		if ([arg isKindOfClass: hlClassName]) {
 			UIView* v = [arg performSelector: nativeObjSel];
+			if (![v isKindOfClass:[UIView class]]) {
+				NSLog(@"[WARN] Trying to remove an object that is not a view");
+				return;
+			}
 			tmpView = (TiUIView*)[v superview];
 		} else {
 			tmpView = (TiUIView*)[(UIView*)arg superview];
 		}
 		if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
 			arg = [tmpView proxy];
+		} else {
+			NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
+			return;
 		}
 	}
 #endif
