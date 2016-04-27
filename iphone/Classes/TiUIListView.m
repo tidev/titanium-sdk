@@ -1936,6 +1936,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
 }
 
+- (BOOL) searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    TiColor *resultBgColor = [TiUtils colorValue:[self.proxy valueForKey:@"searchResultBackgroundColor"]];
+    
+    resultBgColor? [[self class] setBackgroundColor:resultBgColor onTable:controller.searchResultsTableView]: [[self class] setBackgroundColorWithUIColor:_tableView.backgroundColor onTable:controller.searchResultsTableView];
+    [controller.searchResultsTableView setSeparatorColor:[[TiUtils colorValue:[self.proxy valueForKey:@"searchResultSeparatorColor"]] _color]?:_tableView.separatorColor];
+    
+    return YES;
+}
+
 - (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     self.searchString = @"";
@@ -2129,9 +2139,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 + (void)setBackgroundColor:(TiColor*)color onTable:(UITableView*)table
 {
+    [self setBackgroundColorWithUIColor:[color _color] onTable:table];
+}
+
++ (void)setBackgroundColorWithUIColor:(UIColor*)bgColor onTable:(UITableView*)table
+{
 	UIColor* defaultColor = [table style] == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
-	UIColor* bgColor = [color _color];
-	
+
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
 	if (([table style] == UITableViewStyleGrouped) && [TiUtils isIPad]) {
