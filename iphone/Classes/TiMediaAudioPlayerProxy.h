@@ -17,7 +17,6 @@
 	double volume;
     double duration;
 	AudioStreamer *player;
-	BOOL progress;
 	NSTimer *timer;
 }
 

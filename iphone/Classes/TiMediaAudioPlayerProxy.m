@@ -50,7 +50,7 @@
 {
 	if (count == 1 && [type isEqualToString:@"progress"])
 	{
-		progress = YES;
+		timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
 	}
 }
 
@@ -58,7 +58,11 @@
 {
 	if (count == 0 && [type isEqualToString:@"progress"])
 	{
-		progress = NO;
+		if (timer!=nil)
+		{
+			[timer invalidate];
+			RELEASE_TO_NIL(timer);
+		}
 	}
 }
 
@@ -72,15 +76,8 @@
 		}
 		player = [[AudioStreamer alloc] initWithURL:url];
 		[player setDelegate:self];
-        [player setBufferSize:bufferSize];
+		[player setBufferSize:bufferSize];
 		[player setVolume:volume];
-		
-		if (progress)
-		{
-			// create progress callback timer that fires once per second. we might want to eventually make this
-			// more configurable but for now that's sufficient for most apps that want to display progress updates on the stream
-			timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
-		}
 	}
 	return player;
 }
