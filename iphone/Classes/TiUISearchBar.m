@@ -152,6 +152,12 @@
 	[search setBarTintColor:theColor];
 }
 
+-(void)setStyle_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self searchBar] setSearchBarStyle:[TiUtils intValue:value def:UISearchBarStyleProminent]];
+}
+
 -(void)setBackgroundImage_:(id)arg
 {
     UIImage *image = [self loadImage:arg];

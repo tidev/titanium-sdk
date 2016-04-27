@@ -1178,6 +1178,24 @@ properties:
     permission: read-only
     since: "3.2.3"
 
+  - name: SEARCH_BAR_STYLE_PROMINENT
+    summary: |
+        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+    description: |
+        The search bar has a translucent background, and the search field is opaque.
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+  
+  - name: SEARCH_BAR_STYLE_MINIMAL
+    summary: |
+        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+    description: |
+        The search bar has no background, and the search field is translucent.
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+
   - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
     summary: User tapped a link.
     description: |

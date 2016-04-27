@@ -36,7 +36,7 @@ methods:
 
       - name: views
         summary: Views to insert.
-        type: Array<Ti.UI.View>
+        type: Array<Titanium.UI.View>
     since: 5.4.0
     platforms: [android, iphone, ipad]
 
