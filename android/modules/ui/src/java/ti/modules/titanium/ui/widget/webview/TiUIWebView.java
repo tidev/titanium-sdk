@@ -242,7 +242,10 @@ public class TiUIWebView extends TiUIView
 		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
 			client.getBinding().addJavascriptInterfaces();
 		}
-
+		//setLayerType() is supported in API 11+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
