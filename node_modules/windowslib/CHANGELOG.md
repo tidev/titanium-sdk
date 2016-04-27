@@ -1,3 +1,9 @@
+0.4.10 (4/27/2016)
+-------------------
+  * [TIMOB-23253] Windows: Build errors when building to device and selecting second option in device prompt
+  * Send separate installed and launched events for wptool#install/device#install/emulator#install/windowslib#install
+  * We can tell if the app got installed but failed to launch (which I'm seeing repeatedly with my Windows 10 mobile device), allowing us to tell the user to launch the app manually.
+
 0.4.9 (4/18/2016)
 -------------------
   * [TIMOB-20611] Allow wptool to launch Windows 10 apps
