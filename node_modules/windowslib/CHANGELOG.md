@@ -1,3 +1,7 @@
+0.4.12 (4/27/2016)
+-------------------
+  * Fix "TypeError: undefined is not a function" at Array.findIndex on Node.js 0.12.7
+
 0.4.11 (4/27/2016)
 -------------------
   * Fix: async.each to async.eachSeries
