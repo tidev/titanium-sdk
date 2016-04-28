@@ -296,23 +296,27 @@ function detect(options, callback) {
 					}
 				});
 			});
-
 			// If we have a device with udid of 0 and non-null wpsdk _and_
 			// we have a device with real udid we got from WinAppDeployCmd, combine the listings!
-			var wpsdkIndex = result.devices.findIndex(function (dev) {
-				return dev.udid == 0 && dev.wpsdk;
-			});
-			if (wpsdkIndex != -1) {
-				// now find with "real" device
-				var realDeviceIndex = result.devices.findIndex(function (dev) {
-					return dev.udid != 0 && !dev.wpsdk;
-				});
-				if (realDeviceIndex != -1) {
-					// set 'real' device wpsdk to the value we got from wptool binary
-					result.devices[realDeviceIndex].wpsdk = result.devices[wpsdkIndex].wpsdk;
-					// remove the wptool binary entry
-					result.devices.splice(wpsdkIndex, 1);
+			var wpsdkIndex = -1,
+			    realDeviceIndex = -1;
+			for (var i = 0; i < result.devices.length; i++) {
+				var dev = result.devices[i];
+				if (dev.udid == 0 && dev.wpsdk) {
+					wpsdkIndex = i;
+				} else if (dev.udid != 0 && !dev.wpsdk) {
+					// now find with "real" device
+					realDeviceIndex = i;
 				}
+				if (wpsdkIndex != -1 && realDeviceIndex != -1) {
+					break;
+				}
+			};
+			if (wpsdkIndex != -1 && realDeviceIndex != -1) {
+				// set 'real' device wpsdk to the value we got from wptool binary
+				result.devices[realDeviceIndex].wpsdk = result.devices[wpsdkIndex].wpsdk;
+				// remove the wptool binary entry
+				result.devices.splice(wpsdkIndex, 1);
 			}
 		}
 
