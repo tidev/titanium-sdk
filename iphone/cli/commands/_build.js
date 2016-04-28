@@ -1986,8 +1986,18 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'removeFiles',
 		'optimizeFiles',
 
+		// provide a hook event before xcodebuild
+		function (next) {
+			cli.emit('build.pre.build', this, next);
+		},
+
 		// build baby, build
 		'invokeXcodeBuild',
+
+		// provide a hook event after xcodebuild
+		function (next) {
+			cli.emit('build.post.build', this, next);
+		},
 
 		// finalize
 		'writeBuildManifest',

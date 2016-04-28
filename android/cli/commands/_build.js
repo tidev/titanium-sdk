@@ -1653,8 +1653,18 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateAndroidManifest',
 		'packageApp',
 
+		// provide a hook event before javac
+		function (next) {
+			cli.emit('build.pre.build', this, next);
+		},
+
 		// we only need to compile java classes if any files in src or gen changed
 		'compileJavaClasses',
+
+		// provide a hook event after javac
+		function (next) {
+			cli.emit('build.post.build', this, next);
+		},
 
 		// we only need to run proguard if any java classes have changed
 		'runProguard',
