@@ -344,7 +344,7 @@ function enumerate(options, callback) {
 				errors = [];
 
 			// wpsdks is a constant above that contains all supported Windows Phone SDK versions
-			async.each(wpsdks, function (wpsdk, next) {
+			async.eachSeries(wpsdks, function (wpsdk, next) {
 				// We use our custom tool for Win 10, the native tooling for 8.x
 				var funcToCall = (wpsdk == '10.0') ? wptoolEnumerate : nativeEnumerate;
 
