@@ -41,6 +41,14 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int STATE_DISMISSED = AlertProxy.STATE_DISMISSED;
 	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
+	
+	@Kroll.constant public static final int ATTENDEE_STATUS_NONE = AttendeeProxy.STATUS_NONE;
+	@Kroll.constant public static final int ATTENDEE_STATUS_ACCEPTED = AttendeeProxy.STATUS_ACCEPTED;
+	@Kroll.constant public static final int ATTENDEE_STATUS_DECLINED = AttendeeProxy.STATUS_DECLINED;
+	@Kroll.constant public static final int ATTENDEE_STATUS_TENTATIVE = AttendeeProxy.STATUS_TENTATIVE;
+	
+	@Kroll.constant public static final int ATTENDEE_ROLE_REQUIRED = AttendeeProxy.TYPE_REQUIRED;
+	@Kroll.constant public static final int ATTENDEE_ROLE_OPTIONAL = AttendeeProxy.TYPE_OPTIONAL;
 
 	public static final String EVENT_LOCATION = "eventLocation";
 
