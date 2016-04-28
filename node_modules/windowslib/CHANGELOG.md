@@ -1,3 +1,7 @@
+0.4.11 (4/27/2016)
+-------------------
+  * Fix: async.each to async.eachSeries
+
 0.4.10 (4/27/2016)
 -------------------
   * [TIMOB-23253] Windows: Build errors when building to device and selecting second option in device prompt
