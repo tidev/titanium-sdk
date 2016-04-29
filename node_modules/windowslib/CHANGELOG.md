@@ -1,3 +1,7 @@
+0.4.13 (4/29/2016)
+-------------------
+  * Fix [TIMOB-20376] Windows Phone: Cannot read property 'split' of undefined
+
 0.4.12 (4/27/2016)
 -------------------
   * Fix "TypeError: undefined is not a function" at Array.findIndex on Node.js 0.12.7
