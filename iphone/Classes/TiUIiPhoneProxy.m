@@ -226,12 +226,12 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] isStatusBarHidden]];
-DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarHidden",@"3.1.3", @"6.0.0", @"UI.Window.fullscreen");
+DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarHidden",@"3.1.3", @"5.4.0", @"UI.Window.fullscreen");
 END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarStyle,NSNumber)
 result = [NSNumber numberWithInt:[[UIApplication sharedApplication] statusBarStyle]];
-DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarStyle",@"3.1.3", @"6.0.0", @"UI.Window.statusBarStyle");
+DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarStyle",@"3.1.3", @"5.4.0", @"UI.Window.statusBarStyle");
 END_UI_THREAD_PROTECTED_VALUE(statusBarStyle)
 
 -(void)setAppBadge:(id)value
@@ -245,7 +245,7 @@ END_UI_THREAD_PROTECTED_VALUE(statusBarStyle)
 	{
 		[[UIApplication sharedApplication] setApplicationIconBadgeNumber:[TiUtils intValue:value]];
 	}
-DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"6.0.0", @"UI.iOS.appBadge");
+DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"5.4.0", @"UI.iOS.appBadge");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge,NSNumber)
@@ -256,7 +256,7 @@ END_UI_THREAD_PROTECTED_VALUE(appBadge)
 {
 	ENSURE_UI_THREAD(setAppSupportsShakeToEdit,shake);
 	[[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:[shake boolValue]];
-DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"6.0.0", @"UI.iOS.appSupportsShakeToEdit");
+DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"5.4.0", @"UI.iOS.appSupportsShakeToEdit");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)
