@@ -530,7 +530,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
-        removed: "6.0.0"
+        removed: "5.4.0"
     summary: For long-duration sounds such as rain, car engine noise, and so on. 
     description: |
         Also used for for 'play along' style applications, such a virtual piano that a 
@@ -544,7 +544,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
-        removed: "6.0.0"
+        removed: "5.4.0"
     summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application. 
     description: |
         When using this mode, your application audio continues with the Ring/Silent switch set 
@@ -557,7 +557,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
-        removed: "6.0.0"
+        removed: "5.4.0"
     summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. 
     description: |
         This category is appropriate for simultaneous recording and playback, and also for 
@@ -575,7 +575,7 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
-        removed: "6.0.0"
+        removed: "5.4.0"
     summary: Session mode for recording audio; it silences playback audio.
     type: Number
     permission: read-only
@@ -1062,7 +1062,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.Media.VIDEO_CONTROL_EMBEDDED> instead.
-        removed: "6.0.0"
+        removed: "5.4.0"
     summary: Constant for video controls volume only.
     type: Number
     permission: read-only

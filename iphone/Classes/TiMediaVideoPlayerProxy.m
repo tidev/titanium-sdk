@@ -323,25 +323,25 @@ NSArray* moviePlayerKeys = nil;
 // < 3.2 functions for controls - deprecated
 -(void)setMovieControlMode:(NSNumber *)value
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"5.4.0", @"Media.VideoPlayer.mediaControlStyle");
 	[self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlMode
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"5.4.0", @"Media.VideoPlayer.mediaControlStyle");
 	return [self mediaControlStyle];
 }
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"5.4.0", @"Media.VideoPlayer.mediaControlStyle");
     [self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlStyle
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"6.0.0", @"Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"5.4.0", @"Media.VideoPlayer.mediaControlStyle");
     return [self mediaControlStyle];
 }
 
