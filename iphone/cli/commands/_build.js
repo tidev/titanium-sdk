@@ -2878,7 +2878,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					targetInfo = ext.targetInfo[targetName],
 					targetGroup = null,
 					extFrameworksGroup = null,
-					extFrameworkReference = null;
+					extFrameworkReference = null,
+					extResourcesGroup = null,
+					extResourceReference = null;
 
 				// do we care about this target?
 				ext.targets.some(function (t) { if (t.name === targetName) { target = t; return true; } });
@@ -2918,10 +2920,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					comment: xobjs.PBXNativeTarget[targetUuid].productReference_comment
 				});
 
-				//find the extension frameworks group
+				//find the extension frameworks and resources group
 				for(var key in extObjs.PBXGroup) {
 					if(extObjs.PBXGroup[key] === 'Frameworks') {
 						extFrameworksGroup = key.split('_')[0];
+					}
+					if(extObjs.PBXGroup[key] === 'Resources') {
+						extResourcesGroup = key.split('_')[0];
 					}
 				}
 
@@ -2936,6 +2941,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								extFrameworkReference = key.split('_')[0];
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
+							}
+						}					
+					});
+				}
+
+				//add the extension resources to the resources group
+				if(extResourcesGroup) {
+					extObjs.PBXGroup[extResourcesGroup].children.forEach(function (child) {
+						resourcesGroup.children.push(child);
+						//find the extension framework file reference
+						for(var key in extObjs.PBXFileReference) {
+							if(extObjs.PBXFileReference[key] === child.comment) {
+								// add the file reference
+								extResourceReference = key.split('_')[0];
+								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
+								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
 							}
 						}					
 					});
@@ -2965,10 +2986,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					xobjs[type][phase.value].files.forEach(function (file) {
 						xobjs.PBXBuildFile[file.value] = extObjs.PBXBuildFile[file.value];
 						xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
-						// add to the frameworks build phase if is framework
-						if (type === 'PBXFrameworksBuildPhase') {
-							frameworksBuildPhase.files.push(file);
-						};						
 					});
 				});
 
