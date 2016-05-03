@@ -2876,7 +2876,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					targetUuid = extTarget.value,
 					targetName = extTarget.comment,
 					targetInfo = ext.targetInfo[targetName],
-					targetGroup = null;
+					targetGroup = null,
+					extFrameworksGroup = null,
+					extFrameworkReference = null;
 
 				// do we care about this target?
 				ext.targets.some(function (t) { if (t.name === targetName) { target = t; return true; } });
@@ -2916,6 +2918,29 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					comment: xobjs.PBXNativeTarget[targetUuid].productReference_comment
 				});
 
+				//find the extension frameworks group
+				for(var key in extObjs.PBXGroup) {
+					if(extObjs.PBXGroup[key] === 'Frameworks') {
+						extFrameworksGroup = key.split('_')[0];
+					}
+				}
+
+				//add the extension frameworks to the frameworks group
+				if(extFrameworksGroup) {
+					extObjs.PBXGroup[extFrameworksGroup].children.forEach(function (child) {
+						frameworksGroup.children.push(child);
+						//find the extension framework file reference
+						for(var key in extObjs.PBXFileReference) {
+							if(extObjs.PBXFileReference[key] === child.comment) {
+								// add the file reference
+								extFrameworkReference = key.split('_')[0];
+								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
+								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
+							}
+						}					
+					});
+				}
+
 				// add the build phases
 				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
 					var type;
@@ -2940,6 +2965,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					xobjs[type][phase.value].files.forEach(function (file) {
 						xobjs.PBXBuildFile[file.value] = extObjs.PBXBuildFile[file.value];
 						xobjs.PBXBuildFile[file.value + '_comment'] = extObjs.PBXBuildFile[file.value + '_comment'];
+						// add to the frameworks build phase if is framework
+						if (type === 'PBXFrameworksBuildPhase') {
+							frameworksBuildPhase.files.push(file);
+						};						
 					});
 				});
 
