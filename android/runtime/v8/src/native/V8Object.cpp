@@ -53,7 +53,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, object).As<Object>();
 	}
 
-	Local<Object> properties = jsObject->Get(Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
+	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
 	Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
 
 	Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
