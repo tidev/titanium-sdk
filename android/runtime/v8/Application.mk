@@ -9,8 +9,7 @@
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-10
 APP_CPPFLAGS += -std=c++11
-NDK_TOOLCHAIN_VERSION := 4.8
-APP_STL := stlport_shared
+APP_STL := c++_shared
 ifeq ($(BUILD_X86), 1)
 	APP_ABI := armeabi armeabi-v7a x86
 else
