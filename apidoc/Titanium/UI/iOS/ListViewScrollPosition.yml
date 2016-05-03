@@ -5,7 +5,7 @@ summary: |
     <ListViewAnimationProperties> when invoking the ListView's `scrollToItem`, `appendSection`,
     `deleteSectionAt`, `insertSectionAt` and `replaceSectionAt` methods.
 extends: Titanium.Proxy
-since: '6.0.0'
+since: '5.4.0'
 platforms: [iphone, ipad]
 
 excludes:
