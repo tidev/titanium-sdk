@@ -211,6 +211,14 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    if ([self class] == [TiUIView class]) {
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+    }
+}
 - (id) init
 {
 	self = [super init];
@@ -284,9 +292,16 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	
 	[self updateTouchHandling];
-	 
-	self.backgroundColor = [UIColor clearColor]; 
+	self.backgroundColor = [UIColor clearColor];
+#ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+#else
+    if (self.translatesAutoresizingMaskIntoConstraints == NO) {
+        self.autoresizingMask = UIViewAutoresizingNone;
+    } else {
+        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    }
+#endif
 }
 
 -(void)configurationSet
@@ -362,6 +377,13 @@ DEFINE_EXCEPTIONS
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+    if (bgdImageLayer != nil) {
+        [CATransaction begin];
+        [CATransaction setValue: (id) kCFBooleanTrue forKey: kCATransactionDisableActions];
+        [bgdImageLayer setFrame:bounds];
+        [CATransaction commit];
+    }
+    
     if (backgroundRepeat) {
         [self renderRepeatedBackground:backgroundImage];
     }
@@ -1351,6 +1373,13 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
+}
+
+- (void)processKeyPressed:(NSString*)key
+{
+    if ([self.proxy _hasListeners:@"keypressed"]) {
+        [self.proxy fireEvent:@"keypressed" withObject:@{@"keyCode": key}];
+    }
 }
 
 #pragma mark Listener management

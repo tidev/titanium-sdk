@@ -101,7 +101,7 @@
 	
 	for (UIImage *image in [self controller].icons)
 	{
-		TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
 		[result addObject:image];
 		[blob release];
 	}

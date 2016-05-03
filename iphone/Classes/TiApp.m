@@ -18,15 +18,13 @@
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
 #import "Mimetypes.h"
+#import <CoreSpotlight/CoreSpotlight.h>
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
 #ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
-#endif
-#if IS_XCODE_7
-#import <CoreSpotlight/CoreSpotlight.h>
 #endif
 
 TiApp* sharedApp;
@@ -290,17 +288,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-        appBooted = YES;
-#if IS_XCODE_7
-        if(launchedShortcutItem != nil) {
-            [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-            launchedShortcutItem = nil;
-        }
-#endif
+		appBooted = YES;
+
+		if(launchedShortcutItem != nil) {
+			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+			launchedShortcutItem = nil;
+		}
+
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
-        TiThreadPerformOnMainThread(^{[self validator];}, YES);
+		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 
@@ -412,7 +410,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == YES) {
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
@@ -420,7 +417,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             launchedShortcutItem = shortcut;
         }
     }
-#endif
     
     [self launchToUrl];
 	[self boot];
@@ -486,11 +482,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
     
-#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
     }
-#endif
     
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
 	completionHandler();
@@ -721,19 +715,30 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	else {
 		downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
 	}
-	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",downloadedData,@"data", nil];
+    
+	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier ],@"taskIdentifier",
+                                 downloadedData,@"data", nil];
+    
+    if (session.configuration.identifier) {
+        [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+    }
+    
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDownloadFinished object:self userInfo:dict];
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
 {
-
-    //FunctionName();
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                           [NSNumber numberWithUnsignedInteger:downloadTask.taskIdentifier], @"taskIdentifier",
                                           [NSNumber numberWithUnsignedLongLong:bytesWritten], @"bytesWritten",
                                           [NSNumber numberWithUnsignedLongLong:totalBytesWritten], @"totalBytesWritten",
                                           [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToWrite], @"totalBytesExpectedToWrite", nil];
+
+    if (session.configuration.identifier) {
+        [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLDowloadProgress object:self userInfo:dict];
 
 }
@@ -745,6 +750,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
+    
+    if (session.configuration.identifier) {
+        [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
 }
 
@@ -755,6 +765,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                           nil];
+    
+    if (session.configuration.identifier) {
+        [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+    }
+    
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
                                                 NUMINTEGER([error code]), @"errorCode",
@@ -780,7 +795,13 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionEventsCompleted object:self userInfo:nil];
+    NSDictionary *dict = nil;
+    
+    if (session.configuration.identifier) {
+        dict = @{@"sessionIdentifier": session.configuration.identifier};
+    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionEventsCompleted object:self userInfo:dict];
 }
 
 #pragma mark
@@ -863,9 +884,15 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
-    if([self forceSplashAsSnapshot]) {
-        [window addSubview:[self splashScreenImage]];
-    }
+	if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+		UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+		UIViewController *vc = [sb instantiateInitialViewController];
+		[[[self controller] topPresentedController] presentViewController:vc animated:NO completion:nil];
+#else
+		[window addSubview:[self splashScreenImage]];
+#endif
+	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
 	// suspend any image loading
@@ -882,10 +909,19 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    if(splashScreenImage != nil) {
-        [[self splashScreenImage] removeFromSuperview];
-        RELEASE_TO_NIL(splashScreenImage);
-    }
+	// We should think about placing this inside "applicationWillBecomeActive" instead to make
+	// the UI re-useable again more quickly
+	if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+		[[[self controller] topPresentedController] dismissViewControllerAnimated:NO completion:nil];
+#else
+		if(splashScreenImage != nil) {
+			[[self splashScreenImage] removeFromSuperview];
+			RELEASE_TO_NIL(splashScreenImage);
+		}
+#endif
+	}
+
 	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
@@ -952,7 +988,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark Handoff Delegates
 
-#if defined(USE_TI_APPIOSUSERACTIVITY) || defined (USE_TI_APPIOSSEARCHABLEINDEX)
+#ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
@@ -961,13 +997,12 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
                                  dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
                                  nil];
 
-#if IS_XCODE_7
     if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
         if([userActivity userInfo] !=nil){
             [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
         }
     }
-#endif
+
     if([userActivity title] !=nil){
         [dict setObject:[userActivity title] forKey:@"title"];
     }
@@ -1172,7 +1207,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
-#if IS_XCODE_7
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
  waitForBootIfNotLaunched:(BOOL) bootWait {
     
@@ -1222,7 +1256,6 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     completionHandler(handledShortCutItem);
     
 }
-#endif
 
 -(void)registerBackgroundService:(TiProxy*)proxy
 {

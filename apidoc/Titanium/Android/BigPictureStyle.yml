@@ -35,7 +35,7 @@ platforms: [android]
 properties:
 
   - name: bigLargeIcon
-    summary: Override the <Titanium.UI.Notification.largeIcon> when the big notification is shown.
+    summary: Override the <Titanium.Android.Notification.largeIcon> when the big notification is shown.
     description: |
         If specified as a URL, the icon must be placed in one of the density-specific
         folders under `Resources/android/images`. For example, if your icon is called
@@ -94,9 +94,9 @@ properties:
     type: [Number, String, Titanium.Blob, Titanium.Filesystem.File]
 
   - name: bigContentTitle
-    summary: Overrides <Titanium.UI.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.UI.Notification.contentTitle>.
+    summary: Overrides <Titanium.Android.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.Android.Notification.contentTitle>.
     type: String
-    default: <Titanium.UI.Notification.contentTitle>
+    default: <Titanium.Android.Notification.contentTitle>
 
   - name: decodeRetries
     summary: |

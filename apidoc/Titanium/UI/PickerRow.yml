@@ -27,7 +27,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [mobileweb]
+    platforms: [mobileweb, iphone, ipad, android]
+    since:
+        mobileweb: 2.0.0
+        android: 5.4.0
+        iphone: 5.4.0
+        ipad: 5.4.0
   - name: font
     summary: Font to use for the item text.
     type: Font

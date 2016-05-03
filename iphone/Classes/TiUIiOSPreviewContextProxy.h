@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 #import "TiViewProxy.h"
 #import "TiWindowProxy.h"
@@ -39,5 +38,4 @@
 -(void)connectToDelegate;
 
 @end
-#endif
 #endif

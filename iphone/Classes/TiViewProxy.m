@@ -106,6 +106,28 @@ static NSArray* touchEventsArray;
     }
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)setOnLayout:(id)callback
+{
+    ENSURE_SINGLE_ARG(callback, KrollCallback);
+    TiLayoutView* thisView = [self view];
+    if ([thisView onLayout] == nil) {
+        KrollCallback* __block _callback = [callback retain];
+        [thisView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+            [sender setOnLayout:nil];
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback: callback
+                                                                    eventObject: [TiUtils rectToDictionary:rect]
+                                                                     thisObject: self];
+            [[_callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+            RELEASE_TO_NIL(_callback);
+        }];
+    } else {
+        NSLog(@"[ERROR] onLayout can only be set once!");
+    }
+}
+#endif
+
 -(void)startLayout:(id)arg
 {
     DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
@@ -160,13 +182,18 @@ static NSArray* touchEventsArray;
 	int position = -1;
 	TiViewProxy *childView = nil;
 
+#ifdef HYPERLOOP
+	// obfuscate this selector
+	static SEL nativeObjSel = nil;
+	if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+#endif
 	if([arg isKindOfClass:[NSDictionary class]]) {
 		childView = [arg objectForKey:@"view"];
 		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
 	} else if([arg isKindOfClass:[TiViewProxy class]]) {
 		childView = arg;
 #ifdef HYPERLOOP
-	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:@selector(nativeObject)]) {
+	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
 		Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
 		if (hyperloopViewProxy != nil) {
 			childView = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -263,9 +290,46 @@ static NSArray* touchEventsArray;
 
 -(void)remove:(id)arg
 {
-	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	ENSURE_UI_THREAD_1_ARG(arg);
 
+	
+#ifdef HYPERLOOP
+	// ofbuscate this selector
+	static SEL nativeObjSel = nil;
+	if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+	// obfuscate this class name
+	static Class hlClassName = nil;
+	if (hlClassName == nil) hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop",@"Class"]);
+	if ([arg isKindOfClass:[NSArray class]]) {
+		for (id each in arg) {
+			[self remove:each];
+		}
+		return;
+	}
+	if ([arg isKindOfClass:[UIView class]] || (hlClassName != nil && [arg isKindOfClass:hlClassName])) {
+		
+		TiUIView *tmpView;
+		if ([arg isKindOfClass: hlClassName]) {
+			UIView* v = [arg performSelector: nativeObjSel];
+			if (![v isKindOfClass:[UIView class]]) {
+				NSLog(@"[WARN] Trying to remove an object that is not a view");
+				return;
+			}
+			tmpView = (TiUIView*)[v superview];
+		} else {
+			tmpView = (TiUIView*)[(UIView*)arg superview];
+		}
+		if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
+			arg = [tmpView proxy];
+		} else {
+			NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
+			return;
+		}
+	}
+#endif
+	ENSURE_SINGLE_ARG(arg,TiViewProxy);
+
+	
 	pthread_rwlock_wrlock(&childrenLock);
 	NSMutableArray* childrenCopy = [children mutableCopy];
 	if ([children containsObject:arg]) {
@@ -612,7 +676,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }
     }
     callback = (KrollCallback*)obj;
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
+	TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
@@ -1004,6 +1068,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 #pragma mark Recognizers
 
+-(BOOL) implementsSelector:(SEL)inSelector {
+    return [self respondsToSelector:inSelector] && !( [super respondsToSelector:inSelector] && [self methodForSelector:inSelector] == [super methodForSelector:inSelector] );
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -1020,10 +1088,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 		view = [self newView];
 
 #ifdef TI_USE_AUTOLAYOUT
-        if ([self respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoWidthBehavior:)]) {
             [view setDefaultWidth:[self defaultAutoWidthBehavior:nil]];
         }
-        if ([self respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoHeightBehavior:)]) {
             [view setDefaultHeight:[self defaultAutoHeightBehavior:nil]];
         }
 #endif
@@ -1280,9 +1348,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)setPreviewContext:(id)context
 {
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-    
     if ([TiUtils forceTouchSupported] == NO) {
         NSLog(@"[WARN] 3DTouch is not available on this device.");
         return;
@@ -1300,8 +1366,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [context connectToDelegate];
     
     [self replaceValue:context forKey:@"previewContext" notification:NO];
-
-#endif
 #endif
 }
 
@@ -2308,7 +2372,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
 
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            
+            dispatch_block_t block = ^{
+                [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            };
+#ifdef TI_USE_KROLL_THREAD
+            block();
+#else
+            TiThreadPerformOnMainThread(block, NO);
+#endif
         }
 	}
 #ifdef VERBOSE

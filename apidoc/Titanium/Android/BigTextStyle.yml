@@ -5,7 +5,7 @@ description: |
     If the platform does not provide large-format notifications, this style helper has no effect.
     The user will always see the normal notification view.
 
-    This style object attaches to a <Titanium.UI.Notification> object and modifies its behavior.
+    This style object attaches to a <Titanium.Android.Notification> object and modifies its behavior.
 examples:
   - title: Big text style Example
     example: |
@@ -36,9 +36,9 @@ properties:
     type: String
 
   - name: bigContentTitle
-    summary: Overrides <Titanium.UI.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.UI.Notification.contentTitle>.
+    summary: Overrides <Titanium.Android.Notification.contentTitle> in the big form of the notification. This defaults to the value passed to <Titanium.Android.Notification.contentTitle>.
     type: String
-    default: <Titanium.UI.Notification.contentTitle>
+    default: <Titanium.Android.Notification.contentTitle>
 
   - name: summaryText
     summary: Set the first line of text after the detail section in the big form of the notification.

@@ -19,6 +19,15 @@
 
 @implementation TiUISearchBar
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	[searchView setDelegate:nil];
@@ -141,6 +150,12 @@
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 	UIColor* theColor = [TiUtils barColorForColor:newBarColor];
 	[search setBarTintColor:theColor];
+}
+
+-(void)setStyle_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self searchBar] setSearchBarStyle:[TiUtils intValue:value def:UISearchBarStyleProminent]];
 }
 
 -(void)setBackgroundImage_:(id)arg
@@ -285,7 +300,11 @@
 	}
 }
 
-
+- (BOOL)searchBar:(UISearchBar *)searchBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    [self processKeyPressed:text];
+    return YES;
+}
 @end
 
 #endif

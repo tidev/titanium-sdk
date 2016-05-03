@@ -150,6 +150,12 @@ properties:
     type: Number
     since: "4.1.0"
     
+  - name: lineSpacing
+    summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
+    platforms: [android]
+    type: Dictionary
+    since: "5.4.0"
+        
   - name: maxLines
     summary: Makes the label at most this many lines tall.
     platforms: [android]

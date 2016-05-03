@@ -14,7 +14,7 @@ Currently, Titanium supports mobile smartphone operating systems such as Apple i
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.
 
-*[Download Pre-built Titanium](http://www.appcelerator.com/download)*
+*[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 
 Features
@@ -54,7 +54,7 @@ And much, much more.
 Alloy
 -----
 
-[Alloy](http://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built on top of Titanium.  It is optional. It rocks. Check it out if you're considering using Titanium. It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built on top of Titanium.  It is optional. It rocks. Check it out if you're considering using Titanium. It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
 
 
 
@@ -73,12 +73,8 @@ Please visit the official documentation site at [http://docs.appcelerator.com/](
 
 ### Video Tutorials
 
-[Appcelerator Videos](http://www.vimeo.com/appcelerator) is our main video channel
+[Appcelerator University](http://university.appcelerator.com/) is our main video channel
 for video tutorials on Titanium.
-
-### IRC 
-
-Titanium developers regularly visit `#titanium_app` on irc.freenode.net.
 
 ### Slack
 
@@ -86,19 +82,17 @@ Community support and discussion about Titanium is available on Slack at [TiSlac
 
 ### Twitter
 
-Please consider following the [@Appcelerator Twitter](http://www.twitter.com/appcelerator)
-team for updates.
+Please consider following [@Appcelerator](http://www.twitter.com/appcelerator) and [@AppcDev](https://twitter.com/AppcDev) on Twitter for updates.
 
 ### Blog
 
-The Appcelerator corporate blog is called [Think Mobile](http://thinkmobile.appcelerator.com/blog).
-The Appcelerator developer blog is located at (http://developer.appcelerator.com/blog).
+The Appcelerator blog is located at (http://www.appcelerator.com/blog).
 
 ### Commercial Support, Licensing
 
-We give our software away for FREE!  In order to do that, we have programs for 
+We give our software away for FREE! In order to do that, we have programs for 
 companies that require additional level of assistance through training or commercial support,
-need special licensing or want additional levels of capabilities.  Please visit the
+need special licensing or want additional levels of capabilities. Please visit the
 [Appcelerator Website](http://www.appcelerator.com) for more information about Appcelerator or
 email [info@appcelerator.com](mailto:info@appcelerator.com).
 
@@ -111,7 +105,7 @@ Titanium is an open source project.  Titanium wouldn't be where it is now withou
 
 To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once. 
 
-[You can digitally sign the CLA](http://bit.ly/app_cla) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
+[You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 
 

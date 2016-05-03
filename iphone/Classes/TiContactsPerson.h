@@ -9,18 +9,21 @@
 #ifdef USE_TI_CONTACTS
 
 #import <AddressBook/AddressBook.h>
-#if IS_XCODE_7
 #import <Contacts/Contacts.h>
-#endif
+
+@class TiContactsPerson;
+@protocol TiContactsPersonUpdateObserver <NSObject>
+@optional
+- (void)didUpdatePerson:(TiContactsPerson*)person;
+@end
+
 @class ContactsModule;
 
 @interface TiContactsPerson : TiProxy {
 @private
 	ABRecordRef record;
 	ABRecordID recordId;
-#if IS_XCODE_7
     CNMutableContact* person;
-#endif
 	ContactsModule* module;
 	NSDictionary* iOS9contactProperties;
 }
@@ -34,20 +37,28 @@
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 -(id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule*)module_;
-#if IS_XCODE_7
+
 @property(readonly,nonatomic) NSString* identifier;
+@property(assign, nonatomic) id<TiContactsPersonUpdateObserver> observer;
+
 +(NSDictionary*)iOS9multiValueLabels;
 +(NSDictionary*)iOS9propertyKeys;
--(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+				contactId:(CNMutableContact*)person_
+				   module:(ContactsModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context
+                contactId:(CNMutableContact*)person_
+                   module:(ContactsModule*)module_
+                 observer:(id<TiContactsPersonUpdateObserver>) observer_;
 -(CNSaveRequest*)getSaveRequestForDeletion;
 -(CNSaveRequest*)getSaveRequestForAddition:(NSString*)containerIdentifier;
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group;
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group;
 -(void)updateiOS9ContactProperties;
 -(CNMutableContact*)nativePerson;
-#endif
 -(id)valueForUndefinedKey:(NSString *)key;
 -(NSString*)fullName;
+
 @end
 
 #endif

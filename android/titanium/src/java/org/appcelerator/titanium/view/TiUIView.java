@@ -1362,6 +1362,8 @@ public abstract class TiUIView
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_X, (double)e.getX());
 		data.put(TiC.EVENT_PROPERTY_Y, (double)e.getY());
+		data.put(TiC.EVENT_PROPERTY_FORCE, (double)e.getPressure());
+		data.put(TiC.EVENT_PROPERTY_SIZE, (double)e.getSize());
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 		return data;
 	}
@@ -1377,6 +1379,16 @@ public abstract class TiUIView
 			data.put(TiC.EVENT_PROPERTY_Y, dictToCopy.get(TiC.EVENT_PROPERTY_Y));
 		} else {
 			data.put(TiC.EVENT_PROPERTY_Y, (double)0);
+		}
+		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_FORCE)){
+			data.put(TiC.EVENT_PROPERTY_FORCE, dictToCopy.get(TiC.EVENT_PROPERTY_FORCE));
+		} else {
+			data.put(TiC.EVENT_PROPERTY_FORCE, (double)0);
+		}
+		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_SIZE)){
+			data.put(TiC.EVENT_PROPERTY_SIZE, dictToCopy.get(TiC.EVENT_PROPERTY_SIZE));
+		} else {
+			data.put(TiC.EVENT_PROPERTY_SIZE, (double)0);
 		}
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 		return data;

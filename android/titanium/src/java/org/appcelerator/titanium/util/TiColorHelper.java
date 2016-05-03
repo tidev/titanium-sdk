@@ -23,8 +23,10 @@ import android.os.Build;
 public class TiColorHelper
 {
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");
-	static Pattern rgbPattern = Pattern.compile("rgb\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
-	static Pattern argbPattern = Pattern.compile("rgba\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
+	static Pattern rgbPattern = Pattern.compile("rgb\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
+	static Pattern argbPattern = Pattern.compile("rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3}[^\\.\\)])\\s*\\)");
+	static Pattern rgbaPattern = Pattern.compile("rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*(\\d\\.\\d)\\s*\\)");
+	static Pattern floatsPattern = Pattern.compile("rgba\\(\\s*(\\d\\.\\d)\\s*,\\s*(\\d\\.\\d)\\s*,\\s*(\\d\\.\\d)\\s*,\\s*(\\d\\.\\d)\\s*\\)");
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
@@ -64,6 +66,20 @@ public class TiColorHelper
 						Integer.valueOf(m.group(2)),
 						Integer.valueOf(m.group(3))
 						);
+			} else if ((m = rgbaPattern.matcher(lowval)).matches()) {
+			    color = Color.argb(
+			            Math.round(Float.valueOf(m.group(4))*255f),
+			            Integer.valueOf(m.group(1)),
+			            Integer.valueOf(m.group(2)),
+			            Integer.valueOf(m.group(3))
+			            );
+			} else if ((m = floatsPattern.matcher(lowval)).matches()) {
+			    color = Color.argb(
+			            Math.round(Float.valueOf(m.group(4))*255f),
+			            Math.round(Float.valueOf(m.group(1))*255f),
+			            Math.round(Float.valueOf(m.group(2))*255f),
+			            Math.round(Float.valueOf(m.group(3))*255f)
+			            );
 			} else {
 				// Try the parser, will throw illegalArgument if it can't parse it.
 				try {

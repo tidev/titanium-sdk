@@ -20,10 +20,8 @@
 #import "TiUIiOSMenuPopupProxy.h"
 #endif
 
-#if IS_XCODE_7_1
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoViewProxy.h"
-#endif
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -35,30 +33,34 @@
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
-	#import "TiUIiOSAdViewProxy.h"
-    #import <iAd/iAd.h>
+#import "TiUIiOSAdViewProxy.h"
+#import <iAd/iAd.h>
 #endif
 
 #ifdef USE_TI_UIIOS3DMATRIX
-	#import "Ti3DMatrix.h"
+#import "Ti3DMatrix.h"
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
-	#import "TiUIiOSCoverFlowViewProxy.h"
+#import "TiUIiOSCoverFlowViewProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSTOOLBAR
-	#import "TiUIiOSToolbarProxy.h"
+#import "TiUIiOSToolbarProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSTABBEDBAR
-	#import "TiUIiOSTabbedBarProxy.h"
+#import "TiUIiOSTabbedBarProxy.h"
 #endif
 
 #if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
-    #import "TiUIiOSDocumentViewerProxy.h"
+#import "TiUIiOSDocumentViewerProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-    #import "TiUIiOSNavWindowProxy.h"
+#import "TiUIiOSNavWindowProxy.h"
 #endif
+
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindowProxy.h"
 #endif
@@ -87,16 +89,21 @@
 #import "TiDynamicItemBehavior.h"
 #endif
 #endif
+
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #endif
-#if IS_XCODE_7_1
+
 #if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
 #import <PhotosUI/PhotosUI.h>
 #endif
-#endif
+
 #ifdef USE_TI_UIIOSBLURVIEW
 #import "TiUIiOSBlurViewProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepperProxy.h"
 #endif
 
 @implementation TiUIiOSProxy
@@ -168,29 +175,23 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(NSNumber*) PREVIEW_ACTION_STYLE_DEFAULT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDefault);
     }
-#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleDestructive);
     }
-#endif
     return nil;
 }
 -(NSNumber*) PREVIEW_ACTION_STYLE_SELECTED
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINTEGER(UIPreviewActionStyleSelected);
     }
-#endif
     return nil;
 }
 #endif
@@ -493,6 +494,11 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_RIGHT, UIMenuControllerArrowRight);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefault);
 #endif
 
+#ifdef USE_TI_UISEARCHBAR
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
+#endif
+
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_FONT, AttributeNameFont, @"UI.iOS.ATTRIBUTE_FONT", @"3.6.0", @"6.0.0", @"UI.ATTRIBUTE_FONT");
@@ -597,11 +603,9 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     DEPRECATED_REPLACED_REMOVED(@"UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE", @"3.6.0", @"6.0.0", @"UI.ATTRIBUTE_LETTERPRESS_STYLE")
     return NSTextEffectLetterpressStyle;
 }
-
 #endif
 
 #ifdef USE_TI_UIIOSADVIEW
-
 -(NSString*)AD_SIZE_PORTRAIT 
 {
     return [TiUIiOSAdViewProxy portraitSize];
@@ -616,7 +620,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 {
 	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-
 #endif
 
 #ifdef USE_TI_UIIOS3DMATRIX
@@ -632,12 +635,14 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 	return [matrix autorelease];
 }
 #endif
+
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
 	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
 #ifdef USE_TI_UIIOSTOOLBAR
 -(id)createToolbar:(id)args
 {
@@ -666,12 +671,14 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 -(id)createNavigationWindow:(id)args
 {
     return [[[TiUIiOSNavWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
 #ifdef USE_TI_UIIOSSPLITWINDOW
 -(id)createSplitWindow:(id)args
 {
@@ -686,7 +693,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 }
 #endif
 
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 -(id)createPreviewAction:(id)args
 {
@@ -703,7 +709,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     return [[[TiUIiOSPreviewContextProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-#endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
 -(id)createMenuPopup:(id)args
@@ -719,7 +724,13 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 }
 #endif
 
-#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSSTEPPER
+-(id)createStepper:(id)args
+{
+    return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
+}
+#endif
+
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 -(id)createLivePhotoView:(id)args
 {
@@ -762,7 +773,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
         return nil;
     }
     
-    TiBlob *image = [[TiBlob alloc] initWithImage:badge];
+    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
     
     return image;
 }
@@ -786,8 +797,6 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     }
     return NUMINT(0);
 }
-#endif
-
 #endif
 
 #ifdef USE_TI_UIIOSANIMATOR
@@ -849,11 +858,8 @@ MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
     return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-
 #endif
 
-
-#ifdef USE_TI_UIIOS
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN_OUT");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_OUT");
@@ -918,7 +924,6 @@ MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
     return IOS_COLOR_UNDER_PAGE_BACKGROUND;
 }
 
-
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED,UIWebViewNavigationTypeLinkClicked);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED,UIWebViewNavigationTypeFormSubmitted);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD,UIWebViewNavigationTypeBackForward);
@@ -926,11 +931,7 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_RELOAD,UIWebViewNavigationTypeReload);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED,UIWebViewNavigationTypeFormResubmitted);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 
-#endif
-
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-
 -(id)createApplicationShortcuts:(id)args
 {
     return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
@@ -943,9 +944,6 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_ADD,UIApplicationShortcutIconTypeAdd);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_LOCATION,UIApplicationShortcutIconTypeLocation);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SEARCH,UIApplicationShortcutIconTypeSearch);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHARE,UIApplicationShortcutIconTypeShare);
-
-#ifdef __IPHONE_9_1
-
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PROHIBIT,UIApplicationShortcutIconTypeProhibit);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_CONTACT,UIApplicationShortcutIconTypeContact);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_HOME,UIApplicationShortcutIconTypeHome);
@@ -968,9 +966,6 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_BOOKMARK,UIApplicationShortcutIconTypeBookma
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_SHUFFLE,UIApplicationShortcutIconTypeShuffle);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO,UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE,UIApplicationShortcutIconTypeUpdate);
-
-#endif
-#endif
 #endif
 
 //Modal Transition and Presentatiom

@@ -125,24 +125,21 @@
 
 -(void)setShowUndoRedoActions:(id)value
 {
-    if(![TiUtils isIOS9OrGreater]){
+    if (![TiUtils isIOS9OrGreater]){
         return;
     }
     
-#if IS_XCODE_7
-    
-        UITextView *tv = (UITextView *)[self textWidgetView];
-        if([TiUtils boolValue:value] == YES) {
-            
-            tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-            tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
-            
-        } else {
-            
-            tv.inputAssistantItem.leadingBarButtonGroups = @[];
-            tv.inputAssistantItem.trailingBarButtonGroups = @[];
-        }
-#endif
+    UITextView *tv = (UITextView *)[self textWidgetView];
+    if ([TiUtils boolValue:value] == YES) {
+        
+        tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+        
+    } else {
+        
+        tv.inputAssistantItem.leadingBarButtonGroups = @[];
+        tv.inputAssistantItem.trailingBarButtonGroups = @[];
+    }
 }
 
 -(void)setEnabled_:(id)value
@@ -270,7 +267,9 @@
 			return NO;
 		}
 	}
-	
+    
+    [self processKeyPressed:text];
+        
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;

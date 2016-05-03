@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */; };
+		0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */; };
 		1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */; };
 		1592CC341C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC331C484F2F00C3DB83 /* TiUIiOSTableViewStyleProxy.m */; };
 		1592CC371C48680F00C3DB83 /* TiUIiOSProgressBarStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC361C48680F00C3DB83 /* TiUIiOSProgressBarStyleProxy.m */; };
@@ -347,6 +349,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
+		0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepper.m; sourceTree = "<group>"; };
+		0BFAD90D1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepperProxy.h; sourceTree = "<group>"; };
+		0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepperProxy.m; sourceTree = "<group>"; };
 		1592CC2C1C47147700C3DB83 /* TiUIiOSTableViewScrollPositionProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTableViewScrollPositionProxy.h; sourceTree = "<group>"; };
 		1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTableViewScrollPositionProxy.m; sourceTree = "<group>"; };
 		1592CC321C484E7900C3DB83 /* TiUIiOSTableViewStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTableViewStyleProxy.h; sourceTree = "<group>"; };
@@ -1075,6 +1081,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0BF933871CA0929A0091C7EC /* Stepper */ = {
+			isa = PBXGroup;
+			children = (
+				0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */,
+				0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */,
+				0BFAD90D1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.h */,
+				0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */,
+			);
+			name = Stepper;
+			sourceTree = "<group>";
+		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1934,6 +1951,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				0BF933871CA0929A0091C7EC /* Stepper */,
 				3A811CCD1C2C21CA0023468C /* BlurView */,
 				3A0B56721C0CD7FE00709DA4 /* LivePhotoView */,
 				3A0E54341BE81111003EE654 /* MenuPopup */,
@@ -2732,6 +2750,7 @@
 				24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
+				0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
@@ -2887,6 +2906,7 @@
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
+				0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */,
 				83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */,
 				1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
 				3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */,

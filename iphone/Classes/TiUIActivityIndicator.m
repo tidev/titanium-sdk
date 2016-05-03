@@ -14,16 +14,22 @@
 
 @implementation TiUIActivityIndicator
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 - (id) init
 {
 	self = [super init];
 	if (self != nil) {
 		style = UIActivityIndicatorViewStyleWhite;
 		[self setHidden:YES];
-        
 #ifdef TI_USE_AUTOLAYOUT
-        [self setDefaultWidth:TiDimensionAutoSize];
-        [self setDefaultHeight:TiDimensionAutoSize];
         backgroundView = [[UIView alloc] init];
         [self addSubview:backgroundView];
 #endif

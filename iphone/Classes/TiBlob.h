@@ -56,6 +56,28 @@ typedef enum {
 @property(nonatomic,readonly) NSInteger size;
 
 /**
+ Initialize the proxy context and the blob with an image.
+ @param context The proxy context
+ @param image The image
+ */
+-(id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage*)image_;
+
+/**
+ Initialize the proxy context and the blob with data.
+ @param context The proxy context
+ @param data_ The raw data.
+ @param mimetype_ The data mime type.
+ */
+-(id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData*)data_ mimetype:(NSString*)mimetype_;
+
+/**
+ Initialize the proxy context and the blob with contents of a file.
+ @param context The proxy context
+ @param path The path to the file.
+ */
+-(id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString*)path_;
+
+/**
  Initialize the blob with an image.
  @param image The image
  */

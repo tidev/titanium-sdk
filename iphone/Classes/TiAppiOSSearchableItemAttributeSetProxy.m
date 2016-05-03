@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 #ifdef USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
@@ -140,7 +139,7 @@
 //Optional image data for thumbnail for this item
 -(TiBlob*)thumbnailData
 {
-    return [[[TiBlob alloc] initWithData:_attributes.thumbnailData mimetype:_attributes.contentType] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:_attributes.thumbnailData mimetype:_attributes.contentType] autorelease];
 }
 
 -(void)setThumbnailData:(id)value
@@ -1319,5 +1318,4 @@
 }
 
 @end
-#endif
 #endif
