@@ -1270,7 +1270,7 @@ properties:
   - name: audioSessionMode
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the [audioSessionCategory](Titanium.Media.audioSessionCategory) property defined in <Titanium.Media>.
+        notes: Deprecated in favor of the Titanium.Media.audioSessionCategory property.
     summary: A constant for the audio session mode to be used.
     description: |
         Set to one of the `AUDIO_SESSION_MODE` constants defined in <Titanium.Media>.
