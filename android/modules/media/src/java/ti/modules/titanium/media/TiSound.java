@@ -272,12 +272,12 @@ public class TiSound
 		}
 	}
     
-    public int  getAudioSessionId() {
-        if (mp != null) {
-            return mp.getAudioSessionId();
-        }
-        return 0;
-    }
+	public int  getAudioSessionId() {
+		if (mp != null) {
+			return mp.getAudioSessionId();
+		}
+		return 0;
+	}
     
 	public void release()
 	{

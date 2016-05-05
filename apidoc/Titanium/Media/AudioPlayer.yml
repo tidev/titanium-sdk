@@ -151,6 +151,11 @@ methods:
         On Android, this method should be called when you are done streaming a given
         audio object, to release underlying resources, including buffered data.
     platforms: [android]
+  - name: getAudioSessionId
+    summary: Returns the audio session id.
+    type: Number
+    since: "5.4.0"
+    platforms: [android]
   - name: start
     summary: Starts or resumes audio playback.
   - name: stateDescription
