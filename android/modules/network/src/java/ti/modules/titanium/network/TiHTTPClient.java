@@ -1147,7 +1147,7 @@ public class TiHTTPClient
 					if (parts.size() > 0 && needMultipart) {
 						boundary = HttpUrlConnectionUtils.generateBoundary();
 						client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-					} else {
+					} else if (isPostOrPutOrPatch) {
 						client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
 					}
 
