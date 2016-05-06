@@ -2920,8 +2920,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					comment: xobjs.PBXNativeTarget[targetUuid].productReference_comment
 				});
 
-				//find the extension frameworks and resources group
-				for(var key in extObjs.PBXGroup) {
+				// find the extension frameworks and resources group
+				for (var key in extObjs.PBXGroup) {
 					if(extObjs.PBXGroup[key] === 'Frameworks') {
 						extFrameworksGroup = key.split('_')[0];
 					}
@@ -2930,12 +2930,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 				}
 
-				//add the extension frameworks to the frameworks group
+				// add the extension frameworks to the frameworks group
 				if(extFrameworksGroup) {
 					extObjs.PBXGroup[extFrameworksGroup].children.forEach(function (child) {
 						frameworksGroup.children.push(child);
-						//find the extension framework file reference
-						for(var key in extObjs.PBXFileReference) {
+						// find the extension framework file reference
+						for (var key in extObjs.PBXFileReference) {
 							if(extObjs.PBXFileReference[key] === child.comment) {
 								// add the file reference
 								extFrameworkReference = key.split('_')[0];
@@ -2946,12 +2946,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					});
 				}
 
-				//add the extension resources to the resources group
+				// add the extension resources to the resources group
 				if(extResourcesGroup) {
 					extObjs.PBXGroup[extResourcesGroup].children.forEach(function (child) {
 						resourcesGroup.children.push(child);
-						//find the extension framework file reference
-						for(var key in extObjs.PBXFileReference) {
+						// find the extension framework file reference
+						for (var key in extObjs.PBXFileReference) {
 							if(extObjs.PBXFileReference[key] === child.comment) {
 								// add the file reference
 								extResourceReference = key.split('_')[0];
