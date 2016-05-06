@@ -502,6 +502,11 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
 //	ENSURE_UI_THREAD(insertRowBefore,args);
 	
+	if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self insertRowBefore:args];},YES); // YES = wait for the operation to complete on the main thread !!!
+        return;
+}
+	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
@@ -579,6 +584,11 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 -(void)insertRowAfter:(id)args
 {
 //	ENSURE_UI_THREAD(insertRowAfter,args);
+	
+		if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self insertRowAfter:args];},YES); // YES = wait for the operation to complete on the main thread !!!
+        return;
+}
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
