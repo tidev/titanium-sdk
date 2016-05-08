@@ -47,6 +47,14 @@
 @property (nonatomic, readonly)NSNumber* AUTHORIZATION_DENIED;
 @property (nonatomic, readonly)NSNumber* AUTHORIZATION_AUTHORIZED;
 
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_NONE;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_ACCEPTED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_DECLINED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_TENTATIVE;
+
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_REQUIRED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_OPTIONAL;
+
 @end
 
 #endif
