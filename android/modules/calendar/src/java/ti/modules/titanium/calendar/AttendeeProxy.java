@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,11 +34,12 @@ public class AttendeeProxy extends KrollProxy {
             Attendees.ATTENDEE_NAME,
             Attendees.ATTENDEE_EMAIL,
             Attendees.ATTENDEE_TYPE,
-            Attendees.ATTENDEE_STATUS
+            Attendees.ATTENDEE_STATUS,
+            Attendees.ATTENDEE_RELATIONSHIP
     };
 
     protected String eventId, name, email;
-    protected int type, status;
+    protected int type, status, relationship;
 
     public AttendeeProxy() {
         super();
@@ -62,6 +63,8 @@ public class AttendeeProxy extends KrollProxy {
             attendee.type = cursor.getInt(colIndex);
             colIndex = cursor.getColumnIndex(Attendees.ATTENDEE_STATUS);
             attendee.status = cursor.getInt(colIndex);
+            colIndex = cursor.getColumnIndex(Attendees.ATTENDEE_RELATIONSHIP);
+            attendee.relationship = cursor.getInt(colIndex);
             attendees.add(attendee);
         }
         cursor.close();
@@ -79,13 +82,18 @@ public class AttendeeProxy extends KrollProxy {
     }
 
     @Kroll.getProperty @Kroll.method
-    public int getType() {
+    public int getRole() {
         return type;
     }
 
     @Kroll.getProperty @Kroll.method
     public int getStatus() {
         return status;
+    }
+
+    @Kroll.getProperty @Kroll.method
+    public boolean isOrganiser() {
+        return (relationship == Attendees.RELATIONSHIP_ORGANIZER);
     }
 
     @Override
