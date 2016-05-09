@@ -31,7 +31,7 @@ install:
   - export ANDROID_NDK=${PWD}/android-ndk-r8c
   -
   - # Install required Titanium build
-  - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build" 
+  - git clone https://github.com/kiat/titanium_build.git "$SDKS/titanium_build" 
   - ls "$SDKS/titanium_build"
   -
   - sudo easy_install pyyaml
