@@ -1184,6 +1184,13 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad]
+
+  - name: selectionDuringEditing
+    summary: Determines if selection is enabled while the table view is being edited.
+    type: Boolean
+    default: false
+    since: "5.4.0"
+    platforms: [iphone, ipad]
     
   - name: allowsSelectionDuringEditing
     summary: Determines whether this table's rows can be selected while editing the table.

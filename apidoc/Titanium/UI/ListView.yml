@@ -628,6 +628,13 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: selectionDuringEditing
+    summary: Determines if selection is enabled while the list view is being edited.
+    type: Boolean
+    default: false
+    since: "5.4.0"
+    platforms: [iphone, ipad]
+
   - name: lazyLoadingEnabled
     summary: Determines if the list view should use lazy loading to load remote images.
     description: |

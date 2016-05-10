@@ -594,6 +594,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [table setScrollEnabled:[TiUtils boolValue:args def:YES]];
 }
 
+-(void)setSelectionDuringEditing_:(id)arg
+{
+    [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg]];
+}
+
 -(void)setSeparatorStyle_:(id)arg
 {
     [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
