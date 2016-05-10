@@ -1730,11 +1730,6 @@
 	[[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
 }
 
--(void)setSelectionDuringEditing_:(id)arg
-{
-    [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg]];
-}
-
 -(void)setSeparatorStyle_:(id)arg
 {
 	[[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];

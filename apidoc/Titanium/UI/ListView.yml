@@ -628,8 +628,8 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
-  - name: selectionDuringEditing
-    summary: Determines if selection is enabled while the list view is being edited.
+  - name: allowsSelectionDuringEditing
+    summary: Determines whether this list View rows can be selected while editing the table.
     type: Boolean
     default: false
     since: "5.4.0"
