@@ -50,7 +50,9 @@
 {
 	if (count == 1 && [type isEqualToString:@"progress"])
 	{
-		timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
+		if (![timer isValid]) {
+			timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
+		}
 	}
 }
 
