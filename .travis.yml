@@ -4,7 +4,7 @@ jdk:
   - oraclejdk7
 install:
   - ANDROID_SDK_PACKAGE=android-sdk_r24.0.1-macosx.zip
-  - ANDROID_NDK_PACKAGE=android-ndk-r8c-darwin-x86.tar.bz2
+  - ANDROID_NDK_PACKAGE=android-ndk-r10e-darwin-x86_64.zip
   - export TITANIUM_ANDROID_API="23"
   - # Need to install jq to process the JSON
   - brew update
@@ -14,8 +14,8 @@ install:
   - sudo npm install -g titanium
   -
   - export TITANIUM_ROOT=`ti sdk list -o json | jq -r '.defaultInstallLocation'`
-  - export TITANIUM_SDK=`ti sdk list -o json | jq -r '.installed[.activeSDK]'`
   - mkdir -p "$TITANIUM_ROOT/sdks/"
+  - export TITANIUM_SDK=`ti sdk list -o json | jq -r '.installed[.activeSDK]'`
   - 
   - export SDKS="$TRAVIS_BUILD_DIR/sdks"
   - echo $SDKS
@@ -25,10 +25,17 @@ install:
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter tools,platform-tools,build-tools-$TITANIUM_ANDROID_API.0.0,extra-android-support,android-22,android-$TITANIUM_ANDROID_API,addon-google_apis-google-$TITANIUM_ANDROID_API,sys-img-armeabi-v7a-android-22
+  - echo yes | android -s update sdk --no-ui --all --filter android-$TITANIUM_ANDROID_API 
+  - echo yes | android -s update sdk --no-ui --all --filter addon-google_apis-google-$TITANIUM_ANDROID_API
+  - echo yes | android -s update sdk --no-ui --all --filter tools
+  - echo yes | android -s update sdk --no-ui --all --filter platform-tools
+  - echo yes | android -s update sdk --no-ui --all --filter build-tools-$TITANIUM_ANDROID_API.0.3
+  - echo yes | android -s update sdk --no-ui --all --filter extra-android-support
+  - echo yes | android -s update sdk --no-ui --all --filter sys-img-armeabi-v7a-android-22
+
   - # Install required Android NDK
-  - if [ ! -d "$SDKS/android-ndk-r8c" ]; then wget http://dl.google.com/android/ndk/$ANDROID_NDK_PACKAGE; tar xzf $ANDROID_NDK_PACKAGE; fi
-  - export ANDROID_NDK=${PWD}/android-ndk-r8c
+  - if [ ! -d "$SDKS/android-ndk-r10e" ]; then wget http://dl.google.com/android/repository/$ANDROID_NDK_PACKAGE; unzip -q -o $ANDROID_NDK_PACKAGE; fi
+  - export ANDROID_NDK=${PWD}/android-ndk-r10e
   -
   - # Install required Titanium build
   - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build" 
