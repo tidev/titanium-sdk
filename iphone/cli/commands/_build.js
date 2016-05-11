@@ -2921,22 +2921,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				});
 
 				// find the extension frameworks and resources group
-				for (var key in extObjs.PBXGroup) {
-					if(extObjs.PBXGroup[key] === 'Frameworks') {
+				Object.keys(extObjs.PBXGroup).forEach(function (key) {
+					if (extObjs.PBXGroup[key] === 'Frameworks') {
 						extFrameworksGroup = key.split('_')[0];
 					}
-					if(extObjs.PBXGroup[key] === 'Resources') {
+					if (extObjs.PBXGroup[key] === 'Resources') {
 						extResourcesGroup = key.split('_')[0];
 					}
 				}
 
 				// add the extension frameworks to the frameworks group
-				if(extFrameworksGroup) {
+				if (extFrameworksGroup) {
 					extObjs.PBXGroup[extFrameworksGroup].children.forEach(function (child) {
 						frameworksGroup.children.push(child);
 						// find the extension framework file reference
-						for (var key in extObjs.PBXFileReference) {
-							if(extObjs.PBXFileReference[key] === child.comment) {
+						Object.keys(extObjs.PBXFileReference).forEach(function (key) {
+							if (extObjs.PBXFileReference[key] === child.comment) {
 								// add the file reference
 								extFrameworkReference = key.split('_')[0];
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
@@ -2947,12 +2947,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				}
 
 				// add the extension resources to the resources group
-				if(extResourcesGroup) {
+				if (extResourcesGroup) {
 					extObjs.PBXGroup[extResourcesGroup].children.forEach(function (child) {
 						resourcesGroup.children.push(child);
 						// find the extension framework file reference
-						for (var key in extObjs.PBXFileReference) {
-							if(extObjs.PBXFileReference[key] === child.comment) {
+						Object.keys(extObjs.PBXFileReference).forEach(function (key) {
+							if (extObjs.PBXFileReference[key] === child.comment) {
 								// add the file reference
 								extResourceReference = key.split('_')[0];
 								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
