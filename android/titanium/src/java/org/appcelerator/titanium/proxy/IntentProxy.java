@@ -23,7 +23,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Bitmap;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -56,16 +55,6 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;
-		ComponentName componentName = intent.getComponent();
-		if (componentName != null) {
-		    String packageName = componentName.getPackageName();
-		    if (packageName != null)
-		        setProperty(TiC.PROPERTY_PACKAGE_NAME, packageName);
-		    String className = componentName.getClassName();
-		    if (className != null)
-		        setProperty(TiC.PROPERTY_CLASS_NAME, className);
-		}
-		// Other properties have dedicated getters.
 	}
 
 	protected static char[] escapeChars = new char[] {
