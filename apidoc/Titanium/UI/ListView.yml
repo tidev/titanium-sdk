@@ -628,6 +628,13 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: allowsSelectionDuringEditing
+    summary: Determines whether this list View rows can be selected while editing the table.
+    type: Boolean
+    default: false
+    since: "5.4.0"
+    platforms: [iphone, ipad]
+
   - name: lazyLoadingEnabled
     summary: Determines if the list view should use lazy loading to load remote images.
     description: |
