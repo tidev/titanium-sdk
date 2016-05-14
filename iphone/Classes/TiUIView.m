@@ -211,6 +211,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+#ifdef TI_USE_AUTOLAYOUT
 -(void)initializeTiLayoutView
 {
     [super initializeTiLayoutView];
@@ -219,6 +220,8 @@ DEFINE_EXCEPTIONS
         [self setDefaultWidth:TiDimensionAutoFill];
     }
 }
+#endif
+
 - (id) init
 {
 	self = [super init];
@@ -292,6 +295,7 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	
 	[self updateTouchHandling];
+    [[self proxy] setValue:NUMBOOL([TiUtils boolValue:[[self proxy] valueForKey:@"touchEnabled"] def:YES]) forKey:@"touchEnabled"];
 	self.backgroundColor = [UIColor clearColor];
 #ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -708,13 +712,9 @@ DEFINE_EXCEPTIONS
 -(void)setTouchEnabled_:(id)arg
 {
 	self.userInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
+    [[self proxy] replaceValue:NUMBOOL(self.userInteractionEnabled) forKey:@"touchEnabled" notification:NO];
     changedInteraction = YES;
 }
-
--(BOOL) touchEnabled {
-	return touchEnabled;
-}
-
 
 -(UIView *)gradientWrapperView
 {

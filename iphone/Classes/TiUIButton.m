@@ -48,7 +48,7 @@
 	
 #ifndef TI_USE_AUTOLAYOUT
 	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]]
-	   && ![(TiUIView*)superResult touchEnabled])) {
+	   && ![(TiUIView*)superResult isUserInteractionEnabled])) {
 		return [self button];
 	}
 #else
