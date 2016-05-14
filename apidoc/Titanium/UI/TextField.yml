@@ -283,11 +283,16 @@ properties:
     default: No hint text.
 
   - name: hintTextColor
-    summary: Hint text color.
-    platforms: [android]
-    since: 4.1.0
+    summary: Hint text color to display when the field is empty.
+    platforms: [iphone, ipad, android]
+    since: {iphone: "5.4.0", ipad: "5.4.0", android: "4.1.0"}
     description: |
-        Hint text color in Android is determined by the theme of the application. By default, the
+        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overriden
+        by the <Titanium.UI.TextField.attributedHintText> which provides an advanced configuration to
+        style hint texts.
+
+        *Note for Android*:
+        The hint text color in Android is determined by the theme of the application. By default, the
         theme is 'Theme.AppCompat' which is a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
         edit the tiapp.xml file with another theme. Example as follows:
@@ -300,7 +305,7 @@ properties:
 
         Another way to change the hint text color is to use this property and specify a color.
     type: String
-    default: Default Android theme's hint text color.
+    default: The platform's default hint text color.
 
   - name: inputType
     summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
