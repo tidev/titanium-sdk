@@ -153,7 +153,8 @@ methods:
     platforms: [android]
   - name: getAudioSessionId
     summary: Returns the audio session id.
-    type: Number
+    returns: 
+        type: Number
     since: "5.4.0"
     platforms: [android]
   - name: start
