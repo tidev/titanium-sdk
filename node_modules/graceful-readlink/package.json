@@ -46,7 +46,7 @@
   "directories": {},
   "dist": {
     "shasum": "4cafad76bc62f02fa039b2f94e9a3dd3a391a725",
-    "tarball": "http://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
+    "tarball": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
   },
   "gitHead": "f6655275bebef706fb63fd01b5f062a7052419a5",
   "homepage": "https://github.com/zhiyelee/graceful-readlink",

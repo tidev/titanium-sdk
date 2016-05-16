@@ -46,7 +46,7 @@
   "directories": {},
   "dist": {
     "shasum": "6858fe7c0969b7d4e9093337647ac79f60dfbe74",
-    "tarball": "http://registry.npmjs.org/generate-function/-/generate-function-2.0.0.tgz"
+    "tarball": "https://registry.npmjs.org/generate-function/-/generate-function-2.0.0.tgz"
   },
   "gitHead": "3d5fc8de5859be95f58e3af9bfb5f663edd95149",
   "homepage": "https://github.com/mafintosh/generate-function",

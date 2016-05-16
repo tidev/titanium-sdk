@@ -53,7 +53,7 @@
   },
   "dist": {
     "shasum": "a3d5da6cd5c0bc0008d37234bbaf1bed63059107",
-    "tarball": "http://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz"
+    "tarball": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz"
   },
   "engines": {
     "node": ">=0.4.0"

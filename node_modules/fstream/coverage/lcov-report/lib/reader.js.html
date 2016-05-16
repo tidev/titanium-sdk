@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for lib/reader.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">lib/</a> reader.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">60.29% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>82/136</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">46.88% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>45/96</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">45.45% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>5/11</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">62.31% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>81/130</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">23×</span>
+<span class="cline-any cline-yes">23×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">70×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">module.exports = Reader
+&nbsp;
+var fs = require('graceful-fs')
+var Stream = require('stream').Stream
+var inherits = require('inherits')
+var path = require('path')
+var getType = require('./get-type.js')
+var hardLinks = Reader.hardLinks = {}
+var Abstract = require('./abstract.js')
+&nbsp;
+// Must do this *before* loading the child classes
+inherits(Reader, Abstract)
+&nbsp;
+var LinkReader = require('./link-reader.js')
+&nbsp;
+function Reader (props, currentStat) {
+  var self = this
+  if (!(self instanceof Reader)) return new Reader(props, currentStat)
+&nbsp;
+  if (typeof props === 'string') {
+    props = { path: props }
+  }
+&nbsp;
+  if (!props) {
+    self.error('Must provide properties or a path', null, true)
+  } else if (!props.path) {
+    self.error('Must provide a path', null, true)
+  }
+&nbsp;
+  // polymorphism.
+  // call fstream.Reader(dir) to get a DirReader object, etc.
+  // Note that, unlike in the Writer case, ProxyReader is going
+  // to be the *normal* state of affairs, since we rarely know
+  // the type of a file prior to reading it.
+&nbsp;
+  var type = getType(props)
+  var ClassType = Reader
+&nbsp;
+  if (currentStat &amp;&amp; !type) {
+    type = getType(currentStat)
+    props[type] = true
+    props.type = type
+  }
+&nbsp;
+  switch (type) {
+<span class="branch-0 cbranch-no" title="branch not covered" >    case 'Directory':</span>
+<span class="cstat-no" title="statement not covered" >      ClassType = require('./dir-reader.js')</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+&nbsp;
+<span class="branch-1 cbranch-no" title="branch not covered" >    case 'Link':</span>
+    // XXX hard links are just files.
+    // However, it would be good to keep track of files' dev+inode
+    // and nlink values, and create a HardLinkReader that emits
+    // a linkpath value of the original copy, so that the tar
+    // writer can preserve them.
+    // ClassType = HardLinkReader
+    // break
+&nbsp;
+    case 'File':
+      ClassType = require('./file-reader.js')
+      break
+&nbsp;
+<span class="branch-3 cbranch-no" title="branch not covered" >    case 'SymbolicLink':</span>
+<span class="cstat-no" title="statement not covered" >      ClassType = LinkReader</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+&nbsp;
+<span class="branch-4 cbranch-no" title="branch not covered" >    case 'Socket':</span>
+<span class="cstat-no" title="statement not covered" >      ClassType = require('./socket-reader.js')</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+&nbsp;
+    case null:
+      ClassType = require('./proxy-reader.js')
+      break
+  }
+&nbsp;
+  if (!(self instanceof ClassType)) {
+    return new ClassType(props)
+  }
+&nbsp;
+  Abstract.call(self)
+&nbsp;
+  self.readable = true
+  self.writable = false
+&nbsp;
+  self.type = type
+  self.props = props
+  self.depth = props.depth = props.depth || 0
+  self.parent = props.parent || null
+  self.root = props.root || (props.parent &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >props.parent.root)</span> || self
+&nbsp;
+  self._path = self.path = path.resolve(props.path)
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (process.platform === 'win32') {
+<span class="cstat-no" title="statement not covered" >    self.path = self._path = self.path.replace(/\?/g, '_')</span>
+<span class="cstat-no" title="statement not covered" >    if (self._path.length &gt;= 260) {</span>
+      // how DOES one create files on the moon?
+      // if the path has spaces in it, then UNC will fail.
+<span class="cstat-no" title="statement not covered" >      self._swallowErrors = true</span>
+      // if (self._path.indexOf(" ") === -1) {
+<span class="cstat-no" title="statement not covered" >      self._path = '\\\\?\\' + self.path.replace(/\//g, '\\')</span>
+    // }
+    }
+  }
+  self.basename = props.basename = path.basename(self.path)
+  self.dirname = props.dirname = path.dirname(self.path)
+&nbsp;
+  // these have served their purpose, and are now just noisy clutter
+  props.parent = props.root = null
+&nbsp;
+  // console.error("\n\n\n%s setting size to", props.path, props.size)
+  self.size = props.size
+  self.filter = typeof props.filter === 'function' ? <span class="branch-0 cbranch-no" title="branch not covered" >props.filter </span>: null
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (props.sort === 'alpha') <span class="cstat-no" title="statement not covered" >props.sort = alphasort</span>
+&nbsp;
+  // start the ball rolling.
+  // this will stat the thing, and then call self._read()
+  // to start reading whatever it is.
+  // console.error("calling stat", props.path, currentStat)
+  self._stat(currentStat)
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function alphasort (a, b) {</span>
+<span class="cstat-no" title="statement not covered" >  return a === b ? 0</span>
+    : a.toLowerCase() &gt; b.toLowerCase() ? 1
+      : a.toLowerCase() &lt; b.toLowerCase() ? -1
+        : a &gt; b ? 1
+          : -1
+}
+&nbsp;
+Reader.prototype._stat = function (currentStat) {
+  var self = this
+  var props = self.props
+  var stat = props.follow ? <span class="branch-0 cbranch-no" title="branch not covered" >'stat' </span>: 'lstat'
+  // console.error("Reader._stat", self._path, currentStat)
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (currentStat) <span class="cstat-no" title="statement not covered" >process.nextTick(statCb.bind(null, null, currentStat))</span>
+  else fs[stat](self._path, statCb)
+&nbsp;
+  function statCb (er, props_) {
+    // console.error("Reader._stat, statCb", self._path, props_, props_.nlink)
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (er) <span class="cstat-no" title="statement not covered" >return self.error(er)</span>
+&nbsp;
+    Object.keys(props_).forEach(function (k) {
+      props[k] = props_[k]
+    })
+&nbsp;
+    // if it's not the expected size, then abort here.
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (undefined !== self.size &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >props.size !== self.size)</span> {
+<span class="cstat-no" title="statement not covered" >      return self.error('incorrect size')</span>
+    }
+    self.size = props.size
+&nbsp;
+    var type = getType(props)
+    var handleHardlinks = props.hardlinks !== false
+&nbsp;
+    // special little thing for handling hardlinks.
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (handleHardlinks &amp;&amp; type !== 'Directory' &amp;&amp; props.nlink &amp;&amp; props.nlink &gt; 1) {
+<span class="cstat-no" title="statement not covered" >      var k = props.dev + ':' + props.ino</span>
+      // console.error("Reader has nlink", self._path, k)
+<span class="cstat-no" title="statement not covered" >      if (hardLinks[k] === self._path || !hardLinks[k]) {</span>
+<span class="cstat-no" title="statement not covered" >        hardLinks[k] = self._path</span>
+      } else {
+        // switch into hardlink mode.
+<span class="cstat-no" title="statement not covered" >        type = self.type = self.props.type = 'Link'</span>
+<span class="cstat-no" title="statement not covered" >        self.Link = self.props.Link = true</span>
+<span class="cstat-no" title="statement not covered" >        self.linkpath = self.props.linkpath = hardLinks[k]</span>
+        // console.error("Hardlink detected, switching mode", self._path, self.linkpath)
+        // Setting __proto__ would arguably be the "correct"
+        // approach here, but that just seems too wrong.
+<span class="cstat-no" title="statement not covered" >        self._stat = self._read = LinkReader.prototype._read</span>
+      }
+    }
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (self.type &amp;&amp; self.type !== type) {
+<span class="cstat-no" title="statement not covered" >      self.error('Unexpected type: ' + type)</span>
+    }
+&nbsp;
+    // if the filter doesn't pass, then just skip over this one.
+    // still have to emit end so that dir-walking can move on.
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (self.filter) {
+<span class="cstat-no" title="statement not covered" >      var who = self._proxy || self</span>
+      // special handling for ProxyReaders
+<span class="cstat-no" title="statement not covered" >      if (!self.filter.call(who, who, props)) {</span>
+<span class="cstat-no" title="statement not covered" >        if (!self._disowned) {</span>
+<span class="cstat-no" title="statement not covered" >          self.abort()</span>
+<span class="cstat-no" title="statement not covered" >          self.emit('end')</span>
+<span class="cstat-no" title="statement not covered" >          self.emit('close')</span>
+        }
+<span class="cstat-no" title="statement not covered" >        return</span>
+      }
+    }
+&nbsp;
+    // last chance to abort or disown before the flow starts!
+    var events = ['_stat', 'stat', 'ready']
+    var e = 0
+    ;(function go () {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (self._aborted) {
+<span class="cstat-no" title="statement not covered" >        self.emit('end')</span>
+<span class="cstat-no" title="statement not covered" >        self.emit('close')</span>
+<span class="cstat-no" title="statement not covered" >        return</span>
+      }
+&nbsp;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (self._paused &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >self.type !== 'Directory')</span> {
+<span class="cstat-no" title="statement not covered" >        self.once('resume', go)</span>
+<span class="cstat-no" title="statement not covered" >        return</span>
+      }
+&nbsp;
+      var ev = events[e++]
+      if (!ev) {
+        return self._read()
+      }
+      self.emit(ev, props)
+      go()
+    })()
+  }
+}
+&nbsp;
+Reader.prototype.pipe = <span class="fstat-no" title="function not covered" >function (dest) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  if (typeof dest.add === 'function') {</span>
+    // piping to a multi-compatible, and we've got directory entries.
+<span class="cstat-no" title="statement not covered" >    self.on('entry', <span class="fstat-no" title="function not covered" >function (entry) {</span></span>
+<span class="cstat-no" title="statement not covered" >      var ret = dest.add(entry)</span>
+<span class="cstat-no" title="statement not covered" >      if (ret === false) {</span>
+<span class="cstat-no" title="statement not covered" >        self.pause()</span>
+      }
+    })
+  }
+&nbsp;
+  // console.error("R Pipe apply Stream Pipe")
+<span class="cstat-no" title="statement not covered" >  return Stream.prototype.pipe.apply(this, arguments)</span>
+}
+&nbsp;
+Reader.prototype.pause = <span class="fstat-no" title="function not covered" >function (who) {</span>
+<span class="cstat-no" title="statement not covered" >  this._paused = true</span>
+<span class="cstat-no" title="statement not covered" >  who = who || this</span>
+<span class="cstat-no" title="statement not covered" >  this.emit('pause', who)</span>
+<span class="cstat-no" title="statement not covered" >  if (this._stream) <span class="cstat-no" title="statement not covered" >this._stream.pause(who)</span></span>
+}
+&nbsp;
+Reader.prototype.resume = <span class="fstat-no" title="function not covered" >function (who) {</span>
+<span class="cstat-no" title="statement not covered" >  this._paused = false</span>
+<span class="cstat-no" title="statement not covered" >  who = who || this</span>
+<span class="cstat-no" title="statement not covered" >  this.emit('resume', who)</span>
+<span class="cstat-no" title="statement not covered" >  if (this._stream) <span class="cstat-no" title="statement not covered" >this._stream.resume(who)</span></span>
+<span class="cstat-no" title="statement not covered" >  this._read()</span>
+}
+&nbsp;
+Reader.prototype._read = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  this.error('Cannot read unknown type: ' + this.type)</span>
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 29 2016 17:58:18 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

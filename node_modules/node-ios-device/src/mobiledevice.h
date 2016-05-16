@@ -54,7 +54,7 @@ extern "C" {
 #define ERR_MOBILE_DEVICE 0
 
 /* Apple Mobile (AM*) errors */
-#define MDERR_OK                ERR_SUCCESS
+#define MDERR_OK                ERR_SUCCESS // 0
 #define MDERR_SYSCALL           (ERR_MOBILE_DEVICE | 0x01)
 #define MDERR_OUT_OF_MEMORY     (ERR_MOBILE_DEVICE | 0x03)
 #define MDERR_QUERY_FAILED      (ERR_MOBILE_DEVICE | 0x04)
@@ -467,7 +467,7 @@ uint32_t AMDeviceGetInterfaceSpeed(
  * WiFiAddress
  * iTunesHasConnected
  */
-CFStringRef AMDeviceCopyValue(
+void* AMDeviceCopyValue(
 	am_device device,
 	uint32_t mbz,
 	CFStringRef key);

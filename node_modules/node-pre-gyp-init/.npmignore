@@ -1,0 +1,6 @@
+._*
+.babelrc
+.DS_Store
+.git*
+node_modules
+npm-debug.log

@@ -49,7 +49,7 @@
   "directories": {},
   "dist": {
     "shasum": "30a0b2da38f73770e8294a0d22e6625ed77d0097",
-    "tarball": "http://registry.npmjs.org/longest/-/longest-1.0.1.tgz"
+    "tarball": "https://registry.npmjs.org/longest/-/longest-1.0.1.tgz"
   },
   "engines": {
     "node": ">=0.10.0"

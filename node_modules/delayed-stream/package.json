@@ -56,7 +56,7 @@
   "directories": {},
   "dist": {
     "shasum": "df3ae199acadfb7d440aaae0b29e2272b24ec619",
-    "tarball": "http://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz"
+    "tarball": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz"
   },
   "engines": {
     "node": ">=0.4.0"
