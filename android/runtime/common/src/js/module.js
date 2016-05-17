@@ -367,7 +367,7 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename];
+		return Module.cache[filename].exports;
 	}
 
 	module = new Module(filename, this, context); // difference in id vs filename?
@@ -397,7 +397,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename];
+		return Module.cache[filename].exports;
 	}
 
 	module = new Module(filename, this, context); // difference in id vs filename?
@@ -430,11 +430,13 @@ Module.prototype.loadAsFile = function (id, context) {
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';
 	if (this.filenameExists(filename)) {
+		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 	filename = id + '.json';
 	if (this.filenameExists(filename)) {
+		kroll.log(TAG, filename + ' exists, loading as JSON');
 		return this.loadJavascriptObject(filename, context);
 	}
 	// failed to load anything!
@@ -450,26 +452,31 @@ Module.prototype.loadAsFile = function (id, context) {
  */
 Module.prototype.loadAsDirectory = function (id, context) {
 	// 1. If X/package.json is a file,
-	var filename = id + '/package.json';
+	var filename = path.resolve(id, 'package.json');
 	if (this.filenameExists(filename)) {
+		kroll.log(TAG, 'package.json exists, parsing...');
 		// a. Parse X/package.json, and look for "main" field.
 		var object = this.loadJavascriptObject(filename, context);
+		kroll.log(TAG, JSON.stringify(object));
 		if (object && object.main) {
 			// b. let M = X + (json main field)
-			var m = id + object.main;
+			var m = path.resolve(id, object.main);
+			kroll.log(TAG, 'Resolved to ' + m);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFile(m, context);
 		}
 	}
 
 	// 2. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
-	filename = id + '/index.js';
+	filename = path.resolve(id, 'index.js');
 	if (this.filenameExists(filename)) {
+		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
-	filename = id + '/index.json';
+	filename = path.resolve(id, 'index.json');
 	if (this.filenameExists(filename)) {
+		kroll.log(TAG, filename + ' exists, loading as JSON');
 		return this.loadJavascriptObject(filename, context);
 	}
 
