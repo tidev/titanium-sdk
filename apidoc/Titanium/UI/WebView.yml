@@ -388,6 +388,16 @@ events:
       - name: code
         summary: SSL error code.
         type: Number
+
+  - name: onStopBlacklistedUrl
+    summary: Fired when a blacklisted Url is stopped
+    description: |
+        This event is fired when a blacklisted Url is stopped
+    platforms: [android]
+    since: "5.4.0"
+    properties:
+      - name: url
+        summary: URL of the web document that is stopped.
         
 properties:
 
