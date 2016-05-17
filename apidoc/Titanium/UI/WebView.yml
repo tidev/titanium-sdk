@@ -388,6 +388,16 @@ events:
       - name: code
         summary: SSL error code.
         type: Number
+
+  - name: onStopBlacklistedUrl
+    summary: Fired when a blacklisted Url is stopped
+    description: |
+        This event is fired when a blacklisted Url is stopped
+    platforms: [android]
+    since: "5.4.0"
+    properties:
+      - name: url
+        summary: URL of the web document that is stopped.
         
 properties:
 
@@ -414,7 +424,8 @@ properties:
         An array of url strings to blacklist.
     description: |
         An array of url strings to blacklist. This will stop the webview from going to urls listed in
-        the blacklist.
+        the blacklist. Note, this only applies in the links clicked inside the webview. The first website
+        that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
     since: "5.4.0"
     platforms: [android]
