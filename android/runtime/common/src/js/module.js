@@ -279,7 +279,7 @@ Module.prototype.require = function (request, context) {
 
 	// Fallback to old Titanium behavior of assuming it's actually an absolute path
 	kroll.log(TAG, "Naked module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
-	loaded = loadAsFileOrDirectory('Resources/' + request, context);
+	loaded = this.loadAsFileOrDirectory('Resources/' + request, context);
 	if (loaded) {
 		return loaded;
 	}
