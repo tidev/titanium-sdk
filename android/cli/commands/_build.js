@@ -2725,7 +2725,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 			if (fs.existsSync(file)) {
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
-				} else if (/\.js$/.test(filename)) {
+				} else if (/\.js(on)?$/.test(filename)) {
 					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', '')] = 1;
 				}
 			}
