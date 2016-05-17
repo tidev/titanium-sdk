@@ -252,7 +252,7 @@ describe('ioslib', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should find a device/cert/profile combination', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should find a device/cert/profile combination', function (done) {
 		this.timeout(10000);
 		this.slow(10000);
 

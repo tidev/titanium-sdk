@@ -12,12 +12,13 @@
 #include <string>
 #include <map>
 #include <thread>
+#include <boost/format.hpp>
 #include <boost/thread.hpp>
 #include "mobiledevice.h"
 
 using namespace v8;
 
-/*
+/**
  * A struct to track listener properties such as the JavaScript callback
  * function.
  */
@@ -25,7 +26,7 @@ typedef struct Listener {
 	Nan::Persistent<Function> callback;
 } Listener;
 
-/*
+/**
  * Globals
  */
 static CFMutableDictionaryRef listeners;
@@ -33,7 +34,7 @@ static CFMutableDictionaryRef connectedDevices;
 static bool devicesChanged;
 static boost::shared_mutex deviceInfoMutex;
 
-/*
+/**
  * Converts CFStringRef strings to C strings.
  */
 static char* cfstring_to_cstr(CFStringRef str) {
@@ -49,7 +50,7 @@ static char* cfstring_to_cstr(CFStringRef str) {
 	return NULL;
 }
 
-/*
+/**
  * Device object that persists while the device is plugged in. It contains the
  * original MobileDevice device reference and a V8 JavaScript object containing
  * the devices properties.
@@ -58,38 +59,128 @@ class Device {
 public:
 	am_device handle;
 	std::map<std::string, std::string> props;
-	bool connected;
+	int connected;
 	CFStringRef udid;
-
+	bool hostConnected;
 	service_conn_t logConnection;
 	CFSocketRef logSocket;
 	CFRunLoopSourceRef logSource;
 	Listener* logCallback;
 
-	Device(am_device& dev) : handle(dev), connected(false), logSocket(NULL), logSource(NULL), logCallback(NULL) {
+	/**
+	 * Constructs the device object.
+	 */
+	Device(am_device& dev) : handle(dev), connected(0), hostConnected(false), logSocket(NULL), logSource(NULL), logCallback(NULL) {
 		this->udid = AMDeviceCopyDeviceIdentifier(dev);
 
 		char* str = cfstring_to_cstr(this->udid);
 		if (str != NULL) {
 			this->props["udid"] = std::string(str);
-			//this->setProp("udid", str);
 			free(str);
+		}
+	}
+
+	/**
+	 * Disconnects and cleans up allocated memory.
+	 */
+	~Device() {
+		this->disconnect(true);
+
+		if (this->logCallback) {
+			delete this->logCallback;
+		}
+		if (this->logSource) {
+			CFRelease(this->logSource);
+		}
+		if (this->logSocket) {
+			CFRelease(this->logSocket);
+		}
+	}
+
+	/**
+	 * Connects to the device, pairs with it, and starts a session. We use a
+	 * connected counter so that we don't connect more than once.
+	 */
+	void connect() {
+		if (this->connected++ > 0) {
+			// already connected
+			return;
+		}
+
+		// connect to the device
+		mach_error_t rval = AMDeviceConnect(this->handle);
+		if (rval == MDERR_SYSCALL) {
+			throw std::runtime_error("Failed to connect to device: setsockopt() failed");
+		} else if (rval == MDERR_QUERY_FAILED) {
+			throw std::runtime_error("Failed to connect to device: the daemon query failed");
+		} else if (rval == MDERR_INVALID_ARGUMENT) {
+			throw std::runtime_error("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff");
+		} else if (rval != MDERR_OK) {
+			throw std::runtime_error((boost::format("Failed to connect to device (0x%x)") % rval).str());
+		}
+
+		// if we're not paired, go ahead and pair now
+		if (AMDeviceIsPaired(this->handle) != 1 && AMDevicePair(this->handle) != 1) {
+			throw std::runtime_error("Failed to pair device");
+		}
+
+		// double check the pairing
+		rval = AMDeviceValidatePairing(this->handle);
+		if (rval == MDERR_INVALID_ARGUMENT) {
+			throw std::runtime_error("Device is not paired: the device is null");
+		} else if (rval == MDERR_DICT_NOT_LOADED) {
+			throw std::runtime_error("Device is not paired: load_dict() failed");
+		} else if (rval != MDERR_OK) {
+			throw std::runtime_error((boost::format("Device is not paired (0x%x)") % rval).str());
+		}
+
+		// start the session
+		rval = AMDeviceStartSession(this->handle);
+		if (rval == MDERR_INVALID_ARGUMENT) {
+			throw std::runtime_error("Failed to start session: the lockdown connection has not been established");
+		} else if (rval == MDERR_DICT_NOT_LOADED) {
+			throw std::runtime_error("Failed to start session: load_dict() failed");
+		} else if (rval != MDERR_OK) {
+			throw std::runtime_error((boost::format("Failed to start session (0x%x)") % rval).str());
+		}
+	}
+
+	/**
+	 * Disconnects the device if there are no other active connections to this
+	 * device. Generally, force should not be set. It's mainly there for the
+	 * destructor.
+	 */
+	void disconnect(const bool force = false) {
+		if (force || --this->connected <= 0) {
+			this->connected = 0;
+			AMDeviceStopSession(this->handle);
+			AMDeviceDisconnect(this->handle);
+		}
+	}
+
+	/**
+	 * Starts a service.
+	 *
+	 * Note that if the call to AMDeviceStartService() fails, it's probably
+	 * because MobileDevice thinks we're connected and paired, but we're not.
+	 */
+	void startService(const char* serviceName, service_conn_t* conn) const {
+		mach_error_t rval = AMDeviceStartService(this->handle, CFStringCreateWithCStringNoCopy(NULL, serviceName, kCFStringEncodingUTF8, NULL), conn, NULL);
+		if (rval == MDERR_SYSCALL) {
+			throw std::runtime_error((boost::format("Failed to start \"%s\" service due to system call error (0x%x)") % serviceName % rval).str());
+		} else if (rval == MDERR_INVALID_ARGUMENT) {
+			throw std::runtime_error((boost::format("Failed to start \"%s\" service due to invalid argument (0x%x)") % serviceName % rval).str());
+		} else if (rval != MDERR_OK) {
+			throw std::runtime_error((boost::format("Failed to start \"%s\" service (0x%x)") % serviceName % rval).str());
 		}
 	}
 };
 
-class DeviceInfoBaton {
-public:
-	uv_work_t request;
-	Device* device;
-
-	DeviceInfoBaton(Device* dev) : device(dev) {
-		this->request.data = this;
-	}
-};
-
-static void setDeviceProperty(Device* device, const char* key, CFStringRef id) {
-	CFStringRef valueStr = AMDeviceCopyValue(device->handle, 0, id);
+/**
+ * Helper function that stores a property in the device's props dictionary.
+ */
+static void setDevicePropertyString(Device* device, const char* key, CFStringRef id) {
+	CFStringRef valueStr = (CFStringRef)AMDeviceCopyValue(device->handle, 0, id);
 	if (valueStr != NULL) {
 		char* value = cfstring_to_cstr(valueStr);
 		CFRelease(valueStr);
@@ -100,69 +191,48 @@ static void setDeviceProperty(Device* device, const char* key, CFStringRef id) {
 	}
 }
 
-//static void getDeviceInfo(uv_work_t *req) {
+/**
+ * Fetches additional info about a device for the given udid. Note that this
+ * function runs in a thread so that the main thread's event loop isn't blocked.
+ */
 static void getDeviceInfo(Device* device) {
 	boost::shared_lock<boost::shared_mutex> lock(deviceInfoMutex);
-	//DeviceInfoBaton* baton = static_cast<DeviceInfoBaton*>(req->data);
-	//Device* device = baton->device;
 
-	if (CFDictionaryContainsKey(connectedDevices, device->udid)) {
-		return;
-	}
+	// we must always set this flag
+	devicesChanged = true;
 
-	// connect to the device and get its information
-	mach_error_t rval = AMDeviceConnect(device->handle);
-	if (rval != MDERR_OK) {
-		// if (rval == MDERR_SYSCALL) {
-		// 	printf("Failed to connect to device: setsockopt() failed\n");
-		// } else if (rval == MDERR_QUERY_FAILED) {
-		// 	printf("Failed to connect to device: the daemon query failed\n");
-		// } else if (rval == MDERR_INVALID_ARGUMENT) {
-		// 	printf("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff\n");
-		// } else {
-		// 	printf("Failed to connect to device (0x%x)\n", rval);
-		// }
-		return;
-	}
-
-	if (AMDeviceIsPaired(device->handle) != 1 && AMDevicePair(device->handle) != 1) {
-		// printf("Failed to pair device\n");
-		return;
-	}
-
-	rval = AMDeviceStartSession(device->handle);
-	if (rval == MDERR_OK) {
-		setDeviceProperty(device, "name",            CFSTR("DeviceName"));
-		setDeviceProperty(device, "buildVersion",    CFSTR("BuildVersion"));
-		setDeviceProperty(device, "cpuArchitecture", CFSTR("CPUArchitecture"));
-		setDeviceProperty(device, "deviceClass",     CFSTR("DeviceClass"));
-		setDeviceProperty(device, "deviceColor",     CFSTR("DeviceColor"));
-		setDeviceProperty(device, "hardwareModel",   CFSTR("HardwareModel"));
-		setDeviceProperty(device, "modelNumber",     CFSTR("ModelNumber"));
-		setDeviceProperty(device, "productType",     CFSTR("ProductType"));
-		setDeviceProperty(device, "productVersion",  CFSTR("ProductVersion"));
-		setDeviceProperty(device, "serialNumber",    CFSTR("SerialNumber"));
-
+	// if we already have the device info, don't get it again
+	if (!CFDictionaryContainsKey(connectedDevices, device->udid)) {
 		CFDictionarySetValue(connectedDevices, device->udid, device);
-		devicesChanged = true;
-
-		AMDeviceStopSession(device->handle);
-	// } else if (rval == MDERR_INVALID_ARGUMENT) {
-	// 	printf("Failed to start session: the lockdown connection has not been established\n");
-	// } else if (rval == MDERR_DICT_NOT_LOADED) {
-	// 	printf("Failed to start session: load_dict() failed\n");
-	// } else {
-	// 	printf("Failed to start session (0x%x)\n", rval);
 	}
 
-	AMDeviceDisconnect(device->handle);
+	try {
+		// connect to the device and get its information
+		device->connect();
+		setDevicePropertyString(device, "name",            CFSTR("DeviceName"));
+		setDevicePropertyString(device, "buildVersion",    CFSTR("BuildVersion"));
+		setDevicePropertyString(device, "cpuArchitecture", CFSTR("CPUArchitecture"));
+		setDevicePropertyString(device, "deviceClass",     CFSTR("DeviceClass"));
+		setDevicePropertyString(device, "deviceColor",     CFSTR("DeviceColor"));
+		setDevicePropertyString(device, "hardwareModel",   CFSTR("HardwareModel"));
+		setDevicePropertyString(device, "modelNumber",     CFSTR("ModelNumber"));
+		setDevicePropertyString(device, "productType",     CFSTR("ProductType"));
+		setDevicePropertyString(device, "productVersion",  CFSTR("ProductVersion"));
+		setDevicePropertyString(device, "serialNumber",    CFSTR("SerialNumber"));
+
+		CFNumberRef valueNum = (CFNumberRef)AMDeviceCopyValue(device->handle, 0, CFSTR("HostAttached"));
+		int64_t value = 0;
+		CFNumberGetValue(valueNum, kCFNumberSInt64Type, &value);
+		CFRelease(valueNum);
+		device->hostConnected = value == 1;
+	} catch (...) {
+		// oh well
+	}
+
+	device->disconnect();
 }
 
-// static void getDeviceInfoAfter(uv_work_t *req, int status) {
-// 	// decrement!
-// }
-
-/*
+/**
  * on()
  * Defines a JavaScript function that adds an event listener.
  */
@@ -188,7 +258,7 @@ NAN_METHOD(on) {
 	info.GetReturnValue().SetUndefined();
 }
 
-/*
+/**
  * Notifies all listeners of an event.
  */
 void emit(const char* event) {
@@ -211,11 +281,14 @@ void emit(const char* event) {
 	free(keys);
 }
 
-/*
+/**
  * pumpRunLoop()
  * Defines a JavaScript function that processes all pending notifications.
  */
 NAN_METHOD(pump_run_loop) {
+	// Note that this value is somewhat arbitrary. There was a report once that
+	// this value was too low and the computer couldn't keep up. It should
+	// probably be configurable.
 	CFTimeInterval interval = 0.25;
 
 	if (info.Length() > 0 && info[0]->IsNumber()) {
@@ -223,18 +296,20 @@ NAN_METHOD(pump_run_loop) {
 		interval = intervalArg->NumberValue();
 	}
 
-	devicesChanged = false;
-
+	// tick the run loop
 	CFRunLoopRunInMode(kCFRunLoopDefaultMode, interval, false);
 
 	if (devicesChanged) {
+		// immediately reset just in case we have a getDeviceInfo() call running
+		// in the background
+		devicesChanged = false;
 		emit("devicesChanged");
 	}
 
 	info.GetReturnValue().SetUndefined();
 }
 
-/*
+/**
  * devices()
  * Defines a JavaScript function that returns a JavaScript array of iOS devices.
  * This should be called after pumpRunLoop() has been called.
@@ -253,7 +328,6 @@ NAN_METHOD(devices) {
 		for (std::map<std::string, std::string>::iterator it = values[i]->props.begin(); it != values[i]->props.end(); ++it) {
 			Nan::Set(p, Nan::New(it->first).ToLocalChecked(), Nan::New(it->second).ToLocalChecked());
 		}
-
 		Nan::Set(result, i, p);
 	}
 
@@ -262,14 +336,12 @@ NAN_METHOD(devices) {
 	info.GetReturnValue().Set(result);
 }
 
-/*
+/**
  * The callback when a device notification is received.
  */
 void on_device_notification(am_device_notification_callback_info* info, void* arg) {
 	if (info->msg == ADNCI_MSG_CONNECTED) {
-		//DeviceInfoBaton* baton = new DeviceInfoBaton(new Device(info->dev));
 		std::thread(getDeviceInfo, new Device(info->dev)).detach();
-		//uv_queue_work(uv_default_loop(), &baton->request, getDeviceInfo, getDeviceInfoAfter);
 
 	} else if (info->msg == ADNCI_MSG_DISCONNECTED) {
 		CFStringRef udid = AMDeviceCopyDeviceIdentifier(info->dev);
@@ -294,7 +366,7 @@ void on_device_notification(am_device_notification_callback_info* info, void* ar
 	}
 }
 
-/*
+/**
  * installApp()
  * Defines a JavaScript function that installs an iOS app on the specified device.
  * This should be called after pumpRunLoop() has been called.
@@ -356,77 +428,22 @@ NAN_METHOD(installApp) {
 	CFRelease(appPathStr);
 	CFRelease(relativeUrl);
 
-	mach_error_t rval;
-
-	if (deviceObj->connected) {
-		AMDeviceStopSession(*device);
-		AMDeviceDisconnect(*device);
+	try {
+		deviceObj->connect();
+	} catch (std::runtime_error& e) {
+		return Nan::ThrowError(Exception::Error(Nan::New(e.what()).ToLocalChecked()));
 	}
-
-	// connect to the device
-	rval = AMDeviceConnect(*device);
-	if (rval == MDERR_SYSCALL) {
-		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: setsockopt() failed").ToLocalChecked()));
-	} else if (rval == MDERR_QUERY_FAILED) {
-		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: the daemon query failed").ToLocalChecked()));
-	} else if (rval == MDERR_INVALID_ARGUMENT) {
-		return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff").ToLocalChecked()));
-	} else if (rval != MDERR_OK) {
-		snprintf(tmp, 256, "Failed to connect to device (0x%x)", rval);
-		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-	}
-
-	// make sure we're paired
-	rval = AMDeviceIsPaired(*device);
-	if (rval != 1) {
-		rval = AMDevicePair(*device);
-		if (rval != 1) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired").ToLocalChecked()));
-		}
-	}
-
-	// double check the pairing
-	rval = AMDeviceValidatePairing(*device);
-	if (rval != MDERR_OK) {
-		rval = AMDevicePair(*device);
-		if (rval != 1) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to pair device").ToLocalChecked()));
-		} else {
-			rval = AMDeviceValidatePairing(*device);
-			if (rval == MDERR_INVALID_ARGUMENT) {
-				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: the device is null").ToLocalChecked()));
-			} else if (rval == MDERR_DICT_NOT_LOADED) {
-				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: load_dict() failed").ToLocalChecked()));
-			} else if (rval != MDERR_OK) {
-				snprintf(tmp, 256, "Device is not paired (0x%x)", rval);
-				return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-			}
-		}
-	}
-
-	// start the session
-	rval = AMDeviceStartSession(*device);
-	if (rval == MDERR_INVALID_ARGUMENT) {
-		return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: the lockdown connection has not been established").ToLocalChecked()));
-	} else if (rval == MDERR_DICT_NOT_LOADED) {
-		return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: load_dict() failed").ToLocalChecked()));
-	} else if (rval != MDERR_OK) {
-		snprintf(tmp, 256, "Failed to start session (0x%x)", rval);
-		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-	}
-
-	deviceObj->connected = true;
 
 	CFStringRef keys[] = { CFSTR("PackageType") };
 	CFStringRef values[] = { CFSTR("Developer") };
 	CFDictionaryRef options = CFDictionaryCreate(NULL, (const void **)&keys, (const void **)&values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
 	// copy .app to device
-	rval = AMDeviceSecureTransferPath(0, *device, localUrl, options, NULL, 0);
+	mach_error_t rval = AMDeviceSecureTransferPath(0, *device, localUrl, options, NULL, 0);
 	if (rval != MDERR_OK) {
 		AMDeviceStopSession(*device);
 		AMDeviceDisconnect(*device);
-		deviceObj->connected = false;
+		deviceObj->connected--;
 		CFRelease(options);
 		CFRelease(localUrl);
 		if (rval == -402653177) {
@@ -442,7 +459,7 @@ NAN_METHOD(installApp) {
 	if (rval != MDERR_OK) {
 		AMDeviceStopSession(*device);
 		AMDeviceDisconnect(*device);
-		deviceObj->connected = false;
+		deviceObj->connected--;
 		CFRelease(options);
 		CFRelease(localUrl);
 		if (rval == -402620395) {
@@ -454,9 +471,7 @@ NAN_METHOD(installApp) {
 	}
 
 	// cleanup
-	AMDeviceStopSession(*device);
-	AMDeviceDisconnect(*device);
-	deviceObj->connected = false;
+	deviceObj->disconnect();
 	CFRelease(options);
 	CFRelease(localUrl);
 
@@ -511,7 +526,7 @@ void LogSocketCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef addre
 	delete[] str;
 }
 
-/*
+/**
  * log()
  * Connects to the device and fires the callback with each line of output from
  * the device's syslog.
@@ -536,7 +551,6 @@ NAN_METHOD(log) {
 	String::Utf8Value udidValue(udidHandle->ToString());
 	char* udid = *udidValue;
 	CFStringRef udidStr = CFStringCreateWithCString(NULL, (char*)*udidValue, kCFStringEncodingUTF8);
-	//std::lock_guard<std::mutex> lock(connectedDevicesMutex);
 
 	if (!CFDictionaryContainsKey(connectedDevices, (const void*)udidStr)) {
 		CFRelease(udidStr);
@@ -554,82 +568,23 @@ NAN_METHOD(log) {
 	Device* deviceObj = (Device*)CFDictionaryGetValue(connectedDevices, udidStr);
 	CFRelease(udidStr);
 
-	am_device* device = &deviceObj->handle;
-	mach_error_t rval;
+	// It's possible for the iOS device to not be connected wirelessly instead
+	// of with a cable. If that's the case, then AMDeviceStartService() will
+	// fail to start the com.apple.syslog_relay service.
+	if (!deviceObj->hostConnected) {
+		return Nan::ThrowError(Exception::Error(Nan::New("iOS device must be connected to host").ToLocalChecked()));
+	}
+
 	service_conn_t connection;
 
-	if (!deviceObj->connected) {
-		// connect to the device
-		rval = AMDeviceConnect(*device);
-		if (rval == MDERR_SYSCALL) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: setsockopt() failed").ToLocalChecked()));
-		} else if (rval == MDERR_QUERY_FAILED) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: the daemon query failed").ToLocalChecked()));
-		} else if (rval == MDERR_INVALID_ARGUMENT) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to connect to device: invalid argument, USBMuxConnectByPort returned 0xffffffff").ToLocalChecked()));
-		} else if (rval != MDERR_OK) {
-			snprintf(tmp, 256, "Failed to connect to device (0x%x)", rval);
-			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-		}
-
-		// make sure we're paired
-		rval = AMDeviceIsPaired(*device);
-		if (rval != 1) {
-			rval = AMDevicePair(*device);
-			if (rval != 1) {
-				return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired").ToLocalChecked()));
-			}
-		}
-
-		// double check the pairing
-		rval = AMDeviceValidatePairing(*device);
-		if (rval != MDERR_OK) {
-			rval = AMDevicePair(*device);
-			if (rval != 1) {
-				return Nan::ThrowError(Exception::Error(Nan::New("Failed to pair device").ToLocalChecked()));
-			} else {
-				rval = AMDeviceValidatePairing(*device);
-				if (rval == MDERR_INVALID_ARGUMENT) {
-					return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: the device is null").ToLocalChecked()));
-				} else if (rval == MDERR_DICT_NOT_LOADED) {
-					return Nan::ThrowError(Exception::Error(Nan::New("Device is not paired: load_dict() failed").ToLocalChecked()));
-				} else if (rval != MDERR_OK) {
-					snprintf(tmp, 256, "Device is not paired (0x%x)", rval);
-					return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-				}
-			}
-		}
-
-		// start the session
-		rval = AMDeviceStartSession(*device);
-		if (rval == MDERR_INVALID_ARGUMENT) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: the lockdown connection has not been established").ToLocalChecked()));
-		} else if (rval == MDERR_DICT_NOT_LOADED) {
-			return Nan::ThrowError(Exception::Error(Nan::New("Failed to start session: load_dict() failed").ToLocalChecked()));
-		} else if (rval != MDERR_OK) {
-			snprintf(tmp, 256, "Failed to start session (0x%x)", rval);
-			return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-		}
-
-		deviceObj->connected = true;
+	try {
+		deviceObj->connect();
+		deviceObj->startService(AMSVC_SYSLOG_RELAY, &connection);
+	} catch (std::runtime_error& e) {
+		return Nan::ThrowError(Exception::Error(Nan::New(e.what()).ToLocalChecked()));
 	}
 
-	rval = AMDeviceStartService(*device, CFSTR(AMSVC_SYSLOG_RELAY), &connection, NULL);
-	if (rval != MDERR_OK) {
-		AMDeviceStopSession(*device);
-		if (rval == MDERR_SYSCALL) {
-			snprintf(tmp, 256, "Failed to start \"%s\" service due to system call error (0x%x)", AMSVC_SYSLOG_RELAY, rval);
-		} else if (rval == MDERR_INVALID_ARGUMENT) {
-			snprintf(tmp, 256, "Failed to start \"%s\" service due to invalid argument (0x%x)", AMSVC_SYSLOG_RELAY, rval);
-		} else {
-			snprintf(tmp, 256, "Failed to start \"%s\" service (0x%x)", AMSVC_SYSLOG_RELAY, rval);
-		}
-		return Nan::ThrowError(Exception::Error(Nan::New(tmp).ToLocalChecked()));
-	}
-
-	AMDeviceStopSession(*device);
-	AMDeviceDisconnect(*device);
-	deviceObj->connected = false;
+	deviceObj->disconnect();
 
 	CFSocketContext socketCtx = { 0, deviceObj, NULL, NULL, NULL };
 	CFSocketRef socket = CFSocketCreateWithNative(kCFAllocatorDefault, connection, kCFSocketDataCallBack, LogSocketCallback, &socketCtx);
@@ -662,9 +617,11 @@ NAN_METHOD(log) {
 	info.GetReturnValue().SetUndefined();
 }
 
+/**
+ * Called when Node begins to shutdown so that we can clean up any allocated memory.
+ */
 static void cleanup(void *arg) {
 	// free up connected devices
-	//std::lock_guard<std::mutex> lock(connectedDevicesMutex);
 	CFIndex size = CFDictionaryGetCount(connectedDevices);
 	CFStringRef* keys = (CFStringRef*)malloc(size * sizeof(CFStringRef));
 	CFDictionaryGetKeysAndValues(connectedDevices, (const void **)keys, NULL);
@@ -673,22 +630,6 @@ static void cleanup(void *arg) {
 	for (; i < size; i++) {
 		Device* device = (Device*)CFDictionaryGetValue(connectedDevices, keys[i]);
 		CFDictionaryRemoveValue(connectedDevices, keys[i]);
-
-		if (device->connected) {
-			AMDeviceStopSession(device->handle);
-			AMDeviceDisconnect(device->handle);
-		}
-
-		if (device->logCallback) {
-			delete device->logCallback;
-		}
-		if (device->logSource) {
-			CFRelease(device->logSource);
-		}
-		if (device->logSocket) {
-			CFRelease(device->logSocket);
-		}
-
 		delete device;
 	}
 
@@ -707,7 +648,7 @@ static void cleanup(void *arg) {
 	free(keys);
 }
 
-/*
+/**
  * Wire up the JavaScript functions, initialize the dictionaries, and subscribe
  * to the device notifications.
  */
@@ -727,12 +668,4 @@ static void init(Handle<Object> exports) {
 	node::AtExit(cleanup);
 }
 
-#define ADDON_MODULE2(ver, fn) NODE_MODULE(node_ios_device_v ## ver, fn)
-#define ADDON_MODULE(ver, fn) ADDON_MODULE2(ver, fn)
-
-// in Node.js 0.8, NODE_MODULE_VERSION is (1) and the parenthesis mess things up
-#if NODE_MODULE_VERSION > 1
-	ADDON_MODULE(NODE_MODULE_VERSION, init)
-#else
-	ADDON_MODULE(1, init)
-#endif
+NODE_MODULE(node_ios_device, init)

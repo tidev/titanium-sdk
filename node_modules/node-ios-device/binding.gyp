@@ -1,15 +1,7 @@
 {
 	'targets': [
 		{
-			'target_name': 'node_module_version',
-			'type': 'executable',
-			'sources': [
-				'src/node-module-version.cpp'
-			]
-		},
-		{
 			'target_name': 'node_ios_device',
-			'dependencies': [ 'node_module_version' ],
 			'sources': [
 				'src/ios-device.cpp',
 				'src/mobiledevice.h'
@@ -30,20 +22,27 @@
 			'cflags': [
 				'-Wl,-whole-archive -lboost_system -Wl,--no-whole-archive'
 			],
+			'cflags!': [
+				'-fno-exceptions'
+			],
+			'cflags_cc!': [
+				'-fno-exceptions'
+			],
 			'xcode_settings': {
 				'OTHER_CPLUSPLUSFLAGS' : [ '-std=c++11', '-stdlib=libc++' ],
 				'OTHER_LDFLAGS': [ '-stdlib=libc++' ],
-				'MACOSX_DEPLOYMENT_TARGET': '10.7'
-			},
-			'postbuilds': [
+				'MACOSX_DEPLOYMENT_TARGET': '10.11',
+				'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'
+			}
+		},
+		{
+			"target_name": "action_after_build",
+			"type": "none",
+			"dependencies": [ "<(module_name)" ],
+			"copies": [
 				{
-					'postbuild_name': 'Copy release to output directory',
-					'action': [
-						'sh',
-						'../dist.sh',
-						'${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}',
-						'${SRCROOT}/out'
-					]
+					"files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
+					"destination": "<(module_path)"
 				}
 			]
 		}

@@ -127,7 +127,7 @@ describe('device', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should fail to install app bad app path', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should fail to install app bad app path', function (done) {
 		this.timeout(30000);
 		this.slow(30000);
 
@@ -139,7 +139,7 @@ describe('device', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to install app to device', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to install app to device', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
