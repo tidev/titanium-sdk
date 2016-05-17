@@ -2876,7 +2876,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					targetUuid = extTarget.value,
 					targetName = extTarget.comment,
 					targetInfo = ext.targetInfo[targetName],
-					targetGroup = null;
+					targetGroup = null,
+					extFrameworksGroup = null,
+					extFrameworkReference = null,
+					extResourcesGroup = null,
+					extResourceReference = null;
 
 				// do we care about this target?
 				ext.targets.some(function (t) { if (t.name === targetName) { target = t; return true; } });
@@ -2915,6 +2919,48 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					value: xobjs.PBXNativeTarget[targetUuid].productReference,
 					comment: xobjs.PBXNativeTarget[targetUuid].productReference_comment
 				});
+
+				// find the extension frameworks and resources group
+				Object.keys(extObjs.PBXGroup).forEach(function (key) {
+					if (extObjs.PBXGroup[key] === 'Frameworks') {
+						extFrameworksGroup = key.split('_')[0];
+					}
+					if (extObjs.PBXGroup[key] === 'Resources') {
+						extResourcesGroup = key.split('_')[0];
+					}
+				}
+
+				// add the extension frameworks to the frameworks group
+				if (extFrameworksGroup) {
+					extObjs.PBXGroup[extFrameworksGroup].children.forEach(function (child) {
+						frameworksGroup.children.push(child);
+						// find the extension framework file reference
+						Object.keys(extObjs.PBXFileReference).forEach(function (key) {
+							if (extObjs.PBXFileReference[key] === child.comment) {
+								// add the file reference
+								extFrameworkReference = key.split('_')[0];
+								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
+								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
+							}
+						}					
+					});
+				}
+
+				// add the extension resources to the resources group
+				if (extResourcesGroup) {
+					extObjs.PBXGroup[extResourcesGroup].children.forEach(function (child) {
+						resourcesGroup.children.push(child);
+						// find the extension framework file reference
+						Object.keys(extObjs.PBXFileReference).forEach(function (key) {
+							if (extObjs.PBXFileReference[key] === child.comment) {
+								// add the file reference
+								extResourceReference = key.split('_')[0];
+								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
+								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
+							}
+						}					
+					});
+				}
 
 				// add the build phases
 				xobjs.PBXNativeTarget[targetUuid].buildPhases.forEach(function (phase) {
