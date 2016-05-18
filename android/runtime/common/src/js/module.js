@@ -425,6 +425,12 @@ Module.prototype.loadAsFile = function (id, context) {
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	var filename = id;
 	if (this.filenameExists(filename)) {
+		// If the file has a .json extension, load as JavascriptObject
+		if (filename.length > 5 && filename.slice(-4) === 'json') {
+			kroll.log(TAG, filename + ' exists, loading as JSON');
+			return this.loadJavascriptObject(filename, context);
+		}
+		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
