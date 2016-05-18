@@ -1815,7 +1815,24 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
-
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+    
+    if ([self.proxy _hasListeners:@"scrolling"]) {
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        NSString* swipeString = @"none";
+        if (velocity.y > 0){
+            swipeString = @"up";
+        }
+        if (velocity.y < 0){
+            swipeString = @"down";
+        }
+        if(swipeString !=(id)[NSNull null])
+        {
+            [eventArgs setValue:swipeString forKey:@"direction"];
+            [self.proxy fireEvent:@"scrolling" withObject:eventArgs withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        }
+    }
+}
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (!decelerate) {
