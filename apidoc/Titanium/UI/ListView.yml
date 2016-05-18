@@ -1004,6 +1004,18 @@ properties:
     constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
     since: 6.0.0
     platforms: [iphone, ipad]
+
+  - name: resultsSeparatorInsets
+    summary: | 
+        The insets for search results separators (applies to all cells & iOS-only). 
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        This property sets the default inset for all cells in the table. 
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` 
+        specifying the inset from the right edge. 
+    type: Dictionary
+    since: 6.0.0
+    platforms: [iphone, ipad]
     
 methods:
 
