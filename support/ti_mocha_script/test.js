@@ -64,14 +64,14 @@ function sconsSDK(next) {
 		prc = spawn('scons', [versionTag]);
 		prc.stdout.on('data', function (data) {
 			console.log(data.toString());
-		});	
+		});
 		prc.on('close', function (code) {
 			if (code != 0) {
 				next("Failed to scons SDK");
 			} else {
 				next();
 			}
-		});	
+		});
 	}
 }
 
@@ -87,7 +87,7 @@ function installSDK(next) {
 		prc = spawn('titanium', ['sdk', 'install', sdkPackage, '-d']);
 		prc.stdout.on('data', function (data) {
 			console.log(data.toString());
-		});	
+		});
 		prc.on('close', function (code) {
 			if (code != 0) {
 				next("Failed to install SDK");
@@ -136,9 +136,23 @@ function addTiAppProperties(next) {
 }
 
 function copyMochaAssets(next) {
-	var mochaAssetsDir = path.join(__dirname, '..', '..', 'ti_mocha_tests'),
+	var src = path.join(__dirname, '..', '..', 'ti_mocha_tests', 'Resources'),
 		dest = path.join(__dirname, 'testApp', 'Resources');
-	wrench.copyDirSyncRecursive(mochaAssetsDir, dest, {
+	wrench.copyDirSyncRecursive(src, dest, {
+		forceDelete: true
+	});
+
+	// copy modules so we can test those too
+	src = path.join(__dirname, '..', '..', 'ti_mocha_tests', 'modules'),
+		dest = path.join(__dirname, 'testApp', 'modules');
+	wrench.copyDirSyncRecursive(src, dest, {
+		forceDelete: true
+	});
+
+	// copy plugins so we can test those too
+	src = path.join(__dirname, '..', '..', 'ti_mocha_tests', 'plugins'),
+		dest = path.join(__dirname, 'testApp', 'plugins');
+	wrench.copyDirSyncRecursive(src, dest, {
 		forceDelete: true
 	});
 	next();
@@ -178,7 +192,7 @@ function runIOSBuild(next, count) {
 				iosTestResults = str.substr(index + 20).trim();
 			}
 
-			// Handle when app crashes and we haven't finished tests yet! 
+			// Handle when app crashes and we haven't finished tests yet!
 			if ((index = str.indexOf('-- End application log ----')) != -1) {
 				prc.kill(); // quit this build...
 				if (count > 3) {
@@ -198,7 +212,7 @@ function runIOSBuild(next, count) {
 		}
 		else {
 			next("Failed to build ios project");
-		} 
+		}
 	});
 }
 
@@ -253,7 +267,7 @@ function runAndroidBuild(next, count) {
 				androidTestResults = str.substr(index + 20).trim();
 			}
 
-			// Handle when app crashes and we haven't finished tests yet! 
+			// Handle when app crashes and we haven't finished tests yet!
 			if ((index = str.indexOf('-- End application log ----')) != -1) {
 				prc.kill(); // quit this build...
 				if (count > 3) {
@@ -273,16 +287,16 @@ function runAndroidBuild(next, count) {
 		}
 		else {
 			next("Failed to build android project");
-		} 		
+		}
 	});
 }
 
-function parseIOSTestResults(next) {	
+function parseIOSTestResults(next) {
 	if (!iosTestResults) {
 		next();
 	} else {
 		// preserve newlines, etc - use valid JSON
-		iosTestResults = iosTestResults.replace(/\\n/g, "\\n")  
+		iosTestResults = iosTestResults.replace(/\\n/g, "\\n")
 				   .replace(/\\'/g, "\\'")
 				   .replace(/\\"/g, '\\"')
 				   .replace(/\\&/g, "\\&")
@@ -291,18 +305,18 @@ function parseIOSTestResults(next) {
 				   .replace(/\\b/g, "\\b")
 				   .replace(/\\f/g, "\\f");
 		// remove non-printable and other non-valid JSON chars
-		iosTestResults = iosTestResults.replace(/[\u0000-\u0019]+/g,""); 
+		iosTestResults = iosTestResults.replace(/[\u0000-\u0019]+/g,"");
 		iosJsonResults = JSON.parse(iosTestResults);
 		next();
 	}
 }
 
-function parseAndroidTestResults(next) {	
+function parseAndroidTestResults(next) {
 	if (!androidTestResults) {
 		next();
 	} else {
 		// preserve newlines, etc - use valid JSON
-		androidTestResults = androidTestResults.replace(/\\n/g, "\\n")  
+		androidTestResults = androidTestResults.replace(/\\n/g, "\\n")
 				   .replace(/\\'/g, "\\'")
 				   .replace(/\\"/g, '\\"')
 				   .replace(/\\&/g, "\\&")
@@ -311,7 +325,7 @@ function parseAndroidTestResults(next) {
 				   .replace(/\\b/g, "\\b")
 				   .replace(/\\f/g, "\\f");
 		// remove non-printable and other non-valid JSON chars
-		androidTestResults = androidTestResults.replace(/[\u0000-\u0019]+/g,""); 
+		androidTestResults = androidTestResults.replace(/[\u0000-\u0019]+/g,"");
 		androidJsonResults = JSON.parse(androidTestResults);
 		next();
 	}
@@ -344,7 +358,7 @@ function getTotalAPITest(next) {
 }
 
 function cleanUp(next) {
-	var prc, 
+	var prc,
 		out,
 		sdkPackageFile;
 	if (skipScons) {
@@ -364,14 +378,14 @@ function cleanUp(next) {
 		} else {
 			next();
 		}
-	});	
+	});
 }
 
 function killiOSSimulator(next) {
 	var prc = spawn('killall', ['Simulator']);
 	prc.on('close', function (code) {
 		next();
-	});		
+	});
 }
 
 function killAndroidSimulator(next) {
@@ -379,8 +393,8 @@ function killAndroidSimulator(next) {
 	next();
 }
 /**
- * Finds the existing SDK, Scons the new SDK, install the new SDK ,generates a Titanium mobile project, 
- * sets up the project, copies unit tests into it from ti_mocha_tests, and then runs the project in a ios simulator 
+ * Finds the existing SDK, Scons the new SDK, install the new SDK ,generates a Titanium mobile project,
+ * sets up the project, copies unit tests into it from ti_mocha_tests, and then runs the project in a ios simulator
  * and android emulator which will run the mocha unit tests. The test results are piped to
  * the CLi. If any unit test fails, process exits with a fail. After which the API coverage is calculated. If the coverage
  * falls below the previous build, process exits with a fail.
@@ -403,7 +417,7 @@ function test(callback) {
 		if (val == 'skip-scons') {
 			skipScons = true;
 			console.log('Skip scons. This assumes you ran npm test at least once already');
-		};		
+		};
 	});
 	//Only test local and on SGJenkins machine.
 	if (runningOnJenkins == false && runningOnTravis == false) {
@@ -422,7 +436,7 @@ function test(callback) {
 			function (next) {
 				console.log("Install SDK");
 				installSDK(next);
-			},		
+			},
 //			function (next) {
 //				console.log("Kill iOS simulator");
 //				killiOSSimulator(next);
@@ -449,7 +463,7 @@ function test(callback) {
 			},
 			function (next) {
 				parseAndroidTestResults(next);
-			},		
+			},
 			function (next) {
 				console.log("Launching ios test project in simulator");
 				runIOSBuild(next, 2);
@@ -572,7 +586,7 @@ if (module.id === ".") {
 							async.series([
 								function(next) {
 									cleanUp(next);
-								}], 
+								}],
 								function (err) {
 									if (err) {
 										console.error(err.toString().red);
@@ -590,7 +604,7 @@ if (module.id === ".") {
 						async.series([
 							function(next) {
 								cleanUp(next);
-							}], 
+							}],
 							function (err) {
 								if (err) {
 									console.error(err.toString().red);
@@ -598,11 +612,10 @@ if (module.id === ".") {
 								}
 							}
 						);
-					}					
+					}
 					process.exit(0);
 				}
 			);
 		}
 	});
 }
-
