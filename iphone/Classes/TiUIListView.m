@@ -1818,17 +1818,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
     
     if ([self.proxy _hasListeners:@"scrolling"]) {
-        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
-        NSString* swipeString = @"none";
+        NSString* directionString = @"none";
         if (velocity.y > 0){
-            swipeString = @"up";
+            directionString = @"up";
         }
         if (velocity.y < 0){
-            swipeString = @"down";
+            directionString = @"down";
         }
-        if(swipeString !=(id)[NSNull null])
-        {
-            [eventArgs setValue:swipeString forKey:@"direction"];
+        if(directionString != @"none") {
+            NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+            NSDictionary *pointObject = [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithDouble:targetContentOffset->x],@"x",
+             [NSNumber numberWithDouble:targetContentOffset->y],@"y",
+                                         nil];
+            [eventArgs setValue:directionString forKey:@"direction"];
+            [eventArgs setValue:NUMDOUBLE(velocity.y) forKey:@"velocity"];
+            [eventArgs setObject:pointObject forKey:@"targetContentOffset"];
             [self.proxy fireEvent:@"scrolling" withObject:eventArgs withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
         }
     }
