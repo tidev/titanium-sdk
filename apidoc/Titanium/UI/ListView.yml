@@ -598,29 +598,30 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-    - name: scrolling
-	    summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
-	    description: |
-	        This event will fire when the list view is scrolling. Use  `direction` to determine the scroll direction, 
-	         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi)
-	    platforms: [iphone, ipad]
-	    since: 5.4.0
-	    properties: 
-	      - name: direction
-	        summary: Direction of the scroll--either 'up', or 'down'.
-	        type: String
+  - name: scrolling
+    summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire when the list view is scrolling. Use  `direction` to determine the scroll direction,
+        `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi)
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: direction
+        summary: Direction of the scroll--either 'up', or 'down'.
+        type: String
 
-	      - name: velocity
-	        summary: The velocity of the scroll in scale factor per second
-	        type: number
+      - name: velocity
+        summary: The velocity of the scroll in scale factor per second
+        type: number
 
-	      - name: targetContentOffset
-	        summary: The expected offset when the scrolling action decelerates to a stop.
-	        type: Object
+      - name: targetContentOffset
+        summary: The expected offset when the scrolling action decelerates to a stop.
+        type: Object
 
-	      - name: bubbles
-	        summary: false. This event does not bubble.
-	        type: Boolean
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
 
 properties:
   - name: allowsSelection
