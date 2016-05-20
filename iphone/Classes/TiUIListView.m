@@ -801,6 +801,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
 }
 
+-(void)setDisableBounce_:(id)value
+{
+    [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
+}
+
 #pragma mark - Search Support
 -(void)setCaseInsensitiveSearch_:(id)args
 {
