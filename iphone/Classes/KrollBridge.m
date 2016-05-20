@@ -1109,24 +1109,43 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			if (module) {
 				return module;
 			}
-			// Treat '/' special as Resources/
+			// Treat '/' special as absolute, drop the leading '/'
 		}
 		else if ([path hasPrefix:@"/"]) {
-			module = [self loadAsFileOrDirectory:[@"Resources" stringByAppendingString:path] withContext:context];
+			module = [self loadAsFileOrDirectory:[[path substringFromIndex:1] stringByStandardizingPath] withContext:context];
 			if (module) {
 				return module;
 			}
-		}
-
-		// TODO Allow looking through node_modules
-		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-
-		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		NSLog(@"Naked module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
-		module = [self loadAsFileOrDirectory:[@"Resources/" stringByAppendingString:path] withContext:context];
-		if (module) {
-			return module;
-		}
+        } else {
+            // TODO Allow looking through node_modules
+            // 3. LOAD_NODE_MODULES(X, dirname(Y))
+            
+            // TODO Find a way to determine if the first path segment refers to a CommonJS module.
+            // Maybe we can copy modules under a "modules" sub-folder?
+            NSLog(@"Non-prefixed module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
+            
+            // If the path has a '/', We may be trying to load a file under a module, or we may be trying to load a "bad" require that should be treated as absolute...
+            // TODO If the path is module.id/module.id, treat like loading top-level module below?
+            if ([path containsString:@"/"]) {
+                module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+                if (module) {
+                    return module;
+                }
+            } else {
+                // TODO Can we determine if the path is a commonjs module id?
+                // For CommonJS we need to look for module.id/module.id.js first...
+                // TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+                module = [self loadAsFile:[[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"] withContext:context];
+                if (module) {
+                    return module;
+                }
+                // Then try module.id as directory
+                module = [self loadAsDirectory:path withContext:context];
+                if (module) {
+                    return module;
+                }
+            }
+        }
 	}
 	@finally {
 		[self setCurrentURL:oldURL];
