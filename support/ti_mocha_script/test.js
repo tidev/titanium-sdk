@@ -129,6 +129,17 @@ function addTiAppProperties(next) {
 		if (line.indexOf('<ios>') >= 0) {
 			content.push('<use-app-thinning>true</use-app-thinning>');
 		}
+		// TODO Have this look at the existing modules under the test app folder to inject them
+		// inject the test modules for require
+		else if (line.indexOf('<modules>') >= 0) {
+			content.push('<module version="1.0.0">commonjs.index_js</module>');
+			content.push('<module version="1.0.0">commonjs.index_json</module>');
+			content.push('<module version="1.0.0">commonjs.legacy</module>');
+			content.push('<module version="1.0.0">commonjs.legacy.index_js</module>');
+			content.push('<module version="1.0.0">commonjs.legacy.index_json</module>');
+			content.push('<module version="1.0.0">commonjs.legacy.package</module>');
+			content.push('<module version="1.0.0">commonjs.package</module>');
+		}
 	});
 	fs.writeFileSync(tiapp_xml, content.join('\n'));
 

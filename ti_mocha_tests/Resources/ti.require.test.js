@@ -55,4 +55,11 @@ describe("require", function () {
         should(with_index_json.name).be.eql('index.json');
         finish();
     });
+
+    it("loads file under Titanium CommonJS module containing moduleid.js file", function (finish) {
+        var object = require('commonjs.legacy.package/main');
+        should(object).have.property('name');
+        should(object.name).be.eql('commonjs.legacy.package/main.js');
+        finish();
+    });
 });
