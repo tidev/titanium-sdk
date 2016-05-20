@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -2928,7 +2928,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					if (extObjs.PBXGroup[key] === 'Resources') {
 						extResourcesGroup = key.split('_')[0];
 					}
-				}
+				});
 
 				// add the extension frameworks to the frameworks group
 				if (extFrameworksGroup) {
@@ -2942,7 +2942,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
 							}
-						}					
+						});					
 					});
 				}
 
@@ -2958,7 +2958,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
 								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
 							}
-						}					
+						});					
 					});
 				}
 
