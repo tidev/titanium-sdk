@@ -65,7 +65,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
 	BOOL childrenInitialized;
-
+	BOOL touchEnabled;
+    
 	unsigned int animationDelayGuard;
 	unsigned int animationDelayGuardForLayout;
 	
@@ -123,6 +124,11 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 @property(nonatomic,readwrite,retain) id backgroundImage;
 
+/**
+ Returns enablement of touch events.
+ @see updateTouchHandling
+*/
+@property(nonatomic,readonly) BOOL touchEnabled;
 @property(nonatomic,readonly) CGSize oldSize;
 
 @property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
@@ -203,6 +209,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 /**
  Tells the view to update its touch handling state.
+ @see touchEnabled
  */
 -(void)updateTouchHandling;
 
