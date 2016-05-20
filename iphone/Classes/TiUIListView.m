@@ -1819,12 +1819,15 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     if ([self.proxy _hasListeners:@"scrolling"]) {
         NSString* directionString = @"none";
-        if (velocity.y > 0){
+
+        if (velocity.y > 0) {
             directionString = @"up";
         }
-        if (velocity.y < 0){
+
+        if (velocity.y < 0) {
             directionString = @"down";
         }
+        
         if(directionString != @"none") {
             NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
             NSDictionary *pointObject = [NSDictionary dictionaryWithObjectsAndKeys:
