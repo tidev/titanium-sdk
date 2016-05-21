@@ -68,7 +68,7 @@ import android.view.ViewAnimationUtils;
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
-	"translationX", "translationY", "translationZ",
+	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
 	
 	TiC.PROPERTY_TRANSITION_NAME
 })
@@ -405,6 +405,30 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void setHeight(Object height)
 	{
 		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setRotationX(Float rotation)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ROTATION_X, rotation);
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setRotationY(Float rotation)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ROTATION_Y, rotation);
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setScaleX(Float scale)
+	{
+		setPropertyAndFire(TiC.PROPERTY_SCALE_X, scale);
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setScaleY(Float scale)
+	{
+		setPropertyAndFire(TiC.PROPERTY_SCALE_Y, scale);
 	}
 
 	@Kroll.getProperty @Kroll.method
