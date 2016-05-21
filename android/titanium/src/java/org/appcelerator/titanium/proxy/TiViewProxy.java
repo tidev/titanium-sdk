@@ -407,6 +407,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
 	}
 	
+	/*@Kroll.setProperty(retain=false) @Kroll.method
+	public void setRotation(Float rotation)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ROTATION, rotation);
+	}
+	
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setRotationX(Float rotation)
 	{
@@ -429,7 +435,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void setScaleY(Float scale)
 	{
 		setPropertyAndFire(TiC.PROPERTY_SCALE_Y, scale);
-	}
+	}*/
 
 	@Kroll.getProperty @Kroll.method
 	public Object getCenter()
