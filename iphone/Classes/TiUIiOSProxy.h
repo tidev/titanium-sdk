@@ -282,6 +282,7 @@
 #ifdef USE_TI_UIIOSBLURVIEW
 -(id)createBlurView:(id)args;
 #endif
+-(id)createCameraView:(id)args;
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
 #endif

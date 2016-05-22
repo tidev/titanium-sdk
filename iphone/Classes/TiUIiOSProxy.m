@@ -106,6 +106,8 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
+#import "TiUIiOSCameraViewProxy.h"
+
 @implementation TiUIiOSProxy
 
 #define FORGET_AND_RELEASE(x) \
@@ -723,6 +725,11 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
     return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+-(id)createCameraView:(id)args
+{
+    return [[[TiUIiOSCameraViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 
 #ifdef USE_TI_UIIOSSTEPPER
 -(id)createStepper:(id)args
