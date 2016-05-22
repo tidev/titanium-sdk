@@ -1022,6 +1022,26 @@ public abstract class TiUIView
 			ViewCompat.setElevation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_ROTATION) && !nativeViewNull){
+			ViewCompat.setRotation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ROTATION_X) && !nativeViewNull){
+			ViewCompat.setRotationX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION_X));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ROTATION_Y) && !nativeViewNull){
+			ViewCompat.setRotationY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION_Y));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_SCALE_X) && !nativeViewNull){
+			ViewCompat.setScaleX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_SCALE_X));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_SCALE_Y) && !nativeViewNull){
+			ViewCompat.setScaleY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_SCALE_Y));
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_X) && !nativeViewNull){
 			ViewCompat.setTranslationX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_X));
 		}
