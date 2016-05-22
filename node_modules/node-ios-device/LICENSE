@@ -1,6 +1,6 @@
 ======================================
 node-ios-device
-Copyright (c) 2012-2013 Appcelerator, Inc.
+Copyright (c) 2012-2016 Appcelerator, Inc.
 ======================================
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -244,5 +244,3 @@ Software.
 
 Please review the full text of our privacy policy online at:
 <http://www.appcelerator.com/company/privacy/>
-
-

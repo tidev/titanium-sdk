@@ -211,6 +211,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+#ifdef TI_USE_AUTOLAYOUT
 -(void)initializeTiLayoutView
 {
     [super initializeTiLayoutView];
@@ -219,6 +220,7 @@ DEFINE_EXCEPTIONS
         [self setDefaultWidth:TiDimensionAutoFill];
     }
 }
+#endif
 
 - (id) init
 {

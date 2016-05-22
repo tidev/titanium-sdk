@@ -47,7 +47,7 @@
   "directories": {},
   "dist": {
     "shasum": "6e0924d6bda6b5afe349e39a6d632850a0f882b7",
-    "tarball": "http://registry.npmjs.org/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz"
+    "tarball": "https://registry.npmjs.org/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz"
   },
   "homepage": "https://github.com/ForbesLindesay/uglify-to-browserify",
   "keywords": [],

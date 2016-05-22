@@ -42,7 +42,7 @@
   "directories": {},
   "dist": {
     "shasum": "e1080e0658e300b06294990cc70e1502235fd550",
-    "tarball": "http://registry.npmjs.org/extsprintf/-/extsprintf-1.0.2.tgz"
+    "tarball": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.0.2.tgz"
   },
   "engines": [
     "node >=0.6.0"

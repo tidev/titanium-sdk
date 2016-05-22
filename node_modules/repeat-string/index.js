@@ -8,6 +8,13 @@
 'use strict';
 
 /**
+ * Results cache
+ */
+
+var res = '';
+var cache;
+
+/**
  * Expose `repeat`
  */
 
@@ -36,6 +43,7 @@ function repeat(str, num) {
     throw new TypeError('repeat-string expects a string.');
   }
 
+  // cover common, quick use cases
   if (num === 1) return str;
   if (num === 2) return str + str;
 
@@ -58,9 +66,3 @@ function repeat(str, num) {
   return res.substr(0, max);
 }
 
-/**
- * Results cache
- */
-
-var res = '';
-var cache;

@@ -54,7 +54,7 @@
   "directories": {},
   "dist": {
     "shasum": "c6465dbf08abcd4db359317f79ac68a646b28ff9",
-    "tarball": "http://registry.npmjs.org/nopt/-/nopt-3.0.6.tgz"
+    "tarball": "https://registry.npmjs.org/nopt/-/nopt-3.0.6.tgz"
   },
   "gitHead": "10a750c9bb99c1950160353459e733ac2aa18cb6",
   "homepage": "https://github.com/npm/nopt#readme",

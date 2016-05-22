@@ -826,7 +826,7 @@ function bashCompletionSpecFromOptions(args) {
     var longopts = [];
     var optargs = [];
     (args.options || []).forEach(function (o) {
-        if (o.group) {
+        if (o.group !== undefined && o.group !== null) {
             // Skip group headers.
             return;
         }

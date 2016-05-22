@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for lib/proxy-writer.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">lib/</a> proxy-writer.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">22.03% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>13/59</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/18</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">22.41% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>13/58</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// A writer for when we don't know what kind of thing
+// the thing is.  That is, it's not explicitly set,
+// so we're going to make it whatever the thing already
+// is, or "File"
+//
+// Until then, collect all events.
+&nbsp;
+module.exports = ProxyWriter
+&nbsp;
+var Writer = require('./writer.js')
+var getType = require('./get-type.js')
+var inherits = require('inherits')
+var collect = require('./collect.js')
+var fs = require('fs')
+&nbsp;
+inherits(ProxyWriter, Writer)
+&nbsp;
+<span class="fstat-no" title="function not covered" >function ProxyWriter (props) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  if (!(self instanceof ProxyWriter)) {</span>
+<span class="cstat-no" title="statement not covered" >    throw new Error('ProxyWriter must be called as constructor.')</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self.props = props</span>
+<span class="cstat-no" title="statement not covered" >  self._needDrain = false</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  Writer.call(self, props)</span>
+}
+&nbsp;
+ProxyWriter.prototype._stat = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  var props = self.props</span>
+  // stat the thing to see what the proxy should be.
+<span class="cstat-no" title="statement not covered" >  var stat = props.follow ? 'stat' : 'lstat'</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  fs[stat](props.path, <span class="fstat-no" title="function not covered" >function (er, current) {</span></span>
+<span class="cstat-no" title="statement not covered" >    var type</span>
+<span class="cstat-no" title="statement not covered" >    if (er || !current) {</span>
+<span class="cstat-no" title="statement not covered" >      type = 'File'</span>
+    } else {
+<span class="cstat-no" title="statement not covered" >      type = getType(current)</span>
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    props[type] = true</span>
+<span class="cstat-no" title="statement not covered" >    props.type = self.type = type</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    self._old = current</span>
+<span class="cstat-no" title="statement not covered" >    self._addProxy(Writer(props, current))</span>
+  })
+}
+&nbsp;
+ProxyWriter.prototype._addProxy = <span class="fstat-no" title="function not covered" >function (proxy) {</span>
+  // console.error("~~ set proxy", this.path)
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  if (self._proxy) {</span>
+<span class="cstat-no" title="statement not covered" >    return self.error('proxy already set')</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self._proxy = proxy</span>
+  ;<span class="cstat-no" title="statement not covered" >[</span>
+    'ready',
+    'error',
+    'close',
+    'pipe',
+    'drain',
+    'warn'
+  ].forEach(<span class="fstat-no" title="function not covered" >function (ev) {</span>
+<span class="cstat-no" title="statement not covered" >    proxy.on(ev, self.emit.bind(self, ev))</span>
+  })
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self.emit('proxy', proxy)</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var calls = self._buffer</span>
+<span class="cstat-no" title="statement not covered" >  calls.forEach(<span class="fstat-no" title="function not covered" >function (c) {</span></span>
+    // console.error("~~ ~~ proxy buffered call", c[0], c[1])
+<span class="cstat-no" title="statement not covered" >    proxy[c[0]].apply(proxy, c[1])</span>
+  })
+<span class="cstat-no" title="statement not covered" >  self._buffer.length = 0</span>
+<span class="cstat-no" title="statement not covered" >  if (self._needsDrain) <span class="cstat-no" title="statement not covered" >self.emit('drain')</span></span>
+}
+&nbsp;
+ProxyWriter.prototype.add = <span class="fstat-no" title="function not covered" >function (entry) {</span>
+  // console.error("~~ proxy add")
+<span class="cstat-no" title="statement not covered" >  collect(entry)</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!this._proxy) {</span>
+<span class="cstat-no" title="statement not covered" >    this._buffer.push(['add', [entry]])</span>
+<span class="cstat-no" title="statement not covered" >    this._needDrain = true</span>
+<span class="cstat-no" title="statement not covered" >    return false</span>
+  }
+<span class="cstat-no" title="statement not covered" >  return this._proxy.add(entry)</span>
+}
+&nbsp;
+ProxyWriter.prototype.write = <span class="fstat-no" title="function not covered" >function (c) {</span>
+  // console.error('~~ proxy write')
+<span class="cstat-no" title="statement not covered" >  if (!this._proxy) {</span>
+<span class="cstat-no" title="statement not covered" >    this._buffer.push(['write', [c]])</span>
+<span class="cstat-no" title="statement not covered" >    this._needDrain = true</span>
+<span class="cstat-no" title="statement not covered" >    return false</span>
+  }
+<span class="cstat-no" title="statement not covered" >  return this._proxy.write(c)</span>
+}
+&nbsp;
+ProxyWriter.prototype.end = <span class="fstat-no" title="function not covered" >function (c) {</span>
+  // console.error('~~ proxy end')
+<span class="cstat-no" title="statement not covered" >  if (!this._proxy) {</span>
+<span class="cstat-no" title="statement not covered" >    this._buffer.push(['end', [c]])</span>
+<span class="cstat-no" title="statement not covered" >    return false</span>
+  }
+<span class="cstat-no" title="statement not covered" >  return this._proxy.end(c)</span>
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 29 2016 17:58:18 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

@@ -46,7 +46,7 @@
   "directories": {},
   "dist": {
     "shasum": "f20c906ac92abd58e3b79ac8bc70a48832512da1",
-    "tarball": "http://registry.npmjs.org/jsprim/-/jsprim-1.2.2.tgz"
+    "tarball": "https://registry.npmjs.org/jsprim/-/jsprim-1.2.2.tgz"
   },
   "engines": [
     "node >=0.6.0"

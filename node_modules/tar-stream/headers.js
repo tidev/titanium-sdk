@@ -95,13 +95,53 @@ var encodeOct = function (val, n) {
   return ZEROS.slice(0, n - val.length) + val + ' '
 }
 
+/* Copied from the node-tar repo and modified to meet
+ * tar-stream coding standard.
+ *
+ * Source: https://github.com/npm/node-tar/blob/51b6627a1f357d2eb433e7378e5f05e83b7aa6cd/lib/header.js#L349
+ */
+function parse256 (buf) {
+  // first byte MUST be either 80 or FF
+  // 80 for positive, FF for 2's comp
+  var positive
+  if (buf[0] === 0x80) positive = true
+  else if (buf[0] === 0xFF) positive = false
+  else return null
+
+  // build up a base-256 tuple from the least sig to the highest
+  var zero = false
+  var tuple = []
+  for (var i = buf.length - 1; i > 0; i--) {
+    var byte = buf[i]
+    if (positive) tuple.push(byte)
+    else if (zero && byte === 0) tuple.push(0)
+    else if (zero) {
+      zero = false
+      tuple.push(0x100 - byte)
+    } else tuple.push(0xFF - byte)
+  }
+
+  var sum = 0
+  var l = tuple.length
+  for (i = 0; i < l; i++) {
+    sum += tuple[i] * Math.pow(256, i)
+  }
+
+  return positive ? sum : -1 * sum
+}
+
 var decodeOct = function (val, offset) {
-  // Older versions of tar can prefix with spaces
-  while (offset < val.length && val[offset] === 32) offset++
-  var end = clamp(indexOf(val, 32, offset, val.length), val.length, val.length)
-  while (offset < end && val[offset] === 0) offset++
-  if (end === offset) return 0
-  return parseInt(val.slice(offset, end).toString(), 8)
+  // If prefixed with 0x80 then parse as a base-256 integer
+  if (val[offset] & 0x80) {
+    return parse256(val.slice(offset, offset + 8))
+  } else {
+    // Older versions of tar can prefix with spaces
+    while (offset < val.length && val[offset] === 32) offset++
+    var end = clamp(indexOf(val, 32, offset, val.length), val.length, val.length)
+    while (offset < end && val[offset] === 0) offset++
+    if (end === offset) return 0
+    return parseInt(val.slice(offset, end).toString(), 8)
+  }
 }
 
 var decodeStr = function (val, offset, length) {
