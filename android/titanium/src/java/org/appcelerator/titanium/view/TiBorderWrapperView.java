@@ -26,7 +26,7 @@ import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.view.ViewOutlineProvider;
-import android.graphics.Outline ;
+import android.graphics.Outline;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
