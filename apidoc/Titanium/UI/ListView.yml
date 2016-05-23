@@ -619,6 +619,15 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: disableBounce
+    summary: Determines whether the scroll-bounce of the list view should be disabled.
+    description: |
+        Set to `true` to disable the vertical bounce.        
+    type: Boolean
+    default: false
+    since: 5.4.0
+    platforms: [iphone, ipad]
+
   - name: editing
     summary: Determines if the list view is currently in editing mode.
     description: |
