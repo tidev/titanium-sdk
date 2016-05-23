@@ -250,11 +250,6 @@ Module.prototype.require = function (request, context) {
 		return loaded;
 	}
 
-	// TODO The code above assumes "core" is only "native" modules. CommonJS are treated...oddly
-	// It looks like our build system stuffs the commonjs module into a file under Resources/module.id.js
-	// It should probably take the whole module and place it as a directory underneath Resources?
-	// Or maybe at least all the *.js and *.json files?
-
 	// 2. If X begins with './' or '/' or '../'
 	start = request.substring(0, 2);
 	if (start === './' || start === '..') {
@@ -272,18 +267,8 @@ Module.prototype.require = function (request, context) {
 		// TODO Allow looking through node_modules
 		// 3. LOAD_NODE_MODULES(X, dirname(Y))
 
-		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		kroll.log(TAG, "Naked module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
-
-		// If the path has a '/', We may be trying to load a file under a module, or we may be trying to load a "bad" require that should be treated as absolute...
-		// TODO If the path is module.id/module.id, treat like loading top-level module below?
-		if (request.indexOf('/') != -1) {
-			loaded = this.loadAsFileOrDirectory('Resources/' + request, context);
-			if (loaded) {
-				return loaded;
-			}
-		} else {
-			// TODO Can we determine if the path is a commonjs module id?
+		// Look for CommonJS module
+		if (request.indexOf('/') == -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
 			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 			loaded = this.loadAsFile('Resources/' + request + '/' + request + '.js', context);
@@ -295,6 +280,15 @@ Module.prototype.require = function (request, context) {
 			if (loaded) {
 				return loaded;
 			}
+		}
+
+		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
+		// Fallback to old Titanium behavior of assuming it's actually an absolute path
+		kroll.log(TAG, "Naked module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
+
+		loaded = this.loadAsFileOrDirectory('Resources/' + request, context);
+		if (loaded) {
+			return loaded;
 		}
 	}
 

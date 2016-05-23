@@ -862,17 +862,17 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         // module.id/module.id, which should resolve to module.id and mixin.
         // Rather than create a utility method for this (or C&P if native loading changes)
         // we use a goto to jump into the if block above.
-    
+
         if ([assetPath isEqualToString:moduleID]) {
             goto loadNativeJS;
         }
-    
+
         NSString* filepath = [assetPath stringByAppendingString:@".js"];
         data = [module loadModuleAsset:filepath];
         // Have to reset module so that this code doesn't get mixed in and is loaded as pure JS
         module = nil;
     }
-    
+
     if (data == nil && isAbsolute) {
         // We may have an absolute URL which tried to load from a module instead of a directory. Fix
         // the fullpath back to the right value, so we can try again.
@@ -882,16 +882,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         // Set the current URL; it should be the fullPath relative to the host's base URL.
             [self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
     }
-    
+
     // For right now, we need to mix any compiled JS on top of a compiled module, so that both components
     // are accessible. We store the exports object and then put references to its properties on the toplevel
     // object.
-    
+
     TiContextRef jsContext = [[self krollContext] context];
     TiObjectRef jsObject = [wrapper jsobject];
     KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
     [moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
-    
+
     TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
     size_t count = TiPropertyNameArrayGetCount(properties);
     for (size_t i=0; i < count; i++) {
@@ -1116,36 +1116,32 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			if (module) {
 				return module;
 			}
-        } else {
-            // TODO Allow looking through node_modules
-            // 3. LOAD_NODE_MODULES(X, dirname(Y))
-            
-            // TODO Find a way to determine if the first path segment refers to a CommonJS module.
-            // Maybe we can copy modules under a "modules" sub-folder?
-            NSLog(@"Non-prefixed module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
-            
-            // If the path has a '/', We may be trying to load a file under a module, or we may be trying to load a "bad" require that should be treated as absolute...
-            // TODO If the path is module.id/module.id, treat like loading top-level module below?
-            if ([path containsString:@"/"]) {
-                module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
-                if (module) {
-                    return module;
-                }
-            } else {
-                // TODO Can we determine if the path is a commonjs module id?
-                // For CommonJS we need to look for module.id/module.id.js first...
-                // TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
-                module = [self loadAsFile:[[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"] withContext:context];
-                if (module) {
-                    return module;
-                }
-                // Then try module.id as directory
-                module = [self loadAsDirectory:path withContext:context];
-                if (module) {
-                    return module;
-                }
-            }
-        }
+		} else {
+			// TODO Allow looking through node_modules
+			// 3. LOAD_NODE_MODULES(X, dirname(Y))
+
+			// Look for CommonJS module
+			if (![path containsString:@"/"]) {
+				// For CommonJS we need to look for module.id/module.id.js first...
+				// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+				module = [self loadAsFile:[[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"] withContext:context];
+				if (module) {
+					return module;
+				}
+				// Then try module.id as directory
+				module = [self loadAsDirectory:path withContext:context];
+				if (module) {
+					return module;
+				}
+			}
+			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
+			// TODO How can we make this spit this out to Ti.API.log?
+			NSLog(@"Non-prefixed module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
+			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+			if (module) {
+				return module;
+			}
+		}
 	}
 	@finally {
 		[self setCurrentURL:oldURL];
