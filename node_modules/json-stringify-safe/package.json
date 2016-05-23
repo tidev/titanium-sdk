@@ -58,7 +58,7 @@
   "directories": {},
   "dist": {
     "shasum": "1296a2d58fd45f19a0f6ce01d65701e2c735b6eb",
-    "tarball": "http://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz"
+    "tarball": "https://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz"
   },
   "gitHead": "3890dceab3ad14f8701e38ca74f38276abc76de5",
   "homepage": "https://github.com/isaacs/json-stringify-safe",

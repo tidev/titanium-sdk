@@ -1677,6 +1677,13 @@ properties:
         On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
+        On Windows Phone 8.1 and Windows 10 Mobile, this property does not take any effect.
+        On Windows 10 Store App, resizing Window takes no effect in following cases
+        according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
+        * The requested size is larger than the available work area.
+        * The requested size is less than the view's minimum size.
+        * The smallest allowed minimum size is 192 x 48 effective pixels.
+        * The largest allowed minimum size is 500 x 500 effective pixels.
     type: [Number,String]
 
   - name: left
@@ -1745,6 +1752,14 @@ properties:
         On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description 
         of Titanium.UI.Window for more information.
+        On Windows Phone 8.1 and Windows 10 Mobile, this property does not take any effect.
+        On Windows 10 Store App, resizing Window takes no effect in following cases
+        according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
+        * The requested size is larger than the available work area.
+        * The requested size is less than the view's minimum size.
+        * The smallest allowed minimum size is 192 x 48 effective pixels.
+        * The largest allowed minimum size is 500 x 500 effective pixels.
+        * This method is called while in while the app is running in Tablet Mode.
     type: [Number,String]
 
   - name: activityEnterAnimation

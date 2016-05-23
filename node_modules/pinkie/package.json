@@ -54,7 +54,7 @@
   "directories": {},
   "dist": {
     "shasum": "72556b80cfa0d48a974e80e77248e80ed4f7f870",
-    "tarball": "http://registry.npmjs.org/pinkie/-/pinkie-2.0.4.tgz"
+    "tarball": "https://registry.npmjs.org/pinkie/-/pinkie-2.0.4.tgz"
   },
   "engines": {
     "node": ">=0.10.0"

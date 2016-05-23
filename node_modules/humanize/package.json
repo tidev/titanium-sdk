@@ -49,7 +49,7 @@
   "directories": {},
   "dist": {
     "shasum": "1994ffaecdfe9c441ed2bdac7452b7bb4c9e41a4",
-    "tarball": "http://registry.npmjs.org/humanize/-/humanize-0.0.9.tgz"
+    "tarball": "https://registry.npmjs.org/humanize/-/humanize-0.0.9.tgz"
   },
   "engines": {
     "node": "*"

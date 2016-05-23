@@ -388,7 +388,12 @@
 
 -(void)setHintText_:(id)value
 {
-	[(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+}
+
+-(void)setHintTextColor_:(id)value
+{
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[[self proxy] valueForKey:@"hintText"] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
 }
 
 -(void)setAttributedHintText_:(id)value

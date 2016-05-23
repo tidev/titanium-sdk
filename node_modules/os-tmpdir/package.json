@@ -50,7 +50,7 @@
   "directories": {},
   "dist": {
     "shasum": "e9b423a1edaf479882562e92ed71d7743a071b6e",
-    "tarball": "http://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.1.tgz"
+    "tarball": "https://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.1.tgz"
   },
   "engines": {
     "node": ">=0.10.0"

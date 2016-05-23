@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for lib/writer.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">lib/</a> writer.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">14.94% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>36/241</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0.62% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>1/162</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/29</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">16.98% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>36/212</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">module.exports = Writer
+&nbsp;
+var fs = require('graceful-fs')
+var inherits = require('inherits')
+var rimraf = require('rimraf')
+var mkdir = require('mkdirp')
+var path = require('path')
+var umask = process.platform === 'win32' ? <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>: process.umask()
+var getType = require('./get-type.js')
+var Abstract = require('./abstract.js')
+&nbsp;
+// Must do this *before* loading the child classes
+inherits(Writer, Abstract)
+&nbsp;
+Writer.dirmode = parseInt('0777', 8) &amp; (~umask)
+Writer.filemode = parseInt('0666', 8) &amp; (~umask)
+&nbsp;
+var DirWriter = require('./dir-writer.js')
+var LinkWriter = require('./link-writer.js')
+var FileWriter = require('./file-writer.js')
+var ProxyWriter = require('./proxy-writer.js')
+&nbsp;
+// props is the desired state.  current is optionally the current stat,
+// provided here so that subclasses can avoid statting the target
+// more than necessary.
+<span class="fstat-no" title="function not covered" >function Writer (props, current) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (typeof props === 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    props = { path: props }</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!props.path) <span class="cstat-no" title="statement not covered" >self.error('Must provide a path', null, true)</span></span>
+&nbsp;
+  // polymorphism.
+  // call fstream.Writer(dir) to get a DirWriter object, etc.
+<span class="cstat-no" title="statement not covered" >  var type = getType(props)</span>
+<span class="cstat-no" title="statement not covered" >  var ClassType = Writer</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  switch (type) {</span>
+    case 'Directory':
+<span class="cstat-no" title="statement not covered" >      ClassType = DirWriter</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+    case 'File':
+<span class="cstat-no" title="statement not covered" >      ClassType = FileWriter</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+    case 'Link':
+    case 'SymbolicLink':
+<span class="cstat-no" title="statement not covered" >      ClassType = LinkWriter</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+    case null:
+    default:
+      // Don't know yet what type to create, so we wrap in a proxy.
+<span class="cstat-no" title="statement not covered" >      ClassType = ProxyWriter</span>
+<span class="cstat-no" title="statement not covered" >      break</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!(self instanceof ClassType)) <span class="cstat-no" title="statement not covered" >return new ClassType(props)</span></span>
+&nbsp;
+  // now get down to business.
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  Abstract.call(self)</span>
+&nbsp;
+  // props is what we want to set.
+  // set some convenience properties as well.
+<span class="cstat-no" title="statement not covered" >  self.type = props.type</span>
+<span class="cstat-no" title="statement not covered" >  self.props = props</span>
+<span class="cstat-no" title="statement not covered" >  self.depth = props.depth || 0</span>
+<span class="cstat-no" title="statement not covered" >  self.clobber = props.clobber === false ? props.clobber : true</span>
+<span class="cstat-no" title="statement not covered" >  self.parent = props.parent || null</span>
+<span class="cstat-no" title="statement not covered" >  self.root = props.root || (props.parent &amp;&amp; props.parent.root) || self</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self._path = self.path = path.resolve(props.path)</span>
+<span class="cstat-no" title="statement not covered" >  if (process.platform === 'win32') {</span>
+<span class="cstat-no" title="statement not covered" >    self.path = self._path = self.path.replace(/\?/g, '_')</span>
+<span class="cstat-no" title="statement not covered" >    if (self._path.length &gt;= 260) {</span>
+<span class="cstat-no" title="statement not covered" >      self._swallowErrors = true</span>
+<span class="cstat-no" title="statement not covered" >      self._path = '\\\\?\\' + self.path.replace(/\//g, '\\')</span>
+    }
+  }
+<span class="cstat-no" title="statement not covered" >  self.basename = path.basename(props.path)</span>
+<span class="cstat-no" title="statement not covered" >  self.dirname = path.dirname(props.path)</span>
+<span class="cstat-no" title="statement not covered" >  self.linkpath = props.linkpath || null</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  props.parent = props.root = null</span>
+&nbsp;
+  // console.error("\n\n\n%s setting size to", props.path, props.size)
+<span class="cstat-no" title="statement not covered" >  self.size = props.size</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (typeof props.mode === 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    props.mode = parseInt(props.mode, 8)</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self.readable = false</span>
+<span class="cstat-no" title="statement not covered" >  self.writable = true</span>
+&nbsp;
+  // buffer until ready, or while handling another entry
+<span class="cstat-no" title="statement not covered" >  self._buffer = []</span>
+<span class="cstat-no" title="statement not covered" >  self.ready = false</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  self.filter = typeof props.filter === 'function' ? props.filter : null</span>
+&nbsp;
+  // start the ball rolling.
+  // this checks what's there already, and then calls
+  // self._create() to call the impl-specific creation stuff.
+<span class="cstat-no" title="statement not covered" >  self._stat(current)</span>
+}
+&nbsp;
+// Calling this means that it's something we can't create.
+// Just assert that it's already there, otherwise raise a warning.
+Writer.prototype._create = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  fs[self.props.follow ? 'stat' : 'lstat'](self._path, <span class="fstat-no" title="function not covered" >function (er) {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (er) {</span>
+<span class="cstat-no" title="statement not covered" >      return self.warn('Cannot create ' + self._path + '\n' +</span>
+        'Unsupported type: ' + self.type, 'ENOTSUP')
+    }
+<span class="cstat-no" title="statement not covered" >    self._finish()</span>
+  })
+}
+&nbsp;
+Writer.prototype._stat = <span class="fstat-no" title="function not covered" >function (current) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+<span class="cstat-no" title="statement not covered" >  var props = self.props</span>
+<span class="cstat-no" title="statement not covered" >  var stat = props.follow ? 'stat' : 'lstat'</span>
+<span class="cstat-no" title="statement not covered" >  var who = self._proxy || self</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (current) <span class="cstat-no" title="statement not covered" >statCb(null, current)</span></span>
+  else <span class="cstat-no" title="statement not covered" >fs[stat](self._path, statCb)</span>
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function statCb (er, current) {</span>
+<span class="cstat-no" title="statement not covered" >    if (self.filter &amp;&amp; !self.filter.call(who, who, current)) {</span>
+<span class="cstat-no" title="statement not covered" >      self._aborted = true</span>
+<span class="cstat-no" title="statement not covered" >      self.emit('end')</span>
+<span class="cstat-no" title="statement not covered" >      self.emit('close')</span>
+<span class="cstat-no" title="statement not covered" >      return</span>
+    }
+&nbsp;
+    // if it's not there, great.  We'll just create it.
+    // if it is there, then we'll need to change whatever differs
+<span class="cstat-no" title="statement not covered" >    if (er || !current) {</span>
+<span class="cstat-no" title="statement not covered" >      return create(self)</span>
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    self._old = current</span>
+<span class="cstat-no" title="statement not covered" >    var currentType = getType(current)</span>
+&nbsp;
+    // if it's a type change, then we need to clobber or error.
+    // if it's not a type change, then let the impl take care of it.
+<span class="cstat-no" title="statement not covered" >    if (currentType !== self.type) {</span>
+<span class="cstat-no" title="statement not covered" >      return rimraf(self._path, <span class="fstat-no" title="function not covered" >function (er) {</span></span>
+<span class="cstat-no" title="statement not covered" >        if (er) <span class="cstat-no" title="statement not covered" >return self.error(er)</span></span>
+<span class="cstat-no" title="statement not covered" >        self._old = null</span>
+<span class="cstat-no" title="statement not covered" >        create(self)</span>
+      })
+    }
+&nbsp;
+    // otherwise, just handle in the app-specific way
+    // this creates a fs.WriteStream, or mkdir's, or whatever
+<span class="cstat-no" title="statement not covered" >    create(self)</span>
+  }
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function create (self) {</span>
+  // console.error("W create", self._path, Writer.dirmode)
+&nbsp;
+  // XXX Need to clobber non-dirs that are in the way,
+  // unless { clobber: false } in the props.
+<span class="cstat-no" title="statement not covered" >  mkdir(path.dirname(self._path), Writer.dirmode, <span class="fstat-no" title="function not covered" >function (er, made) {</span></span>
+    // console.error("W created", path.dirname(self._path), er)
+<span class="cstat-no" title="statement not covered" >    if (er) <span class="cstat-no" title="statement not covered" >return self.error(er)</span></span>
+&nbsp;
+    // later on, we have to set the mode and owner for these
+<span class="cstat-no" title="statement not covered" >    self._madeDir = made</span>
+<span class="cstat-no" title="statement not covered" >    return self._create()</span>
+  })
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function endChmod (self, want, current, path, cb) {</span>
+<span class="cstat-no" title="statement not covered" >  var wantMode = want.mode</span>
+<span class="cstat-no" title="statement not covered" >  var chmod = want.follow || self.type !== 'SymbolicLink'</span>
+    ? 'chmod' : 'lchmod'
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!fs[chmod]) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+<span class="cstat-no" title="statement not covered" >  if (typeof wantMode !== 'number') <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var curMode = current.mode &amp; parseInt('0777', 8)</span>
+<span class="cstat-no" title="statement not covered" >  wantMode = wantMode &amp; parseInt('0777', 8)</span>
+<span class="cstat-no" title="statement not covered" >  if (wantMode === curMode) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  fs[chmod](path, wantMode, cb)</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function endChown (self, want, current, path, cb) {</span>
+  // Don't even try it unless root.  Too easy to EPERM.
+<span class="cstat-no" title="statement not covered" >  if (process.platform === 'win32') <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+<span class="cstat-no" title="statement not covered" >  if (!process.getuid || process.getuid() !== 0) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+<span class="cstat-no" title="statement not covered" >  if (typeof want.uid !== 'number' &amp;&amp;</span>
+    typeof want.gid !== 'number') <span class="cstat-no" title="statement not covered" >return cb()</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (current.uid === want.uid &amp;&amp;</span>
+    current.gid === want.gid) <span class="cstat-no" title="statement not covered" >return cb()</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var chown = (self.props.follow || self.type !== 'SymbolicLink')</span>
+    ? 'chown' : 'lchown'
+<span class="cstat-no" title="statement not covered" >  if (!fs[chown]) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (typeof want.uid !== 'number') <span class="cstat-no" title="statement not covered" >want.uid = current.uid</span></span>
+<span class="cstat-no" title="statement not covered" >  if (typeof want.gid !== 'number') <span class="cstat-no" title="statement not covered" >want.gid = current.gid</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  fs[chown](path, want.uid, want.gid, cb)</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function endUtimes (self, want, current, path, cb) {</span>
+<span class="cstat-no" title="statement not covered" >  if (!fs.utimes || process.platform === 'win32') <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var utimes = (want.follow || self.type !== 'SymbolicLink')</span>
+    ? 'utimes' : 'lutimes'
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (utimes === 'lutimes' &amp;&amp; !fs[utimes]) {</span>
+<span class="cstat-no" title="statement not covered" >    utimes = 'utimes'</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!fs[utimes]) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var curA = current.atime</span>
+<span class="cstat-no" title="statement not covered" >  var curM = current.mtime</span>
+<span class="cstat-no" title="statement not covered" >  var meA = want.atime</span>
+<span class="cstat-no" title="statement not covered" >  var meM = want.mtime</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (meA === undefined) <span class="cstat-no" title="statement not covered" >meA = curA</span></span>
+<span class="cstat-no" title="statement not covered" >  if (meM === undefined) <span class="cstat-no" title="statement not covered" >meM = curM</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (!isDate(meA)) <span class="cstat-no" title="statement not covered" >meA = new Date(meA)</span></span>
+<span class="cstat-no" title="statement not covered" >  if (!isDate(meM)) <span class="cstat-no" title="statement not covered" >meA = new Date(meM)</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (meA.getTime() === curA.getTime() &amp;&amp;</span>
+    meM.getTime() === curM.getTime()) <span class="cstat-no" title="statement not covered" >return cb()</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  fs[utimes](path, meA, meM, cb)</span>
+}
+&nbsp;
+// XXX This function is beastly.  Break it up!
+Writer.prototype._finish = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (self._finishing) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >  self._finishing = true</span>
+&nbsp;
+  // console.error(" W Finish", self._path, self.size)
+&nbsp;
+  // set up all the things.
+  // At this point, we're already done writing whatever we've gotta write,
+  // adding files to the dir, etc.
+<span class="cstat-no" title="statement not covered" >  var todo = 0</span>
+<span class="cstat-no" title="statement not covered" >  var errState = null</span>
+<span class="cstat-no" title="statement not covered" >  var done = false</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (self._old) {</span>
+    // the times will almost *certainly* have changed.
+    // adds the utimes syscall, but remove another stat.
+<span class="cstat-no" title="statement not covered" >    self._old.atime = new Date(0)</span>
+<span class="cstat-no" title="statement not covered" >    self._old.mtime = new Date(0)</span>
+    // console.error(" W Finish Stale Stat", self._path, self.size)
+<span class="cstat-no" title="statement not covered" >    setProps(self._old)</span>
+  } else {
+<span class="cstat-no" title="statement not covered" >    var stat = self.props.follow ? 'stat' : 'lstat'</span>
+    // console.error(" W Finish Stating", self._path, self.size)
+<span class="cstat-no" title="statement not covered" >    fs[stat](self._path, <span class="fstat-no" title="function not covered" >function (er, current) {</span></span>
+      // console.error(" W Finish Stated", self._path, self.size, current)
+<span class="cstat-no" title="statement not covered" >      if (er) {</span>
+        // if we're in the process of writing out a
+        // directory, it's very possible that the thing we're linking to
+        // doesn't exist yet (especially if it was intended as a symlink),
+        // so swallow ENOENT errors here and just soldier on.
+<span class="cstat-no" title="statement not covered" >        if (er.code === 'ENOENT' &amp;&amp;</span>
+          (self.type === 'Link' || self.type === 'SymbolicLink') &amp;&amp;
+          process.platform === 'win32') {
+<span class="cstat-no" title="statement not covered" >          self.ready = true</span>
+<span class="cstat-no" title="statement not covered" >          self.emit('ready')</span>
+<span class="cstat-no" title="statement not covered" >          self.emit('end')</span>
+<span class="cstat-no" title="statement not covered" >          self.emit('close')</span>
+<span class="cstat-no" title="statement not covered" >          self.end = self._finish = <span class="fstat-no" title="function not covered" >function () {</span>}</span>
+<span class="cstat-no" title="statement not covered" >          return</span>
+        } else <span class="cstat-no" title="statement not covered" >return self.error(er)</span>
+      }
+<span class="cstat-no" title="statement not covered" >      setProps(self._old = current)</span>
+    })
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return</span>
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function setProps (current) {</span>
+<span class="cstat-no" title="statement not covered" >    todo += 3</span>
+<span class="cstat-no" title="statement not covered" >    endChmod(self, self.props, current, self._path, next('chmod'))</span>
+<span class="cstat-no" title="statement not covered" >    endChown(self, self.props, current, self._path, next('chown'))</span>
+<span class="cstat-no" title="statement not covered" >    endUtimes(self, self.props, current, self._path, next('utimes'))</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function next (what) {</span>
+<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >function (er) {</span></span>
+      // console.error("   W Finish", what, todo)
+<span class="cstat-no" title="statement not covered" >      if (errState) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >      if (er) {</span>
+<span class="cstat-no" title="statement not covered" >        er.fstream_finish_call = what</span>
+<span class="cstat-no" title="statement not covered" >        return self.error(errState = er)</span>
+      }
+<span class="cstat-no" title="statement not covered" >      if (--todo &gt; 0) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >      if (done) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >      done = true</span>
+&nbsp;
+      // we may still need to set the mode/etc. on some parent dirs
+      // that were created previously.  delay end/close until then.
+<span class="cstat-no" title="statement not covered" >      if (!self._madeDir) <span class="cstat-no" title="statement not covered" >return end()</span></span>
+      else <span class="cstat-no" title="statement not covered" >endMadeDir(self, self._path, end)</span>
+&nbsp;
+<span class="fstat-no" title="function not covered" >      function end (er) {</span>
+<span class="cstat-no" title="statement not covered" >        if (er) {</span>
+<span class="cstat-no" title="statement not covered" >          er.fstream_finish_call = 'setupMadeDir'</span>
+<span class="cstat-no" title="statement not covered" >          return self.error(er)</span>
+        }
+        // all the props have been set, so we're completely done.
+<span class="cstat-no" title="statement not covered" >        self.emit('end')</span>
+<span class="cstat-no" title="statement not covered" >        self.emit('close')</span>
+      }
+    }
+  }
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function endMadeDir (self, p, cb) {</span>
+<span class="cstat-no" title="statement not covered" >  var made = self._madeDir</span>
+  // everything *between* made and path.dirname(self._path)
+  // needs to be set up.  Note that this may just be one dir.
+<span class="cstat-no" title="statement not covered" >  var d = path.dirname(p)</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  endMadeDir_(self, d, <span class="fstat-no" title="function not covered" >function (er) {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (er) <span class="cstat-no" title="statement not covered" >return cb(er)</span></span>
+<span class="cstat-no" title="statement not covered" >    if (d === made) {</span>
+<span class="cstat-no" title="statement not covered" >      return cb()</span>
+    }
+<span class="cstat-no" title="statement not covered" >    endMadeDir(self, d, cb)</span>
+  })
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function endMadeDir_ (self, p, cb) {</span>
+<span class="cstat-no" title="statement not covered" >  var dirProps = {}</span>
+<span class="cstat-no" title="statement not covered" >  Object.keys(self.props).forEach(<span class="fstat-no" title="function not covered" >function (k) {</span></span>
+<span class="cstat-no" title="statement not covered" >    dirProps[k] = self.props[k]</span>
+&nbsp;
+    // only make non-readable dirs if explicitly requested.
+<span class="cstat-no" title="statement not covered" >    if (k === 'mode' &amp;&amp; self.type !== 'Directory') {</span>
+<span class="cstat-no" title="statement not covered" >      dirProps[k] = dirProps[k] | parseInt('0111', 8)</span>
+    }
+  })
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  var todo = 3</span>
+<span class="cstat-no" title="statement not covered" >  var errState = null</span>
+<span class="cstat-no" title="statement not covered" >  fs.stat(p, <span class="fstat-no" title="function not covered" >function (er, current) {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (er) <span class="cstat-no" title="statement not covered" >return cb(errState = er)</span></span>
+<span class="cstat-no" title="statement not covered" >    endChmod(self, dirProps, current, p, next)</span>
+<span class="cstat-no" title="statement not covered" >    endChown(self, dirProps, current, p, next)</span>
+<span class="cstat-no" title="statement not covered" >    endUtimes(self, dirProps, current, p, next)</span>
+  })
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function next (er) {</span>
+<span class="cstat-no" title="statement not covered" >    if (errState) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >    if (er) <span class="cstat-no" title="statement not covered" >return cb(errState = er)</span></span>
+<span class="cstat-no" title="statement not covered" >    if (--todo === 0) <span class="cstat-no" title="statement not covered" >return cb()</span></span>
+  }
+}
+&nbsp;
+Writer.prototype.pipe = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  this.error("Can't pipe from writable stream")</span>
+}
+&nbsp;
+Writer.prototype.add = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  this.error("Can't add to non-Directory type")</span>
+}
+&nbsp;
+Writer.prototype.write = <span class="fstat-no" title="function not covered" >function () {</span>
+<span class="cstat-no" title="statement not covered" >  return true</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function objectToString (d) {</span>
+<span class="cstat-no" title="statement not covered" >  return Object.prototype.toString.call(d)</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function isDate (d) {</span>
+<span class="cstat-no" title="statement not covered" >  return typeof d === 'object' &amp;&amp; objectToString(d) === '[object Date]'</span>
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 29 2016 17:58:18 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

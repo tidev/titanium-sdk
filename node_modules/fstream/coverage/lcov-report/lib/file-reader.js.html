@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for lib/file-reader.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">lib/</a> file-reader.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">50.6% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>42/83</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">42% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>21/50</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">66.67% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>6/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">53.16% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>42/79</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Basically just a wrapper around an fs.ReadStream
+&nbsp;
+module.exports = FileReader
+&nbsp;
+var fs = require('graceful-fs')
+var inherits = require('inherits')
+var Reader = require('./reader.js')
+var EOF = {EOF: true}
+var CLOSE = {CLOSE: true}
+&nbsp;
+inherits(FileReader, Reader)
+&nbsp;
+function FileReader (props) {
+  // console.error("    FR create", props.path, props.size, new Error().stack)
+  var self = this
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!(self instanceof FileReader)) {
+<span class="cstat-no" title="statement not covered" >    throw new Error('FileReader must be called as constructor.')</span>
+  }
+&nbsp;
+  // should already be established as a File type
+  // XXX Todo: preserve hardlinks by tracking dev+inode+nlink,
+  // with a HardLinkReader class.
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!((props.type === 'Link' &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >props.Link)</span> ||
+    (props.type === 'File' &amp;&amp; props.File))) {
+<span class="cstat-no" title="statement not covered" >    throw new Error('Non-file type ' + props.type)</span>
+  }
+&nbsp;
+  self._buffer = []
+  self._bytesEmitted = 0
+  Reader.call(self, props)
+}
+&nbsp;
+FileReader.prototype._getStream = function () {
+  var self = this
+  var stream = self._stream = fs.createReadStream(self._path, self.props)
+&nbsp;
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (self.props.blksize) {
+    stream.bufferSize = self.props.blksize
+  }
+&nbsp;
+  stream.on('open', self.emit.bind(self, 'open'))
+&nbsp;
+  stream.on('data', function (c) {
+    // console.error('\t\t%d %s', c.length, self.basename)
+    self._bytesEmitted += c.length
+    // no point saving empty chunks
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!c.length) {
+<span class="cstat-no" title="statement not covered" >      return</span>
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if (self._paused || self._buffer.length) {
+<span class="cstat-no" title="statement not covered" >      self._buffer.push(c)</span>
+<span class="cstat-no" title="statement not covered" >      self._read()</span>
+    } else self.emit('data', c)
+  })
+&nbsp;
+  stream.on('end', function () {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (self._paused || self._buffer.length) {
+      // console.error('FR Buffering End', self._path)
+<span class="cstat-no" title="statement not covered" >      self._buffer.push(EOF)</span>
+<span class="cstat-no" title="statement not covered" >      self._read()</span>
+    } else {
+      self.emit('end')
+    }
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (self._bytesEmitted !== self.props.size) {
+<span class="cstat-no" title="statement not covered" >      self.error("Didn't get expected byte count\n" +</span>
+        'expect: ' + self.props.size + '\n' +
+        'actual: ' + self._bytesEmitted)
+    }
+  })
+&nbsp;
+  stream.on('close', function () {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (self._paused || self._buffer.length) {
+      // console.error('FR Buffering Close', self._path)
+<span class="cstat-no" title="statement not covered" >      self._buffer.push(CLOSE)</span>
+<span class="cstat-no" title="statement not covered" >      self._read()</span>
+    } else {
+      // console.error('FR close 1', self._path)
+      self.emit('close')
+    }
+  })
+&nbsp;
+  stream.on('error', <span class="fstat-no" title="function not covered" >function (e) {</span>
+<span class="cstat-no" title="statement not covered" >    self.emit('error', e)</span>
+  })
+&nbsp;
+  self._read()
+}
+&nbsp;
+FileReader.prototype._read = function () {
+  var self = this
+  // console.error('FR _read', self._path)
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (self._paused) {
+    // console.error('FR _read paused', self._path)
+<span class="cstat-no" title="statement not covered" >    return</span>
+  }
+&nbsp;
+  if (!self._stream) {
+    // console.error('FR _getStream calling', self._path)
+    return self._getStream()
+  }
+&nbsp;
+  // clear out the buffer, if there is one.
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (self._buffer.length) {
+    // console.error('FR _read has buffer', self._buffer.length, self._path)
+<span class="cstat-no" title="statement not covered" >    var buf = self._buffer</span>
+<span class="cstat-no" title="statement not covered" >    for (var i = 0, l = buf.length; i &lt; l; i++) {</span>
+<span class="cstat-no" title="statement not covered" >      var c = buf[i]</span>
+<span class="cstat-no" title="statement not covered" >      if (c === EOF) {</span>
+        // console.error('FR Read emitting buffered end', self._path)
+<span class="cstat-no" title="statement not covered" >        self.emit('end')</span>
+      } else <span class="cstat-no" title="statement not covered" >if (c === CLOSE) {</span>
+        // console.error('FR Read emitting buffered close', self._path)
+<span class="cstat-no" title="statement not covered" >        self.emit('close')</span>
+      } else {
+        // console.error('FR Read emitting buffered data', self._path)
+<span class="cstat-no" title="statement not covered" >        self.emit('data', c)</span>
+      }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      if (self._paused) {</span>
+        // console.error('FR Read Re-pausing at '+i, self._path)
+<span class="cstat-no" title="statement not covered" >        self._buffer = buf.slice(i)</span>
+<span class="cstat-no" title="statement not covered" >        return</span>
+      }
+    }
+<span class="cstat-no" title="statement not covered" >    self._buffer.length = 0</span>
+  }
+// console.error("FR _read done")
+// that's about all there is to it.
+}
+&nbsp;
+FileReader.prototype.pause = <span class="fstat-no" title="function not covered" >function (who) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+  // console.error('FR Pause', self._path)
+<span class="cstat-no" title="statement not covered" >  if (self._paused) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >  who = who || self</span>
+<span class="cstat-no" title="statement not covered" >  self._paused = true</span>
+<span class="cstat-no" title="statement not covered" >  if (self._stream) <span class="cstat-no" title="statement not covered" >self._stream.pause()</span></span>
+<span class="cstat-no" title="statement not covered" >  self.emit('pause', who)</span>
+}
+&nbsp;
+FileReader.prototype.resume = <span class="fstat-no" title="function not covered" >function (who) {</span>
+<span class="cstat-no" title="statement not covered" >  var self = this</span>
+  // console.error('FR Resume', self._path)
+<span class="cstat-no" title="statement not covered" >  if (!self._paused) <span class="cstat-no" title="statement not covered" >return</span></span>
+<span class="cstat-no" title="statement not covered" >  who = who || self</span>
+<span class="cstat-no" title="statement not covered" >  self.emit('resume', who)</span>
+<span class="cstat-no" title="statement not covered" >  self._paused = false</span>
+<span class="cstat-no" title="statement not covered" >  if (self._stream) <span class="cstat-no" title="statement not covered" >self._stream.resume()</span></span>
+<span class="cstat-no" title="statement not covered" >  self._read()</span>
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 29 2016 17:58:18 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

@@ -105,6 +105,10 @@ public class TiWebViewClient extends WebViewClient
 		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
 		    for(String site : blacklistedSites) {
 		        if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
+		            KrollDict data = new KrollDict();
+		            data.put("url", url);
+		            data.put("message", "Webview did not load blacklisted url.");
+		            webView.getProxy().fireEvent(TiC.PROPERTY_ON_STOP_BLACKISTED_URL, data);
 		            return true;
 		        }
 		    }
