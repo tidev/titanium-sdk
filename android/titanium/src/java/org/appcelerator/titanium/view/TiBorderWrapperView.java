@@ -124,13 +124,15 @@ public class TiBorderWrapperView extends FrameLayout
 			borderPath.setFillType(FillType.EVEN_ODD);
 		}
 		// set the outline for the view in order to use elevation
-		ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
-			@Override
-			public void getOutline(View view, Outline outline) {				            
-				outline.setRoundRect(bounds, radius);
-			}
-		};
-		setOutlineProvider(viewOutlineProvider);
+		if (Build.VERSION.SDK_INT >= 21) {
+			ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+				@Override
+				public void getOutline(View view, Outline outline) {				            
+					outline.setRoundRect(bounds, radius);
+				}
+			};
+			setOutlineProvider(viewOutlineProvider);
+		}
 	}
 
 	private void drawBorder(Canvas canvas)
