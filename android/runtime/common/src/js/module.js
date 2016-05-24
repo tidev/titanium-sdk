@@ -240,11 +240,9 @@ Module.prototype.require = function (request, context) {
 	var start, // hack up the start of the string to check relative/absolute/"naked" module id
 		loaded; // variable to hold the possibly loaded module...
 
-	kroll.log(TAG, "require('" + request + "')");
 	// 1. If X is a core module,
 	loaded = this.loadCoreModule(request, context);
 	if (loaded) {
-		kroll.log(TAG, "Was core module, returning...");
 		// a. return the core module
 		// b. STOP
 		return loaded;
@@ -284,7 +282,7 @@ Module.prototype.require = function (request, context) {
 
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		kroll.log(TAG, "Naked module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
+		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
 		loaded = this.loadAsFileOrDirectory('Resources/' + request, context);
 		if (loaded) {
@@ -346,14 +344,11 @@ Module.prototype.loadCoreModule = function (id, context) {
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
-	var loaded;
-	kroll.log(TAG, "Attempting to load as file: " + normalizedPath);
 	// a. LOAD_AS_FILE(Y + X)
-	loaded = this.loadAsFile(normalizedPath, context);
+	var loaded = this.loadAsFile(normalizedPath, context);
 	if (loaded) {
 		return loaded;
 	}
-	kroll.log(TAG, "Attempting to load as directory: " + normalizedPath);
 	// b. LOAD_AS_DIRECTORY(Y + X)
 	loaded = this.loadAsDirectory(normalizedPath, context);
 	if (loaded) {
@@ -435,22 +430,18 @@ Module.prototype.loadAsFile = function (id, context) {
 	if (this.filenameExists(filename)) {
 		// If the file has a .json extension, load as JavascriptObject
 		if (filename.length > 5 && filename.slice(-4) === 'json') {
-			kroll.log(TAG, filename + ' exists, loading as JSON');
 			return this.loadJavascriptObject(filename, context);
 		}
-		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';
 	if (this.filenameExists(filename)) {
-		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 	filename = id + '.json';
 	if (this.filenameExists(filename)) {
-		kroll.log(TAG, filename + ' exists, loading as JSON');
 		return this.loadJavascriptObject(filename, context);
 	}
 	// failed to load anything!
@@ -468,14 +459,11 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	// 1. If X/package.json is a file,
 	var filename = path.resolve(id, 'package.json');
 	if (this.filenameExists(filename)) {
-		kroll.log(TAG, 'package.json exists, parsing...');
 		// a. Parse X/package.json, and look for "main" field.
 		var object = this.loadJavascriptObject(filename, context);
-		kroll.log(TAG, JSON.stringify(object));
 		if (object && object.main) {
 			// b. let M = X + (json main field)
 			var m = path.resolve(id, object.main);
-			kroll.log(TAG, 'Resolved to ' + m);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFile(m, context);
 		}
@@ -484,13 +472,11 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	// 2. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
 	filename = path.resolve(id, 'index.js');
 	if (this.filenameExists(filename)) {
-		kroll.log(TAG, filename + ' exists, loading as JS');
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
 	filename = path.resolve(id, 'index.json');
 	if (this.filenameExists(filename)) {
-		kroll.log(TAG, filename + ' exists, loading as JSON');
 		return this.loadJavascriptObject(filename, context);
 	}
 

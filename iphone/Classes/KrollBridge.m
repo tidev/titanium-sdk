@@ -82,7 +82,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[MEMRORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[MEMORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release
@@ -955,7 +955,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// 5. close the JSON string and end the JSON.parse call
 	data = [data stringByAppendingString:@"');"];
 
-	NSLog(@"Modified JSON contents: %@", data);
 	return [self loadJavascriptText:data fromFile:filename withContext:kroll];
 }
 
@@ -1012,14 +1011,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	filename = [path stringByAppendingString:@".js"];
 	data = [self loadFile:filename];
 	if (data != nil) {
-		NSLog(@"%@ exists, loading as JS", filename);
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 	filename = [path stringByAppendingString:@".json"];
 	data = [self loadFile:filename];
 	if (data != nil) {
-		NSLog(@"%@ exists, loading as JSON", filename);
 		return [self loadJavascriptObject:data fromFile:filename withContext:context];
 	}
 	// failed to load anything!
@@ -1032,7 +1029,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	NSString *filename = [path stringByAppendingPathComponent:@"package.json"];
 	NSString *data = [self loadFile:filename];
 	if (data != nil) {
-		NSLog(@"package.json exists, parsing...");
 		// a. Parse X/package.json, and look for "main" field.
 		// Just cheat and use TiUtils.jsonParse here, rather than loading the package.json as a JS object...
 		NSDictionary *json = [TiUtils jsonParse:data];
@@ -1043,7 +1039,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				mainString = (NSString *)main;
 				// b. let M = X + (json main field)
 				NSString *m = [[path stringByAppendingPathComponent:mainString] stringByStandardizingPath];
-				NSLog(@"Resolved to %@", m);
 				// c. LOAD_AS_FILE(M)
 				return [self loadAsFile:m withContext:context];
 			}
@@ -1054,14 +1049,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	filename = [path stringByAppendingPathComponent:@"index.js"];
 	data = [self loadFile:filename];
 	if (data != nil) {
-		NSLog(@"%@ exists, loading as JS", filename);
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
 	}
 	// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
 	filename = [path stringByAppendingPathComponent:@"index.json"];
 	data = [self loadFile:filename];
 	if (data != nil) {
-		NSLog(@"%@ exists, loading as JSON", filename);
 		return [self loadJavascriptObject:data fromFile:filename withContext:context];
 	}
 
@@ -1071,13 +1064,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 - (TiModule *)loadAsFileOrDirectory:(NSString *)path withContext:(KrollContext *)kroll
 {
 	TiModule *module = nil;
-	NSLog(@"Attempting to load as file: %@", path);
 	// a. LOAD_AS_FILE(Y + X)
 	module = [self loadAsFile:path withContext:context];
 	if (module) {
 		return module;
 	}
-	NSLog(@"Attempting to load as directory: %@", path);
 	// b. LOAD_AS_DIRECTORY(Y + X)
 	module = [self loadAsDirectory:path withContext:context];
 	if (module) {
@@ -1094,7 +1085,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		// 1. If X is a core module,
 		TiModule *module = [self loadCoreModule:path withContext:kroll];
 		if (module) {
-			NSLog(@"Was core module, returning...");
 			// a. return the core module
 			// b. STOP
 			return module;
@@ -1136,7 +1126,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			}
 			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
 			// TODO How can we make this spit this out to Ti.API.log?
-			NSLog(@"Non-prefixed module id, should be core or node_module. Falling back to old Ti behavior and assuming it's an absolute path");
+			NSLog(@"require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
 			if (module) {
 				return module;
