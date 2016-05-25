@@ -615,12 +615,8 @@ events:
         type: number
 
       - name: targetContentOffset
-        summary: The expected offset when the scrolling action decelerates to a stop.
+        summary: The expected offset as an object consisting of x and y keys when the scrolling action decelerates to a stop. 
         type: Object
-
-      - name: bubbles
-        summary: false. This event does not bubble.
-        type: Boolean
 
 
 properties:
