@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -117,6 +118,12 @@ public class CalendarModule extends KrollModule
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
 		return alerts.toArray(new AlertProxy[alerts.size()]);
+	}
+
+	@Kroll.method
+	public String createCalendar(KrollDict data) 
+	{
+		return CalendarProxy.create(data);
 	}
 
 	@Override
