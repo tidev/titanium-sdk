@@ -251,11 +251,22 @@ public class CalendarProxy extends KrollProxy {
 		calendarValues.put("calendar_displayName", TiConvert.toString(data, "name"));
 
 		Uri calendarUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri() + "/calendars"), calendarValues);
-		Log.d("TiEvents", "created calendar with uri: " + calendarUri.getLastPathSegment(), Log.DEBUG_MODE);
 
 		return calendarUri.getLastPathSegment();
 	}
 
+	@Kroll.method
+	public Boolean remove() 
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!hasCalendarPermissions()) {
+			return false;
+		}
+		
+		Uri uri = Uri.parse(CalendarProxy.getBaseCalendarUri() + "/calendars/" + this.id);
+		int rows = contentResolver.delete(uri, null, null);
+		return (rows == 1);
+	}
 
 	@Override
 	public String getApiName()
