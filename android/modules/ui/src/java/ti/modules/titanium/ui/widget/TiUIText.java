@@ -227,12 +227,12 @@ public class TiUIText extends TiUIView
 		int paddingRight = 0;
 		
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			paddingLeft = TiConvert.toInt(d, TiC.PROPERTY_LEFT, 0);
+			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
 		} else {
 			paddingLeft = tv.getPaddingLeft();
 		}
 		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			paddingRight = TiConvert.toInt(d, TiC.PROPERTY_RIGHT, 0);
+			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
 		} else {
 			paddingRight = tv.getPaddingRight();
 		}
