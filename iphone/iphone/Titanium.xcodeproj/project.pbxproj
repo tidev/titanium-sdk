@@ -248,6 +248,8 @@
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
 		3A811CD01C2C21E50023468C /* TiUIiOSBlurViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */; };
 		3A811CD31C2C21FE0023468C /* TiUIiOSBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */; };
+		3AB4BA0D1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB4BA0C1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.m */; };
+		3AB4BA101CF1C72000FDAF93 /* TiUIiOSCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB4BA0F1CF1C72000FDAF93 /* TiUIiOSCameraView.m */; };
 		3AB9137C1BB60F070063A4AD /* TiPreviewingDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */; };
 		3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */; };
 		4688700715E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
@@ -821,6 +823,10 @@
 		3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurViewProxy.m; sourceTree = "<group>"; };
 		3A811CD11C2C21FE0023468C /* TiUIiOSBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSBlurView.h; sourceTree = "<group>"; };
 		3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurView.m; sourceTree = "<group>"; };
+		3AB4BA0B1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCameraViewProxy.h; sourceTree = "<group>"; };
+		3AB4BA0C1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCameraViewProxy.m; sourceTree = "<group>"; };
+		3AB4BA0E1CF1C72000FDAF93 /* TiUIiOSCameraView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCameraView.h; sourceTree = "<group>"; };
+		3AB4BA0F1CF1C72000FDAF93 /* TiUIiOSCameraView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCameraView.m; sourceTree = "<group>"; };
 		3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiPreviewingDelegate.h; sourceTree = "<group>"; };
 		3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiPreviewingDelegate.m; sourceTree = "<group>"; };
 		3AB9137E1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionProxy.h; sourceTree = "<group>"; };
@@ -1951,6 +1957,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				3AB4BA0A1CF1C6F300FDAF93 /* Camera View */,
 				0BF933871CA0929A0091C7EC /* Stepper */,
 				3A811CCD1C2C21CA0023468C /* BlurView */,
 				3A0B56721C0CD7FE00709DA4 /* LivePhotoView */,
@@ -2279,6 +2286,17 @@
 				3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */,
 			);
 			name = BlurView;
+			sourceTree = "<group>";
+		};
+		3AB4BA0A1CF1C6F300FDAF93 /* Camera View */ = {
+			isa = PBXGroup;
+			children = (
+				3AB4BA0B1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.h */,
+				3AB4BA0C1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.m */,
+				3AB4BA0E1CF1C72000FDAF93 /* TiUIiOSCameraView.h */,
+				3AB4BA0F1CF1C72000FDAF93 /* TiUIiOSCameraView.m */,
+			);
+			name = "Camera View";
 			sourceTree = "<group>";
 		};
 		3AB9137D1BB61EB00063A4AD /* PreviewActions */ = {
@@ -2700,12 +2718,14 @@
 				24CA8B7D111161FE0084E2DE /* TiUITabProxy.m in Sources */,
 				3A811CD01C2C21E50023468C /* TiUIiOSBlurViewProxy.m in Sources */,
 				CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */,
+				3AB4BA0D1CF1C71100FDAF93 /* TiUIiOSCameraViewProxy.m in Sources */,
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
 				24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */,
+				3AB4BA101CF1C72000FDAF93 /* TiUIiOSCameraView.m in Sources */,
 				24CA8B8A111161FE0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				24CA8B8B111161FE0084E2DE /* TiUIiPhoneSystemButtonProxy.m in Sources */,
 				24CA8B8C111161FE0084E2DE /* TiUISwitchProxy.m in Sources */,
