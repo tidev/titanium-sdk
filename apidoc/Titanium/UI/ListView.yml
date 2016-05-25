@@ -601,13 +601,14 @@ events:
   - name: scrolling
     summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
-        This event will fire when the list view is scrolling. Use  `direction` to determine the scroll direction,
-        `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi)
+        This event will fire while the list view is scrolling and the user releases the finger. Use  `direction` to determine the scroll direction,
+        `velocity` to determine scroll speed, targetContentOffset.y to determine where the scrolling will end (in dpi).The key targetContentOffset.x is always 0.
+         When `direction` is `down`, `velocity` is negative and viceversa
     platforms: [iphone, ipad]
     since: 5.4.0
     properties:
       - name: direction
-        summary: Direction of the scroll--either 'up', or 'down'.
+        summary: Direction of the scroll either 'up', or 'down'.
         type: String
 
       - name: velocity
@@ -615,7 +616,9 @@ events:
         type: number
 
       - name: targetContentOffset
-        summary: The expected offset as an object consisting of x and y keys when the scrolling action decelerates to a stop. 
+        summary: |
+           The expected offset as an object consisting of x and y keys when
+           the scrolling action decelerates to a stop. 
         type: Object
 
 

@@ -1829,12 +1829,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                     @"targetContentOffset": @{
-                                                                                             @"x": NUMFLOAT(targetContentOffset->x),
-                                                                                             @"y": NUMFLOAT(targetContentOffset->y),
-                                                                                             },
-                                                                                     @"velocity": NUMFLOAT(velocity.y)
-                                                                                     }];
+            @"targetContentOffset": @{
+               @"x": NUMFLOAT(targetContentOffset->x),
+               @"y": NUMFLOAT(targetContentOffset->y),
+            },
+            @"velocity": NUMFLOAT(velocity.y)
+        }];
         
         if (direction != nil) {
             [event setValue:direction forKey:@"direction"];
