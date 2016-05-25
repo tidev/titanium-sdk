@@ -99,6 +99,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(reloadData);
 	RELEASE_TO_NIL(reloadDataProperties);
 	RELEASE_TO_NIL(lastValidLoad);
+	RELEASE_TO_NIL(blacklistedURLs);
 	[super dealloc];
 }
 
@@ -151,7 +152,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		webview.contentMode = UIViewContentModeRedraw;
 		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		[self addSubview:webview];
-
+        
 		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
 		
 		// only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
@@ -384,6 +385,31 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
 	return [webview canGoForward];
 }
+
+-(void)setBlacklistedURLs_:(id)value
+{
+    if (blacklistedURLs == nil) {
+        blacklistedURLs = [[[NSMutableArray alloc] init] retain];
+    } else if ([blacklistedURLs count]) {
+        [blacklistedURLs removeAllObjects];
+    }
+    
+    if ([value isKindOfClass:[NSArray class]]) {
+        for (NSString* newURL in value) {
+            ENSURE_TYPE(newURL, NSString);
+            [blacklistedURLs addObject:newURL];
+        }
+        
+    } else if ([value isKindOfClass:[NSString class]]) {
+            [blacklistedURLs addObject:[TiUtils stringValue:value]];
+        
+    } else {
+        [self throwException:@"Invalid datatype passed in"
+                   subreason:[NSString stringWithFormat:@"Expected a string or an array of strings, was: %@",[value class]]
+                    location:CODELOCATION];
+    }
+}
+
 
 -(void)setBackgroundColor_:(id)color
 {
@@ -672,21 +698,33 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 }
 
 #pragma mark WebView Delegate
-
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
-
+    
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
-
+    
 	if (navigationType != UIWebViewNavigationTypeOther) {
 		RELEASE_TO_NIL(lastValidLoad);
 	}
-
+    
+	if (blacklistedURLs) {
+           for (NSString*check in blacklistedURLs)
+           {
+               if ([[newUrl absoluteString] rangeOfString:check options:NSCaseInsensitiveSearch].location != NSNotFound) {
+                   if([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
+                       NSDictionary* evt = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:request], @"url", @"Webview did not load blacklisted url.", @"messsage", nil];
+                       [self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:evt];
+                   }
+                   return NO;
+               }
+           }
+	}
+    
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
 			|| [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
