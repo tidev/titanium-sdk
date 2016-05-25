@@ -415,14 +415,14 @@ properties:
     summary: Sets the padding of this text field. 
     type: Padding
     platforms: [android, ios, ipad]
-    since: 5.4.0
+    since: 6.0.0
 
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: "5.4.0"
+        since: "6.0.0"
         notes: Use padding instead    
     
   - name: paddingRight
@@ -430,7 +430,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: "5.4.0"
+        since: "6.0.0"
         notes: Use padding instead    
             
   - name: passwordMask
@@ -710,7 +710,7 @@ properties:
 ---    
 name: Padding
 summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
-since: "5.4.0"
+since: "6.0.0"
 platforms: [android, iphone, ipad]
 properties:
   - name: left
