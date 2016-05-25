@@ -1815,30 +1815,33 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
--(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-    
-    if ([self.proxy _hasListeners:@"scrolling"]) {
-        NSString* directionString = @"none";
-
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    if ([[self proxy] _hasListeners:@"scrolling"]) {
+        NSString* direction = nil;
+        
         if (velocity.y > 0) {
-            directionString = @"up";
-        }
-
-        if (velocity.y < 0) {
-            directionString = @"down";
+            direction = @"up";
         }
         
-        if(directionString != @"none") {
-            NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
-            NSDictionary *pointObject = [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithDouble:targetContentOffset->x],@"x",
-             [NSNumber numberWithDouble:targetContentOffset->y],@"y",
-                                         nil];
-            [eventArgs setValue:directionString forKey:@"direction"];
-            [eventArgs setValue:NUMDOUBLE(velocity.y) forKey:@"velocity"];
-            [eventArgs setObject:pointObject forKey:@"targetContentOffset"];
-            [self.proxy fireEvent:@"scrolling" withObject:eventArgs withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        if (velocity.y < 0) {
+            direction = @"down";
         }
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                     @"targetContentOffset": @{
+                                                                                             @"x": NUMFLOAT(targetContentOffset->x),
+                                                                                             @"y": NUMFLOAT(targetContentOffset->y),
+                                                                                             },
+                                                                                     @"velocity": NUMFLOAT(velocity.y)
+                                                                                     }];
+        
+        if (direction != nil) {
+            [event setValue:direction forKey:@"direction"];
+        }
+        
+        [[self proxy] fireEvent:@"scrolling" withObject:event];
+        RELEASE_TO_NIL(direction);
     }
 }
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
