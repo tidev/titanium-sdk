@@ -301,14 +301,25 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
     NSString* name = nil;
     ENSURE_ARG_FOR_KEY(name, args, @"name", NSString);
 
-    EKSource *theSource = nil;
     EKEventStore* ourStore = [self store];
+    
+    if (ourStore == nil) {
+        DebugLog(@"Could not instantiate an event of the event store.");
+        return nil;
+    }
+
+    EKSource *theSource = nil;
 
     for (EKSource *source in ourStore.sources) {
         if (source.sourceType == EKSourceTypeLocal) {
             theSource = source;
             break;
         }
+    }
+
+    if (theSource) {
+        DebugLog(@"Could not determine source");
+        return nil;
     }
 
     EKCalendar *calendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
