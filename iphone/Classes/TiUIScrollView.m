@@ -369,6 +369,13 @@
     [[self proxy] replaceValue:NUMBOOL(scrollingEnabled) forKey:@"scrollingEnabled" notification:NO];
 }
 
+-(void)setKeyboardDismissMode_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self scrollView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+    [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 -(void)setScrollsToTop_:(id)value
 {
 	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
