@@ -93,7 +93,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML);
 	
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
-	public static final String MIN_ROW_HEIGHT = "30dp";
 	public static final int HEADER_FOOTER_WRAP_ID = 12345;
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
