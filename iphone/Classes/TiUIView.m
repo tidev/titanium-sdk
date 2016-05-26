@@ -295,6 +295,7 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	
 	[self updateTouchHandling];
+	[[self proxy] setValue:NUMBOOL([TiUtils boolValue:[[self proxy] valueForKey:@"touchEnabled"] def:YES]) forKey:@"touchEnabled"];
 	self.backgroundColor = [UIColor clearColor];
 #ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -714,10 +715,10 @@ DEFINE_EXCEPTIONS
     changedInteraction = YES;
 }
 
--(BOOL) touchEnabled {
+-(BOOL)touchEnabled
+{
 	return touchEnabled;
 }
-
 
 -(UIView *)gradientWrapperView
 {
