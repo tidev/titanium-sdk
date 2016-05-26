@@ -615,12 +615,12 @@ events:
 
       - name: velocity
         summary: The velocity of the scroll in scale factor per second
-        type: number
+        type: Number
 
       - name: targetContentOffset
         summary: |
            The expected y axis offset when the scrolling action decelerates to a stop. 
-        type: number
+        type: Number
 
 
 properties:
