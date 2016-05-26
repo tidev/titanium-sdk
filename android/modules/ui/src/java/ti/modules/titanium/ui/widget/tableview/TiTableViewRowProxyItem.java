@@ -538,8 +538,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		// Make these associations here to avoid doing them on measurement passes
 		getRowProxy().setTableViewItem(this);
-		TiUIHelper.firePostLayoutEvent(getRowProxy());
-		
 		int contentLeft = left;
 		int contentRight = right;
 		bottom = bottom - top;
@@ -574,6 +572,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
+		}
+
+		if (changed) {
+			TiUIHelper.firePostLayoutEvent(getRowProxy());
 		}
 	}
 
