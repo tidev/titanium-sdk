@@ -1211,7 +1211,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				break;
 
 			case 'test':
-				this.showErrorController = false;
+				this.showErrorController = true;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
