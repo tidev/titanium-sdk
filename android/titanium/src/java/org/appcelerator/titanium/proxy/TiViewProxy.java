@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -45,8 +46,7 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewAnimationUtils;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-
+import android.widget.ListView;
 /**
  * The parent class of view proxies.
  */
@@ -97,6 +97,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
 	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 116;
 	private static final int MSG_REMOVE_ALL = MSG_FIRST_ID + 117;
+	private static final int MSG_REMOVE_ALL_LISTVIEW = MSG_FIRST_ID + 118;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -253,6 +254,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				AsyncResult result = (AsyncResult) msg.obj;
 				ViewGroup vg = (ViewGroup) result.getArg();
 				vg.removeAllViews();
+				children = null;
+				KrollRuntime.suggestGC();
+				result.setResult(null); //Signal removed.
+				return true;
+			}
+			case MSG_REMOVE_ALL_LISTVIEW : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				ListView vg = (ListView) result.getArg();
+				//vg.setAdapter(null);
+				vg.invalidateViews();
+				vg = null;
 				children = null;
 				KrollRuntime.suggestGC();
 				result.setResult(null); //Signal removed.
@@ -734,8 +746,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			View nv = view.getNativeView();
 			
 			if (!(nv instanceof TiCompositeLayout)){
-				Log.i("VIEW", "WRONG LAYOUT " + nv);
-				nv = ((ViewGroup) nv).getChildAt(0);
+				Log.i("VIEW", "WRONG LAYOUT " + nv.getClass().getSimpleName());
+				if (nv.getClass().getSimpleName()=="ListViewWrapper"){
+					if (TiApplication.isUIThread()) {
+						ListView lv = ((ListView) ((ViewGroup) nv).getChildAt(0) );
+						lv.invalidateViews();
+						lv = null;
+					} else {
+						TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ALL_LISTVIEW), (ListView) ((ViewGroup) nv).getChildAt(0) );
+					}
+				} else {
+					nv = ((ViewGroup) nv).getChildAt(0);
+				}
 			} 
 				
 			if (nv instanceof ViewGroup) {
