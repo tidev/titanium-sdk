@@ -747,19 +747,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ALL), vg);
 				}
 			}
-				/*
-			} else {
-				Log.i("VIEW", "WRONG LAYOUT " + nv);
-				Log.i("VIEW", "CHILD LAYOUT " + ((ViewGroup) nv).getChildAt(0));
-				
-				if (children != null) {
-					ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
-					childViews.addAll(children);
-					for (TiViewProxy child : childViews) {
-						remove(child);
-					}
-				}
-			}*/
 		}
 	}
 
