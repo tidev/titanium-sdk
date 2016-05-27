@@ -891,8 +891,8 @@ public abstract class TiUIView
 			applyAccessibilityHidden(newValue);
 
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
-			if (nativeView != null) {
-				ViewCompat.setElevation(nativeView, TiConvert.toFloat(newValue));
+			if (getOuterView() != null) {
+				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_X)) {
 			if (nativeView != null) {
@@ -999,7 +999,7 @@ public abstract class TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull){
-			ViewCompat.setElevation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
+			ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_X) && !nativeViewNull){
