@@ -43,7 +43,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewAnimationUtils;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 /**
  * The parent class of view proxies.
@@ -94,6 +96,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 115;
 	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 116;
+	private static final int MSG_REMOVE_ALL = MSG_FIRST_ID + 117;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -243,6 +246,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			case MSG_REMOVE_CHILD : {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemove((TiViewProxy) result.getArg());
+				result.setResult(null); //Signal removed.
+				return true;
+			}
+			case MSG_REMOVE_ALL : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				ViewGroup vg = (ViewGroup) result.getArg();
+				vg.removeAllViews();
+				children = null;
+				KrollRuntime.suggestGC();
 				result.setResult(null); //Signal removed.
 				return true;
 			}
@@ -718,14 +730,36 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void removeAllChildren()
 	{
-		if (children != null) {
-			//children might be altered while we loop through it (threading)
-			//so we first copy children as it was when asked to remove all children
-			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
-			childViews.addAll(children);
-			for (TiViewProxy child : childViews) {
-				remove(child);
+		if (view != null) {
+			View nv = view.getNativeView();
+			
+			if (!(nv instanceof TiCompositeLayout)){
+				Log.i("VIEW", "WRONG LAYOUT " + nv);
+				nv = ((ViewGroup) nv).getChildAt(0);
+			} 
+				
+			if (nv instanceof ViewGroup) {
+				ViewGroup vg = (ViewGroup) nv;
+				if (TiApplication.isUIThread()) {
+					vg.removeAllViews();
+					children = null;
+				} else {
+					TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ALL), vg);
+				}
 			}
+				/*
+			} else {
+				Log.i("VIEW", "WRONG LAYOUT " + nv);
+				Log.i("VIEW", "CHILD LAYOUT " + ((ViewGroup) nv).getChildAt(0));
+				
+				if (children != null) {
+					ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
+					childViews.addAll(children);
+					for (TiViewProxy child : childViews) {
+						remove(child);
+					}
+				}
+			}*/
 		}
 	}
 
