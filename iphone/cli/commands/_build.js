@@ -1201,6 +1201,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		// manually inject the build profile settings into the tiapp.xml
 		switch (this.deployType) {
 			case 'production':
+				this.showErrorController = false;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1210,6 +1211,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				break;
 
 			case 'test':
+				this.showErrorController = false;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1220,6 +1222,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 			case 'development':
 			default:
+				this.showErrorController = true;
 				this.minifyJS = false;
 				this.encryptJS = false;
 				this.minifyCSS = false;
@@ -1230,6 +1233,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
+		}
+		if (cli.argv['hide-error-controller']) {
+			this.showErrorController = false;
 		}
 
 		var appId = this.tiapp.id;
@@ -2083,6 +2089,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
+	this.currentBuildManifest.showErrorController          = !!this.showErrorController
 
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
@@ -2418,6 +2425,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
 			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
+			return true;
+		}
+
+		// check if the showErrorController flag has changed
+		if (this.showErrorController !== manifest.showErrorController) {
+			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
+			this.logger.info('  ' + __('Now: %s', this.showErrorController));
 			return true;
 		}
 
@@ -2942,7 +2957,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
 							}
-						});					
+						});
 					});
 				}
 
@@ -2958,7 +2973,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
 								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
 							}
-						});					
+						});
 					});
 				}
 
@@ -3701,6 +3716,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			'__PROJECT_NAME__':     this.tiapp.name,
 			'__PROJECT_ID__':       this.tiapp.id,
 			'__DEPLOYTYPE__':       this.deployType,
+			'__SHOW_ERROR_CONTROLLER__':       this.showErrorController,
 			'__APP_ID__':           this.tiapp.id,
 			'__APP_ANALYTICS__':    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 			'__APP_PUBLISHER__':    this.tiapp.publisher,
