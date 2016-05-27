@@ -236,6 +236,7 @@ exports.init = function (logger, config, cli) {
 						lastLogLevel,
 						displayStartLog = true,
 						tiapiRegExp = /^(\w\/TiAPI\s*\:)/,
+						nonTiLogRegexp = /^\w\/\w+\s*\(\s*\d+\):/,
 						instances = deviceInfo.length,
 						endLog = false;
 
@@ -254,7 +255,7 @@ exports.init = function (logger, config, cli) {
 							line = deviceName + line;
 						} else {
 							// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
-							if (/^\w\/\w+\s*\(\s*\d+\):/.test(line)) {
+							if (nonTiLogRegexp.test(line)) {
 								return;
 							}
 						}
