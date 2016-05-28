@@ -616,7 +616,7 @@ events:
       - name: velocity
         summary: The velocity of the scroll in scale factor per second
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [android, iphone, ipad]
 
       - name: targetContentOffset
         summary: |
