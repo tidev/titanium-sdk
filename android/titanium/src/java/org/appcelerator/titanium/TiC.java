@@ -476,6 +476,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SCROLLEND = "scrollend";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SCROLLING = "scrolling";
 
 	/**
 	 * @module.api
