@@ -107,9 +107,9 @@ methods:
     since:
         android: "3.3.0"
   - name: setOverrideAudioRoute
-    summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
+    summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode.
     description: | 
-        By default, when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode,
+        By default, when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode,
         the audio output is routed to the speaker in the receiver. This method lets you specify
         that audio should be routed to the built-in speaker.
 
@@ -563,7 +563,7 @@ properties:
         This category is appropriate for simultaneous recording and playback, and also for 
         applications that record and play back but not simultaneously. If you want to ensure 
         that sounds such as Messages alerts do not play while your application is recording, 
-        use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally 
+        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally 
         disallows mixing iPod audio with application audio.
 
         In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
@@ -574,7 +574,7 @@ properties:
   - name: AUDIO_SESSION_MODE_RECORD
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY_*` constants defined in <Titanium.Media>.
         removed: "6.0.0"
     summary: Session mode for recording audio; it silences playback audio.
     type: Number
@@ -1270,6 +1270,7 @@ properties:
   - name: audioSessionMode
     deprecated:
         since: "3.4.2"
+        removed: "6.0.0"
         notes: Deprecated in favor of the Titanium.Media.audioSessionCategory property.
     summary: A constant for the audio session mode to be used.
     description: |

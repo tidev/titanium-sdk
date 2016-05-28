@@ -106,19 +106,10 @@ FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
 	return NUMBOOL([fileType isEqualToString:NSFileTypeSymbolicLink]);
 }
 
--(id)writeable
-{
-	// Note: Despite previous incarnations claiming writeable is the proper API,
-	// writable is the correct spelling.
-	DEPRECATED_REPLACED_REMOVED(@"Filesystem.FileProxy.writeable",@"1.8.1", @"6.0.0", @"Filesystem.FileProxy.writable");
-	return [self writable];
-}
-
 -(id)writable
 {
 	return NUMBOOL(![[self readonly] boolValue]);
 }
-
 
 #define FILENOOP(name) \
 -(id)name\
