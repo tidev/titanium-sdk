@@ -372,9 +372,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				
 				String scrollingDir = null;
 				if (_firstVisibleItem > _lastFirstVisibleItem) {
-					scrollingDir = "down";
-				} else if (_firstVisibleItem < _lastFirstVisibleItem) {
 					scrollingDir = "up";
+				} else if (_firstVisibleItem < _lastFirstVisibleItem) {
+					scrollingDir = "down";
 				}
 				_lastFirstVisibleItem = _firstVisibleItem;
 
