@@ -221,16 +221,6 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
     return @"Ti.UI.iPhone";
 }
 
-BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)
-result = [NSNumber numberWithBool:[[UIApplication sharedApplication] isStatusBarHidden]];
-DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarHidden",@"3.1.3", @"6.0.0", @"UI.Window.fullscreen");
-END_UI_THREAD_PROTECTED_VALUE(statusBarHidden)
-
-BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarStyle,NSNumber)
-result = [NSNumber numberWithInt:[[UIApplication sharedApplication] statusBarStyle]];
-DEPRECATED_REPLACED_REMOVED(@"UI.iPhone.statusBarStyle",@"3.1.3", @"6.0.0", @"UI.Window.statusBarStyle");
-END_UI_THREAD_PROTECTED_VALUE(statusBarStyle)
-
 -(void)setAppBadge:(id)value
 {
 	ENSURE_UI_THREAD(setAppBadge,value);

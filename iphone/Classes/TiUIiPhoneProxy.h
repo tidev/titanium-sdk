@@ -121,9 +121,6 @@
 @property(nonatomic,readonly) TiProxy* ListViewSeparatorStyle;
 #endif
 
-
-@property(nonatomic,readonly)	NSNumber *statusBarHidden;
-@property(nonatomic,readonly)	NSNumber *statusBarStyle;
 @property(nonatomic,readwrite,assign)	NSNumber *appBadge;
 @property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
 
