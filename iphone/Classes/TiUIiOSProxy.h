@@ -232,7 +232,7 @@
 #ifdef USE_TI_UIIOSTABBEDBAR
 -(id)createTabbedBar:(id)args;
 #endif
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args;
 #endif
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW

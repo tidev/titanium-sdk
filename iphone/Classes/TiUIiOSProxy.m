@@ -53,7 +53,7 @@
 #import "TiUIiOSTabbedBarProxy.h"
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
 #endif
 
@@ -665,7 +665,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 }
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args
 {
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];

@@ -11,11 +11,6 @@
 #ifdef USE_TI_UIIPADPOPOVER
 	#import "TiUIiPadPopoverProxy.h"
 #endif
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
-	#import "TiUIiOSDocumentViewerProxy.h"
-#endif
-
-
 
 @interface TiUIiPadProxy : TiProxy {
 
@@ -32,10 +27,6 @@
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UNKNOWN;
 
 -(id)createPopover:(id)args;
-#endif
-
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
--(id)createDocumentViewer:(id)args;
 #endif
 
 @end

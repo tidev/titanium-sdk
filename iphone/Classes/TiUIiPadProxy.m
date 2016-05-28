@@ -40,18 +40,6 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
 }
 #endif
 
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
--(id)createDocumentViewer:(id)args
-{
-	if ([TiUtils isIPad])
-	{
-        DEPRECATED_REPLACED_REMOVED(@"UI.iPad.createDocumentViewer", @"2.1.1", @"6.0.0", @"UI.iOS.createDocumentViewer()")
-        return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-	}
-	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
-}
-#endif
-
 @end
 
 #endif
