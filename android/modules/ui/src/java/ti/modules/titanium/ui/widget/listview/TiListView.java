@@ -317,6 +317,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		{
 			private int _firstVisibleItem = 0;
 			private int _visibleItemCount = 0;
+			private int _lastFirstVisibleItem = 0;
 			private boolean canFireScrollStart = true;
 			private boolean canFireScrollEnd = false;
 
@@ -367,6 +368,21 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			{
 				_firstVisibleItem = firstVisibleItem;
 				_visibleItemCount = visibleItemCount;
+				
+				
+				String scrollingDir = null;
+				if (_firstVisibleItem > _lastFirstVisibleItem) {
+					scrollingDir = "down";
+				} else if (_firstVisibleItem < _lastFirstVisibleItem) {
+					scrollingDir = "up";
+				}
+				_lastFirstVisibleItem = _firstVisibleItem;
+
+				if (scrollingDir != null){
+					KrollDict eventArgs = new KrollDict();
+					eventArgs.put("direction", scrollingDir);
+					fProxy.fireEvent(TiC.EVENT_SCROLLING, eventArgs, false);
+				}
 			}
 		});
 		
