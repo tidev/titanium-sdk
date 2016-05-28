@@ -63,23 +63,6 @@
 #define AsyncUdpSocketDelegate __TI_NS_SYMBOL(AsyncUdpSocketDelegate)
 #endif
 
-// MGSplitView
-#ifndef MGSplitViewController
-#define MGSplitViewController __TI_NS_SYMBOL(MGSplitViewController)
-#endif
-#ifndef MGSplitCornersView
-#define MGSplitCornersView __TI_NS_SYMBOL(MGSplitCornersView)
-#endif
-#ifndef MGSplitDividerView
-#define MGSplitDividerView __TI_NS_SYMBOL(MGSplitDividerView)
-#endif
-#ifndef MGSplitViewControllerDelegate
-#define MGSplitViewControllerDelegate __TI_NS_SYMBOL(MGSplitViewControllerDelegate)
-#endif
-#ifndef MGSplitView
-#define MGSplitView __TI_NS_SYMBOL(MGSplitView)
-#endif
-
 // Reachalility
 #ifndef kInternetConnection
 #define kInternetConnection __TI_NS_SYMBOL(kInternetConnection)

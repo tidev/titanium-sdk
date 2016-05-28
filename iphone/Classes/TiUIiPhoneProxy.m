@@ -56,9 +56,6 @@
 #ifdef USE_TI_UIIPADPOPOVER
 	#import "TiUIiPadPopoverProxy.h"
 #endif
-#ifdef USE_TI_UIIPADSPLITWINDOW
-	#import "TiUIiPadSplitWindowProxy.h"
-#endif
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
  	#import "TiUIiPhoneAlertDialogStyleProxy.h"
 #endif
