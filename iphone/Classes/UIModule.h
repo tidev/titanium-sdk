@@ -139,13 +139,6 @@
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
 
-@property(nonatomic,readonly) NSNumber *AUTODETECT_NONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ALL;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_PHONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_LINK;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
-
 @property(nonatomic,readonly) NSNumber *AUTOLINK_NONE;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;

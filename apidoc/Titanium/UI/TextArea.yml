@@ -165,7 +165,7 @@ properties:
         
     type: Number
     constants: Titanium.UI.AUTOLINK_*
-    default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
+    default: <Titanium.UI.AUTOLINK_NONE>
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad]
     
@@ -245,7 +245,7 @@ properties:
   - name: handleLinks
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
     description: |
-        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK),
+        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK),
         this property controls if the system should handle that link automatically. Only valid on iOS 7 and above. 
     type: Boolean
     default: false
@@ -400,7 +400,7 @@ events:
   - name: link
     summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
     description: |
-        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
         This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
     properties:
       - name: url
