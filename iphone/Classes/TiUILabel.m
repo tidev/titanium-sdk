@@ -12,7 +12,7 @@
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 @implementation TiUILabel
@@ -300,7 +300,7 @@
         }
         NSRange theRange = NSMakeRange(0, 0);
         NSString *url = nil;
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
         TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
         url = [tempString getLink:idx];
 #endif
@@ -489,7 +489,7 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#if defined (USE_TI_UIIOSATTRIBUTEDSTRING) || defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];

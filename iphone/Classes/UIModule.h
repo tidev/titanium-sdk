@@ -220,7 +220,7 @@
 @property(nonatomic,readonly)			TiProxy* Clipboard;
 #endif
 
-#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;

@@ -35,16 +35,7 @@
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
 #endif
-#ifdef USE_TI_UICOVERFLOWVIEW
-	#import "TiUIiOSCoverFlowViewProxy.h"
-#endif
-#ifdef USE_TI_UITOOLBAR
-	#import "TiUIiOSToolbarProxy.h"
-#endif
-#ifdef USE_TI_UITABBEDBAR
-    #import "TiUIiOSTabbedBarProxy.h"
-#endif
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -389,29 +380,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 }
 #endif
 
-#ifdef USE_TI_UICOVERFLOWVIEW
--(id)createCoverFlowView:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.createCoverFlowView()",@"1.8.0",@"6.0.0", @"UI.iOS.createCoverFlowView()");
-	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UITOOLBAR
--(id)createToolbar:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.createToolBar()",@"1.8.0",@"6.0.0", @"UI.iOS.createToolbar()");
-	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UITABBEDBAR
--(id)createTabbedBar:(id)args
-{
-    DEPRECATED_REPLACED_REMOVED(@"UI.createTabbedBar()", @"1.8.0",@"6.0.0", @"UI.iOS.createTabbedBar()");
-    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
 #pragma mark Internal Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
@@ -501,7 +469,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
     
     return [NSNumber numberWithFloat:result];
 }
-#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
 MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
 MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);

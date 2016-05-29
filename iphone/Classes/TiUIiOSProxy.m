@@ -28,10 +28,6 @@
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIAttributedStringProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSADVIEW
 #import "TiUIiOSAdViewProxy.h"
 #import <iAd/iAd.h>
@@ -523,14 +519,6 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 -(id)createToolbar:(id)args
 {
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
--(id)createAttributedString:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.iOS.createAttributedString()", @"3.6.0", @"6.0.0", @"UI.createAttributedString()");
-    return [[[TiUIAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 

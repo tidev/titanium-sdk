@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIREFRESHCONTROL
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 #import "TiUIRefreshControlProxy.h"
@@ -61,7 +61,7 @@
 -(void)setTitle:(id)args
 {
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG_OR_NIL(args, TiUIAttributedStringProxy);
 	[self replaceValue:args forKey:@"title" notification:NO];
 	RELEASE_TO_NIL(_attributedString);

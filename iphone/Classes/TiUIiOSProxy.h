@@ -195,9 +195,6 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 -(id)createSplitWindow:(id)args;
 #endif
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
--(id)createAttributedString:(id)args;
-#endif
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args;
 #endif
