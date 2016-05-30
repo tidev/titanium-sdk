@@ -70,7 +70,7 @@ import android.view.ViewAnimationUtils;
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
 	"translationX", "translationY", "translationZ",
 	
-	TiC.PROPERTY_TRANSITION_NAME
+	TiC.PROPERTY_TRANSITION_NAME, TiC.PROPERTY_TOUCH_ENABLED
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
@@ -117,6 +117,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		pendingAnimationLock = new Object();
 
+		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLED, true);
