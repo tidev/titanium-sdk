@@ -205,47 +205,10 @@
 	
 	NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
 	
-	if (url!=nil)
-	{
-        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
-        // Window based JS can only be loaded from local filesystem within app resources
-		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
-		{
-			// since this function is recursive, only do this if we haven't already created the context
-			if (context==nil)
-			{
-				RELEASE_TO_NIL(context);
-				// remember our base url so we can restore on close
-				oldBaseURL = [[self _baseURL] retain];
-				// set our new base
-				[self _setBaseURL:url];
-				contextReady=NO;
-				context = [[KrollBridge alloc] initWithHost:[self _host]];
-				id theTabGroup = [tab tabGroup];
-				id theTab = (theTabGroup == nil)?nil:tab;
-				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",theTabGroup,@"currentTabGroup",theTab,@"currentTab",nil];
-				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
-				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
-				[context boot:latch url:url preload:preload];
-				if ([latch waitForBoot])
-				{
-                    if ([context evaluationError]) {
-                        DebugLog(@"Could not boot context. Context has evaluation error");
-                        return NO;
-                    }
-                    contextReady = YES;
-					return [super _handleOpen:args];
-				}
-				else 
-				{
-					return NO;
-				}
-			}
-		}
-		else 
-		{
-			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
-		}
+	if (url != nil) {
+		DEPRECATED_REMOVED(@"UI.Window.url", @"2.0.0", @"6.0.0");
+		DebugLog(@"[ERROR] Please use require() to manage your application components.");
+		DebugLog(@"[ERROR] More infos: http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium");
 	}
 	
 	return [super _handleOpen:args];
