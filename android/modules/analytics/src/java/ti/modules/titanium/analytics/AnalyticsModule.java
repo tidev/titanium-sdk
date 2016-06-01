@@ -22,8 +22,8 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalyticsEvent;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
