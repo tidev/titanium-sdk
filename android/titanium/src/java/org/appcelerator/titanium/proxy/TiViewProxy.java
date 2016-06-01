@@ -70,7 +70,7 @@ import android.view.ViewAnimationUtils;
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
 	"translationX", "translationY", "translationZ",
 	
-	TiC.PROPERTY_TRANSITION_NAME, TiC.PROPERTY_TOUCH_ENABLED
+	TiC.PROPERTY_TRANSITION_NAME
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
