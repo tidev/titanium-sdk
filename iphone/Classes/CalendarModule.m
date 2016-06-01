@@ -308,31 +308,23 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
         return nil;
     }
 
-    EKSource *theSource = nil;
-
-    for (EKSource *source in ourStore.sources) {
-        if (source.sourceType == EKSourceTypeLocal) {
-            theSource = source;
-            break;
-        }
-    }
-
-    if (theSource == nil) {
-        DebugLog(@"Could not determine source");
-        return nil;
-    }
-
     EKCalendar *calendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
 
-    calendar.source = theSource;
+    // Instead of creating calendar in a predefined source like Local,
+    // we assume that the default calendar has our best source
+    calendar.source = [ourStore defaultCalendarForNewEvents].source;
     calendar.title = name;
 
-    BOOL result = [ourStore saveCalendar:calendar commit:YES error:nil];
-    if (result == NO) {
-        return nil;
-    }
+    NSError* error = nil;
+    BOOL result;
 
-    return calendar.calendarIdentifier;
+    result = [ourStore saveCalendar:calendar commit:YES error:&error];
+
+    if (result) {
+        return calendar.calendarIdentifier;
+    } else {
+        NSLog(@"Error creating calendar: %@.", error);
+    }
 }
 
 -(BOOL) deleteCalendarById:(id)arg
