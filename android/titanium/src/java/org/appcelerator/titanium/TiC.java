@@ -92,6 +92,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_CAMERA_READY = "cameraready";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CANCEL = "cancel";
 
 	/**
