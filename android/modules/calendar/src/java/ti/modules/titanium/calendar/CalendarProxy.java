@@ -67,6 +67,10 @@ public class CalendarProxy extends KrollProxy {
 		return "content://calendar";
 	}
 
+	public static String getAccountName() {
+		return TiApplication.getInstance().getAppInfo().getId();
+	}
+
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
 	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
@@ -245,14 +249,24 @@ public class CalendarProxy extends KrollProxy {
 
 		ContentValues calendarValues = new ContentValues();
 
-		calendarValues.put("account_name", TiApplication.getInstance().getPackageName());
-		calendarValues.put("account_type", "LOCAL");
-		calendarValues.put("name", TiConvert.toString(data, "name"));
-		calendarValues.put("calendar_displayName", TiConvert.toString(data, "name"));
+		calendarValues.put(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		calendarValues.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
 
-		Uri calendarUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri() + "/calendars"), calendarValues);
+		calendarValues.put(CalendarContract.Calendars.NAME, TiApplication.getInstance().getAppInfo().getName());
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, TiApplication.getInstance().getAppInfo().getName());
+		calendarValues.put(CalendarContract.Calendars.VISIBLE, 1);
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+		calendarValues.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
-		return calendarUri.getLastPathSegment();
+		Uri.Builder builder = CalendarContract.Calendars.CONTENT_URI.buildUpon();
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+		builder.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true");
+
+		Uri uri = contentResolver.insert(builder.build(), calendarValues);
+		String id = uri.getLastPathSegment();
+
+		return id;
 	}
 
 	@Kroll.method
@@ -262,9 +276,13 @@ public class CalendarProxy extends KrollProxy {
 		if (!hasCalendarPermissions()) {
 			return false;
 		}
-		
-		Uri uri = Uri.parse(CalendarProxy.getBaseCalendarUri() + "/calendars/" + this.id);
-		int rows = contentResolver.delete(uri, null, null);
+
+		Uri.Builder builder = CalendarContract.Calendars.CONTENT_URI.buildUpon();
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+		builder.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true");
+
+		int rows = contentResolver.delete(builder.build(), CalendarContract.Calendars._ID + "=?", new String[]{ this.id });
 		return (rows == 1);
 	}
 
