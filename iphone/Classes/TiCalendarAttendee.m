@@ -16,8 +16,8 @@
 -(id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_ isOrganiser:(BOOL)_isOrganiser module:(CalendarModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
-		module = [module_ retain];
-		participant = [participant_ retain];
+        module = [module_ retain];
+        participant = [participant_ retain];
         isOrganiser = _isOrganiser;
 	}
 	return self;
@@ -57,7 +57,7 @@
 	
 	else if ([key isEqualToString:@"email"]) {
 		// Apple dont give out device account email since it is a privacy concern.
-        // We can query through non-documented methods but that is not advisable.
+		// We can query through non-documented methods but that is not advisable.
 		if (participant.isCurrentUser) {
 			return @"";
 		}

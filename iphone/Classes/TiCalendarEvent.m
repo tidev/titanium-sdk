@@ -19,9 +19,9 @@
 -(id)_initWithPageContext:(id<TiEvaluator>)context event:(EKEvent*)event_ calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_
 {
     if (self = [super _initWithPageContext:context]) {
-        module= [module_ retain];
-        event = [event_ retain];
-        event.calendar = calendar_;
+		module= [module_ retain];
+		event = [event_ retain];
+		event.calendar = calendar_;
     }
     return self;
 }

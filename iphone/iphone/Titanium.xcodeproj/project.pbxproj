@@ -291,6 +291,7 @@
 		84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84ED2CD01AEEC0C00049FB68 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84ED2CCD1AEEC0A70049FB68 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
+		AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
@@ -912,6 +913,8 @@
 		84ED2CCD1AEEC0A70049FB68 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		ABD472F213BB73BF00502912 /* KrollCoverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollCoverage.h; path = ../Classes/KrollCoverage.h; sourceTree = "<group>"; };
 		ABD472F313BB73BF00502912 /* KrollCoverage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollCoverage.m; path = ../Classes/KrollCoverage.m; sourceTree = "<group>"; };
+		AD3174C01D015DA9000D5F1A /* TiCalendarAttendee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarAttendee.h; sourceTree = "<group>"; };
+		AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarAttendee.m; sourceTree = "<group>"; };
 		B421C4101113AA9300DBCB42 /* TiUIScrollableViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableViewProxy.h; sourceTree = "<group>"; };
 		B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableViewProxy.m; sourceTree = "<group>"; };
 		B421C4141113AAA900DBCB42 /* TiUIScrollableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableView.h; sourceTree = "<group>"; };
@@ -2465,6 +2468,8 @@
 		D93DAA4C16CBF8A000AD64C9 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
+				AD3174C01D015DA9000D5F1A /* TiCalendarAttendee.h */,
+				AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */,
 				D93DAA4E16CBF8CB00AD64C9 /* CalendarModule.h */,
 				D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */,
 				D93DAA5316CBF8E500AD64C9 /* TiCalendarCalendar.h */,
@@ -2536,6 +2541,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0430;
+				TargetAttributes = {
+					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = WP4952RUHJ;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2591,6 +2601,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */,
 				243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */,
 				243ECCB71126986F00639DF4 /* TiFile.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
@@ -2903,6 +2914,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
@@ -2923,6 +2936,7 @@
 				);
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2935,6 +2949,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
@@ -2951,6 +2967,7 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
