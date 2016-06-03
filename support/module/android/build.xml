@@ -351,6 +351,7 @@ timodule.xml.
 			<fileset dir="${gen}/libs">
 				<include name="**/*"/>
 				<exclude name="**/libstlport_shared.so"/>
+				<exclude name="**/libc++_shared.so"/>
 			</fileset>
 		</copy>
 	</target>

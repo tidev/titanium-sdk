@@ -1754,8 +1754,9 @@ class Builder(object):
 			# profiler
 			apk_zip.write(os.path.join(lib_source_dir, 'libtiprofiler.so'), lib_dest_dir + 'libtiprofiler.so')
 
-			for fname in ('libkroll-v8.so', 'libstlport_shared.so'):
-				apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
+			for fname in ('libkroll-v8.so', 'libstlport_shared.so', 'libc++_shared.so'):
+				if os.path.exists(os.path.join(lib_source_dir, fname))
+					apk_zip.write(os.path.join(lib_source_dir, fname), lib_dest_dir + fname)
 
 		self.apk_updated = True
 
