@@ -28,7 +28,7 @@
 
 -(void)_destroy
 {
-	RELEASE_TO_NIL(rule);
+    RELEASE_TO_NIL(rule);
     [super _destroy];
 }
 
@@ -54,9 +54,10 @@
         return currRule.calendarIdentifier;
     }
     else if ([key isEqualToString:@"end"]) {
-        EKRecurrenceEnd  *end = currRule.recurrenceEnd;
-        NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
-                                       NUMUINTEGER(end.occurrenceCount), @"occurenceCount", nil];
+        EKRecurrenceEnd *end = currRule.recurrenceEnd;
+        NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:
+        [TiUtils UTCDateForDate:end.endDate], @"endDate",
+        NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
         return recurranceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
