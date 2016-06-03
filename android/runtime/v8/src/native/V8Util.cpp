@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,38 +20,77 @@ using namespace v8;
 
 #define TAG "V8Util"
 
-Handle<String> ImmutableAsciiStringLiteral::CreateFromLiteral(const char *stringLiteral, size_t length)
-{
-	HandleScope scope;
-	Local<String> result = String::NewExternal(new ImmutableAsciiStringLiteral(stringLiteral, length));
-	return scope.Close(result);
+Utf8Value::Utf8Value(v8::Local<v8::Value> value)
+    : length_(0), str_(str_st_) {
+  if (value.IsEmpty())
+    return;
+
+  v8::Local<v8::String> string = value.As<String>();
+  if (string.IsEmpty())
+    return;
+
+  // Allocate enough space to include the null terminator
+  size_t len = (3 * string->Length()) + 1;
+  if (len > sizeof(str_st_)) {
+    str_ = static_cast<char*>(malloc(len));
+    //CHECK_NE(str_, nullptr);
+  }
+
+  const int flags =
+      v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
+  length_ = string->WriteUtf8(str_, len, 0, flags);
+  str_[length_] = '\0';
 }
 
-Handle<Value> V8Util::executeString(Handle<String> source, Handle<Value> filename)
-{
-	HandleScope scope;
-	TryCatch tryCatch;
 
-	Local<Script> script = Script::Compile(source, filename);
+TwoByteValue::TwoByteValue(v8::Local<v8::Value> value)
+    : length_(0), str_(str_st_) {
+  if (value.IsEmpty())
+    return;
+
+  v8::Local<v8::String> string = value.As<String>();
+  if (string.IsEmpty())
+    return;
+
+  // Allocate enough space to include the null terminator
+  size_t len = (string->Length() * sizeof(uint16_t)) + 1;
+  if (len > sizeof(str_st_)) {
+    str_ = static_cast<uint16_t*>(malloc(len));
+    //CHECK_NE(str_, nullptr);
+  }
+
+  const int flags =
+      v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
+  length_ = string->Write(str_, 0, len, flags);
+  str_[length_] = '\0';
+}
+
+Local<Value> V8Util::executeString(Isolate* isolate, Local<String> source, Local<Value> filename)
+{
+	EscapableHandleScope scope(isolate);
+	TryCatch tryCatch(isolate);
+
+	Local<Script> script = Script::Compile(source, filename.As<String>());
 	if (script.IsEmpty()) {
 		LOGF(TAG, "Script source is empty");
-		reportException(tryCatch, true);
-		return Undefined();
+		reportException(isolate, tryCatch, true);
+		return scope.Escape(Undefined(isolate));
 	}
 
 	Local<Value> result = script->Run();
 	if (result.IsEmpty()) {
 		LOGF(TAG, "Script result is empty");
-		reportException(tryCatch, true);
-		return Undefined();
+		reportException(isolate, tryCatch, true);
+		return scope.Escape(Undefined(isolate));
 	}
 
-	return scope.Close(result);
+	return scope.Escape(result);
 }
 
-Handle<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const Arguments& args)
+Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope;
+	Isolate* isolate = args.GetIsolate();
+	EscapableHandleScope scope(isolate);
 	const int argc = args.Length();
 	Local<Value>* argv = new Local<Value> [argc];
 
@@ -59,19 +98,19 @@ Handle<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemp
 		argv[i] = args[i];
 	}
 
-	Local<Object> instance = t->GetFunction()->NewInstance(argc, argv);
+	Local<Object> instance = t.Get(isolate)->GetFunction()->NewInstance(argc, argv);
 	delete[] argv;
-	return scope.Close(instance);
+	return scope.Escape(instance);
 }
 
-void V8Util::objectExtend(Handle<Object> dest, Handle<Object> src)
+void V8Util::objectExtend(Local<Object> dest, Local<Object> src)
 {
-	Handle<Array> names = src->GetOwnPropertyNames();
+	Local<Array> names = src->GetOwnPropertyNames();
 	int length = names->Length();
 
 	for (int i = 0; i < length; ++i) {
-		Handle<Value> name = names->Get(i);
-		Handle<Value> value = src->Get(name);
+		Local<Value> name = names->Get(i);
+		Local<Value> value = src->Get(name);
 		dest->Set(name, value);
 	}
 }
@@ -80,63 +119,63 @@ void V8Util::objectExtend(Handle<Object> dest, Handle<Object> src)
 
 static Persistent<String> nameSymbol, messageSymbol;
 
-void V8Util::reportException(TryCatch &tryCatch, bool showLine)
+void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine)
 {
-	HandleScope scope;
-	Handle<Message> message = tryCatch.Message();
+	HandleScope scope(isolate);
+	Local<Message> message = tryCatch.Message();
 
 	if (nameSymbol.IsEmpty()) {
-		nameSymbol = SYMBOL_LITERAL("name");
-		messageSymbol = SYMBOL_LITERAL("message");
+		nameSymbol.Reset(isolate, NEW_SYMBOL(isolate, "name"));
+		messageSymbol.Reset(isolate, NEW_SYMBOL(isolate, "message"));
 	}
 
 	if (showLine) {
-		Handle<Message> message = tryCatch.Message();
+		Local<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
-			String::Utf8Value filename(message->GetScriptResourceName());
-			String::Utf8Value msg(message->Get());
+			titanium::Utf8Value filename(message->GetScriptResourceName());
+			titanium::Utf8Value msg(message->Get());
 			int linenum = message->GetLineNumber();
 			LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum, *msg);
 		}
 	}
 
 	Local<Value> stackTrace = tryCatch.StackTrace();
-	String::Utf8Value trace(tryCatch.StackTrace());
+	titanium::Utf8Value trace(tryCatch.StackTrace());
 
 	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
 		LOGD(EXC_TAG, *trace);
 	} else {
 		Local<Value> exception = tryCatch.Exception();
 		if (exception->IsObject()) {
-			Handle<Object> exceptionObj = exception->ToObject();
-			Handle<Value> message = exceptionObj->Get(messageSymbol);
-			Handle<Value> name = exceptionObj->Get(nameSymbol);
+			Local<Object> exceptionObj = exception.As<Object>();
+			Local<Value> message = exceptionObj->Get(messageSymbol.Get(isolate));
+			Local<Value> name = exceptionObj->Get(nameSymbol.Get(isolate));
 
 			if (!message->IsUndefined() && !name->IsUndefined()) {
-				String::Utf8Value nameValue(name);
-				String::Utf8Value messageValue(message);
+				titanium::Utf8Value nameValue(name);
+				titanium::Utf8Value messageValue(message);
 				LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
 			}
 		} else {
-			String::Utf8Value error(exception);
+			titanium::Utf8Value error(exception);
 			LOGE(EXC_TAG, *error);
 		}
 	}
 }
 
-void V8Util::openJSErrorDialog(TryCatch &tryCatch)
+void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		return;
 	}
 
-	Handle<Message> message = tryCatch.Message();
+	Local<Message> message = tryCatch.Message();
 
 	jstring title = env->NewStringUTF("Runtime Error");
-	jstring errorMessage = TypeConverter::jsValueToJavaString(env, message->Get());
-	jstring resourceName = TypeConverter::jsValueToJavaString(env, message->GetScriptResourceName());
-	jstring sourceLine = TypeConverter::jsValueToJavaString(env, message->GetSourceLine());
+	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
+	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -152,74 +191,69 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
-
 }
 
 static int uncaughtExceptionCounter = 0;
 
-void V8Util::fatalException(TryCatch &tryCatch)
+void V8Util::fatalException(Isolate* isolate, TryCatch &tryCatch)
 {
-	HandleScope scope;
+	HandleScope scope(isolate);
 
 	// Check if uncaught_exception_counter indicates a recursion
 	if (uncaughtExceptionCounter > 0) {
-		reportException(tryCatch, true);
+		reportException(isolate, tryCatch, true);
 		LOGF(TAG, "Double exception fault");
 	}
-	reportException(tryCatch, true);
+	reportException(isolate, tryCatch, true);
 }
 
-Handle<String> V8Util::jsonStringify(Handle<Value> value)
+Local<String> V8Util::jsonStringify(Isolate* isolate, Local<Value> value)
 {
-	HandleScope scope;
+	EscapableHandleScope scope(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
 
-	Handle<Object> json = Context::GetCurrent()->Global()->Get(String::New("JSON"))->ToObject();
-	Handle<Function> stringify = Handle<Function>::Cast(json->Get(String::New("stringify")));
-	Handle<Value> args[] = { value };
-	Handle<Value> result = stringify->Call(json, 1, args);
-    if (result.IsEmpty()) {
-        LOGE(TAG, "!!!! JSON.stringify() result is null/undefined.!!!");
-        return String::New("ERROR");
-    } else {
-        return result->ToString();
-    }
+	Local<Object> json = context->Global()->Get(STRING_NEW(isolate, "JSON")).As<Object>();
+	Local<Function> stringify = json->Get(STRING_NEW(isolate, "stringify")).As<Function>();
+	Local<Value> args[] = { value };
+	Local<Value> result = stringify->Call(context, json, 1, args).ToLocalChecked();
+	if (result.IsEmpty()) {
+		LOGE(TAG, "!!!! JSON.stringify() result is null/undefined.!!!");
+		return scope.Escape(STRING_NEW(isolate, "ERROR"));
+	} else {
+		return scope.Escape(result.As<String>());
+	}
 }
 
-bool V8Util::constructorNameMatches(Handle<Object> object, const char* name)
+bool V8Util::constructorNameMatches(Isolate* isolate, Local<Object> object, const char* name)
 {
-	HandleScope scope;
+	HandleScope scope(isolate);
 	Local<String> constructorName = object->GetConstructorName();
-	return strcmp(*String::Utf8Value(constructorName), name) == 0;
+	return strcmp(*titanium::Utf8Value(constructorName), name) == 0;
 }
 
 static Persistent<Function> isNaNFunction;
 
-bool V8Util::isNaN(Handle<Value> value)
+bool V8Util::isNaN(Isolate* isolate, Local<Value> value)
 {
-	HandleScope scope;
-	Local<Object> global = Context::GetCurrent()->Global();
+	HandleScope scope(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<Object> global = context->Global();
 
 	if (isNaNFunction.IsEmpty()) {
-		Local<Value> isNaNValue = global->Get(String::NewSymbol("isNaN"));
-		isNaNFunction = Persistent<Function>::New(isNaNValue.As<Function> ());
+		Local<Value> isNaNValue = global->Get(NEW_SYMBOL(isolate, "isNaN"));
+		isNaNFunction.Reset(isolate, isNaNValue.As<Function>());
 	}
 
-	Handle<Value> args[] = { value };
+	Local<Value> args[] = { value };
 
-	return isNaNFunction->Call(global, 1, args)->BooleanValue();
-
+	return isNaNFunction.Get(isolate)->Call(context, global, 1, args).ToLocalChecked()->BooleanValue();
 }
 
 void V8Util::dispose()
 {
-	nameSymbol.Dispose();
-	nameSymbol = Persistent<String>();
-
-	messageSymbol.Dispose();
-	messageSymbol = Persistent<String>();
-
-	isNaNFunction.Dispose();
-	isNaNFunction = Persistent<Function>();
+	nameSymbol.Reset();
+	messageSymbol.Reset();
+	isNaNFunction.Reset();
 }
 
 }

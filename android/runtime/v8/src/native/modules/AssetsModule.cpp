@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,24 +23,25 @@ namespace titanium {
 
 using namespace v8;
 
-void AssetsModule::Initialize(Handle<Object> target)
+void AssetsModule::Initialize(Local<Object> target, Local<Context> context)
 {
-	HandleScope scope;
-
-	DEFINE_METHOD(target, "readAsset", readAsset);
-	DEFINE_METHOD(target, "readFile", readFile);
-
+	Isolate* isolate = context->GetIsolate();
+	SetMethod(isolate, target, "readAsset", readAsset);
+	SetMethod(isolate, target, "readFile", readFile);
 }
 
-Handle<Value> AssetsModule::readAsset(const Arguments& args)
+void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 {
+	v8::Isolate* isolate = args.GetIsolate();
 	if (args.Length() < 1) {
-		return JSException::Error("Missing required argument 'resourceName'.");
+		JSException::Error(isolate, "Missing required argument 'resourceName'.");
+		return;
 	}
 
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
-		return JSException::GetJNIEnvironmentError();
+		JSException::GetJNIEnvironmentError(isolate);
+		return;
 	}
 
 	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
@@ -56,51 +57,59 @@ Handle<Value> AssetsModule::readAsset(const Arguments& args)
 		LOGE(TAG, "Failed to load resource.");
 		env->ExceptionDescribe();
 		env->ExceptionClear();
-		return JSException::Error("Failed to load resource, Java exception was thrown.");
+		JSException::Error(isolate, "Failed to load resource, Java exception was thrown.");
+		return;
 	}
 
 	if (!assetData) {
-		return v8::Null();
+		args.GetReturnValue().Set(v8::Null(isolate));
+		return;
 	}
 
 	jint len = env->GetStringLength(assetData);
 	const jchar *assetChars = env->GetStringChars(assetData, NULL);
 	if (!assetChars) {
-		return v8::Null();
+		args.GetReturnValue().Set(v8::Null(isolate));
+		return;
 	}
 
-	Local<String> resourceData = String::New(assetChars, len);
+	Local<String> resourceData = String::NewFromTwoByte(isolate, assetChars, v8::String::kNormalString, len);
 	env->ReleaseStringChars(assetData, assetChars);
 	env->DeleteLocalRef(assetData);
 
-	return resourceData;
+	args.GetReturnValue().Set(resourceData);
 }
 
-Handle<Value> AssetsModule::readFile(const Arguments& args)
+void AssetsModule::readFile(const FunctionCallbackInfo<Value>& args)
 {
-	HandleScope scope;
+	v8::Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
 
 	if (args.Length() == 0 || args[0]->IsNull() || args[0]->IsUndefined()) {
-		return JSException::Error("assets.readFile requires a valid filename");
+		JSException::Error(isolate, "assets.readFile requires a valid filename");
+		return;
 	}
 
-	String::Utf8Value filename(args[0]);
+	titanium::Utf8Value filename(args[0]);
 
 	FILE *file = fopen(*filename, "r");
 
 	if (!file) {
-		return JSException::Error("Error opening file");
+		JSException::Error(isolate, "Error opening file");
+		return;
 	}
 
 	if (fseek(file, 0L, SEEK_END) != 0) {
 		fclose(file);
-		return JSException::Error("Error reading file");
+		JSException::Error(isolate, "Error reading file");
+		return;
 	}
 
 	long fileLength;
 	if ((fileLength = ftell(file)) == -1) {
 		fclose(file);
-		return JSException::Error("Error getting file length");
+		JSException::Error(isolate, "Error getting file length");
+		return;
 	}
 
 	rewind(file);
@@ -111,16 +120,16 @@ Handle<Value> AssetsModule::readFile(const Arguments& args)
 	fclose(file);
 
 	if (ferror(file) != 0) {
-		return JSException::Error("Error while reading file");
+		JSException::Error(isolate, "Error while reading file");
+		return;
 	}
 
 	LOGD(TAG, "got file data: %d bytes", fileLength);
 
-	Handle<String> data = String::New(const_cast<const char *>(buffer), fileLength);
+	Local<String> data = String::NewFromUtf8(isolate, const_cast<const char *>(buffer), v8::String::kNormalString, fileLength);
 	delete[] buffer;
 
-	return data;
+	args.GetReturnValue().Set(data);
 }
 
 }
-

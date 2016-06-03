@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,36 +12,50 @@
 
 namespace titanium {
 
+using v8::Local;
+using v8::Object;
+using v8::Context;
+using v8::Persistent;
+using v8::FunctionTemplate;
+using v8::FunctionCallbackInfo;
+using v8::Value;
+using v8::ObjectTemplate;
+using v8::Script;
+
 class ScriptsModule
 {
 public:
-	static void Initialize(v8::Handle<v8::Object> target);
+	static void Initialize(Local<Object> target, Local<Context> context);
 	static void Dispose();
 };
 
-class WrappedContext: NativeObject
+class WrappedScript;
+
+class WrappedContext: public NativeObject
 {
 public:
-	WrappedContext(v8::Persistent<v8::Context> context);
+	WrappedContext(v8::Isolate* isolate, Local<Context> context);
 	virtual ~WrappedContext();
 
-	static void Initialize(v8::Handle<v8::Object> target);
+	static void Initialize(Local<Object> target, Local<Context> context);
 
 	// Unwrap a context from the given global proxy object.
-	static WrappedContext* Unwrap(v8::Handle<v8::Object> global);
+	static WrappedContext* Unwrap(v8::Isolate* isolate, v8::Local<v8::Object> global);
 
-	v8::Persistent<v8::Context> GetV8Context();
+	void Dispose();
 
-	static v8::Persistent<v8::ObjectTemplate> global_template;
+	static Persistent<ObjectTemplate> global_template;
 
 protected:
-	v8::Persistent<v8::Context> context_;
+	Persistent<Context> context_;
+
+	friend class WrappedScript;
 };
 
-class WrappedScript: NativeObject
+class WrappedScript: public NativeObject
 {
 public:
-	static void Initialize(v8::Handle<v8::Object> target);
+	static void Initialize(Local<Object> target, Local<Context> context);
 
 	enum EvalInputFlags
 	{
@@ -57,19 +71,19 @@ public:
 	};
 
 	template<EvalInputFlags input_flag, EvalContextFlags context_flag, EvalOutputFlags output_flag>
-	static v8::Handle<v8::Value> EvalMachine(const v8::Arguments& args);
+	static void EvalMachine(const FunctionCallbackInfo<Value>& args);
 
-	static v8::Persistent<v8::FunctionTemplate> constructor_template;
+	static Persistent<FunctionTemplate> constructor_template;
 
-	static v8::Handle<v8::Value> New(const v8::Arguments& args);
-	static v8::Handle<v8::Value> CreateContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> DisposeContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> RunInContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> RunInThisContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> RunInNewContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> CompileRunInContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> CompileRunInThisContext(const v8::Arguments& args);
-	static v8::Handle<v8::Value> CompileRunInNewContext(const v8::Arguments& args);
+	static void New(const FunctionCallbackInfo<Value>& args);
+	static void CreateContext(const FunctionCallbackInfo<Value>& args);
+	static void DisposeContext(const FunctionCallbackInfo<Value>& args);
+	static void RunInContext(const FunctionCallbackInfo<Value>& args);
+	static void RunInThisContext(const FunctionCallbackInfo<Value>& args);
+	static void RunInNewContext(const FunctionCallbackInfo<Value>& args);
+	static void CompileRunInContext(const FunctionCallbackInfo<Value>& args);
+	static void CompileRunInThisContext(const FunctionCallbackInfo<Value>& args);
+	static void CompileRunInNewContext(const FunctionCallbackInfo<Value>& args);
 
 protected:
 
@@ -79,7 +93,7 @@ protected:
 	}
 	virtual ~WrappedScript();
 
-	v8::Persistent<v8::Script> script_;
+	Persistent<Script> script_;
 };
 
 }
