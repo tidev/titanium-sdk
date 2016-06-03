@@ -56,7 +56,7 @@
     else if ([key isEqualToString:@"end"]) {
         EKRecurrenceEnd  *end = currRule.recurrenceEnd;
         NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
-                                       NUMUINTEGER(end.occurrenceCount), @"occuranceCount", nil];
+                                       NUMUINTEGER(end.occurrenceCount), @"occurenceCount", nil];
         return recurranceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
