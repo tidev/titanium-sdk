@@ -290,6 +290,10 @@ methods:
         type: Callback<MediaAuthorizationResponse>
         
 events:
+  - name: cameraready
+    summary: Fires when the camera overlay is ready to take pictures.
+    platforms: [android]
+    since: "6.0.0"
   - name: linechange
     deprecated:
         since: "3.4.2"
