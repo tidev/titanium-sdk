@@ -46,7 +46,6 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewAnimationUtils;
-import android.widget.ListView;
 /**
  * The parent class of view proxies.
  */
@@ -256,18 +255,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				vg.removeAllViews();
 				children = null;
 				KrollRuntime.suggestGC();
-				result.setResult(null); //Signal removed.
-				return true;
-			}
-			case MSG_REMOVE_ALL_LISTVIEW : {
-				AsyncResult result = (AsyncResult) msg.obj;
-				ListView vg = (ListView) result.getArg();
-				//vg.setAdapter(null);
-				vg.invalidateViews();
-				vg = null;
-				children = null;
-				KrollRuntime.suggestGC();
-				result.setResult(null); //Signal removed.
+				result.setResult(null);
 				return true;
 			}
 			case MSG_BLUR : {
@@ -742,23 +730,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void removeAllChildren()
 	{
-		if (view != null) {
+		if (children != null && view != null) {
 			View nv = view.getNativeView();
-			
-			if (!(nv instanceof TiCompositeLayout)){
-				Log.i("VIEW", "WRONG LAYOUT " + nv.getClass().getSimpleName());
-				if (nv.getClass().getSimpleName()=="ListViewWrapper"){
-					if (TiApplication.isUIThread()) {
-						ListView lv = ((ListView) ((ViewGroup) nv).getChildAt(0) );
-						lv.invalidateViews();
-						lv = null;
-					} else {
-						TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ALL_LISTVIEW), (ListView) ((ViewGroup) nv).getChildAt(0) );
-					}
-				} else {
-					nv = ((ViewGroup) nv).getChildAt(0);
-				}
-			} 
+			if (!(nv instanceof TiCompositeLayout) && nv.getClass().getSimpleName()!="ListViewWrapper") {
+				nv = ((ViewGroup) nv).getChildAt(0);
+			}
 				
 			if (nv instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nv;
