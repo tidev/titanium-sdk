@@ -26,6 +26,7 @@ SIMPLIFIED_ARCH := arm
 endif
 
 # Turn "armeabi" to "arm" when looking for correct lib folder
+# FIXME We don't really support plain ARM, as per https://android.googlesource.com/platform/external/v8/+/master/Android.mk#24
 ifeq ($(TARGET_ARCH_ABI),armeabi)
 SIMPLIFIED_ARCH := arm
 endif
