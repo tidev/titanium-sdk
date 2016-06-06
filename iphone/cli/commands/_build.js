@@ -374,6 +374,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120),
+						'hide-error-controller': {
+							hidden: true
+						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						'keychain':                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -1234,7 +1237,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
 		}
-		if (cli.argv['hide-error-controller']) {
+		if (cli.argv.hasOwnProperty('hide-error-controller')) {
 			this.showErrorController = false;
 		}
 
@@ -2089,7 +2092,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
-	this.currentBuildManifest.showErrorController          = !!this.showErrorController
+	this.currentBuildManifest.showErrorController          = this.showErrorController
 
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
