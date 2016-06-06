@@ -156,6 +156,20 @@ public class TiHTTPClient
 	    if (connection != null) {
 	        TiHTTPClient c = this;
 
+	        // Checks manually if redirect is needed
+	        boolean needRedirect = false;
+	        int status = connection.getResponseCode();
+	        if (status != HttpURLConnection.HTTP_OK) {
+	            if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == HttpURLConnection.HTTP_SEE_OTHER) {
+	                needRedirect = true;
+	            }
+	        }
+
+	        if (autoRedirect && needRedirect) {
+	            redirectedLocation = connection.getHeaderField("Location");
+	            connection = (HttpURLConnection) new URL(redirectedLocation).openConnection();
+	        }
+
 	        contentLength = connection.getContentLength();
 	        setReadyState(READY_STATE_HEADERS_RECEIVED);
 
@@ -175,12 +189,6 @@ public class TiHTTPClient
 	            if (responseFile == null && Log.isDebugModeEnabled()) {
 	                Log.w(TAG, "Ignore the provided response file because it is not valid / writable.");
 	            }
-	        }
-
-	        // Check for new url that is redirected
-	        URL currentLocation = connection.getURL();
-	        if (autoRedirect && !mURL.sameFile(currentLocation)) {
-	            redirectedLocation = currentLocation.toString();
 	        }
 
 	        // Note on getHeaderFields()
@@ -210,7 +218,6 @@ public class TiHTTPClient
 	        }
 	        responseData = null;
 
-	        int status = connection.getResponseCode();
 	        InputStream in;
 
 	        if (status >= 400) {
@@ -1098,7 +1105,6 @@ public class TiHTTPClient
 			try {
 				Thread.sleep(10);
 				Log.d(TAG, "send()", Log.DEBUG_MODE);
-
 				//If there are any custom authentication factories registered with the client add them here
 				/*
 				Enumeration<String> authSchemes = customAuthenticators.keys();
