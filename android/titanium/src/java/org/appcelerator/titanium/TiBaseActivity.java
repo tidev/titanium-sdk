@@ -1520,7 +1520,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 		}
 
-		orientationListener.disable();
+		if (orientationListener != null) {
+			orientationListener.disable();
+		}
 
 		super.onDestroy();
 
