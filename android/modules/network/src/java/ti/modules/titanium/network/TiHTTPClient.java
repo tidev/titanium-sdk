@@ -180,6 +180,12 @@ public class TiHTTPClient
 	            }
 	        }
 
+	        // Check for new url that is redirected
+	        URL currentLocation = connection.getURL();
+	        if (autoRedirect && !mURL.sameFile(currentLocation)) {
+	            redirectedLocation = currentLocation.toString();
+	        }
+
 	        // Note on getHeaderFields()
 	        // HttpURLConnection include a mapping
 	        // for the null key; in HTTP's case, this maps to the HTTP status line and is
@@ -207,6 +213,7 @@ public class TiHTTPClient
 	        }
 	        responseData = null;
 
+	        int status = connection.getResponseCode();
 	        InputStream in;
 
 	        if (status >= 400) {
@@ -1159,6 +1166,8 @@ public class TiHTTPClient
 					}
 
 					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
+					// This section of the code handles that.
 					if (autoRedirect) {
 					    // Hardcoded to follow a max of 5 redirects
 					    for (int i = 0; i < REDIRECTS; i++) {
@@ -1171,6 +1180,7 @@ public class TiHTTPClient
 					                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
 					            redirectedLocation = client.getHeaderField("Location");
 					            if (redirectedLocation != null) {
+					                client.disconnect();
 					                client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
 					                // Configure the headers and SSL connection again if required
 					                setUpClient(client, isPostOrPutOrPatch);
