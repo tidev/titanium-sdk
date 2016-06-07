@@ -68,6 +68,16 @@ methods:
         type: Dictionary<Titanium.Calendar.RecurrenceRule>
     platforms: [iphone, ipad]
 
+  - name: createRecurrenceRuleFromString
+    summary: Creates a recurrence rule from a RRULE string representation (RFC 2445)
+    returns:
+        type: Titanium.Calendar.RecurrenceRUle
+    parameters:
+      - name: rrule
+        summary: RFC 2445 String
+        type: String
+    platforms: [iphone, ipad]
+
   - name: save
     summary: Saves changes to an event permanently.
     description: |
