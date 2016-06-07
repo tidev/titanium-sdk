@@ -868,6 +868,14 @@ properties:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the list view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
+
   - name: sectionIndexTitles
     summary: Array of objects (with `title` and `index` properties) to control the list view index.
     description: |

@@ -1178,6 +1178,32 @@ properties:
     permission: read-only
     since: "3.2.3"
 
+  - name: KEYBOARD_DISMISS_MODE_NONE
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: The keyboard does not get dismissed with a drag.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+
+  - name: KEYBOARD_DISMISS_MODE_ON_DRAG
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: The keyboard is dismissed when a drag begins.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+
+  - name: KEYBOARD_DISMISS_MODE_INTERACTIVE
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: |
+        The keyboard follows the dragging touch offscreen, and can be pulled 
+        upward again to cancel the dismiss.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+
   - name: SEARCH_BAR_STYLE_PROMINENT
     summary: |
         Use with <Titanium.UI.Searchbar.style> to change the search bar style.
