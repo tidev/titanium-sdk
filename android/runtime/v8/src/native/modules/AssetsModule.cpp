@@ -44,7 +44,7 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString());
+	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString(isolate));
 
 	jstring assetData = (jstring) env->CallStaticObjectMethod(
 		JNIUtil::krollAssetHelperClass,

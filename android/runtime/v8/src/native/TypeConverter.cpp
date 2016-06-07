@@ -632,7 +632,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 			v8::Local<String> nativeString = STRING_NEW(isolate, "$native");
 			if (jsObject->HasOwnProperty(nativeString)) {
 				v8::Local<v8::Value> nativeObject = jsObject->GetRealNamedProperty(nativeString);
-				jsObject = nativeObject->ToObject();
+				jsObject = nativeObject->ToObject(isolate);
 				if (JavaObject::isJavaObject(jsObject)) {
 					*isNew = JavaObject::useGlobalRefs ? false : true;
 					JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);

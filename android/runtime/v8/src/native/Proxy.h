@@ -88,7 +88,7 @@ public:
 			isolate,
 			ProxyClass::getProxyTemplate(isolate),
 			ProxyClass::javaClass,
-			fn->GetName()->ToString(), fn);
+			fn->GetName()->ToString(isolate), fn);
 		args.GetReturnValue().Set(newType->GetFunction());
 	}
 

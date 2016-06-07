@@ -442,7 +442,7 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 
 	for (uint32_t i = 0; i < length; ++i) {
 		Local<Array> change = changes->Get(i).As<Array>();
-		Local<String> name = change->Get(INDEX_NAME)->ToString();
+		Local<String> name = change->Get(INDEX_NAME)->ToString(isolate);
 		Local<Value> oldValue = change->Get(INDEX_OLD_VALUE);
 		Local<Value> value = change->Get(INDEX_VALUE);
 
