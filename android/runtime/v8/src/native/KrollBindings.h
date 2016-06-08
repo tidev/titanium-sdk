@@ -60,7 +60,7 @@ public:
 	static void isExternalCommonJsModule(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getExternalCommonJsModule(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	static void dispose();
+	static void dispose(v8::Isolate* isolate);
 };
 
 } // namespace titanium

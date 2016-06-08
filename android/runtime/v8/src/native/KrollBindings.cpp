@@ -201,11 +201,8 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 // Dispose of all static function templates
 // in the generated and native bindings. This
 // clears out the module lookup cache
-void KrollBindings::dispose()
+void KrollBindings::dispose(v8::Isolate* isolate)
 {
-	Isolate* isolate = v8::Isolate::GetCurrent();
-	HandleScope scope(isolate);
-
 	JNIEnv *env = JNIScope::getEnv();
 	std::map<std::string, jobject>::iterator iterMods;
 	for (iterMods = externalCommonJsModules.begin(); iterMods != externalCommonJsModules.end(); ++iterMods) {

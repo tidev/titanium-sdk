@@ -44,6 +44,7 @@ Platform* V8Runtime::platform = nullptr;
 Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
+bool V8Runtime::disposed = false;
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
@@ -318,7 +319,14 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativePr
 
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
 {
-	return V8Runtime::v8_isolate->IdleNotificationDeadline(100); // FIXME What is a good value to use here?
+	// If we're closing up shop, return true, which is equivalent to V8 GC saying there's no more work to do
+	if (V8Runtime::disposed) {
+		return true;
+	}
+
+	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
+	double deadline_in_ms = (V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0;
+	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_ms);
 }
 
 /*
@@ -387,39 +395,43 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 		}
 
 		// KrollBindings
-		KrollBindings::dispose();
+		KrollBindings::dispose(V8Runtime::v8_isolate);
 		EventEmitter::dispose();
 
 		V8Runtime::moduleContexts.Reset();
 
 		V8Runtime::GlobalContext()->DetachGlobal();
-
 	}
 
 	// Dispose of each class' static cache / resources
-
 	V8Util::dispose();
 	ProxyFactory::dispose();
 
 	V8Runtime::moduleObject.Reset();
-
 	V8Runtime::runModuleFunction.Reset();
-
 	V8Runtime::krollGlobalObject.Reset();
 
-	V8Runtime::GlobalContext()->Exit();
+	{
+		HandleScope scope(V8Runtime::v8_isolate);
+		V8Runtime::GlobalContext()->Exit();
+	}
+
 	V8Runtime::globalContext.Reset();
 
 	// Removes the retained global reference to the V8Runtime
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
-
 	V8Runtime::javaInstance = NULL;
 
+	V8Runtime::disposed = true;
+
+	// I totally removed this since it just seemed to hang us and did not SEEM to make any difference.
+	// Presumably everything will get cleaned up when we dispose the isolate anyhow!
+	
 	// Whereas most calls to IdleNotification get kicked off via Java (the looper's
 	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
 	// So as our last act, run IdleNotification until it returns true so we can clean up all
 	// the stuff we just released references for above.
-	while (!V8Runtime::v8_isolate->IdleNotification(100));
+	//while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
 
 	// Do final cleanup
 	V8Runtime::v8_isolate->Dispose();
