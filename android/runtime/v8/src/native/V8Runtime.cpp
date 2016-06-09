@@ -44,7 +44,7 @@ Platform* V8Runtime::platform = nullptr;
 Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
-bool V8Runtime::disposed = false;
+bool V8Runtime::initialized = false;
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
@@ -197,13 +197,17 @@ using namespace titanium;
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG, jboolean profilerEnabled)
 {
-	// Initialize V8.
-	V8::InitializeICU();
-	// TODO Enable this when we use snapshots
-	//V8::InitializeExternalStartupData(argv[0]);
-	V8Runtime::platform = platform::CreateDefaultPlatform();
-	V8::InitializePlatform(V8Runtime::platform);
-	V8::Initialize();
+	if (!V8Runtime::initialized) {
+		LOGE(TAG, "Initializing V8Runtime...");
+		// Initialize V8.
+		V8::InitializeICU();
+		// TODO Enable this when we use snapshots?
+		//V8::InitializeExternalStartupData(argv[0]);
+		V8Runtime::platform = platform::CreateDefaultPlatform();
+		V8::InitializePlatform(V8Runtime::platform);
+		V8::Initialize();
+		V8Runtime::initialized = true;
+	}
 
 	if (profilerEnabled) {
 		char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
@@ -220,19 +224,27 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
 
-	// Create a new Isolate and make it the current one.
-	ArrayBufferAllocator allocator;
-	Isolate::CreateParams create_params;
-	create_params.array_buffer_allocator = &allocator;
-	Isolate* isolate = Isolate::New(create_params);
+	Isolate* isolate;
+	if (V8Runtime::v8_isolate == nullptr) {
+		LOGE(TAG, "Creating new Isolate");
+		// Create a new Isolate and make it the current one.
+		ArrayBufferAllocator allocator;
+		Isolate::CreateParams create_params;
+		create_params.array_buffer_allocator = &allocator;
+		isolate = Isolate::New(create_params);
 
-	V8Runtime::v8_isolate = isolate;
-	Isolate::Scope isolate_scope(isolate);
+		V8Runtime::v8_isolate = isolate;
+		Isolate::Scope isolate_scope(isolate);
 
-	// Log all uncaught V8 exceptions.
-	V8::AddMessageListener(&logV8Exception);
-	V8::SetCaptureStackTraceForUncaughtExceptions(true);
+		// Log all uncaught V8 exceptions.
+		V8::AddMessageListener(&logV8Exception);
+		V8::SetCaptureStackTraceForUncaughtExceptions(true);
+	} else {
+		LOGE(TAG, "Re-using isolate");
+		isolate = V8Runtime::v8_isolate;
+	}
 
+	LOGE(TAG, "Creating new GlobalContext");
 	HandleScope scope(isolate);
 	Local<Context> context = Context::New(isolate);
 	context->Enter();
@@ -320,9 +332,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativePr
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
 {
 	// If we're closing up shop, return true, which is equivalent to V8 GC saying there's no more work to do
-	if (V8Runtime::disposed) {
-		return true;
-	}
+	//if (V8Runtime::disposed) {
+	//	return true;
+	//}
 
 	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
 	double deadline_in_ms = (V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0;
@@ -422,22 +434,22 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
 	V8Runtime::javaInstance = NULL;
 
-	V8Runtime::disposed = true;
-
 	// I totally removed this since it just seemed to hang us and did not SEEM to make any difference.
 	// Presumably everything will get cleaned up when we dispose the isolate anyhow!
-	
+
+	LOGE(TAG, "Starting GC loop");
 	// Whereas most calls to IdleNotification get kicked off via Java (the looper's
 	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
 	// So as our last act, run IdleNotification until it returns true so we can clean up all
 	// the stuff we just released references for above.
-	//while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
+	while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
 
+	LOGE(TAG, "Done with GC loop");
 	// Do final cleanup
-	V8Runtime::v8_isolate->Dispose();
-	V8::Dispose();
-	V8::ShutdownPlatform();
-	delete V8Runtime::platform;
+	//V8Runtime::v8_isolate->Dispose();
+	//V8::Dispose();
+	//V8::ShutdownPlatform();
+	//delete V8Runtime::platform;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)

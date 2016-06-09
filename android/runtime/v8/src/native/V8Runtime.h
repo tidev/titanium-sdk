@@ -29,7 +29,7 @@ public:
 
 	static bool debuggerEnabled;
 	static bool DBG;
-	static bool disposed;
+	static bool initialized;
 
 	static Persistent<Object> moduleObject;
 	static Persistent<Function> runModuleFunction;
