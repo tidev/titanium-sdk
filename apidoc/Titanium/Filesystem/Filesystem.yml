@@ -123,6 +123,7 @@ methods:
     summary: Returns `true` if the app has storage permissions.
     returns:
         type: Boolean
+    platforms: [android]
     since: "5.4.0"
 
   - name: requestStoragePermissions
@@ -135,6 +136,7 @@ methods:
       - name: callback
         summary: Function to call upon user decision to grant storage access
         type: Callback<RequestStorageAccessResult>
+    platforms: [android]
     since: "5.4.0"
 
   - name: openStream
