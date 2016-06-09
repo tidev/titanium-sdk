@@ -7,6 +7,8 @@ public class TiAuthenticator extends Authenticator {
     String domain;
     String user;
     String password;
+    private int retryCount = 0;
+    private final static int MAX_RETRY_COUNT = 1;
 
     public TiAuthenticator(String user, String password) {
         super();
@@ -27,9 +29,13 @@ public class TiAuthenticator extends Authenticator {
         if (domain != null && !domain.isEmpty()) {
             user = domain + "\\" + user;
         }
-        if (password != null) {
-            return new PasswordAuthentication(user, password.toCharArray());
+        if (retryCount < MAX_RETRY_COUNT) {
+            retryCount++;
+            if (password != null) {
+                return new PasswordAuthentication(user, password.toCharArray());
+            }
+            return new PasswordAuthentication(user, null);
         }
-        return new PasswordAuthentication(user, null);
+        return null;
     }
 }
