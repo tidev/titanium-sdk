@@ -115,15 +115,16 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "error"), TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, errorMessage));
 	}
 
-	Local<Value> result;
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	Local<Value> args[] = { jsEvent, jsData };
-	result = fireEvent->Call(V8Runtime::v8_isolate->GetCurrentContext(), emitter, 2, args).ToLocalChecked();
+	MaybeLocal<Value> result = fireEvent->Call(V8Runtime::v8_isolate->GetCurrentContext(), emitter, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
-	} else if (result->IsTrue()) {
+	} else if (result.IsEmpty()) {
+		return JNI_FALSE;
+	} else if (result.ToLocalChecked()->IsTrue()) {
 		return JNI_TRUE;
 	}
 	return JNI_FALSE;
