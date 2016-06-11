@@ -365,6 +365,7 @@ properties:
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
+        You can set it to a 1px transparent png to use a combination of barColor and hideShadow:true
     platforms: [iphone, ipad, mobileweb]
     type: String
 
