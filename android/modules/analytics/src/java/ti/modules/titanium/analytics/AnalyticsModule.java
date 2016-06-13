@@ -102,16 +102,7 @@ public class AnalyticsModule extends KrollModule
 	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
 	        if (data instanceof HashMap) {
 	            JSONObject jsonData = TiConvert.toJSON(data);
-	            
-	            boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
-	            // This will be removed in future when we treat this as an error.
-	            if (!isPayloadValid) {
-	                Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                Log.w(TAG, "This will be treated as an error in future releases.");
-	                isPayloadValid = true;
-	            }
-
-	            if (isPayloadValid) {
+	            if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
 	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return SUCCESS;
 	            } else {
@@ -121,16 +112,7 @@ public class AnalyticsModule extends KrollModule
 	        } else if (data != null) {
 	            try {
 	                JSONObject jsonData = new JSONObject(data.toString());
-	                
-	                boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
-	                // This will be removed in future when we treat this as an error.
-	                if (!isPayloadValid) {
-	                    Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                    Log.w(TAG, "This will be treated as an error in future releases.");
-	                    isPayloadValid = true;
-	                }
-
-	                if (isPayloadValid) {
+	                if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
 	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return SUCCESS;
 	                } else {
