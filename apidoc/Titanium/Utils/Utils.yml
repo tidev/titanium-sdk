@@ -6,7 +6,38 @@ summary: |
 extends: Titanium.Module
 since: "0.9"
 platforms: [android, iphone, ipad, mobileweb]
+properties:
+  - name: ENCODE_TYPE_CR
+    summary: |
+        Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
+    description: |
+        Specifies that the line ending to insert should include a carriage return.
+    type: Number
+    permission: read-only
 
+  - name: ENCODE_TYPE_LF
+    summary: |
+        Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
+    description: |
+        Specifies that the line ending to insert should include a line feed.
+    type: Number
+    permission: read-only
+
+  - name: ENCODE_TYPE_64
+    summary: |
+        Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
+    description: |
+        Set the maximum line length to 64 characters.
+    type: Number
+    permission: read-only
+
+  - name: ENCODE_TYPE_76
+    summary: |
+        Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
+    description: |
+        Set the maximum line length to 76 characters.
+    type: Number
+    permission: read-only
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
@@ -29,12 +60,18 @@ methods:
 
         Starting from Titanium 3.3.0, `obj` can be a [File](Titanium.Filesystem.File) object
         on Android.
+
+        Starting from Titanium 6.0.0 on iOS a second parametor can be passed to specify the type of 
+        base64 encode,by default it's <Titanium.Utils.ENCODE_TYPE_76>.
     returns:
         type: Titanium.Blob
     parameters:
       - name: obj
         summary: Data to encode.
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
+      - name: obj
+        summary: Specify an instance of one of the following Titanium encode types Titanium.Utils.ENCODE_TYPE_*.
+        type: Number
         
   - name: md5HexDigest
     summary: Returns a MD5 digest of the specified data as a hex-based String.

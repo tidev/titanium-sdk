@@ -10,10 +10,15 @@
 
 
 @interface UtilsModule : TiModule {
-
+ 
 @private
 
 }
+
+@property (nonatomic, readonly)NSNumber* ENCODE_TYPE_LF;
+@property (nonatomic, readonly)NSNumber* ENCODE_TYPE_CR;
+@property (nonatomic, readonly)NSNumber* ENCODE_TYPE_64;
+@property (nonatomic, readonly)NSNumber* ENCODE_TYPE_76;
 
 @end
 
