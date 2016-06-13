@@ -484,6 +484,24 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
     }
     return nil;
 }
+
+#if IS_XCODE_8
+- (NSNumber*) BLUR_EFFECT_STYLE_REGULAR
+{
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMINTEGER(UIBlurEffectStyleRegular);
+    }
+    return nil;
+}
+
+- (NSNumber*) BLUR_EFFECT_STYLE_PROMINENT
+{
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMINTEGER(UIBlurEffectStyleProminent);
+    }
+    return nil;
+}
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
