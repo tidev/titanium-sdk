@@ -183,6 +183,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)awakeFromNib {
 	[self setUpInitialState];
+	[super awakeFromNib];
 }
 
 - (id)initWithFrame:(CGRect)frame {
