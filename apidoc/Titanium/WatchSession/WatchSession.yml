@@ -41,6 +41,25 @@ properties:
     platforms: [iphone]
     since: "5.4.0"
 
+  - name: hasContentPending
+    summary: Returns `true` if there is more content for the session to deliver.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+    platforms: [iphone]
+
+  - name: remainingComplicationUserInfoTransfers
+    summary: |
+        The number of calls remaining to `transferCurrentComplication` before the system starts 
+        transferring the complicationUserInfo as regular userInfos.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+    default: 0
+    platforms: [iphone]
+
   - name: isSupported
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
@@ -421,6 +440,18 @@ events:
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Ti.WatchSession.isActivated> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: hasContentPending
+        summary: | 
+            If the apple watch has currently content pending. Only available on iOS 10.0
+            and later. See <Ti.WatchSession.hasContentPending> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: remainingComplicationUserInfoTransfers
+        summary: | 
+            If the apple watch has complication userInfo transfers left. Only available on iOS 10.0
+            and later. See <Ti.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
