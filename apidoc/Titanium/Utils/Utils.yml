@@ -14,6 +14,8 @@ properties:
         Specifies that the line ending to insert should include a carriage return.
     type: Number
     permission: read-only
+    since: '6.0.0'
+    platforms: [iphone,ipad]
 
   - name: ENCODE_TYPE_LF
     summary: |
@@ -22,6 +24,8 @@ properties:
         Specifies that the line ending to insert should include a line feed.
     type: Number
     permission: read-only
+    since: '6.0.0'
+    platforms: [iphone,ipad]
 
   - name: ENCODE_TYPE_64
     summary: |
@@ -30,6 +34,8 @@ properties:
         Set the maximum line length to 64 characters.
     type: Number
     permission: read-only
+    since: '6.0.0'
+    platforms: [iphone,ipad]
 
   - name: ENCODE_TYPE_76
     summary: |
@@ -38,6 +44,8 @@ properties:
         Set the maximum line length to 76 characters.
     type: Number
     permission: read-only
+    since: '6.0.0'
+    platforms: [iphone,ipad]
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.

@@ -51,10 +51,6 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
     if ([args isKindOfClass:[NSArray class]]) {
         NSArray *arguments = (NSArray*)args;
         
-        if (![TiUtils isIOS7OrGreater]) {
-            [self iOS7Base64encode:[args objectAtIndex:0]];
-            return;
-        }
         
         if([[arguments objectAtIndex:0] isKindOfClass:[NSString class]]) {
             data = [[arguments objectAtIndex:0]
@@ -95,12 +91,6 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
         }
         
     } else if ([args isKindOfClass:[TiBlob class]]) {
-        
-        if (![TiUtils isIOS7OrGreater]) {
-            [self iOS7Base64encode:args];
-            return;
-        }
-        
         data = [(TiBlob*)args data];
         base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
     } else {
@@ -119,11 +109,6 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
     NSData *base64Data = nil;
     NSData *data = nil;
     
-    if (![TiUtils isIOS7OrGreater]) {
-        [self iOS7Base64encode:[args objectAtIndex:0]];
-        return;
-    }
-    
     if ([args isKindOfClass:[NSString class]]) {
         NSString *argument = [TiUtils stringValue:args];
         data = [argument dataUsingEncoding:NSUTF8StringEncoding];
@@ -139,68 +124,6 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
 
     return base64Data ? [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] : nil;
     
-}
-
-
--(TiBlob*)iOS7Base64encode:(id)args
-{
-    ENSURE_SINGLE_ARG(args,NSObject);
-    const char *data;
-    size_t len;
-    
-    if ([args isKindOfClass:[TiBlob class]]) {
-        NSData * blobData = [(TiBlob*)args data];
-        data = (char *)[blobData bytes];
-        len = [blobData length];
-    }
-    else
-    {
-        NSString *str = [self convertToString:args];
-        data = (char *)[str UTF8String];
-        len = [str length];
-    }
-    
-    char *base64Result;
-    size_t theResultLength;
-    bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-    if (result)
-    {
-        NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-        free(base64Result);
-        return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-    }
-    return nil;
-}
-
--(TiBlob*)iOS7Base64decode:(id)args
-{
-    ENSURE_SINGLE_ARG(args,NSObject);
-    
-    NSString *str = [self convertToString:args];
-    
-    const char *data = [str UTF8String];
-    size_t len = [str length];
-    
-    size_t outsize = TI_EstimateBas64DecodedDataSize(len);
-    char *base64Result = NULL;
-    if(len>0){
-        base64Result = malloc(sizeof(char)*outsize);
-    }
-    
-    if (base64Result==NULL) {
-        return nil;
-    }
-    
-    size_t theResultLength = outsize;
-    bool result = TI_Base64DecodeData(data, len, base64Result, &theResultLength);
-    if (result)
-    {
-        NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-        free(base64Result);
-        return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-    }
-    free(base64Result);
-    return nil;
 }
 
 -(NSString*)md5HexDigest:(id)args
