@@ -197,6 +197,14 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
 
+  - name: canceledOnTouchOutside
+    summary: |
+        When this is set to `true`, the dialog is canceled when touched outside the window's bounds.
+    type: Boolean
+    default: true on Android
+    since: "6.0.0"
+    platforms: [android]
+
   - name: destructive
     summary: Index to define the destructive button.
     platforms: [iphone, ipad]
