@@ -95,7 +95,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isPaired]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -104,7 +104,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isWatchAppInstalled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -113,7 +113,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isComplicationEnabled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -122,7 +122,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isReachable]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -133,8 +133,30 @@
         return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
     }
 #endif
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
+}
+
+-(NSNumber*)hasContentPending
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMBOOL([[self watchSession] hasContentPending]);
+    }
+#endif
+    
+    return NUMBOOL(NO);
+}
+
+-(NSNumber*)remainingComplicationUserInfoTransfers
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
+    }
+#endif
+    
+    return NUMBOOL(0);
 }
 
 -(NSNumber*)activationState
@@ -467,6 +489,13 @@
     if ([TiUtils isIOS9_3OrGreater]) {
         [dict setObject:[self isActivated] forKey:@"isActivated"];
         [dict setObject:[self activationState] forKey:@"activationState"];
+    }
+#endif
+    
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
+        [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
     }
 #endif
     
