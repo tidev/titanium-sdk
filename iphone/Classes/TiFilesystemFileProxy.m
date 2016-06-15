@@ -508,18 +508,37 @@ FILENOOP(setHidden:(id)x);
 -(void)setRemoteBackup:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
-    
     BOOL isExcluded = ![TiUtils boolValue:value def:YES];
-    NSURL *URL= [NSURL fileURLWithPath: [self path]];
-    NSError *error;
     
-    BOOL success = [URL setResourceValue:NUMBOOL(isExcluded)
-                                  forKey:NSURLIsExcludedFromBackupKey error:&error];
-    if (!success) {
-        [self throwException:@"Error setting remote backup flag:"
-                   subreason:[error localizedDescription]
-                    location:CODELOCATION];
+    [self addSkipBackupAttributeToFolder:[NSURL URLWithString:[self path]] withFlag:isExcluded];
+}
+
+- (void) addSkipBackupAttributeToFolder:(NSURL*)folder withFlag:(BOOL)flag
+{
+    [self addSkipBackupAttributeToItemAtURL:folder withFlag:flag];
+    
+    NSError* error = nil;
+    NSArray* folderContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[folder path] error:&error];
+    
+    for (NSString* item in folderContent) {
+        NSString* _path = [folder.path stringByAppendingPathComponent:item];
+        [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:_path] withFlag:flag];
     }
+}
+
+- (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL withFlag:(BOOL)flag
+{
+    NSError *error = nil;
+    BOOL success = [URL setResourceValue:[NSNumber numberWithBool: flag]
+                                  forKey: NSURLIsExcludedFromBackupKey error: &error];
+    
+    NSLog(@"%@ = %d", [URL absoluteString], flag);
+    
+    if(!success) {
+        NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+    }
+    
+    return success;
 }
 
 @end
