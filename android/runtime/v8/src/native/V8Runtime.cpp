@@ -198,7 +198,6 @@ using namespace titanium;
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG, jboolean profilerEnabled)
 {
 	if (!V8Runtime::initialized) {
-		LOGE(TAG, "Initializing V8Runtime...");
 		// Initialize V8.
 		V8::InitializeICU();
 		// TODO Enable this when we use snapshots?
@@ -226,7 +225,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	Isolate* isolate;
 	if (V8Runtime::v8_isolate == nullptr) {
-		LOGE(TAG, "Creating new Isolate");
 		// Create a new Isolate and make it the current one.
 		ArrayBufferAllocator allocator;
 		Isolate::CreateParams create_params;
@@ -240,11 +238,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		V8::AddMessageListener(&logV8Exception);
 		V8::SetCaptureStackTraceForUncaughtExceptions(true);
 	} else {
-		LOGE(TAG, "Re-using isolate");
 		isolate = V8Runtime::v8_isolate;
 	}
 
-	LOGE(TAG, "Creating new GlobalContext");
 	HandleScope scope(isolate);
 	Local<Context> context = Context::New(isolate);
 	context->Enter();
@@ -434,17 +430,16 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
 	V8Runtime::javaInstance = NULL;
 
-	// I totally removed this since it just seemed to hang us and did not SEEM to make any difference.
-	// Presumably everything will get cleaned up when we dispose the isolate anyhow!
-
-	LOGE(TAG, "Starting GC loop");
 	// Whereas most calls to IdleNotification get kicked off via Java (the looper's
 	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
 	// So as our last act, run IdleNotification until it returns true so we can clean up all
 	// the stuff we just released references for above.
 	while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
 
-	LOGE(TAG, "Done with GC loop");
+	// Typically in a V8 embedded app, we'd clean everything up here. But since
+	// an app may just be closed/backgrounded but still alive, we can't do this
+	// because we can't re-initialize once it's disposed.
+
 	// Do final cleanup
 	//V8Runtime::v8_isolate->Dispose();
 	//V8::Dispose();
