@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo '*********** Remove and re-download Windows ***********'
 rm -rf windows
 curl http://studio-jenkins.appcelerator.org/job/titanium_mobile_windows_master/lastSuccessfulBuild/artifact/dist/windows/*zip*/windows.zip > windows.zip
