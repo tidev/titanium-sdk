@@ -29,7 +29,7 @@ echo 'PATH:            ' $PATH
 PATH=/usr/local/bin:$PATH
 
 ANDROID_SDK=/Users/build/android-sdk-macosx
-ANDROID_NDK=/Users/build/android-ndk-r11c
+ANDROID_NDK=/Users/build/android-ndk-r10e
 
 echo 'NODE_APPC_BRANCH: latest stable from npm'
 scons package_all=1 version_tag=$VTAG build_jsca=0
