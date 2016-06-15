@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo '*********** Remove and re-download Windows ***********'
 rm -rf windows
@@ -14,36 +14,36 @@ date
 
 # TODO Get the version from package.json!
 VERSION=`sed -n 's/^version *= *//p' build/titanium_version.py | tr -d "'" | tr -d '"'`
-echo 'VERSION:         ' \$VERSION
+echo 'VERSION:         ' $VERSION
 
 TIMESTAMP=`date +'%Y%m%d%H%M%S'`
-echo 'TIMESTAMP:       ' \$TIMESTAMP
+echo 'TIMESTAMP:       ' $TIMESTAMP
 
-VTAG=\$VERSION.v\$TIMESTAMP
-echo 'VTAG:            ' \$VTAG
+VTAG=$VERSION.v$TIMESTAMP
+echo 'VTAG:            ' $VTAG
 
-BASENAME=dist/mobilesdk-\$VTAG
-echo 'BASENAME:        ' \$BASENAME
-echo 'PATH:            ' \$PATH
+BASENAME=dist/mobilesdk-$VTAG
+echo 'BASENAME:        ' $BASENAME
+echo 'PATH:            ' $PATH
 
-PATH=/usr/local/bin:\$PATH
+PATH=/usr/local/bin:$PATH
 
 ANDROID_SDK=/Users/build/android-sdk-macosx
 ANDROID_NDK=/Users/build/android-ndk-r11c
 
 echo 'NODE_APPC_BRANCH: latest stable from npm'
-scons package_all=1 version_tag=\$VTAG build_jsca=0
+scons package_all=1 version_tag=$VTAG build_jsca=0
 
-if [ "\$PYTHON" = "" ]; then
+if [ "$PYTHON" = "" ]; then
     PYTHON=python
 fi
 
 echo
-echo 'TI_MOBILE_SCONS_ARGS: ' \$TI_MOBILE_SCONS_ARGS
+echo 'TI_MOBILE_SCONS_ARGS: ' $TI_MOBILE_SCONS_ARGS
 
 echo
-SDK_ARCHIVE="\$BASENAME-osx.zip"
-echo 'SDK_ARCHIVE: ' \$SDK_ARCHIVE
+SDK_ARCHIVE="$BASENAME-osx.zip"
+echo 'SDK_ARCHIVE: ' $SDK_ARCHIVE
 
 echo Pulling down common test suite
 git clone https://github.com/appcelerator/titanium-mobile-mocha-suite.git
@@ -53,7 +53,7 @@ cp -R tests/ titanium-mobile-mocha-suite
 
 cd titanium-mobile-mocha-suite/scripts
 npm install .
-node test.js -b ../../\$BASENAME-osx.zip -p android,ios
+node test.js -b ../../$BASENAME-osx.zip -p android,ios
 
 date
 echo '*****************************************'
