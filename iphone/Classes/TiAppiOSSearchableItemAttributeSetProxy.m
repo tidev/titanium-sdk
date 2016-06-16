@@ -319,14 +319,14 @@
 //Number of pages in the item.
 -(NSNumber*)pageCount
 {
-    return _attributes.pageHeight;
+    return _attributes.pageCount;
 }
 
 -(void)setPageCount:(id)value
 {
     ENSURE_SINGLE_ARG(value,NSNumber);
     ENSURE_UI_THREAD(setPageCount,value);
-    _attributes.pageHeight = value;
+    _attributes.pageCount = value;
 }
 
 //Width in points (72 points per inch) of the document page
