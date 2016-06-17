@@ -11,8 +11,8 @@ date
 export JAVA_HOME=/usr/lib/jvm/java-6-sun
 #npm test
 
-VERSION=`python $TITANIUM_BUILD/common/get_version.py | tr -d '
-'`
+# Get the version from package.json!
+VERSION=`sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ','`
 echo 'VERSION:         ' $VERSION
 
 TIMESTAMP=`date +'%Y%m%d%H%M%S'`
@@ -26,14 +26,18 @@ echo 'BASENAME:        ' $BASENAME
 echo 'PATH:            ' $PATH
 
 echo 'NODE_APPC_BRANCH: latest stable from npm'
-scons package_all=1 version_tag=$VTAG $TI_MOBILE_SCONS_ARGS
+
+cd build
+npm install .
+node scons.js build
+node scons.js package --version-tag $VTAG --all
+cd ..
+
 
 if [ "$PYTHON" = "" ]; then
         PYTHON=python
 fi
 
-echo
-echo 'TI_MOBILE_SCONS_ARGS: ' $TI_MOBILE_SCONS_ARGS
 echo
 echo 'BUILD_URL: ' $BUILD_URL
 

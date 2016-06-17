@@ -158,7 +158,8 @@ Packager.prototype.includePackagedModules = function (next) {
 			}
 		})
 		.on('end', function () {
-			async.each(items, function (item, cb) {
+			// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
+			async.eachSeries(items, function (item, cb) {
 				unzip(item.path, outDir, function (err) {
 					if (err) {
 						return cb(err);
