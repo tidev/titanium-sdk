@@ -572,10 +572,7 @@ properties:
         the playing video will fill the entire video player area, obscuring any background
         view.
     platforms: [iphone, ipad]
-    parameters:
-      - name: view
-        summary: View to set.
-        type: Titanium.UI.View
+    type: Titanium.UI.View
 
   - name: contentURL
     summary: URL of the media to play.
