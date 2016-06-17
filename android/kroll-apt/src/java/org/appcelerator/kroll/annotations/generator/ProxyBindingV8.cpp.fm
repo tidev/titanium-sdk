@@ -191,7 +191,12 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 			, ${className}::setter_${name}
 		<#else>
 			, titanium::Proxy::onPropertyChanged
-		</#if>, Handle<Value>(), DEFAULT);
+		</#if>, Handle<Value>(), DEFAULT
+		<#if property.set>
+			, static_cast<v8::PropertyAttribute>(v8::DontDelete)
+		<#else>
+			, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete)
+		</#if>);
 	</@Proxy.listDynamicProperties>
 
 	// Accessors --------------------------------------------------------------

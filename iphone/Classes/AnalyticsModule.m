@@ -83,18 +83,7 @@ static const NSInteger ANALYTICS_DISABLED     = -2;
         }
         data = value;
     }
-    
-    BOOL isPayloadValid = [AnalyticsModule validatePayload:data level:0];
-    
-    // This will be removed in future when we treat this as an error.
-    if (!isPayloadValid) {
-        DebugLog(@"[WARN] Feature event '%@' not conforming to recommended usage.", event);
-        DebugLog(@"[WARN] This will be treated as an error in future releases.", event);
-        isPayloadValid = YES;
-    }
-    //
-    
-    if (isPayloadValid) {
+    if ([AnalyticsModule validatePayload:data level:0]) {
         [[APSAnalytics sharedInstance] sendAppFeatureEvent:event payload:data];
         return JSON_VALIDATION_PASSED;
     } else {

@@ -336,6 +336,7 @@ public class MediaModule extends KrollModule
 		}
 		
 		TiCameraActivity.callbackContext = getKrollObject();
+		TiCameraActivity.mediaContext = this;
 		TiCameraActivity.successCallback = successCallback;
 		TiCameraActivity.cancelCallback = cancelCallback;
 		TiCameraActivity.errorCallback = errorCallback;
@@ -1168,6 +1169,7 @@ public class MediaModule extends KrollModule
 			callback.callAsync(getKrollObject(), new Object[] { image });
 		}
 	}
+
 
 	@Kroll.method
 	public void takePicture()

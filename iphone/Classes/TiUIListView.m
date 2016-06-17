@@ -791,6 +791,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
+-(void)setKeyboardDismissMode_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+    [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 -(void)setEditing_:(id)args
 {
     if ([TiUtils boolValue:args def:NO] != editing) {
@@ -1818,6 +1825,32 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     if ([self.proxy _hasListeners:@"dragstart"]) {
         [self.proxy fireEvent:@"dragstart" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+}
+
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    if ([[self proxy] _hasListeners:@"scrolling"]) {
+        NSString* direction = nil;
+        
+        if (velocity.y > 0) {
+            direction = @"up";
+        }
+        
+        if (velocity.y < 0) {
+            direction = @"down";
+        }
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
+            @"velocity": NUMFLOAT(velocity.y)
+        }];
+        if (direction != nil) {
+            [event setValue:direction forKey:@"direction"];
+        }
+        
+        [[self proxy] fireEvent:@"scrolling" withObject:event];
+        RELEASE_TO_NIL(direction);
     }
 }
 

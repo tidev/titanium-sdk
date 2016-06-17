@@ -598,6 +598,31 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: scrolling
+    summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire while the list view is scrolling and the user releases the finger.
+        No event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
+        `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi). 
+        When `direction` is `down`, `velocity` is negative and viceversa. 
+
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: direction
+        summary: Direction of the scroll either 'up', or 'down'.
+        type: String
+
+      - name: velocity
+        summary: The velocity of the scroll in scale factor per second
+        type: Number
+
+      - name: targetContentOffset
+        summary: |
+           The expected y axis offset when the scrolling action decelerates to a stop. 
+        type: Number
+
+
 properties:
   - name: allowsSelection
     summary: Determines whether this item can be selected.
@@ -842,6 +867,14 @@ properties:
     default: false
     platforms: [iphone, ipad]
     since: 3.2.0
+
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the list view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
 
   - name: sectionIndexTitles
     summary: Array of objects (with `title` and `index` properties) to control the list view index.

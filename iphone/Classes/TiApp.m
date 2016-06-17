@@ -34,6 +34,7 @@ int TiDebugPort = 2525;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
+extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString * TITANIUM_VERSION;
 
@@ -1090,7 +1091,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message
 {
-	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+	if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO)
 	{
 		NSLog(@"[ERROR] Application received error: %@",message);
 		return;

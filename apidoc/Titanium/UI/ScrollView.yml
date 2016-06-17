@@ -270,6 +270,14 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, mobileweb]
+
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the scroll view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -300,6 +308,15 @@ properties:
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
+
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the scroll view contents down.
+    description: |
+        An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    since: 6.0.0
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.

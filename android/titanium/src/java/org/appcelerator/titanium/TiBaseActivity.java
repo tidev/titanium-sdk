@@ -70,7 +70,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 
-import com.appcelerator.analytics.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics;
 
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
@@ -1520,7 +1520,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 		}
 
-		orientationListener.disable();
+		if (orientationListener != null) {
+			orientationListener.disable();
+		}
 
 		super.onDestroy();
 

@@ -223,6 +223,7 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
 
 -(void)setAppBadge:(id)value
 {
+	DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"5.4.0", @"UI.iOS.appBadge");
 	ENSURE_UI_THREAD(setAppBadge,value);
 	if (value == [NSNull null])
 	{
@@ -232,7 +233,6 @@ DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSepa
 	{
 		[[UIApplication sharedApplication] setApplicationIconBadgeNumber:[TiUtils intValue:value]];
 	}
-DEPRECATED_REPLACED(@"UI.iPhone.appBadge", @"6.0.0", @"UI.iOS.appBadge");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appBadge,NSNumber)
@@ -241,9 +241,9 @@ END_UI_THREAD_PROTECTED_VALUE(appBadge)
 
 -(void)setAppSupportsShakeToEdit:(NSNumber *)shake
 {
+	DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"5.4.0", @"UI.iOS.appSupportsShakeToEdit");
 	ENSURE_UI_THREAD(setAppSupportsShakeToEdit,shake);
 	[[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:[shake boolValue]];
-DEPRECATED_REPLACED(@"UI.iPhone.appSupportsShakeToEdit", @"6.0.0", @"UI.iOS.appSupportsShakeToEdit");
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit,NSNumber)

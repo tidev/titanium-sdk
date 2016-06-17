@@ -57,8 +57,8 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
-import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalytics.DeployType;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics.DeployType;
 
 /**
  * The main application entry point for all Titanium applications and services.

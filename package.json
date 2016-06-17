@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "5.4.0",
+  "version": "6.0.0",
   "keywords": [
     "appcelerator",
     "titanium",
@@ -36,6 +36,7 @@
     "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
     "request": "2.69.0",
     "sprintf": "0.1.5",
+    "stream-splitter": "~0.3.2",
     "temp": "0.8.3",
     "uglify-js": "2.6.1",
     "unorm": "^1.4.1",
