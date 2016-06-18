@@ -47,6 +47,12 @@ static NSString* ARG_KEY = @"arg";
 -(void)dealloc
 {
     // Calls _destroy
+    RELEASE_TO_NIL(connected);
+    RELEASE_TO_NIL(error);
+    RELEASE_TO_NIL(closed);
+    RELEASE_TO_NIL(accepted);
+    RELEASE_TO_NIL(host);
+    
     [super dealloc];
 }
 

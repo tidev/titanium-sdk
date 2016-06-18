@@ -29,8 +29,8 @@
     [[[self previewContext] preview] forgetSelf];
     [[[self previewContext] sourceView] forgetSelf];
     
-    RELEASE_TO_NIL(_previewContext);
     RELEASE_TO_NIL(_listViewEvent);
+    RELEASE_TO_NIL(_previewContext);
     
     [super dealloc];
 }

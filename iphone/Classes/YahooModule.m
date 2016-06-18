@@ -192,6 +192,8 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[[TiApp app] startNetwork];
 	[req setDelegate:job];
+    [job autorelease];
+
     TiThreadPerformOnMainThread(^{
         [req send];
         [req autorelease];

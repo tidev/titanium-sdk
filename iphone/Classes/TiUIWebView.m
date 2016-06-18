@@ -437,7 +437,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			{
 				[self ensureLocalProtocolHandler];
 				// Empty NSURL since nil is not accepted here
-				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[NSURL new]];
+				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[[NSURL new] autorelease]];
 				if (scalingOverride==NO)
 				{
 					[[self webview] setScalesPageToFit:YES];

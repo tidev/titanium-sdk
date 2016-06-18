@@ -84,7 +84,7 @@
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 -(TiUIActivityIndicatorStyleProxy*)ActivityIndicatorStyle
 {
-    return [[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]];
+    return [[[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
 }
 #endif
 

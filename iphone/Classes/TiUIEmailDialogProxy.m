@@ -170,8 +170,8 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 
 	[[TiApp app] hideModalController:composer animated:animated];
 	[composer autorelease];
-	composer = nil;
-	if ([self _hasListeners:@"complete"])
+
+    if ([self _hasListeners:@"complete"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
 		[self fireEvent:@"complete" withObject:event errorCode:[error code] message:[TiUtils messageFromError:error]];

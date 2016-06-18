@@ -182,10 +182,10 @@
         return;
     }
     [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:^(NSDictionary<NSString *,id> * _Nonnull replyMessage) {
-        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        WatchMessageCallback *wmc = [[[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]] autorelease];
         [wmc replySuccess:replyMessage];
     } errorHandler:^(NSError * _Nonnull error) {
-        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        WatchMessageCallback *wmc = [[[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]] autorelease];
         [wmc replyError:error];
     }];
 }

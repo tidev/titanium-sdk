@@ -1488,6 +1488,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
 //	RELEASE_TO_NIL(pendingAdds);
 	RELEASE_TO_NIL(destroyLock);
+    RELEASE_TO_NIL(barButtonItem);
 	pthread_rwlock_destroy(&childrenLock);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.

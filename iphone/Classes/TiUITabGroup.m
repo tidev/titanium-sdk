@@ -349,8 +349,7 @@ DEFINE_EXCEPTIONS
 		else
 		{
 			[self updateMoreBar:(UINavigationController *)viewController];
-			viewController = nil;
-		}
+        }
 
 	}
 
