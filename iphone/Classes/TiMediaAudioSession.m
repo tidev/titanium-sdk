@@ -8,7 +8,11 @@
 
 #import "TiMediaAudioSession.h"
 #import "TiUtils.h"
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioSession.h>
+#endif
 
 NSString * const kTiMediaAudioSessionInterruptionBegin = @"TiMediaAudioSessionInterruptionBegin";
 NSString * const kTiMediaAudioSessionInterruptionEnd = @"TiMediaAudioSessionInterruptionEnd";

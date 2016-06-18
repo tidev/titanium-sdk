@@ -8,9 +8,13 @@
 
 #import "TiProxy.h"
 #import "TiFile.h"
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioPlayer.h>
+#endif
 
-@interface TiMediaSoundProxy : TiProxy<AVAudioPlayerDelegate> 
+@interface TiMediaSoundProxy : TiProxy<AVAudioPlayerDelegate>
 {
 @private
 	NSURL *url;
