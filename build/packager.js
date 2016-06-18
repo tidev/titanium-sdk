@@ -86,14 +86,22 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 
 Packager.prototype.generateManifestJSON = function (next) {
 	console.log('Writing manifest.json');
-	var json = {
-		name: this.versionTag,
-		version: this.version,
-		moduleAPIVersion: this.moduleApiVersion.toString(),
-		timestamp: this.timestamp, // FIXME Use format: "%m/%d/%y %H:%M"
-		githash: this.gitHash,
-		platforms: this.platforms
-	};
+	var modifiedPlatforms = this.platforms,
+		json = {
+			name: this.versionTag,
+			version: this.version,
+			moduleAPIVersion: this.moduleApiVersion.toString(),
+			timestamp: this.timestamp,
+			githash: this.gitHash
+		},
+		index;
+
+	// Replace ios with iphone
+	index = modifiedPlatforms.indexOf('ios');
+	if (index != -1) {
+		modifiedPlatforms.splice(index, 1, 'iphone');
+	}
+	json.platforms = modifiedPlatforms;
 	fs.writeJSON(path.join(this.zipSDKDir, 'manifest.json'), json, next);
 };
 
