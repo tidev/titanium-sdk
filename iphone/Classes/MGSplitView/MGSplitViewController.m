@@ -160,10 +160,10 @@
 	[_hiddenPopoverController release];
 	[_dividerView release];
 	[_cornerViews release];
-    [detailViewController release];
-    [masterViewController release];
-    [viewControllers release];
-    [dividerView release];
+	[detailViewController release];
+	[masterViewController release];
+	[viewControllers release];
+	[dividerView release];
 	
 	[super dealloc];
 }
