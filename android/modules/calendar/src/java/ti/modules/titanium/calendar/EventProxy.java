@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 
@@ -114,7 +115,7 @@ public class EventProxy extends KrollProxy {
 
 			return events;
 		}
-
+ 
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy();
 			event.id = eventCursor.getString(0);
@@ -126,8 +127,7 @@ public class EventProxy extends KrollProxy {
 			event.allDay = !eventCursor.getString(6).equals("0");
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
-			event.visibility = eventCursor.getInt(9);
-
+			event.visibility = eventCursor.getInt(9);			
 			events.add(event);
 		}
 
@@ -174,7 +174,6 @@ public class EventProxy extends KrollProxy {
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
 			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
-
 			events.add(event);
 		}
 		eventCursor.close();
@@ -484,6 +483,15 @@ public class EventProxy extends KrollProxy {
 		contentResolver.insert(extPropsUri, values);
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public AttendeeProxy[] getAttendees() 
+	{
+	    final long eventId = Long.parseLong(this.id);
+	    ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+	    ArrayList<AttendeeProxy> attendees = AttendeeProxy.fetchAttendees(eventId, contentResolver);
+	    return attendees.toArray(new AttendeeProxy[attendees.size()]);
+	}
+	
 	@Override
 	public String getApiName()
 	{
