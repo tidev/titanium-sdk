@@ -39,6 +39,8 @@ BASENAME=dist/mobilesdk-$VTAG
 echo 'BASENAME:        ' $BASENAME
 echo 'PATH:            ' $PATH
 
+export ANDROID_NDK=$JENKINS_HOME/android-ndk-r11c
+
 echo 'NODE_APPC_BRANCH: latest stable from npm'
 
 cd build
