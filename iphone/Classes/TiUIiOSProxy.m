@@ -745,7 +745,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
         return nil;
     }
     
-    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
+    TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
     
     return image;
 }

@@ -43,6 +43,7 @@
     NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
     
     [[self previewContext] fireEvent:@"pop" withObject:propertiesDict];
+    RELEASE_TO_NIL(invocationArray);
 }
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
@@ -66,7 +67,7 @@
         [[self previewContext] fireEvent:@"peek" withObject:@{@"preview": [[self previewContext] preview]}];
     }
     
-    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:[[self previewContext] preview]];
+    TiViewController *controller = [[[TiViewController alloc] initWithViewProxy:[[self previewContext] preview]] autorelease];
     [[[[self previewContext] preview] view] setFrame:[[controller view] bounds]];
     [[controller view] addSubview:[[[self previewContext] preview] view]];
     
@@ -157,7 +158,7 @@
             [eventObject setObject:itemId forKey:@"itemId"];
         }
         
-        return eventObject;
+        return [eventObject autorelease];
     }
 #endif
 
