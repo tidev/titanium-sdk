@@ -111,7 +111,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
-	SetProtoMethod(isolate, t, "${method.apiName}", ${className}::${method.apiName});
+	titanium::SetProtoMethod(isolate, t, "${method.apiName}", ${className}::${method.apiName});
 	</@Proxy.listMethods>
 
 	Local<ObjectTemplate> prototypeTemplate = t->PrototypeTemplate();
