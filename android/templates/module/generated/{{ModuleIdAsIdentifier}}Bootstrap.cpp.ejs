@@ -22,7 +22,7 @@ using namespace v8;
 
 static Persistent<Object> bindingCache;
 
-static Local<Value> <%- className %>_getBinding(onst FunctionCallbackInfo<Value>& args)
+static Local<Value> <%- className %>_getBinding(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
@@ -71,7 +71,7 @@ static void <%- className %>_init(Local<Object> exports, Local<Context> context)
 
 	for (int i = 0; titanium::natives[i].name; ++i) {
 		Local<String> name = String::NewFromOneByte(isolate, titanium::natives[i].name);
-		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(
+		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate,
 			titanium::natives[i].source, titanium::natives[i].source_length);
 
 		exports->Set(name, source);
