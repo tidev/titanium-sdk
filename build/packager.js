@@ -86,7 +86,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 
 Packager.prototype.generateManifestJSON = function (next) {
 	console.log('Writing manifest.json');
-	var modifiedPlatforms = this.platforms,
+	var modifiedPlatforms = this.platforms.slice(0), // need to work on a copy!
 		json = {
 			name: this.versionTag,
 			version: this.version,
