@@ -349,16 +349,20 @@ Module.prototype.loadCoreModule = function (id, context) {
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
-	var mod; // the loaded module
+	var mod, // the loaded module
+		dirs = [],
+		i,
+		dir;
+
 	// 1. let DIRS=NODE_MODULES_PATHS(START)
-	var dirs = this.nodeModulesPaths(startDir); // TODO Do I need to prefix with Resources/ at any point?
+	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
-	kroll.log(TAG, 'node_modules search paths: ' + JSON.stringify(dirs));
-	for (var dir in dirs)
+	for (i = 0; i < dirs.length; i++)
 	{
+		dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
-		mod = this.loadAsFileOrDirectory(path.join(dir, path), context);
+		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
 		if (mod) {
 			return mod;
 		}
@@ -371,7 +375,7 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
  * @param  {String} startDir       The starting directory
  * @return {[String]}              The array of paths to search
  */
-Module.prototype.nodeModulesPath = function (startDir) {
+Module.prototype.nodeModulesPaths = function (startDir) {
 	// 1. let PARTS = path split(START)
 	var parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
@@ -379,6 +383,7 @@ Module.prototype.nodeModulesPath = function (startDir) {
 		// 3. let DIRS = []
 		dirs = [],
 		dir;
+
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
@@ -386,7 +391,7 @@ Module.prototype.nodeModulesPath = function (startDir) {
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		dir = path.join(path.join(parts.slice(0, i)), 'node_modules');
+		dir = path.join(parts.slice(0, i + 1).join('/'), 'node_modules');
 		// c. DIRS = DIRS + DIR
 		dirs.push(dir);
 		// d. let I = I - 1
@@ -403,13 +408,11 @@ Module.prototype.nodeModulesPath = function (startDir) {
  */
 Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
 	// a. LOAD_AS_FILE(Y + X)
-	kroll.log(TAG, 'Trying to load file: ' + normalizedPath);
 	var loaded = this.loadAsFile(normalizedPath, context);
 	if (loaded) {
 		return loaded;
 	}
 	// b. LOAD_AS_DIRECTORY(Y + X)
-	kroll.log(TAG, 'Trying to load directory: ' + normalizedPath);
 	loaded = this.loadAsDirectory(normalizedPath, context);
 	if (loaded) {
 		return loaded;
