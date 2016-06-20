@@ -8,7 +8,7 @@ install:
   - export TITANIUM_ANDROID_API="23"
   - # Need to install jq to process the JSON
   - brew update
-  - brew install jq # process JSON 
+  - brew install jq # process JSON
   - brew install scons # for building SDK
   -
   - sudo npm install -g titanium
@@ -16,16 +16,16 @@ install:
   - export TITANIUM_ROOT=`ti sdk list -o json | jq -r '.defaultInstallLocation'`
   - mkdir -p "$TITANIUM_ROOT/sdks/"
   - export TITANIUM_SDK=`ti sdk list -o json | jq -r '.installed[.activeSDK]'`
-  - 
+  -
   - export SDKS="$TRAVIS_BUILD_DIR/sdks"
   - echo $SDKS
-  - mkdir -p "$SDKS" 
+  - mkdir -p "$SDKS"
   - if [ ! -d "$SDKS/android-sdk-macosx" ]; then cd "$SDKS"; wget http://dl.google.com/android/$ANDROID_SDK_PACKAGE; unzip -o $ANDROID_SDK_PACKAGE; fi
   - export ANDROID_SDK=${PWD}/android-sdk-macosx
   - export PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools
   -
   -   # Install required Android components.
-  - echo yes | android -s update sdk --no-ui --all --filter android-$TITANIUM_ANDROID_API 
+  - echo yes | android -s update sdk --no-ui --all --filter android-$TITANIUM_ANDROID_API
   - echo yes | android -s update sdk --no-ui --all --filter addon-google_apis-google-$TITANIUM_ANDROID_API
   - echo yes | android -s update sdk --no-ui --all --filter tools
   - echo yes | android -s update sdk --no-ui --all --filter platform-tools
@@ -38,7 +38,7 @@ install:
   - export ANDROID_NDK=${PWD}/android-ndk-r10e
   -
   - # Install required Titanium build
-  - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build" 
+  - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build"
   - ls "$SDKS/titanium_build"
   -
   - sudo easy_install pyyaml
@@ -55,4 +55,4 @@ script:
   - npm install
   - ls dist
   - npm install grunt-cli
-  - npm test -- run-on-travis
+  - npm test
