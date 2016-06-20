@@ -31,7 +31,7 @@ install:
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - export VERSION=`sed -n 's/^ *"version": \*"//p' package.json | tr -d '"' | tr -d ','`
+  - "export VERSION=`sed -n 's/^ *\"version\": *\"//p' package.json | tr -d '\"' | tr -d ','`"
   - export TIMESTAMP=`date +'%Y%m%d%H%M%S'`
   - export VTAG=$VERSION.v$TIMESTAMP
   - cd build
