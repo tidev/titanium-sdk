@@ -184,7 +184,7 @@ public abstract class TiUIView
 	{
 		for (TiUIView child : childs) {
 			add(child);
-        }
+		}
 	}
 	
 	/**
