@@ -27,9 +27,19 @@
 
 -(void)cancel:(id)args
 {
+#if IS_XCODE_8
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    TiThreadPerformOnMainThread(^{
+        [center removePendingNotificationRequestsWithIdentifiers:@[[self.notification categoryIdentifier]]];
+    }, NO);
+#else
 	UILocalNotification * cancelledNotification = [self.notification retain];
-	TiThreadPerformOnMainThread(^{[[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-		[cancelledNotification release];}, NO);
+	TiThreadPerformOnMainThread(^{
+        [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
+		[cancelledNotification release];
+    }, NO);
+#endif
 }
 
 @end
