@@ -175,17 +175,6 @@ public abstract class TiUIView
 	{
 		add(child, -1);
 	}
-    
-	/**
-	 * Adds multiple child views into the ViewGroup.
-	 * @param childs the views to be added.
-	 */
-	public void add(ArrayList<TiUIView> childs)
-	{
-		for (TiUIView child : childs) {
-			add(child);
-		}
-	}
 	
 	/**
 	 * Adds a child view into the ViewGroup in specific position.

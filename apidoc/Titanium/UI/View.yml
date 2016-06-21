@@ -674,8 +674,9 @@ methods:
     parameters:
       - name: view
         summary: |
-            View to add to this view's hierarchy. In addition to adding a single view,
-            you can also pass an array of views that are added to the view hierarchy.
+            View to add to this view's hierarchy.
+
+            On the iOS and Windows platforms, you may pass an array of views.
         type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
