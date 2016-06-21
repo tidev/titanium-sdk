@@ -215,12 +215,12 @@ Local<String> V8Util::jsonStringify(Isolate* isolate, Local<Value> value)
 	Local<Object> json = context->Global()->Get(STRING_NEW(isolate, "JSON")).As<Object>();
 	Local<Function> stringify = json->Get(STRING_NEW(isolate, "stringify")).As<Function>();
 	Local<Value> args[] = { value };
-	Local<Value> result = stringify->Call(context, json, 1, args).ToLocalChecked();
+	MaybeLocal<Value> result = stringify->Call(context, json, 1, args);
 	if (result.IsEmpty()) {
 		LOGE(TAG, "!!!! JSON.stringify() result is null/undefined.!!!");
 		return scope.Escape(STRING_NEW(isolate, "ERROR"));
 	} else {
-		return scope.Escape(result.As<String>());
+		return scope.Escape(result.ToLocalChecked().As<String>());
 	}
 }
 
@@ -245,8 +245,11 @@ bool V8Util::isNaN(Isolate* isolate, Local<Value> value)
 	}
 
 	Local<Value> args[] = { value };
-
-	return isNaNFunction.Get(isolate)->Call(context, global, 1, args).ToLocalChecked()->BooleanValue();
+	MaybeLocal<Value> result = isNaNFunction.Get(isolate)->Call(context, global, 1, args);
+	if (result.IsEmpty()) {
+		return false;
+	}
+	return result.ToLocalChecked()->BooleanValue();
 }
 
 void V8Util::dispose()

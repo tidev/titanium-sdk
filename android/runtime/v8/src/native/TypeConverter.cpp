@@ -189,9 +189,10 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env,
 {
 	Local<Function> func = jsObject.As<Function>();
 	Persistent<Function> jsFunction(isolate, func);
-	jsFunction.MarkIndependent();
+	//jsFunction.MarkIndependent();
 
 	jlong ptr = (jlong) &jsFunction;
+	LOGE(TAG, "Creating V8Function with ptr: %d", ptr);
 	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, ptr);
 }
 

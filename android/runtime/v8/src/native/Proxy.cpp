@@ -76,7 +76,11 @@ static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, 
 	Local<Value> getProperty = proxy->Get(STRING_NEW(isolate, "getProperty"));
 	if (!getProperty.IsEmpty() && getProperty->IsFunction()) {
 		Local<Value> argv[1] = { property };
-		return getProperty.As<Function>()->Call(isolate->GetCurrentContext(), proxy, 1, argv).ToLocalChecked();
+		MaybeLocal<Value> value = getProperty.As<Function>()->Call(isolate->GetCurrentContext(), proxy, 1, argv);
+		if (value.IsEmpty()) {
+			return Undefined(isolate);
+		}
+		return value.ToLocalChecked();
 	}
 
 	LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");

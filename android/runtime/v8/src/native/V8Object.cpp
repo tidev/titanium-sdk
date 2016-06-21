@@ -154,7 +154,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	Local<Function> function = property.As<Function>();
-	Local<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), object, argc, argv).ToLocalChecked();
+	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), object, argc, argv);
 
 	if (argv) {
 		delete[] argv;
@@ -164,10 +164,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
 		return JNIUtil::undefinedObject;
+	} else if (returnValue.IsEmpty()) {
+		return JNIUtil::undefinedObject;
 	}
 
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, returnValue, &isNew);
+	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, returnValue.ToLocalChecked(), &isNew);
 }
 
 JNIEXPORT jboolean JNICALL
