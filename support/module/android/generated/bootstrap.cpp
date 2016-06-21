@@ -10,6 +10,8 @@
 #include <v8.h>
 
 #include <AndroidUtil.h>
+#include <JNIUtil.h>
+#include <JSException.h>
 #include <KrollBindings.h>
 #include <V8Util.h>
 
@@ -22,13 +24,14 @@ using namespace v8;
 
 static Persistent<Object> bindingCache;
 
-static Handle<Value> %(className)s_getBinding(const FunctionCallbackInfo<Value>& args)
+static void %(className)s_getBinding(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
 	if (args.Length() == 0) {
-		isolate->ThrowException(Exception::Error(String::NewFromOneByte(isolate, "%(className)s.getBinding requires 1 argument: binding")));
+		titanium::JSException::Error(isolate, "%(className)s.getBinding requires 1 argument: binding");
+		args.GetReturnValue().Set(scope.Escape(Undefined(isolate)));
 		return;
 	}
 
@@ -43,25 +46,28 @@ static Handle<Value> %(className)s_getBinding(const FunctionCallbackInfo<Value>&
 	Local<String> binding = args[0]->ToString(isolate);
 
 	if (cache->Has(binding)) {
-		return scope.Escape(cache->Get(binding));
+		args.GetReturnValue().Set(scope.Escape(cache->Get(binding)));
+		return;
 	}
 
 	titanium::Utf8Value bindingValue(binding);
-	LOGD(TAG, "Looking up binding: %s", *bindingValue);
+	LOGD(TAG, "Looking up binding: %%s", *bindingValue);
 
 	titanium::bindings::BindEntry *extBinding = ::%(className)sBindings::lookupGeneratedInit(
 		*bindingValue, bindingValue.length());
 
 	if (!extBinding) {
-		LOGE(TAG, "Couldn't find binding: %s, returning undefined", *bindingValue);
-		return scope.Escape(Undefined());
+		LOGE(TAG, "Couldn't find binding: %%s, returning undefined", *bindingValue);
+		args.GetReturnValue().Set(scope.Escape(Undefined(isolate)));
+		return;
 	}
 
 	Local<Object> exports = Object::New(isolate);
-	extBinding->bind(exports, isolate.GetCurrentContext());
+	extBinding->bind(exports, isolate->GetCurrentContext());
 	cache->Set(binding, exports);
 
-	return scope.Escape(exports);
+	args.GetReturnValue().Set(scope.Escape(exports));
+	return;
 }
 
 static void %(className)s_init(Local<Object> exports, Local<Context> context)
@@ -70,14 +76,14 @@ static void %(className)s_init(Local<Object> exports, Local<Context> context)
 	HandleScope scope(isolate);
 
 	for (int i = 0; titanium::natives[i].name; ++i) {
-		Local<String> name = String::NewFromOneByte(isolate, titanium::natives[i].name);
+		Local<String> name = String::NewFromUtf8(isolate, titanium::natives[i].name);
 		Local<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(isolate,
 			titanium::natives[i].source, titanium::natives[i].source_length);
 
 		exports->Set(name, source);
 	}
-
-	exports->Set(String::NewFromOneByte(isolate, "getBinding"), FunctionTemplate::New(isolate, %(className)s_getBinding)->GetFunction(context).ToLocalChecked());
+	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate, %(className)s_getBinding);
+	exports->Set(String::NewFromUtf8(isolate, "getBinding"), constructor->GetFunction(context).ToLocalChecked());
 }
 
 static void %(className)s_dispose()
