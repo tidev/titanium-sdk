@@ -552,6 +552,25 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public abstract TiUIView createView(Activity activity);
 
+	
+	/**
+	 * Adds multiple child to this view proxy.
+	 * @param childs The child view proxies to add.
+	 * @module.api
+	 */
+	@Kroll.method
+	public void add(TiViewProxy[] childs)
+	{
+		if (childs == null) {
+			Log.e(TAG, "Add called without childs");
+			return;
+		}
+
+		for (TiViewProxy child : childs) {
+			add(child);
+		}
+	}
+
 	/**
 	 * Adds a child to this view proxy.
 	 * @param child The child view proxy to add.
