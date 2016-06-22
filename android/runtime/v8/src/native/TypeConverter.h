@@ -8,6 +8,7 @@
 #ifndef TYPE_CONVERTER_H
 #define TYPE_CONVERTER_H
 
+#include <map>
 #include <jni.h>
 #include <v8.h>
 
@@ -15,6 +16,11 @@ namespace titanium {
 class TypeConverter
 {
 public:
+	// Our global map of "pointers" to persistent functions
+	static std::map<int64_t, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> functions;
+	//The incrementing key to store the persistent functions
+	static int64_t functionIndex;
+
 	// short convert methods
 	static jshort jsNumberToJavaShort(v8::Local<v8::Number> jsNumber);
 	static v8::Local<v8::Number> javaShortToJsNumber(v8::Isolate* isolate, jshort javaShort);

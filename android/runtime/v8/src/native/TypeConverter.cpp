@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <limits>
 #include <jni.h>
 #include <stdio.h>
 #include <v8.h>
@@ -19,6 +20,12 @@
 #define TAG "TypeConverter"
 
 using namespace titanium;
+
+// The incrementing index used to store new persistent functions in our global map. Start at the minimum value possible and increment by one as we go
+// Ideally we should "wrap around" when we reach max, but are we really expecting to go through more than 18,446,744,073,709,551,615 functions?
+int64_t TypeConverter::functionIndex = std::numeric_limits<int64_t>::min();
+// The global map to hold persistent functions. We use the index as our "pointer" to store and retrieve the function
+std::map<int64_t, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> TypeConverter::functions;
 
 /****************************** public methods ******************************/
 jshort TypeConverter::jsNumberToJavaShort(v8::Local<v8::Number> jsNumber)
@@ -188,11 +195,19 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, v8::Local<v8
 jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject)
 {
 	Local<Function> func = jsObject.As<Function>();
-	Persistent<Function> jsFunction(isolate, func);
-	//jsFunction.MarkIndependent();
+	Persistent<Function, CopyablePersistentTraits<Function>> jsFunction(isolate, func);
+	jsFunction.MarkIndependent();
 
-	jlong ptr = (jlong) &jsFunction;
-	LOGE(TAG, "Creating V8Function with ptr: %d", ptr);
+	// Place the persistent into some global table with incrementing index, use the index as the "ptr" here
+	// Then when we re-construct, use the ptr value as index into the table to grab the persistent!
+	jlong ptr = (jlong) functionIndex; // jlong is signed 64-bit, so int64_t should match up
+	TypeConverter::functions[functionIndex] = jsFunction;
+	functionIndex++;
+	// Java code assumes 0 is null pointer. So we need to skip it. TODO fix this so we don't need to perform this special check?
+	if (functionIndex == 0) {
+		functionIndex++;
+	}
+
 	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, ptr);
 }
 
@@ -208,8 +223,8 @@ v8::Local<v8::Function> TypeConverter::javaObjectToJsFunction(Isolate* isolate, 
 v8::Local<v8::Function> TypeConverter::javaObjectToJsFunction(Isolate* isolate, JNIEnv *env, jobject javaObject)
 {
 	jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::v8ObjectPtrField);
-	Persistent<Function>* persistentV8Object = (Persistent<Function>*) v8ObjectPointer;
-	return persistentV8Object->Get(isolate);
+	Persistent<Function, CopyablePersistentTraits<Function>> persistentV8Object = TypeConverter::functions.at(v8ObjectPointer);
+	return persistentV8Object.Get(isolate);
 }
 
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const FunctionCallbackInfo<Value>& args)
