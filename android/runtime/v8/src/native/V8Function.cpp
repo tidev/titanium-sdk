@@ -75,16 +75,13 @@ Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong ptr)
 {
 	// Release the JS function so it can be collected.
+	// We gaurd against "bad" pointers by searching by index before releasing
 	auto it = TypeConverter::functions.find(ptr);
 	if (it != TypeConverter::functions.end()) {
 		auto jsFunction = it->second;
 		jsFunction.Reset();
 		TypeConverter::functions.erase(it);
 	}
-	// TODO Guard against possibility that index for ptr doesn't exist!
-	Persistent<Function, CopyablePersistentTraits<Function>> persistentJSFunction = TypeConverter::functions.at(ptr);
-	TypeConverter::functions.erase(ptr);
-	persistentJSFunction.Reset();
 }
 
 #ifdef __cplusplus
