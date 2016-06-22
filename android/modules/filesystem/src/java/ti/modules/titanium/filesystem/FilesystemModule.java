@@ -83,7 +83,8 @@ public class FilesystemModule extends KrollModule
 	{
 		//If directory doesn't exist, return
 		if (parts[0] == null) {
-			return null;
+		    Log.w(TAG, "A null directory was passed. Returning null.");
+		    return null;
 		}
 		String[] sparts = TiConvert.toStringArray(parts);
 		return new FileProxy(invocation.getSourceUrl(), sparts);
