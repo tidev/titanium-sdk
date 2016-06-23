@@ -692,6 +692,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
 
 	/**
 	 * @module.api

@@ -1673,6 +1673,12 @@ properties:
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
+  - name: allowMultiple
+    summary: Specifies if the user should be able to select multiple photos.
+    description: |
+        The allowMultiple property is available on API 18 and above.
+    type: Boolean
+    platforms: [android]
 
 ---
 name: CameraMediaItemType
