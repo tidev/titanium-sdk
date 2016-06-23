@@ -55,6 +55,17 @@ function unzip(zipfile, dest, next) {
 	});
 }
 
+function leftpad (str, len, ch) {
+	str = String(str);
+	var i = -1;
+	if (!ch && ch !== 0) ch = ' ';
+	len = len - str.length;
+	while (++i < len) {
+		str = ch + str;
+	}
+	return str;
+}
+
 /**
  * [Packager description]
  * @param {String} outputDir path to place the temp files and zipfile
@@ -71,7 +82,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.moduleApiVersion = moduleApiVersion;
 	this.gitHash = gitHash;
 	var date = new Date();
-	this.timestamp = '' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getYear()) + ' ' + date.getHours() + ':' + (date.getMinutes());
+	this.timestamp = '' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear()) + ' ' + leftpad(date.getHours(), 2, '0') + ':' + leftpad(date.getMinutes(), 2, '0');
 	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
 	this.packagers = {
 		'android': this.zipAndroid.bind(this),
