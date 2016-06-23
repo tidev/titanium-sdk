@@ -6,17 +6,6 @@ install:
   - ANDROID_SDK_PACKAGE=android-sdk_r24.0.1-macosx.zip
   - ANDROID_NDK_PACKAGE=android-ndk-r10e-darwin-x86_64.zip
   - export TITANIUM_ANDROID_API="23"
-  - # Need to install jq to process the JSON
-  - brew update
-  - brew install jq # process JSON
-  - brew install scons # for building SDK
-  -
-  - sudo npm install -g titanium
-  -
-  - export TITANIUM_ROOT=`ti sdk list -o json | jq -r '.defaultInstallLocation'`
-  - mkdir -p "$TITANIUM_ROOT/sdks/"
-  - export TITANIUM_SDK=`ti sdk list -o json | jq -r '.installed[.activeSDK]'`
-  -
   - export SDKS="$TRAVIS_BUILD_DIR/sdks"
   - echo $SDKS
   - mkdir -p "$SDKS"
@@ -37,21 +26,19 @@ install:
   - if [ ! -d "$SDKS/android-ndk-r10e" ]; then wget http://dl.google.com/android/repository/$ANDROID_NDK_PACKAGE; unzip -q -o $ANDROID_NDK_PACKAGE; fi
   - export ANDROID_NDK=${PWD}/android-ndk-r10e
   -
-  - # Install required Titanium build
-  - git clone https://github.com/ingo/titanium_build.git "$SDKS/titanium_build"
-  - ls "$SDKS/titanium_build"
-  -
-  - sudo easy_install pyyaml
-  - sudo easy_install Pygments
-  -
   - export ANDROID_PLATFORM=$ANDROID_SDK/platforms/android-$TITANIUM_ANDROID_API
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API
 
 script:
-  - export TITANIUM_BUILD="$SDKS/titanium_build"
-  - echo $TITANIUM_BUILD
   - cd $TRAVIS_BUILD_DIR
-  - source $TITANIUM_BUILD/mobile/driver_travis.sh $TRAVIS_BRANCH
+  - "export VERSION=`sed -n 's/^ *\"version\": *\"//p' package.json | tr -d '\"' | tr -d ','`"
+  - export TIMESTAMP=`date +'%Y%m%d%H%M%S'`
+  - export VTAG=$VERSION.v$TIMESTAMP
+  - cd build
+  - npm install .
+  - node scons.js build
+  - node scons.js package --version-tag $VTAG
+  - cd ..
   - npm install
   - ls dist
   - npm install grunt-cli

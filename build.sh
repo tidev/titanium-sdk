@@ -1,3 +1,17 @@
+#!/usr/bin/env bash
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# DO NOT RUN THIS LOCALLY!
+#
+# THIS SHELL SCRIPT IS INTENDED FOR JENKINS CI BUILDS.
+# IT MAKES LOTS OF ASSUMPTIONS ABOUT YOUR SYSTEM AND BUILDS ALL PLATFORMS
+# FOR ALL OSES. IT ALSO ATTEMPTS TO UPLOAD THE BUILT ZIPS UP TO S3
+#
+# IF YOU'D LIKE TO BUILD TITANIUM LIKE YOU DID WITH SCONS BEFORE, PLEASE
+# SEE THE BUILDING SECTION IN README.MD
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 echo '*********** Remove and re-download Windows ***********'
 rm -rf windows
@@ -11,8 +25,8 @@ date
 export JAVA_HOME=/usr/lib/jvm/java-6-sun
 #npm test
 
-VERSION=`python $TITANIUM_BUILD/common/get_version.py | tr -d '
-'`
+# Get the version from package.json!
+VERSION=`sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ','`
 echo 'VERSION:         ' $VERSION
 
 TIMESTAMP=`date +'%Y%m%d%H%M%S'`
@@ -26,14 +40,18 @@ echo 'BASENAME:        ' $BASENAME
 echo 'PATH:            ' $PATH
 
 echo 'NODE_APPC_BRANCH: latest stable from npm'
-scons package_all=1 version_tag=$VTAG $TI_MOBILE_SCONS_ARGS
+
+cd build
+npm install .
+node scons.js build
+node scons.js package --version-tag $VTAG --all
+cd ..
+
 
 if [ "$PYTHON" = "" ]; then
         PYTHON=python
 fi
 
-echo
-echo 'TI_MOBILE_SCONS_ARGS: ' $TI_MOBILE_SCONS_ARGS
 echo
 echo 'BUILD_URL: ' $BUILD_URL
 
