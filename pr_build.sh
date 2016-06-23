@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# DO NOT RUN THIS LOCALLY!
+#
+# THIS SHELL SCRIPT IS INTENDED FOR JENKINS CI BUILDS AGAINST PULL REQUESTS
+# IT MAKES LOTS OF ASSUMPTIONS ABOUT YOUR SYSTEM AND BUILDS ANDROID AND IOS
+# SPECIFICALLY FOR RUNNING OUR TEST SUITE AGAINST THEM.
+#
+# IF YOU'D LIKE TO BUILD TITANIUM LIKE YOU DID WITH SCONS BEFORE, PLEASE
+# SEE THE BUILDING SECTION IN README.MD
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 echo '*********** Building ***********'
 date
 

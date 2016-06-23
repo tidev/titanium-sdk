@@ -1,3 +1,17 @@
+#!/usr/bin/env bash
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# DO NOT RUN THIS LOCALLY!
+#
+# THIS SHELL SCRIPT IS INTENDED FOR JENKINS CI BUILDS.
+# IT MAKES LOTS OF ASSUMPTIONS ABOUT YOUR SYSTEM AND BUILDS ALL PLATFORMS
+# FOR ALL OSES. IT ALSO ATTEMPTS TO UPLOAD THE BUILT ZIPS UP TO S3
+#
+# IF YOU'D LIKE TO BUILD TITANIUM LIKE YOU DID WITH SCONS BEFORE, PLEASE
+# SEE THE BUILDING SECTION IN README.MD
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 echo '*********** Remove and re-download Windows ***********'
 rm -rf windows
