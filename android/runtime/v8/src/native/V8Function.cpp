@@ -75,7 +75,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong ptr)
 {
 	// Release the JS function so it can be collected.
-	// We gaurd against "bad" pointers by searching by index before releasing
+	// We guard against "bad" pointers by searching by index before releasing
 	auto it = TypeConverter::functions.find(ptr);
 	if (it != TypeConverter::functions.end()) {
 		auto jsFunction = it->second;
