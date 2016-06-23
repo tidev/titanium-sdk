@@ -938,14 +938,13 @@ public class MediaModule extends KrollModule
 						return;
 					}
 					Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-					
 					String path = null;
 					if (data != null) {
 						path = data.getDataString();
 					}
 					//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
-					//an ok code and a null path.
-					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && path == null)) {
+					//an ok code and a null data.
+					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && data == null)) {
 						if (fCancelCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(NO_ERROR, null);
@@ -954,23 +953,35 @@ public class MediaModule extends KrollModule
 
 					} else {
 						
-						if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18){
+						if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18) {
 							ClipData clipdata = data.getClipData();
-							if (clipdata != null){
+							if (clipdata != null) {
+
 								int count = clipdata.getItemCount();
 								KrollDict[] selectedPhotos = new KrollDict[count];
-								
 								for (int i=0; i<count; i++) {
 									ClipData.Item item = clipdata.getItemAt(i);
 									selectedPhotos[i] = createDictForImage(item.getUri().toString(), "image/jpeg");
 								}
-								
+
 								if (fSuccessCallback != null) {
 									KrollDict d = new KrollDict();
 									d.putCodeAndMessage(NO_ERROR, null);
 									d.put("images", selectedPhotos);
 									fSuccessCallback.callAsync(getKrollObject(), d);
 								}
+
+							} else if (path != null) {
+
+							    KrollDict[] selectedPhotos = new KrollDict[1];
+							    selectedPhotos[0] = createDictForImage(path, "image/jpeg");
+							    if (fSuccessCallback != null) {
+							        KrollDict d = new KrollDict();
+							        d.putCodeAndMessage(NO_ERROR, null);
+							        d.put("images", selectedPhotos);
+							        fSuccessCallback.callAsync(getKrollObject(), d);
+							    }
+
 							}
 							return;
 						}

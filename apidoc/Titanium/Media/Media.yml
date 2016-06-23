@@ -1676,9 +1676,10 @@ properties:
   - name: allowMultiple
     summary: Specifies if the user should be able to select multiple photos.
     description: |
-        The allowMultiple property is available on API 18 and above.
+        The allowMultiple property is only available on Android API 18 and above.
     type: Boolean
     platforms: [android]
+    since: "6.0.0"
 
 ---
 name: CameraMediaItemType
