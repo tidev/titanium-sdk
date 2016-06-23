@@ -82,7 +82,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.moduleApiVersion = moduleApiVersion;
 	this.gitHash = gitHash;
 	var date = new Date();
-	this.timestamp = '' + (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear()) + ' ' + leftpad(date.getHours(), 2, '0') + ':' + leftpad(date.getMinutes(), 2, '0');
+	this.timestamp = '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
 	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
 	this.packagers = {
 		'android': this.zipAndroid.bind(this),
