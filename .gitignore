@@ -22,9 +22,8 @@ node_modules/grunt-contrib-clean
 node_modules/grunt-mocha-test
 node_modules/grunt
 node_modules/mocha
-node_modules/optimist
 node_modules/should
-node_modules/ioslib/node_modules/node-ios-device/build
+node_modules/node-ios-device/build
 
 anvil/driver/titanium_mobile
 anvil/hub/config.js
