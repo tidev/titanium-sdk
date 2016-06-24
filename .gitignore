@@ -1,5 +1,5 @@
 *.pyc
-dist
+/dist
 .sconsign.dblite
 .DS_Store
 *~
