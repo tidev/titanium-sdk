@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var commander = require('commander'),
 	version = require('../package.json').version;
 
