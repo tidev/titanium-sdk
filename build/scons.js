@@ -7,4 +7,5 @@ commander
 	.command('install', 'install the built SDK')
 	.command('package [platforms]', 'package one or more platforms')
 	.command('build [platforms]', 'build one or more platforms')
+	.command('update-node-deps', 'deletes and reinstalls node dependencies')
 	.parse(process.argv);
