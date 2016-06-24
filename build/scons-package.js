@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var os = require('os'),
 	path = require('path'),
 	async = require('async'),
