@@ -1243,6 +1243,30 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   
+  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+    summary: Add ellipses at word boundaries, unless the word itself doesnt fit on a single line
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+    summary: Add ellipses before the first character that doesnt fit.
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
+    summary: Lines are simply not drawn past the edge of the text container.
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
     summary: Add ellipses at the beginning of the label if the text is too large to fit.
     description: |

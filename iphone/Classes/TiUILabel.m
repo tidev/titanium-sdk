@@ -436,9 +436,8 @@
 -(void)setEllipsize_:(id)value
 {
 	ENSURE_SINGLE_ARG(value, NSNumber);
-	//for bool case and parity with android
 	if ([TiUtils intValue:value] == 1) {
-		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
+		[[self label] setLineBreakMode:NSLineBreakByCharWrapping];
 		return;
 	}
 	[[self label] setLineBreakMode:[TiUtils intValue:value]];
