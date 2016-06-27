@@ -124,6 +124,10 @@ description:  |
 
     On Android, if you want to create a semi-transparent window, set the `opacity`
     property **before** opening the window.
+
+    On iOS, you can set a global tinting using <Titanium.UI.tintColor>. All child views will inherit
+    the tint color by default and are able to override the color using `tintColor` on their own views.
+    The default `tintColor` on iOS is the blue (system-color).
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
@@ -2406,6 +2410,14 @@ properties:
         notes: Use <Titanium.UI.Window.orientationModes> instead.
     type: Number
     platforms: [android, iphone, ipad]
+
+  - name: tintColor
+    summary: |
+        Sets the global tint color of the application. It is inherited to the child views and can be
+        overwritten by them using the `tintColor` property.
+    type: String
+    since: "6.0.0"
+    platforms: [iphone, ipad]
 
 examples:
   - title: Color Demo
