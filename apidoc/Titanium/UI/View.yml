@@ -1466,6 +1466,40 @@ properties:
     permission: read-only
     since: "2.0.0"
 
+  - name: rotation
+    summary: Clockwise 2D rotation of the view in degrees.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: rotationX
+    summary: Clockwise rotation of the view in degrees (x-axis).
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: rotationY
+    summary: Clockwise rotation of the view in degrees (y-axis).
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+
+  - name: scaleX
+    summary: Scaling of the view in x-axis in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: scaleY
+    summary: Scaling of the view in y-axis in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
 
   - name: size
     summary: |
