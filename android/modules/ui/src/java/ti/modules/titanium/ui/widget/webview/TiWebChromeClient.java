@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -194,14 +195,25 @@ public class TiWebChromeClient extends WebChromeClient
 	// openFileChooser for Android 3.0+
 	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType){
 
-	    if(mFilePathCallbackLegacy != null) {
+	    if (mFilePathCallbackLegacy != null) {
 	        mFilePathCallbackLegacy.onReceiveValue(null);
 	    }
 	    mFilePathCallbackLegacy = filePathCallback;
 
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	    if (takePictureIntent.resolveActivity(tiWebView.getProxy().getActivity().getPackageManager()) != null) {
+	    TiViewProxy proxy = tiWebView.getProxy();
+	    Activity activity = null;
+	    PackageManager packageManager = null;
 
+	    if (proxy != null) {
+	        activity = proxy.getActivity();
+	    }
+
+	    if (activity != null) {
+	        packageManager = activity.getPackageManager();
+	    }
+
+	    if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
 	        // Create the File where the photo should go
 	        File photoFile = null;
 	        try {
@@ -226,8 +238,8 @@ public class TiWebChromeClient extends WebChromeClient
 	    contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	    contentSelectionIntent.setType("image/*");
 
-	    Intent[] intentArray;
-	    if(takePictureIntent != null) {
+	    Intent[] intentArray = null;
+	    if (takePictureIntent != null) {
 	        intentArray = new Intent[]{takePictureIntent};
 	    } else {
 	        intentArray = new Intent[0];
@@ -236,7 +248,9 @@ public class TiWebChromeClient extends WebChromeClient
 	    Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
 	    chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
 	    chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
-	    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+	    if (intentArray != null) {
+	        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+	    }
 	    IntentProxy intentProxy = new IntentProxy(chooserIntent);
 	    tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new OpenFileChooserCallbackFunction());
 	}
@@ -266,7 +280,19 @@ public class TiWebChromeClient extends WebChromeClient
         mFilePathCallback = filePathCallback;
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(tiWebView.getProxy().getActivity().getPackageManager()) != null) {
+        TiViewProxy proxy = tiWebView.getProxy();
+        Activity activity = null;
+        PackageManager packageManager = null;
+
+        if (proxy != null) {
+            activity = proxy.getActivity();
+        }
+
+        if (activity != null) {
+            packageManager = activity.getPackageManager();
+        }
+
+        if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
 
             // Create the File where the photo should go
             File photoFile = null;
@@ -292,7 +318,7 @@ public class TiWebChromeClient extends WebChromeClient
         contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
         contentSelectionIntent.setType("image/*");
 
-        Intent[] intentArray;
+        Intent[] intentArray = null;
         if(takePictureIntent != null) {
             intentArray = new Intent[]{takePictureIntent};
         } else {
@@ -302,7 +328,9 @@ public class TiWebChromeClient extends WebChromeClient
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
         chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+        if (intentArray != null) {
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+        }
         IntentProxy intentProxy = new IntentProxy(chooserIntent);
         tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new ShowFileChooserCallbackFunction());
         return true;
