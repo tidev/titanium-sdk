@@ -92,7 +92,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	};
 	// Location where we build up the zip file contents
 	this.zipDir = path.join(this.outputDir, 'ziptmp');
-	this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.version);
+	this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
 }
 
 Packager.prototype.generateManifestJSON = function (next) {
