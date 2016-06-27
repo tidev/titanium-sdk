@@ -45,28 +45,6 @@ methods:
         See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
     
-  - name: padding
-    summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
-    type: Padding
-    platforms: [android, ios, ipad]
-    since: 6.0.0
-    
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use padding instead    
-    
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use padding instead    
-    
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
@@ -318,6 +296,28 @@ properties:
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
+ 
+  - name: padding
+    summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
+    type: Padding
+    platforms: [android, iphone, ipad]
+    since: 6.0.0
+    
+  - name: paddingLeft
+    summary: Left padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use `padding` instead    
+    
+  - name: paddingRight
+    summary: Right padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use `padding` instead
     
   - name: returnKeyType
     summary: |

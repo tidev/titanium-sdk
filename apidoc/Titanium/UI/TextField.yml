@@ -419,7 +419,7 @@ properties:
   - name: padding
     summary: Sets the padding of this text field. 
     type: Padding
-    platforms: [android, ios, ipad]
+    platforms: [android, iphone, ipad]
     since: 6.0.0
 
   - name: paddingLeft
