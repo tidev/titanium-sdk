@@ -56,7 +56,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		if (!libLoaded) {
-			System.loadLibrary("stlport_shared");
+			System.loadLibrary("c++_shared");
 			System.loadLibrary("kroll-v8");
 
 			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
@@ -245,4 +245,3 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private native void nativeDispose();
 	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
 }
-

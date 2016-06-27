@@ -4,7 +4,7 @@ jdk:
   - oraclejdk7
 install:
   - ANDROID_SDK_PACKAGE=android-sdk_r24.0.1-macosx.zip
-  - ANDROID_NDK_PACKAGE=android-ndk-r10e-darwin-x86_64.zip
+  - ANDROID_NDK_PACKAGE=android-ndk-r11c-darwin-x86_64.zip
   - export TITANIUM_ANDROID_API="23"
   - export SDKS="$TRAVIS_BUILD_DIR/sdks"
   - echo $SDKS
@@ -23,8 +23,8 @@ install:
   - echo yes | android -s update sdk --no-ui --all --filter sys-img-armeabi-v7a-android-22
 
   - # Install required Android NDK
-  - if [ ! -d "$SDKS/android-ndk-r10e" ]; then wget http://dl.google.com/android/repository/$ANDROID_NDK_PACKAGE; unzip -q -o $ANDROID_NDK_PACKAGE; fi
-  - export ANDROID_NDK=${PWD}/android-ndk-r10e
+  - if [ ! -d "$SDKS/android-ndk-r11c" ]; then wget http://dl.google.com/android/repository/$ANDROID_NDK_PACKAGE; unzip -q -o $ANDROID_NDK_PACKAGE; fi
+  - export ANDROID_NDK=${PWD}/android-ndk-r11c
   -
   - export ANDROID_PLATFORM=$ANDROID_SDK/platforms/android-$TITANIUM_ANDROID_API
   - export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-$TITANIUM_ANDROID_API

@@ -32,7 +32,7 @@ echo 'PATH:            ' $PATH
 
 cd build
 npm install .
-node scons.js build --android-ndk /Users/build/android-ndk-r10e --android-sdk /Users/build/android-sdk-macosx
+node scons.js build --android-ndk /Users/build/android-ndk-r11c --android-sdk /Users/build/android-sdk-macosx
 node scons.js package android ios --version-tag $VTAG
 cd ..
 
