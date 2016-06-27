@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -194,24 +195,32 @@ public class TiWebChromeClient extends WebChromeClient
 	// This is unsupported by Google Android
 	// openFileChooser for Android 3.0+
 	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType){
-
 	    if (mFilePathCallbackLegacy != null) {
 	        mFilePathCallbackLegacy.onReceiveValue(null);
 	    }
 	    mFilePathCallbackLegacy = filePathCallback;
 
-	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 	    TiViewProxy proxy = tiWebView.getProxy();
 	    Activity activity = null;
 	    PackageManager packageManager = null;
+	    ActivityProxy activityProxy = null;
 
 	    if (proxy != null) {
 	        activity = proxy.getActivity();
+	        activityProxy = proxy.getActivityProxy();
 	    }
 
 	    if (activity != null) {
 	        packageManager = activity.getPackageManager();
 	    }
+
+	    if (activityProxy != null) {
+	        activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager), new OpenFileChooserCallbackFunction());
+	    }
+	}
+
+	protected IntentProxy prepareFileChooserIntent(PackageManager packageManager) {
+	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
 	    if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
 	        // Create the File where the photo should go
@@ -251,8 +260,8 @@ public class TiWebChromeClient extends WebChromeClient
 	    if (intentArray != null) {
 	        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 	    }
-	    IntentProxy intentProxy = new IntentProxy(chooserIntent);
-	    tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new OpenFileChooserCallbackFunction());
+
+	    return new IntentProxy(chooserIntent);
 	}
 
     // See: https://code.google.com/p/android/issues/detail?id=62220
@@ -274,65 +283,28 @@ public class TiWebChromeClient extends WebChromeClient
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
             WebChromeClient.FileChooserParams fileChooserParams) {
 
-        if(mFilePathCallback != null) {
+        if (mFilePathCallback != null) {
             mFilePathCallback.onReceiveValue(null);
         }
         mFilePathCallback = filePathCallback;
 
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         TiViewProxy proxy = tiWebView.getProxy();
         Activity activity = null;
         PackageManager packageManager = null;
+        ActivityProxy activityProxy = null;
 
         if (proxy != null) {
             activity = proxy.getActivity();
+            activityProxy = proxy.getActivityProxy();
         }
 
         if (activity != null) {
             packageManager = activity.getPackageManager();
         }
 
-        if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
-
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Log.e(TAG, "Unable to create Image File", ex);
-            }
-
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
-                mCameraPhotoUri = Uri.fromFile(photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
-            } else {
-                takePictureIntent = null;
-            }
+        if (activityProxy != null) {
+            activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager), new ShowFileChooserCallbackFunction());
         }
-
-        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        contentSelectionIntent.setType("image/*");
-
-        Intent[] intentArray = null;
-        if(takePictureIntent != null) {
-            intentArray = new Intent[]{takePictureIntent};
-        } else {
-            intentArray = new Intent[0];
-        }
-
-        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
-        if (intentArray != null) {
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-        }
-        IntentProxy intentProxy = new IntentProxy(chooserIntent);
-        tiWebView.getProxy().getActivityProxy().startActivityForResult(intentProxy, new ShowFileChooserCallbackFunction());
         return true;
     }
 
