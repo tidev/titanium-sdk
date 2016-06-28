@@ -257,6 +257,12 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_CALENDAR,UIDataDetectorT
 	[controller setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
+-(void)setTintColor:(id)color
+{
+	UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
+	[controller setTintColor:[Webcolor webColorNamed:color]];
+}
+
 -(void)setBackgroundImage:(id)image
 {
 	TiRootViewController *controller = [[TiApp app] controller];
