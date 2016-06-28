@@ -60,7 +60,7 @@ methods:
 
   - name: popToRootWindow
     summary: Closes all windows that are currently opened inside the navigation window.
-    description: Note that only the `close` event of the least opened window is fired.
+    description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
         summary: |
