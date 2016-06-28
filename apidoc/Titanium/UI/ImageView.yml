@@ -255,7 +255,7 @@ properties:
     type: String
     default: null
     platforms: [android, iphone, ipad, mobileweb]
-    since: { android: "5.4.0", iphone: "3.1.3", ipad: "3.1.3", mobileweb: "4.1.0"}
+    since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0", mobileweb: "4.1.0"}
 
   - name: url
     summary: URL to the image to display.
