@@ -1244,7 +1244,8 @@ properties:
     platforms: [iphone, ipad]
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
-    summary: Add ellipses at word boundaries, unless the word itself doesnt fit on a single line
+    summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
+    description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
@@ -1253,6 +1254,7 @@ properties:
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
     summary: Add ellipses before the first character that doesnt fit.
+    description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
@@ -1261,6 +1263,7 @@ properties:
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
     summary: Lines are simply not drawn past the edge of the text container.
+    description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
@@ -1303,6 +1306,15 @@ properties:
     platforms: [android]
     since: "4.1.0"
     
+  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+    summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.0.0"
+        
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.
     description: |

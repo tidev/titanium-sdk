@@ -436,8 +436,8 @@
 -(void)setEllipsize_:(id)value
 {
 	ENSURE_SINGLE_ARG(value, NSNumber);
-	if ([TiUtils intValue:value] == 1) {
-		[[self label] setLineBreakMode:NSLineBreakByCharWrapping];
+	if ([[TiUtils stringValue:value] isEqualToString:@"true"]) {
+		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
 		return;
 	}
 	[[self label] setLineBreakMode:[TiUtils intValue:value]];
