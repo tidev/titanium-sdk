@@ -1790,7 +1790,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
-	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex');
+	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
@@ -3939,6 +3939,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	if (this.allowProfiling && this.profilerPort) {
 		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
+
+	// nuke and create teh folder holding all the classes*.dex files
+	if (fs.existsSync(this.buildBinClassesDex)) {
+		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
+	}
+	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
 
 	dexerHook(this.jdkInfo.executables.java, dexArgs, {}, next);
 };
