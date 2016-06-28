@@ -3920,7 +3920,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'-XX:-UseGCOverheadLimit',
 			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
 			'-jar', this.androidInfo.sdk.dx,
-			'--dex',
+			'--dex', '--multi-dex',
 			'--output=' + this.buildBinClassesDex,
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
@@ -3951,6 +3951,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		jsonRegExp = /\.json$/,
 		javaRegExp = /\.java$/,
 		classRegExp = /\.class$/,
+		dexRegExp = /\.dex$/,
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
@@ -4001,8 +4002,13 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			}, this);
 		}, this);
 
-		this.logger.debug(__('Adding %s', 'classes.dex'.cyan));
-		dest.append(fs.createReadStream(this.buildBinClassesDex), { name: 'classes.dex' });
+		// Add dex files
+		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
+			if (!dexRegExp.test(name)) {
+				this.logger.debug(__('Adding %s', name.cyan));
+				dest.append(fs.createReadStream(this.buildBinClassesDex), { name: name });
+			}
+		}, this);
 
 		this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
 		(function copyDir(dir, base) {
