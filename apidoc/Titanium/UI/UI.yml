@@ -2413,7 +2413,7 @@ properties:
 
   - name: tintColor
     summary: |
-        Sets the global tint color of the application. It is inherited to the child views and can be
+        Sets the global tint color of the application. It is inherited by the child views and can be
         overwritten by them using the `tintColor` property.
     type: String
     since: "6.0.0"
