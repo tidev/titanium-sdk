@@ -46,6 +46,7 @@ public class LabelProxy extends TiViewProxy
 	public LabelProxy()
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
+		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, false);
 	}
 
 	public LabelProxy(TiContext tiContext)
