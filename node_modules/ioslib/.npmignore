@@ -1,6 +1,7 @@
 ._*
 .DS_Store
 .git*
+dist
 node_modules
 npm-debug.log
 env.properties

@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for lib\filter.js</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../prettify.css">
+    <link rel="stylesheet" href="../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header high">
+    <h1>Code coverage report for <span class="entity">lib\filter.js</span></h1>
+    <h2>
+        Statements: <span class="metric">99.25% <small>(132 / 133)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">98.77% <small>(80 / 81)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">100% <small>(11 / 11)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">99.21% <small>(126 / 127)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">lib/</a> &#187; filter.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1053</span>
+<span class="cline-any cline-yes">1053</span>
+<span class="cline-any cline-yes">539</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1053</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">500</span>
+<span class="cline-any cline-yes">161</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">661</span>
+<span class="cline-any cline-yes">70</span>
+<span class="cline-any cline-yes">70</span>
+<span class="cline-any cline-yes">462</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">591</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">339</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">994154</span>
+<span class="cline-any cline-yes">994154</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">132202</span>
+<span class="cline-any cline-yes">132202</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">51184</span>
+<span class="cline-any cline-yes">51184</span>
+<span class="cline-any cline-yes">51184</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">39440</span>
+<span class="cline-any cline-yes">39440</span>
+<span class="cline-any cline-yes">39440</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9952</span>
+<span class="cline-any cline-yes">9952</span>
+<span class="cline-any cline-yes">9952</span>
+<span class="cline-any cline-yes">9952</span>
+<span class="cline-any cline-yes">9952</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-yes">761376</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">716</span>
+<span class="cline-any cline-yes">716</span>
+<span class="cline-any cline-yes">716</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10798</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11514</span>
+<span class="cline-any cline-yes">11190</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">324</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">322</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">322</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9828</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9828</span>
+<span class="cline-any cline-yes">49140</span>
+<span class="cline-any cline-yes">49140</span>
+<span class="cline-any cline-yes">32968</span>
+<span class="cline-any cline-yes">32968</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9828</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">322</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9872</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9872</span>
+<span class="cline-any cline-yes">9828</span>
+<span class="cline-any cline-yes">1712272</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44</span>
+<span class="cline-any cline-yes">44</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9872</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10448</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10448</span>
+<span class="cline-any cline-yes">620</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10448</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1793152</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1793152</span>
+<span class="cline-any cline-yes">80880</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10448</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12330</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12330</span>
+<span class="cline-any cline-yes">2502</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12330</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2032176</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2032176</span>
+<span class="cline-any cline-yes">319904</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12330</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9918</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9918</span>
+<span class="cline-any cline-yes">90</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9918</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1723792</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1723792</span>
+<span class="cline-any cline-yes">11520</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9918</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16400</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16400</span>
+<span class="cline-any cline-yes">6572</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16400</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3007104</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3007104</span>
+<span class="cline-any cline-yes">1294832</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16400</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3768480</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3768480</span>
+<span class="cline-any cline-yes">540962</span>
+<span class="cline-any cline-yes">97510</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Copyright (c) 2012 Kuba Niegowski
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+&nbsp;
+'use strict';
+&nbsp;
+var interlaceUtils = require('./interlace');
+&nbsp;
+function getByteWidth(width, bpp, depth) {
+    var byteWidth = width * bpp;
+    if (depth !== 8) {
+        byteWidth = Math.ceil(byteWidth / (8 / depth));
+    }
+    return byteWidth;
+}
+&nbsp;
+var Filter = module.exports = function(width, height, Bpp, depth, interlace, options, dependencies) {
+&nbsp;
+    this._width = width;
+    this._height = height;
+    this._Bpp = Bpp;
+    this._depth = depth;
+    this._options = options;
+&nbsp;
+    if (!('filterType' in options) || options.filterType == -1) {
+        options.filterType = [0, 1, 2, 3, 4];
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof options.filterType == 'number') {
+<span class="cstat-no" title="statement not covered" >        options.filterType = [options.filterType];</span>
+    }
+&nbsp;
+    this._filters = {
+        0: this._filterNone.bind(this),
+        1: this._filterSub.bind(this),
+        2: this._filterUp.bind(this),
+        3: this._filterAvg.bind(this),
+        4: this._filterPaeth.bind(this)
+    };
+&nbsp;
+    this.read = dependencies.read;
+    this.write = dependencies.write;
+    this.complete = dependencies.complete;
+&nbsp;
+    this._imageIndex = 0;
+    this._images = [];
+    if (interlace) {
+        var passes = interlaceUtils.getImagePasses(width, height);
+        for(var i = 0; i &lt; passes.length; i++) {
+            this._images.push({
+                byteWidth: getByteWidth(passes[i].width, Bpp, depth),
+                height: passes[i].height,
+                lineIndex: 0
+            });
+        }
+    } else {
+        this._images.push({
+            byteWidth: getByteWidth(width, Bpp, depth),
+            height: height,
+            lineIndex: 0
+        });
+    }
+};
+&nbsp;
+Filter.prototype.start = function() {
+    this.read(this._images[this._imageIndex].byteWidth + 1, this._reverseFilterLine.bind(this));
+};
+&nbsp;
+Filter.prototype._reverseFilterLine = function(rawData) {
+&nbsp;
+    var currentImage = this._images[this._imageIndex];
+    var line = new Buffer(currentImage.byteWidth);
+&nbsp;
+    var filter = rawData[0];
+&nbsp;
+    var xComparison = this._depth &gt;= 8 ? ((this._depth === 16) ? this._Bpp * 2 : this._Bpp) : 1;
+    var xBiggerThan = xComparison - 1;
+&nbsp;
+    for (var x = 0; x &lt; currentImage.byteWidth; x++) {
+        var rawByte = rawData[1 + x];
+        switch(filter) {
+            case 0:
+                line[x] = rawByte;
+                break;
+            case 1:
+                var left = x &gt; xBiggerThan ? line[x - xComparison] : 0;
+                line[x] = rawByte + left;
+                break;
+            case 2:
+                var up = this._lastLine ? this._lastLine[x] : 0;
+                line[x] = rawByte + up;
+                break;
+            case 3:
+                var up = this._lastLine ? this._lastLine[x] : 0;
+                var left = x &gt; xBiggerThan ? line[x - xComparison] : 0;
+                var add = Math.floor((left + up) / 2);
+                line[x] = rawByte + add;
+                break;
+            case 4:
+                var up = this._lastLine ? this._lastLine[x] : 0;
+                var left = x &gt; xBiggerThan ? line[x - xComparison] : 0;
+                var upLeft = x &gt; xBiggerThan &amp;&amp; this._lastLine
+                        ? this._lastLine[x - xComparison] : 0;
+                var add = PaethPredictor(left, up, upLeft);
+                line[x] = rawByte + add;
+                break;
+        }
+&nbsp;
+        //if (x === 5) {
+        //    console.log("R", line[3], "G", line[4], "B", line[5]);
+        //}
+    }
+&nbsp;
+    this.write(line);
+&nbsp;
+    currentImage.lineIndex++;
+    if (currentImage.lineIndex &gt;= currentImage.height) {
+        this._lastLine = null;
+        this._imageIndex++;
+        currentImage = this._images[this._imageIndex];
+    } else {
+        this._lastLine = line;
+    }
+&nbsp;
+    if (currentImage) {
+        this.read(currentImage.byteWidth + 1, this._reverseFilterLine.bind(this));
+    } else {
+        this.complete(this._width, this._height);
+    }
+};
+&nbsp;
+&nbsp;
+Filter.prototype.filter = function(pxData) {
+&nbsp;
+    var rawData = new Buffer(((this._width &lt;&lt; 2) + 1) * this._height);
+&nbsp;
+    for (var y = 0; y &lt; this._height; y++) {
+&nbsp;
+        // find best filter for this line (with lowest sum of values)
+        var filterTypes = this._options.filterType,
+            min = Infinity,
+            sel = 0;
+&nbsp;
+        for (var i = 0; i &lt; filterTypes.length; i++) {
+            var sum = this._filters[filterTypes[i]](pxData, y, null);
+            if (sum &lt; min) {
+                sel = filterTypes[i];
+                min = sum;
+            }
+        }
+&nbsp;
+        this._filters[sel](pxData, y, rawData);
+    }
+    return rawData;
+};
+&nbsp;
+Filter.prototype._filterNone = function(pxData, y, rawData) {
+&nbsp;
+    var pxRowLength = this._width &lt;&lt; 2,
+        rawRowLength = pxRowLength + 1,
+        sum = 0;
+&nbsp;
+    if (!rawData) {
+        for (var x = 0; x &lt; pxRowLength; x++)
+            sum += Math.abs(pxData[y * pxRowLength + x]);
+&nbsp;
+    } else {
+        rawData[y * rawRowLength] = 0;
+        pxData.copy(rawData, rawRowLength * y + 1, pxRowLength * y, pxRowLength * (y + 1));
+    }
+&nbsp;
+    return sum;
+};
+&nbsp;
+Filter.prototype._filterSub = function(pxData, y, rawData) {
+&nbsp;
+    var pxRowLength = this._width &lt;&lt; 2,
+        rawRowLength = pxRowLength + 1,
+        sum = 0;
+&nbsp;
+    if (rawData)
+        rawData[y * rawRowLength] = 1;
+&nbsp;
+    for (var x = 0; x &lt; pxRowLength; x++) {
+&nbsp;
+        var left = x &gt;= 4 ? pxData[y * pxRowLength + x - 4] : 0,
+            val = pxData[y * pxRowLength + x] - left;
+&nbsp;
+        if (!rawData) sum += Math.abs(val);
+        else rawData[y * rawRowLength + 1 + x] = val;
+    }
+    return sum;
+};
+&nbsp;
+Filter.prototype._filterUp = function(pxData, y, rawData) {
+&nbsp;
+    var pxRowLength = this._width &lt;&lt; 2,
+        rawRowLength = pxRowLength + 1,
+        sum = 0;
+&nbsp;
+    if (rawData)
+        rawData[y * rawRowLength] = 2;
+&nbsp;
+    for (var x = 0; x &lt; pxRowLength; x++) {
+&nbsp;
+        var up = y &gt; 0 ? pxData[(y - 1) * pxRowLength + x] : 0,
+            val = pxData[y * pxRowLength + x] - up;
+&nbsp;
+        if (!rawData) sum += Math.abs(val);
+        else rawData[y * rawRowLength + 1 + x] = val;
+    }
+    return sum;
+};
+&nbsp;
+Filter.prototype._filterAvg = function(pxData, y, rawData) {
+&nbsp;
+    var pxRowLength = this._width &lt;&lt; 2,
+        rawRowLength = pxRowLength + 1,
+        sum = 0;
+&nbsp;
+    if (rawData)
+        rawData[y * rawRowLength] = 3;
+&nbsp;
+    for (var x = 0; x &lt; pxRowLength; x++) {
+&nbsp;
+        var left = x &gt;= 4 ? pxData[y * pxRowLength + x - 4] : 0,
+            up = y &gt; 0 ? pxData[(y - 1) * pxRowLength + x] : 0,
+            val = pxData[y * pxRowLength + x] - ((left + up) &gt;&gt; 1);
+&nbsp;
+        if (!rawData) sum += Math.abs(val);
+        else rawData[y * rawRowLength + 1 + x] = val;
+    }
+    return sum;
+};
+&nbsp;
+Filter.prototype._filterPaeth = function(pxData, y, rawData) {
+&nbsp;
+    var pxRowLength = this._width &lt;&lt; 2,
+        rawRowLength = pxRowLength + 1,
+        sum = 0;
+&nbsp;
+    if (rawData)
+        rawData[y * rawRowLength] = 4;
+&nbsp;
+    for (var x = 0; x &lt; pxRowLength; x++) {
+&nbsp;
+        var left = x &gt;= 4 ? pxData[y * pxRowLength + x - 4] : 0,
+            up = y &gt; 0 ? pxData[(y - 1) * pxRowLength + x] : 0,
+            upLeft = x &gt;= 4 &amp;&amp; y &gt; 0 ? pxData[(y - 1) * pxRowLength + x - 4] : 0,
+            val = pxData[y * pxRowLength + x] - PaethPredictor(left, up, upLeft);
+&nbsp;
+        if (!rawData) sum += Math.abs(val);
+        else rawData[y * rawRowLength + 1 + x] = val;
+    }
+    return sum;
+};
+&nbsp;
+&nbsp;
+&nbsp;
+var PaethPredictor = function(left, above, upLeft) {
+&nbsp;
+    var p = left + above - upLeft,
+        pLeft = Math.abs(p - left),
+        pAbove = Math.abs(p - above),
+        pUpLeft = Math.abs(p - upLeft);
+&nbsp;
+    if (pLeft &lt;= pAbove &amp;&amp; pLeft &lt;= pUpLeft) return left;
+    else if (pAbove &lt;= pUpLeft) return above;
+    else return upLeft;
+};
+&nbsp;</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Aug 03 2015 22:18:31 GMT+0100 (GMT Summer Time)</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

@@ -2319,6 +2319,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ROTATION = "rotation";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ROTATION_X = "rotationX";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ROTATION_Y = "rotationY";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ROW_DATA = "rowData";
 
 	/**
@@ -2331,6 +2346,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_SCALE = "scale";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCALE_X = "scaleX";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCALE_Y = "scaleY";
+	
 	/**
 	 * @module.api
 	 */

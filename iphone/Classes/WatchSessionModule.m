@@ -128,22 +128,20 @@
 
 -(NSNumber*)isActivated
 {
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
         return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
     }
-#endif
+
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
 }
 
 -(NSNumber*)activationState
 {
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
         return [NSNumber numberWithInteger:[[self watchSession] activationState]];
     }
-#endif
+
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return nil;
 }
@@ -400,7 +398,6 @@
     }
 }
 
-#if IS_XCODE_7_3
 -(void)sessionDidBecomeInactive:(WCSession *)session
 {
     if ([self _hasListeners:@"inactive"]) {
@@ -450,7 +447,6 @@
     }
     return NUMINTEGER(WCSessionActivationStateActivated);
 }
-#endif
 
 #pragma mark Helper
 
@@ -463,12 +459,10 @@
         @"isComplicationEnabled": [self isComplicationEnabled]
     }];
     
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater]) {
         [dict setObject:[self isActivated] forKey:@"isActivated"];
         [dict setObject:[self activationState] forKey:@"activationState"];
     }
-#endif
     
     return dict;
 }

@@ -49,11 +49,8 @@ public final class ReferenceTable
 	 */
 	public static Object clearWeakReference(int key)
 	{
-		Object ref = references.get(key);
-		if (ref instanceof WeakReference) {
-			ref = ((WeakReference<?>)ref).get();
-			references.put(key, ref);
-		}
+		Object ref = getReference(key);
+		references.put(key, ref);
 		return ref;
 	}
 

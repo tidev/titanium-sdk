@@ -146,6 +146,15 @@
     }, YES);
 }
 
+-(void)popToRootWindow:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+
+    TiThreadPerformOnMainThread(^{
+        [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+    }, YES);
+}
+
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
 {
     //NO OP NOW
