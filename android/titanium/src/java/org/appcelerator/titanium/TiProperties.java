@@ -400,6 +400,15 @@ public class TiProperties
 			editor.commit();
 		}
 	}
+	
+	/**
+	 * Removes all keys from preferences.
+	 * @module.api
+	 */
+	public void removeAllProperties()
+	{
+		preferences.edit().clear().commit();
+	}
 
 	public static void setSystemProperties(JSONObject prop) {
 		systemProperties = prop;
