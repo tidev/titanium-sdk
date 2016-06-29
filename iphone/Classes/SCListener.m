@@ -13,10 +13,7 @@
 #else
 #import <AVFoundation/AVAudioSession.h>
 #endif
-<<<<<<< HEAD
-=======
 
->>>>>>> e52b29faaf2de571d32da90a83bfb515a9a18379
 @interface SCListener (Private)
 
 - (void)updateLevels;
