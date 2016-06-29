@@ -1015,6 +1015,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     for (id prop in propArray) {
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
+        NSString* identifier = [TiUtils stringValue:@"identifier" properties:prop];
         int actionStyle = [TiUtils intValue:@"style" properties:prop];
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
     
@@ -1035,6 +1036,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 id itemId = [properties objectForKey:@"itemId"];
                 if (itemId != nil) {
                     [eventObject setObject:itemId forKey:@"itemId"];
+                }
+                if (identifier) {
+                    [eventObject setObject:identifier forKey:@"identifier"];
                 }
                 [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
                 [eventObject release];
