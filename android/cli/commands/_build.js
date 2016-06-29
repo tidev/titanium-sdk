@@ -3957,7 +3957,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		jsonRegExp = /\.json$/,
 		javaRegExp = /\.java$/,
 		classRegExp = /\.class$/,
-		dexRegExp = /\.dex$/,
+		dexRegExp = /^classes(\d+)?\.dex$/,
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
@@ -4009,10 +4009,12 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		}, this);
 
 		// Add dex files
+		this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
 		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
-			if (!dexRegExp.test(name)) {
+			var file = path.join(this.buildBinClassesDex, name);
+			if (dexRegExp.test(name)) {
 				this.logger.debug(__('Adding %s', name.cyan));
-				dest.append(fs.createReadStream(this.buildBinClassesDex), { name: name });
+				dest.append(fs.createReadStream(file), { name: name });
 			}
 		}, this);
 
