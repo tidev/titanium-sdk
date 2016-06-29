@@ -15,6 +15,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -30,6 +31,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -221,26 +223,32 @@ public class TiWebChromeClient extends WebChromeClient
 
 	protected IntentProxy prepareFileChooserIntent(PackageManager packageManager) {
 	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 
-	    if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
-	        // Create the File where the photo should go
-	        File photoFile = null;
-	        try {
-	            photoFile = createImageFile();
-	            takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
-	        } catch (IOException ex) {
-	            // Error occurred while creating the File
-	            Log.e(TAG, "Unable to create Image File", ex);
-	        }
+	    if (Build.VERSION.SDK_INT < 23 || (Build.VERSION.SDK_INT >= 23 && currentActivity != null
+	            && currentActivity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+	        if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
+	            // Create the File where the photo should go
+	            File photoFile = null;
+	            try {
+	                photoFile = createImageFile();
+	                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
+	            } catch (IOException ex) {
+	                // Error occurred while creating the File
+	                Log.e(TAG, "Unable to create Image File", ex);
+	            }
 
-	        // Continue only if the File was successfully created
-	        if (photoFile != null) {
-	            mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
-	            mCameraPhotoUri = Uri.fromFile(photoFile);
-	            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
-	        } else {
-	            takePictureIntent = null;
+	            // Continue only if the File was successfully created
+	            if (photoFile != null) {
+	                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+	                mCameraPhotoUri = Uri.fromFile(photoFile);
+	                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
+	            } else {
+	                takePictureIntent = null;
+	            }
 	        }
+	    } else {
+	        takePictureIntent = null;
 	    }
 
 	    Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
