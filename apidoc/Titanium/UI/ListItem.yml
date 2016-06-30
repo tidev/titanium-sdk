@@ -600,6 +600,12 @@ properties:
     type: String
     summary: The title of the row action.
     optional: false
+    
+  - name: identifier
+    summary: |
+        The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+        if previously defined. Available in Titanium 6.0.0 and later.
+    type: String
 
   - name: style
     type: Number
