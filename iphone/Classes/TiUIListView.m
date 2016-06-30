@@ -1016,8 +1016,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
         NSString* identifier = [TiUtils stringValue:@"identifier" properties:prop];
-        int actionStyle = [TiUtils intValue:@"style" properties:prop];
-        TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+        int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
+        TiColor* color = [TiUtils colorValue:@"color" properties:prop];
     
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
             NSString* eventName = @"editaction";
@@ -1034,7 +1034,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 id propertiesValue = [theItem objectForKey:@"properties"];
                 NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
                 id itemId = [properties objectForKey:@"itemId"];
-                if (itemId != nil) {
+                if (itemId) {
                     [eventObject setObject:itemId forKey:@"itemId"];
                 }
                 if (identifier) {
@@ -1050,10 +1050,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[self tableView] setEditing:NO];
 
         }];
-        if (theColor != nil) {
-            theAction.backgroundColor = [theColor color];
+        if (color) {
+            theAction.backgroundColor = [color color];
         }
-        if (returnArray == nil) {
+        if (!returnArray) {
             returnArray = [NSMutableArray arrayWithObject:theAction];
         } else {
             [returnArray addObject:theAction];
