@@ -19,7 +19,7 @@
 -(id)getData:(id)args;
 -(NSString *)getText:(id)args;
 -(id)hasData:(id)args;
--(id)hasText:(id)args;
+-(id)hasText:(id)unused;
 -(void)setData:(id)args;
 -(void)setText:(id)args;
 

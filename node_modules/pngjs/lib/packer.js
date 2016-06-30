@@ -1,16 +1,12 @@
 'use strict';
 
-var util = require('util');
-var Stream = require('stream');
-var zlib = require('zlib');
-var filter = require('./filter-pack');
-var CrcStream = require('./crc');
 var constants = require('./constants');
+var CrcStream = require('./crc');
 var bitPacker = require('./bitpacker');
+var filter = require('./filter-pack');
+var zlib = require('zlib');
 
 var Packer = module.exports = function(options) {
-  Stream.call(this);
-
   this._options = options;
 
   options.deflateChunkSize = options.deflateChunkSize || 32 * 1024;
@@ -27,46 +23,28 @@ var Packer = module.exports = function(options) {
   if (options.bitDepth !== 8) {
     throw new Error('option bit depth:' + options.bitDepth + ' is not supported at present');
   }
-
-  this.readable = true;
 };
-util.inherits(Packer, Stream);
 
+Packer.prototype.getDeflateOptions = function() {
+  return {
+    chunkSize: this._options.deflateChunkSize,
+    level: this._options.deflateLevel,
+    strategy: this._options.deflateStrategy
+  };
+};
 
-Packer.prototype.pack = function(data, width, height, gamma) {
-  // Signature
-  this.emit('data', new Buffer(constants.PNG_SIGNATURE));
-  this.emit('data', this._packIHDR(width, height, this._options.bitDepth, this._options.colorType));
+Packer.prototype.createDeflate = function() {
+  return this._options.deflateFactory(this.getDeflateOptions());
+};
 
-  if (gamma) {
-    this.emit('data', this._packGAMA(gamma));
-  }
-
+Packer.prototype.filterData = function(data, width, height) {
   // convert to correct format for filtering (e.g. right bpp and bit depth)
   var packedData = bitPacker(data, width, height, this._options);
 
   // filter pixel data
   var bpp = constants.COLORTYPE_TO_BPP_MAP[this._options.colorType];
   var filteredData = filter(packedData, width, height, this._options, bpp);
-
-  // compress it
-  var deflate = this._options.deflateFactory({
-    chunkSize: this._options.deflateChunkSize,
-    level: this._options.deflateLevel,
-    strategy: this._options.deflateStrategy
-  });
-  deflate.on('error', this.emit.bind(this, 'error'));
-
-  deflate.on('data', function(compressedData) {
-    this.emit('data', this._packIDAT(compressedData));
-  }.bind(this));
-
-  deflate.on('end', function() {
-    this.emit('data', this._packIEND());
-    this.emit('end');
-  }.bind(this));
-
-  deflate.end(filteredData);
+  return filteredData;
 };
 
 Packer.prototype._packChunk = function(type, data) {
@@ -85,19 +63,19 @@ Packer.prototype._packChunk = function(type, data) {
   return buf;
 };
 
-Packer.prototype._packGAMA = function(gamma) {
+Packer.prototype.packGAMA = function(gamma) {
   var buf = new Buffer(4);
   buf.writeUInt32BE(Math.floor(gamma * constants.GAMMA_DIVISION), 0);
   return this._packChunk(constants.TYPE_gAMA, buf);
 };
 
-Packer.prototype._packIHDR = function(width, height, bitDepth, colorType) {
+Packer.prototype.packIHDR = function(width, height) {
 
   var buf = new Buffer(13);
   buf.writeUInt32BE(width, 0);
   buf.writeUInt32BE(height, 4);
-  buf[8] = bitDepth;  // Bit depth
-  buf[9] = colorType; // colorType
+  buf[8] = this._options.bitDepth;  // Bit depth
+  buf[9] = this._options.colorType; // colorType
   buf[10] = 0; // compression
   buf[11] = 0; // filter
   buf[12] = 0; // interlace
@@ -105,10 +83,10 @@ Packer.prototype._packIHDR = function(width, height, bitDepth, colorType) {
   return this._packChunk(constants.TYPE_IHDR, buf);
 };
 
-Packer.prototype._packIDAT = function(data) {
+Packer.prototype.packIDAT = function(data) {
   return this._packChunk(constants.TYPE_IDAT, data);
 };
 
-Packer.prototype._packIEND = function() {
+Packer.prototype.packIEND = function() {
   return this._packChunk(constants.TYPE_IEND, null);
 };

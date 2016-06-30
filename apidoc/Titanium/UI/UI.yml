@@ -124,6 +124,10 @@ description:  |
 
     On Android, if you want to create a semi-transparent window, set the `opacity`
     property **before** opening the window.
+
+    On iOS, you can set a global tinting using <Titanium.UI.tintColor>. All child views will inherit
+    the tint color by default and are able to override the color using `tintColor` on their own views.
+    The default `tintColor` on iOS is the blue (system-color).
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
@@ -1243,6 +1247,33 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   
+  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+    summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+    summary: Add ellipses before the first character that doesnt fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
+    summary: Lines are simply not drawn past the edge of the text container.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
     summary: Add ellipses at the beginning of the label if the text is too large to fit.
     description: |
@@ -1279,6 +1310,15 @@ properties:
     platforms: [android]
     since: "4.1.0"
     
+  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+    summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.0.0"
+        
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.
     description: |
@@ -2406,6 +2446,14 @@ properties:
         notes: Use <Titanium.UI.Window.orientationModes> instead.
     type: Number
     platforms: [android, iphone, ipad]
+
+  - name: tintColor
+    summary: |
+        Sets the global tint color of the application. It is inherited by the child views and can be
+        overwritten by them using the `tintColor` property.
+    type: String
+    since: "6.0.0"
+    platforms: [iphone, ipad]
 
 examples:
   - title: Color Demo

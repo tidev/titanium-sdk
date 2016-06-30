@@ -3,7 +3,7 @@
 var util = require('util');
 var Stream = require('stream');
 var Parser = require('./parser-async');
-var Packer = require('./packer');
+var Packer = require('./packer-async');
 var PNGSync = require('./png-sync');
 
 

@@ -499,6 +499,12 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
 MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 #endif
 
+#ifdef USE_TI_UISCROLLVIEW
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_NONE, UIScrollViewKeyboardDismissModeNone);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeOnDrag);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
+#endif
+
 //DEPRECATED, REPLACED IN UIMODULE FOR TI_UIATTRIBUTEDSTRING
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_FONT, AttributeNameFont, @"UI.iOS.ATTRIBUTE_FONT", @"3.6.0", @"6.0.0", @"UI.ATTRIBUTE_FONT");
@@ -618,6 +624,10 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ATTRIBUTE_EXPANSION, AttributeNameE
 
 -(id)createAdView:(id)args
 {
+#if IS_XCODE_8
+	DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
+#endif
+    
 	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif

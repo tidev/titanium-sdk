@@ -1114,7 +1114,7 @@ public class TiHTTPClient
 					client = (HttpURLConnection) mURL.openConnection();
 					boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
 					setUpClient(client, isPostOrPutOrPatch);
-					
+
 					if (isPostOrPutOrPatch) {			
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress) {

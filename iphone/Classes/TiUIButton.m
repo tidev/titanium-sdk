@@ -352,7 +352,7 @@
         [[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
     } else {
         color = [TiUtils colorValue:color];
-        [[self button] setTitleShadowColor:[color color] forState:UIControlStateNormal];
+        [[self button] setTitleShadowColor:[(TiColor*)color color] forState:UIControlStateNormal];
     }
 }
 

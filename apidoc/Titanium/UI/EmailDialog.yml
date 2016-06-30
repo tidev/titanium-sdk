@@ -60,7 +60,9 @@ methods:
     
   - name: isSupported
     summary: Indicates whether sending email is supported by the system.
-
+    description: |
+        On iOS 10, the user is able to uninstall the built-in applications including Mail. Because
+        of that, you should ensure to check if the email dialog is supported on the current device.
     returns:
         type: Boolean
     

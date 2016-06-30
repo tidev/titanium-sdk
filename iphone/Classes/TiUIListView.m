@@ -791,6 +791,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
+-(void)setKeyboardDismissMode_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+    [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 -(void)setEditing_:(id)args
 {
     if ([TiUtils boolValue:args def:NO] != editing) {

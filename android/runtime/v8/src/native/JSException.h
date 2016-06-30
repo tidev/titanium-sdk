@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,32 +11,32 @@
 #include <jni.h>
 #include <v8.h>
 
-#define THROW(msg) \
-	v8::ThrowException(v8::Exception::Error(v8::String::New(msg)))
+#define THROW(isolate, msg) \
+	isolate->ThrowException(v8::String::NewFromUtf8(isolate, msg))
 
 namespace titanium {
 
 class JSException
 {
 public:
-	static v8::Handle<v8::Value> Error(const char* msg)
+	static v8::Local<v8::Value> Error(v8::Isolate* isolate, const char* msg)
 	{
-		return THROW(msg);
+		return THROW(isolate, msg);
 	}
 
 	// Calling a constructor as a function not allowed.
-	static v8::Handle<v8::Value> CalledConstructor()
+	static v8::Local<v8::Value> CalledConstructor(v8::Isolate* isolate)
 	{
-		return THROW("Calling this constructor is not allowed.");
+		return THROW(isolate, "Calling this constructor is not allowed.");
 	}
 
 	// An attempt to get the current JNI environment failed.
-	static v8::Handle<v8::Value> GetJNIEnvironmentError()
+	static v8::Local<v8::Value> GetJNIEnvironmentError(v8::Isolate* isolate)
 	{
-		return THROW(JNIENV_GET_ERROR_MSG);
+		return THROW(isolate, JNIENV_GET_ERROR_MSG);
 	}
 
-	static v8::Handle<v8::Value> fromJavaException(jthrowable javaException = NULL);
+	static v8::Local<v8::Value> fromJavaException(v8::Isolate* isolate, jthrowable javaException = NULL);
 };
 
 }
