@@ -174,7 +174,7 @@ description: |
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
           is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
           property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
-          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
+          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [editaction](Titanium.UI.ListView.editaction) event is fired
           and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
 
         - [canInsert](Titanium.UI.ListItem.canInsert) - When this is set to true, it allows the item to insert a new item to the
@@ -499,7 +499,7 @@ events:
     deprecated:
         since: 5.0.0
         removed: 5.0.0
-        notes: Renamed to [editaction](Titanium.UI.ListView.editaction).
+        notes: Use <Titanium.UI.ListView.editaction> instead.
     summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
@@ -936,7 +936,7 @@ properties:
     summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
     deprecated:
         since: "5.2.0"
-        notes: Use listSeparatorInsets instead
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
@@ -965,7 +965,7 @@ properties:
   - name: tableSeparatorInsets
     deprecated:
         since: "5.4.0"
-        notes: Use listSeparatorInsets instead
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a

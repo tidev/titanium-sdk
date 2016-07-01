@@ -222,7 +222,7 @@ methods:
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use [requestContactsPermissions](Titanium.Contacts.requestContactsPermissions).
+        notes: Use <Titanium.Contacts.requestContactsPermissions> instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     platforms: [android, iphone, ipad]
     description: |

@@ -1140,7 +1140,7 @@ properties:
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"
@@ -1149,7 +1149,7 @@ properties:
   - name: ROW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"
@@ -1158,7 +1158,7 @@ properties:
   - name: ROW_ACTION_STYLE_NORMAL
     summary: The normal style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"

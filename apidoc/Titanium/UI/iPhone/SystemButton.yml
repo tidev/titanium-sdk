@@ -35,10 +35,7 @@ platforms: [iphone, ipad]
 createable: false
 deprecated:
     since: "5.4.0"
-    notes: |
-      Use 
-      <a href="#!/api/Titanium.UI.iOS.SystemButton">Titanium.UI.iOS.SystemButton</a> 
-      instead.
+    notes: Use <Titanium.UI.iOS.SystemButton> instead.
 
 properties:
   - name: ACTION
