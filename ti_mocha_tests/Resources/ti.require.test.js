@@ -63,11 +63,11 @@ describe("require", function () {
         finish();
     });
     
-	// FIXME Get parity across impls. I think all are slightly wrong here.
-	((utilities.isAndroid()) ? it.skip : it)('requireJS.__filename', function () {
-		var object = require('with_subfolder/sub/test');
-		should(object).be.an.Object;
-		should(object.filename).be.a.String;
-		should(object.filename).be.eql('/with_subfolder/sub/test.js');
-	});
+	// FIXME: Get parity across implementations. Android needs to adopt the iOS/Windows behavior.
+    ((utilities.isAndroid()) ? it.skip : it)('requireJS.__filename', function () {
+        var object = require('with_subfolder/sub/test');
+        should(object).be.an.Object;
+        should(object.filename).be.a.String;
+        should(object.filename).be.eql('/with_subfolder/sub/test.js');
+    });
 });
