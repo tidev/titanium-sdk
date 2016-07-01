@@ -150,15 +150,14 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public void setProperty(String name, Object value, boolean fireChange)
+	public void setProperty(String name, Object value)
 	{
-		super.setProperty(name, value, fireChange);
+		super.setProperty(name, value);
 		if (tableViewItem != null) {
 			if (TiApplication.isUIThread()) {
 				tableViewItem.setRowData(this);
 			} else {
 				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-				// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 				message.sendToTarget();
 			}
 		}
