@@ -357,7 +357,38 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     return UIFontTextStyleCaption2;
 }
-
+-(NSString*)TEXT_STYLE_TITLE1
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle1;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE2
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle2;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE3
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle3;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_CALLOUT
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleCallout;
+  } else {
+    return UIFontTextStyleBody;
+  }  
+}
 -(NSNumber*)isLandscape:(id)args
 {
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);
