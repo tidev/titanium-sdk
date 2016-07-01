@@ -202,6 +202,12 @@
 @property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION1;
 @property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION2;
 
+//IOS9 TextStyle Constants
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE1;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE2;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE3;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CALLOUT;
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif
