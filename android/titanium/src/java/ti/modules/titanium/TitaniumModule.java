@@ -115,7 +115,7 @@ public class TitaniumModule extends KrollModule
 		protected Handler handler;
 		protected int id;
 		protected boolean canceled;
-	
+
 		public Timer(int id, Handler handler, KrollFunction callback, long timeout, Object[] args, boolean interval)
 		{
 			this.id = id;
@@ -231,13 +231,6 @@ public class TitaniumModule extends KrollModule
 	{
 		String msg = (message == null? null : message.toString());
 
-		/* TODO - look at this along with the other service stuff
-		if (invocation.getTiContext().isServiceContext()) {
-			Log.w(LCAT, "alert() called inside service -- no attempt will be made to display it to user interface.");
-			return;
-		}
-		*/
-
 		if (TiApplication.isUIThread()) {
 			TiUIHelper.doOkDialog("Alert", msg, null);
 		} else {
@@ -324,7 +317,7 @@ public class TitaniumModule extends KrollModule
 		}
 
 		String key = (locale == null ? "" : locale ) + " keysep " + (pattern == null ? "": pattern);
-		
+
 		NumberFormat format;
 		if (numberFormats.containsKey(key)) {
 			format = numberFormats.get(key);
@@ -336,7 +329,7 @@ public class TitaniumModule extends KrollModule
 			} else {
 				format = NumberFormat.getInstance();
 			}
-		
+
 			if (pattern != null && format instanceof DecimalFormat) {
 				((DecimalFormat)format).applyPattern(pattern);
 			}
@@ -413,4 +406,3 @@ public class TitaniumModule extends KrollModule
 	}
 
 }
-

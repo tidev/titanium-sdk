@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -29,7 +28,7 @@ import com.appcelerator.aps.APSAnalyticsEvent;
 public class AnalyticsModule extends KrollModule
 {
 	private static final String TAG = "AnalyticsModule";
-	
+
 	protected static final String PROPERTY_APP_NAV = "app.nav";
 	protected static final String PROPERTY_APP_TIMED = "app.timed";
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
@@ -49,11 +48,6 @@ public class AnalyticsModule extends KrollModule
 	public AnalyticsModule()
 	{
 		super();
-	}
-
-	public AnalyticsModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method

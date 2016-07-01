@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -24,7 +23,7 @@ import android.content.Context;
 	TiC.PROPERTY_INTENT,
 	TiC.PROPERTY_UPDATE_CURRENT_INTENT
 })
-public class PendingIntentProxy extends KrollProxy 
+public class PendingIntentProxy extends KrollProxy
 {
 
 	protected PendingIntent pendingIntent;
@@ -36,11 +35,6 @@ public class PendingIntentProxy extends KrollProxy
 	public PendingIntentProxy()
 	{
 		super();
-	}
-
-	public PendingIntentProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -96,12 +90,12 @@ public class PendingIntentProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = dict.getInt(TiC.PROPERTY_FLAGS);
 		}
-		
+
 		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true
 		if (updateCurrentIntent) {
 			flags =  flags | PendingIntent.FLAG_UPDATE_CURRENT;
-		} 
-		
+		}
+
 		super.handleCreationDict(dict);
 	}
 

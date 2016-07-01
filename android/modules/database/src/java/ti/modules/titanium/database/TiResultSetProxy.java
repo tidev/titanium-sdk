@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.database.AbstractWindowedCursor;
@@ -24,7 +23,7 @@ import android.os.Build;
 public class TiResultSetProxy extends KrollProxy
 {
 	private static final String TAG = "TiResultSet";
-	
+
 	protected Cursor rs;
 	protected String lastException;
 	protected HashMap<String, Integer> columnNames; // workaround case-sensitive matching in Google's implementation
@@ -41,13 +40,8 @@ public class TiResultSetProxy extends KrollProxy
 		}
 	}
 
-	public TiResultSetProxy(TiContext tiContext, Cursor rs)
-	{
-		this(rs);
-	}
-
 	@Kroll.method
-	public void close() 
+	public void close()
 	{
 		if (rs != null && !rs.isClosed()) {
 			Log.d(TAG, "Closing database cursor", Log.DEBUG_MODE);
@@ -59,13 +53,13 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Object field(Object[] args) 
+	public Object field(Object[] args)
 	{
 		return internalGetField(args);
 	}
 
 	@Kroll.method
-	public Object getField(Object[] args) 
+	public Object getField(Object[] args)
 	{
 		return internalGetField(args);
 	}
@@ -88,7 +82,7 @@ public class TiResultSetProxy extends KrollProxy
 				throw new IllegalArgumentException("Expected int field type as second parameter was " + args[1].getClass().getSimpleName());
 			}
 		}
-		
+
 		 return internalGetField(index, type);
 	}
 
@@ -106,7 +100,7 @@ public class TiResultSetProxy extends KrollProxy
 		try {
 			if (rs instanceof AbstractWindowedCursor) {
 				AbstractWindowedCursor cursor = (AbstractWindowedCursor) rs;
-				
+
 				if (cursor.isFloat(index)) {
 					result = cursor.getDouble(index);
 				} else if (cursor.isLong(index)) {
@@ -165,7 +159,7 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Object fieldByName(Object[] args) 
+	public Object fieldByName(Object[] args)
 	{
 		return internalGetFieldByName(args);
 	}
@@ -174,7 +168,7 @@ public class TiResultSetProxy extends KrollProxy
 	public Object getFieldByName(Object[] args) {
 		return internalGetFieldByName(args);
 	}
-	
+
 	private Object internalGetFieldByName(Object[] args) {
 		String name = null;
 		int type = DatabaseModule.FIELD_TYPE_UNKNOWN;
@@ -192,11 +186,11 @@ public class TiResultSetProxy extends KrollProxy
 				throw new IllegalArgumentException("Expected int field type as second parameter" + args[1].getClass().getSimpleName());
 			}
 		}
-		
+
 		return internalGetFieldByName(name, type);
 	}
-	
-	private Object internalGetFieldByName(String fieldName, int type) 
+
+	private Object internalGetFieldByName(String fieldName, int type)
 	{
 		Object result = null;
 		if (rs != null) {
@@ -210,12 +204,12 @@ public class TiResultSetProxy extends KrollProxy
 				throw e;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
-	public int getFieldCount() 
+	public int getFieldCount()
 	{
 		if (rs != null) {
 			try {
@@ -225,19 +219,19 @@ public class TiResultSetProxy extends KrollProxy
 				throw e;
 			}
 		}
-		
+
 		return 0;
 
 	}
-	
+
 	@Kroll.method
-	public String fieldName(int index) 
+	public String fieldName(int index)
 	{
 		return getFieldName(index);
 	}
-	
+
 	@Kroll.method
-	public String getFieldName(int index) 
+	public String getFieldName(int index)
 	{
 		if (rs != null) {
 			try {
@@ -251,17 +245,17 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getRowCount() 
+	public int getRowCount()
 	{
 		if (rs != null) {
 			return rs.getCount();
 		}
-		
+
 		return 0;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isValidRow() 
+	public boolean isValidRow()
 	{
 		boolean valid = false;
 		if (rs != null && !rs.isClosed() && !rs.isAfterLast()) {
@@ -271,7 +265,7 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean next() 
+	public boolean next()
 	{
 		if (isValidRow()) {
 			return rs.moveToNext();

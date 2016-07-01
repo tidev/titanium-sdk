@@ -470,7 +470,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<exclude name="${kroll.package}/KrollProperty.java"/>
 					<exclude name="${kroll.package}/util/KrollReflectionUtils.java"/>
 					<exclude name="${ti.package}/ContextSpecific.java"/>
-					<exclude name="${ti.package}/TiContext.java"/>
 					<exclude name="${ti.package}/TiModalActivity.java"/>
 					<exclude name="${ti.package}/TiStylesheet.java"/>
 					<exclude name="${ti.package}/TiTranslucentActivity.java"/>

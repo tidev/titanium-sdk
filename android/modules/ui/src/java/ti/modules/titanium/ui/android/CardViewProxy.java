@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -43,15 +42,10 @@ public class CardViewProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-		
+
 	public CardViewProxy()
 	{
 		super();
-	}
-
-	public CardViewProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -59,7 +53,7 @@ public class CardViewProxy extends TiViewProxy
 	{
 		return new TiUICardView(this);
 	}
-	
+
 	@Override
 	public String getApiName()
 	{
