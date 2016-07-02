@@ -1543,7 +1543,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_ASCII instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1557,7 +1557,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_DECIMAL_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1568,7 +1568,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_DEFAULT instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
 
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -1582,7 +1582,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_EMAIL instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -1594,7 +1594,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NAMEPHONE_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -1606,7 +1606,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NUMBERS_PUNCTUATION instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
 
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1622,7 +1622,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NUMBER_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
 
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -1638,7 +1638,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_PHONE_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
 
   - name: KEYBOARD_URL
     summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
@@ -1652,7 +1652,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_URL instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number

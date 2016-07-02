@@ -77,7 +77,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use keyboardAppearance instead.
+        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -428,7 +428,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.0.0"
-        notes: Use padding instead    
+        notes: Use <Titanium.UI.TextField.padding> instead.
     
   - name: paddingRight
     summary: Right padding of this text field.
@@ -436,7 +436,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.0.0"
-        notes: Use padding instead    
+        notes: Use <Titanium.UI.TextField.padding> instead.
             
   - name: passwordMask
     summary: Obscure the input text from the user.

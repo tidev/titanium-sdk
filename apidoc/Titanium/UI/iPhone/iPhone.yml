@@ -13,7 +13,7 @@ methods:
         since: "3.1.3"
         removed: "3.2.0"
         notes: |
-            This method does not work on iOS 7 and is deprecated on earlier versions. Use the [fullscreen](Titanium.UI.Window.fullscreen) 
+            This method does not work on iOS 7 and is deprecated on earlier versions. Use the <Titanium.UI.Window.fullscreen> 
             property of the window to control if the staus bar is shown or not.
     summary: Hides the status bar.
     parameters:
@@ -27,7 +27,7 @@ methods:
         since: "3.1.3"
         removed: "3.2.0"
         notes: |
-            This method does not work on iOS 7 and is deprecated on earlier versions. Use the [fullscreen](Titanium.UI.Window.fullscreen) 
+            This method does not work on iOS 7 and is deprecated on earlier versions. Use the <Titanium.UI.Window.fullscreen> 
             property of the window to control if the staus bar is shown or not.
     summary: Shows the status bar.
     parameters:
@@ -181,14 +181,14 @@ properties:
     type: Number
     deprecated:
         since: "5.4.0"
-        notes: Use Titanium.UI.iOS.appBadge instead.
+        notes: Use <Titanium.UI.iOS.appBadge> instead.
 
   - name: appSupportsShakeToEdit
     summary: Determines whether the shake to edit system-wide capability is enabled.
     type: Boolean
     deprecated:
         since: "5.4.0"
-        notes: Use Titanium.UI.iOS.appSupportsShakeToEdit instead.
+        notes: Use <Titanium.UI.iOS.appSupportsShakeToEdit> instead.
 
   - name: statusBarHidden
     summary: Determines whether the status bar is hidden.
@@ -199,7 +199,7 @@ properties:
     permission: read-only
     deprecated:
         since: "3.1.3"
-        notes: Use Titanium.UI.Window.fullscreen instead.
+        notes: Use <Titanium.UI.Window.fullscreen> instead.
         removed: "6.0.0"
 
   - name: statusBarStyle
@@ -214,7 +214,7 @@ properties:
     permission: read-only
     deprecated:
         since: "3.1.3"
-        notes: Use Titanium.UI.Window.statusBarStyle instead.
+        notes: Use <Titanium.UI.Window.statusBarStyle> instead.
         removed: "6.0.0"
 ---
 name: hideStatusBarParams
