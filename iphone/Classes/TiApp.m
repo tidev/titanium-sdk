@@ -293,7 +293,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 		if(launchedShortcutItem != nil) {
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-			launchedShortcutItem = nil;
+			RELEASE_TO_NIL(launchedShortcutItem);
 		}
 
 		if (localNotification != nil) {
@@ -415,7 +415,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
         if (shortcut != nil) {
-            launchedShortcutItem = shortcut;
+            launchedShortcutItem = [shortcut retain];
         }
     }
     
@@ -1232,6 +1232,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if(shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
+    
+    // Update launchOptions to include the mapped dictionary-shortcut instead of the UIShortcutItem
+    [launchOptions setObject:dict forKey:UIApplicationLaunchOptionsShortcutItemKey];
     
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
