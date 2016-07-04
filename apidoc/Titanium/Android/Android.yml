@@ -93,6 +93,36 @@ description: |
     For more information about services, see the
     [Titanium.Android.Service API reference](Titanium.Android.Service).
 
+    #### Permissions
+
+    Starting from Android 6.0 (API level 23), users need to grant permissions to apps while the
+    app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
+
+    In Titanium SDK, to support this, we have the method `Ti.Android.requestPermissions` starting
+    from Titanium SDK 5.4.0. This is used to requests any permission you may need. An example of
+    using this is shown below.
+
+        var cameraPermission = "android.permission.CAMERA";
+        var storagePermission = "android.permission.READ_EXTERNAL_STORAGE";
+        var hasCameraPerm = Ti.Android.hasPermission(cameraPermission);
+        var hasStoragePerm = Ti.Android.hasPermission(storagePermission);
+        var permissionsToRequest = [];
+        if (!hasCameraPerm) {
+            permissionsToRequest.push(cameraPermission);
+        }
+        if (!hasStoragePerm) {
+            permissionsToRequest.push(storagePermission);
+        }
+        if (permissionsToRequest.length > 0) {
+            Ti.Android.requestPermissions(permissionsToRequest, function(e) {
+                if (e.success) {
+                    Ti.API.info("SUCCESS");
+                } else {
+                    Ti.API.info("ERROR: " + e.error);
+                }
+            });
+        }
+
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
