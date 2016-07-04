@@ -95,10 +95,10 @@ description: |
 
     #### Permissions
 
-    Starting from Android 6.0 (API level 23), users need to grant permissions to apps while the
+    Starting from Android 6.0 (API level 23), users need to grant certain permissions to apps while the
     app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
 
-    In Titanium SDK, to support this, we have the method `Ti.Android.requestPermissions` starting
+    In Titanium SDK, to support this, we have the method <Titanium.Android.requestPermissions> starting
     from Titanium SDK 5.4.0. This is used to requests any permission you may need. An example of
     using this is shown below.
 
@@ -217,7 +217,7 @@ methods:
       - name: permission
         summary: |
             The permission to check for access. This can be any of the constants listed here
-            with dangerous protection level: http://developer.android.com/intl/zh-cn/reference/android/Manifest.permission.html
+            with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             For example, `android.permission.WRITE_CONTACTS`. 
         type: String
     returns:
@@ -230,7 +230,7 @@ methods:
       - name: permissions
         summary: |
             The permission(s) to request for access. This can be any of the constants listed here
-            with dangerous protection level: http://developer.android.com/intl/zh-cn/reference/android/Manifest.permission.html
+            with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             Normal protection permissions are automatically enabled if they are included in the manifest. An example of a 
             dangerous protection permission would be `android.permission.WRITE_CONTACTS`.
             The requested permission(s) MUST also be included in the Android Manifest. 

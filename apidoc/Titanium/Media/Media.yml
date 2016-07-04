@@ -213,6 +213,9 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
+        This method requests `Manifest.permission.CAMERA` on Android. If you require other permissions, you can also
+        use <Titanium.Android.requestPermissions>.
+
         On iOS, the request view will only show if user has not yet made a decision.
         If the user has, the callback will return the earlier decision. To change the permission
         the user needs to change it in device settings.
