@@ -53,6 +53,9 @@ methods:
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
+
+        This method requests `Manifest.permission.READ_CALENDAR` and `Manifest.permission.WRITE_CALENDAR` on Android. If you
+        require other permissions, you can also use <Titanium.Android.requestPermissions>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant calendar access.
