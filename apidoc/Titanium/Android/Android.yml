@@ -233,7 +233,11 @@ methods:
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             Normal protection permissions are automatically enabled if they are included in the manifest. An example of a 
             dangerous protection permission would be `android.permission.WRITE_CONTACTS`.
-            The requested permission(s) MUST also be included in the Android Manifest. 
+            The requested permission(s) MUST also be included in the Android Manifest.
+
+            Besides this, there are also requestPermission methods that are ready for commonly used situations. These methods are
+            <Titanium.Calendar.requestCalendarPermissions>, <Titanium.Contacts.requestContactsPermissions>,
+            <Titanium.Filesystem.requestStoragePermissions>, <Titanium.Geolocation.requestLocationPermissions> and <Titanium.Media.requestCameraPermissions>.
         type: Array<String>
       - name: callback
         summary: Function to call upon user decision to grant access.
