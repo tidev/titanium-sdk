@@ -104,13 +104,13 @@ description: |
 
         var cameraPermission = "android.permission.CAMERA";
         var storagePermission = "android.permission.READ_EXTERNAL_STORAGE";
-        var hasCameraPerm = Ti.Android.hasPermission(cameraPermission);
-        var hasStoragePerm = Ti.Android.hasPermission(storagePermission);
+        var hasCameraPermission = Ti.Android.hasPermission(cameraPermission);
+        var hasStoragePermission = Ti.Android.hasPermission(storagePermission);
         var permissionsToRequest = [];
-        if (!hasCameraPerm) {
+        if (!hasCameraPermission) {
             permissionsToRequest.push(cameraPermission);
         }
-        if (!hasStoragePerm) {
+        if (!hasStoragePermission) {
             permissionsToRequest.push(storagePermission);
         }
         if (permissionsToRequest.length > 0) {
