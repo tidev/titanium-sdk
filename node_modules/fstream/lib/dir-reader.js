@@ -24,7 +24,6 @@ function DirReader (props) {
   }
 
   self.entries = null
-  self._entries = []
   self._index = -1
   self._paused = false
   self._length = -1
@@ -48,7 +47,6 @@ DirReader.prototype._getEntries = function () {
     if (er) return self.error(er)
 
     self.entries = entries
-    self._entries = entries.slice()
 
     self.emit('entries', entries)
     if (self._paused) self.once('resume', processEntries)
@@ -76,7 +74,7 @@ DirReader.prototype._read = function () {
   }
 
   self._index++
-  if (self._index >= self._entries.length) {
+  if (self._index >= self.entries.length) {
     if (!self._ended) {
       self._ended = true
       self.emit('end')
@@ -85,14 +83,12 @@ DirReader.prototype._read = function () {
     return
   }
 
-  // save creating a proxy, by stat'ing the thing now.
-  var nextEntry = self._entries[self._index]
-  if (!nextEntry) return this._read()
-
   // ok, handle this one, then.
-  var p = path.resolve(self._path, nextEntry)
+
+  // save creating a proxy, by stat'ing the thing now.
+  var p = path.resolve(self._path, self.entries[self._index])
   assert(p !== self._path)
-  assert(nextEntry)
+  assert(self.entries[self._index])
 
   // set this to prevent trying to _read() again in the stat time.
   self._currentEntry = p

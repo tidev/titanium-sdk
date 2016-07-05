@@ -510,6 +510,10 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 -(id)createAdView:(id)args
 {
+#if IS_XCODE_8
+	DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
+#endif
+    
 	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif

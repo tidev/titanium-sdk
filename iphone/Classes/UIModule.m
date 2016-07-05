@@ -90,6 +90,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP, NSLineBreakByWordWrapping);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP, NSLineBreakByCharWrapping);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_CLIP, NSLineBreakByClipping);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_START, NSLineBreakByTruncatingHead);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_MIDDLE, NSLineBreakByTruncatingMiddle);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_END, NSLineBreakByTruncatingTail);
@@ -207,6 +210,12 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosu
 	[controller setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
+-(void)setTintColor:(id)color
+{
+	UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
+	[controller setTintColor:[Webcolor webColorNamed:color]];
+}
+
 -(void)setBackgroundImage:(id)image
 {
 	TiRootViewController *controller = [[TiApp app] controller];
@@ -298,7 +307,38 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     return UIFontTextStyleCaption2;
 }
-
+-(NSString*)TEXT_STYLE_TITLE1
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle1;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE2
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle2;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE3
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle3;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_CALLOUT
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleCallout;
+  } else {
+    return UIFontTextStyleBody;
+  }  
+}
 -(NSNumber*)isLandscape:(id)args
 {
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);

@@ -176,7 +176,7 @@ events:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use focus instead.
+        notes: Use <Titanium.UI.Tab.focus> instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -201,7 +201,7 @@ events:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use blur instead.
+        notes: Use <Titanium.UI.Tab.blur> instead.
     properties:
       - name: index
         summary: |

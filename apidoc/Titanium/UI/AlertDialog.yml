@@ -287,7 +287,6 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    accessors: false
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: ok
@@ -302,7 +301,6 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    accessors: false
     platforms: [iphone, ipad, mobileweb]
 
   - name: passwordPlaceholder
@@ -413,7 +411,6 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
-    accessors: false
     platforms: [android, iphone, ipad, mobileweb]
 
 examples:

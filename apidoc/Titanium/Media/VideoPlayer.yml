@@ -259,9 +259,7 @@ events:
   - name: durationAvailable
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [durationavailable](Titanium.Media.VideoPlayer.durationavailable)
-            (all lowercase).
+        notes: Use <Titanium.Media.VideoPlayer.durationavailable> instead.
     summary: |
         Fired when the video duration is available.
     properties:
@@ -336,9 +334,7 @@ events:
   - name: mediaTypesAvailable
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [mediatypesavailable](Titanium.Media.VideoPlayer.mediatypesavailable)
-            (all lowercase).
+        notes: Use <Titanium.Media.VideoPlayer.mediatypesavailable> instead.
     summary: |
         Fired when the media types in the current movie are determined.
     platforms: [iphone, ipad]
@@ -350,9 +346,7 @@ events:
   - name: naturalSizeAvailable
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [naturalsizeavailable](Titanium.Media.VideoPlayer.naturalsizeavailable)
-            (all lowercase).
+        notes: Use <Titanium.Media.VideoPlayer.naturalsizeavailable> instead.
     summary: |
         Fired when the natural size of the current movie is determined.
     description: |
@@ -366,9 +360,7 @@ events:
   - name: playbackState
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [playbackstate](Titanium.Media.VideoPlayer.playbackstate)
-            (all lowercase).
+        notes: Use <Titanium.Media.VideoPlayer.playbackstate> instead.
     summary: |
         Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
@@ -426,9 +418,7 @@ events:
   - name: sourceChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [sourcechange](Titanium.Media.VideoPlayer.sourcechange)
-            (all lowercase).
+        notes: Use <Titanium.Media.VideoPlayer.sourcechange> instead.
     summary: |
         Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
         changes.
@@ -579,7 +569,7 @@ properties:
     deprecated:
         since: "1.4.0"
         removed: "3.0.0"
-        notes: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
+        notes: Use <Titanium.Media.VideoPlayer.url> instead.
     type: String
 
   - name: currentPlaybackTime
@@ -668,7 +658,7 @@ properties:
   - name: movieControlMode
     deprecated:
         since: '1.8.0'
-        notes: Use [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) instead.
+        notes: Use <Titanium.Media.VideoPlayer.mediaControlStyle> instead.
         removed: '6.0.0'
     summary: Style of the media playback controls.
     description: |

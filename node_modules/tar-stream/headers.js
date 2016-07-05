@@ -164,6 +164,12 @@ exports.encodePax = function (opts) { // TODO: encode more stuff in pax
   var result = ''
   if (opts.name) result += addLength(' path=' + opts.name + '\n')
   if (opts.linkname) result += addLength(' linkpath=' + opts.linkname + '\n')
+  var pax = opts.pax
+  if (pax) {
+    for (var key in pax) {
+      result += addLength(' ' + key + '=' + pax[key] + '\n')
+    }
+  }
   return new Buffer(result)
 }
 

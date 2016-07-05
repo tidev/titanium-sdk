@@ -74,7 +74,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use keyboardAppearance instead
+        notes: Use <Titanium.UI.TextArea.keyboardAppearance> instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -296,6 +296,28 @@ properties:
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
+ 
+  - name: padding
+    summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
+    type: Padding
+    platforms: [android, iphone, ipad]
+    since: 6.0.0
+    
+  - name: paddingLeft
+    summary: Left padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextArea.padding> instead.
+    
+  - name: paddingRight
+    summary: Right padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextArea.padding> instead.
     
   - name: returnKeyType
     summary: |
@@ -519,3 +541,16 @@ properties:
   - name: length
     summary: Number of characters selected.
     type: Number
+---    
+name: Padding
+summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
+since: "6.0.0"
+platforms: [android, iphone, ipad]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+    
+  - name: right
+    type: Number
+    summary: Right padding

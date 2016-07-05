@@ -127,7 +127,7 @@ methods:
     deprecated:
         since: "1.7.0"
         removed: "3.0.0"
-        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
     summary: |
         Legacy method to add a connectivity listener to listen for network changes.
     parameters:
@@ -402,7 +402,7 @@ methods:
     deprecated:
         since: "1.7.0"
         removed: "3.0.0"
-        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
     summary: |
         Legacy method to remove a connectivity listener.
     parameters:

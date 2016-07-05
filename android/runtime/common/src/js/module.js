@@ -323,13 +323,13 @@ Module.prototype.loadCoreModule = function (id, context) {
 
 		// Could be a sub-module (CommonJS) of an external native module.
 		// We allow that since TIMOB-9730.
-		externalCommonJsContents = kroll.getExternalCommonJsModule(filename);
+		externalCommonJsContents = kroll.getExternalCommonJsModule(id);
 		if (externalCommonJsContents) {
 			// found it
 			// FIXME Re-use loadAsJavaScriptText?
 			var module = new Module(id, this, context);
-			Module.cache[filename] = module;
-			module.load(filename, externalCommonJsContents);
+			Module.cache[id] = module;
+			module.load(id, externalCommonJsContents);
 			return module.exports;
 		}
 	}

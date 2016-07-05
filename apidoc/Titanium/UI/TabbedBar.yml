@@ -2,8 +2,7 @@
 name: Titanium.UI.TabbedBar
 deprecated:
     since: "1.8.0"
-    notes: |
-        Use <Titanium.UI.iOS.TabbedBar> instead.
+    notes: Use <Titanium.UI.iOS.TabbedBar> instead.
 summary: A button bar that maintains a selected state.
 description: |
     A tabbed bar is a button bar that

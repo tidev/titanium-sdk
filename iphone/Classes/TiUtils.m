@@ -203,11 +203,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 +(BOOL)isIOS9_3OrGreater
 {
-#if IS_XCODE_7_3
     return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
-#else
-    return NO;
-#endif
 }
 
 +(BOOL)isIOS10OrGreater
