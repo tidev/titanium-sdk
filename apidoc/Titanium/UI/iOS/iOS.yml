@@ -917,7 +917,7 @@ properties:
     since: "5.4.0"
     osver: {ios: {min: "8.0"}}
 
-  - name: BLUR_EFFECT_STYLE_DEFAULT
+  - name: BLUR_EFFECT_STYLE_REGULAR
     summary: |
         Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
     description: |
