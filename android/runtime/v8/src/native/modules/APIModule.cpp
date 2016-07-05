@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -38,107 +38,102 @@ using namespace v8;
 Persistent<FunctionTemplate> APIModule::constructorTemplate;
 
 
-void APIModule::Initialize(Handle<Object> target)
+void APIModule::Initialize(Local<Object> target, Local<Context> context)
 {
-	HandleScope scope;
-	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "debug", logDebug);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "info", logInfo);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "warn", logWarn);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "error", logError);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "trace", logTrace);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "notice", logNotice);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "critical", logCritical);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "fatal", logFatal);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "log", log);
-	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "getApiName", APIModule::getApiName);
+	Isolate* isolate = context->GetIsolate();
+	HandleScope scope(isolate);
+	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate);
+	constructor->SetClassName(NEW_SYMBOL(isolate, "API"));
+	constructorTemplate.Reset(isolate, constructor);
 
-	Local<ObjectTemplate> instanceTemplate = constructorTemplate->InstanceTemplate();
-	instanceTemplate->SetAccessor(String::NewSymbol("apiName"), APIModule::getter_apiName);
+	// Hook methods to the API prototype, notice these aren't hooked to API
+	// itself, instead we return a singleton of an API instance and export it
+	// as Ti.API
+	// Not sure why we then hook apiName as instance proprty, since
+	// the difference is made moot by the singleton!
+	SetProtoMethod(isolate, constructor, "debug", logDebug);
+	SetProtoMethod(isolate, constructor, "info", logInfo);
+	SetProtoMethod(isolate, constructor, "warn", logWarn);
+	SetProtoMethod(isolate, constructor, "error", logError);
+	SetProtoMethod(isolate, constructor, "trace", logTrace);
+	SetProtoMethod(isolate, constructor, "notice", logNotice);
+	SetProtoMethod(isolate, constructor, "critical", logCritical);
+	SetProtoMethod(isolate, constructor, "fatal", logFatal);
+	SetProtoMethod(isolate, constructor, "log", log);
+	SetProtoMethod(isolate, constructor, "getApiName", APIModule::getApiName);
+
+	// Add an "apiName" property to instances, which delegates to APIModule::getter_apiName
+	// TODO Use a constant here?
+	Local<ObjectTemplate> instanceTemplate = constructor->InstanceTemplate();
+	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "apiName"), APIModule::getter_apiName);
 
 	// Expose a method for terminating the application for the debugger.
 	// Debugger will send an evaluation request calling this method
 	// when it wants the application to terminate immediately.
 	if (V8Runtime::debuggerEnabled) {
-		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "terminate", terminate);
-		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "debugBreak", debugBreak);
+		SetProtoMethod(isolate, constructor, "terminate", terminate);
+		SetProtoMethod(isolate, constructor, "debugBreak", debugBreak);
 	}
-
-	constructorTemplate->Inherit(KrollModule::proxyTemplate);
-
-	target->Set(String::NewSymbol("API"), constructorTemplate->GetFunction()->NewInstance());
+	// Make API extend from KrollModule
+	constructor->Inherit(KrollModule::getProxyTemplate(isolate));
+	// export an instance of API as "API" (basically make a static singleton)
+	target->Set(NEW_SYMBOL(isolate, "API"), constructor->GetFunction(context).ToLocalChecked()->NewInstance(context).ToLocalChecked());
 }
 
-
-Handle<Value> APIModule::logDebug(const Arguments& args)
+void APIModule::logDebug(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logInfo(const Arguments& args)
+void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logWarn(const Arguments& args)
+void APIModule::logWarn(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logError(const Arguments& args)
+void APIModule::logError(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logTrace(const Arguments& args)
+void APIModule::logTrace(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logNotice(const Arguments& args)
+void APIModule::logNotice(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logCritical(const Arguments& args)
+void APIModule::logCritical(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(APIModule::combineLogMessages(args));
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
-
-Handle<Value> APIModule::logFatal(const Arguments& args)
+void APIModule::logFatal(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
-	String::Utf8Value message(args[0]);
+	HandleScope scope(args.GetIsolate());
+	titanium::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
-	return scope.Close(Undefined());
 }
 
 // Seems to be for internal use only, should be OK.
@@ -169,9 +164,9 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	if (logLevel == LOG_LEVEL_TRACE) {
 		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-        if (!V8Runtime::DBG) {
-            return;
-        }
+		if (!V8Runtime::DBG) {
+			return;
+		}
 		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
 		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
@@ -182,15 +177,15 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	}
 }
 
-Handle<Value> APIModule::log(const Arguments& args)
+void APIModule::log(const FunctionCallbackInfo<Value>& args)
 {
-    HandleScope scope;
+	HandleScope scope(args.GetIsolate());
 	if (args.Length()  == 1) {
-		String::Utf8Value message(args[0]);
+		titanium::Utf8Value message(args[0]);
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 	} else {
-		String::Utf8Value level(args[0]);
-		String::Utf8Value message(APIModule::combineLogMessages(args, 1));
+		titanium::Utf8Value level(args[0]);
+		titanium::Utf8Value message(APIModule::combineLogMessages(args, 1));
 
 		if (strcasecmp(*level, "TRACE") == 0) {
 			APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
@@ -210,58 +205,54 @@ Handle<Value> APIModule::log(const Arguments& args)
 			APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 		} else {
 			int size = strlen(*level) + strlen(*message) + 4;
-			
 			char *fmessage = new char[size];
 			snprintf(fmessage, size, "[%s] %s", *level, *message);
-	
 			APIModule::logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
 			delete [] fmessage;
 		}
 	}
-	
-	return scope.Close(Undefined());
 }
-                              
-Handle<Value> APIModule::combineLogMessages(const Arguments& args, int startIndex)
+
+Local<String> APIModule::combineLogMessages(const FunctionCallbackInfo<Value>& args, int startIndex)
 {
     // Unfortunately there is no really reasonable way to do this in a memory
     // and speed-efficient manner. Instead what we have is a series of string
     // object concatenations, which is a rough emulation of what the + op would
     // do in JS. Requiring the whitespace between arguments complicates matters
     // by introducing the " " token.
-    static Persistent<String> space = Persistent<String>::New(String::New(" ")); // Cache for efficiency
-    Local<String> message = String::Empty();
+    Isolate* isolate = args.GetIsolate();
+    Local<String> space = NEW_SYMBOL(isolate, " ");
+    Local<String> message = String::Empty(isolate);
     for (int i=startIndex; i < args.Length(); i++) {
-        message = String::Concat(message, String::Concat(space, args[i]->ToString()));
+        message = String::Concat(message, String::Concat(space, args[i]->ToString(isolate)));
     }
-    
+
     return message;
 }
 
-Handle<Value> APIModule::getApiName(const Arguments& args)
+void APIModule::getApiName(const FunctionCallbackInfo<Value>& args)
 {
-	return String::New("Ti.API");
+	args.GetReturnValue().Set(STRING_NEW(args.GetIsolate(), "Ti.API"));
 }
 
-Handle<Value> APIModule::getter_apiName(Local<String> property, const AccessorInfo& info)
+void APIModule::getter_apiName(Local<Name> name, const PropertyCallbackInfo<Value>& args)
 {
-	return String::New("Ti.API");
+	args.GetReturnValue().Set(STRING_NEW(args.GetIsolate(), "Ti.API"));
 }
 
-Handle<Value> APIModule::terminate(const Arguments& args)
+void APIModule::terminate(const FunctionCallbackInfo<Value>& args)
 {
 	kill(getpid(), 9);
 }
 
-Handle<Value> APIModule::debugBreak(const Arguments& args)
+void APIModule::debugBreak(const FunctionCallbackInfo<Value>& args)
 {
-	Debug::DebugBreak();
-	return Undefined();
+	Debug::DebugBreak(args.GetIsolate());
 }
 
 void APIModule::Dispose()
 {
-	constructorTemplate.Dispose();
+	constructorTemplate.Reset();
 }
 
 }

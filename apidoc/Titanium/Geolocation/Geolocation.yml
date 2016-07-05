@@ -247,6 +247,9 @@ methods:
         the user has to manually enable the permission in device settings. If the user asks for permissions or 
         tries to get unauthorized location information, then the app should call the request method to show 
         the permission settings.
+
+        This method requests `Manifest.permission.ACCESS_FINE_LOCATION` on Android. If you require other permissions, you can also
+        use <Titanium.Android.requestPermissions>.
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.

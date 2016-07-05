@@ -35,6 +35,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
@@ -43,6 +44,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -911,12 +913,22 @@ public class MediaModule extends KrollModule
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
-		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
+		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
 		galleryIntent.getIntent().setType("image/*");
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
+		
+		final int PICK_IMAGE_SINGLE   = activitySupport.getUniqueResultCode();
+		final int PICK_IMAGE_MULTIPLE = activitySupport.getUniqueResultCode();
+		boolean allowMultiple = false;
+		
+		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE) && Build.VERSION.SDK_INT >= 18) {
+			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
+			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+		}
+		
+		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
 
-		final int code = activitySupport.getUniqueResultCode();
 		 activitySupport.launchActivityForResult(galleryIntent.getIntent(), code,
 			new TiActivityResultHandler() {
 
@@ -926,14 +938,13 @@ public class MediaModule extends KrollModule
 						return;
 					}
 					Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-					
 					String path = null;
 					if (data != null) {
 						path = data.getDataString();
 					}
 					//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
-					//an ok code and a null path.
-					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && path == null)) {
+					//an ok code and a null data.
+					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && data == null)) {
 						if (fCancelCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(NO_ERROR, null);
@@ -941,6 +952,40 @@ public class MediaModule extends KrollModule
 						}
 
 					} else {
+						
+						if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18) {
+							ClipData clipdata = data.getClipData();
+							if (clipdata != null) {
+
+								int count = clipdata.getItemCount();
+								KrollDict[] selectedPhotos = new KrollDict[count];
+								for (int i=0; i<count; i++) {
+									ClipData.Item item = clipdata.getItemAt(i);
+									selectedPhotos[i] = createDictForImage(item.getUri().toString(), "image/jpeg");
+								}
+
+								if (fSuccessCallback != null) {
+									KrollDict d = new KrollDict();
+									d.putCodeAndMessage(NO_ERROR, null);
+									d.put("images", selectedPhotos);
+									fSuccessCallback.callAsync(getKrollObject(), d);
+								}
+
+							} else if (path != null) {
+
+							    KrollDict[] selectedPhotos = new KrollDict[1];
+							    selectedPhotos[0] = createDictForImage(path, "image/jpeg");
+							    if (fSuccessCallback != null) {
+							        KrollDict d = new KrollDict();
+							        d.putCodeAndMessage(NO_ERROR, null);
+							        d.put("images", selectedPhotos);
+							        fSuccessCallback.callAsync(getKrollObject(), d);
+							    }
+
+							}
+							return;
+						}
+						
 						try {
 							//Check for invalid path
 							if (path == null) {

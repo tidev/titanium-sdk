@@ -142,7 +142,7 @@ properties:
   - name: pinImage
     deprecated:
         since: "1.4"
-        notes: Use <Titanium.Map.Annotation.image> property instead.
+        notes: Use <Titanium.Map.Annotation.image> instead.
     summary: Image for the pin instead of the default image.
     platforms: [android]
     type: String

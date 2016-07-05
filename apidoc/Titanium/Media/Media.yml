@@ -213,6 +213,9 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
+        This method requests `Manifest.permission.CAMERA` on Android. If you require other permissions, you can also
+        use <Titanium.Android.requestPermissions>.
+
         On iOS, the request view will only show if user has not yet made a decision.
         If the user has, the callback will return the earlier decision. To change the permission
         the user needs to change it in device settings.
@@ -226,7 +229,7 @@ methods:
   - name: requestCameraAccess
     deprecated:
        since: "5.1.0"
-       notes: Please use [requestCameraPermissions]<Titanium.Media.requestCameraPermissions>
+       notes: Please use <Titanium.Media.requestCameraPermissions> instead.
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting
@@ -297,13 +300,13 @@ events:
   - name: linechange
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the [routechange](Titanium.Media.routechange) event instead.
+        notes: Titanium no longer fires this event. Use the <Titanium.Media.routechange> event instead.
     summary: Fired when an audio line type change is detected.
     platforms: [iphone, ipad]
   - name: recordinginput
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the [canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
+        notes: Titanium no longer fires this event. Use the <Titanium.Media.canRecord> property to check if an input hardware is available.
     summary: Fired when the availablity of recording input changes.
     properties:
       - name: available
@@ -783,7 +786,7 @@ properties:
     osver: {ios: {min: "7.0"}}
     deprecated:
         since: "5.2.0"
-        notes: Use [CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
+        notes: Use <Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN> instead.
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
@@ -1250,7 +1253,7 @@ properties:
   - name: audioLineType
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of [currentRoute](Titanium.Media.currentRoute) property defined in <Titanium.Media>.
+        notes: Use <Titanium.Media.currentRoute> instead.
     summary: Returns the line type constant for the current line type.
     type: Number
     platforms: [iphone, ipad]
@@ -1274,7 +1277,7 @@ properties:
   - name: audioSessionMode
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the Titanium.Media.audioSessionCategory property.
+        notes: Use <Titanium.Media.audioSessionCategory> instead.
     summary: A constant for the audio session mode to be used.
     description: |
         Set to one of the `AUDIO_SESSION_MODE` constants defined in <Titanium.Media>.
@@ -1345,7 +1348,7 @@ properties:
         Returns the authorization status for the camera.
     deprecated:
         since: "5.2.0"
-        notes: Use cameraAuthorization instead.
+        notes: Use <Titanium.Media.cameraAuthorization> instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
@@ -1673,6 +1676,13 @@ properties:
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
+  - name: allowMultiple
+    summary: Specifies if the user should be able to select multiple photos.
+    description: |
+        The allowMultiple property is only available on Android API 18 and above.
+    type: Boolean
+    platforms: [android]
+    since: "6.0.0"
 
 ---
 name: CameraMediaItemType

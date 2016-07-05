@@ -45,6 +45,9 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
 
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_CLIP;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_START;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_END;
@@ -198,6 +201,12 @@
 @property(nonatomic,readonly) NSString *TEXT_STYLE_FOOTNOTE;
 @property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION1;
 @property(nonatomic,readonly) NSString *TEXT_STYLE_CAPTION2;
+
+//IOS9 TextStyle Constants
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE1;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE2;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_TITLE3;
+@property(nonatomic,readonly) NSString *TEXT_STYLE_CALLOUT;
 
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;

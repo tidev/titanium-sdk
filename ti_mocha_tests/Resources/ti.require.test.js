@@ -62,4 +62,12 @@ describe("require", function () {
         should(object.name).be.eql('commonjs.legacy.package/main.js');
         finish();
     });
+    
+	// FIXME: Get parity across implementations. Android needs to adopt the iOS/Windows behavior.
+    ((utilities.isAndroid()) ? it.skip : it)('requireJS.__filename', function () {
+        var object = require('with_subfolder/sub/test');
+        should(object).be.an.Object;
+        should(object.filename).be.a.String;
+        should(object.filename).be.eql('/with_subfolder/sub/test.js');
+    });
 });

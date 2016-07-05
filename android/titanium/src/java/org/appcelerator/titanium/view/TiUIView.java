@@ -895,21 +895,41 @@ public abstract class TiUIView
 				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_X)) {
-			if (nativeView != null) {
-				ViewCompat.setTranslationX(nativeView, TiConvert.toFloat(newValue));
+			if (getOuterView() != null) {
+				ViewCompat.setTranslationX(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_Y)) {
-			if (nativeView != null) {
-				ViewCompat.setTranslationY(nativeView, TiConvert.toFloat(newValue));
+			if (getOuterView() != null) {
+				ViewCompat.setTranslationY(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_Z)) {
-			if (nativeView != null) {
-				ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(newValue));
+			if (getOuterView() != null) {
+				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) { 
 		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) { 
 		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
 		    }
+		} else if (key.equals(TiC.PROPERTY_SCALE_X)) { 			
+			if (getOuterView() != null) {
+				ViewCompat.setScaleX(getOuterView(), TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_SCALE_Y)) { 
+			if (getOuterView() != null) {
+				ViewCompat.setScaleY(getOuterView(), TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_ROTATION)) { 
+			if (getOuterView() != null) {
+				ViewCompat.setRotation(getOuterView(), TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_ROTATION_X)) { 
+			if (getOuterView() != null) {
+				ViewCompat.setRotationX(getOuterView(), TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_ROTATION_Y)) { 
+			if (getOuterView() != null) {
+				ViewCompat.setRotationY(getOuterView(), TiConvert.toFloat(newValue));
+			}
 		} else if (Log.isDebugModeEnabled()) {
 		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -1000,6 +1020,26 @@ public abstract class TiUIView
 		
 		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull){
 			ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ROTATION) && !nativeViewNull){
+			ViewCompat.setRotation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ROTATION_X) && !nativeViewNull){
+			ViewCompat.setRotationX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION_X));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_ROTATION_Y) && !nativeViewNull){
+			ViewCompat.setRotationY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION_Y));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_SCALE_X) && !nativeViewNull){
+			ViewCompat.setScaleX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_SCALE_X));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_SCALE_Y) && !nativeViewNull){
+			ViewCompat.setScaleY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_SCALE_Y));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_X) && !nativeViewNull){

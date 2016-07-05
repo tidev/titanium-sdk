@@ -591,7 +591,7 @@ description: |
     By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
     This object lets developers define custom titles for editing actions supported on the row. 
     This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
-    [rowAction](Titanium.UI.ListView.rowAction) event. 
+    [editaction](Titanium.UI.ListView.editaction) event. 
 platforms: [ipad, iphone]
 since: '4.1.0' 
 osver: {ios: {min: "8.0"}}
@@ -600,6 +600,12 @@ properties:
     type: String
     summary: The title of the row action.
     optional: false
+    
+  - name: identifier
+    summary: |
+        The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+        if previously defined. Available in Titanium 6.0.0 and later.
+    type: String
 
   - name: style
     type: Number
