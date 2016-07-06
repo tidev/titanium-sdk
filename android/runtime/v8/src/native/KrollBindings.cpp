@@ -80,12 +80,12 @@ void KrollBindings::initTitanium(Local<Object> exports, Local<Context> context)
 	TitaniumModule::bindProxy(exports, context);
 }
 
-void KrollBindings::disposeTitanium()
+void KrollBindings::disposeTitanium(Isolate* isolate)
 {
-	Proxy::dispose();
-	KrollProxy::dispose();
-	KrollModule::dispose();
-	TitaniumModule::dispose();
+	Proxy::dispose(isolate);
+	KrollProxy::dispose(isolate);
+	KrollModule::dispose(isolate);
+	TitaniumModule::dispose(isolate);
 }
 
 static Persistent<Object> bindingCache;
@@ -218,7 +218,7 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 	for (iter = externalBindings.begin(); iter != externalBindings.end(); ++iter) {
 		bindings::BindEntry *external = iter->second;
 		if (external && external->dispose) {
-			external->dispose();
+			external->dispose(isolate);
 		}
 	}
 
@@ -236,19 +236,19 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 
 		struct titanium::bindings::BindEntry *generated = bindings::generated::lookupGeneratedInit(*binding, bindingLength);
 		if (generated && generated->dispose) {
-			generated->dispose();
+			generated->dispose(isolate);
 			continue;
 		}
 
 		struct titanium::bindings::BindEntry *native = bindings::native::lookupBindingInit(*binding, bindingLength);
 		if (native && native->dispose) {
-			native->dispose();
+			native->dispose(isolate);
 			continue;
 		}
 
 		struct titanium::bindings::BindEntry *lookup = externalLookupBindings[*binding];
 		if (lookup && lookup->dispose) {
-			lookup->dispose();
+			lookup->dispose(isolate);
 			continue;
 		}
 	}

@@ -18,7 +18,7 @@ namespace titanium {
 
 namespace bindings {
 	typedef void (*BindCallback)(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
-	typedef void (*DisposeCallback)();
+	typedef void (*DisposeCallback)(v8::Isolate* isolate);
 
 	struct BindEntry {
 		const char *name;
@@ -45,7 +45,7 @@ public:
 
 	static void initNatives(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
 	static void initTitanium(v8::Local<v8::Object> exports, v8::Local<v8::Context> context);
-	static void disposeTitanium();
+	static void disposeTitanium(v8::Isolate* isolate);
 
 	static v8::Local<v8::String> getMainSource(v8::Isolate* isolate);
 

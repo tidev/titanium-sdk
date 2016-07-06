@@ -379,7 +379,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
-		<property name="ndk.build.args" value=""/>
+		<property name="ndk.build.args" value="-j8"/>
 		<property name="kroll.v8.build.x86" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>

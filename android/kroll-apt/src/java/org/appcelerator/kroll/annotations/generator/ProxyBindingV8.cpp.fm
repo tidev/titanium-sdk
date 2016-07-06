@@ -64,7 +64,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	</#if>
 }
 
-void ${className}::dispose()
+void ${className}::dispose(Isolate* isolate)
 {
 	LOGD(TAG, "dispose()");
 	if (!proxyTemplate.IsEmpty()) {
@@ -72,7 +72,7 @@ void ${className}::dispose()
 	}
 
 	<#if superProxyClassName??>
-	<@Proxy.superNamespace/>${superProxyClassName}::dispose();
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose(isolate);
 	</#if>
 }
 

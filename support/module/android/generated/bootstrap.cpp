@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -86,9 +86,8 @@ static void %(className)s_init(Local<Object> exports, Local<Context> context)
 	exports->Set(String::NewFromUtf8(isolate, "getBinding"), constructor->GetFunction(context).ToLocalChecked());
 }
 
-static void %(className)s_dispose()
+static void %(className)s_dispose(Isolate* isolate)
 {
-	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 	if (bindingCache.IsEmpty()) {
 		return;
@@ -105,7 +104,7 @@ static void %(className)s_dispose()
 			::%(className)sBindings::lookupGeneratedInit(*binding, bindingLength);
 
 		if (extBinding && extBinding->dispose) {
-			extBinding->dispose();
+			extBinding->dispose(isolate);
 		}
 	}
 
