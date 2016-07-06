@@ -463,10 +463,10 @@ typedef enum
 /**
  Converts input values in to a NSDictionary.
  @param touch The UITouch object. Containing all the UITouch attributes.
- @param point The point on the view , before the touch even is triggered.
+ @param view  The view, in which the touch is being used.
  @return NSDictionary containing the point coordinates and UITouch properties.
  */
-+(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point;
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andView:(UIView*)view;
 
 +(UIEdgeInsets)contentInsets:(id)value;
 

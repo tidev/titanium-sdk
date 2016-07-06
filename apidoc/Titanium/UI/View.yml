@@ -432,6 +432,19 @@ events:
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
 
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -477,6 +490,18 @@ events:
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -520,6 +545,18 @@ events:
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -559,6 +596,18 @@ events:
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
         type: Number
 
   - name: twofingertap

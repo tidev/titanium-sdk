@@ -1163,12 +1163,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			nil];
 }
 
-+(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andView:(UIView*)view
 {
     if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-         [NSNumber numberWithDouble:point.x],@"x",
-         [NSNumber numberWithDouble:point.y],@"y",
+         [NSNumber numberWithDouble:[touch locationInView:view].x],@"x",
+         [NSNumber numberWithDouble:[touch locationInView:view].y],@"y",
          [NSNumber numberWithFloat:touch.force],@"force",
          [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
          [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
@@ -1177,11 +1177,16 @@ If the new path starts with / and the base url is app://..., we have to massage 
         if ([self isIOS9_1OrGreater]) {
             [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
         }
+        
+        if ([self validatePencilWithTouch:touch]) {
+            [dict setValue:[NSNumber numberWithFloat:[touch azimuthUnitVectorInView:view].dx] forKey:@"azimuthUnitVectorInViewX"];
+            [dict setValue:[NSNumber numberWithFloat:[touch azimuthUnitVectorInView:view].dy] forKey:@"azimuthUnitVectorInViewY"];
+        }
 
         return dict;
     }
     
-    return [self pointToDictionary:point];
+    return [self pointToDictionary:[touch locationInView:view]];
 }
 
 +(CGRect)contentFrame:(BOOL)window
