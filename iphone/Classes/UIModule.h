@@ -142,13 +142,6 @@
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
 
-@property(nonatomic,readonly) NSNumber *AUTODETECT_NONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ALL;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_PHONE;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_LINK;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
-@property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
-
 @property(nonatomic,readonly) NSNumber *AUTOLINK_NONE;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_ALL;
 @property(nonatomic,readonly) NSNumber *AUTOLINK_PHONE_NUMBERS;
@@ -236,7 +229,7 @@
 @property(nonatomic,readonly)			TiProxy* Clipboard;
 #endif
 
-#if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;

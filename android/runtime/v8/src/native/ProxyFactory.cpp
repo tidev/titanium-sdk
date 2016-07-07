@@ -206,7 +206,7 @@ jobject ProxyFactory::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>&
 	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
 }
 
-void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate, bool createDeprecated)
+void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate)
 {
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
@@ -216,12 +216,7 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
-
-	if (createDeprecated) {
-		info.javaProxyCreator = JNIUtil::krollProxyCreateDeprecatedProxyMethod;
-	} else {
-		info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
-	}
+	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
 
 	factories[javaProxyClass] = info;
 }

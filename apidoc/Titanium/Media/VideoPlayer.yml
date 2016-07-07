@@ -115,7 +115,7 @@ examples:
                 var activeMovie = Titanium.Media.createVideoPlayer({
                     url : contentURL,
                     backgroundColor : 'blue',
-                    movieControlMode : Titanium.Media.VIDEO_CONTROL_DEFAULT,
+                    mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
                     scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
                     fullscreen : true,
                     autoplay : true
@@ -201,43 +201,6 @@ methods:
         summary: Callback to invoke when a thumbnail is available.
         type: Callback<ThumbnailResponse>
 
-  - name: setBackgroundView
-    summary: Sets the background view for customization which is always displayed behind movie content.
-    description: |
-        To create a background behind the movie content on iOS, you can specify a 
-        background view. On iOS, you can set the `backgroundColor` property directly on
-        the video player, but not a background image or background gradient. For this kind
-        of effect, specify a background view. 
-        
-        Note that the background view must be sized explicitly: percentage sizes do not work properly.
-
-        The following code sample creates a video player with a background image:
-
-            var videoPlayer = Titanium.Media.createVideoPlayer({
-                height : 300,
-                width : 300,
-                backgroundView : Ti.UI.createView({
-                    backgroundImage: 'videoPlayerBG.png
-                    width : 300,
-                    height : 300
-                })
-                borderRadius : 20,
-                borderWidth : 2,
-                borderColor : 'blue',
-            });
-
-        Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to 
-        [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or 
-        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
-        the playing video will fill the entire video player area, obscuring any background
-        view.
-    platforms: [iphone, ipad]
-    parameters:
-
-      - name: view
-        summary: View to set.
-        type: Titanium.UI.View
-
   - name: stop
     summary: Stops playing the video.
 
@@ -304,7 +267,6 @@ events:
         summary: Video duration, in milliseconds.
         type: Number
 
-
   - name: durationavailable
     summary: Fired when the video duration is available.
     properties:
@@ -312,7 +274,6 @@ events:
         summary: Video duration, in milliseconds.
         type: Number
     since: '3.0.0'
-
 
   - name: error
     summary: Fired when movie playback encounters an error.
@@ -322,17 +283,14 @@ events:
         type: String
         deprecated:
             since: "3.1.0"
-
       - name: success
         summary: Indicates a successful operation. Returns `false`.
         type: Boolean
         platforms: [android]
-
       - name: error
         summary: Error message, if any returned. May be undefined.
         type: String
-        platforms: [android]
-    
+        platforms: [android]    
       - name: code
         summary: |
             Error code.
@@ -341,8 +299,6 @@ events:
         type: Number
         platforms: [android]
     platforms: [android, mobileweb]
-
-
 
   - name: fullscreen
     summary: Fired when a movie changes to or from fullscreen view.
@@ -442,7 +398,6 @@ events:
         type: Number
         constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     since: '3.0.0'
-
 
   - name: playing
     summary: Fired when the currently playing movie changes.
@@ -575,7 +530,39 @@ properties:
         conditions (if the movie is being streamed from a remote source).
     type: Boolean
     default: true
+    
+  - name: backgroundView
+    summary: Sets the background view for customization which is always displayed behind movie content.
+    description: |
+        To create a background behind the movie content on iOS, you can specify a 
+        background view. On iOS, you can set the `backgroundColor` property directly on
+        the video player, but not a background image or background gradient. For this kind
+        of effect, specify a background view. 
+           
+        Note that the background view must be sized explicitly: percentage sizes do not work properly.
 
+        The following code sample creates a video player with a background image:
+
+            var videoPlayer = Ti.Media.createVideoPlayer({
+                height : 300,
+                width : 300,
+                backgroundView : Ti.UI.createView({
+                    backgroundImage: 'videoPlayerBG.png
+                    width : 300,
+                    height : 300
+                }),
+                borderRadius : 20,
+                borderWidth : 2,
+                borderColor : 'blue',
+            });
+
+        Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to 
+        [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or 
+        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
+        the playing video will fill the entire video player area, obscuring any background
+        view.
+    platforms: [iphone, ipad]
+    type: Titanium.UI.View
 
   - name: contentURL
     summary: URL of the media to play.
@@ -585,11 +572,9 @@ properties:
         notes: Use <Titanium.Media.VideoPlayer.url> instead.
     type: String
 
-
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
-
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
@@ -598,7 +583,6 @@ properties:
         [durationavailable](Titanium.Media.VideoPlayer.durationavailable) event is 
         fired when the duration is known.
     type: Number
-
 
   - name: endPlaybackTime
     summary: The end time of movie playback, in milliseconds.
@@ -611,7 +595,6 @@ properties:
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration)
         (the natural end time), and changing the value has no effect.
     type: Number
-
 
   - name: fullscreen
     summary: |
@@ -631,26 +614,22 @@ properties:
     type: Boolean
     default: false
 
-
   - name: initialPlaybackTime
     summary: The start time of movie playback, in milliseconds.
     description: |
         Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
 
-
   - name: loadState
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
-
 
   - name: media
     summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
     type: [Titanium.Blob, Titanium.Filesystem.File, String]
     permission: write-only
-
 
   - name: mediaControlStyle
     summary: The style of the playback controls.
@@ -660,7 +639,6 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
-
 
   - name: mediaTypes
     summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
@@ -703,7 +681,6 @@ properties:
     platforms: [iphone, ipad]
     type: MovieSize
 
-
   - name: playableDuration
     summary: |
         Currently playable duration of the movie, in milliseconds, for progressively 
@@ -722,7 +699,6 @@ properties:
     constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
     permission: read-only
 
-
   - name: playing
     summary: Boolean to indicate if the player has started playing.
     type: Boolean
@@ -735,7 +711,6 @@ properties:
     constants: Titanium.Media.VIDEO_REPEAT_MODE_*
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
 
-
   - name: scalingMode
     summary: Determines how the content scales to fit the view.
     description: |
@@ -744,7 +719,6 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_SCALING_*
     default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
-
 
   - name: sourceType
     summary: The playback type of the movie. 

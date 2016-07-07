@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -56,11 +55,6 @@ public class TableViewModel
 
 		viewModel = new ArrayList<Item>();
 		dirty = true;
-	}
-
-	public TableViewModel(TiContext tiContext, TableViewProxy proxy)
-	{
-		this(proxy);
 	}
 
 	public void release() {
@@ -158,7 +152,7 @@ public class TableViewModel
 							Log.e(TAG, "FooterView must be of type TiViewProxy");
 						}
 					}
-					
+
 					sectionIndex++;
 					indexInSection = 0;
 				}

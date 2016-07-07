@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,7 +23,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiContext;
 import org.xml.sax.SAXException;
 
 @Kroll.module
@@ -32,7 +31,7 @@ public class XMLModule extends KrollModule {
 	private static DocumentBuilder builder;
 	private static final String TAG = "XMLModule";
 	private static TransformerFactory transformerFactory;
-	
+
 	static {
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -50,28 +49,17 @@ public class XMLModule extends KrollModule {
 		super();
 	}
 
-	public XMLModule(TiContext context)
-	{
-		this();
-	}
-	
 	@Kroll.method
 	public DocumentProxy parseString(String xml)
 		throws SAXException, IOException
 	{
 		return parse(xml);
 	}
-	
+
 	public static DocumentProxy parse(String xml)
 		throws SAXException, IOException
 	{
 		return parse(xml, System.getProperty("file.encoding", "UTF-8"));
-	}
-
-	public static DocumentProxy parse(TiContext tiContext, String xml)
-		throws SAXException, IOException
-	{
-		return XMLModule.parse(xml);
 	}
 
 	public static DocumentProxy parse(String xml, String encoding)
@@ -89,12 +77,6 @@ public class XMLModule extends KrollModule {
 			}
 		}
 		return null;
-	}
-
-	public static DocumentProxy parse(TiContext tiContext, String xml, String encoding)
-		throws SAXException, IOException
-	{
-		return XMLModule.parse(xml, encoding);
 	}
 
 	@Kroll.method

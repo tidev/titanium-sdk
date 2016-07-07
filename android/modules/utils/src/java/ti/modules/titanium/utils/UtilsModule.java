@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
@@ -44,11 +43,6 @@ public class UtilsModule extends KrollModule
 		} else {
 			throw new IllegalArgumentException("Invalid type for argument");
 		}
-	}
-
-	public UtilsModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -116,7 +110,7 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d) 
+	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d)
 	{
 		return true;
 	}
@@ -152,7 +146,7 @@ public class UtilsModule extends KrollModule
 	public String transcodeString(String orig, String inEncoding, String outEncoding)
 	{
 		try {
-			
+
 			Charset charsetOut = Charset.forName(outEncoding);
 			Charset charsetIn = Charset.forName(inEncoding);
 
@@ -167,9 +161,9 @@ public class UtilsModule extends KrollModule
 			byte[] dataOut = bufferOut.array();
 			bufferOut.clear();
 			bufferOut = null;
-			
+
 			return new String(dataOut, charsetOut.name());
-			
+
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "Unsupported encoding: " + e.getMessage(), e);
 		}

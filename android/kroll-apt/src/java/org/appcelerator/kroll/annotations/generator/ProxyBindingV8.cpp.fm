@@ -64,7 +64,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	</#if>
 }
 
-void ${className}::dispose()
+void ${className}::dispose(Isolate* isolate)
 {
 	LOGD(TAG, "dispose()");
 	if (!proxyTemplate.IsEmpty()) {
@@ -72,7 +72,7 @@ void ${className}::dispose()
 	}
 
 	<#if superProxyClassName??>
-	<@Proxy.superNamespace/>${superProxyClassName}::dispose();
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose(isolate);
 	</#if>
 }
 
@@ -102,12 +102,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 	t->Set(titanium::Proxy::inheritSymbol.Get(isolate),
 		FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>)->GetFunction());
 
-	<#if (useTiContext!false)>
-	<#-- this proxy has a TiContext constructor, use the deprecated TiContext for compatibility -->
-	titanium::ProxyFactory::registerProxyPair(javaClass, *t, true);
-	<#else>
 	titanium::ProxyFactory::registerProxyPair(javaClass, *t);
-	</#if>
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>

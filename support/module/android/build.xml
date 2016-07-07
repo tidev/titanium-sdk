@@ -189,7 +189,6 @@ timodule.xml.
 				<compilerarg value="${genjson}"/>
 				<compilerarg line="-Akroll.jsonFile=${manifest.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
-				<compilerarg line="-Akroll.checkTiContext=true"/>
 				<classpath refid="project.classpath"/>
 		</javac>
 	</target>

@@ -13,6 +13,7 @@
 namespace titanium {
 
 using v8::Local;
+using v8::Isolate;
 using v8::Object;
 using v8::Context;
 using v8::Persistent;
@@ -26,7 +27,7 @@ class ScriptsModule
 {
 public:
 	static void Initialize(Local<Object> target, Local<Context> context);
-	static void Dispose();
+	static void Dispose(Isolate* isolate);
 };
 
 class WrappedScript;

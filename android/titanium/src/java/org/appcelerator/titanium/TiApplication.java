@@ -593,16 +593,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return appProperties;
 	}
 
-	/**
-	 * @deprecated
-	 */
-	public TiProperties getSystemProperties()
-	{
-		// This should actually be removed, but we are changing it to 'appProperties' instead so we don't break module
-		// developers who use this.
-		return appProperties;
-	}
-
 	public ITiAppInfo getAppInfo()
 	{
 		return appInfo;
@@ -648,17 +638,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		return getAppInfo().isAnalyticsEnabled();
 	}
-	
+
 	public boolean runOnMainThread()
 	{
 		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
-	
+
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
 	}
-	
+
 	public boolean isAnalyticsFiltered(String eventName)
 	{
 		if (filteredAnalyticsEvents == null) {
@@ -670,7 +660,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-					
+
 		}
 		return false;
 	}
@@ -903,4 +893,3 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
-

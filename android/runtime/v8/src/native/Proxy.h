@@ -114,7 +114,7 @@ public:
 		return static_cast<Proxy*>(ptr);
 	}
 
-	static void dispose();
+	static void dispose(v8::Isolate* isolate);
 
 private:
 	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
