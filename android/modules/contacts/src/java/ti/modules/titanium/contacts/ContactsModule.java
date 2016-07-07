@@ -109,6 +109,11 @@ public class ContactsModule extends KrollModule
 	}
 
 	@Kroll.method
+	public int getSizeOfAllPeople() {
+	    return contactsApi.getSizeOfAllPeople();
+	}
+
+	@Kroll.method
 	public PersonProxy createPerson(KrollDict options)
 	{
 		return contactsApi.addContact(options);

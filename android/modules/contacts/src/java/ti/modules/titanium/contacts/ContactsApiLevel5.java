@@ -233,6 +233,53 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	}
 
 	@Override
+	protected int getSizeOfAllPeople() {
+	    if (!hasContactsPermissions()) {
+	        Log.e(TAG, "Contacts permissions missing");
+	        return -1;
+	    }
+
+	    if (TiApplication.getInstance() == null) {
+	        Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
+	        return -1;
+	    }
+
+	    Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
+	    if (activity == null) {
+	        Log.e(TAG, "Failed to call getPeople(), activity is null", Log.DEBUG_MODE);
+	        return -1;
+	    }
+
+	    LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
+
+	    String condition = "mimetype IN " + INConditionForKinds;
+
+	    Cursor cursor = activity.getContentResolver().query(
+	            DataUri,
+	            DATA_PROJECTION,
+	            condition,
+	            null,
+	            "display_name COLLATE LOCALIZED asc, contact_id asc, mimetype asc, is_super_primary desc, is_primary desc");
+
+	    while (cursor.moveToNext()) {
+	        long id = cursor.getLong(DATA_COLUMN_CONTACT_ID);
+	        CommonContactsApi.LightPerson person;
+	        if (persons.containsKey(id)) {
+	            person = persons.get(id);
+	        } else {
+	            person = new CommonContactsApi.LightPerson();
+	            person.addPersonInfoFromL5DataRow(cursor);
+	            persons.put(id, person);
+	        }
+	        person.addDataFromL5Cursor(cursor);
+	    }
+
+	    cursor.close();
+
+	    return persons.size();
+	}
+
+	@Override
 	protected Intent getIntentForContactsPicker()
 	{
 		return new Intent(Intent.ACTION_PICK, ContactsUri);

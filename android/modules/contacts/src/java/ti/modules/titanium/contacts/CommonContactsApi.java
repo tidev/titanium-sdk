@@ -86,6 +86,7 @@ public abstract class CommonContactsApi
 	protected abstract void save(Object people);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
 	protected abstract PersonProxy[] getAllPeople(int maxLimit, int offset);
+	protected abstract int getSizeOfAllPeople();
 	protected abstract PersonProxy[] getPeopleWithName(String name);
 	protected abstract Intent getIntentForContactsPicker();
 	protected abstract Bitmap getInternalContactImage(long id);
