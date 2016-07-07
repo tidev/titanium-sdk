@@ -44,6 +44,13 @@
     }
 }
 
+-(void)refreshingDidEnd
+{
+    if ([self _hasListeners:@"refreshend"]) {
+        [self fireEvent:@"refreshend" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+}
+
 #pragma mark - Public APIs
 
 -(void)setTitle:(id)value
@@ -81,6 +88,7 @@
 {
     TiThreadPerformOnMainThread(^{
         [[self control] endRefreshing];
+        [self refreshingDidEnd];
     }, NO);
 }
 
