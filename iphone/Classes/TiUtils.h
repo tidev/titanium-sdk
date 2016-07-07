@@ -155,6 +155,13 @@ typedef enum
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 
 /**
+ Changes to image rotation, so the image is facing up.
+ @param Image to be rotated.
+ @return The rotated image.
+ */
++(UIImage *)adjustRotation:(UIImage *)image;
+
+/**
  Constructs URL from string using provided base URL.
  @param relativeString The relative URL
  @param rootPath The base URL.
