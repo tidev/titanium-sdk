@@ -56,7 +56,7 @@
 -(void)setTitle:(id)value
 {
 #if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
-	ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
+    ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
     [self replaceValue:value forKey:@"title" notification:NO];
     
     TiThreadPerformOnMainThread(^{
