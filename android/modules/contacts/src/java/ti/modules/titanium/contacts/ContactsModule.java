@@ -87,16 +87,20 @@ public class ContactsModule extends KrollModule
 		Calendar start = Calendar.getInstance();
 		//TODO: right now, this is needed to be able to constrain
 		//temporarily for a specific app.. we need to rethink this entire API
-		int length = Integer.MAX_VALUE;
+		int maxLimit = Integer.MAX_VALUE;
+		int offset = 0;
 		if (options != null) {
-			if (options.containsKey("max"))
-			{
-				Double maxObj = (Double)options.get("max");
-				length = maxObj.intValue();
+			if (options.containsKey("max")){
+			    Integer maxObj = (Integer)options.get("max");
+			    maxLimit = maxObj.intValue();
+			}
+			if (options.containsKeyAndNotNull("offset")){
+			    Integer offsetObj = (Integer)options.get("offset");
+			    offset = offsetObj.intValue();
 			}
 		}
 
-		Object[] persons = contactsApi.getAllPeople(length);
+		Object[] persons = contactsApi.getAllPeople(maxLimit, offset);
 
 		Calendar end = Calendar.getInstance();
 		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();
