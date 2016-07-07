@@ -230,15 +230,16 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
 		isolate = Isolate::New(create_params);
+		isolate->Enter();
 
 		V8Runtime::v8_isolate = isolate;
-		Isolate::Scope isolate_scope(isolate);
 
 		// Log all uncaught V8 exceptions.
 		V8::AddMessageListener(&logV8Exception);
 		V8::SetCaptureStackTraceForUncaughtExceptions(true);
 	} else {
 		isolate = V8Runtime::v8_isolate;
+		isolate->Enter();
 	}
 
 	HandleScope scope(isolate);
@@ -441,6 +442,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	// because we can't re-initialize once it's disposed.
 
 	// Do final cleanup
+	V8Runtime::v8_isolate->Exit();
 	//V8Runtime::v8_isolate->Dispose();
 	//V8::Dispose();
 	//V8::ShutdownPlatform();
