@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -57,12 +56,6 @@ public class TextFieldProxy extends TiViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
-
-	}
-
-	public TextFieldProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -76,14 +69,14 @@ public class TextFieldProxy extends TiViewProxy
 	{
 		return new TiUIText(this, true);
 	}
-	
+
 	@Kroll.method
 	public Boolean hasText()
 	{
 		Object text = getProperty(TiC.PROPERTY_VALUE);
 		return (TiConvert.toString(text, "").length() > 0);
 	}
-	
+
 	@Kroll.method
 	public void setSelection(int start, int stop)
 	{
@@ -99,7 +92,7 @@ public class TextFieldProxy extends TiViewProxy
 			getMainHandler().obtainMessage(MSG_SET_SELECTION, args).sendToTarget();
 		}
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public KrollDict getSelection()
 	{
@@ -114,7 +107,7 @@ public class TextFieldProxy extends TiViewProxy
 			return null;
 		}
 	}
-	
+
 
 	public boolean handleMessage(Message msg)
 	{

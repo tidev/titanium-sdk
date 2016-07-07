@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -53,16 +52,11 @@ public class NodeProxy extends KrollProxy
 		this.node = node;
 	}
 
-	public NodeProxy(TiContext tiContext, Node node)
-	{
-		this(node);
-	}
-
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	public static NodeProxy getNodeProxy(Node node)
 	{
 		if (node == null) {
@@ -115,21 +109,11 @@ public class NodeProxy extends KrollProxy
 		return proxy;
 	}
 
-	public static NodeProxy getNodeProxy(TiContext tiContext, Node node)
-	{
-		return getNodeProxy(node);
-	}
-
-	public static NodeProxy removeProxyForNode(Node node) 
+	public static NodeProxy removeProxyForNode(Node node)
 	{
 		// if we're here then a proxy was never generated for this node
 		// just return a temporary wrapper in this case
 		return new NodeProxy(node);
-	}
-
-	public static NodeProxy removeProxyForNode(TiContext tiContext, Node node)
-	{
-		return removeProxyForNode(node);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -179,7 +163,7 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getLocalName() 
+	public String getLocalName()
 	{
 		return node.getLocalName();
 	}
@@ -197,7 +181,7 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getNodeName() 
+	public String getNodeName()
 	{
 		return node.getNodeName();
 	}
@@ -259,7 +243,7 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean isSupported(String feature, String version) 
+	public boolean isSupported(String feature, String version)
 	{
 		return node.isSupported(feature, version);
 	}
@@ -287,7 +271,7 @@ public class NodeProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setNodeValue(String nodeValue) 
+	public void setNodeValue(String nodeValue)
 		throws DOMException
 	{
 		node.setNodeValue(nodeValue);

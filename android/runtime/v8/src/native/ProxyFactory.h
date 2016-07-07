@@ -38,7 +38,7 @@ public:
 	static jobject unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	// Setup a new proxy pair for some Kroll type.
-	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory, bool createDeprecated = false);
+	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
 
 	// The generic constructor for all proxies
 	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
