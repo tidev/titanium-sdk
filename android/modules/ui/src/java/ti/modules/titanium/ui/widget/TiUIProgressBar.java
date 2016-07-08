@@ -64,7 +64,9 @@ public class TiUIProgressBar extends TiUIView {
 			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			progress.getProgressDrawable().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_COLOR), Mode.SRC_IN);
+		    final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
+		    progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+		    handleSetMessageColor(color);
 		}
 		updateProgress();
 	}
@@ -82,7 +84,9 @@ public class TiUIProgressBar extends TiUIView {
 				handleSetMessage(message);
 			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			progress.getProgressDrawable().setColorFilter(TiConvert.toColor(TiConvert.toString(newValue)), Mode.SRC_IN);
+		    final int color = TiConvert.toColor(TiConvert.toString(newValue));
+		    progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+		    handleSetMessageColor(color);
 		}
 	}
 
@@ -127,5 +131,9 @@ public class TiUIProgressBar extends TiUIView {
 	{
 		label.setText(message);
 		label.requestLayout();
+	}
+	
+	protected void handleSetMessageColor(int color) {
+	    label.setTextColor(color);
 	}
 }

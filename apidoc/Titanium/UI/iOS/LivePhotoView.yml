@@ -3,7 +3,7 @@ name: Titanium.UI.iOS.LivePhotoView
 summary: |
     A view to display a [Live Photo](Titanium.UI.iOS.LivePhoto) object introduced in iOS 9.1.
 description: |    
-    Use the <Titanium.UI.createLivePhotoView> method to create an new `LivePhotoView`.
+    Use the <Titanium.UI.iOS.createLivePhotoView> method to create an new `LivePhotoView`.
     
     Specifying either a `width` or `height` property for this view will scale its `livePhoto` with 
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.

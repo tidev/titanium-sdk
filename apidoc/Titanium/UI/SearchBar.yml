@@ -220,6 +220,14 @@ properties:
     type: Boolean
     default: false
 
+  - name: style
+    summary: Determines the style of the search bar.
+    type: Number
+    since: 5.4.0
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.iOS.SEARCH_BAR_STYLE_*
+    default: <Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT>
+
   - name: value
     summary: Value of the search bar.
     description: |

@@ -34,6 +34,7 @@ int TiDebugPort = 2525;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
+extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString * TITANIUM_VERSION;
 
@@ -292,7 +293,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 		if(launchedShortcutItem != nil) {
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-			launchedShortcutItem = nil;
+			RELEASE_TO_NIL(launchedShortcutItem);
 		}
 
 		if (localNotification != nil) {
@@ -414,7 +415,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
         if (shortcut != nil) {
-            launchedShortcutItem = shortcut;
+            launchedShortcutItem = [shortcut retain];
         }
     }
     
@@ -884,9 +885,15 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
-    if([self forceSplashAsSnapshot]) {
-        [window addSubview:[self splashScreenImage]];
-    }
+	if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+		UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+		UIViewController *vc = [sb instantiateInitialViewController];
+		[[[self controller] topPresentedController] presentViewController:vc animated:NO completion:nil];
+#else
+		[window addSubview:[self splashScreenImage]];
+#endif
+	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
 	// suspend any image loading
@@ -903,10 +910,19 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    if(splashScreenImage != nil) {
-        [[self splashScreenImage] removeFromSuperview];
-        RELEASE_TO_NIL(splashScreenImage);
-    }
+	// We should think about placing this inside "applicationWillBecomeActive" instead to make
+	// the UI re-useable again more quickly
+	if([self forceSplashAsSnapshot]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+		[[[self controller] topPresentedController] dismissViewControllerAnimated:NO completion:nil];
+#else
+		if(splashScreenImage != nil) {
+			[[self splashScreenImage] removeFromSuperview];
+			RELEASE_TO_NIL(splashScreenImage);
+		}
+#endif
+	}
+
 	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
 	// (like new URL) that is not passed through as part of the normal foregrounding process.
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
@@ -973,7 +989,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark Handoff Delegates
 
-#if defined(USE_TI_APPIOSUSERACTIVITY) || defined (USE_TI_APPIOSSEARCHABLEINDEX)
+#ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
@@ -1075,7 +1091,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message
 {
-	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+	if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO)
 	{
 		NSLog(@"[ERROR] Application received error: %@",message);
 		return;
@@ -1216,6 +1232,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if(shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
+    
+    // Update launchOptions to include the mapped dictionary-shortcut instead of the UIShortcutItem
+    [launchOptions setObject:dict forKey:UIApplicationLaunchOptionsShortcutItemKey];
     
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut

@@ -12,4 +12,8 @@
     WCSession *watchSession;
 }
 
+@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_NOT_ACTIVATED;
+@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_INACTIVE;
+@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_ACTIVATED;
+
 @end

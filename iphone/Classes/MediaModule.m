@@ -20,8 +20,12 @@
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
 #import <AVFoundation/AVMediaFormat.h>
@@ -224,34 +228,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
     return AVAudioSessionPortCarAudio;
 }
 
-
-//Constants for AudioSessions
--(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"6.0.0",@"Media.AUDIO_SESSION_CATEGORY_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"6.0.0", @"Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
-}
--(NSNumber*)AUDIO_SESSION_MODE_RECORD
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
-}
-
 //Constants for AudioSessions
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
@@ -352,12 +328,6 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 
-// Deprecated old-school video control modes, mapped to the new values
--(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"6.0.0", @"Media.VIDEO_CONTROL_EMBEDDED");
-    return [self VIDEO_CONTROL_EMBEDDED];
-}
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
 {
     return [self VIDEO_CONTROL_NONE];
@@ -462,25 +432,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             break;
     }
     
-}
-
--(NSNumber*)audioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    NSString* category = [self audioSessionCategory];
-    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-        return [self AUDIO_SESSION_MODE_PLAYBACK];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_RECORD];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-    } else {
-        return NUMINT(-1);
-    }
 }
 
 -(void)setAudioSessionCategory:(NSString*)mode
@@ -1279,7 +1230,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
+        
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1290,7 +1246,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"cancel",event,listener]];
+#endif
 	}
 }
 
@@ -1303,7 +1264,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	}
 	if (listener!=nil)
 	{
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,listener]];
+#endif
 	}
 }
 
@@ -1627,7 +1592,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:blob forKey:@"image"];
 
+#ifdef TI_USE_KROLL_THREAD
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1637,7 +1606,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:blob forKey:@"image"];
 
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
 }
 
@@ -1650,7 +1623,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:path forKey:@"path"];
 
+#ifdef TI_USE_KROLL_THREAD
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1660,7 +1637,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:path forKey:@"path"];
 
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
     
     // This object was retained for use in this callback; release it.
@@ -1968,7 +1949,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[event setObject:media forKey:@"media"];
         
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1983,7 +1968,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
 		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
 
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1998,7 +1987,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 

@@ -18,10 +18,11 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(actionSheet);
-	RELEASE_TO_NIL(dialogView);
-	RELEASE_TO_NIL_AUTORELEASE(alertController);
-	[super dealloc];
+    RELEASE_TO_NIL(actionSheet);
+    RELEASE_TO_NIL(dialogView);
+    RELEASE_TO_NIL(tintColor);
+    RELEASE_TO_NIL_AUTORELEASE(alertController);
+    [super dealloc];
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -57,14 +58,16 @@
     forceOpaqueBackground = [TiUtils boolValue:[self valueForKey:@"opaquebackground"] def:NO];
     persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:YES];
     cancelButtonIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+    tintColor = [[TiUtils colorValue:[self valueForKey:@"tintColor"]] _color];
     destructiveButtonIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+    
     if (cancelButtonIndex >= [options count]) {
         cancelButtonIndex = -1;
     }
+    
     if (destructiveButtonIndex >= [options count]) {
         destructiveButtonIndex = -1;
     }
-    
 
     [self setDialogView:[args objectForKey:@"view"]];
     animated = [TiUtils boolValue:@"animated" properties:args def:YES];
@@ -84,6 +87,10 @@
         alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                         preferredStyle:UIAlertControllerStyleActionSheet] retain];
+        
+        if (tintColor) {
+            [[alertController view] setTintColor:tintColor];
+        }
         
         int curIndex = 0;
         //Configure the Buttons
@@ -151,7 +158,10 @@
             [actionSheet addButtonWithTitle:thisButtonName];
         }
         
-        
+        if (tintColor) {
+            [actionSheet setTintColor:tintColor];
+        }
+
         [actionSheet setCancelButtonIndex:cancelButtonIndex];
         [actionSheet setDestructiveButtonIndex:destructiveButtonIndex];
         

@@ -404,7 +404,32 @@ properties:
     deprecated:
       since: 5.2.1
       notes: This property is deprecated. Please use the default native "dropdown" style.
-    
+
+  - name: nativeSpinner
+    summary: |
+        Creates a native Android control for creating a Time Spinner with Type `Ti.UI.PICKER_TYPE_TIME`.
+        This is invoked rather than the default native "dropdown" style.
+    description: |
+        If `true`, the nativeSpinner is enabled.
+
+        This property should be set either at picker creation, i.e.
+        `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
+
+        Example as follows:
+            var picker = Ti.UI.createPicker({
+                type:Ti.UI.PICKER_TYPE_TIME,
+                nativeSpinner: true,
+                format24: false,
+                minuteInterval: 4,
+                minDate:new Date(2009,0,1),
+                maxDate:new Date(2014,11,31),
+                value:new Date(2014,3,12)
+            });
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: 5.4.0
+
   - name: value
     summary: Date and time value for Date and Time pickers.
     description: |

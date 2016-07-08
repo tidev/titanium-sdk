@@ -1,29 +1,30 @@
-# repeat-string [![NPM version](https://badge.fury.io/js/repeat-string.svg)](http://badge.fury.io/js/repeat-string)  [![Build Status](https://travis-ci.org/jonschlinkert/repeat-string.svg)](https://travis-ci.org/jonschlinkert/repeat-string) 
+# repeat-string [![NPM version](https://img.shields.io/npm/v/repeat-string.svg)](https://www.npmjs.com/package/repeat-string) [![Build Status](https://img.shields.io/travis/jonschlinkert/repeat-string.svg)](https://travis-ci.org/jonschlinkert/repeat-string)
 
 > Repeat the given string n times. Fastest implementation for repeating a string.
 
-## Install with [npm](npmjs.org)
+## Install
 
-```bash
-npm i repeat-string --save
-```
-## Install with [bower](https://github.com/bower/bower)
+Install with [npm](https://www.npmjs.com/):
 
-```bash
-bower install repeat-string --save
+```sh
+$ npm install repeat-string --save
 ```
 
 ## Usage
 
-### [repeat](./index.js#L34)
+### [repeat](index.js#L41)
 
 Repeat the given `string` the specified `number` of times.
 
-* `string` **{String}**: The string to repeat    
-* `number` **{Number}**: The number of times to repeat the string    
-* `returns` **{String}**: Repeated string  
-
 **Example:**
+
+**Params**
+
+* `string` **{String}**: The string to repeat
+* `number` **{Number}**: The number of times to repeat the string
+* `returns` **{String}**: Repeated string
+
+**Example**
 
 ```js
 var repeat = require('repeat-string');
@@ -33,62 +34,85 @@ repeat('A', 5);
 
 ## Benchmarks
 
-Repeat string is significantly faster than [repeating](https://github.com/sindresorhus/repeating).
+Repeat string is significantly faster than the native method (which is itself faster than [repeating](https://github.com/sindresorhus/repeating)):
 
-```bash
-# 20,000x
-  repeat-string.js x 16,634,213 ops/sec ±0.92% (93 runs sampled)
-  repeating.js x 5,883,928 ops/sec ±0.95% (93 runs sampled)
+```sh
+#1: 5
+  native x 10,484,023 ops/sec ±1.24% (89 runs sampled)
+  repeat-string x 16,189,255 ops/sec ±1.05% (91 runs sampled)
+  repeating x 9,051,715 ops/sec ±1.18% (90 runs sampled)
 
-# 2,000x
-  repeat-string.js x 17,438,654 ops/sec ±0.76% (97 runs sampled)
-  repeating.js x 6,639,978 ops/sec ±0.84% (97 runs sampled)
+#2: 50
+  native x 7,975,566 ops/sec ±1.29% (91 runs sampled)
+  repeat-string x 15,317,972 ops/sec ±1.16% (87 runs sampled)
+  repeating x 6,279,112 ops/sec ±1.29% (89 runs sampled)
 
-# 250x
-  repeat-string.js x 16,246,885 ops/sec ±0.81% (92 runs sampled)
-  repeating.js x 7,659,342 ops/sec ±0.67% (99 runs sampled)
+#3: 250
+  native x 6,212,752 ops/sec ±1.33% (91 runs sampled)
+  repeat-string x 14,565,168 ops/sec ±0.83% (93 runs sampled)
+  repeating x 5,787,124 ops/sec ±1.25% (92 runs sampled)
 
-# 50x
-  repeat-string.js x 15,803,340 ops/sec ±0.74% (92 runs sampled)
-  repeating.js x 9,668,300 ops/sec ±0.89% (98 runs sampled)
+#4: 2000
+  native x 4,912,163 ops/sec ±1.27% (91 runs sampled)
+  repeat-string x 17,129,748 ops/sec ±1.01% (91 runs sampled)
+  repeating x 4,613,043 ops/sec ±1.37% (91 runs sampled)
 
-# 5x
-  repeat-string.js x 16,926,291 ops/sec ±0.78% (97 runs sampled)
-  repeating.js x 12,215,384 ops/sec ±1.01% (96 runs sampled)
+#5: 20000
+  native x 4,506,624 ops/sec ±1.33% (90 runs sampled)
+  repeat-string x 14,877,672 ops/sec ±1.00% (93 runs sampled)
+  repeating x 4,305,756 ops/sec ±1.36% (89 runs sampled)
 ```
 
 **Run the benchmarks**
 
 Install dev dependencies:
 
-```bash
+```sh
 npm i -d && node benchmark
 ```
 
-### Other javascript/node.js utils
-[repeat-element](https://github.com/jonschlinkert/repeat-element): Create an array by repeating the given string n times.
+## Related projects
+
+[repeat-element](https://www.npmjs.com/package/repeat-element): Create an array by repeating the given value n times. | [homepage](https://github.com/jonschlinkert/repeat-element)
 
 ## Contributing
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/repeat-string/issues)
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/repeat-string/issues/new).
+
+## Building docs
+
+Generate readme and API documentation with [verb](https://github.com/verbose/verb):
+
+```sh
+$ npm install verb && npm run docs
+```
+
+Or, if [verb](https://github.com/verbose/verb) is installed globally:
+
+```sh
+$ verb
+```
 
 ## Running tests
+
 Install dev dependencies:
 
-```bash
-npm i -d && npm test
+```sh
+$ npm install -d && npm test
 ```
 
 ## Author
 
 **Jon Schlinkert**
 
-+ [github/jonschlinkert](https://github.com/jonschlinkert)
-+ [twitter/jonschlinkert](http://twitter.com/jonschlinkert) 
+* [github/jonschlinkert](https://github.com/jonschlinkert)
+* [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
 
 ## License
-Copyright (c) 2015 Jon Schlinkert  
-Released under the MIT license
+
+Copyright © 2016 [Jon Schlinkert](http://github.com/jonschlinkert)
+Released under the [MIT license](https://github.com/jonschlinkert/repeat-string/blob/master/LICENSE).
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on April 01, 2015._
+_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on February 29, 2016._

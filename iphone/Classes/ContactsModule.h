@@ -15,7 +15,7 @@
 #import "KrollCallback.h"
 #import "TiContactsPerson.h"
 
-@interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate,CNContactViewControllerDelegate> {
+@interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate,CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
 @private
 	ABAddressBookRef addressBook;
 	ABPeoplePickerNavigationController* picker;

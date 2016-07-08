@@ -99,7 +99,6 @@ methods:
   - name: setLatestEventInfo
     summary: Sets the latest event info using the built-in notification view for this notification.
     parameters:
-
       - name: contentTitle
         summary: Title to display when the notification is expanded.
         type: String

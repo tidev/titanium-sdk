@@ -14,6 +14,7 @@
     UIActionSheet *actionSheet;
     UIAlertController* alertController;
     TiViewProxy *dialogView;
+    UIColor *tintColor;
     CGRect dialogRect;
     BOOL animated;
     NSUInteger accumulatedOrientationChanges;

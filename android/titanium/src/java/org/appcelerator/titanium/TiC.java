@@ -92,6 +92,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_CAMERA_READY = "cameraready";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CANCEL = "cancel";
 
 	/**
@@ -174,20 +179,21 @@ public class TiC
 	 */
 	public static final String EVENT_FOCUSED = "focused";
 
-        /**
-         * @module.api
-         */
-        public static final String EVENT_SELECTED = "selected";
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SELECTED = "selected";
 
-        /**
-         * @module.api
-         */
-        public static final String EVENT_UNSELECTED = "unselected";
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_UNSELECTED = "unselected";
 
 	/**
 	 * @module.api
 	 */
 	public static final String EVENT_KEY_PRESSED = "keypressed";
+
 	/**
 	 * @module.api
 	 */
@@ -441,6 +447,15 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_FORCE = "force";
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_SIZE = "size";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
 
 	/**
@@ -667,12 +682,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ADD = "add";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ADDRESS = "address";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
 
 	/**
 	 * @module.api
@@ -899,6 +924,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 
 	/**
@@ -985,48 +1015,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
-
-	// Deprecating PROPERTY_CARD_BACKGROUND_COLOR in 5.2.0. Please use PROPERTY_BACKGROUND_COLOR. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_BACKGROUND_COLOR = "cardBackgroundColor";
-
-	// Deprecating PROPERTY_CARD_CORNER_RADIUS in 5.2.0. Please use PROPERTY_BORDER_RADIUS. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_CORNER_RADIUS = "cardCornerRadius";
-
-	// Deprecating PROPERTY_CARD_ELEVATION in 5.2.0. Please use PROPERTY_ELEVATION. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_ELEVATION = "cardElevation";
-
-	// Deprecating PROPERTY_CARD_MAX_ELEVATION in 5.2.0. Please use PROPERTY_MAX_ELEVATION. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_MAX_ELEVATION = "cardMaxElevation";
-
-	// Deprecating PROPERTY_CARD_PREVENT_CORNER_OVERLAP in 5.2.0. Please use PROPERTY_PREVENT_CORNER_OVERLAP. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_PREVENT_CORNER_OVERLAP = "cardPreventCornerOverlap";
-
-	// Deprecating PROPERTY_CARD_USE_COMPAT_PADDING in 5.2.0. Please use PROPERTY_USE_COMPAT_PADDING. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CARD_USE_COMPAT_PADDING = "cardUseCompatPadding";
 
 	/**
 	 * @module.api
@@ -1137,41 +1125,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PADDING_TOP = "paddingTop";
-
-	// Deprecating PROPERTY_CONTENT_PADDING in 5.2.0. Please use PROPERTY_PADDING. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CONTENT_PADDING = "contentPadding";
-
-	// Deprecating PROPERTY_CONTENT_PADDING_BOTTOM in 5.2.0. Please use PROPERTY_PADDING_BOTTOM. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CONTENT_PADDING_BOTTOM = "contentPaddingBottom";
-
-	// Deprecating PROPERTY_CONTENT_PADDING_LEFT in 5.2.0. Please use PROPERTY_PADDING_LEFT. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CONTENT_PADDING_LEFT = "contentPaddingLeft";
-
-	// Deprecating PROPERTY_CONTENT_PADDING_RIGHT in 5.2.0. Please use PROPERTY_PADDING_RIGHT. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CONTENT_PADDING_RIGHT = "contentPaddingRight";
-
-	// Deprecating PROPERTY_CONTENT_PADDING_TOP in 5.2.0. Please use PROPERTY_PADDING_TOP. Will remove this in 6.0.0.
-	/**
-	 * @module.api
-	 */
-	@Deprecated
-	public static final String PROPERTY_CONTENT_PADDING_TOP = "contentPaddingTop";
 
 	/**
 	 * @module.api
@@ -1725,6 +1678,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 
 	/**
@@ -1923,7 +1881,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MULTIPLY = "multiply";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NAME = "name";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 
 	/**
 	 * @module.api
@@ -1989,6 +1957,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_STOP_BLACKISTED_URL = "onStopBlacklistedUrl";
 
 	/**
 	 * @module.api
@@ -2275,6 +2248,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ROTATION = "rotation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ROTATION_X = "rotationX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ROTATION_Y = "rotationY";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ROW_DATA = "rowData";
 
 	/**
@@ -2286,6 +2274,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCALE = "scale";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCALE_X = "scaleX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCALE_Y = "scaleY";
 
 	/**
 	 * @module.api
@@ -2630,6 +2628,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TINT_COLOR = "tintColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TITLE = "title";
 
 	/**
@@ -2729,6 +2732,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_USE_SPINNER = "useSpinner";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_USERNAME = "username";
 
 	/**
@@ -2755,6 +2763,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 
 	/**
 	 * @module.api
@@ -2795,6 +2813,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WHEN = "when";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WHICH_CAMERA = "whichCamera";
 
 	/**
 	 * @module.api

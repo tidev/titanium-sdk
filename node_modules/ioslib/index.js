@@ -2,7 +2,7 @@
  * Main namespace for the ioslib.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -18,6 +18,7 @@ const
 	magik        = exports.magik        = require('./lib/utilities').magik,
 	provisioning = exports.provisioning = require('./lib/provisioning'),
 	simulator    = exports.simulator    = require('./lib/simulator'),
+	teams        = exports.teams        = require('./lib/teams'),
 	utilities    = exports.utilities    = require('./lib/utilities'),
 	xcode        = exports.xcode        = require('./lib/xcode');
 
@@ -73,37 +74,43 @@ function detect(options, callback) {
 		}
 
 		async.parallel([
-			function certificates(done) {
+			function detectCertificates(done) {
 				certs.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);
 				});
 			},
-			function devices(done) {
+			function detectDevices(done) {
 				device.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);
 				});
 			},
-			function environment(done) {
+			function detectEnvironment(done) {
 				env.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);
 				});
 			},
-			function provisioningProfiles(done) {
+			function detectProvisioning(done) {
 				provisioning.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);
 				});
 			},
-			function simulators(done) {
+			function detectSimulator(done) {
 				simulator.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);
 				});
 			},
-			function xcodes(done) {
+			function detectTeams(done) {
+				teams.detect(options, function (err, result) {
+					err || mix(result, results);
+					done(err);
+				});
+			},
+			function detectXcode(done) {
 				xcode.detect(options, function (err, result) {
 					err || mix(result, results);
 					done(err);

@@ -37,8 +37,29 @@
 
 -(BOOL)isValidTextStyle:(NSString*)theStyle
 {
-    return ([theStyle isEqualToString:UIFontTextStyleBody] || [theStyle isEqualToString:UIFontTextStyleCaption1] || [theStyle isEqualToString:UIFontTextStyleCaption2]
-            || [theStyle isEqualToString:UIFontTextStyleHeadline] || [theStyle isEqualToString:UIFontTextStyleSubheadline] || [theStyle isEqualToString:UIFontTextStyleFootnote]);
+    if ([TiUtils isIOS9OrGreater]) {
+       return ( 
+            [theStyle isEqualToString:UIFontTextStyleBody] || 
+            [theStyle isEqualToString:UIFontTextStyleCaption1] || 
+            [theStyle isEqualToString:UIFontTextStyleCaption2] || 
+            [theStyle isEqualToString:UIFontTextStyleHeadline] || 
+            [theStyle isEqualToString:UIFontTextStyleSubheadline] || 
+            [theStyle isEqualToString:UIFontTextStyleFootnote] ||
+            [theStyle isEqualToString:UIFontTextStyleCallout] ||
+            [theStyle isEqualToString:UIFontTextStyleTitle3] || 
+            [theStyle isEqualToString:UIFontTextStyleTitle2] || 
+            [theStyle isEqualToString:UIFontTextStyleTitle1] 
+        ); 
+   } else {
+        return ( 
+            [theStyle isEqualToString:UIFontTextStyleBody] || 
+            [theStyle isEqualToString:UIFontTextStyleCaption1] || 
+            [theStyle isEqualToString:UIFontTextStyleCaption2] || 
+            [theStyle isEqualToString:UIFontTextStyleHeadline] || 
+            [theStyle isEqualToString:UIFontTextStyleSubheadline] || 
+            [theStyle isEqualToString:UIFontTextStyleFootnote] 
+        ); 
+   }  
 }
 
 -(UIFont *) font

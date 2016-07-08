@@ -27,6 +27,19 @@ platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
 
 methods:
+  - name: insertViewsAt
+    summary: Inserts views at the specified position in the [views](Titanium.UI.ScrollableView.views) array.
+    parameters:
+      - name: position
+        summary: Position(index) in the [views](Titanium.UI.ScrollableView.views) array to insert the view
+        type: Number
+
+      - name: views
+        summary: Views to insert.
+        type: Array<Titanium.UI.View>
+    since: 5.4.0
+    platforms: [android, iphone, ipad]
+
   - name: addView
     summary: Adds a new page to this Scrollable View.
     parameters:
@@ -189,7 +202,7 @@ events:
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.scrollend> instead.
     summary: Fired when the view has stopped moving completely.
     platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
@@ -206,7 +219,7 @@ events:
   - name: dragStart
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragstart](Titanium.UI.ScrollableView.dragstart) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.dragstart> instead.
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -216,8 +229,8 @@ events:
 
   - name: dragEnd
     deprecated:
-       since: "3.0.0"
-       notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
+        since: "3.0.0"
+        notes: Use <Titanium.UI.ScrollableView.dragend> instead.
     summary: Fired when the scrolling drag gesture on the view has been completed.
     platforms: [android, mobileweb]
     since: "2.1.0"

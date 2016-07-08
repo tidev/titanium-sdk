@@ -214,8 +214,34 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
+		}
+		
 	}
 
+	private void setTextPadding(HashMap<String, Object> d)
+	{
+		int paddingLeft = 0;
+		int paddingRight = 0;
+		
+		if (d.containsKey(TiC.PROPERTY_LEFT)) {
+			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+		} else {
+			paddingLeft = tv.getPaddingLeft();
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
+		} else {
+			paddingRight = tv.getPaddingRight();
+		}
+		
+		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
+		if (field) {
+			tv.setGravity(Gravity.CENTER_VERTICAL);
+		}
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -281,6 +307,8 @@ public class TiUIText extends TiUIView
 			setAttributedStringHint((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringText((AttributedStringProxy)newValue);
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -617,6 +645,13 @@ public class TiUIText extends TiUIView
 			Log.w(TAG, "Invalid range for text selection. Ignoring.");
 			return;
 		}
+
+		// http://stackoverflow.com/a/35527348/1504248
+		Editable text = tv.getText();
+		if (text.length() > 0) {
+			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+		}
+		
 		tv.setSelection(start, end);
 	}
 	

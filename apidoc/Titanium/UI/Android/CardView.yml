@@ -32,7 +32,7 @@ properties:
     type: String
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.backgroundColor>
+      notes: Use <Titanium.UI.Android.CardView.backgroundColor> instead.
 
   - name: backgroundColor
     summary: Background color for CardView as a color name or hex triplet.
@@ -46,7 +46,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.borderRadius>
+      notes: Use <Titanium.UI.Android.CardView.borderRadius> instead.
 
   - name: borderRadius
     summary: Corner radius for CardView.
@@ -58,7 +58,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.elevation>
+      notes: Use <Titanium.UI.Android.CardView.elevation> instead.
 
   - name: elevation
     summary: Elevation for CardView. 
@@ -71,7 +71,7 @@ properties:
     availability: creation
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.maxElevation>
+      notes: Use <Titanium.UI.Android.CardView.maxElevation> instead.
 
   - name: maxElevation
     summary: Maximum Elevation for CardView.
@@ -87,7 +87,7 @@ properties:
     default: false
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.preventCornerOverlap>
+      notes: Use <Titanium.UI.Android.CardView.preventCornerOverlap> instead.
 
   - name: preventCornerOverlap
     summary: |
@@ -103,7 +103,7 @@ properties:
     default: false
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.useCompatPadding>
+      notes: Use <Titanium.UI.Android.CardView.useCompatPadding> instead.
 
   - name: useCompatPadding
     summary: Add padding on API level 21 and above to have the same measurements with previous versions.
@@ -116,7 +116,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.padding>
+      notes: Use <Titanium.UI.Android.CardView.padding> instead.
 
   - name: padding
     summary: Inner padding between the edges of the Card and children of the CardView.
@@ -128,7 +128,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingBottom>
+      notes: Use <Titanium.UI.Android.CardView.paddingBottom> instead.
 
   - name: paddingBottom
     summary: Inner padding between the bottom edge of the Card and children of the CardView.
@@ -140,7 +140,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingLeft>
+      notes: Use <Titanium.UI.Android.CardView.paddingLeft> instead.
 
   - name: paddingLeft
     summary: Inner padding between the left edge of the Card and children of the CardView.
@@ -152,7 +152,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingRight>
+      notes: Use <Titanium.UI.Android.CardView.paddingRight instead.
 
   - name: paddingRight
     summary: Inner padding between the right edge of the Card and children of the CardView.
@@ -164,7 +164,7 @@ properties:
     type: Number
     deprecated:
       since: 5.1.2
-      notes: This property is deprecated. Please use <Titanium.UI.Android.CardView.paddingTop>
+      notes: Use <Titanium.UI.Android.CardView.paddingTop> instead.
 
   - name: paddingTop
     summary: Inner padding between the top edge of the Card and children of the CardView.

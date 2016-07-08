@@ -59,7 +59,7 @@ For an Android module, we can create it with the following command from the pare
 As an example, we'll create a module that performs simple addition and subtraction, call it the "calc" module, and give it an ID of "org.appcelerator.calc". Here we use `/path/to/android-sdk` to point to the place where we extracted the Android SDK.
 <pre>titanium create --platform=android --type=module --name=calc --id=org.appcelerator.calc --android=/path/to/android-sdk</pre>
 
-If this was successful, there should be a `calc` folder under the current directory. 
+If this was successful, there should be a `calc` folder under the current directory.
 
 ### Module project layout
 Inside the module folder, you'll see a tree of files and directories that have been generated:
@@ -234,12 +234,12 @@ public String getMessage() {
 	return "Hello World";
 }</pre>
 
-If the method you're exposing requires the current Activity, you can add a [KrollInvocation][] object as the first argument:
+If the method you're exposing requires the current Activity, you can call getActivity() from any subclass of KrollProxy:
 <pre>@Kroll.method
-public String getMessage(KrollInvocation invocation) {
-	Activity activity = invocation.getTiContext().getActivity();
+public String getMessage() {
+	Activity activity = getActivity();
 }</pre>
-	
+
 Methods have many other options, see the [@Kroll.method][] Javadoc for more
 
 #### Properties
@@ -252,12 +252,12 @@ This example exposes a getter and setter for the `message` property as well as e
 public String getMessage() {
 		return "Hello World";
 }
-		
+
 @Kroll.setProperty @Kroll.method
 public void setMessage(String message) {
 	Log.d(TAG, "Tried setting message to: " + message);
 }
-		
+
 // in JS, this could be used like so:
 var object = //..
 object.message = "hi"; // or

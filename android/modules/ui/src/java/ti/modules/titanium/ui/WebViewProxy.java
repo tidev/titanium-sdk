@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
@@ -29,6 +28,7 @@ import android.os.Message;
 import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+	TiC.PROPERTY_BLACKLISTED_URLS,
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
@@ -38,7 +38,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
-public class WebViewProxy extends ViewProxy 
+public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
@@ -62,7 +62,7 @@ public class WebViewProxy extends ViewProxy
 	private static String fpassword;
 
 	private Message postCreateMessage;
-	
+
 	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
 
 	public WebViewProxy()
@@ -71,11 +71,6 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-	}
-
-	public WebViewProxy(TiContext context)
-	{
-		this();
 	}
 
 	@Override
@@ -319,7 +314,7 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public void pause() 
+	public void pause()
 	{
 		if (peekView() != null) {
 			if (TiApplication.isUIThread()) {
@@ -364,7 +359,7 @@ public class WebViewProxy extends ViewProxy
 		fusername = null;
 		fpassword = null;
 	}
-	
+
 	public String getBasicAuthenticationUserName()
 	{
 		return fusername;

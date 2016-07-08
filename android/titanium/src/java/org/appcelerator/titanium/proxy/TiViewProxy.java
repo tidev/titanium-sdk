@@ -68,8 +68,8 @@ import android.view.ViewAnimationUtils;
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
-	"translationX", "translationY", "translationZ",
-	
+	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
+
 	TiC.PROPERTY_TRANSITION_NAME
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
@@ -106,9 +106,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private boolean isDecorView = false;
 	private boolean overrideCurrentAnimation = false;
 
-	// TODO: Deprecated since Release 3.0.0
-	@Deprecated private AtomicBoolean layoutStarted = new AtomicBoolean();
-	
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
@@ -117,6 +114,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		pendingAnimationLock = new Object();
 
+		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLED, true);
@@ -127,14 +125,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
-		
+
 		if (options.containsKey(TiC.PROPERTY_OVERRIDE_CURRENT_ANIMATION)) {
 			overrideCurrentAnimation = TiConvert.toBoolean(options, TiC.PROPERTY_OVERRIDE_CURRENT_ANIMATION, false);
 		}
 
 		//TODO eventManager.addOnEventChangeListener(this);
 	}
-	
+
 	public boolean getOverrideCurrentAnimation() {
 		return overrideCurrentAnimation;
 	}
@@ -158,7 +156,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (idx != -1) {
 			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
 		}
-		
+
 		styleSheetUrlCache.put(creationUrl,baseUrl);
 		return baseUrl;
 	}
@@ -196,7 +194,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (dict == null || dict.isEmpty()) {
 			return options;
 		}
-		
+
 		extend(dict);
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:"
@@ -439,7 +437,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		this.view = view;
 	}
-	
+
 	public TiUIView forceCreateView()
 	{
 		view = null;
@@ -462,7 +460,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		modelListener = transferview;
 		view.setProxy(this);
 	}
-	
+
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
@@ -480,7 +478,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
-	
+
 	protected TiUIView handleGetView()
 	{
 		if (view == null) {
@@ -503,11 +501,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 		return view;
 	}
-	
+
 	public void realizeViews(TiUIView view)
 	{
 		setModelListener(view);
-		
+
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
 		if (children != null) {
@@ -527,7 +525,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
-	
+
 	public void releaseViews()
 	{
 		if (view != null) {
@@ -602,12 +600,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			remove(childToRemove);
 		}
 	}
-	
+
 
 	/**
 	 * Adds a child to this view proxy in the specified position. This is useful for "vertical" and
 	 * "horizontal" layouts.
-	 * @param params A Dictionary containing a TiViewProxy for the view and an int for the position 
+	 * @param params A Dictionary containing a TiViewProxy for the view and an int for the position
 	 * @module.api
 	 */
 	@Kroll.method
@@ -666,7 +664,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view.insertAt(cv, position);
 		}
 	}
-	
+
 	private void handleAdd(TiViewProxy child)
 	{
 		children.add(child);
@@ -930,9 +928,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		final boolean waitForFinish = (callback == null);
 		TiBlob blob;
-		
+
 		/*
-		 * Callback don't exist. Just render on main thread and return blob. 
+		 * Callback don't exist. Just render on main thread and return blob.
 		 */
 		if (waitForFinish) {
 			if (TiApplication.isUIThread()) {
@@ -940,25 +938,25 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			} else {
 				blob = (TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
 			}
-		} 
-		
+		}
+
 		/*
 		 * Callback exists. Perform async rendering and return an empty blob.
 		 */
 		else {
-			// Create a non-null empty blob to return. 
+			// Create a non-null empty blob to return.
 			blob  = TiBlob.blobFromImage(Bitmap.createBitmap(1, 1, Config.ARGB_8888));
 			Runnable renderRunnable = new Runnable() {
 				public void run() {
 					callback.callAsync(getKrollObject(), new Object[] {handleToImage()});
 				}
 			};
-			
+
 			Thread renderThread = new Thread(renderRunnable);
 			renderThread.setPriority(Thread.MAX_PRIORITY);
 			renderThread.start();
 		}
-		
+
 		return blob;
 	}
 
@@ -1211,7 +1209,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		int pointWindowX = viewLocation[0] + x;
 		int pointWindowY = viewLocation[1] + y;
-	
+
 		// Apply reverse transformation to get the original location
 		float[] points = new float[] { pointWindowX - destLocation[0], pointWindowY - destLocation[1] };
 		points = destView.getPreTranslationValue(points);
@@ -1220,57 +1218,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		destPoint.put(TiC.PROPERTY_X, (int) points[0]);
 		destPoint.put(TiC.PROPERTY_Y, (int) points[1]);
 		return destPoint;
-	}
-
-	// TODO: Deprecated since Release 3.0.0
-	@Kroll.method @Deprecated
-	public void startLayout()
-	{
-		Log.w(TAG, "startLayout() is deprecated.", Log.DEBUG_MODE);
-
-		layoutStarted.set(true);
-	}
-
-	// TODO: Deprecated since Release 3.0.0
-	@Kroll.method @Deprecated
-	public void finishLayout()
-	{
-		Log.w(TAG, "finishLayout() is deprecated.", Log.DEBUG_MODE);
-
-		// Don't force a layout if startLayout() was never called
-		if (!isLayoutStarted()) {
-			return;
-		}
-		if (TiApplication.isUIThread()) {
-			handleFinishLayout();
-		} else {
-			getMainHandler().sendEmptyMessage(MSG_FINISH_LAYOUT);
-		}
-		layoutStarted.set(false);
-	}
-
-	// TODO: Deprecated since Release 3.0.0
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Kroll.method @Deprecated
-	public void updateLayout(Object params)
-	{
-		Log.w(TAG, "updateLayout() is deprecated.", Log.DEBUG_MODE);
-
-		HashMap<String, Object> paramsMap;
-
-		if (!(params instanceof HashMap)) {
-			Log.e(TAG, "Argument for updateLayout must be a dictionary");
-			return;
-		}
-		paramsMap = (HashMap) params;
-
-		layoutStarted.set(true);
-		if (TiApplication.isUIThread()) {
-			handleUpdateLayout(paramsMap);
-		} else {
-			getMainHandler().obtainMessage(MSG_UPDATE_LAYOUT, paramsMap).sendToTarget();
-		}
-		layoutStarted.set(false);
 	}
 
 	private void handleFinishLayout()
@@ -1291,15 +1238,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		handleFinishLayout();
 	}
 
-	// TODO: Deprecated since Release 3.0.0
-	// This is used to check if the user has called startLayout(). We mainly use this to perform a check before running
-	// deprecated behavior. (i.e. performing layout when a property has changed, and the user didn't call startLayout)
-	@Deprecated
-	public boolean isLayoutStarted()
-	{
-		return layoutStarted.get();
-	}
-
 	@Kroll.method
 	public void hideKeyboard()
 	{
@@ -1309,7 +1247,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			getMainHandler().sendEmptyMessage(MSG_HIDE_KEYBOARD);
 		}
 	}
-	
+
 	protected void handleHideKeyboard()
 	{
 		TiUIView v = peekView();

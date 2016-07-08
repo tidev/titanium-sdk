@@ -36,7 +36,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-import com.appcelerator.analytics.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics;
 
 public class TiLocation implements Handler.Callback
 {

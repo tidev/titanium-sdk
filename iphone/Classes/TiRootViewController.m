@@ -181,8 +181,12 @@
     UIView* theHost = nil;
     
     if ([TiUtils isIOS8OrGreater]) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+        hostView = [[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view];
+#else
         hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
         hostView.backgroundColor = [UIColor clearColor];
+#endif
         hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         [rootView addSubview:hostView];
         theHost = hostView;

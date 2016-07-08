@@ -13,7 +13,7 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -388,12 +388,17 @@
 
 -(void)setHintText_:(id)value
 {
-	[(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+}
+
+-(void)setHintTextColor_:(id)value
+{
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[[self proxy] valueForKey:@"hintText"] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
 }
 
 -(void)setAttributedHintText_:(id)value
 {
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
 	[[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
 	[(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
@@ -530,6 +535,8 @@
     if (range.length + range.location > [[tf text] length]) {
         return NO;
     }
+    
+    [self processKeyPressed:string];
     
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    

@@ -271,7 +271,14 @@ public class TiSound
 			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
-
+    
+	public int  getAudioSessionId() {
+		if (mp != null) {
+			return mp.getAudioSessionId();
+		}
+		return 0;
+	}
+    
 	public void release()
 	{
 		try {

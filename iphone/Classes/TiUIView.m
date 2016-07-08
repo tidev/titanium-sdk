@@ -13,7 +13,7 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#ifdef USE_TI_UI3DMATRIX
 	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
@@ -211,6 +211,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+#ifdef TI_USE_AUTOLAYOUT
 -(void)initializeTiLayoutView
 {
     [super initializeTiLayoutView];
@@ -219,6 +220,8 @@ DEFINE_EXCEPTIONS
         [self setDefaultWidth:TiDimensionAutoFill];
     }
 }
+#endif
+
 - (id) init
 {
 	self = [super init];
@@ -292,6 +295,7 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	
 	[self updateTouchHandling];
+	[[self proxy] setValue:NUMBOOL([TiUtils boolValue:[[self proxy] valueForKey:@"touchEnabled"] def:YES]) forKey:@"touchEnabled"];
 	self.backgroundColor = [UIColor clearColor];
 #ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -455,7 +459,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#ifdef USE_TI_UI3DMATRIX
 	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
 		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
@@ -711,10 +715,10 @@ DEFINE_EXCEPTIONS
     changedInteraction = YES;
 }
 
--(BOOL) touchEnabled {
+-(BOOL)touchEnabled
+{
 	return touchEnabled;
 }
-
 
 -(UIView *)gradientWrapperView
 {
@@ -1373,6 +1377,13 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
+}
+
+- (void)processKeyPressed:(NSString*)key
+{
+    if ([self.proxy _hasListeners:@"keypressed"]) {
+        [self.proxy fireEvent:@"keypressed" withObject:@{@"keyCode": key}];
+    }
 }
 
 #pragma mark Listener management

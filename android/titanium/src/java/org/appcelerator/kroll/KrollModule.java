@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import java.util.List;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import android.app.Activity;
@@ -24,8 +23,6 @@ import android.app.Activity;
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
-	@Deprecated
-	protected TiContext tiContext;
 
 	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
 
@@ -61,18 +58,12 @@ public class KrollModule extends KrollProxy
 		TiApplication.getInstance().registerModuleInstance(name, this);
 	}
 
-	public KrollModule(TiContext tiContext)
-	{
-		this();
-		this.tiContext = tiContext;
-	}
-
 	@Override
 	protected void initActivity(Activity activity)
 	{
 		Activity moduleActivity = TiApplication.getInstance().getRootActivity();
 		if (moduleActivity == null) {
-			// this should only occur in case such as JS activities etc where root 
+			// this should only occur in case such as JS activities etc where root
 			// activity will not be available
 			moduleActivity = activity;
 		}
@@ -120,13 +111,13 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onStop(Activity activity) {	
+	public void onStop(Activity activity) {
 	}
 
 	/**
 	 * Subclasses can override this method to be notified when an event listener
 	 * for a specific <code>type</code> has been added.
-	 * 
+	 *
 	 * @param type the event type
 	 * @param count the count of event listeners for the event
 	 * @param proxy the proxy instance that the event listener was added to
@@ -138,7 +129,7 @@ public class KrollModule extends KrollProxy
 	/**
 	 * Subclasses can override this method to be notified when an event listener
 	 * for a specific <code>type</code> has been removed.
-	 * 
+	 *
 	 * @param type the event type
 	 * @param count the count of event listeners for the event
 	 * @param proxy the proxy instance that the event listener was removed from

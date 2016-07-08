@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
@@ -43,11 +42,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		super();
 		state = SocketModule.INITIALIZED;
-	}
-
-	public TCPProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -493,7 +487,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		if (state == SocketModule.CLOSED) {
 			return;
 		}
-		
+
 		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
 			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
 		}
@@ -515,4 +509,3 @@ public class TCPProxy extends KrollProxy implements TiStream
 		return "Ti.Network.Socket.TCP";
 	}
 }
-

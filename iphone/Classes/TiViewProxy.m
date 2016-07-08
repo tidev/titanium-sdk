@@ -182,13 +182,18 @@ static NSArray* touchEventsArray;
 	int position = -1;
 	TiViewProxy *childView = nil;
 
+#ifdef HYPERLOOP
+	// obfuscate this selector
+	static SEL nativeObjSel = nil;
+	if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+#endif
 	if([arg isKindOfClass:[NSDictionary class]]) {
 		childView = [arg objectForKey:@"view"];
 		position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
 	} else if([arg isKindOfClass:[TiViewProxy class]]) {
 		childView = arg;
 #ifdef HYPERLOOP
-	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:@selector(nativeObject)]) {
+	} else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
 		Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
 		if (hyperloopViewProxy != nil) {
 			childView = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -285,9 +290,46 @@ static NSArray* touchEventsArray;
 
 -(void)remove:(id)arg
 {
-	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	ENSURE_UI_THREAD_1_ARG(arg);
 
+	
+#ifdef HYPERLOOP
+	// ofbuscate this selector
+	static SEL nativeObjSel = nil;
+	if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+	// obfuscate this class name
+	static Class hlClassName = nil;
+	if (hlClassName == nil) hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop",@"Class"]);
+	if ([arg isKindOfClass:[NSArray class]]) {
+		for (id each in arg) {
+			[self remove:each];
+		}
+		return;
+	}
+	if ([arg isKindOfClass:[UIView class]] || (hlClassName != nil && [arg isKindOfClass:hlClassName])) {
+		
+		TiUIView *tmpView;
+		if ([arg isKindOfClass: hlClassName]) {
+			UIView* v = [arg performSelector: nativeObjSel];
+			if (![v isKindOfClass:[UIView class]]) {
+				NSLog(@"[WARN] Trying to remove an object that is not a view");
+				return;
+			}
+			tmpView = (TiUIView*)[v superview];
+		} else {
+			tmpView = (TiUIView*)[(UIView*)arg superview];
+		}
+		if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
+			arg = [tmpView proxy];
+		} else {
+			NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
+			return;
+		}
+	}
+#endif
+	ENSURE_SINGLE_ARG(arg,TiViewProxy);
+
+	
 	pthread_rwlock_wrlock(&childrenLock);
 	NSMutableArray* childrenCopy = [children mutableCopy];
 	if ([children containsObject:arg]) {

@@ -156,8 +156,9 @@ function detect(options, callback) {
 						appc.subprocess.getRealName(info.vcvarsall, function (err, vcvarsall) {
 							if (!err) {
 								info.vcvarsall = vcvarsall;
-								// vcvarsall may contain space
-								vcvarsall = vcvarsall.replace(/\ /g, '^ ');
+								
+								// escape any spaces or brackets
+								vcvarsall = vcvarsall.replace(/(\(|\)|\s)/g, '^$1');
 
 								// now that we have vcvarsall, get the msbuild version
 								appc.subprocess.run('cmd', [ '/C', vcvarsall + ' && MSBuild /version' ], function (code, out, err) {
