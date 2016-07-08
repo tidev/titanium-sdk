@@ -177,7 +177,7 @@
 
     // We do this for parity with Javascript and Android
     int month = [TiUtils intValue:[arg objectAtIndex:1]];
-    month -= 1;
+    month += 1;
 
     [comps setDay:[TiUtils intValue:[arg objectAtIndex:2]]];
     [comps setMonth:month];
