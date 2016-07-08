@@ -1168,7 +1168,7 @@ properties:
     optional: true
 
   - name: region
-    summary:  | 
+    summary: | 
         Region the notification will be triggered in. Allowed parameter are:
          
         - `latitude`: Latitude of the location center, in decimal degrees (required).
