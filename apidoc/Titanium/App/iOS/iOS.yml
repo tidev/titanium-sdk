@@ -1173,6 +1173,7 @@ properties:
         
         - `latitude`: Latitude of the location center, in decimal degrees (required).
         - `longitude`: Longitude of the location center, in decimal degrees (required).
+        - `radius`: The distance in meters between the center and the region's boundary (optional, default: 0).
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
         - `identifier`: Identifier of the region (optional).
     description: |
