@@ -1169,6 +1169,14 @@ properties:
 
   - name: region
     summary: Region the notification will be triggered in.
+    description: |
+        Set a `region` object to trigger the notification when the user enters or leaves a geographic region, 
+        depending upon the properties set on the `region` object itself. Registering multiple notifications
+        with different regions containing the same identifier will result in undefined behavior. The number of 
+        region-triggered notifications that may be registered at any one time is internally limited by iOS. In 
+        order to use region-triggered notifications, applications must have the `NSLocationWhenInUseUsageDescription`
+        key in the plist-section of their tiapp.xml. See the <Titanium.Geolocation> documentation for more information
+        on how to set this key.
     type: Dictionary
     optional: true
     since: "5.4.0"
@@ -1183,8 +1191,17 @@ properties:
         type: Number
         optional: false
 
+      - name: radius
+        summary: The distance in meters between the center and the region's boundary
+        type: Number
+        optional: true
+        default: 0 (any movement from the region will trigger the notification)
+
       - name: triggersOnce
         summary: Longitude of the location center, in decimal degrees.
+        description: |
+            When set to `true`, the notification will only fire one time. When set to `false`, the notification will fire 
+            every time the region is entered or exited (depending upon the `region` object's configuration).
         default: true
         type: Boolean
         optional: true

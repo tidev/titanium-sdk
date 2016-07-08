@@ -580,6 +580,7 @@
 		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
 		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
 		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+		double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
 		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
 
 		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
@@ -589,11 +590,11 @@
 			return;
 		}
         
-		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
-                                                              radius:kCLDistanceFilterNone
-                                                          identifier:identifier ? identifier : @"notification"];
+		[localNotif setRegion:[[CLCircularRegion alloc] initWithCenter:center
+																radius:radius
+															identifier:identifier ? identifier : @"notification"]];
 		
-		localNotif.regionTriggersOnce = regionTriggersOnce;
+		[localNotif setRegionTriggersOnce:regionTriggersOnce];
 	}
 
 	id sound = [args objectForKey:@"sound"];
