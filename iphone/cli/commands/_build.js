@@ -5674,7 +5674,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
-	this.unmarkBuildDirFiles(path.join(this.buildDir, 'ModuleCache'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'DerivedData'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', 'Intermediates'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function (product) {
@@ -5935,7 +5935,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
-		'-derivedDataPath', this.buildDir,
+		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')
