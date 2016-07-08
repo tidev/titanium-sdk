@@ -1175,7 +1175,6 @@ properties:
         - `longitude`: Longitude of the location center, in decimal degrees (required).
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
         - `identifier`: Identifier of the region (optional).
-    summary: Region the notification will be triggered in.
     description: |
         Set a `region` object to trigger the notification when the user enters or leaves a geographic region, 
         depending upon the properties set on the `region` object itself. Registering multiple notifications
