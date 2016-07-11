@@ -42,6 +42,12 @@
 	return [[TiApp app] userAgent];
 }
 
+-(void)setUserAgent:(id)value
+{
+    ENSURE_TYPE(value, NSString);
+    [[TiApp app] setUserAgent:[TiUtils stringValue:value]];
+}
+
 -(NSString*)apiName
 {
     return @"Ti";
