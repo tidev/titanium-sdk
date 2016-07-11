@@ -22,8 +22,6 @@
 -(void) dealloc
 {
     RELEASE_TO_NIL(_refreshControl);
-    RELEASE_TO_NIL(_attributedString);
-    RELEASE_TO_NIL(refreshTintColor);
     [super dealloc];
 }
 
@@ -32,75 +30,67 @@
 {
     //Must be called on main thread
     if (_refreshControl == nil) {
-        _refreshControl = [[UIRefreshControl alloc] init];
-        [_refreshControl addTarget:self action:@selector(refreshStart) forControlEvents:UIControlEventValueChanged];
-        [self refreshControl];
+        _refreshControl = [UIRefreshControl new];
+        [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
     }
     
     return _refreshControl;
 }
 
--(void)refreshControl
-{
-    if (_refreshControl != nil) {
-        [_refreshControl setAttributedTitle:_attributedString];
-        [_refreshControl setTintColor:refreshTintColor];
-    }
-}
-
--(void)refreshStart
+-(void)refreshingDidStart
 {
     if ([self _hasListeners:@"refreshstart"]) {
         [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
 }
 
-
-#pragma mark - Public API
-
--(void)setTitle:(id)args
+-(void)refreshingDidEnd
 {
+    if ([self _hasListeners:@"refreshend"]) {
+        [self fireEvent:@"refreshend" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    }
+}
 
-#ifdef USE_TI_UIATTRIBUTEDSTRING
-	ENSURE_SINGLE_ARG_OR_NIL(args, TiUIAttributedStringProxy);
-	[self replaceValue:args forKey:@"title" notification:NO];
-	RELEASE_TO_NIL(_attributedString);
-	if (args != nil) {
-		_attributedString = [[args attributedString] copy];
-	}
-	TiThreadPerformOnMainThread(^{
-		[self refreshControl];
-	}, NO);
+#pragma mark - Public APIs
+
+-(void)setTitle:(id)value
+{
+#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+    ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
+    [self replaceValue:value forKey:@"title" notification:NO];
+    
+    TiThreadPerformOnMainThread(^{
+        [[self control] setAttributedTitle:[(TiUIAttributedStringProxy*)value attributedString]];
+    }, NO);
 #endif
 }
 
--(void)setTintColor:(id)args
+-(void)setTintColor:(id)value
 {
-    ENSURE_SINGLE_ARG_OR_NIL(args, NSObject);
-    [self replaceValue:args forKey:@"tintColor" notification:NO];
-    RELEASE_TO_NIL(refreshTintColor);
-    refreshTintColor = [[[TiUtils colorValue:args] color] retain];
-    //Changing tintColor works on iOS6 but not on iOS7. iOS Bug?
+    ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
+    [self replaceValue:value forKey:@"tintColor" notification:NO];
+    
     TiThreadPerformOnMainThread(^{
-        [self refreshControl];
+        [[self control] setTintColor:[[TiUtils colorValue:value] color]];
     }, NO);
 }
 
 -(void)beginRefreshing:(id)unused
 {
     TiThreadPerformOnMainThread(^{
-        [_refreshControl beginRefreshing];
+        [(UIScrollView*)[[self control] superview] setContentOffset:CGPointMake(0, -([[self control] frame].size.height)) animated:YES];
+        [[self control] beginRefreshing];
+        [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
     }, NO);
 }
 
 -(void)endRefreshing:(id)unused
 {
     TiThreadPerformOnMainThread(^{
-        [_refreshControl endRefreshing];
+        [[self control] endRefreshing];
+        [self refreshingDidEnd];
     }, NO);
 }
-
-
 
 @end
 #endif
