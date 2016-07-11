@@ -41,13 +41,17 @@ properties:
 
 events:
   - name: refreshstart
-    summary: Fired in response to a user initiated an action to refresh the contents of the table view, list view or scroll view.
+    summary: | 
+        Fired in response to a user initiated an action to refresh the contents of the 
+        table view, list view or scroll view.
     properties:
       - name: bubbles
         summary: This is false. This event does not bubble
         type: Boolean
   - name: refreshend
-    summary: Fired in response to a user finished an action to refresh the contents of the table view, list view or scroll view.
+    summary: | 
+        Fired in response to a user finished action to refresh the contents of the 
+        table view, list view or scroll view.
     since: "6.0.0"
     properties:
       - name: bubbles
