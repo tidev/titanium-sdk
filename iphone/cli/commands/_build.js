@@ -1497,17 +1497,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
+						if (targetInfo.isWatchAppV1Extension || targetInfo.isWatchAppV1) {
+							logger.error(__('WatchOS1 app detected.'));
+							logger.error(__('Titanium %s does not support WatchOS1 apps.', this.titaniumSdkVersion) + '\n');
+							process.exit(1);
+						}
+
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
+						if (targetInfo.isWatchAppV2orNewer
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						if (targetInfo.isWatchAppV1) {
-							this.hasWatchAppV1 = true;
-							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
-						} else if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
