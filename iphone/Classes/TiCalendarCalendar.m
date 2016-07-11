@@ -204,7 +204,7 @@
     ENSURE_ARG_COUNT(args, 2);
 
     // We do this for parity with Javascript and Android
-    int month = [TiUtils intValue:[arg objectAtIndex:1]];
+    int month = [TiUtils intValue:[args objectAtIndex:1]];
     month += 1;
     
     NSDateComponents *comps = [[NSDateComponents alloc] init];
