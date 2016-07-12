@@ -229,7 +229,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		cursor.close();
 
-		return proxifyPeople(persons,maxLimit,offset);
+		return proxifyPeople(persons, maxLimit, offset);
 	}
 
 	@Override
