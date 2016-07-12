@@ -269,7 +269,7 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iPhone.ListViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.iOS.ListViewCellSelectionStyle>.
     type: Number
     platforms: [iphone,ipad]
     accessors: false
