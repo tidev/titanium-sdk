@@ -817,7 +817,7 @@ describe('Titanium.UI.Layout', function () {
 				// valueOf(testRun, view.size.height).shouldBe(scrollView3.size.height);
 
 				finish();
-			} cathc (e) {
+			} catch (e) {
 				finish(e);
 			}
 		});
