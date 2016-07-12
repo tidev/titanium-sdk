@@ -6,6 +6,9 @@ summary: |
 extends: Titanium.Module
 since: "0.5"
 platforms: [iphone, ipad]
+deprecated:
+    since: "5.4.0"
+    notes: Use the constants on the <Titanium.UI.iOS> namespace instead.
 
 methods:
   - name: hideStatusBar

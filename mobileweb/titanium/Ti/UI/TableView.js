@@ -1,6 +1,6 @@
 /*global define*/
-define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI/MobileWeb/TableViewSeparatorStyle', 'Ti/UI'],
-	function(declare, KineticScrollView, style, lang, TableViewSeparatorStyle, UI) {
+define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 'Ti/UI'],
+	function(declare, KineticScrollView, style, lang, UI) {
 
 	var setStyle = style.set,
 		is = require.is,
@@ -437,7 +437,7 @@ define(['Ti/_/declare', 'Ti/_/UI/KineticScrollView', 'Ti/_/style', 'Ti/_/lang', 
 
 			separatorStyle: {
 				post: '_refreshSections',
-				value: TableViewSeparatorStyle.SINGLE_LINE
+				value: UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
 			}
 		}
 
