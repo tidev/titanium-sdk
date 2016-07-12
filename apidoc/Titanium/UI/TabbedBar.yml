@@ -42,24 +42,24 @@ properties:
     summary: Style of the tabbed bar.
     description: |
         Specify one of the constants defined in 
-        [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle),
+        [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle),
         either `PLAIN`, `BORDERED`, or `BAR`.
         
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
     type: Number
-    default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN
 examples:
   - title: Simple Tabbed Bar with 3 items
     example: |
         
-            var bb1 = Titanium.UI.createTabbedBar({
-            	labels:['One', 'Two', 'Three'],
-            	backgroundColor:'#336699',
-            	top:50,
-            	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-            	height:25,
-            	width:200
+            var bb1 = Ti.UI.createTabbedBar({
+            	labels: ['One', 'Two', 'Three'],
+            	backgroundColor: '#336699',
+            	style: Ti.UI.iOS.SystemButtonStyle.BAR,
+            	width: 200,
+            	height: 25,
+            	top: 50
             });
             win.add(bb1);
         

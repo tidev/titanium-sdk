@@ -894,8 +894,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: willScrollOnStatusTap
@@ -949,16 +949,17 @@ properties:
   - name: separatorStyle
     summary: Separator style constant. 
     type: Number
-    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
-    since: 3.2.0
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
+    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
+
     platforms: [iphone, ipad]
 
   - name: style
     summary: Style of the list view.
     description: Style should always be set before setting the sections on list view.
     type: Number
-    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
-    constants: Titanium.UI.iPhone.ListViewStyle.*
+    default: Titanium.UI.iOS.ListViewStyle.PLAIN
+    constants: Titanium.UI.iOS.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
 
@@ -1617,15 +1618,15 @@ properties:
   - name: animationStyle
     summary: Type of animation to use for cell insertions and deletions.
     type: Number
-    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    constants: Titanium.UI.iOS.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
-        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+        [FADE](Titanium.UI.iOS.RowAnimationStyle.FADE).
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
-    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+    constants: Titanium.UI.iOS.ListViewScrollPosition.*
+    default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
 ---      
 name: ListViewIndexEntry

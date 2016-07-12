@@ -618,28 +618,28 @@ examples:
         This code excerpt creates a text field with a toolbar:
         
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
+                backgroundColor: 'white'
             });
 
-            var send = Titanium.UI.createButton({
+            var send = Ti.UI.createButton({
                 title : 'Send',
-                style : Titanium.UI.iPhone.SystemButtonStyle.DONE,
+                style : Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CAMERA,
+            var camera = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CANCEL
+            var cancel = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            var flexSpace = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            var flexSpace = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var textfield = Titanium.UI.createTextField({
-                borderStyle : Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
+            var textfield = Ti.UI.createTextField({
+                borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
                 hintText : 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
                 keyboardToolbarColor : '#999',
@@ -686,11 +686,11 @@ examples:
                         <KeyboardToolbar>
                             <Toolbar>
                                 <Items>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                                    <Button systemButton="CANCEL" />
                                     <FlexSpace/>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                                    <Button systemButton="CAMERA" />
                                     <FlexSpace/>
-                                    <Button style="Ti.UI.iPhone.SystemButtonStyle.DONE">Send</Button>
+                                    <Button style="DONE">Send</Button>
                                 </Items>
                             </Toolbar>
                         </KeyboardToolbar>

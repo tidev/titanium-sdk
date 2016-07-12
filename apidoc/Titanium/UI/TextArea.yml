@@ -488,20 +488,20 @@ examples:
         Example using a custom keyboard toolbar:
         
             var send = Ti.UI.createButton({
-                style : Ti.UI.iPhone.SystemButtonStyle.DONE,
+                style : Ti.UI.iOS.SystemButtonStyle.DONE,
                 title : 'Send'
             });
             
             var camera = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.CAMERA
+                systemButton : Ti.UI.iOS.SystemButton.CAMERA
             });
             
             var cancel = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.CANCEL
+                systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
             
             var flexSpace = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
             var textarea = Ti.UI.createTextArea({

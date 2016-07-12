@@ -474,6 +474,8 @@ define(
 			RETURNKEY_SEARCH: 8, // Search
 			RETURNKEY_SEND: 9, // Send
 			RETURNKEY_YAHOO: 10, // Search
+			TABLE_VIEW_SEPARATOR_STYLE_NONE: 0,
+			TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE: 1,
 			TEXT_ALIGNMENT_CENTER: 'center',
 			TEXT_ALIGNMENT_RIGHT: 'right',
 			TEXT_ALIGNMENT_LEFT: 'left',
@@ -495,8 +497,8 @@ define(
 			UNIT_MM: 'mm',
 			UNIT_CM: 'cm',
 			UNIT_IN: 'in',
-			UNIT_DIP: 'dp', // We don't have DIPs, so we treat them as pixels
-
+			UNIT_DIP: 'dp', // We don't have DIPs, so we treat them as pixels,
+			
 			// Hidden constants
 			_LAYOUT_COMPOSITE: 'composite',
 			_LAYOUT_VERTICAL: 'vertical',
