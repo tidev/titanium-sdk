@@ -578,8 +578,8 @@
         ENSURE_TYPE(region, NSDictionary);
         
 		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
-		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
+		double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
 		double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
 		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
 
@@ -622,10 +622,9 @@
 	}
 	
 	TiThreadPerformOnMainThread(^{
-		if (date!=nil) {
+		if (date != nil || region != nil) {
 			[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
-		}
-		else {
+		} else {
 			[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
 		}
 	}, NO);
