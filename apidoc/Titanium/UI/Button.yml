@@ -38,8 +38,8 @@ description: |
     iOS buttons have two special properties, `style` and `systemButton`.
 
     The `style` property specifies the type of button decoration, and can be set to one 
-    of the values described in <Titanium.UI.iPhone.SystemButtonStyle>. On iOS 6 and earlier, the 
-    default `SystemButtonStyle` is [BORDERED](Titanium.UI.iPhone.SystemButtonStyle.BORDERED), which
+    of the values described in <Titanium.UI.iOS.SystemButtonStyle>. On iOS 6 and earlier, the 
+    default `SystemButtonStyle` is [BORDERED](Titanium.UI.iOS.SystemButtonStyle.BORDERED), which
     decorates the button with a rounded rectangle. On iOS 7, the rounded rectangle button has been deprecated.
 
     <div style="text-align: center; margin-bottom: 10px">
@@ -72,11 +72,11 @@ description: |
 
     Depending on the design requirements, there are a couple of solutions to this:
 
-    * To make the button on iOS 6 match the iOS 7 style, set the button's <Titanium.UI.iPhone.SystemButtonStyle>
-     property to [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN). This removes all decoration from 
+    * To make the button on iOS 6 match the iOS 7 style, set the button's <Titanium.UI.iOS.SystemButtonStyle>
+     property to [PLAIN](Titanium.UI.iOS.SystemButtonStyle.PLAIN). This removes all decoration from 
      the button so that it looks the same on both types of devices.
     * To make the button on iOS 7 match the rounded rectangle style of iOS 6, set 
-    <Titanium.UI.iPhone.SystemButtonStyle> to [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) and
+    <Titanium.UI.iOS.SystemButtonStyle> to [PLAIN](Titanium.UI.iOS.SystemButtonStyle.PLAIN) and
     and assign a custom image to <Titanium.UI.Button.backgroundImage>. 
 
     To use a custom button style, such as a background gradient, you may need to explicitly set 
@@ -105,13 +105,13 @@ description: |
     * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties can refer to 
       system buttons and the `toolbar` array can contain system buttons.
     
-    Use the constants in <Titanium.UI.iPhone.SystemButton> 
+    Use the constants in <Titanium.UI.iOS.SystemButton> 
     to specify a button type. The size, style and decoration of system buttons is set
     automatically, so you can create a button by setting only the `systemButton` property.
 
     For example:
     
-        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.CANCEL });
+        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
 
     In Alloy, you can omit the namespace when setting the `systemButton` property: 
 
@@ -128,8 +128,8 @@ description: |
     iOS supplies a built-in effect for pressed buttons. For most iOS buttons, the effect
     dims the entire button (except for the text) while the button is being pressed.
 
-    For toolbar buttons that use the [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) style
-    or use system icons such as [CAMERA](Titanium.UI.iPhone.SystemButton.CAMERA), a glow effect is
+    For toolbar buttons that use the [PLAIN](Titanium.UI.iOS.SystemButtonStyle.PLAIN) style
+    or use system icons such as [CAMERA](Titanium.UI.iOS.SystemButton.CAMERA), a glow effect is
     used. The glow effect shows as a white circular glow or highlight at the center of the button
     when the button is pressed. 
 
@@ -261,18 +261,17 @@ properties:
     since: "3.2.0"
 
   - name: style
-    summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
+    summary: Style constant for the button, as defined in <Titanium.UI.iOS.SystemButtonStyle>.
     type: Number
     platforms: [iphone,ipad]
 
   - name: systemButton
-    summary: Specifies an iOS system button appearance, as defined in 
-        <Titanium.UI.iPhone.SystemButton>.
+    summary: Specifies an iOS system button appearance, as defined in <Titanium.UI.iOS.SystemButton>.
     description: |
         In JavaScript:
 
             var cancelButton = Ti.UI.createButton({ 
-                systemButton: Ti.UI.iPhone.SystemButton.CANCEL 
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL 
             });
 
         In Alloy, you can omit the namespace when setting the `systemButton` property on a `<Button>`
@@ -281,7 +280,7 @@ properties:
             <Button systemButton="CAMERA"/>
 
     type: Number
-    constants: Titanium.UI.iPhone.SystemButton.*
+    constants: Titanium.UI.iOS.SystemButton.*
     platforms: [iphone,ipad]
 
   - name: textAlign

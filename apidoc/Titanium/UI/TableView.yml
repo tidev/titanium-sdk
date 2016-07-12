@@ -1611,17 +1611,8 @@ properties:
 
   - name: separatorStyle
     summary: Separator style constant.
-    description: |
-        For iOS specify one of the
-        [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-       
-        For Android specify one of the following:
-        [TABLE_VIEW_SEPARATOR_STYLE_NONE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
-        [TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
-
-        For Mobile Web specify one of the
-        [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     platforms: [iphone, ipad, mobileweb, android]
     since: {android: "5.2.0"}
     
