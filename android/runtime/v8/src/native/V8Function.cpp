@@ -9,6 +9,7 @@
 #include <v8.h>
 
 #include "JNIUtil.h"
+#include "Proxy.h"
 #include "TypeConverter.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
@@ -34,8 +35,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	titanium::JNIScope jniScope(env);
 
 	// construct this from pointer
-	Persistent<Object>* persistentJSObject = (Persistent<Object>*) thisPointer;
-	Local<Object> thisObject = persistentJSObject->Get(V8Runtime::v8_isolate);
+	titanium::Proxy* proxy = (titanium::Proxy*) thisPointer;
+	Local<Object> thisObject = proxy->handle(V8Runtime::v8_isolate);
 
 	// construct function from "pointer" - we used to use pointers to Persistent to re-construct Functions
 	// But that was a _BAD_ idea because V8 moves handles around as GC runs, resulting in the stored memory address being invalid

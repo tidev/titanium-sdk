@@ -315,8 +315,6 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	inheritedTemplate->Set(javaClassSymbol.Get(isolate), wrappedClass, static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
-	// every instance gets a special "_properties" object for us to use inetrnally for get/setProperty
-	inheritedTemplate->InstanceTemplate()->Set(propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 	inheritedTemplate->SetClassName(className);
 	inheritedTemplate->Inherit(superTemplate);
 
@@ -332,6 +330,9 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	JNIEnv *env = JNIScope::getEnv();
 	Local<Object> jsProxy = args.This();
+
+	// every instance gets a special "_properties" object for us to use internally for get/setProperty
+	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
 	Proxy* proxy = new Proxy(NULL);

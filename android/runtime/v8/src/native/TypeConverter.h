@@ -18,7 +18,7 @@ class TypeConverter
 public:
 	// Our global map of "pointers" to persistent functions
 	static std::map<int64_t, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> functions;
-	//The incrementing key to store the persistent functions
+	// The incrementing key to store the persistent functions
 	static int64_t functionIndex;
 
 	// short convert methods
