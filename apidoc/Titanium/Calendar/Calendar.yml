@@ -53,6 +53,9 @@ methods:
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
+
+        This method requests `Manifest.permission.READ_CALENDAR` and `Manifest.permission.WRITE_CALENDAR` on Android. If you
+        require other permissions, you can also use <Titanium.Android.requestPermissions>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant calendar access.
@@ -63,7 +66,7 @@ methods:
   - name: requestEventsAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use [requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
+        notes: Use <Titanium.Calendar.requestCalendarPermissions> instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
@@ -199,7 +202,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
+        notes: Use <Titanium.Calendar.STATUS_CANCELED> instead.
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
@@ -487,7 +490,7 @@ properties:
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     deprecated:
         since: "5.2.0"
-        notes: Use calendarAuthorization instead.
+        notes: Use <Titanium.Calendar.calendarAuthorization> instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only

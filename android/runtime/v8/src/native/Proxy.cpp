@@ -484,7 +484,7 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 	return;
 }
 
-void Proxy::dispose()
+void Proxy::dispose(Isolate* isolate)
 {
 	baseProxyTemplate.Reset();
 	javaClassSymbol.Reset();

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
@@ -33,7 +32,6 @@ public class TiDatabaseProxy extends KrollProxy
 
 	public TiDatabaseProxy(String name, SQLiteDatabase db)
 	{
-		//super(tiContext);
 		super();
 		this.name = name;
 		this.db = db;
@@ -41,25 +39,14 @@ public class TiDatabaseProxy extends KrollProxy
 		readOnly = false;
 	}
 
-	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
-	{
-		this(name, db);
-	}
-
 	// readonly database
 	public TiDatabaseProxy(SQLiteDatabase db)
 	{
-		//super(tiContext);
 		super();
 		this.name = db.getPath();
 		this.db = db;
 		statementLogging = false;
 		readOnly = true;
-	}
-
-	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
-	{
-		this(db);
 	}
 
 	@Kroll.method
@@ -105,7 +92,7 @@ public class TiDatabaseProxy extends KrollProxy
 		TiResultSetProxy rs = null;
 		Cursor c = null;
 		try {
-			String lcSql = sql.toLowerCase().trim(); 
+			String lcSql = sql.toLowerCase().trim();
 			// You must use execSQL unless you are expecting a resultset, changes aren't committed
 			// if you don't. Just expecting them on select or pragma may be enough, but
 			// it may need additional tuning. The better solution would be to expose
@@ -206,9 +193,9 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public TiFileProxy getFile(){
 	        String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
-		return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));               
+		return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));
 	}
-	   
+
 	@Override
 	public String getApiName()
 	{

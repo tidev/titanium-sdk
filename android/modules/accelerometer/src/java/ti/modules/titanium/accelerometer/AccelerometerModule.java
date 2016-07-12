@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
 import android.hardware.Sensor;
@@ -31,11 +30,6 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 	public AccelerometerModule()
 	{
 		super();
-	}
-
-	public AccelerometerModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override

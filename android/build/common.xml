@@ -379,7 +379,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
-		<property name="ndk.build.args" value=""/>
+		<property name="ndk.build.args" value="-j8"/>
 		<property name="kroll.v8.build.x86" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
@@ -470,7 +470,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<exclude name="${kroll.package}/KrollProperty.java"/>
 					<exclude name="${kroll.package}/util/KrollReflectionUtils.java"/>
 					<exclude name="${ti.package}/ContextSpecific.java"/>
-					<exclude name="${ti.package}/TiContext.java"/>
 					<exclude name="${ti.package}/TiModalActivity.java"/>
 					<exclude name="${ti.package}/TiStylesheet.java"/>
 					<exclude name="${ti.package}/TiTranslucentActivity.java"/>
@@ -482,7 +481,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<exclude name="${ti.package}/util/Log.java"/>
 					<exclude name="${ti.package}/util/TiAnimationBuilder.java"/>
 					<exclude name="${ti.package}/util/TiAnimationPair.java"/>
-					<exclude name="${ti.package}/util/TiBindingHelper.java"/>
 					<exclude name="${ti.package}/util/TiConfig.java"/>
 					<exclude name="${ti.package}/util/TiIntentWrapper.java"/>
 					<exclude name="${ti.package}/util/TiResponseCache.java"/>

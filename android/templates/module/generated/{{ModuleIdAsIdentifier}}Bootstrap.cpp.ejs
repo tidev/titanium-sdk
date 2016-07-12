@@ -80,9 +80,8 @@ static void <%- className %>_init(Local<Object> exports, Local<Context> context)
 	exports->Set(String::NewFromOneByte(isolate, "getBinding"), FunctionTemplate::New(isolate, <%- className %>_getBinding)->GetFunction(context).ToLocalChecked());
 }
 
-static void <%- className %>_dispose()
+static void <%- className %>_dispose(Isolate* isolate)
 {
-	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 	if (bindingCache.IsEmpty()) {
 		return;
@@ -99,7 +98,7 @@ static void <%- className %>_dispose()
 			::<%- className %>Bindings::lookupGeneratedInit(*binding, bindingLength);
 
 		if (extBinding && extBinding->dispose) {
-			extBinding->dispose();
+			extBinding->dispose(isolate);
 		}
 	}
 

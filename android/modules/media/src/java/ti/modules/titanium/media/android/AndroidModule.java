@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -41,11 +40,6 @@ public class AndroidModule extends KrollModule
 	{
 		super();
 		_instance = this;
-	}
-
-	public AndroidModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -98,16 +92,6 @@ public class AndroidModule extends KrollModule
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
 			this.callback = callback;
-		}
-
-		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, KrollFunction callback)
-		{
-			this(tiContext.getActivity(), paths, mimeTypes, callback);
-		}
-
-		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes)
-		{
-			this(tiContext, paths, mimeTypes, null);
 		}
 
 		@Override

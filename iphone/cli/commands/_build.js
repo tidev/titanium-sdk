@@ -1497,17 +1497,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
+						if (targetInfo.isWatchAppV1Extension || targetInfo.isWatchAppV1) {
+							logger.error(__('WatchOS1 app detected.'));
+							logger.error(__('Titanium %s does not support WatchOS1 apps.', this.titaniumSdkVersion) + '\n');
+							process.exit(1);
+						}
+
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
+						if (targetInfo.isWatchAppV2orNewer
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						if (targetInfo.isWatchAppV1) {
-							this.hasWatchAppV1 = true;
-							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
-						} else if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
@@ -5674,7 +5677,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
-	this.unmarkBuildDirFiles(path.join(this.buildDir, 'ModuleCache'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'DerivedData'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', 'Intermediates'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function (product) {
@@ -5935,7 +5938,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
-		'-derivedDataPath', this.buildDir,
+		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')

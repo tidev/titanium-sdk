@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 
 import ti.modules.titanium.app.AppModule;
@@ -25,11 +24,6 @@ public class PropertiesModule extends KrollModule {
 		super();
 
 		appProperties = TiApplication.getInstance().getAppProperties();
-	}
-
-	public PropertiesModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method

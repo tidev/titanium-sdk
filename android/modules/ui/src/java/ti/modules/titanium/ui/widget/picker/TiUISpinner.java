@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -47,7 +47,7 @@ public class TiUISpinner extends TiUIPicker
 			refreshColumn((TiUISpinnerColumn)child);
 		}
 	}
-	
+
 	private void refreshColumn(int columnIndex)
 	{
 		if (columnIndex < 0 || children == null || children.size() == 0 || columnIndex > (children.size() + 1)) {
@@ -144,10 +144,10 @@ public class TiUISpinner extends TiUIPicker
 	public void add(TiUIView child)
 	{
 		if (proxy.hasProperty(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			child.getProxy().setProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)), true);
+			child.getProxy().setPropertyAndFire(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)));
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			child.getProxy().setProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)), true);
+			child.getProxy().setPropertyAndFire(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)));
 		}
 		super.add(child);
 	}

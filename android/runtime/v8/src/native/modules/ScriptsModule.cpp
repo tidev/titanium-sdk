@@ -323,7 +323,7 @@ void ScriptsModule::Initialize(Local<Object> target, Local<Context> context)
 	WrappedScript::Initialize(target, context);
 }
 
-void ScriptsModule::Dispose()
+void ScriptsModule::Dispose(Isolate* isolate)
 {
 	WrappedScript::constructor_template.Reset();
 	WrappedContext::global_template.Reset();

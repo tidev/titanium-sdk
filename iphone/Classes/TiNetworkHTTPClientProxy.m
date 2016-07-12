@@ -430,6 +430,11 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+    
+    if ([key isEqualToString:@"User-Agent"] && ![[[TiApp app] userAgent] isEqualToString:[[TiApp app] systemUserAgent]]) {
+        NSLog(@"[WARN] You already specified a custom 'User-Agent' using Ti.userAgent. The user-agents will be concatenated.");
+    }
+    
     [httpRequest addRequestHeader:key value:value];
 }
 

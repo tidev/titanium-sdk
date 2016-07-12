@@ -250,7 +250,7 @@ void APIModule::debugBreak(const FunctionCallbackInfo<Value>& args)
 	Debug::DebugBreak(args.GetIsolate());
 }
 
-void APIModule::Dispose()
+void APIModule::Dispose(Isolate* isolate)
 {
 	constructorTemplate.Reset();
 }

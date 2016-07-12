@@ -17,7 +17,7 @@ class APIModule
 {
 public:
 	static void Initialize(Local<Object> target, Local<Context> context);
-	static void Dispose();
+	static void Dispose(Isolate* isolate);
 
 	static void logDebug(const FunctionCallbackInfo<Value>& args);
 	static void logInfo(const FunctionCallbackInfo<Value>& args);
