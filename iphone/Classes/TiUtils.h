@@ -156,7 +156,7 @@ typedef enum
 
 /**
  Changes to image rotation, so the image is facing up.
- @param Image to be rotated.
+ @param Image The image to be rotated.
  @return The rotated image.
  */
 +(UIImage *)adjustRotation:(UIImage *)image;

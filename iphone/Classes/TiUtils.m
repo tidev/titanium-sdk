@@ -691,15 +691,10 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(UIImage *)adjustRotation:(UIImage *) image {
     
     CGImageRef imgRef = image.CGImage;
-    
     CGFloat width = CGImageGetWidth(imgRef);
     CGFloat height = CGImageGetHeight(imgRef);
-    
-    
     CGAffineTransform transform = CGAffineTransformIdentity;
     CGRect bounds = CGRectMake(0, 0, width, height);
-    
-    
     CGFloat scaleRatio = bounds.size.width / width;
     CGSize imageSize = CGSizeMake(CGImageGetWidth(imgRef), CGImageGetHeight(imgRef));
     CGFloat boundHeight;
@@ -760,7 +755,6 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
             
         default:
             [NSException raise:NSInternalInconsistencyException format:@"Invalid image orientation"];
-            
     }
     
     UIGraphicsBeginImageContext(bounds.size);
@@ -770,8 +764,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     if (orient == UIImageOrientationRight || orient == UIImageOrientationLeft) {
         CGContextScaleCTM(context, -scaleRatio, scaleRatio);
         CGContextTranslateCTM(context, -height, 0);
-    }
-    else {
+    } else {
         CGContextScaleCTM(context, scaleRatio, -scaleRatio);
         CGContextTranslateCTM(context, 0, -height);
     }
