@@ -15,6 +15,7 @@
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
+#include "JSDebugger.h"
 #include "JSException.h"
 #include "KrollBindings.h"
 #include "ProxyFactory.h"
@@ -170,18 +171,6 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 		*titanium::Utf8Value(msg->GetSourceLine()));
 }
 
-static jmethodID dispatchDebugMessage = NULL;
-
-static void dispatchHandler()
-{
-	static JNIEnv *env = NULL;
-	if (!env) {
-		titanium::JNIUtil::javaVm->AttachCurrentThread(&env, NULL);
-	}
-
-	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
-}
-
 } // namespace titanium
 
 #ifdef __cplusplus
@@ -195,7 +184,7 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG, jboolean profilerEnabled)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jobject debugger, jboolean DBG, jboolean profilerEnabled)
 {
 	if (!V8Runtime::initialized) {
 		// Initialize V8.
@@ -217,7 +206,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	titanium::JNIScope jniScope(env);
 
 	JavaObject::useGlobalRefs = useGlobalRefs;
-	V8Runtime::debuggerEnabled = debuggerPort >= 0;
 	V8Runtime::DBG = DBG;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
@@ -247,16 +235,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	context->Enter();
 
 	V8Runtime::globalContext.Reset(isolate, context);
-	V8Runtime::bootstrap(context);
 
-	if (V8Runtime::debuggerEnabled) {
-		jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
-		dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
-
-		// FIXME Fix up debugger!
-		//Debug::SetMessageHandler(dispatchHandler);
-		//Debug::EnableAgent("titanium", debuggerPort, true);
+	JSDebugger::init(env, isolate, debugger);
+	if (debugger != nullptr) {
+		V8Runtime::debuggerEnabled = true;
 	}
+
+	V8Runtime::bootstrap(context);
 
 	LOG_HEAP_STATS(isolate, TAG);
 }

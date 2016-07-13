@@ -39,6 +39,7 @@ JNI_PREFIX := $(GENERATED_DIR)/org_appcelerator_kroll_runtime_v8
 DIST_DIR := $(THIS_DIR)/../../../../../dist/android
 $(THIS_DIR)/V8Runtime.cpp: $(JNI_PREFIX)_V8Runtime.h
 $(THIS_DIR)/V8Object.cpp: $(JNI_PREFIX)_V8Object.h
+$(THIS_DIR)/JSDebugger.cpp: $(JNI_PREFIX)_JSDebugger.h
 
 ifeq ($(PYTHON),)
 PYTHON := python
