@@ -12,7 +12,7 @@
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 #include "JNIUtil.h"
-#include "JavaObject.h"
+#include "Proxy.h"
 #include "ProxyFactory.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
@@ -867,10 +867,9 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				Persistent<Object>* persistentV8Object = (Persistent<Object>*) v8ObjectPointer;
-				auto v8Object = (*persistentV8Object).Get(isolate);
-				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
-				jo->getJavaObject();
+				titanium::Proxy* proxy = (titanium::Proxy*) v8ObjectPointer;
+				v8::Local<v8::Object> v8Object = proxy->handle(isolate);
+				proxy->getJavaObject();
 				return v8Object;
 			}
 		}

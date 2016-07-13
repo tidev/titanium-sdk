@@ -93,9 +93,8 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 		return scope.Escape(Local<Object>());
 	}
 
-	// set the pointer back on the java proxy
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
-	jlong ptr = (jlong) &(proxy->persistent());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy); // The v8Proxy is a JS Object containing an internal pointer to the Proxy object that wraps it in C++ world.
+	jlong ptr = (jlong) proxy; // We take the address of that C++ Proxy/JavaObject and store it on the Java side to reference when we need to get teh proxy or JS object again
 
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, ptr);
@@ -125,12 +124,10 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		return NULL;
 	}
 
-	// Create a persistent handle to the V8 proxy
-	// and cast it to a pointer. The Java proxy needs
-	// a reference to the V8 proxy for later use.
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy); // v8Proxy holds Proxy object in internal field
-	jlong pv8Proxy = (jlong) &(proxy->persistent()); // proxy has a persistent holding the v8Proxy.
-	// So we're getting address of the persistent which holds v8Proxy here...
+	// Grab the Proxy pointer from the JSObject that wraps it,
+	// pass along the address of the Proxy to use a pointer to get it back later when we deal with this object
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy); // v8Proxy holds pointer to Proxy object in internal field
+	jlong pv8Proxy = (jlong) proxy; // So now we store pointer to the Proxy on Java side.
 
 	// We also pass the creation URL of the proxy so we can track relative URLs
 	Local<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
