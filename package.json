@@ -42,7 +42,7 @@
     "temp": "0.8.3",
     "uglify-js": "2.6.4",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.13",
+    "windowslib": "0.4.15",
     "wrench": "1.5.9",
     "xcode": "0.8.8",
     "xmldom": "0.1.22"
