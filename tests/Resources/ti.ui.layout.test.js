@@ -183,7 +183,7 @@ describe('Titanium.UI.Layout', function () {
 		});
 
 		win.add(view);
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -255,7 +255,7 @@ describe('Titanium.UI.Layout', function () {
 			}
 		});
 		win.add(view);
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -385,7 +385,7 @@ describe('Titanium.UI.Layout', function () {
 	it('undefinedCenter', function (finish) {
 		win = createWindow();
 		var view = Ti.UI.createView({});
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -414,7 +414,7 @@ describe('Titanium.UI.Layout', function () {
 			},
 			left: 10
 		});
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -544,7 +544,7 @@ describe('Titanium.UI.Layout', function () {
 			top: 10
 		});
 
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -571,7 +571,7 @@ describe('Titanium.UI.Layout', function () {
 			right: 15,
 			width: 10
 		});
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -600,7 +600,7 @@ describe('Titanium.UI.Layout', function () {
 			}
 		});
 
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -632,7 +632,7 @@ describe('Titanium.UI.Layout', function () {
 				right: 50
 			});
 
-		win.addEventListener('postlayout', function (e) {
+		viewChild.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -659,7 +659,7 @@ describe('Titanium.UI.Layout', function () {
 			height: 10
 		});
 
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -688,7 +688,7 @@ describe('Titanium.UI.Layout', function () {
 			}
 		});
 
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -720,7 +720,7 @@ describe('Titanium.UI.Layout', function () {
 				bottom: 50
 			});
 
-		win.addEventListener('postlayout', function (e) {
+		viewChild.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -983,7 +983,7 @@ describe('Titanium.UI.Layout', function () {
 		parent.add(child);
 		win.add(parent);
 
-		win.addEventListener('postlayout', function (e) {
+		parent.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -1391,7 +1391,7 @@ describe('Titanium.UI.Layout', function () {
 		view.add(inner_view);
 		win.add(view);
 
-		win.addEventListener('postlayout', function (e) {
+		inner_view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
@@ -1423,7 +1423,7 @@ describe('Titanium.UI.Layout', function () {
 		view.add(inner_view);
 		win.add(view);
 
-		win.addEventListener('postlayout', function (e) {
+		inner_view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
