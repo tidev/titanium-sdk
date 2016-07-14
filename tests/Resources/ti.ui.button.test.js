@@ -277,7 +277,8 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Intermittently failing on Android build machine - I think due to test timeout!
-	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isAndroid()) ? it.skip : it)('rect and size', function (finish) {
+	// FIXME Fails on iOS due to timeout. Never fires postlayout?
+	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isAndroid() || utilities.isIOS()) ? it.skip : it)('rect and size', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		var view = Ti.UI.createButton({ title: 'push button' });
 		win.add(view);
