@@ -1463,7 +1463,7 @@ describe('Titanium.UI.Layout', function () {
 
 		view.add(innerView);
 
-		win.addEventListener('postlayout', function (e) {
+		view.addEventListener('postlayout', function (e) {
 			if (didPostlayout) return;
 			didPostlayout = true;
 
