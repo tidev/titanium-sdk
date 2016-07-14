@@ -207,8 +207,8 @@
 	
 	if (url!=nil)
 	{
-        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
-        // Window based JS can only be loaded from local filesystem within app resources
+		DEPRECATED_REMOVED(@"UI.Window.url", @"3.5.0", @"6.0.0");
+		// Window based JS can only be loaded from local filesystem within app resources
 		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
 		{
 			// since this function is recursive, only do this if we haven't already created the context
