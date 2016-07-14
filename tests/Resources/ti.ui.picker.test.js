@@ -126,6 +126,8 @@ describe('Titanium.UI.Picker', function() {
 	});
 
 	it('PlainPicker.add (multiple PickerColumn)', function(finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: '#000'
 		});
