@@ -400,4 +400,10 @@ public class TitaniumModule extends KrollModule
 		return super.handleMessage(msg);
 	}
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti";
+	}
+
 }
