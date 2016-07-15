@@ -10,7 +10,7 @@ var should = require('./utilities/assertions'),
 	didFocus = false;
 
 describe('Titanium.UI.Picker', function() {
-	this.timeout(5000);
+	this.timeout(10000);
 
 	var fruit = ['Bananas', 'Strawberries', 'Mangos', 'Grapes'];
 	var color = ['red', 'green', 'blue', 'orange', 'red', 'green', 'blue', 'orange'];
@@ -49,6 +49,7 @@ describe('Titanium.UI.Picker', function() {
 		});
 		win.open();
 	});
+
 	it('TimePicker', function(finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: '#000'
@@ -70,6 +71,7 @@ describe('Titanium.UI.Picker', function() {
 		});
 		win.open();
 	});
+
 	it('PlainPicker', function(finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: '#000'
@@ -91,7 +93,7 @@ describe('Titanium.UI.Picker', function() {
 		win.open();
 	});
 
-	it('PlainPicker.add (PickerColumn)', function(finish) {
+	it('PlainPicker.add(PickerColumn)', function(finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: '#000'
 		});
@@ -125,9 +127,7 @@ describe('Titanium.UI.Picker', function() {
 		win.open();
 	});
 
-	it('PlainPicker.add (multiple PickerColumn)', function(finish) {
-		this.timeout(10000);
-
+	it('PlainPicker.add(multiple PickerColumn)', function(finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: '#000'
 		});

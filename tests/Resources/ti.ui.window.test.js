@@ -175,9 +175,7 @@ describe('Titanium.UI.Window', function () {
 		});
 		win.addEventListener('close', function () { finish(); });
 		win.addEventListener('open', function () {
-			setTimeout(function () {
-				win.close();
-			}, 500);
+			win.close();
 		});
 		win.open();
 	});
@@ -202,6 +200,8 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('window_close_order_1', function (finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),
 			win3 = Ti.UI.createWindow({backgroundColor:'gray' });
@@ -227,6 +227,8 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('window_close_order_2', function (finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),
 			win3 = Ti.UI.createWindow({backgroundColor:'gray' });
@@ -251,6 +253,8 @@ describe('Titanium.UI.Window', function () {
 
 	// TIMOB-20600
 	it('TIMOB-20600', function (finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),
 			win3 = Ti.UI.createWindow({backgroundColor:'gray' });

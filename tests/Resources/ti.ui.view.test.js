@@ -132,6 +132,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Get working on iOS
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS()) ? it.skip : it)('backgroundGradient', function (finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		var view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
 		view.backgroundGradient = {
@@ -218,6 +220,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Get working on iOS! After #hide() call, visible still returns true)
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS()) ? it.skip : it)('hide() and show() change visible property value', function (finish) {
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
