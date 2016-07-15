@@ -130,8 +130,11 @@ describe('Titanium.UI.Label', function () {
 		should(label.wordWrap).eql(false);
 	});
 
-	((utilities.isWindows8_1() && utilities.isWindowsDesktop()) ? it.skip : it)('width', function (finish) {
-		this.timeout(5000);
+	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because ntiher platform fires it for that type (only maybe bubbles up from label)
+	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) ||
+	(utilities.isAndroid() || utilities.isIOS())) ? it.skip : it)('width', function (finish) {
+		this.slow(1000);
+		this.timeout(10000);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#ddd' });
 
@@ -155,8 +158,10 @@ describe('Titanium.UI.Label', function () {
 		win.open();
 	});
 
-	it('height', function (finish) {
-		this.timeout(5000);
+	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because ntiher platform fires it for that type (only maybe bubbles up from label)
+	((utilities.isAndroid() || utilities.isIOS()) ? it.skip : it)('height', function (finish) {
+		this.slow(1000);
+		this.timeout(10000);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#eee' });
 

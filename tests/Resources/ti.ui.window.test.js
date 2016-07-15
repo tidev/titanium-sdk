@@ -138,15 +138,16 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('blur event is fired when closed', function (finish) {
+		this.slow(5000);
+		this.timeout(20000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'pink'
 		});
 
 		win.addEventListener('blur', function () { finish(); });
 		win.addEventListener('open', function () {
-			setTimeout(function () {
-				win.close();
-			}, 500);
+			win.close();
 		});
 		win.open();
 	});
@@ -170,6 +171,9 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('close event is fired', function (finish) {
+		this.slow(5000);
+		this.timeout(20000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'pink'
 		});
@@ -183,6 +187,9 @@ describe('Titanium.UI.Window', function () {
 	// For this test, you should see errors in the console, it is expected.
 	// What you should not see is a crash
 	it('should_not_crash', function (finish) {
+		this.slow(5000);
+		this.timeout(20000);
+
 		var win1 = Ti.UI.createWindow();
 		win1.open();
 		win1.close();
@@ -200,7 +207,8 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('window_close_order_1', function (finish) {
-		this.timeout(10000);
+		this.slow(5000);
+		this.timeout(30000);
 
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),
@@ -227,7 +235,8 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('window_close_order_2', function (finish) {
-		this.timeout(10000);
+		this.slow(5000);
+		this.timeout(20000);
 
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),
@@ -253,7 +262,8 @@ describe('Titanium.UI.Window', function () {
 
 	// TIMOB-20600
 	it('TIMOB-20600', function (finish) {
-		this.timeout(10000);
+		this.slow(5000);
+		this.timeout(30000);
 
 		win = Ti.UI.createWindow({backgroundColor:'green'});
 		var win2 = Ti.UI.createWindow({backgroundColor:'blue' }),

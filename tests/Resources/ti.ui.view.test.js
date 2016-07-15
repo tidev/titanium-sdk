@@ -220,7 +220,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Get working on iOS! After #hide() call, visible still returns true)
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS()) ? it.skip : it)('hide() and show() change visible property value', function (finish) {
-		this.timeout(10000);
+		this.slow(5000);
+		this.timeout(20000);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'

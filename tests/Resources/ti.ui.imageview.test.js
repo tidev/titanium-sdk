@@ -280,7 +280,11 @@ describe('Titanium.UI.ImageView', function () {
 	// TIMOB-18684
 	// FIXME Get working on iOS. Times out. never fires postlayout?
 	(utilities.isIOS() ? it.skip : it)('layoutWithSIZE_and_fixed', function (finish) {
+		this.slow(1000);
+		this.timeout(10000);
+
 		win = Ti.UI.createWindow();
+
 		var view = Ti.UI.createView({
 				backgroundColor: 'green',
 				width: 100,
