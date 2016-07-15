@@ -220,8 +220,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Get working on iOS! After #hide() call, visible still returns true)
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS()) ? it.skip : it)('hide() and show() change visible property value', function (finish) {
-		this.slow(5000);
-		this.timeout(20000);
+		this.slow(2000);
+		this.timeout(7500);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
@@ -233,11 +233,11 @@ describe('Titanium.UI.View', function () {
 
 			try {
 				Ti.API.info('Got focus event');
-				should(w.visible).be.true;
-				w.hide();
-				should(w.visible).be.false; // iOS returns true
-				w.show();
-				should(w.visible).be.true;
+				should(win.visible).be.true;
+				win.hide();
+				should(win.visible).be.false; // iOS returns true
+				win.show();
+				should(win.visible).be.true;
 
 				finish();
 			} catch (err) {

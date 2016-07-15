@@ -147,12 +147,17 @@ describe('Titanium.UI.Window', function () {
 
 		win.addEventListener('blur', function () { finish(); });
 		win.addEventListener('open', function () {
-			win.close();
+			setTimeout(function () {
+				win.close();
+			}, 100);
 		});
 		win.open();
 	});
 
 	it('focus event is fired when opened', function (finish) {
+		this.slow(2000);
+		this.timeout(20000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'pink'
 		});
@@ -162,6 +167,9 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('open event is fired', function (finish) {
+		this.slow(2000);
+		this.timeout(20000);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'pink'
 		});
@@ -179,7 +187,9 @@ describe('Titanium.UI.Window', function () {
 		});
 		win.addEventListener('close', function () { finish(); });
 		win.addEventListener('open', function () {
-			win.close();
+			setTimeout(function () {
+				win.close();
+			}, 100);
 		});
 		win.open();
 	});
