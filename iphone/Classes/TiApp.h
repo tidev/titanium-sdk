@@ -6,7 +6,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#if IS_XCODE_8
+#import <UserNotifications/UserNotifications.h>
+#endif
 #import "TiHost.h"
 #import "KrollBridge.h"
 #ifdef USE_TI_UIWEBVIEW
@@ -28,7 +30,12 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
+
+#if IS_XCODE_8
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate>
+#else
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
+#endif
 {
 	UIWindow *window;
 	UIImageView *loadView;

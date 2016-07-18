@@ -312,8 +312,8 @@
 		B63761701BC5CA4A0070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B637616E1BC5CA4A0070A695 /* TiLayoutView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */; };
 		B6A0A2B1180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
-		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
-		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
+		BB26FC8019AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */; };
+		BB26FC8319AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
 		CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */; };
 		CA0D39E81B7F709E009D534C /* TiAppiOSSearchableItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */; };
@@ -973,10 +973,10 @@
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
-		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
-		BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationActionProxy.m; sourceTree = "<group>"; };
-		BB26FC7E19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationCategoryProxy.h; sourceTree = "<group>"; };
-		BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationCategoryProxy.m; sourceTree = "<group>"; };
+		BB26FC7C19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationActionProxy.h; sourceTree = "<group>"; };
+		BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationActionProxy.m; sourceTree = "<group>"; };
+		BB26FC7E19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCategoryProxy.h; sourceTree = "<group>"; };
+		BB26FC7F19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationCategoryProxy.m; sourceTree = "<group>"; };
 		BBDD81321A2C71C9003CDA10 /* TiUIAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIAttributedStringProxy.h; sourceTree = "<group>"; };
 		BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIAttributedStringProxy.m; sourceTree = "<group>"; };
 		CA0D39E31B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableItemAttributeSetProxy.h; sourceTree = "<group>"; };
@@ -1153,10 +1153,10 @@
 				24ADC5151299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m */,
 				24ADC632129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.h */,
 				24ADC633129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m */,
-				BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */,
-				BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */,
-				BB26FC7E19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.h */,
-				BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */,
+				BB26FC7C19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.h */,
+				BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */,
+				BB26FC7E19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.h */,
+				BB26FC7F19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m */,
 				83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */,
 				83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */,
 				CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */,
@@ -2821,7 +2821,7 @@
 				24A1E992112E1363003DA834 /* TiUIPickerColumnProxy.m in Sources */,
 				24A1EAF6112F4C02003DA834 /* UIImage+Alpha.m in Sources */,
 				24A1EAF7112F4C02003DA834 /* UIImage+Resize.m in Sources */,
-				BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */,
+				BB26FC8319AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.m in Sources */,
 				15CB440E1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
@@ -2925,7 +2925,7 @@
 				84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
-				BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */,
+				BB26FC8019AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m in Sources */,
 				844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */,
 				DAA72343156D642400757987 /* TiConsole.m in Sources */,
 				2B353A8115901D41008FBD84 /* Ti3DMatrix.m in Sources */,

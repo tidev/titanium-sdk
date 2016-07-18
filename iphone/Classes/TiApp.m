@@ -392,7 +392,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [launchOptions setObject:NUMBOOL([[launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey] boolValue]) forKey:@"launchOptionsLocationKey"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
     
-	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
+	localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey] withIdentifier:nil] retain];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 	
 	// reset these to be a little more common if we have them
@@ -479,6 +479,26 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:notificationSettings userInfo:nil];
 }
 
+#if IS_XCODE_8
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+    // TODO: Get desired options from notification
+    completionHandler(UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionAlert|UNNotificationPresentationOptionSound);
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler
+{
+    RELEASE_TO_NIL(localNotification);
+    localNotification = [[TiApp dictionaryWithLocalNotification:response.notification
+                                                 withIdentifier:response.notification.request.identifier] retain];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
+    completionHandler();
+}
+
+#else
+
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
@@ -490,6 +510,15 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
 	completionHandler();
 }
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    RELEASE_TO_NIL(localNotification);
+    localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:nil] retain];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
+}
+
+#endif
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
     RELEASE_TO_NIL(remoteNotification);
@@ -1201,13 +1230,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(runningServices);
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
-{
-	RELEASE_TO_NIL(localNotification);
-	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
-}
-
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
  waitForBootIfNotLaunched:(BOOL) bootWait {
     
@@ -1302,6 +1324,33 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 
 #define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
+#if IS_XCODE_8
++ (NSDictionary *)dictionaryWithLocalNotification:(UNNotification *)notification withIdentifier: (NSString *)identifier
+{
+    if (notification == nil) {
+        return nil;
+    }
+    NSMutableDictionary* event = [NSMutableDictionary dictionary];
+    
+    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    [event setObject:NOTNIL([notification date]) forKey:@"date"];
+    
+    // TODO: Try to map timezone
+    //event setObject:NOTNIL([[notification timeZone] name]) forKey:@"timezone"];
+    [event setObject:NOTNIL([[[notification request] content] body]) forKey:@"alertBody"];
+    [event setObject:NOTNIL([[[notification request] content] title]) forKey:@"alertTitle"];
+    [event setObject:NOTNIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
+    [event setObject:NOTNIL([[[notification request] content] launchImageName]) forKey:@"alertLaunchImage"];
+    [event setObject:NOTNIL([[[notification request] content] sound]) forKey:@"sound"];
+    [event setObject:NOTNIL([[[notification request] content] badge]) forKey:@"badge"];
+    [event setObject:NOTNIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
+    [event setObject:NOTNIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
+    [event setObject:NOTNIL([[notification request] identifier]) forKey:@"identifier"];
+    
+    return event;
+}
+#else
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier: (NSString *)identifier
 {
     if (notification == nil) {
@@ -1323,12 +1372,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 	}
 	
 	return event;
-    
 }
-+ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
-{
-    return [self dictionaryWithLocalNotification: notification withIdentifier: nil];
-}
+#endif
 
 // Returns an NSDictionary with the properties from tiapp.xml
 // this is called from Ti.App.Properties and other places.

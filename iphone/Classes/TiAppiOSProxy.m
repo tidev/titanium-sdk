@@ -12,8 +12,8 @@
 #ifdef USE_TI_APPIOS
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
-#import "TiAppiOSNotificationActionProxy.h"
-#import "TiAppiOSNotificationCategoryProxy.h"
+#import "TiAppiOSUserNotificationActionProxy.h"
+#import "TiAppiOSUserNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
@@ -331,8 +331,8 @@
 	if (categories != nil) {
 		categoriesSet = [NSMutableSet set];
 		for (id category in categories) {
-            ENSURE_TYPE(category, TiAppiOSNotificationCategoryProxy);
-            [categoriesSet addObject:[(TiAppiOSNotificationCategoryProxy*)category notificationCategory]];
+            ENSURE_TYPE(category, TiAppiOSUserNotificationCategoryProxy);
+            [categoriesSet addObject:[(TiAppiOSUserNotificationCategoryProxy*)category notificationCategory]];
 		}
 	}
     
@@ -417,12 +417,13 @@
 
 -(id)createUserNotificationAction:(id)args
 {
-    return [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+
 
 -(id)createUserNotificationCategory:(id)args
 {
-    return [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    return [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 -(NSArray*)supportedUserActivityTypes
@@ -531,7 +532,7 @@
     
     // Categories
     for (id cat in categories) {
-        TiAppiOSNotificationCategoryProxy *categoryProxy = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        TiAppiOSUserNotificationCategoryProxy *categoryProxy = [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         categoryProxy.notificationCategory = cat;
         [categoriesArray addObject:categoryProxy];
     }
@@ -565,7 +566,7 @@
     if (date) {
         NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
 
-        NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit
+        NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit|NSHourCalendarUnit|NSMinuteCalendarUnit|NSSecondCalendarUnit
                                                             fromDate:date];
         
         trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components repeats:YES];
@@ -574,8 +575,8 @@
         trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0 repeats:YES];
     } else if (region) {
         BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-        double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
-        double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+        double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
+        double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
         
         // TODO: Deprecate `identifier` in `region` and use top-level identifier for both iOS < 10 and iOS 10
         NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
@@ -625,70 +626,65 @@
         }
     }
     
-    if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-        [content setCategoryIdentifier:[(TiAppiOSNotificationCategoryProxy*)category identifier]];
+    if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
+        [content setCategoryIdentifier:[(TiAppiOSUserNotificationCategoryProxy*)category identifier]];
     } else if (category != nil && [category isKindOfClass:[NSString class]]) {
-        [category setCategoryIdentifier:category];
+        [content setCategoryIdentifier:[TiUtils stringValue:category]];
     }
     
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier]
                                                                              content:content
                                                                              trigger:trigger];
     
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                           withCompletionHandler:^(NSError *error) {
-        if (error) {
-            DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
-        }
-    }];
-    
-    TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-    lp.notification = content;
-    
-    return lp;
+    TiThreadPerformOnMainThread(^{
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request  withCompletionHandler:^(NSError *error) {
+            if (error) {
+               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+            }
+        }];
+    }, NO);
     
 #else
-	UILocalNotification *localNotif = [[UILocalNotification alloc] init];
+	UILocalNotification *content = [UILocalNotification new];
 		
 	if (date!=nil) {
-		localNotif.fireDate = date;
-		localNotif.timeZone = [NSTimeZone defaultTimeZone];
+		content.fireDate = date;
+		content.timeZone = [NSTimeZone defaultTimeZone];
 	}
 	
 	if (repeat!=nil) {
 		if ([repeat isEqual:@"weekly"]) {
-			localNotif.repeatInterval = NSWeekCalendarUnit;
+			content.repeatInterval = NSWeekCalendarUnit;
 		}
 		else if ([repeat isEqual:@"daily"]) {
-			localNotif.repeatInterval = NSDayCalendarUnit;
+			content.repeatInterval = NSDayCalendarUnit;
 		}
 		else if ([repeat isEqual:@"yearly"]) {
-			localNotif.repeatInterval = NSYearCalendarUnit;
+			content.repeatInterval = NSYearCalendarUnit;
 		}
 		else if ([repeat isEqual:@"monthly"]) {
-			localNotif.repeatInterval = NSMonthCalendarUnit;
+			content.repeatInterval = NSMonthCalendarUnit;
 		}
 	}
 	
 	if (alertBody!=nil) {
-		localNotif.alertBody = alertBody;
+		content.alertBody = alertBody;
     }
 
     if (alertTitle!=nil) {
-		localNotif.alertTitle = alertTitle;
+		content.alertTitle = alertTitle;
 	}
 	
     if (alertAction!=nil) {
-		localNotif.alertAction = alertAction;
+		content.alertAction = alertAction;
 	}
 
     if (alertLaunchImage!=nil) {
-		localNotif.alertLaunchImage = alertLaunchImage;
+		content.alertLaunchImage = alertLaunchImage;
 	}
 
-
     if (badge!=nil) {
-		localNotif.applicationIconBadgeNumber = [TiUtils intValue:badge];
+		content.applicationIconBadgeNumber = [TiUtils intValue:badge];
 	}
     
 	if (region!=nil) {
@@ -706,49 +702,48 @@
 			return;
 		}
         
-		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
-                                                              radius:kCLDistanceFilterNone
-                                                          identifier:identifier ? identifier : @"notification"];
+		content.region = [[CLCircularRegion alloc] initWithCenter:center
+                                                           radius:kCLDistanceFilterNone
+                                                       identifier:identifier ? identifier : @"notification"];
 		
-		localNotif.regionTriggersOnce = regionTriggersOnce;
+		content.regionTriggersOnce = regionTriggersOnce;
 	}
 
 	if (sound) {
 		if ([sound isEqual:@"default"]) {
-			localNotif.soundName = UILocalNotificationDefaultSoundName;
-		}
-		else {
-			localNotif.soundName = sound;
+			content.soundName = UILocalNotificationDefaultSoundName;
+		} else {
+			content.soundName = sound;
 		}
 	}
 
 	if (userInfo) {
-		localNotif.userInfo = userInfo;
+		content.userInfo = userInfo;
 	}
 
 	if ([TiUtils isIOS8OrGreater]) {
 		id category = [args objectForKey:@"category"];
-		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-			localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
+		if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
+			content.category = [(TiAppiOSUserNotificationCategoryProxy*)category identifier];
 		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
-			localNotif.category = category;
+			content.category = category;
 		}
 	}
 	
 	TiThreadPerformOnMainThread(^{
-		if (date!=nil) {
-			[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
+		if (date != nil) {
+			[[UIApplication sharedApplication] scheduleLocalNotification:content];
 		} else {
-			[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
+			[[UIApplication sharedApplication] presentLocalNotificationNow:content];
 		}
 	}, NO);
-	
-	TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-	lp.notification = localNotif;
-
-	[localNotif release];
-	return lp;
 #endif
+    
+	TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	lp.notification = content;
+
+	[content release];
+	return lp;
 }
 
 -(void)cancelAllLocalNotifications:(id)args

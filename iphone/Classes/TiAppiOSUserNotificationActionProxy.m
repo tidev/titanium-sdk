@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiAppiOSNotificationActionProxy.h"
+#import "TiAppiOSUserNotificationActionProxy.h"
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOS
 
-@implementation TiAppiOSNotificationActionProxy
+@implementation TiAppiOSUserNotificationActionProxy
 
 -(void)dealloc
 {
@@ -20,22 +20,22 @@
 
 -(NSString*)apiName
 {
-	return @"Ti.App.iOS.NotificationAction";
+	return @"Ti.App.iOS.UserNotificationAction";
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context args:(NSArray *)args
+-(void)_initWithProperties:(NSDictionary *)properties
 {
     if (_notificationAction == nil) {
         
 #if IS_XCODE_8
-        id identifier = [args valueForKey:@"identifier"];
-        id title = [args valueForKey:@"title"];
-        id activationMode = [args valueForKey:@"activationMode"];
-        id authenticationRequired = [args valueForKey:@"authenticationRequired"];
-        id destructive = [args valueForKey:@"destructive"];
-        id behavior = [args valueForKey:@"behavior"];
-        id textInputButtonTitle = [args valueForKey:@"textInputButtonTitle"];
-        id textInputButtonPlaceholder = [args valueForKey:@"textInputButtonPlaceholder"];
+        id identifier = [properties valueForKey:@"identifier"];
+        id title = [properties valueForKey:@"title"];
+        id activationMode = [properties valueForKey:@"activationMode"];
+        id authenticationRequired = [properties valueForKey:@"authenticationRequired"];
+        id destructive = [properties valueForKey:@"destructive"];
+        id behavior = [properties valueForKey:@"behavior"];
+        id textInputButtonTitle = [properties valueForKey:@"textInputButtonTitle"];
+        id textInputButtonPlaceholder = [properties valueForKey:@"textInputButtonPlaceholder"];
         
         UNNotificationActionOptions options = UNNotificationActionOptionNone;
         
@@ -48,23 +48,25 @@
         }
         
         if (behavior && [TiUtils intValue:behavior def:0] == UIUserNotificationActionBehaviorTextInput) {
-            _notificationAction = [UNTextInputNotificationAction actionWithIdentifier:identifier
+            _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier
                                                                                 title:title
                                                                               options:options
                                                                  textInputButtonTitle:textInputButtonTitle
-                                                                 textInputPlaceholder:textInputButtonPlaceholder];
+                                                                 textInputPlaceholder:textInputButtonPlaceholder] retain];
+
+            [super _initWithProperties:properties];
             return;
         }
         
-        _notificationAction = [UNNotificationAction actionWithIdentifier:identifier
+        _notificationAction = [[UNNotificationAction actionWithIdentifier:identifier
                                                                    title:title
-                                                                 options:[TiUtils intValue:activationMode]];
+                                                                 options:[TiUtils intValue:activationMode]] retain];
 #else
-        _notificationAction = [UIMutableUserNotificationAction new];
+        _notificationAction = [[UIMutableUserNotificationAction new] retain];
 #endif
     }
     
-    [super _initWithPageContext:context args:args];
+    [super _initWithProperties:properties];
 }
 
 #if IS_XCODE_8

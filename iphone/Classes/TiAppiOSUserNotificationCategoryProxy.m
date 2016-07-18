@@ -5,13 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiAppiOSNotificationCategoryProxy.h"
-#import "TiAppiOSNotificationActionProxy.h"
+#import "TiAppiOSUserNotificationCategoryProxy.h"
+#import "TiAppiOSUserNotificationActionProxy.h"
 #import "TiUtils.h"
 
 #ifdef USE_TI_APPIOS
 
-@implementation TiAppiOSNotificationCategoryProxy
+@implementation TiAppiOSUserNotificationCategoryProxy
 
 -(void)dealloc
 {
@@ -21,26 +21,27 @@
 
 -(NSString*)apiName
 {
-	return @"Ti.App.iOS.NotificationCategory";
+	return @"Ti.App.iOS.UserNotificationCategory";
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context args:(NSArray *)args
+-(void)_initWithProperties:(NSDictionary *)properties
 {
     if (_notificationCategory == nil) {
         
-        id identifier = [args valueForKey:@"identifier"];
-        id actionsForDefaultContext = [args valueForKey:@"actionsForDefaultContext"];
-        id actionsForMinimalContext = [args valueForKey:@"actionsForMinimalContext"];
-        id intentIdentifiers = [args valueForKey:@"intentIdentifiers"];
+        // TODO: Grab properties from self (proxy) instead of local copy
+        id identifier = [properties valueForKey:@"identifier"];
+        id actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
+        id actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
+        id intentIdentifiers = [properties valueForKey:@"intentIdentifiers"];
         
         NSMutableArray *defaultActions = [NSMutableArray new];
         NSMutableArray *minimalActions = [NSMutableArray new];
         
-        for (TiAppiOSNotificationActionProxy *action in actionsForDefaultContext) {
+        for (TiAppiOSUserNotificationActionProxy *action in actionsForDefaultContext) {
             [defaultActions addObject:[action notificationAction]];
         }
         
-        for (TiAppiOSNotificationActionProxy *action in actionsForMinimalContext) {
+        for (TiAppiOSUserNotificationActionProxy *action in actionsForMinimalContext) {
             [minimalActions addObject:[action notificationAction]];
         }
         
@@ -62,7 +63,7 @@
 #endif
     }
     
-    [super _initWithPageContext:context args:args];
+    [super _initWithProperties:properties];
 }
 
 #if IS_XCODE_8

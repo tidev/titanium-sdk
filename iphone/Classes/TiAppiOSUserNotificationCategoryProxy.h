@@ -11,7 +11,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-@interface TiAppiOSNotificationCategoryProxy : TiProxy
+@interface TiAppiOSUserNotificationCategoryProxy : TiProxy
 {
 
 }

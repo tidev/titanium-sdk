@@ -12,7 +12,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-@interface TiAppiOSNotificationActionProxy : TiProxy
+@interface TiAppiOSUserNotificationActionProxy : TiProxy
 
 #if IS_XCODE_8
 @property(nonatomic,retain) UNNotificationAction *notificationAction;
