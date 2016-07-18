@@ -345,8 +345,7 @@
     if (typesRequested != nil) {
         for (id thisTypeRequested in typesRequested)
         {
-            NSUInteger value = [TiUtils intValue:thisTypeRequested];
-            switch(value)
+            switch([TiUtils intValue:thisTypeRequested])
             {
 #if IS_XCODE_8
                 case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
@@ -776,13 +775,22 @@
 -(void)cancelAllLocalNotifications:(id)args
 {
 	ENSURE_UI_THREAD(cancelAllLocalNotifications,args);
+    
+#if IS_XCODE_8
+    [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
+#else
 	[[UIApplication sharedApplication] cancelAllLocalNotifications];
+#endif
 }
 
 -(void)cancelLocalNotification:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_UI_THREAD(cancelLocalNotification,args);
+    
+#if IS_XCODE_8
+    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[[TiUtils stringValue:args]]];
+#else
 	NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
 	if (notifications!=nil)
 	{
@@ -794,8 +802,8 @@
 				return;
 			}
 		}
-		
 	}
+#endif
 }
 
 -(void)didReceiveContinueActivityNotification:(NSNotification*)notif
