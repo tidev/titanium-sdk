@@ -262,9 +262,6 @@ Module.prototype.require = function (request, context) {
 			return loaded;
 		}
 	} else {
-		// TODO Allow looking through node_modules
-		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-
 		// Look for CommonJS module
 		if (request.indexOf('/') == -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
@@ -278,6 +275,13 @@ Module.prototype.require = function (request, context) {
 			if (loaded) {
 				return loaded;
 			}
+		}
+
+		// Allow looking through node_modules
+		// 3. LOAD_NODE_MODULES(X, dirname(Y))
+		loaded = this.loadNodeModules(request, this.path, context);
+		if (loaded) {
+			return loaded;
 		}
 
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
@@ -323,18 +327,77 @@ Module.prototype.loadCoreModule = function (id, context) {
 
 		// Could be a sub-module (CommonJS) of an external native module.
 		// We allow that since TIMOB-9730.
-		externalCommonJsContents = kroll.getExternalCommonJsModule(filename);
+		externalCommonJsContents = kroll.getExternalCommonJsModule(id);
 		if (externalCommonJsContents) {
 			// found it
 			// FIXME Re-use loadAsJavaScriptText?
 			var module = new Module(id, this, context);
-			Module.cache[filename] = module;
-			module.load(filename, externalCommonJsContents);
+			Module.cache[id] = module;
+			module.load(id, externalCommonJsContents);
 			return module.exports;
 		}
 	}
 
 	return null; // failed to load
+}
+
+/**
+ * Attempts to load a node module by id from the starting path
+ * @param  {String} moduleId       The path of the module to load.
+ * @param  {String} startDir       The starting directory
+ * @param  {Object} context        [description]
+ * @return {Object}                The module's exports, if loaded. null if not.
+ */
+Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
+	var mod, // the loaded module
+		dirs = [],
+		i,
+		dir;
+
+	// 1. let DIRS=NODE_MODULES_PATHS(START)
+	dirs = this.nodeModulesPaths(startDir);
+	// 2. for each DIR in DIRS:
+	for (i = 0; i < dirs.length; i++)
+	{
+		dir = dirs[i];
+		// a. LOAD_AS_FILE(DIR/X)
+		// b. LOAD_AS_DIRECTORY(DIR/X)
+		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
+		if (mod) {
+			return mod;
+		}
+	}
+	return null;
+}
+
+/**
+ * Determine the set of paths to search for node_modules
+ * @param  {String} startDir       The starting directory
+ * @return {[String]}              The array of paths to search
+ */
+Module.prototype.nodeModulesPaths = function (startDir) {
+	// 1. let PARTS = path split(START)
+	var parts = startDir.split('/'),
+		// 2. let I = count of PARTS - 1
+		i = parts.length - 1,
+		// 3. let DIRS = []
+		dirs = [],
+		dir;
+
+	// 4. while I >= 0,
+	while (i >= 0) {
+		// a. if PARTS[I] = "node_modules" CONTINUE
+		if (parts[i] === 'node_modules') {
+			continue;
+		}
+		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
+		dir = path.join(parts.slice(0, i + 1).join('/'), 'node_modules');
+		// c. DIRS = DIRS + DIR
+		dirs.push(dir);
+		// d. let I = I - 1
+		i = i - 1;
+	}
+	return dirs;
 }
 
 /**

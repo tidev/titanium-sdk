@@ -49,8 +49,10 @@ exports.readable = {
     test.equal(instantiated, false, 'DummyReadable should only be instantiated when it is needed');
 
     readable.on('readable', function() {
-      var chunk = readable.read();
-      actual.push(chunk.toString());
+      var chunk;
+      while ((chunk = readable.read())) {
+        actual.push(chunk.toString());
+      }
     });
     readable.on('end', function() {
       test.equal(actual.join(''), expected.join(''), 'Readable should not change the data of the underlying stream');
@@ -82,7 +84,7 @@ exports.readable = {
     });
 
     test.equal(instantiated, false, 'DummyReadable should only be instantiated when it is needed');
-    
+
     readable.resume();
   }
 };

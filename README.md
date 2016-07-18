@@ -108,6 +108,30 @@ To protect the interests of the Titanium contributors, Appcelerator, customers a
 [You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 
+Building Locally
+----------------
+
+Previously Titanium used scons and python scripts to build the SDK.
+If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
+
+	cd build
+	npm install
+	node scons.js build --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
+	node scons.js package
+	node scons.js install
+
+The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS, and Mobileweb on OS X; Windows, Android and MobileWeb on Windows)
+
+The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDROID_SDK env variables if not explicitly passed using command line arguments.
+
+You can use the `-h` flag to display the full list of comands and options.
+
+	cd build
+	npm install
+	node scons.js build [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+	node scons.js package [platform1] [platform2]
+	node scons.js install
+
 
 Legal Stuff
 -----------

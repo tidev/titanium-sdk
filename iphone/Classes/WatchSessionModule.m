@@ -95,7 +95,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isPaired]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -104,7 +104,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isWatchAppInstalled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -113,7 +113,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isComplicationEnabled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -122,28 +122,46 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isReachable]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
 -(NSNumber*)isActivated
 {
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
         return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
     }
-#endif
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
     return NUMBOOL(NO);
+}
+
+-(NSNumber*)hasContentPending
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMBOOL([[self watchSession] hasContentPending]);
+    }
+#endif
+    
+    return NUMBOOL(NO);
+}
+
+-(NSNumber*)remainingComplicationUserInfoTransfers
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
+    }
+#endif
+    
+    return NUMBOOL(0);
 }
 
 -(NSNumber*)activationState
 {
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
         return [NSNumber numberWithInteger:[[self watchSession] activationState]];
     }
-#endif
+
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return nil;
 }
@@ -400,7 +418,6 @@
     }
 }
 
-#if IS_XCODE_7_3
 -(void)sessionDidBecomeInactive:(WCSession *)session
 {
     if ([self _hasListeners:@"inactive"]) {
@@ -450,7 +467,6 @@
     }
     return NUMINTEGER(WCSessionActivationStateActivated);
 }
-#endif
 
 #pragma mark Helper
 
@@ -463,10 +479,15 @@
         @"isComplicationEnabled": [self isComplicationEnabled]
     }];
     
-#if IS_XCODE_7_3
     if ([TiUtils isIOS9_3OrGreater]) {
         [dict setObject:[self isActivated] forKey:@"isActivated"];
         [dict setObject:[self activationState] forKey:@"activationState"];
+    }
+    
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
+        [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
     }
 #endif
     

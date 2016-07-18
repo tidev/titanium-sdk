@@ -19,7 +19,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -268,7 +267,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int SHOW_AS_ACTION_IF_ROOM = MenuItem.SHOW_AS_ACTION_IF_ROOM;
 	@Kroll.constant public static final int SHOW_AS_ACTION_NEVER = MenuItem.SHOW_AS_ACTION_NEVER;
 	@Kroll.constant public static final int SHOW_AS_ACTION_WITH_TEXT = MenuItem.SHOW_AS_ACTION_WITH_TEXT;
-	
+
 	@Kroll.constant public static final int NAVIGATION_MODE_LIST = ActionBar.NAVIGATION_MODE_LIST;
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
@@ -279,11 +278,6 @@ public class AndroidModule extends KrollModule
 	public AndroidModule()
 	{
 		super();
-	}
-
-	public AndroidModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method

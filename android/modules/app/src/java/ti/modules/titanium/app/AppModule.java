@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
@@ -55,11 +54,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 		TiApplication.getInstance().addAppEventProxy(this);
 		appInfo = TiApplication.getInstance().getAppInfo();
-	}
-
-	public AppModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	public void onDestroy() {
@@ -120,22 +114,22 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getGUID() {
 		return getGuid();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getDeployType() {
 		return TiApplication.getInstance().getDeployType();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getSessionId() {
 		return TiPlatformHelper.getInstance().getSessionId();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getAnalytics() {
 		return appInfo.isAnalyticsEnabled();
 	}
-	
+
 	@Kroll.method
 	public String appURLToPath(String url) {
 		return resolveUrl(null, url);
@@ -225,7 +219,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 			AccessibilityManagerCompat.addAccessibilityStateChangeListener(TiApplication.getInstance().getAccessibilityManager(), accessibilityStateChangeListener);
 		}
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getProximityDetection()
 	{

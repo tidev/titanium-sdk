@@ -16,10 +16,6 @@ function supportsAfterClosingBrace(token) {
   return token[0][0] == 'background' || token[0][0] == 'transform' || token[0][0] == 'src';
 }
 
-function isVariable(token, valueIndex) {
-  return token[valueIndex][0].indexOf('var(') === 0;
-}
-
 function afterClosingBrace(token, valueIndex) {
   return token[valueIndex][0][token[valueIndex][0].length - 1] == ')' || token[valueIndex][0].indexOf('__ESCAPED_URL_CLEAN_CSS') === 0;
 }
@@ -45,7 +41,7 @@ function inFilter(token) {
 }
 
 function inSpecialContext(token, valueIndex, context) {
-  return (!context.spaceAfterClosingBrace && supportsAfterClosingBrace(token) || isVariable(token, valueIndex)) && afterClosingBrace(token, valueIndex) ||
+  return !context.spaceAfterClosingBrace && supportsAfterClosingBrace(token) && afterClosingBrace(token, valueIndex) ||
     beforeSlash(token, valueIndex) ||
     afterSlash(token, valueIndex) ||
     beforeComma(token, valueIndex) ||
@@ -96,8 +92,9 @@ function value(tokens, position, isLast, context) {
   var store = context.store;
   var token = tokens[position];
   var isVariableDeclaration = token[0][0].indexOf('--') === 0;
+  var isBlockVariable = isVariableDeclaration && Array.isArray(token[1][0]);
 
-  if (isVariableDeclaration && atRulesOrProperties(token[1])) {
+  if (isVariableDeclaration && isBlockVariable && atRulesOrProperties(token[1])) {
     store('{', context);
     body(token[1], context);
     store('};', context);

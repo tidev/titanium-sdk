@@ -415,30 +415,6 @@ public abstract class KrollRuntime implements Handler.Callback
 		return serviceReceiverRefCount;
 	}
 
-	// For backwards compatibility
-	@Deprecated
-	public static void incrementServiceRefCount()
-	{
-		Log.w(TAG, "incrementServiceRefCount() is deprecated.  Please use incrementServiceReceiverRefCount() instead.",
-			Log.DEBUG_MODE);
-		incrementServiceReceiverRefCount();
-	}
-
-	@Deprecated
-	public static void decrementServiceRefCount()
-	{
-		Log.w(TAG, "decrementServiceRefCount() is deprecated.  Please use decrementServiceReceiverRefCount() instead.",
-			Log.DEBUG_MODE);
-		decrementServiceReceiverRefCount();
-	}
-
-	@Deprecated
-	public static int getServiceRefCount()
-	{
-		Log.w(TAG, "getServiceRefCount() is deprecated.  Please use getServiceReceiverRefCount() instead.", Log.DEBUG_MODE);
-		return getServiceReceiverRefCount();
-	}
-
 	private void internalDispose()
 	{
 		synchronized (runtimeState) {

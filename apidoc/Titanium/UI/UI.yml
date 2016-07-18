@@ -124,6 +124,10 @@ description:  |
 
     On Android, if you want to create a semi-transparent window, set the `opacity`
     property **before** opening the window.
+
+    On iOS, you can set a global tinting using <Titanium.UI.tintColor>. All child views will inherit
+    the tint color by default and are able to override the color using `tintColor` on their own views.
+    The default `tintColor` on iOS is the blue (system-color).
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
@@ -1243,6 +1247,33 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   
+  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+    summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+    summary: Add ellipses before the first character that doesnt fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
+    summary: Lines are simply not drawn past the edge of the text container.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
     summary: Add ellipses at the beginning of the label if the text is too large to fit.
     description: |
@@ -1279,6 +1310,15 @@ properties:
     platforms: [android]
     since: "4.1.0"
     
+  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+    summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.0.0"
+        
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.
     description: |
@@ -1503,7 +1543,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_ASCII instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1517,7 +1557,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_DECIMAL_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1528,7 +1568,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_DEFAULT instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
 
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
@@ -1542,7 +1582,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_EMAIL instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
 
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
@@ -1554,7 +1594,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NAMEPHONE_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
 
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -1566,7 +1606,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NUMBERS_PUNCTUATION instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
 
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
@@ -1582,7 +1622,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_NUMBER_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
 
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
@@ -1598,7 +1638,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_PHONE_PAD instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
 
   - name: KEYBOARD_URL
     summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
@@ -1612,7 +1652,7 @@ properties:
     permission: read-only
     deprecated:
         since: "5.2.0"
-        notes: Use KEYBOARD_TYPE_URL instead.
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
@@ -2177,7 +2217,47 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
+  - name: TEXT_STYLE_CALLOUT
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+   
+  - name: TEXT_STYLE_TITLE1
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE2
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE3
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     description: |
@@ -2406,6 +2486,14 @@ properties:
         notes: Use <Titanium.UI.Window.orientationModes> instead.
     type: Number
     platforms: [android, iphone, ipad]
+
+  - name: tintColor
+    summary: |
+        Sets the global tint color of the application. It is inherited by the child views and can be
+        overwritten by them using the `tintColor` property.
+    type: String
+    since: "6.0.0"
+    platforms: [iphone, ipad]
 
 examples:
   - title: Color Demo

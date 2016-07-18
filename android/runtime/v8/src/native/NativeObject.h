@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -22,98 +22,111 @@ class ProxyFactory;
 // this native object will be automatically deleted. This is
 // used to store "user data" in the JavaScript object for use
 // inside method and property callbacks.
+
+// https://github.com/nodejs/node/blob/master/src/node_object_wrap.h
 class NativeObject
 {
-public:
-	NativeObject()
-	{
-		refs_ = 0;
-	}
+ public:
+  NativeObject() {
+    refs_ = 0;
+  }
 
-	virtual ~NativeObject()
-	{
-		if (!handle_.IsEmpty()) {
-			assert(handle_.IsNearDeath());
-			handle_.ClearWeak();
-			handle_->SetInternalField(0, v8::Undefined());
-			handle_.Dispose();
-			handle_.Clear();
-		}
-	}
 
-	inline v8::Local<v8::Object> getHandle()
-	{
-		return v8::Local<v8::Object>::New(handle_);
-	}
+  virtual ~NativeObject() {
+    if (persistent().IsEmpty())
+      return;
+    assert(persistent().IsNearDeath());
+    persistent().ClearWeak();
+    persistent().Reset();
+  }
 
-	template<class T>
-	static inline T* Unwrap(v8::Handle<v8::Object> handle)
-	{
-		assert(!handle.IsEmpty());
-		assert(handle->InternalFieldCount() > 0);
 
-		return static_cast<T*>(handle->GetPointerFromInternalField(0));
-	}
+  template <class T>
+  static inline T* Unwrap(v8::Local<v8::Object> handle) {
+    assert(!handle.IsEmpty());
+    assert(handle->InternalFieldCount() > 0);
+    // Cast to NativeObject before casting to T.  A direct cast from void
+    // to T won't work right when T has more than one base class.
+    void* ptr = handle->GetAlignedPointerFromInternalField(0);
+    NativeObject* wrap = static_cast<NativeObject*>(ptr);
+    return static_cast<T*>(wrap);
+  }
 
-	v8::Persistent<v8::Object> handle_; // ro
 
-protected:
-	inline void Wrap(v8::Handle<v8::Object> handle)
-	{
-		assert(handle_.IsEmpty());
-		assert(handle->InternalFieldCount() > 0);
-		handle_ = v8::Persistent<v8::Object>::New(handle);
-		handle_->SetPointerInInternalField(0, this);
-		MakeWeak();
-	}
+  inline v8::Local<v8::Object> handle() {
+    return handle(v8::Isolate::GetCurrent());
+  }
 
-	inline void MakeWeak(void)
-	{
-		handle_.MakeWeak(this, WeakCallback);
-		handle_.MarkIndependent();
-	}
 
-	/* Ref() marks the object as being attached to an event loop.
-	 * Refed objects will not be garbage collected, even if
-	 * all references are lost.
-	 */
-	virtual void Ref()
-	{
-		assert(!handle_.IsEmpty());
-		refs_++;
-		handle_.ClearWeak();
-	}
+  inline v8::Local<v8::Object> handle(v8::Isolate* isolate) {
+    return persistent().Get(isolate);
+  }
 
-	/* Unref() marks an object as detached from the event loop.  This is its
-	 * default state.  When an object with a "weak" reference changes from
-	 * attached to detached state it will be freed. Be careful not to access
-	 * the object after making this call as it might be gone!
-	 * (A "weak reference" means an object that only has a
-	 * persistant handle.)
-	 *
-	 * DO NOT CALL THIS FROM DESTRUCTOR
-	 */
-	virtual void Unref()
-	{
-		assert(!handle_.IsEmpty());
-		assert(!handle_.IsWeak());
-		assert(refs_ > 0);
-		if (--refs_ == 0) {
-			MakeWeak();
-		}
-	}
 
-	int refs_; // ro
+  inline v8::Persistent<v8::Object>& persistent() {
+    return handle_;
+  }
 
-private:
-	static void WeakCallback(v8::Persistent<v8::Value> value, void *data)
-	{
-		NativeObject *obj = static_cast<NativeObject*>(data);
-		assert(value == obj->handle_);
-		assert(!obj->refs_);
-		assert(value.IsNearDeath());
-		delete obj;
-	}
+
+ protected:
+  inline void Wrap(v8::Local<v8::Object> handle) {
+    assert(persistent().IsEmpty());
+    assert(handle->InternalFieldCount() > 0);
+    handle->SetAlignedPointerInInternalField(0, this);
+    persistent().Reset(v8::Isolate::GetCurrent(), handle);
+    MakeWeak();
+  }
+
+
+  inline void MakeWeak(void) {
+    persistent().SetWeak(this, WeakCallback);
+    persistent().MarkIndependent();
+  }
+
+  /* Ref() marks the object as being attached to an event loop.
+   * Refed objects will not be garbage collected, even if
+   * all references are lost.
+   */
+  virtual void Ref() {
+    assert(!persistent().IsEmpty());
+    persistent().ClearWeak();
+    refs_++;
+  }
+
+  /* Unref() marks an object as detached from the event loop.  This is its
+   * default state.  When an object with a "weak" reference changes from
+   * attached to detached state it will be freed. Be careful not to access
+   * the object after making this call as it might be gone!
+   * (A "weak reference" means an object that only has a
+   * persistent handle.)
+   *
+   * DO NOT CALL THIS FROM DESTRUCTOR
+   */
+  virtual void Unref() {
+    assert(!persistent().IsEmpty());
+    assert(!persistent().IsWeak());
+    assert(refs_ > 0);
+    if (--refs_ == 0)
+      MakeWeak();
+  }
+
+  int refs_;  // ro
+
+ private:
+  static void WeakCallback(
+      const v8::WeakCallbackData<v8::Object, NativeObject>& data) {
+    v8::Isolate* isolate = data.GetIsolate();
+    v8::HandleScope scope(isolate);
+    NativeObject* wrap = data.GetParameter();
+    assert(wrap->refs_ == 0);
+    assert(wrap->handle_.IsNearDeath());
+    assert(
+        data.GetValue() == v8::Local<v8::Object>::New(isolate, wrap->handle_));
+    wrap->handle_.Reset();
+    delete wrap;
+  }
+
+  v8::Persistent<v8::Object> handle_;
 
 	friend class ProxyFactory;
 };
