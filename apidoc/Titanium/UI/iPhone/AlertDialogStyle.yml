@@ -9,7 +9,7 @@ platforms: [iphone, ipad]
 createable: false
 deprecated:
     since: "5.4.0"
-    notes: Use [Titanium.UI.iOS.AlertDialogStyle](Titanium.UI.iOS.AlertDialogStyle) instead.
+    notes: Use <Titanium.UI.iOS.AlertDialogStyle> instead.
 
 properties:
   - name: DEFAULT

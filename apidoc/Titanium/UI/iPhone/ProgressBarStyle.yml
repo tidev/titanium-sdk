@@ -8,7 +8,7 @@ since: "0.8"
 createable: false
 deprecated:
     since: "5.4.0"
-    notes: Use [Titanium.UI.iOS.ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle) instead.
+    notes: Use <Titanium.UI.iOS.ProgressBarStyle> instead.
 
 properties:
   - name: BAR

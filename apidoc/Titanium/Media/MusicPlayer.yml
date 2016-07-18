@@ -76,9 +76,7 @@ events:
   - name: playingChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [playingchange](Titanium.Media.MusicPlayer.playingchange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.playingchange> instead.
     summary: Fired when the currently playing media item changes.
     description: |
         See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
@@ -87,9 +85,7 @@ events:
   - name: stateChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [statechange](Titanium.Media.MusicPlayer.statechange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.statechange> instead.
     summary: Fired when the music player's playback state changes.
     description: |
         See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
@@ -98,9 +94,7 @@ events:
   - name: volumeChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [volumechange](Titanium.Media.MusicPlayer.volumechange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.volumechange> instead.
     summary: Fired when the volume changes.
     description: |
         This event has been deprecated and renamed volumechange (lower case).

@@ -3,10 +3,7 @@ name: Titanium.UI.iPhone.NavigationGroup
 deprecated:
     since: "3.1.3"
     removed: "3.2.0"
-    notes: |
-        This class is now deprecated. Please use the 
-        <a href = "#!/api/Titanium.UI.iOS.NavigationWindow">Titanium.UI.iOS.NavigationWindow</a>
-        class instead.
+    notes: Use <Titanium.UI.iOS.NavigationWindow> instead.
 summary: |
     A Navigation Group implements a specialized view that manages the navigation of hierarchical 
     content.
