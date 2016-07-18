@@ -31,7 +31,7 @@ extern NSString * const TI_APPLICATION_GUID;
 extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
-		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"/%@\";%@;\n"
+		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
 		"return exports;})({})";
 
@@ -759,19 +759,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// Get the relative path to the Resources directory
 	NSString *relativePath = [sourceURL path];
 	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
-	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
+	relativePath = [relativePath stringByDeletingLastPathComponent];
 
-	NSString *dirname = [relativePath length] == 0 ? @"." : relativePath;
-	/*
-	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
-	 * otherwise the __dirname returns the folder names separated by "/"
-	 * for example:
-	 *      "/Resources/constants.js"           __dirname = "."
-	 *      "/Resources/views/login/window.js"  __dirname = "views/login"
-	 */
-
-	NSString *filename = [NSString stringWithFormat:@"%@/%@", dirname, [sourceURL lastPathComponent]];
-	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename,code];
+	NSString *filename = [NSString stringWithFormat:@"%@/%@", relativePath, [sourceURL lastPathComponent]];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, relativePath, filename,code];
 
 	/* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
