@@ -491,14 +491,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler
 {
     RELEASE_TO_NIL(localNotification);
-    localNotification = [[TiApp dictionaryWithLocalNotification:response.notification
+    localNotification = [[TiApp dictionaryWithUserNotification:response.notification
                                                  withIdentifier:response.notification.request.identifier] retain];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
     completionHandler();
 }
-
-#else
+#endif
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
@@ -518,8 +517,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:nil] retain];
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
-
-#endif
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
     RELEASE_TO_NIL(remoteNotification);
@@ -1331,7 +1328,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 #define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
 #if IS_XCODE_8
-+ (NSDictionary *)dictionaryWithLocalNotification:(UNNotification *)notification withIdentifier: (NSString *)identifier
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier: (NSString *)identifier
 {
     if (notification == nil) {
         return nil;
@@ -1356,7 +1353,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     
     return event;
 }
-#else
+#endif
+
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier: (NSString *)identifier
 {
     if (notification == nil) {
@@ -1379,7 +1377,6 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 	
 	return event;
 }
-#endif
 
 // Returns an NSDictionary with the properties from tiapp.xml
 // this is called from Ti.App.Properties and other places.

@@ -396,7 +396,7 @@
             [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categoriesSet];
         }
         
-        if ([self _hasListeners:@"usernotificationauthorization"]) {
+        if ([self _hasListeners:@"usernotificationsettings"]) {
             NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(granted)}];
             
             if (error) {
@@ -404,7 +404,7 @@
                 [event setValue:NUMINTEGER([error code]) forKey:@"code"];
             }
             
-            [self fireEvent:@"usernotificationauthorization" withObject:event];
+            [self fireEvent:@"usernotificationsettings" withObject:event];
         }
     }];
 #else
@@ -559,6 +559,7 @@
     id category = [args objectForKey:@"category"];
     id userInfo = [args objectForKey:@"userInfo"];
     id sound = [args objectForKey:@"sound"];
+    id attachments = [args objectForKey:@"attachments"];
 
 #if IS_XCODE_8
     UNNotificationTrigger *trigger;
@@ -616,6 +617,32 @@
     
     if (userInfo) {
         [content setUserInfo:userInfo];
+    }
+    
+    if (attachments) {
+        NSMutableArray<UNNotificationAttachment*> *selectedAttachments = [NSMutableArray arrayWithCapacity:[attachments count]];
+        for (id attachment in attachments) {
+            NSString *_identifier;
+            NSString *_url;
+            NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
+            NSError *error;
+            
+            ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
+            ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
+            ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
+            
+            UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
+                                                                                                   URL:[TiUtils toURL:_url proxy:self]
+                                                                                               options:_options
+                                                                                                 error:&error];
+            if (error) {
+                NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
+                RELEASE_TO_NIL(_attachment);
+            } else {
+                [selectedAttachments addObject:_attachment];
+            }
+        }
+        [content setAttachments:selectedAttachments];
     }
     
     if (sound) {
@@ -691,8 +718,8 @@
         ENSURE_TYPE(region, NSDictionary);
         
 		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
-		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
+		double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
 		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
 
 		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
