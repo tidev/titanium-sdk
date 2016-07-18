@@ -277,6 +277,28 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
 		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_EULA_NOT_ACCEPTED');
 
+		if (!this.iosInfo.selectedXcode) {
+			var latest = Object.keys(this.iosInfo.xcode).sort().pop();
+			this.iosInfo.selectedXcode = this.iosInfo.xcode[latest];
+		}
+
+		var teams = this.iosInfo.selectedXcode.teams;
+		if (!Object.keys(teams).length) {
+			this.logger.banner();
+			this.logger.error(__('There are no teams found.'));
+			this.logger.error(__('Please manually launch Xcode %s, open Preferences, go to the Accounts tab, and log into your Apple account.', this.iosInfo.selectedXcode.version));
+			this.logger.log();
+			process.exit(1);
+		}
+
+		if (!Object.keys(teams).filter(function (id) { return teams[id].status === 'active'; }).length) {
+			this.logger.banner();
+			this.logger.error(__('There are no active teams found.'));
+			this.logger.error(__('Please manually launch Xcode %s, open Preferences, go to the Accounts tab, and refresh your Apple account.', this.iosInfo.selectedXcode.version));
+			this.logger.log();
+			process.exit(1);
+		}
+
 		callback();
 	}.bind(this));
 
@@ -305,6 +327,39 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 				iosInfo.devices.push({
 					udid: 'all',
 					name: 'All Devices'
+				});
+			}
+
+			if (!iosInfo.teams) {
+				var teams = {};
+				['development', 'adhoc', 'distribution'].forEach(function (type) {
+					iosInfo.provisioning[type].forEach(function (pp) {
+						if (Array.isArray(pp.team)) {
+							pp.team.forEach(function (id) {
+								teams[id] = id;
+							});
+						}
+					});
+				});
+				Object.keys(iosInfo.xcode).forEach(function (xcodeId) {
+					var t = iosInfo.xcode[xcodeId].teams;
+					Object.keys(t).forEach(function (id) {
+						teams[id] = t[id];
+					});
+				});
+				iosInfo.teams = Object.keys(teams).map(function (id) {
+					var team = teams[id];
+					if (typeof team === 'string') {
+						return {
+							id: team,
+							name: 'Unknown',
+						};
+					}
+
+					return {
+						id: id,
+						name: team.name
+					};
 				});
 			}
 
@@ -390,6 +445,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							hidden: true
 						},
 						'target':                     this.configOptionTarget(110),
+						'team-id':                    this.configOptionTeamId(135),
 						'watch-app-name':             this.configOptionWatchAppName(212),
 						'watch-device-id':            this.configOptionWatchDeviceId(215)
 					}
@@ -1072,6 +1128,59 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 };
 
 /**
+ * Defines the --team-id option.
+ *
+ * @param {Integer} order - The order to apply to this option.
+ *
+ * @returns {Object}
+ */
+iOSBuilder.prototype.configOptionTeamId = function configOptionTeamId(order) {
+	var _t = this;
+	var teams = this.iosInfo.teams;
+
+	return {
+		abbr: 'M',
+		desc: __('your Apple Developer account team id'),
+		order: order,
+		prompt: function (callback) {
+			callback(fields.select({
+				title: __("Which team would you like to use?"),
+				promptLabel: __('Select an team by number or id'),
+				margin: '',
+				numbered: true,
+				relistOnError: true,
+				complete: true,
+				suggest: false,
+				autoSelectOne: true,
+				optionValue: 'id',
+				options: teams,
+				formatters: {
+					option: function (opt, idx, num) {
+						return '  ' + num + opt.id.cyan + '  ' + opt.name;
+					}
+				},
+			}));
+		},
+		skipValueCheck: true,
+		validate: function (teamId, callback) {
+			if (typeof teamId === 'boolean') {
+				return callback(true);
+			}
+
+			if (teamId) {
+				var team = teams.filter(function (team) { return team.id.toUpperCase() === teamId.toUpperCase(); }).shift();
+				if (team) {
+					return callback(null, team.id);
+				}
+			}
+
+			callback(new Error(__('Invalid Team ID: %s', teamId)));
+		},
+		values: teams.map(function (team) { return team.id; })
+	};
+};
+
+/**
  * Defines the --watch-app-name option.
  *
  * @param {Integer} order - The order to apply to this option.
@@ -1394,6 +1503,41 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.tiapp.ios || (this.tiapp.ios = {});
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
+
+		// validate the team id
+		var teamId = cli.argv['team-id'] || this.tiapp.ios['team-id'];
+		var teams = this.iosInfo.teams;
+		if (!teamId && teams.length === 1) {
+			// no team id, default to the only active team
+			this.team = teams[0];
+		} else {
+			// attempt to find the requested team
+			if (teamId) {
+				this.team = teams.filter(function (team) { return team.id.toUpperCase() === teamId.toUpperCase(); }).shift();
+			}
+
+			if (!teamId || (!cli.argv['team-id'] && !this.team)) {
+				if (teamId) {
+					logger.error(__('Invalid <team-id> "%s" in tiapp.xml', teamId) + '\n');
+				} else {
+					logger.error(__('Found multiple Apple Developer teams, you must select a specific Team ID.') + '\n');
+					logger.info(__('Either specify the %s option or add it to the tiapp.xml:', '--team-id <id>'.cyan) + '\n');
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <ios>'.grey);
+					logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+					logger.log('    </ios>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+				}
+
+				logger.log(__('Available teams:'));
+				teams.forEach(function (team) {
+					logger.log('  ' + team.id.cyan + '  ' + team.name);
+				});
+				logger.log();
+				process.exit(1);
+			}
+		}
 
 		series(this, [
 			function validateExtensions(next) {
@@ -1799,7 +1943,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 			function validateCapabilities() {
 				// check if we have any capabilities that we should need a team id
-				if (!this.tiapp.ios['team-id'] && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
+				if (!this.teamId && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
 					logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
 					if (Object.keys(this.xcodeEnv.teams).length) {
 						logger.log(__('Available teams:'));
@@ -1849,8 +1993,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
 				var defaultMinIosSdk = this.packageJson.minIosVersion;
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '8.0')) {
+					defaultMinIosSdk = '8.0';
+				}
+
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-				if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '8.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '8.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '8.0'));
+				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
 				} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
@@ -2185,6 +2338,7 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('Deploy type: %s', cyan(this.deployType)));
 	this.logger.info(__('Building for target: %s', cyan(this.target)));
 	this.logger.info(__('Building using iOS SDK: %s', cyan(version.format(this.iosSdkVersion, 2))));
+	this.logger.info(__('Using Team ID: %s - %s', cyan(this.team.id), this.team.name));
 
 	if (this.buildOnly) {
 		this.logger.info(__('Performing build only'));
@@ -2694,8 +2848,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
-			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"'
-		};
+			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"',
+			PRODUCT_BUNDLE_IDENTIFIER: '"' + this.tiapp.id + '"'
+		},
+		legacyCodeSigning = version.lt(this.xcodeEnv.version, '8.0.0');
 
 	// set additional build settings
 	if (this.target === 'simulator') {
@@ -2724,6 +2880,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 		buildSettings.PROVISIONING_PROFILE = '"' + this.provisioningProfileUUID + '"';
+		// buildSettings.PROVISIONING_PROFILE_SPECIFIER = '"' + this.team.id + '/' + this.provisioningProfileUUID + '"';
 		buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 		if (this.keychain) {
 			buildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
@@ -2731,25 +2888,33 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	if (this.target === 'device') {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDeveloperName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					return true;
-				}
+		if (legacyCodeSigning) {
+			Object.keys(keychains).some(function (keychain) {
+				return (keychains[keychain].developer || []).some(function (d) {
+					if (!d.invalid && d.name === this.certDeveloperName) {
+						buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
+						return true;
+					}
+				}, this);
 			}, this);
-		}, this);
+		} else {
+			buildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'] = '"iPhone Developer"';
+		}
 	}
 
 	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDistributionName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					return true;
-				}
+		if (legacyCodeSigning) {
+			Object.keys(keychains).some(function (keychain) {
+				return (keychains[keychain].developer || []).some(function (d) {
+					if (!d.invalid && d.name === this.certDistributionName) {
+						buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
+						return true;
+					}
+				}, this);
 			}, this);
-		}, this);
+		} else {
+			buildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'] = '"iPhone Developer"';
+		}
 	}
 
 	// inject the team id
@@ -2777,8 +2942,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
-	});
+		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		if (legacyCodeSigning) {
+			delete bs.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		} else {
+			delete bs.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
+	}, this);
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
 	if (!this.enableLaunchScreenStoryboard) {
@@ -5800,6 +5970,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	}
 
 	this.logger.info(__('Invoking xcodebuild'));
+
+	fs.writeFileSync(path.join(this.buildDir, 'fuckyeah.txt'), fs.readFileSync(path.join(this.buildDir, 'Info.plist')).toString());
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
 			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
