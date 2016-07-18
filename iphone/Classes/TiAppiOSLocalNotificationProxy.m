@@ -5,10 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_APPIOS
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiUtils.h"
-
-#ifdef USE_TI_APPIOS
 
 @implementation TiAppiOSLocalNotificationProxy
 

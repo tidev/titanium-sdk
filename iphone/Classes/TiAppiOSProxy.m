@@ -464,9 +464,9 @@
 #else
     __block NSDictionary* returnVal = nil;
     TiThreadPerformOnMainThread(^{
-        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
         
-        NSDictionary * propertiesDict = [[self formatUserNotificationSettings:settings];
+        NSDictionary * propertiesDict = [self formatUserNotificationSettings:settings];
         NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
         [callback call:invocationArray thisObject:self];

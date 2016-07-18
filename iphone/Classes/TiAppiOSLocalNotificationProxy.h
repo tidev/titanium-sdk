@@ -4,10 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
-#import <UserNotifications/UserNotifications.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiProxy.h"
+#if IS_XCODE_8
+#import <UserNotifications/UserNotifications.h>
+#endif
 
 @interface TiAppiOSLocalNotificationProxy : TiProxy {
 @private
