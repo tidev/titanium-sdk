@@ -16,9 +16,9 @@
 -(id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_ isOrganiser:(BOOL)_isOrganiser module:(CalendarModule*)module_
 {
 	if (self = [super _initWithPageContext:context]) {
-        module = [module_ retain];
-        participant = [participant_ retain];
-        isOrganiser = _isOrganiser;
+		module = [module_ retain];
+		participant = [participant_ retain];
+		isOrganiser = _isOrganiser;
 	}
 	return self;
 }
