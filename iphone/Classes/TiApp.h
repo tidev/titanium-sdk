@@ -217,6 +217,18 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 -(NSString*)systemUserAgent;
 
+#if IS_XCODE_8
+/**
+ Returns a dictionary containing the native notification information (iOS 10 and later).
+ */
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier: (NSString *)identifier;
+#endif
+
+/**
+ Returns a dictionary containing the native notification information.
+ */
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier: (NSString *)identifier;
+
 /**
  Returns or set the user agent string to use for network requests.
  */

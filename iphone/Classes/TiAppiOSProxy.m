@@ -20,6 +20,10 @@
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
 
+#ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
+#import "TiAppiOSUserNotificationCenterProxy.h"
+#endif
+
 #if IS_XCODE_8
 #import <UserNotifications/UserNotifications.h>
 #endif
@@ -186,6 +190,17 @@
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
 }
+
+#ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
+-(id)UserNotificationCenter
+{
+    if (UserNotificationCenter == nil) {
+        UserNotificationCenter = [[TiAppiOSUserNotificationCenterProxy alloc] _initWithPageContext:[self executionContext]];
+        [self rememberProxy:UserNotificationCenter];
+    }
+    return UserNotificationCenter;
+}
+#endif
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
 -(id)createSearchableIndex:(id)unused
