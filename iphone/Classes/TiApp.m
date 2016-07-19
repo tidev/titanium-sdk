@@ -1357,8 +1357,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     
     [event setObject:NOTNIL([notification date]) forKey:@"date"];
     
-    // TODO: Try to map timezone
-    //event setObject:NOTNIL([[notification timeZone] name]) forKey:@"timezone"];
+    [event setObject:NOTNIL([[NSTimeZone defaultTimeZone] name]) forKey:@"timezone"];
     [event setObject:NOTNIL([[[notification request] content] body]) forKey:@"alertBody"];
     [event setObject:NOTNIL([[[notification request] content] title]) forKey:@"alertTitle"];
     [event setObject:NOTNIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];

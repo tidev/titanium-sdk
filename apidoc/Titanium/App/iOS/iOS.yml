@@ -1106,6 +1106,12 @@ since: "1.7"
 platforms: [iphone, ipad]
 
 properties:
+  - name: identifier
+    summary: The notification identifier.
+    description: This property is required in iOS 10 and later.
+    optional: false
+    since: "6.0.0"
+
   - name: alertAction
     summary: |
         Alert button text ('Open', by default) or slider text ('slide to unlock...', by default)
@@ -1119,15 +1125,30 @@ properties:
     optional: true
 
   - name: alertTitle
-    summary: Alert title to display. Available since Titanium SDK 5.4.0.
+    summary: Alert title to display.
     type: String
     optional: true
-    since: "5.4.0"
+    osver: {ios: {min: "8.2"}}
+    since: "6.0.0"
+
+  - name: alertSubtitle
+    summary: Alert subtitle to display.
+    type: String
+    optional: true
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
 
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
     type: String
     optional: true
+
+  - name: attachments
+    summary: Notification attachments to display.
+    type: Array<UserNotificationAttachment>
+    optional: true
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
 
   - name: badge
     summary: Application badge value.
@@ -1174,11 +1195,40 @@ properties:
         - `latitude`: Latitude of the location center, in decimal degrees (required).
         - `longitude`: Longitude of the location center, in decimal degrees (required).
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
-        - `identifier`: Identifier of the region (optional).
     type: Dictionary
     optional: true
-    since: "5.4.0"
+    osver: {ios: {min: "8.0"}}
+    since: "6.0.0"
     
+---
+name: UserNotificationAttachment
+summary: |
+    Provide at least the property `identifier` and `url` property to identify a local  
+    image, sound or video. If your media is invalid, the API will throw an error log and
+    skip the invalid attachment.
+since: "6.0.0"
+platforms: [iphone, ipad]    
+osver: {ios: {min: "10.0"}}
+
+properties:
+
+  - name: identifier
+    type: String
+    summary: The identifier of this attachment.
+    optional: false
+  - name: url
+    type: String
+    summary: |
+        The URL to the attachment's data. If you have obtained this attachment from 
+        the notification-center then the URL will be security-scoped.
+    optional: false
+  - name: options
+    type: Dictionary
+    summary: An additional dictionary of options to provide.
+    description: |
+        Allowed options can be found in the [Apple docs](https://developer.apple.com/reference/usernotifications/1974189-usernotifications_constants).
+    optional: true
+
 ---
 name: UserNotificationSettings
 summary: |

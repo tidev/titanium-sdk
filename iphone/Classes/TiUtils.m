@@ -191,6 +191,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
 }
 
++(BOOL)isIOS82rGreater
+{
+    return [UILocalNotification instancesRespondToSelector:@selector(alertTitle)];
+}
+
 +(BOOL)isIOS9OrGreater
 {
     return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];

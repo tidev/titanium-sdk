@@ -114,4 +114,43 @@
 #endif
 }
 
+
+- (void)requestCurrentUserNotificationSettings:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSArray);
+    ENSURE_TYPE([args objectAtIndex:0], KrollCallback);
+    
+    KrollCallback *callback = [args objectAtIndex:0];
+    
+#if IS_XCODE_8
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+        NSDictionary * propertiesDict = @{
+            @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
+            @"soundSetting": NUMINTEGER([settings soundSetting]),
+            @"badgeSetting": NUMINTEGER([settings badgeSetting]),
+            @"alertSetting": NUMINTEGER([settings alertSetting]),
+            @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
+            @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
+            @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
+            @"alertStyle": NUMINTEGER([settings alertStyle])
+        };
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+    }];
+#else
+    __block NSDictionary* returnVal = nil;
+    TiThreadPerformOnMainThread(^{
+        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        
+        NSDictionary * propertiesDict = [self formatUserNotificationSettings:settings];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+    }, YES);
+#endif
+}
+
 @end

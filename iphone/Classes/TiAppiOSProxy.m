@@ -449,43 +449,6 @@
     return supportedActivityTypes;
 }
 
--(void)requestCurrentUserNotificationSettings:(id)args
-{
-    ENSURE_SINGLE_ARG(args, NSArray);
-    ENSURE_TYPE([args objectAtIndex:0], KrollCallback);
-
-    KrollCallback *callback = [args objectAtIndex:0];
-    
-#if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-        NSDictionary * propertiesDict = @{
-            @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
-            @"soundSetting": NUMINTEGER([settings soundSetting]),
-            @"badgeSetting": NUMINTEGER([settings badgeSetting]),
-            @"alertSetting": NUMINTEGER([settings alertSetting]),
-            @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
-            @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
-            @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
-            @"alertStyle": NUMINTEGER([settings alertStyle])
-        };
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-    }];
-#else
-    __block NSDictionary* returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        
-        NSDictionary * propertiesDict = [self formatUserNotificationSettings:settings];
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-    }, YES);
-#endif
-}
 
 -(NSDictionary*)currentUserNotificationSettings
 {
@@ -493,11 +456,11 @@
         return nil;
     }
     
-    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.requestCurrentUserNotificationSettings");
+    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.NotificationCenter.requestCurrentUserNotificationSettings");
     
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        DebugLog(@"[ERROR] Please use Ti.App.requestCurrentUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
+        DebugLog(@"[ERROR] Please use Ti.App.NotificationCenter.requestCurrentUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
         return;
     }
 #else
@@ -555,7 +518,7 @@
 
 -(id)scheduleLocalNotification:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_SINGLE_ARG(args,NSDictionary);
 
     id identifier = [args objectForKey:@"identifier"];
     id repeat = [args objectForKey:@"repeat"];
@@ -576,31 +539,44 @@
     UNNotificationTrigger *trigger;
     
     if (date) {
-        NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
 
-        NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit|NSHourCalendarUnit|NSMinuteCalendarUnit|NSSecondCalendarUnit
-                                                            fromDate:date];
+        // Per default, use all components and don't repeat
+        NSCalendarUnit components = NSYearCalendarUnit|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond;
+
+        if (repeat != nil) {
+            if ([repeat isEqual:@"weekly"]) {
+                components = NSCalendarUnitYear;
+            } else if ([repeat isEqual:@"daily"]) {
+                components = NSCalendarUnitDay;
+            } else if ([repeat isEqual:@"yearly"]) {
+                components = NSCalendarUnitYear;
+            } else if ([repeat isEqual:@"monthly"]) {
+                components = NSCalendarUnitMonth;
+            } else {
+                NSLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
+            }
+        }
         
-        trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components repeats:YES];
-    } else if (repeat) {
-        // TODO: Calcuate interval from "daily", "weekly", "monthly" and "yearly"
-        trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0 repeats:YES];
+        trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
+                                                                                               fromDate:date]
+                                                                           repeats:(repeat != nil)];
     } else if (region) {
         BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
         double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
         double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
-        
-        // TODO: Deprecate `identifier` in `region` and use top-level identifier for both iOS < 10 and iOS 10
-        NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
-        
+        double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
+
         CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
-                                                                     radius:kCLDistanceFilterNone
-                                                                 identifier:identifier ? identifier : @"notification"];
+                                                                     radius:radius
+                                                                 identifier:[TiUtils stringValue:@"identifier"
+                                                                                      properties:args
+                                                                                             def:@"notification"]];
         
         trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
                                                            repeats:triggersOnce];
     } else {
-        DebugLog(@"[ERROR] Notifications in iOS 10 require the either the `date`, `repeat` or `location` property");
+        DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
         return;
     }
     
@@ -631,7 +607,7 @@
     }
     
     if (attachments) {
-        NSMutableArray<UNNotificationAttachment*> *selectedAttachments = [NSMutableArray arrayWithCapacity:[attachments count]];
+        NSMutableArray<UNNotificationAttachment*> *_attachments = [NSMutableArray arrayWithCapacity:[attachments count]];
         for (id attachment in attachments) {
             NSString *_identifier;
             NSString *_url;
@@ -650,10 +626,10 @@
                 NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
                 RELEASE_TO_NIL(_attachment);
             } else {
-                [selectedAttachments addObject:_attachment];
+                [_attachments addObject:_attachment];
             }
         }
-        [content setAttachments:selectedAttachments];
+        [content setAttachments:_attachments];
     }
     
     if (sound) {
@@ -675,7 +651,8 @@
                                                                              trigger:trigger];
     
     TiThreadPerformOnMainThread(^{
-        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request  withCompletionHandler:^(NSError *error) {
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                               withCompletionHandler:^(NSError *error) {
             if (error) {
                DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
             }
@@ -709,7 +686,7 @@
 		content.alertBody = alertBody;
     }
 
-    if (alertTitle!=nil) {
+    if (alertTitle!=nil && [TiUtils isIOS82rGreater]) {
 		content.alertTitle = alertTitle;
 	}
 	
@@ -730,8 +707,8 @@
         
 		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
 		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
-		double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
-		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
+        double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
+        double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
 
 		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
         
@@ -741,8 +718,10 @@
 		}
         
 		content.region = [[CLCircularRegion alloc] initWithCenter:center
-                                                           radius:kCLDistanceFilterNone
-                                                       identifier:identifier ? identifier : @"notification"];
+                                                           radius:radius
+                                                       identifier:[TiUtils stringValue:@"identifier"
+                                                                            properties:args
+                                                                                   def:@"notification"]];
 		
 		content.regionTriggersOnce = regionTriggersOnce;
 	}
@@ -1280,6 +1259,20 @@ MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED,@"accessibilityscreenchanged"
 MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); //UIBackgroundFetchResultNewData
 MAKE_SYSTEM_PROP(FETCH_NODATA, 1); //UIBackgroundFetchResultNoData
 MAKE_SYSTEM_PROP(FETCH_FAILED, 2); //UIBackgroundFetchResultFailed
+
+#if IS_XCODE_8
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED, UNAuthorizationStatusDenied);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED, UNAuthorizationStatusAuthorized);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED, UNAuthorizationStatusNotDetermined);
+
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_ENABLED, UNNotificationSettingEnabled);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_DISABLED, UNNotificationSettingDisabled);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingNotSupported);
+
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
+MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
+#endif
 
 @end
 
