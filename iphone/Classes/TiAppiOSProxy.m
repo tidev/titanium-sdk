@@ -313,9 +313,6 @@
 	return proxy;
 }
 
-//TO DO: implement didRegisterUserNotificationSettings delegate?
-//remote notifications add 'category'
-
 -(void)registerUserNotificationSettings:(id)args
 {
 	if (![TiUtils isIOS8OrGreater]) return;
@@ -327,12 +324,11 @@
     ENSURE_ARG_OR_NIL_FOR_KEY(categories, args, @"categories", NSArray);
     ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
     
-	NSMutableSet *categoriesSet = nil;
+	NSMutableArray *nativeCategories = [NSMutableArray arrayWithCapacity:[categories count]];
 	if (categories != nil) {
-		categoriesSet = [NSMutableSet set];
 		for (id category in categories) {
             ENSURE_TYPE(category, TiAppiOSUserNotificationCategoryProxy);
-            [categoriesSet addObject:[(TiAppiOSUserNotificationCategoryProxy*)category notificationCategory]];
+            [nativeCategories addObject:[(TiAppiOSUserNotificationCategoryProxy*)category notificationCategory]];
 		}
 	}
     
@@ -392,7 +388,7 @@
 #if IS_XCODE_8
     [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types completionHandler: ^(BOOL granted, NSError *error) {
         if (granted == YES) {
-            [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categoriesSet];
+            [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
         }
         
         if ([self _hasListeners:@"usernotificationsettings"]) {
@@ -407,7 +403,8 @@
         }
     }];
 #else
-	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:categoriesSet];
+	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types
+                                                                          categories:[NSSet setWithArray:nativeCategories]];
     TiThreadPerformOnMainThread(^{
         [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
     }, NO);
@@ -624,7 +621,7 @@
             NSString *_identifier;
             NSString *_url;
             NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
-            NSError *error;
+            NSError *error = nil;
             
             ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
             ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
@@ -634,7 +631,7 @@
                                                                                                    URL:[TiUtils toURL:_url proxy:self]
                                                                                                options:_options
                                                                                                  error:&error];
-            if (error) {
+            if (error != nil) {
                 NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
                 RELEASE_TO_NIL(_attachment);
             } else {

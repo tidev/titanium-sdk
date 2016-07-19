@@ -23,6 +23,8 @@
 #endif
 @property (nonatomic,readonly) NSString *identifier;
 
+- (UNNotificationCategory*)notificationCategory;
+
 @end
 
 

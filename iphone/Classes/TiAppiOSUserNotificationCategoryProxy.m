@@ -28,7 +28,6 @@
 {
     if (_notificationCategory == nil) {
         
-        // TODO: Grab properties from self (proxy) instead of local copy
         id identifier = [properties valueForKey:@"identifier"];
         id actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
         id actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
@@ -50,13 +49,13 @@
         }
         
 #if IS_XCODE_8
-        _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
+        _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
                                                                        actions:defaultActions
                                                                 minimalActions:minimalActions
                                                              intentIdentifiers:intentIdentifiers
-                                                                       options:UNNotificationCategoryOptionNone];
+                                                                       options:UNNotificationCategoryOptionCustomDismissAction] retain];
 #else
-        _notificationCategory = [[UIMutableUserNotificationCategory alloc] init];
+        _notificationCategory = [UIMutableUserNotificationCategory new];
         [_notificationCategory setIdentifier:identifier];
         [_notificationCategory setActions:defaultActions forContext:UIUserNotificationActionContextDefault];
         [_notificationCategory setActions:minimalActions forContext:UIUserNotificationActionContextMinimal];
