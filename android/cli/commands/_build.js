@@ -3915,6 +3915,10 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				done();
 			}.bind(this));
 		}),
+		injars = [
+			this.buildBinClassesDir,
+			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
 		dexArgs = [
 			'-Xmx' + this.dxMaxMemory,
 			'-XX:-UseGCOverheadLimit',
@@ -3922,9 +3926,10 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'-jar', this.androidInfo.sdk.dx,
 			'--dex', '--multi-dex',
 			'--output=' + this.buildBinClassesDex,
-			this.buildBinClassesDir,
-			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		],
+		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
+		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
 
 	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
 	// dexAgent is set in the module's timodule.xml
@@ -3933,20 +3938,77 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	if (this.allowDebugging && this.debugPort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
 	if (this.allowProfiling && this.profilerPort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
-	// nuke and create teh folder holding all the classes*.dex files
+	// nuke and create the folder holding all the classes*.dex files
 	if (fs.existsSync(this.buildBinClassesDex)) {
 		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
 	}
 	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
 
-	dexerHook(this.jdkInfo.executables.java, dexArgs, {}, next);
+
+	// TODO I think we only need to jump through these hoops for pre- api-level 21?
+
+	// Wipe existing outjar
+	fs.existsSync(outjar) && fs.unlinkSync(outjar);
+
+	// Use mainDexClasses to generate the listing of files to place in main dex file!
+	// Apparently it's a steaming pile of shit and can't handle paths with spaces, because they're too lazy to insert quotes around ${@}
+	// So we need to duplicate what it's doing here:
+	async.series([
+		// Run: java -jar $this.androidInfo.sdk.proguard -injars "${@}" -dontwarn -forceprocessing -outjars ${tmpOut} -libraryjars "${shrinkedAndroidJar}" -dontoptimize -dontobfuscate -dontpreverify -include "${baserules}"
+		function (done) {
+			appc.subprocess.run(this.jdkInfo.executables.java, [
+				'-jar',
+				this.androidInfo.sdk.proguard,
+				'-injars', injars.join(':'),
+				'-dontwarn', '-forceprocessing',
+				'-outjars', outjar,
+				'-libraryjars', shrinkedAndroid,
+				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
+				baserules
+			], {}, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
+		function (done) {
+			appc.subprocess.run(this.jdkInfo.executables.java, ['-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':')], {}, function (code, out, err) {
+				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				// Record output to a file like main-dex-classes.txt
+				fs.writeFileSync(mainDexClassesList, out);
+				// Pass that file into dex, like so:
+				dexArgs.push('--main-dex-list');
+				dexArgs.push(mainDexClassesList);
+
+				dexArgs = dexArgs.concat(injars);
+
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
+		}.bind(this)
+	], next);
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
