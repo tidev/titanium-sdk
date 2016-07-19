@@ -5,7 +5,7 @@ description: |
     The API supports retrieving information about the attendee of an event.  
 
 extends: Titanium.Proxy
-platforms: [android, iphone, ipad]
+platforms: [iphone, ipad]
 since: "6.0.0"
 createable: false
 
@@ -13,26 +13,28 @@ properties:
   - name: isOrganiser
     summary: Indicates whether this attendee is the event organiser.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
   - name: name
     summary: The attendee name.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
   - name: email
     summary: The attendee email.
     description: |
         Due to privacy concerns in iOS this value will be empty if the attendee is the device owner. 
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
   - name: role
     summary: The attendee role of required or optional. 
-    type: Titanium.Calendar.ATTENDEE_ROLE_*
-    platforms: [android, iphone, ipad]
+    type: Number
+    constants: Titanium.Calendar.ATTENDEE_ROLE_*
+    platforms: [iphone, ipad]
 
   - name: status
     summary: The attendance status.
-    type: Titanium.Calendar.ATTENDEE_STATUS_*
-    platforms: [android, iphone, ipad]
+    type: Number
+    constants: Titanium.Calendar.ATTENDEE_STATUS_*
+    platforms: [iphone, ipad]
