@@ -304,7 +304,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
         [app registerForRemoteNotifications];
         
         if ([args objectForKey:@"types"] != nil) {
-            NSLog(@"[WARN] Passing `types` to registerForPushNotifications is not supported on iOS 8 and greater. Use registerUserNotificationSettings to register notification types.");
+            NSLog(@"[WARN] Passing `types` to registerForPushNotifications is not supported on iOS 8 and greater. Use Ti.App.iOS.registerUserNotificationSettings to register notification types.");
         }
 	}
 	else {
@@ -359,8 +359,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
 -(void)unregisterForPushNotifications:(id)args
 {
-	UIApplication * app = [UIApplication sharedApplication];
-	[app unregisterForRemoteNotifications];
+	[[UIApplication sharedApplication] unregisterForRemoteNotifications];
 }
 
 #pragma mark Push Notification Delegates

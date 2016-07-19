@@ -490,6 +490,24 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler
 {
+    /*RELEASE_TO_NIL(remoteNotification);
+    [self generateNotification:userInfo];
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    event[@"data"] = remoteNotification;
+    if (identifier != nil) {
+        event[@"identifier"] = identifier;
+    }
+    NSString *category = remoteNotification[@"category"];
+    if (category != nil) {
+        event[@"category"] = category;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
+    [event autorelease];
+    completionHandler();*/
+    
+    // TODO: See if notification is local or remote
+    
+    
     RELEASE_TO_NIL(localNotification);
     localNotification = [[TiApp dictionaryWithUserNotification:response.notification
                                                  withIdentifier:response.notification.request.identifier] retain];

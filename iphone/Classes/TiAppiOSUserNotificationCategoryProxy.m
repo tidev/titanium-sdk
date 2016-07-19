@@ -49,11 +49,13 @@
         }
         
 #if IS_XCODE_8
+        RELEASE_TO_NIL(minimalActions);
+        RELEASE_TO_NIL(actionsForMinimalContext);
+        
         _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
                                                                        actions:defaultActions
-                                                                minimalActions:minimalActions
                                                              intentIdentifiers:intentIdentifiers
-                                                                       options:UNNotificationCategoryOptionCustomDismissAction] retain];
+                                                                        options:UNNotificationCategoryOptionCustomDismissAction] retain];
 #else
         _notificationCategory = [UIMutableUserNotificationCategory new];
         [_notificationCategory setIdentifier:identifier];
