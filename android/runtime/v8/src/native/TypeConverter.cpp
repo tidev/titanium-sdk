@@ -854,7 +854,11 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(JNIEnv *env, jobject ja
 			if (v8ObjectPointer != 0) {
 				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
 				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
-				jo->getJavaObject();
+				jobject javaProxy = jo->getJavaObject(); // Called to explicitly go from weak reference to strong!
+				if (!JavaObject::useGlobalRefs) {
+					// But then we need to delete the local reference to avoid JNI ref leak!
+					env->DeleteLocalRef(javaProxy);
+				}
 				return v8Object;
 			}
 		}
@@ -892,9 +896,10 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(JNIEnv *env, jobject ja
 		return v8::Undefined();
 	}
 
-	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to Js value !!!",
-	                      env->GetObjectClass(javaObject),
-	                      true);
+	jclass javaObjectClass = env->GetObjectClass(javaObject);
+	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to JS value !!!", javaObjectClass, true);
+	env->DeleteLocalRef(javaObjectClass);
+
 	return v8::Handle<v8::Value>();
 }
 
