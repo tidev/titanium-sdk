@@ -1790,7 +1790,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
-	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex');
+	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
@@ -3915,16 +3915,21 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				done();
 			}.bind(this));
 		}),
+		injars = [
+			this.buildBinClassesDir,
+			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
 		dexArgs = [
 			'-Xmx' + this.dxMaxMemory,
 			'-XX:-UseGCOverheadLimit',
 			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
 			'-jar', this.androidInfo.sdk.dx,
-			'--dex',
+			'--dex', '--multi-dex',
 			'--output=' + this.buildBinClassesDex,
-			this.buildBinClassesDir,
-			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+		],
+		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
+		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
 
 	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
 	// dexAgent is set in the module's timodule.xml
@@ -3933,14 +3938,84 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	if (this.allowDebugging && this.debugPort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
 	if (this.allowProfiling && this.profilerPort) {
-		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
-	dexerHook(this.jdkInfo.executables.java, dexArgs, {}, next);
+	// nuke and create the folder holding all the classes*.dex files
+	if (fs.existsSync(this.buildBinClassesDex)) {
+		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
+	}
+	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
+
+	// Wipe existing outjar
+	fs.existsSync(outjar) && fs.unlinkSync(outjar);
+
+	this.logger.error(JSON.stringify(this.androidTargetSDK));
+
+	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
+	// We skip these intermediate steps if 21+ and eventually just run dexer
+	async.series([
+		// Run: java -jar $this.androidInfo.sdk.proguard -injars "${@}" -dontwarn -forceprocessing -outjars ${tmpOut} -libraryjars "${shrinkedAndroidJar}" -dontoptimize -dontobfuscate -dontpreverify -include "${baserules}"
+		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
+			appc.subprocess.run(this.jdkInfo.executables.java, [
+				'-jar',
+				this.androidInfo.sdk.proguard,
+				'-injars', injars.join(':'),
+				'-dontwarn', '-forceprocessing',
+				'-outjars', outjar,
+				'-libraryjars', shrinkedAndroid,
+				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
+				baserules
+			], {}, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
+		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
+			appc.subprocess.run(this.jdkInfo.executables.java, ['-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':')], {}, function (code, out, err) {
+				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				// Record output to a file like main-dex-classes.txt
+				fs.writeFileSync(mainDexClassesList, out);
+				// Pass that file into dex, like so:
+				dexArgs.push('--main-dex-list');
+				dexArgs.push(mainDexClassesList);
+
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			dexArgs = dexArgs.concat(injars);
+			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
+		}.bind(this)
+	], next);
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
@@ -3951,6 +4026,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		jsonRegExp = /\.json$/,
 		javaRegExp = /\.java$/,
 		classRegExp = /\.class$/,
+		dexRegExp = /^classes(\d+)?\.dex$/,
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
@@ -4001,8 +4077,15 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 			}, this);
 		}, this);
 
-		this.logger.debug(__('Adding %s', 'classes.dex'.cyan));
-		dest.append(fs.createReadStream(this.buildBinClassesDex), { name: 'classes.dex' });
+		// Add dex files
+		this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
+		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
+			var file = path.join(this.buildBinClassesDex, name);
+			if (dexRegExp.test(name)) {
+				this.logger.debug(__('Adding %s', name.cyan));
+				dest.append(fs.createReadStream(file), { name: name });
+			}
+		}, this);
 
 		this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
 		(function copyDir(dir, base) {
