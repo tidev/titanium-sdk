@@ -23,7 +23,11 @@
 #endif
 @property (nonatomic,readonly) NSString *identifier;
 
+#if IS_XCODE_8
 - (UNNotificationCategory*)notificationCategory;
+#else
+- (UIMutableUserNotificationCategory*)notificationCategory;
+#endif
 
 @end
 

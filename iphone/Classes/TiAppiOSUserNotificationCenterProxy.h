@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_APPIOS
+
 #import "TiProxy.h"
 #import "TiApp.h"
 #if IS_XCODE_8
@@ -27,3 +29,4 @@
 - (void)requestUserNotificationSettings:(id)args;
 
 @end
+#endif

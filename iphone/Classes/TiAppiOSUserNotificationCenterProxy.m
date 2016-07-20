@@ -5,7 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_APPIOS
 #import "TiAppiOSUserNotificationCenterProxy.h"
+#import "TiAppiOSUserNotificationCategoryProxy.h"
 
 #define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
@@ -39,7 +41,7 @@
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
        
         for (UILocalNotification *notification in notifications) {
-            [result addObject:[[TiApp app] dictionaryWithLocalNotification:notification withIdentifier: nil]];
+            [result addObject:[TiApp dictionaryWithLocalNotification:notification withIdentifier: nil]];
         }
         
         NSDictionary * propertiesDict = @{
@@ -194,4 +196,47 @@
 }
 #endif
 
+-(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
+{
+    if (![NSThread isMainThread]) {
+        __block NSDictionary*result = nil;
+        TiThreadPerformOnMainThread(^{
+            result = [[self formatUserNotificationSettings:notificationSettings] retain];
+        }, YES);
+        return [result autorelease];
+        
+    }
+    NSMutableArray *typesArray = [NSMutableArray array];
+    NSMutableArray *categoriesArray = [NSMutableArray array];
+    
+    NSUInteger types = notificationSettings.types;
+    NSSet *categories = notificationSettings.categories;
+    
+    // Types
+    if ((types & UIUserNotificationTypeBadge)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
+    }
+    if ((types & UIUserNotificationTypeAlert)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
+    }
+    if ((types & UIUserNotificationTypeSound)!=0)
+    {
+        [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
+    }
+    
+    // Categories
+    for (id cat in categories) {
+        TiAppiOSUserNotificationCategoryProxy *categoryProxy = [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        categoryProxy.notificationCategory = cat;
+        [categoriesArray addObject:categoryProxy];
+    }
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            typesArray, @"types",
+            categoriesArray, @"categories",
+            nil];
+}
+
 @end
+#endif
