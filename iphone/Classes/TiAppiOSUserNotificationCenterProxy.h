@@ -24,6 +24,6 @@
 
 - (void)removeAllDeliveredNotifications:(id)unused;
 
-- (void)requestCurrentUserNotificationSettings:(id)args;
+- (void)requestUserNotificationSettings:(id)args;
 
 @end

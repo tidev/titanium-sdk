@@ -456,11 +456,11 @@
         return nil;
     }
     
-    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.NotificationCenter.requestCurrentUserNotificationSettings");
+    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
     
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        DebugLog(@"[ERROR] Please use Ti.App.NotificationCenter.requestCurrentUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
+        DebugLog(@"[ERROR] Please use Ti.App.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
         return;
     }
 #else

@@ -115,7 +115,7 @@
 }
 
 
-- (void)requestCurrentUserNotificationSettings:(id)args
+- (void)requestUserNotificationSettings:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSArray);
     ENSURE_TYPE([args objectAtIndex:0], KrollCallback);
