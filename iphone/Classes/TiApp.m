@@ -509,8 +509,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     
     
     RELEASE_TO_NIL(localNotification);
-    localNotification = [[TiApp dictionaryWithUserNotification:response.notification
-                                                 withIdentifier:response.notification.request.identifier] retain];
+    localNotification = [[[self class] dictionaryWithUserNotification:response.notification
+                                                 withIdentifier:response.actionIdentifier] retain];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
     completionHandler();
@@ -519,7 +519,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
-	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+	localNotification = [[[self class] dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
     
     if([TiUtils isIOS9OrGreater] == YES) {
         [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
@@ -1353,11 +1353,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     }
     NSMutableDictionary* event = [NSMutableDictionary dictionary];
     
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    
     [event setObject:NOTNIL([notification date]) forKey:@"date"];
-    
-    [event setObject:NOTNIL([[NSTimeZone defaultTimeZone] name]) forKey:@"timezone"];
+    [event setObject:[[NSTimeZone defaultTimeZone] name] forKey:@"timezone"];
     [event setObject:NOTNIL([[[notification request] content] body]) forKey:@"alertBody"];
     [event setObject:NOTNIL([[[notification request] content] title]) forKey:@"alertTitle"];
     [event setObject:NOTNIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
