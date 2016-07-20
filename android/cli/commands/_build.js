@@ -3951,18 +3951,21 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
 
-
-	// TODO I think we only need to jump through these hoops for pre- api-level 21?
-
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
-	// Use mainDexClasses to generate the listing of files to place in main dex file!
-	// Apparently it's a steaming pile of shit and can't handle paths with spaces, because they're too lazy to insert quotes around ${@}
-	// So we need to duplicate what it's doing here:
+	this.logger.error(JSON.stringify(this.androidTargetSDK));
+
+	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
+	// We skip these intermediate steps if 21+ and eventually just run dexer
 	async.series([
 		// Run: java -jar $this.androidInfo.sdk.proguard -injars "${@}" -dontwarn -forceprocessing -outjars ${tmpOut} -libraryjars "${shrinkedAndroidJar}" -dontoptimize -dontobfuscate -dontpreverify -include "${baserules}"
 		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
 			appc.subprocess.run(this.jdkInfo.executables.java, [
 				'-jar',
 				this.androidInfo.sdk.proguard,
@@ -3985,6 +3988,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		}.bind(this),
 		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
 		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
 			appc.subprocess.run(this.jdkInfo.executables.java, ['-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':')], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
@@ -4000,12 +4008,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				dexArgs.push('--main-dex-list');
 				dexArgs.push(mainDexClassesList);
 
-				dexArgs = dexArgs.concat(injars);
-
 				done();
 			}.bind(this));
 		}.bind(this),
 		function (done) {
+			dexArgs = dexArgs.concat(injars);
 			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
 		}.bind(this)
 	], next);
