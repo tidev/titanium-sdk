@@ -3954,8 +3954,6 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
-	this.logger.error(JSON.stringify(this.androidTargetSDK));
-
 	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
 	// We skip these intermediate steps if 21+ and eventually just run dexer
 	async.series([
