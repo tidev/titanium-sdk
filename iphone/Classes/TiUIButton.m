@@ -263,7 +263,7 @@
 {
 	[backgroundImageCache release];
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
-	backgroundImageCache = [[self loadImage:value] retain];
+	backgroundImageCache = [TiUtils loadBackgroundImage:value forProxy:[self proxy]];
     self.backgroundImage = value;
 	[self updateBackgroundImage];
 }
