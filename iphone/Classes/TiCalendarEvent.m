@@ -10,6 +10,7 @@
 #import "TiCalendarEvent.h"
 #import "TiCalendarAlert.h"
 #import "TiCalendarRecurrenceRule.h"
+#import "TiCalendarAttendee.h"
 
 @implementation TiCalendarEvent
 
@@ -41,7 +42,6 @@
 {
     return @"Ti.Calendar.Event";
 }
-
 
 +(NSArray*) convertEvents:(NSArray*)events_ withContext:(id<TiEvaluator>)context_  calendar:(EKCalendar*)calendar_ module:(CalendarModule*)module_
 {
@@ -527,6 +527,22 @@
         result = [[self event] refresh];
     }, YES);
     return NUMBOOL(result);
+}
+
+-(NSArray*) attendees
+{
+    NSArray* participants = [[self event] attendees];
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:participants.count];
+    for (EKParticipant* participant in participants) {
+        BOOL isOrganiser = NO;
+        if ([participant isCurrentUser]) {
+            isOrganiser = YES;
+        }
+        TiCalendarAttendee* theAttendee = [[[TiCalendarAttendee alloc] _initWithPageContext:self.executionContext participant:participant isOrganiser:isOrganiser module:module] autorelease];
+        [result addObject:theAttendee];
+    }
+    [participants release];
+    return result;
 }
 
 @end
