@@ -531,16 +531,17 @@
 
 -(NSArray*) attendees
 {
-    NSArray* participants = self.event.attendees;
+    NSArray* participants = [[self event] attendees];
     NSMutableArray* result = [NSMutableArray arrayWithCapacity:participants.count];
     for (EKParticipant* participant in participants) {
         BOOL isOrganiser = NO;
-        if (self.event.organizer && [participant.URL isEqual:self.event.organizer.URL]) {
+        if ([participant isCurrentUser]) {
             isOrganiser = YES;
         }
         TiCalendarAttendee* theAttendee = [[[TiCalendarAttendee alloc] _initWithPageContext:self.executionContext participant:participant isOrganiser:isOrganiser module:module] autorelease];
         [result addObject:theAttendee];
     }
+    [participants release];
     return result;
 }
 

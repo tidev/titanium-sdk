@@ -23,11 +23,11 @@
 	return self;
 }
 
--(void)_destroy
+-(void)dealloc
 {
 	RELEASE_TO_NIL(module);
 	RELEASE_TO_NIL(participant);
-	[super _destroy];
+	[super dealloc];
 }
 
 -(EKParticipant*) participant
@@ -45,17 +45,11 @@
 
 -(id)valueForUndefinedKey:(NSString *)key
 {
-	if (![NSThread isMainThread]) {
-		__block id result;
-		TiThreadPerformOnMainThread(^{result = [[self valueForUndefinedKey:key] retain];}, YES);
-		return [result autorelease];
-	}
+    ENSURE_UI_THREAD(valueForUndefinedKey, key);
 	
 	if ([key isEqualToString:@"name"]) {
 		return participant.name;
-	}
-	
-	else if ([key isEqualToString:@"email"]) {
+	} else if ([key isEqualToString:@"email"]) {
 		// Apple dont give out device account email since it is a privacy concern.
 		// We can query through non-documented methods but that is not advisable.
 		if (participant.isCurrentUser) {
@@ -64,24 +58,20 @@
 		NSURL* url = participant.URL;
 		NSString* email = url.resourceSpecifier;
 		return email;
-	}
-	
-	else if ([key isEqualToString:@"role"]) {
+        
+	} else if ([key isEqualToString:@"role"]) {
 		EKParticipantRole role = participant.participantRole;
-		EKParticipantRole mappedRole;
+		EKParticipantRole mappedRole = EKParticipantRoleRequired;
 		if (role == EKParticipantRoleUnknown ||
 			role == EKParticipantRoleOptional ||
 			role == EKParticipantRoleNonParticipant) {
 			mappedRole = EKParticipantRoleOptional;
-		} else {
-			mappedRole = EKParticipantRoleRequired;
 		}
-		return NUMINT(mappedRole);
-	}
-	
-	else if ([key isEqualToString:@"status"]) {
+        return NUMINT(mappedRole);
+        
+	} else if ([key isEqualToString:@"status"]) {
 		EKParticipantStatus status = participant.participantStatus;
-		EKParticipantStatus mappedStatus;
+		EKParticipantStatus mappedStatus = EKParticipantStatusUnknown;
 		if (status == EKParticipantStatusTentative ||
 			status == EKParticipantStatusDelegated) {
 			mappedStatus = EKParticipantStatusTentative;
@@ -89,22 +79,18 @@
 			mappedStatus = EKParticipantStatusAccepted;
 		} else if (status == EKParticipantStatusDeclined) {
 			mappedStatus = EKParticipantStatusDeclined;
-		} else {
-			mappedStatus = EKParticipantStatusUnknown;
 		}
 		return NUMINT(mappedStatus);
-	}
-	
-	else {
-		id result = [super valueForUndefinedKey:key];
-		return result;
+        
+	} else {
+		return [super valueForUndefinedKey:key];
 	}
 }
 
 #pragma mark - Public API
 
-- (NSNumber*)isOrganiser {
-    return (NUMBOOL(isOrganiser));
+- (NSNumber*)isOrganizer {
+    return NUMBOOL(isOrganiser);
 }
 
 @end

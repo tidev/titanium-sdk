@@ -261,9 +261,7 @@ properties:
     platforms: [android]
 
   - name: attendees
-    summary: |
-        The list of event attendees. 
-        The list will be empty if the event has no attendees.
+    summary: The list of event attendees. This list will be empty if the event has no attendees.
     type: Array<Titanium.Calendar.Attendee>
     platforms: [iphone, ipad]
     permission: read-only

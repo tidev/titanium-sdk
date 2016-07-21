@@ -10,8 +10,8 @@ since: "6.0.0"
 createable: false
 
 properties:
-  - name: isOrganiser
-    summary: Indicates whether this attendee is the event organiser.
+  - name: isOrganizer
+    summary: Indicates whether this attendee is the event organizer.
     type: Boolean
     platforms: [iphone, ipad]
 

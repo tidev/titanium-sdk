@@ -7,9 +7,7 @@
 #import "TiProxy.h"
 
 #ifdef USE_TI_CALENDAR
-
-@class CalendarModule;
-@class EKParticipant;
+#import "CalendarModule.h"
 
 @interface TiCalendarAttendee : TiProxy {
 @private
