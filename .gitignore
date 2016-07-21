@@ -1,5 +1,5 @@
 *.pyc
-dist
+/dist
 .sconsign.dblite
 .DS_Store
 *~
@@ -22,9 +22,8 @@ node_modules/grunt-contrib-clean
 node_modules/grunt-mocha-test
 node_modules/grunt
 node_modules/mocha
-node_modules/optimist
 node_modules/should
-node_modules/ioslib/node_modules/node-ios-device/build
+node_modules/node-ios-device/build
 
 anvil/driver/titanium_mobile
 anvil/hub/config.js
@@ -33,3 +32,19 @@ anvil/driver/node_modules/*
 apidoc/node_modules/*
 
 support/ti_mocha_script/testApp
+
+/titanium-mobile-mocha-suite
+
+# intelliJ Android User-specific configurations
+android/.idea/libraries/
+android/.idea/workspace.xml
+android/.idea/tasks.xml
+android/.idea/.name
+android/.idea/compiler.xml
+android/.idea/copyright/profiles_settings.xml
+android/.idea/encodings.xml
+android/.idea/misc.xml
+android/.idea/modules.xml
+android/.idea/scopes/scope_settings.xml
+android/.idea/vcs.xml
+*.iml

@@ -77,7 +77,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use keyboardAppearance instead.
+        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -416,16 +416,28 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     
+  - name: padding
+    summary: Sets the padding of this text field. 
+    type: Padding
+    platforms: [android, iphone, ipad]
+    since: 6.0.0
+
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextField.padding> instead.
     
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextField.padding> instead.
+            
   - name: passwordMask
     summary: Obscure the input text from the user.
     description: |
@@ -606,28 +618,28 @@ examples:
         This code excerpt creates a text field with a toolbar:
         
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
+                backgroundColor: 'white'
             });
 
-            var send = Titanium.UI.createButton({
+            var send = Ti.UI.createButton({
                 title : 'Send',
-                style : Titanium.UI.iPhone.SystemButtonStyle.DONE,
+                style : Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CAMERA,
+            var camera = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CANCEL
+            var cancel = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            var flexSpace = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            var flexSpace = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var textfield = Titanium.UI.createTextField({
-                borderStyle : Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
+            var textfield = Ti.UI.createTextField({
+                borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
                 hintText : 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
                 keyboardToolbarColor : '#999',
@@ -674,11 +686,11 @@ examples:
                         <KeyboardToolbar>
                             <Toolbar>
                                 <Items>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                                    <Button systemButton="CANCEL" />
                                     <FlexSpace/>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                                    <Button systemButton="CAMERA" />
                                     <FlexSpace/>
-                                    <Button style="Ti.UI.iPhone.SystemButtonStyle.DONE">Send</Button>
+                                    <Button style="DONE">Send</Button>
                                 </Items>
                             </Toolbar>
                         </KeyboardToolbar>
@@ -700,3 +712,16 @@ properties:
   - name: length
     summary: Number of characters selected.
     type: Number
+---    
+name: Padding
+summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
+since: "6.0.0"
+platforms: [android, iphone, ipad]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+    
+  - name: right
+    type: Number
+    summary: Right padding

@@ -98,10 +98,12 @@
 
 -(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    if (current != nil) {
+    BOOL isRootWindow = (current == rootWindow);
+
+    if (current != nil && !isRootWindow) {
         return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
     }
-    return YES;
+    return !isRootWindow;
 }
 
 -(void)openWindow:(NSArray*)args
@@ -143,6 +145,15 @@
     }
     TiThreadPerformOnMainThread(^{
         [self popOnUIThread:args];
+    }, YES);
+}
+
+-(void)popToRootWindow:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+
+    TiThreadPerformOnMainThread(^{
+        [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
     }, YES);
 }
 

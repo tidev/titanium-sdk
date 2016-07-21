@@ -1,10 +1,10 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
-# 
+#
 # Top level kroll-v8 runtime Makefile
 
 LOCAL_PATH := $(call my-dir)
@@ -25,7 +25,10 @@ LOCAL_SRC_FILES := $(SRC_FILES)
 
 LOCAL_JS_FILES := $(JS_FILES)
 
-LOCAL_STATIC_LIBRARIES := libv8
+# When using V8 i18n support/ICU
+#LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libicudata libicuuc libicui18n libv8_base libv8_nosnapshot
+# When setting v8_enable_i18n_support=0
+LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libv8_base libv8_nosnapshot
 
 include $(BUILD_SHARED_LIBRARY)
 

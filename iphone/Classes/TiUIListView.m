@@ -791,6 +791,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [[self tableView] setAllowsSelection:[TiUtils boolValue:value]];
 }
 
+-(void)setKeyboardDismissMode_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+    [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 -(void)setEditing_:(id)args
 {
     if ([TiUtils boolValue:args def:NO] != editing) {
@@ -1008,8 +1015,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     for (id prop in propArray) {
         ENSURE_DICT(prop);
         NSString* title = [TiUtils stringValue:@"title" properties:prop];
-        int actionStyle = [TiUtils intValue:@"style" properties:prop];
-        TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
+        NSString* identifier = [TiUtils stringValue:@"identifier" properties:prop];
+        int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
+        TiColor* color = [TiUtils colorValue:@"color" properties:prop];
     
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
             NSString* eventName = @"editaction";
@@ -1026,8 +1034,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 id propertiesValue = [theItem objectForKey:@"properties"];
                 NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
                 id itemId = [properties objectForKey:@"itemId"];
-                if (itemId != nil) {
+                if (itemId) {
                     [eventObject setObject:itemId forKey:@"itemId"];
+                }
+                if (identifier) {
+                    [eventObject setObject:identifier forKey:@"identifier"];
                 }
                 [self.proxy fireEvent:eventName withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
                 [eventObject release];
@@ -1039,10 +1050,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[self tableView] setEditing:NO];
 
         }];
-        if (theColor != nil) {
-            theAction.backgroundColor = [theColor color];
+        if (color) {
+            theAction.backgroundColor = [color color];
         }
-        if (returnArray == nil) {
+        if (!returnArray) {
             returnArray = [NSMutableArray arrayWithObject:theAction];
         } else {
             [returnArray addObject:theAction];

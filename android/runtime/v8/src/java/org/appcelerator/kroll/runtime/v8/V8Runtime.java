@@ -44,19 +44,31 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
+	public static boolean isEmulator() {
+		return "goldfish".equals(Build.HARDWARE)
+			|| Build.FINGERPRINT.startsWith("generic")
+			|| Build.FINGERPRINT.startsWith("unknown")
+			|| Build.MODEL.contains("google_sdk")
+			|| Build.MODEL.contains("Emulator")
+			|| Build.MODEL.contains("Android SDK built for x86")
+			|| Build.MANUFACTURER.contains("Genymotion")
+			|| (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+			|| "google_sdk".equals(Build.PRODUCT);
+	}
+
 	@Override
 	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
 		TiDeployData deployData = getKrollApplication().getDeployData();
 
-		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
+		if (isEmulator()) {
 			Log.d(TAG, "Emulator detected, storing global references in a global Map", Log.DEBUG_MODE);
 			useGlobalRefs = false;
 		}
 
 		if (!libLoaded) {
-			System.loadLibrary("stlport_shared");
+			System.loadLibrary("c++_shared");
 			System.loadLibrary("kroll-v8");
 
 			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
@@ -245,4 +257,3 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private native void nativeDispose();
 	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
 }
-

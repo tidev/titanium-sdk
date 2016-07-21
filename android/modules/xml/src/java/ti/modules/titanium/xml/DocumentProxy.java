@@ -1,13 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -16,15 +15,11 @@ import org.w3c.dom.Document;
 public class DocumentProxy extends NodeProxy {
 
 	private Document doc;
+
 	public DocumentProxy(Document doc)
 	{
 		super(doc);
 		this.doc = doc;
-	}
-
-	public DocumentProxy(TiContext context, Document doc)
-	{
-		this(doc);
 	}
 
 	@Kroll.method
@@ -92,13 +87,13 @@ public class DocumentProxy extends NodeProxy {
 	public TextProxy createTextNode(String data) {
 		return getProxy(doc.createTextNode(data));
 	}
-	
-	
+
+
 	@Kroll.getProperty @Kroll.method
 	public DocumentTypeProxy getDoctype() {
 		return getProxy(doc.getDoctype());
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public ElementProxy getDocumentElement() {
 		return getProxy(doc.getDocumentElement());
@@ -128,7 +123,7 @@ public class DocumentProxy extends NodeProxy {
 	public NodeProxy importNode(NodeProxy importedNode, boolean deep) throws DOMException {
 		return getProxy(doc.importNode(importedNode.getNode(), deep));
 	}
-	
+
 	@Override
 	public DocumentProxy getOwnerDocument() {
 		return this;

@@ -11,8 +11,8 @@ import org.json.JSONObject;
 
 import android.location.Location;
 
-import com.appcelerator.analytics.APSAnalyticsEvent;
-import com.appcelerator.analytics.APSAnalyticsEventFactory;
+import com.appcelerator.aps.APSAnalyticsEvent;
+import com.appcelerator.aps.APSAnalyticsEventFactory;
 
 public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 {

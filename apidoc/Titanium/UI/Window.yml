@@ -133,8 +133,7 @@ events:
   - name: android:back
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidback](Titanium.UI.Window.androidback) (without a colon).
+        notes: Use <Titanium.UI.Window.androidback> instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -145,8 +144,7 @@ events:
   - name: android:camera
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidcamera](Titanium.UI.Window.androidcamera) (without a colon).
+        notes: Use <Titanium.UI.Window.androidcamera> instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -157,8 +155,7 @@ events:
   - name: android:focus
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidfocus](Titanium.UI.Window.androidfocus) (without a colon).
+        notes: Use <Titanium.UI.Window.androidfocus> instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -169,8 +166,7 @@ events:
   - name: android:search
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidsearch](Titanium.UI.Window.androidsearch) (without a colon).
+        notes: Use <Titanium.UI.Window.androidsearch> instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -181,8 +177,7 @@ events:
   - name: android:voldown
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidvoldown](Titanium.UI.Window.androidvoldown) (without a colon).
+        notes: Use <Titanium.UI.Window.androidvoldown> instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -193,8 +188,7 @@ events:
   - name: android:volup
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidvolup](Titanium.UI.Window.androidvolup) (without a colon).
+        notes: Use <Titanium.UI.Window.androidvolup> instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -365,6 +359,7 @@ properties:
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
+        You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
     platforms: [iphone, ipad, mobileweb]
     type: String
 
@@ -561,14 +556,14 @@ properties:
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
-        iOS Notes: For modal windows that cover the previous window, the previous window is 
+        iOS notes: For modal windows that cover the previous window, the previous window is 
         removed from the render stack after the modal window finishes opening. If the 
         modal window is semi-transparent, the underlying window will be visible during the 
         transition animation, but disappear as soon as the animation is completed. (In general 
         all modal windows cover the previous window, except for iPad modal windows using the 
         Page sheet or Form sheet style.)
 
-        Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
+        Android notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
         *and* you wish to use the `opacity` property at any time during the window's lifetime,
         be sure to set an `opacity` value **before** opening the window.  You can later change that
         value -- and you can set it to 1 for full opacity if you wish -- but the important thing
@@ -586,7 +581,16 @@ properties:
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
     type: Number
-
+  
+  - name: onBack
+    summary: |
+        Callback function that overrides the default behavior when the user presses the **Back** 
+        button.
+    description: |
+        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
+        callback if you explicitly want to override the back button behavior.
+    type: Callback<Object>
+  
   - name: orientationModes
     summary: |
         Array of supported orientation modes, specified using the orientation
@@ -906,7 +910,7 @@ properties:
     summary: Loads a JavaScript file from a local URL.
     deprecated:
         since: 3.5.0
-        removed: 3.6.0
+        removed: 6.0.0
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
         [Alloy Framework](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
