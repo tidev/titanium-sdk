@@ -458,20 +458,21 @@
     
     DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
     
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        DebugLog(@"[ERROR] Please use Ti.App.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
+#if IS_XCODE_8
+        DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
         return;
-    }
+    } else {
 #else
-    __block NSDictionary* returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
-    }, YES);
-    
-    return [returnVal autorelease];
+        __block NSDictionary* returnVal = nil;
+        TiThreadPerformOnMainThread(^{
+            UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+            returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
+        }, YES);
+        
+        return [returnVal autorelease];
 #endif
+    }
 }
 
 -(NSDictionary*)formatUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
@@ -748,7 +749,7 @@
 	}
 	
 	TiThreadPerformOnMainThread(^{
-		if (date != nil) {
+		if (date != nil || region != nil) {
 			[[UIApplication sharedApplication] scheduleLocalNotification:content];
 		} else {
 			[[UIApplication sharedApplication] presentLocalNotificationNow:content];
@@ -763,15 +764,21 @@
 	return lp;
 }
 
--(void)cancelAllLocalNotifications:(id)args
+-(void)cancelAllLocalNotifications:(id)unused
 {
-	ENSURE_UI_THREAD(cancelAllLocalNotifications,args);
+    ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
+
+    DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"6.0.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
     
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
+        DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removeAllPendingNotifications in iOS 10 and later.");
+        return;
+    } else {
 #else
-	[[UIApplication sharedApplication] cancelAllLocalNotifications];
+        [[UIApplication sharedApplication] cancelAllLocalNotifications];
 #endif
+    }
 }
 
 -(void)cancelLocalNotification:(id)args
@@ -779,22 +786,28 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_UI_THREAD(cancelLocalNotification,args);
     
+    DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"6.0.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+    
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[[TiUtils stringValue:args]]];
+        DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers in iOS 10 and later.");
+        return;
+    } else {
 #else
-	NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
-	if (notifications!=nil)
-	{
-		for (UILocalNotification *notification in notifications)
-		{
-			if([[[notification userInfo] objectForKey:@"id"] isEqual:args])
-			{
-				[[UIApplication sharedApplication] cancelLocalNotification:notification];
-				return;
-			}
-		}
-	}
+        NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
+        if (notifications!=nil)
+        {
+            for (UILocalNotification *notification in notifications)
+            {
+                if([[[notification userInfo] objectForKey:@"id"] isEqual:args])
+                {
+                    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+                    return;
+                }
+            }
+        }
 #endif
+    }
 }
 
 -(void)didReceiveContinueActivityNotification:(NSNotification*)notif
@@ -933,57 +946,53 @@
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_NONE
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionNone);
-    }
 #else
-    if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeNone);
-	}
+    } else if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationTypeNone);
 #endif
-	return NUMINT(0);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_BADGE
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionBadge);
-    }
+    } else if ([TiUtils isIOS8OrGreater]) {
 #else
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeBadge);
-	}
+        return NUMINT(UIUserNotificationTypeBadge);
 #endif
-	return NUMINT(0);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_SOUND
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionSound);
-    }
+    } else if ([TiUtils isIOS8OrGreater]) {
 #else
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeSound);
-	}
+        return NUMINT(UIUserNotificationTypeSound);
 #endif
-	return NUMINT(0);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_ALERT
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionAlert);
-    }
+    } else if ([TiUtils isIOS8OrGreater]) {
 #else
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINT(UIUserNotificationTypeAlert);
-    }
+       return NUMINT(UIUserNotificationTypeAlert);
 #endif
+    }
     return NUMINT(0);
 }
 

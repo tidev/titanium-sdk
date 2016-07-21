@@ -8,6 +8,7 @@
 #ifdef USE_TI_APPIOS
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
+#import "TiAppiOSLocalNotificationProxy.h"
 
 #define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
@@ -86,25 +87,64 @@
 
 - (void)removePendingNotificationsWithIdentifiers:(id)args
 {
+    ENSURE_TYPE(args, NSArray);
+
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        ENSURE_TYPE(args, NSArray);
-        [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:args];
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        TiThreadPerformOnMainThread(^{
+            [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest*> *requests) {
+                
+                // Loop through current notification requests
+                for (UNNotificationRequest *request in requests) {
+                    
+                    // Loop throigh provided notifications
+                    for (id notification in args) {
+                        ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+                        
+                        if ([request content] == [(TiAppiOSLocalNotificationProxy*)notification notification]) {
+                            [center removePendingNotificationRequestsWithIdentifiers:@[[request identifier]]];
+                        }
+                    }
+                }
+            }];
+        }, NO);
 #else
     } else {
-        // TODO
-        // [[UIApplication sharedApplication] cancelLocalNotification:notification];
-        NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers is not available in iOS < 10.");
+        TiThreadPerformOnMainThread(^{
+            for (id notification in args) {
+                ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+                [[UIApplication sharedApplication] cancelLocalNotification:[(TiAppiOSLocalNotificationProxy*)notification notification]];
+            }
+        }, NO);
 #endif
     }
 }
 
 - (void)removeDeliveredNotificationsWithIdentifiers:(id)args
 {
+    ENSURE_TYPE(args, NSArray);
+
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        ENSURE_TYPE(args, NSArray);
-        [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:args];
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        TiThreadPerformOnMainThread(^{
+            [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest*> *requests) {
+                
+                // Loop through current notification requests
+                for (UNNotificationRequest *request in requests) {
+                    
+                    // Loop throigh provided notifications
+                    for (id notification in args) {
+                        ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
+                        
+                        if ([request content] == [(TiAppiOSLocalNotificationProxy*)notification notification]) {
+                            [center removeDeliveredNotificationsWithIdentifiers:@[[request identifier]]];
+                        }
+                    }
+                }
+            }];
+        }, NO);        
 #else
     } else {
         NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotificationsWithIdentifiers is not avaible in iOS < 10.");

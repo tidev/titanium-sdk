@@ -27,7 +27,7 @@
 @property(nonatomic,retain) UILocalNotification *notification;
 #endif
 
--(void)cancel:(id)args;
+-(void)cancel:(id)used;
 
 @end
 
