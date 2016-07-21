@@ -685,6 +685,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return buildVersion;
 	}
 
+	public String getSDKVersion()
+	{
+		return getTiBuildVersion();
+	}
+
 	public String getTiBuildTimestamp()
 	{
 		return buildTimestamp;
