@@ -436,13 +436,13 @@ events:
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
 
@@ -493,13 +493,13 @@ events:
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Penciland are 9.1 or later.
         type: Number
 
   - name: touchmove
@@ -548,13 +548,13 @@ events:
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
   - name: touchstart
@@ -601,13 +601,13 @@ events:
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
-            Note: This property is only available for iOS devices that supports apple pencil and are 9.1 or later.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
   - name: twofingertap
