@@ -18,13 +18,9 @@
 
 - (void)getDeliveredNotifications:(id)args;
 
-- (void)removePendingNotificationsWithIdentifiers:(id)args;
+- (void)removePendingNotifications:(id)args;
 
-- (void)removeDeliveredNotificationsWithIdentifiers:(id)args;
-
-- (void)removeAllPendingNotifications:(id)unused;
-
-- (void)removeAllDeliveredNotifications:(id)unused;
+- (void)removeDeliveredNotifications:(id)args;
 
 - (void)requestUserNotificationSettings:(id)args;
 

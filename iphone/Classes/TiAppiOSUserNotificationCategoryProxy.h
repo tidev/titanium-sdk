@@ -12,18 +12,11 @@
 #endif
 
 @interface TiAppiOSUserNotificationCategoryProxy : TiProxy
-{
-
-}
 
 @property (nonatomic,retain) id notificationCategory;
 @property (nonatomic,readonly) NSString *identifier;
 
-#if IS_XCODE_8
-- (UNNotificationCategory*)notificationCategory;
-#else
-- (UIMutableUserNotificationCategory*)notificationCategory;
-#endif
+- (id)notificationCategory;
 
 @end
 

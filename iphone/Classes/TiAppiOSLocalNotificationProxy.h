@@ -13,19 +13,10 @@
 
 @interface TiAppiOSLocalNotificationProxy : TiProxy {
 @private
-#if IS_XCODE_8
-    UNMutableNotificationContent *_notification;
-#else
-	UILocalNotification *_notification;
-#endif
-
+	id _notification;
 }
 
-#if IS_XCODE_8
-@property(nonatomic,retain) UNMutableNotificationContent *notification;
-#else
-@property(nonatomic,retain) UILocalNotification *notification;
-#endif
+@property(nonatomic,retain) id notification;
 
 -(void)cancel:(id)used;
 

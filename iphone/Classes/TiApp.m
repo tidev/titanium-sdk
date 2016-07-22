@@ -481,10 +481,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 }
 
 #if IS_XCODE_8
-
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
     // TODO: Get desired options from notification
+    // For example, pass none for silent pushes
     completionHandler(UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionAlert|UNNotificationPresentationOptionSound);
 }
 
@@ -1383,11 +1383,16 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
     [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
-	//include category for ios8
+	
+    // Include category for iOS 8
 	if ([TiUtils isIOS8OrGreater]) {
 		[event setObject:NOTNIL([notification category]) forKey:@"category"];
-		[event setObject:NOTNIL(identifier) forKey:@"identifier"];
 	}
+    
+    // Include title for iOS 8.2
+    if ([TiUtils isIOS82rGreater]) {
+        [event setObject:NOTNIL([notification alertTitle]) forKey:@"alertTitle"];
+    }
 	
 	return event;
 }

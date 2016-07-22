@@ -50,9 +50,6 @@
         
         if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-            RELEASE_TO_NIL(minimalActions);
-            RELEASE_TO_NIL(actionsForMinimalContext);
-            
             _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
                                                                            actions:defaultActions
                                                                  intentIdentifiers:intentIdentifiers
@@ -60,10 +57,14 @@
 #endif
         } else {
             _notificationCategory = [UIMutableUserNotificationCategory new];
+            
             [_notificationCategory setIdentifier:identifier];
             [_notificationCategory setActions:defaultActions forContext:UIUserNotificationActionContextDefault];
             [_notificationCategory setActions:minimalActions forContext:UIUserNotificationActionContextMinimal];
         }
+    
+        RELEASE_TO_NIL(minimalActions);
+        RELEASE_TO_NIL(defaultActions);
     }
     
     [super _initWithProperties:properties];

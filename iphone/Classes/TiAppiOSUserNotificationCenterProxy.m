@@ -9,6 +9,7 @@
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
+#import <CoreLocation/CoreLocation.h>
 
 #define NOTNIL(v) ((v==nil) ? (id)[NSNull null] : v)
 
@@ -36,7 +37,7 @@
             [callback call:invocationArray thisObject:self];
             [invocationArray release];
         }];
-#else
+#endif
     } else {
         NSArray<UILocalNotification*> *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
@@ -52,7 +53,6 @@
         
         [callback call:invocationArray thisObject:self];
         [invocationArray release];
-#endif
     }
 }
 
@@ -78,14 +78,13 @@
             [callback call:invocationArray thisObject:self];
             [invocationArray release];
         }];
-#else 
+#endif
     } else {
         NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
-#endif
     }
 }
 
-- (void)removePendingNotificationsWithIdentifiers:(id)args
+- (void)removePendingNotifications:(id)args
 {
     ENSURE_TYPE(args, NSArray);
 
@@ -93,6 +92,11 @@
 #if IS_XCODE_8
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         TiThreadPerformOnMainThread(^{
+            if ([args count] == 0) {
+                [center removeAllPendingNotificationRequests];
+                return;
+            }
+            
             [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest*> *requests) {
                 
                 // Loop through current notification requests
@@ -109,19 +113,23 @@
                 }
             }];
         }, NO);
-#else
+#endif
     } else {
         TiThreadPerformOnMainThread(^{
+            if ([args count] == 0) {
+                [[UIApplication sharedApplication] cancelAllLocalNotifications];
+                return;
+            }
+            
             for (id notification in args) {
                 ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
                 [[UIApplication sharedApplication] cancelLocalNotification:[(TiAppiOSLocalNotificationProxy*)notification notification]];
             }
         }, NO);
-#endif
     }
 }
 
-- (void)removeDeliveredNotificationsWithIdentifiers:(id)args
+- (void)removeDeliveredNotifications:(id)args
 {
     ENSURE_TYPE(args, NSArray);
 
@@ -129,6 +137,12 @@
 #if IS_XCODE_8
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         TiThreadPerformOnMainThread(^{
+            
+            if ([args count] == 0) {
+                [center removeAllDeliveredNotifications];
+                return;
+            }
+            
             [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest*> *requests) {
                 
                 // Loop through current notification requests
@@ -145,34 +159,9 @@
                 }
             }];
         }, NO);        
-#else
-    } else {
-        NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotificationsWithIdentifiers is not avaible in iOS < 10.");
 #endif
-    }
-}
-
-- (void)removeAllPendingNotifications:(id)unused
-{
-    if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-        [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
-#else
     } else {
-        [[UIApplication sharedApplication] cancelAllLocalNotifications];
-#endif
-    }
-}
-
-- (void)removeAllDeliveredNotifications:(id)unused
-{
-    if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] removeAllDeliveredNotifications];
-#else
-    } else {
-        NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeAllDeliveredNotifications is not avaible in iOS < 10.");
-#endif
+        NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotifications is only avaible in iOS 10 and later.");
     }
 }
 
@@ -183,35 +172,36 @@
     
     KrollCallback *callback = [args objectAtIndex:0];
     
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-        NSDictionary * propertiesDict = @{
-            @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
-            @"soundSetting": NUMINTEGER([settings soundSetting]),
-            @"badgeSetting": NUMINTEGER([settings badgeSetting]),
-            @"alertSetting": NUMINTEGER([settings alertSetting]),
-            @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
-            @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
-            @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
-            @"alertStyle": NUMINTEGER([settings alertStyle])
-        };
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-    }];
-#else
-    __block NSDictionary* returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        
-        NSDictionary * propertiesDict = [self formatUserNotificationSettings:settings];
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-    }, YES);
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+            NSDictionary * propertiesDict = @{
+                @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
+                @"soundSetting": NUMINTEGER([settings soundSetting]),
+                @"badgeSetting": NUMINTEGER([settings badgeSetting]),
+                @"alertSetting": NUMINTEGER([settings alertSetting]),
+                @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
+                @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
+                @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
+                @"alertStyle": NUMINTEGER([settings alertStyle])
+            };
+            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+            
+            [callback call:invocationArray thisObject:self];
+            [invocationArray release];
+        }];
 #endif
+    } else {
+        TiThreadPerformOnMainThread(^{
+            UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+            
+            NSDictionary * propertiesDict = [self formatUserNotificationSettings:settings];
+            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+            
+            [callback call:invocationArray thisObject:self];
+            [invocationArray release];
+        }, YES);
+    }
 }
 
 #pragma mark Utilities
@@ -231,6 +221,20 @@
     [event setObject:NOTNIL([[request content] userInfo]) forKey:@"userInfo"];
     [event setObject:NOTNIL([[request content] categoryIdentifier]) forKey:@"category"];
     [event setObject:NOTNIL([request identifier]) forKey:@"identifier"];
+    
+    if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
+        [event setObject:NOTNIL([(UNCalendarNotificationTrigger*)[request trigger] nextTriggerDate]) forKey:@"date"];
+    } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {
+        CLCircularRegion *region = (CLCircularRegion*)[(UNLocationNotificationTrigger*)[request trigger] region];
+        
+        NSDictionary *dict = @{
+            @"latitude": NUMDOUBLE(region.center.latitude),
+            @"longitude": NUMDOUBLE(region.center.longitude),
+            @"radius": NUMDOUBLE(region.radius),
+            @"identifier": region.identifier
+        };
+        [event setObject:dict forKey:@"region"];
+    }
     
     return event;
 }
@@ -272,10 +276,11 @@
         categoryProxy.notificationCategory = cat;
         [categoriesArray addObject:categoryProxy];
     }
-    return [NSDictionary dictionaryWithObjectsAndKeys:
-            typesArray, @"types",
-            categoriesArray, @"categories",
-            nil];
+    
+    return @{
+        @"types": typesArray,
+        @"categories": categoriesArray
+    };
 }
 
 @end

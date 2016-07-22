@@ -28,18 +28,18 @@
 {
     DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"6.0.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
     
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
         return;
-    }
-#else
-    UILocalNotification * cancelledNotification = [self.notification retain];
-    TiThreadPerformOnMainThread(^{
-        [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-        [cancelledNotification release];
-    }, NO);
 #endif
+    } else {
+        UILocalNotification * cancelledNotification = [self.notification retain];
+        TiThreadPerformOnMainThread(^{
+            [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
+            [cancelledNotification release];
+        }, NO);
+    }
 }
 
 @end

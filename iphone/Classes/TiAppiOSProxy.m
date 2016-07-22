@@ -408,30 +408,32 @@
         }
     }
  
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types completionHandler: ^(BOOL granted, NSError *error) {
-        if (granted == YES) {
-            [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
-        }
-        
-        if ([self _hasListeners:@"usernotificationsettings"]) {
-            NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(granted)}];
-            
-            if (error) {
-                [event setValue:[error localizedDescription] forKey:@"error"];
-                [event setValue:NUMINTEGER([error code]) forKey:@"code"];
+        [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types completionHandler: ^(BOOL granted, NSError *error) {
+            if (granted == YES) {
+                [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithArray:nativeCategories]];
             }
             
-            [self fireEvent:@"usernotificationsettings" withObject:event];
-        }
-    }];
-#else
-	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types
-                                                                          categories:[NSSet setWithArray:nativeCategories]];
-    TiThreadPerformOnMainThread(^{
-        [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
-    }, NO);
+            if ([self _hasListeners:@"usernotificationsettings"]) {
+                NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(granted)}];
+                
+                if (error) {
+                    [event setValue:[error localizedDescription] forKey:@"error"];
+                    [event setValue:NUMINTEGER([error code]) forKey:@"code"];
+                }
+                
+                [self fireEvent:@"usernotificationsettings" withObject:event];
+            }
+        }];
 #endif
+    } else {
+        UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types
+                                                                              categories:[NSSet setWithArray:nativeCategories]];
+        TiThreadPerformOnMainThread(^{
+            [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
+        }, NO);
+    }
 }
 
 -(id)createUserNotificationAction:(id)args
@@ -470,8 +472,8 @@
 #if IS_XCODE_8
         DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
         return;
+#endif
     } else {
-#else
         __block NSDictionary* returnVal = nil;
         TiThreadPerformOnMainThread(^{
             UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
@@ -479,7 +481,6 @@
         }, YES);
         
         return [returnVal autorelease];
-#endif
     }
 }
 
@@ -536,7 +537,6 @@
     id alertTitle = [args objectForKey:@"alertTitle"];
     id alertSubtitle = [args objectForKey:@"alertSubtitle"];
     id alertBody = [args objectForKey:@"alertBody"];
-    id alertAction = [args objectForKey:@"alertAction"];
     id alertLaunchImage = [args objectForKey:@"alertLaunchImage"];
     id badge = [args objectForKey:@"badge"];
     id category = [args objectForKey:@"category"];
@@ -544,232 +544,236 @@
     id sound = [args objectForKey:@"sound"];
     id attachments = [args objectForKey:@"attachments"];
 
+    TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    UNNotificationTrigger *trigger;
-    
-    if (date) {
-        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        UNNotificationTrigger *trigger;
+        
+        if (date) {
+            NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
 
-        // Per default, use all components and don't repeat
-        NSCalendarUnit components = NSYearCalendarUnit|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond;
+            // Per default, use all components and don't repeat
+            NSCalendarUnit components = NSYearCalendarUnit|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond;
 
+            if (repeat != nil) {
+                if ([repeat isEqual:@"weekly"]) {
+                    components = NSCalendarUnitYear;
+                } else if ([repeat isEqual:@"daily"]) {
+                    components = NSCalendarUnitDay;
+                } else if ([repeat isEqual:@"yearly"]) {
+                    components = NSCalendarUnitYear;
+                } else if ([repeat isEqual:@"monthly"]) {
+                    components = NSCalendarUnitMonth;
+                } else {
+                    NSLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
+                }
+            }
+            
+            trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
+                                                                                                   fromDate:date]
+                                                                               repeats:(repeat != nil)];
+        } else if (region) {
+            BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
+            double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
+            double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
+            double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
+
+            CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                         radius:radius
+                                                                     identifier:[TiUtils stringValue:@"identifier"
+                                                                                          properties:args
+                                                                                                 def:@"notification"]];
+            
+            trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
+                                                               repeats:triggersOnce];
+        } else {
+            DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
+            return;
+        }
+        
+        UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+        
+        if (alertTitle) {
+            [content setTitle:[TiUtils stringValue:alertTitle]];
+        }
+        
+        if (alertSubtitle) {
+            [content setSubtitle:[TiUtils stringValue:alertSubtitle]];
+        }
+        
+        if (alertBody) {
+            [content setBody:[TiUtils stringValue:alertBody]];
+        }
+        
+        if (alertLaunchImage) {
+            [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
+        }
+        
+        if (badge) {
+            [content setBadge:[TiUtils numberFromObject:badge]];
+        }
+        
+        if (userInfo) {
+            [content setUserInfo:userInfo];
+        }
+        
+        if (attachments) {
+            NSMutableArray<UNNotificationAttachment*> *_attachments = [NSMutableArray arrayWithCapacity:[attachments count]];
+            for (id attachment in attachments) {
+                NSString *_identifier;
+                NSString *_url;
+                NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
+                NSError *error = nil;
+                
+                ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
+                ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
+                ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
+                
+                UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
+                                                                                                       URL:[TiUtils toURL:_url proxy:self]
+                                                                                                   options:_options
+                                                                                                     error:&error];
+                if (error != nil) {
+                    NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
+                } else {
+                    [_attachments addObject:_attachment];
+                }
+            }
+            [content setAttachments:_attachments];
+        }
+        
+        if (sound) {
+            if ([sound isEqual:@"default"]) {
+                [content setSound:[UNNotificationSound defaultSound]];
+            } else {
+                [content setSound:[UNNotificationSound soundNamed:sound]];
+            }
+        }
+        
+        if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
+            [content setCategoryIdentifier:[(TiAppiOSUserNotificationCategoryProxy*)category identifier]];
+        } else if (category != nil && [category isKindOfClass:[NSString class]]) {
+            [content setCategoryIdentifier:[TiUtils stringValue:category]];
+        }
+        
+        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier]
+                                                                                 content:content
+                                                                                 trigger:trigger];
+        
+        TiThreadPerformOnMainThread(^{
+            [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                                   withCompletionHandler:^(NSError *error) {
+                if (error) {
+                   DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+                }
+            }];
+        }, NO);
+        
+        lp.notification = content;
+        [content release];
+        
+        return lp;
+#endif
+    } else {
+        UILocalNotification *content = [UILocalNotification new];
+        id alertAction = [args objectForKey:@"alertAction"];
+            
+        if (date!=nil) {
+            content.fireDate = date;
+            content.timeZone = [NSTimeZone defaultTimeZone];
+        }
+        
         if (repeat != nil) {
             if ([repeat isEqual:@"weekly"]) {
-                components = NSCalendarUnitYear;
+                content.repeatInterval = NSWeekCalendarUnit;
             } else if ([repeat isEqual:@"daily"]) {
-                components = NSCalendarUnitDay;
+                content.repeatInterval = NSDayCalendarUnit;
             } else if ([repeat isEqual:@"yearly"]) {
-                components = NSCalendarUnitYear;
+                content.repeatInterval = NSYearCalendarUnit;
             } else if ([repeat isEqual:@"monthly"]) {
-                components = NSCalendarUnitMonth;
-            } else {
-                NSLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
+                content.repeatInterval = NSMonthCalendarUnit;
             }
         }
         
-        trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
-                                                                                               fromDate:date]
-                                                                           repeats:(repeat != nil)];
-    } else if (region) {
-        BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-        double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
-        double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
-        double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
+        if (alertBody != nil) {
+            content.alertBody = alertBody;
+        }
 
-        CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
-                                                                     radius:radius
-                                                                 identifier:[TiUtils stringValue:@"identifier"
-                                                                                      properties:args
-                                                                                             def:@"notification"]];
+        if (alertTitle != nil && [TiUtils isIOS82rGreater]) {
+            content.alertTitle = alertTitle;
+        }
         
-        trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
-                                                           repeats:triggersOnce];
-    } else {
-        DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
-        return;
-    }
-    
-    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
-    
-    if (alertTitle) {
-        [content setTitle:[TiUtils stringValue:alertTitle]];
-    }
-    
-    if (alertSubtitle) {
-        [content setSubtitle:[TiUtils stringValue:alertSubtitle]];
-    }
-    
-    if (alertBody) {
-        [content setBody:[TiUtils stringValue:alertBody]];
-    }
-    
-    if (alertLaunchImage) {
-        [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
-    }
-    
-    if (badge) {
-        [content setBadge:[TiUtils numberFromObject:badge]];
-    }
-    
-    if (userInfo) {
-        [content setUserInfo:userInfo];
-    }
-    
-    if (attachments) {
-        NSMutableArray<UNNotificationAttachment*> *_attachments = [NSMutableArray arrayWithCapacity:[attachments count]];
-        for (id attachment in attachments) {
-            NSString *_identifier;
-            NSString *_url;
-            NSDictionary *_options; // e.g. {"UNNotificationAttachmentOptionsTypeHintKey": "test"}
-            NSError *error = nil;
+        if (alertAction != nil) {
+            content.alertAction = alertAction;
+        }
+
+        if (alertLaunchImage != nil) {
+            content.alertLaunchImage = alertLaunchImage;
+        }
+
+        if (badge != nil) {
+            content.applicationIconBadgeNumber = [TiUtils intValue:badge];
+        }
+        
+        if (region != nil) {
+            ENSURE_TYPE(region, NSDictionary);
             
-            ENSURE_ARG_FOR_KEY(_identifier, attachment, @"identifier", NSString);
-            ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
-            ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
+            BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
+            double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
+            double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
+            double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
+
+            CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
             
-            UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
-                                                                                                   URL:[TiUtils toURL:_url proxy:self]
-                                                                                               options:_options
-                                                                                                 error:&error];
-            if (error != nil) {
-                NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
-                RELEASE_TO_NIL(_attachment);
+            if (!CLLocationCoordinate2DIsValid(center)) {
+                NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+                return;
+            }
+            
+            content.region = [[CLCircularRegion alloc] initWithCenter:center
+                                                               radius:radius
+                                                           identifier:[TiUtils stringValue:@"identifier"
+                                                                                properties:args
+                                                                                       def:@"notification"]];
+            
+            content.regionTriggersOnce = regionTriggersOnce;
+        }
+
+        if (sound) {
+            if ([sound isEqual:@"default"]) {
+                content.soundName = UILocalNotificationDefaultSoundName;
             } else {
-                [_attachments addObject:_attachment];
+                content.soundName = sound;
             }
         }
-        [content setAttachments:_attachments];
-    }
-    
-    if (sound) {
-        if ([sound isEqual:@"default"]) {
-            [content setSound:[UNNotificationSound defaultSound]];
-        } else {
-            [content setSound:[UNNotificationSound soundNamed:sound]];
+
+        if (userInfo) {
+            content.userInfo = userInfo;
         }
-    }
-    
-    if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
-        [content setCategoryIdentifier:[(TiAppiOSUserNotificationCategoryProxy*)category identifier]];
-    } else if (category != nil && [category isKindOfClass:[NSString class]]) {
-        [content setCategoryIdentifier:[TiUtils stringValue:category]];
-    }
-    
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier]
-                                                                             content:content
-                                                                             trigger:trigger];
-    
-    TiThreadPerformOnMainThread(^{
-        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                               withCompletionHandler:^(NSError *error) {
-            if (error) {
-               DebugLog(@"[ERROR] The notification could not be scheduled: %@", [error localizedDescription]);
+
+        if ([TiUtils isIOS8OrGreater]) {
+            id category = [args objectForKey:@"category"];
+            if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
+                content.category = [(TiAppiOSUserNotificationCategoryProxy*)category identifier];
+            } else if (category != nil && [category isKindOfClass:[NSString class]]) {
+                content.category = category;
             }
-        }];
-    }, NO);
-    
-#else
-	UILocalNotification *content = [UILocalNotification new];
-		
-	if (date!=nil) {
-		content.fireDate = date;
-		content.timeZone = [NSTimeZone defaultTimeZone];
-	}
-	
-	if (repeat!=nil) {
-		if ([repeat isEqual:@"weekly"]) {
-			content.repeatInterval = NSWeekCalendarUnit;
-		}
-		else if ([repeat isEqual:@"daily"]) {
-			content.repeatInterval = NSDayCalendarUnit;
-		}
-		else if ([repeat isEqual:@"yearly"]) {
-			content.repeatInterval = NSYearCalendarUnit;
-		}
-		else if ([repeat isEqual:@"monthly"]) {
-			content.repeatInterval = NSMonthCalendarUnit;
-		}
-	}
-	
-	if (alertBody!=nil) {
-		content.alertBody = alertBody;
+        }
+        
+        TiThreadPerformOnMainThread(^{
+            if (date != nil || region != nil) {
+                [[UIApplication sharedApplication] scheduleLocalNotification:content];
+            } else {
+                [[UIApplication sharedApplication] presentLocalNotificationNow:content];
+            }
+        }, NO);
+        
+        lp.notification = content;
+        [content release];
+        
+        return lp;
     }
-
-    if (alertTitle!=nil && [TiUtils isIOS82rGreater]) {
-		content.alertTitle = alertTitle;
-	}
-	
-    if (alertAction!=nil) {
-		content.alertAction = alertAction;
-	}
-
-    if (alertLaunchImage!=nil) {
-		content.alertLaunchImage = alertLaunchImage;
-	}
-
-    if (badge!=nil) {
-		content.applicationIconBadgeNumber = [TiUtils intValue:badge];
-	}
-    
-	if (region!=nil) {
-        ENSURE_TYPE(region, NSDictionary);
-        
-		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
-        double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
-        double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
-
-		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
-        
-		if (!CLLocationCoordinate2DIsValid(center)) {
-			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
-			return;
-		}
-        
-		content.region = [[CLCircularRegion alloc] initWithCenter:center
-                                                           radius:radius
-                                                       identifier:[TiUtils stringValue:@"identifier"
-                                                                            properties:args
-                                                                                   def:@"notification"]];
-		
-		content.regionTriggersOnce = regionTriggersOnce;
-	}
-
-	if (sound) {
-		if ([sound isEqual:@"default"]) {
-			content.soundName = UILocalNotificationDefaultSoundName;
-		} else {
-			content.soundName = sound;
-		}
-	}
-
-	if (userInfo) {
-		content.userInfo = userInfo;
-	}
-
-	if ([TiUtils isIOS8OrGreater]) {
-		id category = [args objectForKey:@"category"];
-		if (category != nil && [category isKindOfClass:[TiAppiOSUserNotificationCategoryProxy class]]) {
-			content.category = [(TiAppiOSUserNotificationCategoryProxy*)category identifier];
-		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
-			content.category = category;
-		}
-	}
-	
-	TiThreadPerformOnMainThread(^{
-		if (date != nil || region != nil) {
-			[[UIApplication sharedApplication] scheduleLocalNotification:content];
-		} else {
-			[[UIApplication sharedApplication] presentLocalNotificationNow:content];
-		}
-	}, NO);
-#endif
-    
-	TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-	lp.notification = content;
-
-	[content release];
-	return lp;
 }
 
 -(void)cancelAllLocalNotifications:(id)unused
@@ -781,11 +785,9 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removeAllPendingNotifications in iOS 10 and later.");
-        return;
-    } else {
-#else
-        [[UIApplication sharedApplication] cancelAllLocalNotifications];
 #endif
+    } else {
+        [[UIApplication sharedApplication] cancelAllLocalNotifications];
     }
 }
 
@@ -799,9 +801,8 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers in iOS 10 and later.");
-        return;
+#endif
     } else {
-#else
         NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
         if (notifications!=nil)
         {
@@ -814,7 +815,6 @@
                 }
             }
         }
-#endif
     }
 }
 
@@ -957,10 +957,9 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionNone);
-#else
+#endif
     } else if ([TiUtils isIOS8OrGreater]) {
         return NUMINT(UIUserNotificationTypeNone);
-#endif
     }
     return NUMINT(0);
 }
@@ -970,10 +969,9 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionBadge);
-    } else if ([TiUtils isIOS8OrGreater]) {
-#else
-        return NUMINT(UIUserNotificationTypeBadge);
 #endif
+    } else if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationTypeBadge);
     }
     return NUMINT(0);
 }
@@ -983,10 +981,9 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionSound);
-    } else if ([TiUtils isIOS8OrGreater]) {
-#else
-        return NUMINT(UIUserNotificationTypeSound);
 #endif
+    } else if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationTypeSound);
     }
     return NUMINT(0);
 }
@@ -996,35 +993,42 @@
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionAlert);
-    } else if ([TiUtils isIOS8OrGreater]) {
-#else
-       return NUMINT(UIUserNotificationTypeAlert);
 #endif
+    } else if ([TiUtils isIOS8OrGreater]) {
+       return NUMINT(UIUserNotificationTypeAlert);
     }
     return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_CAR_PLAY
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
         return NUMINT(UNAuthorizationOptionCarPlay);
-    }
 #endif
+    }
     return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationActivationModeBackground);
-	}
-	return NUMINT(0);
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return NUMINT(UNNotificationActionOptionNone);
+#endif
+    } else if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationActivationModeBackground);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-    if ([TiUtils isIOS8OrGreater]) {
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return NUMINT(UNNotificationActionOptionForeground);
+#endif
+    } else if ([TiUtils isIOS8OrGreater]) {
         return NUMINT(UIUserNotificationActivationModeForeground);
     }
     return NUMINT(0);

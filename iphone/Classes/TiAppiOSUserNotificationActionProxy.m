@@ -57,11 +57,11 @@
 
                 [super _initWithProperties:properties];
                 return;
+            } else {
+                _notificationAction = [[UNNotificationAction actionWithIdentifier:identifier
+                                                                            title:title
+                                                                          options:[TiUtils intValue:activationMode]] retain];
             }
-            
-            _notificationAction = [[UNNotificationAction actionWithIdentifier:identifier
-                                                                       title:title
-                                                                     options:[TiUtils intValue:activationMode]] retain];
 #endif
         } else {
             _notificationAction = [[UIMutableUserNotificationAction new] retain];
@@ -71,16 +71,14 @@
     [super _initWithProperties:properties];
 }
 
--(id) notificationAction
+- (id)notificationAction
 {
 	return _notificationAction;
 }
 
 #pragma mark Public API's
 
-#if IS_XCODE_8
-    // The iOS 10 API's are creation-only, so there are no proxy setters
-#else
+#if !defined(IS_XCODE_8)
 - (void)setIdentifier:(id)value
 {
     [[self notificationAction] setIdentifier:value];
