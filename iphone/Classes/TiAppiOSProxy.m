@@ -346,56 +346,64 @@
             [nativeCategories addObject:[(TiAppiOSUserNotificationCategoryProxy*)category notificationCategory]];
 		}
 	}
+
+    NSUInteger types;
     
+    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    UNAuthorizationOptions types = UNAuthorizationOptionNone;
-#else
-    UIUserNotificationType types = UIUserNotificationTypeNone;
+        types = UNAuthorizationOptionNone;
 #endif
+    } else {
+        types = UIUserNotificationTypeNone;
+    }
     
     if (typesRequested != nil) {
         for (id thisTypeRequested in typesRequested)
         {
-            switch([TiUtils intValue:thisTypeRequested])
-            {
+            if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-                case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
+                switch([TiUtils intValue:thisTypeRequested])
                 {
-                    types |= UNAuthorizationOptionBadge;
-                    break;
-                }
-                case UNAuthorizationOptionAlert: // USER_NOTIFICATION_TYPE_ALERT
-                {
-                    types |= UNAuthorizationOptionAlert;
-                    break;
-                }
-                case UNAuthorizationOptionSound: // USER_NOTIFICATION_TYPE_SOUND
-                {
-                    types |= UNAuthorizationOptionSound;
-                    break;
-                }
-                case UNAuthorizationOptionCarPlay: // USER_NOTIFICATION_TYPE_CAR_PLAY
-                {
-                    types |= UNAuthorizationOptionCarPlay;
-                    break;
-                }
-#else
-                case UIUserNotificationTypeBadge: // USER_NOTIFICATION_TYPE_BADGE
-                {
-                    types |= UIUserNotificationTypeBadge;
-                    break;
-                }
-                case UIUserNotificationTypeAlert: // USER_NOTIFICATION_TYPE_ALERT
-                {
-                    types |= UIUserNotificationTypeAlert;
-                    break;
-                }
-                case UIUserNotificationTypeSound: // USER_NOTIFICATION_TYPE_SOUND
-                {
-                    types |= UIUserNotificationTypeSound;
-                    break;
+                    case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
+                    {
+                        types |= UNAuthorizationOptionBadge;
+                        break;
+                    }
+                    case UNAuthorizationOptionAlert: // USER_NOTIFICATION_TYPE_ALERT
+                    {
+                        types |= UNAuthorizationOptionAlert;
+                        break;
+                    }
+                    case UNAuthorizationOptionSound: // USER_NOTIFICATION_TYPE_SOUND
+                    {
+                        types |= UNAuthorizationOptionSound;
+                        break;
+                    }
+                    case UNAuthorizationOptionCarPlay: // USER_NOTIFICATION_TYPE_CAR_PLAY
+                    {
+                        types |= UNAuthorizationOptionCarPlay;
+                        break;
+                    }
                 }
 #endif
+            } else {
+                switch([TiUtils intValue:thisTypeRequested]) {
+                    case UIUserNotificationTypeBadge: // USER_NOTIFICATION_TYPE_BADGE
+                    {
+                        types |= UIUserNotificationTypeBadge;
+                        break;
+                    }
+                    case UIUserNotificationTypeAlert: // USER_NOTIFICATION_TYPE_ALERT
+                    {
+                        types |= UIUserNotificationTypeAlert;
+                        break;
+                    }
+                    case UIUserNotificationTypeSound: // USER_NOTIFICATION_TYPE_SOUND
+                    {
+                        types |= UIUserNotificationTypeSound;
+                        break;
+                    }
+                }
             }
         }
     }

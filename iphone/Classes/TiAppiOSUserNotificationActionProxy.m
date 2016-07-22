@@ -27,7 +27,6 @@
 {
     if (_notificationAction == nil) {
         
-#if IS_XCODE_8
         id identifier = [properties valueForKey:@"identifier"];
         id title = [properties valueForKey:@"title"];
         id activationMode = [properties valueForKey:@"activationMode"];
@@ -37,43 +36,42 @@
         id textInputButtonTitle = [properties valueForKey:@"textInputButtonTitle"];
         id textInputButtonPlaceholder = [properties valueForKey:@"textInputButtonPlaceholder"];
         
-        UNNotificationActionOptions options = UNNotificationActionOptionNone;
-        
-        if (destructive) {
-            options |= UNNotificationActionOptionDestructive;
-        }
-        
-        if (authenticationRequired) {
-            options |= UNNotificationActionOptionAuthenticationRequired;
-        }
-        
-        if (behavior && [TiUtils intValue:behavior def:0] == UIUserNotificationActionBehaviorTextInput) {
-            _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier
-                                                                                title:title
-                                                                              options:options
-                                                                 textInputButtonTitle:textInputButtonTitle
-                                                                 textInputPlaceholder:textInputButtonPlaceholder] retain];
+        if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+            UNNotificationActionOptions options = UNNotificationActionOptionNone;
+            
+            if (destructive) {
+                options |= UNNotificationActionOptionDestructive;
+            }
+            
+            if (authenticationRequired) {
+                options |= UNNotificationActionOptionAuthenticationRequired;
+            }
+            
+            if (behavior && [TiUtils intValue:behavior def:0] == UIUserNotificationActionBehaviorTextInput) {
+                _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier
+                                                                                    title:title
+                                                                                  options:options
+                                                                     textInputButtonTitle:textInputButtonTitle
+                                                                     textInputPlaceholder:textInputButtonPlaceholder] retain];
 
-            [super _initWithProperties:properties];
-            return;
-        }
-        
-        _notificationAction = [[UNNotificationAction actionWithIdentifier:identifier
-                                                                   title:title
-                                                                 options:[TiUtils intValue:activationMode]] retain];
-#else
-        _notificationAction = [[UIMutableUserNotificationAction new] retain];
+                [super _initWithProperties:properties];
+                return;
+            }
+            
+            _notificationAction = [[UNNotificationAction actionWithIdentifier:identifier
+                                                                       title:title
+                                                                     options:[TiUtils intValue:activationMode]] retain];
 #endif
+        } else {
+            _notificationAction = [[UIMutableUserNotificationAction new] retain];
+        }
     }
     
     [super _initWithProperties:properties];
 }
 
-#if IS_XCODE_8
--(UNNotificationAction*) notificationAction
-#else
--(UIMutableUserNotificationAction*) notificationAction
-#endif
+-(id) notificationAction
 {
 	return _notificationAction;
 }

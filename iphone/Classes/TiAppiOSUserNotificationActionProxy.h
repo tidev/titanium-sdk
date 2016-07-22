@@ -14,11 +14,7 @@
 
 @interface TiAppiOSUserNotificationActionProxy : TiProxy
 
-#if IS_XCODE_8
-@property(nonatomic,retain) UNNotificationAction *notificationAction;
-#else
-@property(nonatomic,retain) UIMutableUserNotificationAction *notificationAction;
-#endif
+@property(nonatomic,retain) id notificationAction;
 
 @end
 

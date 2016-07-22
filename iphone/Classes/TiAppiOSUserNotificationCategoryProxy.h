@@ -16,11 +16,7 @@
 
 }
 
-#if IS_XCODE_8
-@property (nonatomic,retain) UNNotificationCategory *notificationCategory;
-#else
-@property (nonatomic,retain) UIMutableUserNotificationCategory *notificationCategory;
-#endif
+@property (nonatomic,retain) id notificationCategory;
 @property (nonatomic,readonly) NSString *identifier;
 
 #if IS_XCODE_8
