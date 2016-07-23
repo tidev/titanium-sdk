@@ -22,21 +22,23 @@
     
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-            NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
-            
-            for (UNNotificationRequest *request in requests) {
-                [result addObject:[self dictionaryWithUserNotificationRequest:request]];
-            }
-            
-            NSDictionary * propertiesDict = @{
-                @"notifications": result
-            };
-            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-            
-            [callback call:invocationArray thisObject:self];
-            [invocationArray release];
-        }];
+        TiThreadPerformOnMainThread(^{
+            [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+                NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+                
+                for (UNNotificationRequest *request in requests) {
+                    [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+                }
+                
+                NSDictionary * propertiesDict = @{
+                                                  @"notifications": result
+                                                  };
+                NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+                
+                [callback call:invocationArray thisObject:self];
+                [invocationArray release];
+            }];
+        }, NO);
 #endif
     } else {
         NSArray<UILocalNotification*> *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
@@ -63,21 +65,23 @@
         KrollCallback *callback = nil;
         ENSURE_ARG_AT_INDEX(callback, args, 0, KrollCallback);
         
-        [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-            NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
-            
-            for (UNNotificationRequest *request in requests) {
-                [result addObject:[self dictionaryWithUserNotificationRequest:request]];
-            }
-            
-            NSDictionary * propertiesDict = @{
-                @"notifications": result
-            };
-            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-            
-            [callback call:invocationArray thisObject:self];
-            [invocationArray release];
-        }];
+        TiThreadPerformOnMainThread(^{
+            [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
+                NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+                
+                for (UNNotificationRequest *request in requests) {
+                    [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+                }
+                
+                NSDictionary * propertiesDict = @{
+                    @"notifications": result
+                };
+                NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+                
+                [callback call:invocationArray thisObject:self];
+                [invocationArray release];
+            }];
+        }, NO);
 #endif
     } else {
         NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
@@ -135,8 +139,8 @@
 
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         TiThreadPerformOnMainThread(^{
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
             
             if ([args count] == 0) {
                 [center removeAllDeliveredNotifications];
@@ -174,22 +178,24 @@
     
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-            NSDictionary * propertiesDict = @{
-                @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
-                @"soundSetting": NUMINTEGER([settings soundSetting]),
-                @"badgeSetting": NUMINTEGER([settings badgeSetting]),
-                @"alertSetting": NUMINTEGER([settings alertSetting]),
-                @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
-                @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
-                @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
-                @"alertStyle": NUMINTEGER([settings alertStyle])
-            };
-            NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-            
-            [callback call:invocationArray thisObject:self];
-            [invocationArray release];
-        }];
+        TiThreadPerformOnMainThread(^{
+            [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+                NSDictionary * propertiesDict = @{
+                    @"authorizationStatus": NUMINTEGER([settings authorizationStatus]),
+                    @"soundSetting": NUMINTEGER([settings soundSetting]),
+                    @"badgeSetting": NUMINTEGER([settings badgeSetting]),
+                    @"alertSetting": NUMINTEGER([settings alertSetting]),
+                    @"notificationCenterSetting": NUMINTEGER([settings notificationCenterSetting]),
+                    @"lockScreenSetting": NUMINTEGER([settings lockScreenSetting]),
+                    @"carPlaySetting": NUMINTEGER([settings carPlaySetting]),
+                    @"alertStyle": NUMINTEGER([settings alertStyle])
+                };
+                NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+                
+                [callback call:invocationArray thisObject:self];
+                [invocationArray release];
+            }];
+        }, NO);
 #endif
     } else {
         TiThreadPerformOnMainThread(^{
