@@ -4,19 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
 
 #ifdef USE_TI_CALENDAR
+#import "TiProxy.h"
 #import "CalendarModule.h"
 
 @interface TiCalendarAttendee : TiProxy {
-@private
-    CalendarModule* module;
     EKParticipant* participant;
-    BOOL isOrganiser;
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_ isOrganiser:(BOOL)_isOrganiser module:(CalendarModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_;
+
 @end
 
 #endif

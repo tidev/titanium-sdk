@@ -3,7 +3,6 @@ name: Titanium.Calendar.Attendee
 summary: An object that represents a single attendee of an event.
 description: |
     The API supports retrieving information about the attendee of an event.  
-
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "6.0.0"
@@ -23,18 +22,25 @@ properties:
   - name: email
     summary: The attendee email.
     description: |
-        Due to privacy concerns in iOS this value will be empty if the attendee is the device owner. 
+        Due to privacy concerns in iOS, this value will be empty if the attendee 
+        is the device owner. 
     type: String
     platforms: [iphone, ipad]
 
   - name: role
-    summary: The attendee role of required or optional. 
+    summary: The role of the attendee.
     type: Number
     constants: Titanium.Calendar.ATTENDEE_ROLE_*
     platforms: [iphone, ipad]
 
+  - name: type
+    summary: The type of the attendee.
+    type: Number
+    constants: Titanium.Calendar.ATTENDEE_TYPE_*
+    platforms: [iphone, ipad]
+
   - name: status
-    summary: The attendance status.
+    summary: The status of the attendee.
     type: Number
     constants: Titanium.Calendar.ATTENDEE_STATUS_*
     platforms: [iphone, ipad]
