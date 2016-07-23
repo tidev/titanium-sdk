@@ -21,7 +21,7 @@ var path = require('path'),
  */
 function zip(folder, filename, next) {
 	var prc,
-		args = ['-c', '/usr/bin/zip -9 -r "../' + path.basename(filename) + '" *'];
+		args = ['-c', '/usr/bin/zip -9 -q -r "../' + path.basename(filename) + '" *'];
 	console.log(args);
 	prc = spawn('bash', args, {cwd: folder});
 	prc.stdout.on('data', function (data) {

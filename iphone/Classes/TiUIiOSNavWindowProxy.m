@@ -98,10 +98,12 @@
 
 -(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    if (current != nil) {
+    BOOL isRootWindow = (current == rootWindow);
+
+    if (current != nil && !isRootWindow) {
         return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
     }
-    return YES;
+    return !isRootWindow;
 }
 
 -(void)openWindow:(NSArray*)args

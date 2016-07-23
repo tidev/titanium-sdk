@@ -448,8 +448,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 			'-processor', 'org.appcelerator.kroll.annotations.generator.KrollJSONGenerator',
 			'-s', this.buildGenJsonDir,
 			'-Akroll.jsonFile='+ this.manifest.name +'.json',
-			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings',
-			'-Akroll.checkTiContext=true'
+			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings'
 		],
 		{},
 		next

@@ -47,8 +47,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 	Local<Object> jsObject;
 	if (ptr != 0) {
-		Persistent<Object>* persistentV8Object = (Persistent<Object>*) ptr;
-		jsObject = persistentV8Object->Get(V8Runtime::v8_isolate);
+		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, object).As<Object>();
 	}
@@ -77,8 +77,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	Local<Object> emitter;
 	if (ptr != 0) {
-		Persistent<Object>* persistentV8Object = (Persistent<Object>*) ptr;
-		emitter = persistentV8Object->Get(V8Runtime::v8_isolate);
+		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+		emitter = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		emitter = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jEmitter).As<Object>();
 	}
@@ -92,8 +92,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	if ((jsource == NULL) || (jsource == jEmitter)) {
 		source = emitter;
 	} else if (sourcePtr != 0) {
-		Persistent<Object>* persistentV8Object = (Persistent<Object>*) sourcePtr;
-		source = persistentV8Object->Get(V8Runtime::v8_isolate);
+		titanium::Proxy* proxy = (titanium::Proxy*) sourcePtr;
+		source = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		source = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jsource).As<Object>();
 	}
@@ -139,8 +139,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 	Local<Value> jsPropertyName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, propertyName);
 
-	Persistent<Object>* persistentV8Object = (Persistent<Object>*) ptr;
-	Local<Object> object = persistentV8Object->Get(V8Runtime::v8_isolate);
+	titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+	Local<Object> object = proxy->handle(V8Runtime::v8_isolate);
 	Local<Value> property = object->Get(jsPropertyName);
 	if (!property->IsFunction()) {
 		return JNIUtil::undefinedObject;
@@ -180,11 +180,9 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	JNIScope jniScope(env);
 
 	if (refPointer) {
-		Persistent<Object>* persistentV8Object = (Persistent<Object>*) refPointer;
-		Local<Object> handle = persistentV8Object->Get(V8Runtime::v8_isolate);
-		JavaObject *javaObject = NativeObject::Unwrap<JavaObject>(handle);
-		if (javaObject && javaObject->isDetached()) {
-			delete javaObject;
+		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
+		if (proxy && proxy->isDetached()) {
+			delete proxy;
 			return true;
 		}
 	}
@@ -201,8 +199,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 
 	Local<Object> jsKrollWindow;
 	if (ptr != 0) {
-		Persistent<Object>* persistentV8Object = (Persistent<Object>*) ptr;
-		jsKrollWindow = persistentV8Object->Get(V8Runtime::v8_isolate);
+		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+		jsKrollWindow = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		jsKrollWindow = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, javaKrollWindow).As<Object>();
 	}

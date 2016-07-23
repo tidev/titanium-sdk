@@ -208,11 +208,14 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
 	[defaultsObject synchronize];
 }
 
--(void)removeAllProperties {
+-(void)removeAllProperties:(id)unused
+{
 	NSArray *keys = [[defaultsObject dictionaryRepresentation] allKeys];
 	for(NSString *key in keys) {
 		[defaultsObject removeObjectForKey:key];
 	}
+	
+	[defaultsObject synchronize];
 }
 
 -(id)hasProperty:(id)args
@@ -223,7 +226,7 @@ if ([self propertyExists:key] && [ [defaultsObject objectForKey:key] isEqual:val
     return NUMBOOL(inUserDefaults || inTiAppProperties);
 }
 
--(id)listProperties:(id)args
+-(id)listProperties:(id)unused
 {
     NSMutableArray *array = [NSMutableArray array];
     [array addObjectsFromArray:[[defaultsObject dictionaryRepresentation] allKeys]];

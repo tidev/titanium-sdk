@@ -13,7 +13,7 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -398,7 +398,7 @@
 
 -(void)setAttributedHintText_:(id)value
 {
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
 	[[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
 	[(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[value attributedString]];

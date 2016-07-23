@@ -25,9 +25,9 @@
 -(void)setString:(id)args;
 -(void)setList:(id)args;
 -(void)removeProperty:(id)args;
--(void)removeAllProperties;
+-(void)removeAllProperties:(id)unused;
 -(id)hasProperty:(id)args;
--(id)listProperties:(id)args;
+-(id)listProperties:(id)unused;
 
 @end
 

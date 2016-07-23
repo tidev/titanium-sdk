@@ -104,6 +104,9 @@ namespace wptool
 							sdk = "\"8.1\"";
 						} else if (versionString == "10.0") {
 							sdk = "\"10.0\"";
+						// skip invalid device
+						} else if (versionString.StartsWith("2147483647")) {
+							continue;
 						}
 						Console.WriteLine("\t\t{\n");
 						Console.WriteLine("\t\t\t\"name\": \"" + dev.Name.Replace("\"", "\\\"") + "\",");

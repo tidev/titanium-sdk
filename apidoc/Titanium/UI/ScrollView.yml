@@ -334,8 +334,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: scrollType

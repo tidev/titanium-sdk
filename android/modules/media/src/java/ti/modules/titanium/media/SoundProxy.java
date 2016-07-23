@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
@@ -48,14 +47,9 @@ public class SoundProxy extends KrollProxy
 		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
 		// TODO needs to happen post-activity assignment
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-		
+
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
-	}
-
-	public SoundProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -99,7 +93,7 @@ public class SoundProxy extends KrollProxy
 		}
 		Log.i(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)), Log.DEBUG_MODE);
 	}
-	
+
 	@Kroll.getProperty
 	public String getUrl() {
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
@@ -139,7 +133,7 @@ public class SoundProxy extends KrollProxy
 		}
 		return false;
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setLooping(boolean looping) {
 		TiSound s = getSound();
@@ -216,7 +210,7 @@ public class SoundProxy extends KrollProxy
 		if (s != null) {
 			int time = s.getTime();
 			setProperty(TiC.PROPERTY_TIME, time);
-		} 
+		}
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 
@@ -231,7 +225,7 @@ public class SoundProxy extends KrollProxy
 			}
 		}
 	}
-	
+
 	protected TiSound getSound()
 	{
 		if (snd == null) {

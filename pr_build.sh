@@ -32,7 +32,7 @@ echo 'PATH:            ' $PATH
 
 cd build
 npm install .
-node scons.js build --android-ndk /Users/build/android-ndk-r11c --android-sdk /Users/build/android-sdk-macosx
+node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk
 node scons.js package android ios --version-tag $VTAG
 cd ..
 
@@ -41,6 +41,7 @@ SDK_ARCHIVE="$BASENAME-osx.zip"
 echo 'SDK_ARCHIVE: ' $SDK_ARCHIVE
 
 echo Pulling down common test suite
+rm -rf titanium-mobile-mocha-suite
 git clone https://github.com/appcelerator/titanium-mobile-mocha-suite.git
 
 echo Copying local tests over top of common suite

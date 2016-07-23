@@ -12,7 +12,7 @@
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 #include "JNIUtil.h"
-#include "JavaObject.h"
+#include "Proxy.h"
 #include "ProxyFactory.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
@@ -867,10 +867,13 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				Persistent<Object>* persistentV8Object = (Persistent<Object>*) v8ObjectPointer;
-				auto v8Object = (*persistentV8Object).Get(isolate);
-				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
-				jo->getJavaObject();
+				titanium::Proxy* proxy = (titanium::Proxy*) v8ObjectPointer;
+				v8::Local<v8::Object> v8Object = proxy->handle(isolate);
+				jobject javaProxy = proxy->getJavaObject(); // Called to explicitly go from weak reference to strong!
+				if (!JavaObject::useGlobalRefs) {
+					// But then we need to delete the local reference to avoid JNI ref leak!
+					env->DeleteLocalRef(javaProxy);
+				}
 				return v8Object;
 			}
 		}
@@ -908,9 +911,10 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 		return v8::Undefined(isolate);
 	}
 
-	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to Js value !!!",
-	                      env->GetObjectClass(javaObject),
-	                      true);
+	jclass javaObjectClass = env->GetObjectClass(javaObject);
+	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to JS value !!!", javaObjectClass, true);
+	env->DeleteLocalRef(javaObjectClass);
+
 	return v8::Undefined(isolate);
 }
 

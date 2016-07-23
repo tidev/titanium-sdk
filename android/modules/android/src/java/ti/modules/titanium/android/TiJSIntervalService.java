@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,7 +20,6 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
-import org.appcelerator.titanium.util.TiBindingHelper;
 
 import android.app.Service;
 import android.content.Intent;
@@ -195,7 +194,6 @@ public class TiJSIntervalService extends TiJSService
 				{
 					int iteration = counter.incrementAndGet();
 					try {
-						TiBindingHelper.bindCurrentService(proxy);
 						KrollDict event = new KrollDict();
 						event.put("iteration", iteration);
 						proxy.fireEvent(TiC.EVENT_RESUME, event);
@@ -210,6 +208,6 @@ public class TiJSIntervalService extends TiJSService
 			timer = new Timer(serviceSimpleName + "_Timer_" + proxy.getServiceInstanceId());
 			timer.schedule(task, 0, interval);
 		}
-		
+
 	}
 }

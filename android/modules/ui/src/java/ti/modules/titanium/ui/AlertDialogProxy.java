@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -24,8 +23,11 @@ import android.app.Activity;
 		TiC.PROPERTY_CANCEL,
 		TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE,
 		TiC.PROPERTY_MESSAGE,
+		TiC.PROPERTY_MESSAGEID,
 		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLEID,
 		TiC.PROPERTY_OK,
+		TiC.PROPERTY_OKID,
 		TiC.PROPERTY_PERSISTENT
 	}
 )
@@ -34,11 +36,6 @@ public class AlertDialogProxy extends TiViewProxy
 	public AlertDialogProxy()
 	{
 		super();
-	}
-
-	public AlertDialogProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override

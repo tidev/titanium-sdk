@@ -75,7 +75,7 @@ public class TiResourceFile extends TiBaseFile
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
 			in = context.getAssets().open(p);
-			
+
 		}
 		return in;
 	}
@@ -150,7 +150,7 @@ public class TiResourceFile extends TiBaseFile
 		try {
 			is = getInputStream();
 			result = (is != null);
-			
+
 		} catch (IOException e) {
 			// getInputStream() will throw a FileNotFoundException if it is a
 			// directory. We check if there are directory listings. If there is,
@@ -177,7 +177,7 @@ public class TiResourceFile extends TiBaseFile
 		int idx = path.lastIndexOf("/");
 		if (idx != -1)
 		{
-			return path.substring(idx);
+			return path.substring(idx+1);
 		}
 		return path;
 	}
@@ -227,7 +227,7 @@ public class TiResourceFile extends TiBaseFile
 			}
 		}
 		return length;
-		
+
 	}
 
 	@Override
