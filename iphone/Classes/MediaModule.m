@@ -1863,7 +1863,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? editedImage : originalImage;
+                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];

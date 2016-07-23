@@ -2,7 +2,12 @@
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
   "version": "6.0.0",
-  "moduleApiVersion": 2,
+  "moduleApiVersion": {
+    "iphone": "2",
+    "android": "3",
+    "mobileweb": "2",
+    "windows": "2"
+  },
   "keywords": [
     "appcelerator",
     "titanium",
@@ -42,7 +47,7 @@
     "temp": "0.8.3",
     "uglify-js": "2.6.4",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.13",
+    "windowslib": "0.4.15",
     "wrench": "1.5.9",
     "xcode": "0.8.8",
     "xmldom": "0.1.22"

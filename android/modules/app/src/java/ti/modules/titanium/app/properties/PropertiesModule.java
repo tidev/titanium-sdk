@@ -70,6 +70,12 @@ public class PropertiesModule extends KrollModule {
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 	}
+	
+	@Kroll.method
+	public void removeAllProperties()
+	{
+		appProperties.removeAllProperties();
+	}
 
 	@Kroll.method
 	public void setBool(String key, boolean value)

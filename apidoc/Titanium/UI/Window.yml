@@ -910,7 +910,7 @@ properties:
     summary: Loads a JavaScript file from a local URL.
     deprecated:
         since: 3.5.0
-        removed: 3.6.0
+        removed: 6.0.0
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
         [Alloy Framework](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
