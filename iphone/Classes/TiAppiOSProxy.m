@@ -56,7 +56,9 @@
     if (count == 1 && [type isEqual:@"remotenotificationaction"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotificationAction:) name:kTiRemoteNotificationAction object:nil];
     }
-
+    if (count == 1 && [type isEqual:@"remoteextentionwillexpire"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteExtensionWillExpire:) name:kTiRemoteExtentionWillExpire object:nil];
+    }
     if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         if ([backgroundModes containsObject:@"fetch"]) {
@@ -840,6 +842,12 @@
 {
     NSDictionary *notification = [note object];
     [self fireEvent:@"remotenotificationaction" withObject:notification];
+}
+
+-(void)remoteExtensionWillExpire:(NSNotification*)note
+{
+    NSDictionary *notification = [note object];
+    [self fireEvent:@"remoteextentionwillexpire" withObject:notification];
 }
 
 -(void)didReceiveBackgroundFetchNotification:(NSNotification*)note

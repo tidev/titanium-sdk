@@ -53,8 +53,34 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)appBoot;
 @end
 
-@implementation TiApp
+#if IS_XCODE_8
+@interface TiUserNotificationExtention : UNNotificationServiceExtension
 
+@end
+
+@implementation TiUserNotificationExtention
+
+-(void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:[[request content] userInfo]];
+    UNMutableNotificationContent *content = [(UNMutableNotificationContent*)[request content] copy];
+    
+    [userInfo setObject:@YES forKey:@"isRemoteNotification"];
+    [content setUserInfo:userInfo];
+    
+    contentHandler(content);
+    RELEASE_TO_NIL(content);
+}
+
+-(void)serviceExtensionTimeWillExpire
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteExtentionWillExpire object:@{} userInfo:nil];
+}
+
+@end
+#endif
+
+@implementation TiApp
 
 -(void)clearMemoryPanic
 {
@@ -505,14 +531,22 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [event autorelease];
     completionHandler();*/
     
-    // TODO: See if notification is local or remote
+    // TODO: Find out where the payload is stored to handle the above
     
+    if ([[[[[response notification] request] content] userInfo] valueForKey:@"isRemoteNotification"] != nil) {
+        RELEASE_TO_NIL(remoteNotification);
+        remoteNotification = [[[self class] dictionaryWithUserNotification:response.notification
+                                                           withIdentifier:response.actionIdentifier] retain];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:remoteNotification userInfo:nil];
+    } else {
+        RELEASE_TO_NIL(localNotification);
+        localNotification = [[[self class] dictionaryWithUserNotification:response.notification
+                                                           withIdentifier:response.actionIdentifier] retain];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
+    }
     
-    RELEASE_TO_NIL(localNotification);
-    localNotification = [[[self class] dictionaryWithUserNotification:response.notification
-                                                 withIdentifier:response.actionIdentifier] retain];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
     completionHandler();
 }
 #endif
