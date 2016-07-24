@@ -181,12 +181,16 @@
     UIView* theHost = nil;
     
     if ([TiUtils isIOS8OrGreater]) {
-#ifdef LAUNCHSCREEN_STORYBOARD
-        hostView = [[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view];
-#else
         hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
         hostView.backgroundColor = [UIColor clearColor];
+
+#ifdef LAUNCHSCREEN_STORYBOARD
+        UIView *launchScreenContainer = [[UIView alloc] initWithFrame:[rootView bounds]];
+        [launchScreenContainer addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
+        [hostView addSubview:launchScreenContainer];
+        [launchScreenContainer release];
 #endif
+        
         hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         [rootView addSubview:hostView];
         theHost = hostView;
@@ -267,6 +271,12 @@
         [defaultImageView removeFromSuperview];
         RELEASE_TO_NIL(defaultImageView);
     }
+    
+#ifdef LAUNCHSCREEN_STORYBOARD
+    if (hostView) {
+        [[[hostView subviews] objectAtIndex:0] removeFromSuperview];
+    }
+#endif
 }
 
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
