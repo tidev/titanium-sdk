@@ -267,7 +267,7 @@ static BOOL alertShowing = NO;
             NSString* theText = [[alertView textFieldAtIndex:0] text];
             [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"login"];
 
-            // If password field never gets focus, `text` property becomes `nil`.
+            // If the field never gains focus, `text` property becomes `nil`.
             NSString *password = [[alertView textFieldAtIndex:1] text];
             [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
         }
