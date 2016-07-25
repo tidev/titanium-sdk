@@ -339,6 +339,10 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 			});
 		}
 
+		if (goodValues.mobileweb) {
+			logger.warn(__('MobileWeb platform has been deprecated.'));
+		}
+
 		callback(null, Object.keys(goodValues).join(','));
 	}
 
