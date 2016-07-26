@@ -389,11 +389,21 @@
 -(void)setHintText_:(id)value
 {
     [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    
+    if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
+        [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    }
 }
 
 -(void)setHintTextColor_:(id)value
 {
-    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[[self proxy] valueForKey:@"hintText"] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
+    NSString *hintText = [[self proxy] valueForUndefinedKey:@"hintText"];
+    
+    if (!hintText) {
+        hintText = @"";
+    }
+    
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:hintText attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
 }
 
 -(void)setAttributedHintText_:(id)value
