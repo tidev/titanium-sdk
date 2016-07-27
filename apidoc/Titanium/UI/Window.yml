@@ -466,6 +466,54 @@ properties:
     default: false
     since: 3.2.0
 
+  - name: hidesBarsOnSwipe
+    summary: Set this to true to hide the navigation bar on swipe.
+    description: |
+        When this property is set to true, an upward swipe hides the navigation bar and toolbar. 
+        A downward swipe shows both bars again.  If the toolbar does not have any items, it remains
+        visible even after a swipe.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsOnTap
+    summary: Set this to true to hide the navigation bar on tap.
+    description: |
+        When the value of this property is true, the navigation controller toggles the hiding and 
+        showing of its navigation bar and toolbar in response to an otherwise unhandled tap 
+        in the content area.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsWhenVerticallyCompact
+    summary: Set this to true to hide the navigation bar in a vertically compact environment.
+    description: |
+        When the value of this property is true, the navigation controller hides its navigation bar 
+        and toolbar when it transitions to a vertically compact environment. 
+        Upon returning to a vertically regular environment, the navigation controller automatically shows both bars again. 
+        In addition, unhandled taps in the content area cause the navigation controller to show both bars again.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsWhenKeyboardAppears
+    summary: Set this to true to hide the navigation bar when the keyboard appears.
+    description: |
+        When this property is set to true, the appearance of the keyboard causes the 
+        navigation controller to hide its navigation bar and toolbar.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |

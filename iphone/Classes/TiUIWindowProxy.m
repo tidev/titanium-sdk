@@ -883,6 +883,70 @@
 	
 }
 
+-(void)setHidesBarsOnSwipe:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
+
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsOnSwipe = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnSwipe"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsOnTap:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsOnTap = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnTap"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsWhenVerticallyCompact:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
+
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsWhenVerticallyCompact = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenVerticallyCompact"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsWhenKeyboardAppears:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsWhenKeyboardAppears = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"] def:NO];
+            }
+        }, NO);
+    }
+}
+
 
 #define SETPROP(m,x) \
 {\
@@ -933,6 +997,10 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
+    SETPROP(@"hidesBarsOnSwipe", setHidesBarsOnSwipe);
+    SETPROP(@"hidesBarsOnTap", setHidesBarsOnTap);
+    SETPROP(@"hidesBarsWhenVerticallyCompact", setHidesBarsWhenVerticallyCompact);
+    SETPROP(@"hidesBarsWhenKeyboardAppears", setHidesBarsWhenKeyboardAppears);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
     [self updateNavButtons];
