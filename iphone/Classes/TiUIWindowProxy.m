@@ -304,10 +304,6 @@
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
 	[self updateTitleView];
-    [self updateHidesBarsOnSwipe];
-    [self updateHidesBarsOnTap];
-    [self updateHidesBarsWhenVerticallyCompact];
-    [self updateHidesBarsWhenKeyboardAppears];
 	[super viewDidAppear:animated];
 }
 
@@ -929,35 +925,7 @@
     ENSURE_TYPE(value, NSNumber);
 
     [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
-    [self updateHidesBarsOnSwipe];
-}
 
--(void)setHidesBarsOnTap:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-
-    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
-    [self updateHidesBarsOnTap];
-}
-
--(void)setHidesBarsWhenVerticallyCompact:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
-    [self updateHidesBarsWhenVerticallyCompact];
-}
-
--(void)setHidesBarsWhenKeyboardAppears:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
-    [self updateHidesBarsWhenKeyboardAppears];
-}
-
--(void)updateHidesBarsOnSwipe
-{
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
             if ((controller != nil) && ([controller navigationController] != nil)) {
@@ -968,8 +936,12 @@
     }
 }
 
--(void)updateHidesBarsOnTap
+-(void)setHidesBarsOnTap:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
+    
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
             if ((controller != nil) && ([controller navigationController] != nil)) {
@@ -980,8 +952,12 @@
     }
 }
 
--(void)updateHidesBarsWhenVerticallyCompact
+-(void)setHidesBarsWhenVerticallyCompact:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
+
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
             if ((controller != nil) && ([controller navigationController] != nil)) {
@@ -992,8 +968,12 @@
     }
 }
 
--(void)updateHidesBarsWhenKeyboardAppears
+-(void)setHidesBarsWhenKeyboardAppears:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
+    
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
             if ((controller != nil) && ([controller navigationController] != nil)) {
@@ -1054,9 +1034,9 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
-    SETPROP(@"hidesBarsOnSwipe",setHidesBarsOnSwipe);
+    SETPROP(@"hidesBarsOnSwipe", setHidesBarsOnSwipe);
     SETPROP(@"hidesBarsOnTap", setHidesBarsOnTap);
-    SETPROP(@"hidesBarsWhenVerticallyCompact",setHidesBarsWhenVerticallyCompact);
+    SETPROP(@"hidesBarsWhenVerticallyCompact", setHidesBarsWhenVerticallyCompact);
     SETPROP(@"hidesBarsWhenKeyboardAppears", setHidesBarsWhenKeyboardAppears);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
