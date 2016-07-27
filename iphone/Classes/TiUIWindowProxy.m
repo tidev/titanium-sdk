@@ -929,7 +929,7 @@
     ENSURE_TYPE(value, NSNumber);
 
     [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
-    [self updateHidesBars];
+    [self updateHidesBarsOnSwipe];
 }
 
 -(void)setHidesBarsOnTap:(id)value
@@ -937,7 +937,7 @@
     ENSURE_TYPE(value, NSNumber);
 
     [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
-    [self updateHidesBars];
+    [self updateHidesBarsOnTap];
 }
 
 -(void)setHidesBarsWhenVerticallyCompact:(id)value
@@ -945,7 +945,7 @@
     ENSURE_TYPE(value, NSNumber);
 
     [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
-    [self updateHidesBars];
+    [self updateHidesBarsWhenVerticallyCompact];
 }
 
 -(void)setHidesBarsWhenKeyboardAppears:(id)value
@@ -953,7 +953,7 @@
     ENSURE_TYPE(value, NSNumber);
 
     [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
-    [self updateHidesBars];
+    [self updateHidesBarsWhenKeyboardAppears];
 }
 
 -(void)updateHidesBarsOnSwipe
