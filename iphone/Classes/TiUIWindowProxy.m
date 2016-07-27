@@ -304,7 +304,10 @@
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
 	[self updateTitleView];
-    [self updateHidesBars];
+    [self updateHidesBarsOnSwipe];
+    [self updateHidesBarsOnTap];
+    [self updateHidesBarsWhenVerticallyCompact];
+    [self updateHidesBarsWhenKeyboardAppears];
 	[super viewDidAppear:animated];
 }
 
@@ -953,15 +956,48 @@
     [self updateHidesBars];
 }
 
--(void)updateHidesBars
+-(void)updateHidesBarsOnSwipe
 {
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
             if ((controller != nil) && ([controller navigationController] != nil)) {
                 UINavigationController *ourNC = [controller navigationController];
                 ourNC.hidesBarsOnSwipe = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnSwipe"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)updateHidesBarsOnTap
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
                 ourNC.hidesBarsOnTap = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnTap"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)updateHidesBarsWhenVerticallyCompact
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
                 ourNC.hidesBarsWhenVerticallyCompact = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenVerticallyCompact"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)updateHidesBarsWhenKeyboardAppears
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
                 ourNC.hidesBarsWhenKeyboardAppears = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"] def:NO];
             }
         }, NO);
