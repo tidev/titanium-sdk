@@ -47,6 +47,28 @@
 @property (nonatomic, readonly)NSNumber* AUTHORIZATION_DENIED;
 @property (nonatomic, readonly)NSNumber* AUTHORIZATION_AUTHORIZED;
 
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_UNKNOWN;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_PENDING;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_ACCEPTED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_DECLINED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_TENTATIVE;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_DELEGATED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_COMPLETED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_STATUS_IN_PROCESS;
+
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_UNKNOWN;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_REQUIRED;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_OPTIONAL;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_CHAIR;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_ROLE_NON_PARTICIPANT;
+
+@property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_UNKNOWN;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_PERSON;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_ROOM;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_RESOURCE;
+@property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_GROUP;
+
+
 @end
 
 #endif

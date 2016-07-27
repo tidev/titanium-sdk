@@ -188,11 +188,11 @@ examples:
             
             var button = Ti.UI.createButton({
                 title: 'Edit',
-                style: Ti.UI.iPhone.SystemButtonStyle.DONE,
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
             var toolbar = Ti.UI.iOS.createToolbar({
-                items:[button],
+                items: [button],
                 top: 0
             });
             win.add(toolbar);
@@ -221,7 +221,7 @@ examples:
               { name: 'tasks' }
             ];
             
-            for (var i=0, ilen=itemData.length; i<ilen; i++){
+            for (var i = 0; i < itemData.length; i++) {
               var item = Ti.UI.createDashboardItem({
                 badge: itemData[i].badge,
                 image: '/images/dashboard/' + itemData[i].name + '_off.png',
@@ -240,27 +240,27 @@ examples:
             
             var isEditable = false;
             
-            button.addEventListener('click', function(e){
-              if(isEditable){
+            button.addEventListener('click', function(e) {
+              if (isEditable) {
                 dashboard.stopEditing();
               } else {
                 dashboard.startEditing();
               }
             });
             
-            dashboard.addEventListener('edit',function(e){
+            dashboard.addEventListener('edit', function(e) {
               button.title = 'Done';
-              button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
               isEditable = true;
             });
             
-            dashboard.addEventListener('commit',function(e){
+            dashboard.addEventListener('commit', function(e) {
               button.title = 'Edit';
-              button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
               isEditable = false;
             });
             
-            dashboard.addEventListener('click', function(e){
+            dashboard.addEventListener('click', function(e) {
               e.item.badge = 0;
             });
             
@@ -305,26 +305,26 @@ examples:
 
             var isEditable = false;
 
-            function changeMode(e){
-              if(isEditable){
+            function changeMode(e) {
+              if (isEditable) {
                 $.dashboard.stopEditing();
               } else {
                 $.dashboard.startEditing();
               }
-            });
+            }
 
-            function handleEdit(e){
+            function handleEdit(e) {
               $.button.title = 'Done';
-              $.button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              $.button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
               isEditable = true;
-            });
+            }
 
-            function handleCommit(e){
+            function handleCommit(e) {
               $.button.title = 'Edit';
-              $.button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              $.button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
               isEditable = false;
-            });
+            }
 
-            function resetBadge(e){
+            function resetBadge(e) {
               e.item.badge = 0;
-            });
+            }

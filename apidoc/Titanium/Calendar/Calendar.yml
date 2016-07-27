@@ -488,6 +488,125 @@ properties:
     permission: read-only
     platforms: [android]
 
+  - name: ATTENDEE_STATUS_UNKNOWN
+    summary: Attendee status is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_PENDING
+    summary: Attendee status is pending.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_ACCEPTED
+    summary: Attendee status is accepted.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_DECLINED
+    summary: Attendee status is declined.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_TENTATIVE
+    summary: Attendee status is tentative.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_DELEGATED
+    summary: Attendee status is delegated.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_IN_PROCESS
+    summary: Attendee status is in process.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_UNKNOWN
+    summary: Attendee role is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_OPTIONAL
+    summary: Attendee role is optional.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_REQUIRED
+    summary: Attendee role is required.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_CHAIR
+    summary: Attendee role is chair.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_NON_PARTICIPANT
+    summary: Attendee is not a participant.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_UNKNOWN
+    summary: Attendee type is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_PERSON
+    summary: Attendee type is person.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_ROOM
+    summary: Attendee type is room.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_RESOURCE
+    summary: Attendee type is resource.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_GROUP
+    summary: Attendee type is group.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
   - name: eventsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
