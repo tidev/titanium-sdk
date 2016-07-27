@@ -923,24 +923,32 @@
 
 -(void)setHidesBarsOnSwipe:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
     [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
     [self updateHidesBars];
 }
 
 -(void)setHidesBarsOnTap:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
     [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
     [self updateHidesBars];
 }
 
 -(void)setHidesBarsWhenVerticallyCompact:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
     [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
     [self updateHidesBars];
 }
 
 -(void)setHidesBarsWhenKeyboardAppears:(id)value
 {
+    ENSURE_TYPE(value, NSNumber);
+
     [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
     [self updateHidesBars];
 }
