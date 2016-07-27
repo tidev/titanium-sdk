@@ -55,9 +55,8 @@ static NSArray* imageKeySequence;
     if ([self _hasListeners:@"load"]) {
         NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
         [self fireEvent:@"load" withObject:event];
-    }
 #ifdef TI_USE_KROLL_THREAD
-    else {
+    } else {
         // Why do we do this?
         // When running on kroll thread this is being called before the events are added.
         // So we try to propagate this after the load event is added.
@@ -65,8 +64,8 @@ static NSArray* imageKeySequence;
         RELEASE_TO_NIL(self.loadEventState);
         [self setLoadEventState:stateString];
         [self setModelDelegate:self];
-    }
 #endif
+    }
 }
 
 -(void)listenerAdded:(NSString*)type count:(int)count {
@@ -77,7 +76,7 @@ static NSArray* imageKeySequence;
 }
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy {
-    // left blank intentionally.
+    DoProxyDelegateChangedValuesWithProxy((TiUIImageView*)[self view], key, oldValue, newValue, proxy);
 }
 
 -(void)_configure
