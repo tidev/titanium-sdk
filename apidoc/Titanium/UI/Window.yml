@@ -476,7 +476,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: "8.0"}
+    osver: {ios: {min: "8.0"}}
 
   - name: hidesBarsOnTap
     summary: Set this to true to hide the navigation bar on tap.
@@ -488,7 +488,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: "8.0"}
+    osver: {ios: {min: "8.0"}}
 
   - name: hidesBarsWhenVerticallyCompact
     summary: Set this to true to hide the navigation bar in a vertically compact environment.
@@ -501,7 +501,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: "8.0"}
+    osver: {ios: {min: "8.0"}}
 
   - name: hidesBarsWhenKeyboardAppears
     summary: Set this to true to hide the navigation bar when the keyboard appears.
@@ -512,7 +512,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: "8.0"}
+    osver: {ios: {min: "8.0"}}
 
   - name: left
     summary: Window's left position, in platform-specific units.
