@@ -504,7 +504,7 @@ properties:
     osver: {ios: "8.0"}
 
   - name: hidesBarsWhenKeyboardAppears
-    summary: Set this to true to hide the navigation bar when the keyboard appears..
+    summary: Set this to true to hide the navigation bar when the keyboard appears.
     description: |
         When this property is set to true, the appearance of the keyboard causes the 
         navigation controller to hide its navigation bar and toolbar.
