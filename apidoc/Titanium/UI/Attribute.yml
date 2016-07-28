@@ -25,7 +25,7 @@ properties:
     constants: [ Titanium.UI.ATTRIBUTE_FONT, Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                  Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
                  Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE, Titanium.UI.ATTRIBUTE_LINK, 
-                 Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR, Titanium.UI.iOS.ATTRIBUTE_LIGATURE,
+                 Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR, Titanium.UI.ATTRIBUTE_LIGATURE,
                  Titanium.UI.ATTRIBUTE_KERN, Titanium.UI.ATTRIBUTE_STROKE_COLOR,
                  Titanium.UI.ATTRIBUTE_STROKE_WIDTH, Titanium.UI.ATTRIBUTE_SHADOW,
                  Titanium.UI.ATTRIBUTE_WRITING_DIRECTION, Titanium.UI.ATTRIBUTE_TEXT_EFFECT,

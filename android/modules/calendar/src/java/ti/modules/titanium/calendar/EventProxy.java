@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
@@ -56,11 +55,6 @@ public class EventProxy extends KrollProxy {
 		super();
 	}
 
-	public EventProxy(TiContext context)
-	{
-		this();
-	}
-
 	public static String getEventsUri()
 	{
 		return CalendarProxy.getBaseCalendarUri() + "/events";
@@ -74,11 +68,6 @@ public class EventProxy extends KrollProxy {
 	public static ArrayList<EventProxy> queryEvents(String query, String[] queryArgs)
 	{
 		return queryEvents(Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
-	}
-
-	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs)
-	{
-		return queryEvents(query, queryArgs);
 	}
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query, String[] queryArgs)
@@ -129,12 +118,6 @@ public class EventProxy extends KrollProxy {
 		return events;
 	}
 
-	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query,
-		String[] queryArgs)
-	{
-		return queryEventsBetweenDates(date1, date2, query, queryArgs);
-	}
-
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
@@ -169,12 +152,6 @@ public class EventProxy extends KrollProxy {
 		}
 		eventCursor.close();
 		return events;
-	}
-
-	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs,
-		String orderBy)
-	{
-		return queryEvents(uri, query, queryArgs, orderBy);
 	}
 
 	public static EventProxy createEvent(CalendarProxy calendar, KrollDict data)
@@ -250,19 +227,9 @@ public class EventProxy extends KrollProxy {
 		return event;
 	}
 
-	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, KrollDict data)
-	{
-		return createEvent(calendar, data);
-	}
-
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar)
 	{
 		return queryEventsBetweenDates(date1, date2, "calendar_id = ?", new String[]{ calendar.getId() });
-	}
-
-	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar)
-	{
-		return queryEventsBetweenDates(date1, date2, calendar);
 	}
 
 	@Kroll.method @Kroll.getProperty

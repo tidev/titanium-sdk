@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,11 +51,6 @@ public class CalendarProxy extends KrollProxy {
 		this.name = name;
 		this.selected = selected;
 		this.hidden = hidden;
-	}
-
-	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden)
-	{
-		this(id, name, selected, hidden);
 	}
 
 	public static String getBaseCalendarUri()
@@ -113,21 +108,16 @@ public class CalendarProxy extends KrollProxy {
 		return calendars;
 	}
 
-	public static ArrayList<CalendarProxy> queryCalendars(TiContext context, String query, String[] queryArgs)
-	{
-		return queryCalendars(query, queryArgs);
-	}
-
 	public static boolean hasCalendarPermissions() {
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (currentActivity != null && 
+		if (currentActivity != null &&
 				currentActivity.checkSelfPermission("android.permission.READ_CALENDAR") == PackageManager.PERMISSION_GRANTED &&
 				currentActivity.checkSelfPermission("android.permission.WRITE_CALENDAR") == PackageManager.PERMISSION_GRANTED) {
 			return true;
-		} 
+		}
 		Log.w(TAG, "Calendar permissions are missing");
 		return false;
 	}
@@ -292,4 +282,3 @@ public class CalendarProxy extends KrollProxy {
 		return "Ti.Calendar.Calendar";
 	}
 }
-

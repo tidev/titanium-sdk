@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
@@ -33,11 +32,6 @@ public class AndroidModule extends KrollModule
 	public AndroidModule()
 	{
 		super();
-	}
-
-	public AndroidModule(TiContext context)
-	{
-		this();
 	}
 
 	@Kroll.getProperty(name="R")
@@ -75,7 +69,7 @@ public class AndroidModule extends KrollModule
 			return null;
 		}
 	}
-	
+
 	@Kroll.getProperty
 	@Kroll.method
 	public int getAppVersionCode()
@@ -131,4 +125,3 @@ public class AndroidModule extends KrollModule
 		return "Ti.App.Android";
 	}
 }
-

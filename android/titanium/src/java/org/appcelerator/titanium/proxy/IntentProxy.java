@@ -23,13 +23,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Bitmap;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
 @Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_PACKAGE_NAME,
 	TiC.PROPERTY_URL
 })
 /**
@@ -55,6 +54,33 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;
+
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getPackageName()
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getPackageName();
+		}
+		return null;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getClassName()
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getClassName();
+		}
+		return null;
 	}
 
 	protected static char[] escapeChars = new char[] {

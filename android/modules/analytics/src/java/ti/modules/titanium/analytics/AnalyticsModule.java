@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -22,14 +21,14 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalyticsEvent;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
 {
 	private static final String TAG = "AnalyticsModule";
-	
+
 	protected static final String PROPERTY_APP_NAV = "app.nav";
 	protected static final String PROPERTY_APP_TIMED = "app.timed";
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
@@ -49,11 +48,6 @@ public class AnalyticsModule extends KrollModule
 	public AnalyticsModule()
 	{
 		super();
-	}
-
-	public AnalyticsModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -102,16 +96,7 @@ public class AnalyticsModule extends KrollModule
 	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
 	        if (data instanceof HashMap) {
 	            JSONObject jsonData = TiConvert.toJSON(data);
-	            
-	            boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
-	            // This will be removed in future when we treat this as an error.
-	            if (!isPayloadValid) {
-	                Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                Log.w(TAG, "This will be treated as an error in future releases.");
-	                isPayloadValid = true;
-	            }
-
-	            if (isPayloadValid) {
+	            if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
 	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return SUCCESS;
 	            } else {
@@ -121,16 +106,7 @@ public class AnalyticsModule extends KrollModule
 	        } else if (data != null) {
 	            try {
 	                JSONObject jsonData = new JSONObject(data.toString());
-	                
-	                boolean isPayloadValid = (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS);
-	                // This will be removed in future when we treat this as an error.
-	                if (!isPayloadValid) {
-	                    Log.w(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                    Log.w(TAG, "This will be treated as an error in future releases.");
-	                    isPayloadValid = true;
-	                }
-
-	                if (isPayloadValid) {
+	                if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
 	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return SUCCESS;
 	                } else {

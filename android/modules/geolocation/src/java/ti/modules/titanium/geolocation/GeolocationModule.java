@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,7 +20,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -40,79 +39,79 @@ import android.os.Handler;
 import android.os.Message;
 
 /**
- * GeolocationModule exposes all common methods and properties relating to geolocation behavior 
- * associated with Ti.Geolocation to the Titanium developer.  Only cross platform API points should 
- * be exposed through this class as Android-only API points or types should be put in a Android module 
+ * GeolocationModule exposes all common methods and properties relating to geolocation behavior
+ * associated with Ti.Geolocation to the Titanium developer.  Only cross platform API points should
+ * be exposed through this class as Android-only API points or types should be put in a Android module
  * under this module.
- * 
- * The GeolocationModule provides management for 3 different location behavior modes (detailed 
+ *
+ * The GeolocationModule provides management for 3 different location behavior modes (detailed
  * descriptions will follow below):
  * <ul>
  * 	<li>legacy - existing behavior found in Titanium Mobile 1.7 and 1.8. <b>DEPRECATED</b></li>
  * 	<li>simple - replacement for the old legacy mode that allows for better parity across platforms</li>
  * 	<li>manual - Android-specific mode that exposes full control over the providers and rules</li>
  * </ul>
- * 
+ *
  * <p>
  * <b>Legacy location mode</b>:<br>
- * This mode operates on receiving location updates from a single active provider at a time.  Settings 
+ * This mode operates on receiving location updates from a single active provider at a time.  Settings
  * used to pick and register a provider with the OS are pulled from the PROPERTY_ACCURACY, PROPERTY_FREQUENCY
  * and PROPERTY_PREFERRED_PROVIDER properties on the module.
  * <p>
- * The valid accuracy properties for this location mode are ACCURACY_BEST, ACCURACY_NEAREST_TEN_METERS, 
- * ACCURACY_HUNDRED_METERS, ACCURACY_KILOMETER and ACCURACY_THREE_KILOMETERS.  The accuracy property is a 
- * double value that will be used by the OS as a way to determine how many meters should change in location 
- * before a new update is sent.  Accuracy properties other than this will either be ignored or change the 
- * current location behavior mode.  The frequency property is a double value that is used by the OS to determine 
- * how much time in milliseconds should pass before a new update is sent.  
+ * The valid accuracy properties for this location mode are ACCURACY_BEST, ACCURACY_NEAREST_TEN_METERS,
+ * ACCURACY_HUNDRED_METERS, ACCURACY_KILOMETER and ACCURACY_THREE_KILOMETERS.  The accuracy property is a
+ * double value that will be used by the OS as a way to determine how many meters should change in location
+ * before a new update is sent.  Accuracy properties other than this will either be ignored or change the
+ * current location behavior mode.  The frequency property is a double value that is used by the OS to determine
+ * how much time in milliseconds should pass before a new update is sent.
  * <p>
- * The OS uses some fuzzy logic to determine the update frequency and these values are treated as no more than 
- * suggestions.  For example:  setting the frequency to 0 milliseconds and the accuracy to 10 meters may not 
- * result in a update being sent as fast as possible which is what frequency of 0 ms indicates.  This is due to 
- * the OS not sending updates till the accuracy property is satisfied.  If the desired behavior is to get updates 
- * purely based on time then the suggested mechanism would be to set the accuracy to 0 meters and then set the 
+ * The OS uses some fuzzy logic to determine the update frequency and these values are treated as no more than
+ * suggestions.  For example:  setting the frequency to 0 milliseconds and the accuracy to 10 meters may not
+ * result in a update being sent as fast as possible which is what frequency of 0 ms indicates.  This is due to
+ * the OS not sending updates till the accuracy property is satisfied.  If the desired behavior is to get updates
+ * purely based on time then the suggested mechanism would be to set the accuracy to 0 meters and then set the
  * frequency to the desired update interval in milliseconds.
- * 
+ *
  * <p>
  * <b>Simple location mode</b>:<br>
- * This mode operates on receiving location updates from multiple sources.  The simple mode has two states - high 
- * accuracy and low accuracy.  The difference in these two modes is that low accuracy has the passive and network 
- * providers registered by default where the high accuracy state enables the gps provider in addition to the passive 
- * and network providers.  The simple mode utilizes location rules for filtering location updates to try and fall back 
- * gracefully (when in high accuracy state) to the network and passive providers if a gps update has not been received 
- * recently.  
+ * This mode operates on receiving location updates from multiple sources.  The simple mode has two states - high
+ * accuracy and low accuracy.  The difference in these two modes is that low accuracy has the passive and network
+ * providers registered by default where the high accuracy state enables the gps provider in addition to the passive
+ * and network providers.  The simple mode utilizes location rules for filtering location updates to try and fall back
+ * gracefully (when in high accuracy state) to the network and passive providers if a gps update has not been received
+ * recently.
  * <p>
- * No specific controls for time or distance (better terminology in line with native Android docs but these 
- * are called frequency and accuracy in legacy mode) are exposed to the Titanium developer as the details of this mode 
- * are supposed to be driven by Appcelerator based on our observations.  If greater control on the part of the Titanium 
+ * No specific controls for time or distance (better terminology in line with native Android docs but these
+ * are called frequency and accuracy in legacy mode) are exposed to the Titanium developer as the details of this mode
+ * are supposed to be driven by Appcelerator based on our observations.  If greater control on the part of the Titanium
  * developer is needed then the manual behavior mode can and should be used.
- * 
+ *
  * <p>
  * <b>Manual location mode</b>:<br>
- * This mode puts full control over providers and rules in the hands of the Titanium developer.  The developer will be 
- * responsible for registering location providers, setting time and distance settings per provider and defining the rule 
+ * This mode puts full control over providers and rules in the hands of the Titanium developer.  The developer will be
+ * responsible for registering location providers, setting time and distance settings per provider and defining the rule
  * set if any rules are desired.
  * <p>
- * In this mode, the developer would create a Ti.Geolocation.Android.LocationProvider object for each provider they want 
- * to use and add this to the list of manual providers via addLocationProvider(LocationProviderProxy).  In order to set 
+ * In this mode, the developer would create a Ti.Geolocation.Android.LocationProvider object for each provider they want
+ * to use and add this to the list of manual providers via addLocationProvider(LocationProviderProxy).  In order to set
  * rules, the developer will have to create a Ti.Geolocation.Android.LocationRule object per rule and then add those
- * rules via addLocationRule(LocationRuleProxy).  These rules will be applied to any location updates that come from the 
- * registered providers.  Further information on the LocationProvider and LocationRule objects can be found by looking at 
+ * rules via addLocationRule(LocationRuleProxy).  These rules will be applied to any location updates that come from the
+ * registered providers.  Further information on the LocationProvider and LocationRule objects can be found by looking at
  * those specific classes.
- * 
+ *
  * <p>
  * <b>General location behavior</b>:<br>
- * The GeolocationModule is capable of switching modes at any time and keeping settings per mode separated.  Changing modes 
- * is done by updating the Ti.Geolocation.accuracy property. Based on the new value of the accuracy property, the 
- * legacy or simple modes may be enabled (and the previous mode may be turned off).  Enabling or disabling the manual mode 
- * is done by setting the AndroidModule.manualMode (Ti.Geolocation.Android.manualMode) value.  NOTE:  updating the location 
- * rules will not update the mode.  Simply setting the Ti.Geolocation.accuracy property will not enable the legacy/simple 
+ * The GeolocationModule is capable of switching modes at any time and keeping settings per mode separated.  Changing modes
+ * is done by updating the Ti.Geolocation.accuracy property. Based on the new value of the accuracy property, the
+ * legacy or simple modes may be enabled (and the previous mode may be turned off).  Enabling or disabling the manual mode
+ * is done by setting the AndroidModule.manualMode (Ti.Geolocation.Android.manualMode) value.  NOTE:  updating the location
+ * rules will not update the mode.  Simply setting the Ti.Geolocation.accuracy property will not enable the legacy/simple
  * modes if you are currently in the manual mode - you must disable the manual mode before the simple/legacy modes are used
  * <p>
- * In regards to actually "turning on" the providers by registering them with the OS - this is triggered by the presence of 
- * "location" event listeners on the GeolocationModule.  When the first listener is added, providers start being registered 
+ * In regards to actually "turning on" the providers by registering them with the OS - this is triggered by the presence of
+ * "location" event listeners on the GeolocationModule.  When the first listener is added, providers start being registered
  * with the OS.  When there are no listeners then all the providers are de-registered.  Changes made to location providers or
- * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until 
+ * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
 // TODO deprecate the frequency and preferredProvider property
@@ -124,7 +123,7 @@ import android.os.Message;
 public class GeolocationModule extends KrollModule
 	implements Handler.Callback, LocationProviderListener
 {
-	// TODO move these to the AndroidModule namespace since they will only be used when creating 
+	// TODO move these to the AndroidModule namespace since they will only be used when creating
 	// manual location providers
 	@Kroll.constant @Deprecated public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
 	@Kroll.constant @Deprecated public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
@@ -205,16 +204,6 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Constructor
-	 * 
-	 * @deprecated
-	 */
-	public GeolocationModule(TiContext tiContext)
-	{
-		this();
-	}
-
-	/**
 	 * @see org.appcelerator.kroll.KrollProxy#handleMessage(android.os.Message)
 	 */
 	@Override
@@ -242,9 +231,9 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Called by a registered location provider when a location update is received
-	 * 
+	 *
 	 * @param location			location update that was received
-	 * 
+	 *
 	 * @see ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener#onLocationChanged(android.location.Location)
 	 */
 	public void onLocationChanged(Location location)
@@ -259,10 +248,10 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Called by a registered location provider when its state changes
-	 * 
+	 *
 	 * @param providerName		name of the provider whose state has changed
 	 * @param state				new state of the provider
-	 * 
+	 *
 	 * @see ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener#onProviderStateChanged(java.lang.String, int)
 	 */
 	public void onProviderStateChanged(String providerName, int state)
@@ -270,7 +259,7 @@ public class GeolocationModule extends KrollModule
 		String message = providerName;
 
 		// TODO this is trash.  deprecate the existing mechanism of bundling status updates with the
-		// location event and create a new "locationState" (or whatever) event.  for the time being, 
+		// location event and create a new "locationState" (or whatever) event.  for the time being,
 		// this solution kills my soul slightly less than the previous one
 		switch (state) {
 			case LocationProviderProxy.STATE_DISABLED:
@@ -324,9 +313,9 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Called when the location provider has had one of it's properties updated and thus needs to be re-registered with the OS
-	 * 
+	 *
 	 * @param locationProvider		the location provider that needs to be re-registered
-	 * 
+	 *
 	 * @see ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener#onProviderUpdated(ti.modules.titanium.geolocation.android.LocationProviderProxy)
 	 */
 	public void onProviderUpdated(LocationProviderProxy locationProvider)
@@ -344,9 +333,9 @@ public class GeolocationModule extends KrollModule
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
-			// accuracy property is what triggers a shift between simple and legacy modes. the 
-			// android only manual mode is indicated by the AndroidModule.manualMode value which 
-			// has no impact on the legacyModeActive flag.  IE: when determining the current mode, 
+			// accuracy property is what triggers a shift between simple and legacy modes. the
+			// android only manual mode is indicated by the AndroidModule.manualMode value which
+			// has no impact on the legacyModeActive flag.  IE: when determining the current mode,
 			// both flags must be checked
 			propertyChangedAccuracy(newValue);
 
@@ -360,7 +349,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Handles property change for Ti.Geolocation.accuracy
-	 * 
+	 *
 	 * @param newValue					new accuracy value
 	 */
 	private void propertyChangedAccuracy(Object newValue)
@@ -440,7 +429,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Handles property change for Ti.Geolocation.frequency
-	 * 
+	 *
 	 * @param newValue					new frequency value
 	 */
 	private void propertyChangedFrequency(Object newValue)
@@ -469,7 +458,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Handles property change for Ti.Geolocation.preferredProvider
-	 * 
+	 *
 	 * @param newValue					new preferredProvider value
 	 */
 	private void propertyChangedPreferredProvider(Object newValue)
@@ -575,7 +564,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Checks if the device has a compass sensor
-	 * 
+	 *
 	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
 	 */
 	@Kroll.method @Kroll.getProperty
@@ -586,7 +575,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Retrieves the current compass heading and returns it to the specified Javascript function
-	 * 
+	 *
 	 * @param listener			Javascript function that will be invoked with the compass heading
 	 */
 	@Kroll.method
@@ -597,7 +586,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Retrieves the last obtained location and returns it as JSON.
-	 * 
+	 *
 	 * @return			String representing the last geolocation event
 	 */
 	@Kroll.method @Kroll.getProperty
@@ -608,9 +597,9 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Checks if the Android manual location behavior mode is currently enabled
-	 * 
+	 *
 	 * @return 				<code>true</code> if currently in manual mode, <code>
-	 * 						false</code> if the Android module has not been registered 
+	 * 						false</code> if the Android module has not been registered
 	 * 						yet with the OS or manual mode is not enabled
 	 */
 	private boolean getManualMode()
@@ -632,10 +621,10 @@ public class GeolocationModule extends KrollModule
 		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 		if (currentActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 			return true;
-		} 
+		}
 		return false;
 	}
-	
+
 	@Kroll.method
 	public void requestLocationPermissions(@Kroll.argument(optional=true) Object type, @Kroll.argument(optional=true) KrollFunction permissionCallback)
 	{
@@ -651,14 +640,14 @@ public class GeolocationModule extends KrollModule
 		}
 
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();		
-		currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);		
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);
 	}
 
 	/**
-	 * Registers the specified location provider with the OS.  Once the provider is registered, the OS 
+	 * Registers the specified location provider with the OS.  Once the provider is registered, the OS
 	 * will begin to provider location updates as they are available
-	 * 
+	 *
 	 * @param locationProvider			location provider to be registered
 	 */
 	public void registerLocationProvider(LocationProviderProxy locationProvider)
@@ -671,7 +660,7 @@ public class GeolocationModule extends KrollModule
 
 		try {
 			tiLocation.locationManager.requestLocationUpdates(
-					provider, 
+					provider,
 					(long) locationProvider.getMinUpdateTime(),
 					(float) locationProvider.getMinUpdateDistance(),
 					locationProvider);
@@ -686,8 +675,8 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Wrapper to ensure task executes on the runtime thread
-	 * 
-	 * @param locationProviders 		list of location providers to enable by registering 
+	 *
+	 * @param locationProviders 		list of location providers to enable by registering
 	 * 									the providers with the OS
 	 */
 	public void enableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
@@ -702,16 +691,16 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Enables the specified location behavior mode by registering the associated 
-	 * providers with the OS.  Even if the specified mode is currently active, the 
-	 * current mode will be disabled by de-registering all the associated providers 
-	 * for that mode with the OS and then registering 
-	 * them again.  This can be useful in cases where the properties for all the 
+	 * Enables the specified location behavior mode by registering the associated
+	 * providers with the OS.  Even if the specified mode is currently active, the
+	 * current mode will be disabled by de-registering all the associated providers
+	 * for that mode with the OS and then registering
+	 * them again.  This can be useful in cases where the properties for all the
 	 * providers have been updated and they need to be re-registered in order for the
 	 * change to take effect.  Modification of the list of providers for any mode
-	 * should occur on the runtime thread in order to make sure threading issues are 
+	 * should occur on the runtime thread in order to make sure threading issues are
 	 * avoiding
-	 * 
+	 *
 	 * @param locationProviders
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
@@ -728,8 +717,8 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Disables the current mode by de-registering all the associated providers 
-	 * for that mode with the OS.  Providers are just de-registered with the OS, 
+	 * Disables the current mode by de-registering all the associated providers
+	 * for that mode with the OS.  Providers are just de-registered with the OS,
 	 * not removed from the list of providers we associate with the behavior mode.
 	 */
 	private void disableLocationProviders()
@@ -750,10 +739,10 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Checks if the device has a valid location service present.  The passive location service 
+	 * Checks if the device has a valid location service present.  The passive location service
 	 * is not counted.
-	 * 
-	 * @return			<code>true</code> if a valid location service is available on the device, 
+	 *
+	 * @return			<code>true</code> if a valid location service is available on the device,
 	 * 					<code>false</code> if not
 	 */
 	@Kroll.getProperty @Kroll.method
@@ -764,7 +753,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Retrieves the last known location and returns it to the specified Javascript function
-	 * 
+	 *
 	 * @param callback			Javascript function that will be invoked with the last known location
 	 */
 	@Kroll.method
@@ -792,11 +781,11 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Converts the specified address to coordinates and returns the value to the specified 
+	 * Converts the specified address to coordinates and returns the value to the specified
 	 * Javascript function
-	 * 
+	 *
 	 * @param address			address to be converted
-	 * @param callback			Javascript function that will be invoked with the coordinates 
+	 * @param callback			Javascript function that will be invoked with the coordinates
 	 * 							for the specified address if available
 	 */
 	@Kroll.method
@@ -806,12 +795,12 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Converts the specified latitude and longitude to a human readable address and returns 
+	 * Converts the specified latitude and longitude to a human readable address and returns
 	 * the value to the specified Javascript function
-	 * 
+	 *
 	 * @param latitude			latitude to be used in looking up the associated address
 	 * @param longitude			longitude to be used in looking up the associated address
-	 * @param callback			Javascript function that will be invoked with the address 
+	 * @param callback			Javascript function that will be invoked with the address
 	 * 							for the specified latitude and longitude if available
 	 */
 	@Kroll.method
@@ -821,10 +810,10 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Convenience method for creating a response handler that is used when doing a 
+	 * Convenience method for creating a response handler that is used when doing a
 	 * geocode lookup.
-	 * 
-	 * @param callback			Javascript function that the response handler will invoke 
+	 *
+	 * @param callback			Javascript function that the response handler will invoke
 	 * 							once the geocode response is ready
 	 * @return					the geocode response handler
 	 */
@@ -844,13 +833,13 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Called to determine if the specified location is "better" than the current location.
-	 * This is determined by comparing the new location to the current location according 
-	 * to the location rules (if any are set) for the current behavior mode.  If no rules 
+	 * This is determined by comparing the new location to the current location according
+	 * to the location rules (if any are set) for the current behavior mode.  If no rules
 	 * are set for the current behavior mode, the new location is always accepted.
-	 * 
+	 *
 	 * @param newLocation		location to evaluate
-	 * @return					<code>true</code> if the location has been deemed better than 
-	 * 							the current location based on the existing rules set for the 
+	 * @return					<code>true</code> if the location has been deemed better than
+	 * 							the current location based on the existing rules set for the
 	 * 							current behavior mode, <code>false</code> if not
 	 */
 	private boolean shouldUseUpdate(Location newLocation)
@@ -890,12 +879,12 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Convenience method used to package a location from a location provider into a 
+	 * Convenience method used to package a location from a location provider into a
 	 * consumable form for the Titanium developer before it is fire back to Javascript.
-	 * 
+	 *
 	 * @param location				location that needs to be packaged into consumable form
 	 * @param locationProvider		location provider that provided the location update
-	 * @return						map of property names and values that contain information 
+	 * @return						map of property names and values that contain information
 	 * 								pulled from the specified location
 	 */
 	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
@@ -925,15 +914,15 @@ public class GeolocationModule extends KrollModule
 
 		return event;
 	}
-	
-	
+
+
 	/**
-	 * Convenience method used to package a error into a consumable form 
+	 * Convenience method used to package a error into a consumable form
 	 * for the Titanium developer before it is fired back to Javascript.
-	 * 
+	 *
 	 * @param code					Error code identifying the error
 	 * @param msg					Error message describing the event
-	 * @return						map of property names and values that contain information 
+	 * @return						map of property names and values that contain information
 	 * 								regarding the error
 	 */
 	private KrollDict buildLocationErrorEvent(int code, String msg)
@@ -948,7 +937,7 @@ public class GeolocationModule extends KrollModule
 	{
 		return "Ti.Geolocation";
 	}
-	
+
 	@Override
 	public void onDestroy(Activity activity) {
 		//clean up event listeners
@@ -961,5 +950,3 @@ public class GeolocationModule extends KrollModule
 
 	}
 }
-
-

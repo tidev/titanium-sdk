@@ -3,7 +3,7 @@
  * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * Copied and modified from Apache's HTTPClient implementation (APL2 license):
  * org.apache.http.entity.mime.content.FileBody
  */
@@ -18,7 +18,7 @@ import java.io.OutputStream;
 public class FileBody extends AbstractContentBody{
 
 private final File file;
-    
+
     public FileBody(final File file, final String mimeType) {
         super(mimeType);
         if (file == null) {
@@ -26,21 +26,13 @@ private final File file;
         }
         this.file = file;
     }
-    
+
     public FileBody(final File file) {
         this(file, "application/octet-stream");
     }
-    
+
     public InputStream getInputStream() throws IOException {
         return new FileInputStream(this.file);
-    }
-
-    /**
-     * @deprecated use {@link #writeTo(OutputStream)}
-     */
-    @Deprecated
-    public void writeTo(final OutputStream out, int mode) throws IOException {
-        writeTo(out);
     }
 
     @Override
@@ -73,11 +65,11 @@ private final File file;
     public long getContentLength() {
         return this.file.length();
     }
-    
+
     public String getFilename() {
         return this.file.getName();
     }
-    
+
     public File getFile() {
         return this.file;
     }

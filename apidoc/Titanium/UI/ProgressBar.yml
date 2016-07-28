@@ -83,8 +83,7 @@ properties:
     type: Number
   - name: style
     summary: Style of the progress bar. 
-    description: For iOS, progress bar styles are constants defined in 
-        [ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
+    description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
     platforms: [iphone,ipad]
   - name: value
@@ -106,7 +105,7 @@ examples:
                 color: 'blue',
                 message: 'Downloading 0 of 10',
                 font: {fontSize: 14, fontWeight: 'bold'},
-                style: Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+                style: Ti.UI.iOS.ProgressBarStyle.PLAIN,
             });
             var win = Ti.UI.createWindow({backgroundColor: 'white'});
             win.addEventListener('click', function(){
@@ -149,5 +148,5 @@ examples:
                 color: 'blue',
                 message: 'Downloading 0 of 10',
                 font: {fontSize:14, fontWeight:'bold'},
-                style: Titanium.UI.iPhone.ProgressBarStyle.PLAIN
+                style: Titanium.UI.iOS.ProgressBarStyle.PLAIN
             }

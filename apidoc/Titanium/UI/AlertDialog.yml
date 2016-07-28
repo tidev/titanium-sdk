@@ -197,6 +197,14 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
 
+  - name: canceledOnTouchOutside
+    summary: |
+        When this is set to `true`, the dialog is canceled when touched outside the window's bounds.
+    type: Boolean
+    default: true on Android
+    since: "6.0.0"
+    platforms: [android]
+
   - name: destructive
     summary: Index to define the destructive button.
     platforms: [iphone, ipad]
@@ -206,6 +214,21 @@ properties:
     default: -1
     since: 3.5.0
     osver: {ios: {min: "8.0"}}
+
+  - name: preferred
+    summary: Index to define the preferred button.
+    platforms: [iphone, ipad]
+    description: |
+        When you specify a preferred action, the alert dialog highlights the text of that 
+        action to give it emphasis. (If the alert also contains a cancel button, the preferred 
+        action receives the highlighting instead of the cancel button.) If the iOS device is 
+        connected to a physical keyboard, pressing the Return key triggers the preferred action.
+
+        Note that this property is only available on iOS 9 or above.
+    type: Number
+    default: -1
+    since: 6.0.0
+    osver: {ios: {min: "9.0"}}
 
   - name: keyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -279,7 +302,6 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    accessors: false
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: ok
@@ -294,7 +316,6 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    accessors: false
     platforms: [iphone, ipad, mobileweb]
 
   - name: passwordPlaceholder
@@ -405,7 +426,6 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
-    accessors: false
     platforms: [android, iphone, ipad, mobileweb]
 
 examples:

@@ -244,6 +244,8 @@ public class TiUIDialog extends TiUIView
 					}
 				}
 			}
+		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && dialog != null) {
+		    dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -268,7 +270,7 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = getBuilder().create();
-
+			dialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 			// Initially apply accessibility properties here, the first time
 			// the dialog actually becomes available. After this, propertyChanged
 			// can also be used.

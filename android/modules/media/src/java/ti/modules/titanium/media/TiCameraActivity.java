@@ -77,6 +77,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
 
+	public static MediaModule mediaContext;
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
@@ -407,6 +408,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.setPreviewDisplay(previewHolder);
 			previewRunning = true;
 			camera.startPreview();
+			mediaContext.fireEvent(TiC.EVENT_CAMERA_READY, null);
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
 			finish();

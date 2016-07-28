@@ -917,6 +917,26 @@ properties:
     since: "5.4.0"
     osver: {ios: {min: "8.0"}}
 
+  - name: BLUR_EFFECT_STYLE_REGULAR
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The blurring effect is the default one specified in iOS 10.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+
+  - name: BLUR_EFFECT_STYLE_PROMINENT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is presented more prominent than the underlying view.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+
   - name: AD_SIZE_PORTRAIT
     summary: |
         Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
@@ -1140,7 +1160,7 @@ properties:
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"
@@ -1149,7 +1169,7 @@ properties:
   - name: ROW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"
@@ -1158,7 +1178,7 @@ properties:
   - name: ROW_ACTION_STYLE_NORMAL
     summary: The normal style for <RowActionType>.
     description: |
-        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.rowAction> event.
+        Used in conjunction with <Titanium.UI.ListItem.editActions> property and <Titanium.UI.ListView.editaction> event.
     type: Number
     permission: read-only
     since: "4.1.0"
@@ -1177,6 +1197,32 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.3"
+
+  - name: KEYBOARD_DISMISS_MODE_NONE
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: The keyboard does not get dismissed with a drag.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+
+  - name: KEYBOARD_DISMISS_MODE_ON_DRAG
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: The keyboard is dismissed when a drag begins.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
+
+  - name: KEYBOARD_DISMISS_MODE_INTERACTIVE
+    summary: |
+        Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
+    description: |
+        The keyboard follows the dragging touch offscreen, and can be pulled 
+        upward again to cancel the dismiss.
+    type: Number
+    permission: read-only
+    since: "6.0.0"
 
   - name: SEARCH_BAR_STYLE_PROMINENT
     summary: |

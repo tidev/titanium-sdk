@@ -1,10 +1,9 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
@@ -15,6 +14,12 @@ var NativeModule = require('native_module'),
 
 var TAG = "Module";
 
+/**
+ * [Module description]
+ * @param {String} id      [description]
+ * @param {Module} parent  [description]
+ * @param {Object} context [description]
+ */
 function Module(id, parent, context) {
 	this.id = id;
 	this.exports = {};
@@ -31,9 +36,15 @@ kroll.Module = module.exports = Module;
 
 Module.cache = [];
 Module.main = null;
-Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
+/**
+ * [runModule description]
+ * @param  {String} source            [description]
+ * @param  {String} filename          [description]
+ * @param  {[type]} activityOrService [description]
+ * @return {Module}                   [description]
+ */
 Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
@@ -60,40 +71,53 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (!Module.main) {
 		Module.main = module;
 	}
-
+	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 	module.load(filename, source)
 	return module;
 }
 
-// Attempts to load the module. If no file is found
-// with the provided name an exception will be thrown.
-// Once the contents of the file are read, it is run
-// in the current context. A sandbox is created by
-// executing the code inside a wrapper function.
-// This provides a speed boost vs creating a new context.
-//
-// Returns the exports object of the loaded module if successful.
+
+/**
+ * Attempts to load the module. If no file is found
+ * with the provided name an exception will be thrown.
+ * Once the contents of the file are read, it is run
+ * in the current context. A sandbox is created by
+ * executing the code inside a wrapper function.
+ * This provides a speed boost vs creating a new context.
+ *
+ * Returns the exports object of the loaded module if successful.
+ * @param  {String} filename [description]
+ * @param  {String} source   [description]
+ */
 Module.prototype.load = function (filename, source) {
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
 	}
 
 	this.filename = filename;
-	this.paths = [path.dirname(filename)];
+	this.path = path.dirname(filename);
 
 	if (!source) {
-		source = assets.readAsset(filename);
+		source = assets.readAsset('Resources' + filename);
 	}
 
-	this._runScript(source, filename.replace("Resources/", ""));
+	// Stick it in the cache
+	Module.cache[this.filename] = this;
+
+	this._runScript(source, this.filename);
 
 	this.loaded = true;
 }
 
 
-// Generates a context-specific module wrapper, and wraps
-// each invocation API in an external (3rd party) module
-// See invoker.js for more info
+/**
+ * Generates a context-specific module wrapper, and wraps
+ * each invocation API in an external (3rd party) module
+ * See invoker.js for more info
+ * @param  {[type]} externalModule [description]
+ * @param  {[type]} sourceUrl      [description]
+ * @return {[type]}                [description]
+ */
 Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 
 	// The module wrapper forwards on using the original as a prototype
@@ -132,6 +156,13 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 	return wrapper;
 }
 
+/**
+ * [extendModuleWithCommonJs description]
+ * @param  {Object} externalModule [description]
+ * @param  {String} id             [description]
+ * @param  {[type]} thiss          [description]
+ * @param  {Object} context        [description]
+ */
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
 		var jsModule = new Module(id + ".commonjs", thiss, context);
@@ -145,12 +176,17 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	}
 }
 
-// Loads a native / external (3rd party) module
+/**
+ * Loads a native / external (3rd party) module
+ * @param  {String} id              module id
+ * @param  {[type]} externalBinding [description]
+ * @param  {Object} context         [description]
+ * @return {Object}                 The exported module
+ */
 Module.prototype.loadExternalModule = function(id, externalBinding, context) {
-
-	var sourceUrl = context === undefined ? "app://app.js" : context.sourceUrl;
-	var externalModule;
-	var returnObj;
+	var sourceUrl = (context === undefined) ? "app://app.js" : context.sourceUrl,
+		externalModule,
+		returnObj;
 
 	externalModule = Module.cache[id];
 
@@ -191,120 +227,326 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 }
 
-// Require another module as a child of this module.
-// This parent module's path is appended to the search paths
-// when loading the child. Returns the exports object
-// of the child module.
-Module.prototype.require = function (request, context, useCache) {
-	useCache = useCache === undefined ? true : useCache;
-	var id;
-	var filename;
-	var cachedModule;
-	var externalCommonJsContents;
-	var located = false;
+// See https://nodejs.org/api/modules.html#modules_all_together
 
-	var resolved = this.resolveFilename(request);
+/**
+ * Require another module as a child of this module.
+ * This parent module's path is used as the base for relative paths
+ * when loading the child. Returns the exports object
+ * of the child module.
+ *
+ * @param  {String} request  The path to the requested module
+ * @param  {Object} context  [description]
+ * @return {Object}          The loaded module
+ */
+Module.prototype.require = function (request, context) {
+	var start, // hack up the start of the string to check relative/absolute/"naked" module id
+		loaded; // variable to hold the possibly loaded module...
 
-	if (resolved) {
-		// Found it as an asset packaged in the app. (Resources/...).
-		located = true;
-		id = resolved[0];
-		filename = resolved[1];
+	// 1. If X is a core module,
+	loaded = this.loadCoreModule(request, context);
+	if (loaded) {
+		// a. return the core module
+		// b. STOP
+		return loaded;
+	}
 
-		if (useCache) {
-			cachedModule = Module.cache[filename];
-			if (cachedModule) {
-				return cachedModule.exports;
-			}
+	// 2. If X begins with './' or '/' or '../'
+	start = request.substring(0, 2);
+	if (start === './' || start === '..') {
+		loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
+		if (loaded) {
+			return loaded;
 		}
-
+	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
+	} else if (request.substring(0, 1) === '/') {
+		loaded = this.loadAsFileOrDirectory(request, context);
+		if (loaded) {
+			return loaded;
+		}
 	} else {
-		// Already have this precise name wrapped and cached? If yes, quick exit.
-		var wrapper = this.wrapperCache[request];
-		if (wrapper) {
-			return wrapper;
+		// Look for CommonJS module
+		if (request.indexOf('/') == -1) {
+			// For CommonJS we need to look for module.id/module.id.js first...
+			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
+			if (loaded) {
+				return loaded;
+			}
+			// Then try module.id as directory
+			loaded = this.loadAsDirectory('/' + request, context);
+			if (loaded) {
+				return loaded;
+			}
 		}
-		// External module?
-		var pathResolve = resolveLookupPaths(request, this);
-		id = pathResolve[0];
-		var potentialPaths = pathResolve[1];
 
-		for (var i = 0, pathCount = potentialPaths.length; i < pathCount; ++i) {
-			var onePath = potentialPaths[i];
-			if (onePath === "." || onePath === "Resources" || onePath.indexOf("Resources/") === 0) {
-				// This could be a fully-pathed request for an external module
-				// (or a CommonJS sub-module within an external module) from inside
-				// an application JS file. We test that by simply ignoring the Resources
-				// path since it won't be in there if it exists.
-				filename = id;
-			} else {
-				filename = path.resolve(onePath, id);
-			}
+		// Allow looking through node_modules
+		// 3. LOAD_NODE_MODULES(X, dirname(Y))
+		loaded = this.loadNodeModules(request, this.path, context);
+		if (loaded) {
+			return loaded;
+		}
 
-			// Something we already have cached?
-			if (useCache) {
-				cachedModule = Module.cache[filename];
-				if (cachedModule) {
-					wrapper = this.wrapperCache[filename];
-					if (wrapper) {
-						return wrapper;
-					}
-				}
-			}
+		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
+		// Fallback to old Titanium behavior of assuming it's actually an absolute path
+		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
-			var parts = filename.split("/");
-			var checkExternal = parts[0];
-			var externalBinding = kroll.externalBinding(checkExternal);
-			if (externalBinding) {
-				if (parts.length === 1 || (parts.length === 2 && parts[0] === parts[1])) {
-					// This is the "root" of an external module. It can look like either:
-					// request("com.example.mymodule") ... or ...
-					// request("com.example.mymodule/com.example.mymodule")
-					// We can load and return it right away (caching occurs in the called function).
-					return this.loadExternalModule(parts[0], externalBinding, context);
-				} else {
-					// Could be a sub-module (CommonJS) of an external native module.
-					// We allow that since TIMOB-9730.
-					externalCommonJsContents = kroll.getExternalCommonJsModule(filename);
-					if (externalCommonJsContents) {
-						// Found it.
-						located = true;
-						break;
-					}
-				}
-			}
+		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		if (loaded) {
+			return loaded;
 		}
 	}
 
-	if (!located) {
-		throw new Error("Requested module not found: " + request);
+	// 4. THROW "not found"
+	throw new Error("Requested module not found: " + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+}
+
+/**
+ * Loads the core module if it exists. If not, returns null.
+ *
+ * @param  {String}  id The request module id
+ * @param  {Object}  context The context object
+ * @return {Object}    true if the module id matches a native or CommonJS module id, (or it's first path segment does).
+ */
+Module.prototype.loadCoreModule = function (id, context) {
+	var wrapper = this.wrapperCache[id],
+		parts,
+		externalBinding;
+	// check if we have a cached copy of the wrapper
+	if (wrapper) {
+		return wrapper;
 	}
 
-	if (kroll.DBG) {
-		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	parts = id.split('/');
+	externalBinding = kroll.externalBinding(parts[0]);
+
+	if (externalBinding) {
+		if (parts.length === 1) {
+			// This is the "root" of an external module. It can look like:
+			// request("com.example.mymodule")
+			// We can load and return it right away (caching occurs in the called function).
+			return this.loadExternalModule(parts[0], externalBinding, context);
+		}
+
+		// Could be a sub-module (CommonJS) of an external native module.
+		// We allow that since TIMOB-9730.
+		externalCommonJsContents = kroll.getExternalCommonJsModule(id);
+		if (externalCommonJsContents) {
+			// found it
+			// FIXME Re-use loadAsJavaScriptText?
+			var module = new Module(id, this, context);
+			Module.cache[id] = module;
+			module.load(id, externalCommonJsContents);
+			return module.exports;
+		}
 	}
 
-	var module = new Module(id, this, context);
+	return null; // failed to load
+}
 
-	// NOTE: We need to cache here to handle cyclic dependencies.
-	// By caching early, this allows for a return of a "partially evaluated"
-	// module, which can provide transitive properties in a way described
-	// by the commonjs 1.1 spec.
-	if (useCache) {
-		Module.cache[filename] = module;
+/**
+ * Attempts to load a node module by id from the starting path
+ * @param  {String} moduleId       The path of the module to load.
+ * @param  {String} startDir       The starting directory
+ * @param  {Object} context        [description]
+ * @return {Object}                The module's exports, if loaded. null if not.
+ */
+Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
+	var mod, // the loaded module
+		dirs = [],
+		i,
+		dir;
+
+	// 1. let DIRS=NODE_MODULES_PATHS(START)
+	dirs = this.nodeModulesPaths(startDir);
+	// 2. for each DIR in DIRS:
+	for (i = 0; i < dirs.length; i++)
+	{
+		dir = dirs[i];
+		// a. LOAD_AS_FILE(DIR/X)
+		// b. LOAD_AS_DIRECTORY(DIR/X)
+		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
+		if (mod) {
+			return mod;
+		}
+	}
+	return null;
+}
+
+/**
+ * Determine the set of paths to search for node_modules
+ * @param  {String} startDir       The starting directory
+ * @return {[String]}              The array of paths to search
+ */
+Module.prototype.nodeModulesPaths = function (startDir) {
+	// 1. let PARTS = path split(START)
+	var parts = startDir.split('/'),
+		// 2. let I = count of PARTS - 1
+		i = parts.length - 1,
+		// 3. let DIRS = []
+		dirs = [],
+		dir;
+
+	// 4. while I >= 0,
+	while (i >= 0) {
+		// a. if PARTS[I] = "node_modules" CONTINUE
+		if (parts[i] === 'node_modules') {
+			continue;
+		}
+		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
+		dir = path.join(parts.slice(0, i + 1).join('/'), 'node_modules');
+		// c. DIRS = DIRS + DIR
+		dirs.push(dir);
+		// d. let I = I - 1
+		i = i - 1;
+	}
+	return dirs;
+}
+
+/**
+ * Attempts to load a given path as a file or directory.
+ * @param  {String} normalizedPath The path of the module to load.
+ * @param  {Object} context        [description]
+ * @return {Object}                The module's exports, if loaded. null if not.
+ */
+Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
+	// a. LOAD_AS_FILE(Y + X)
+	var loaded = this.loadAsFile(normalizedPath, context);
+	if (loaded) {
+		return loaded;
+	}
+	// b. LOAD_AS_DIRECTORY(Y + X)
+	loaded = this.loadAsDirectory(normalizedPath, context);
+	if (loaded) {
+		return loaded;
 	}
 
-	if (externalCommonJsContents) {
-		module.load(filename, externalCommonJsContents);
-	} else {
-		module.load(filename);
+	return null;
+}
+
+/**
+ * Loads a given file as a Javascript file, returning the module.exports.
+ * @param  {String} filename File we're attempting to load
+ * @param  {Object} context
+ * @return {Object}          module.exports of the file.
+ */
+Module.prototype.loadJavascriptText = function (filename, context) {
+	var module;
+
+	// Look in the cache!
+	if (Module.cache[filename]) {
+		return Module.cache[filename].exports;
 	}
+
+	module = new Module(filename, this, context);
+	module.load(filename);
 
 	return module.exports;
 }
 
-// Setup a sandbox and run the module's script inside it.
-// Returns the result of the executed script.
+/**
+ * Loads a JSON file by reading it's contents, doing a JSON.parse and returning the parsed object.
+ *
+ * @param  {String} filename File we're attempting to load
+ * @param  {Object} context
+ * @return {Object}          The parsed JSON object from the file
+ */
+Module.prototype.loadJavascriptObject = function (filename, context) {
+	var module,
+		source;
+
+	// Look in the cache!
+	if (Module.cache[filename]) {
+		return Module.cache[filename].exports;
+	}
+
+	module = new Module(filename, this, context);
+	module.filename = filename;
+	module.path = path.dirname(filename);
+	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+
+	// Stick it in the cache
+	Module.cache[filename] = module;
+
+	module.exports = JSON.parse(source);
+	module.loaded = true;
+
+	return module.exports;
+}
+
+/**
+ * Attempts to load a file by it's full filename according to NodeJS rules.
+ *
+ * @param  {String} id The filename
+ * @param  {Object} context
+ * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
+ */
+Module.prototype.loadAsFile = function (id, context) {
+	// 1. If X is a file, load X as JavaScript text.  STOP
+	var filename = id;
+	if (this.filenameExists(filename)) {
+		// If the file has a .json extension, load as JavascriptObject
+		if (filename.length > 5 && filename.slice(-4) === 'json') {
+			return this.loadJavascriptObject(filename, context);
+		}
+		return this.loadJavascriptText(filename, context);
+	}
+	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
+	filename = id + '.js';
+	if (this.filenameExists(filename)) {
+		return this.loadJavascriptText(filename, context);
+	}
+	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
+	filename = id + '.json';
+	if (this.filenameExists(filename)) {
+		return this.loadJavascriptObject(filename, context);
+	}
+	// failed to load anything!
+	return null;
+}
+
+/**
+ * Attempts to load a directory according to NodeJS rules.
+ *
+ * @param  {String} id The directory name
+ * @param  {Object} context
+ * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
+ */
+Module.prototype.loadAsDirectory = function (id, context) {
+	// 1. If X/package.json is a file,
+	var filename = path.resolve(id, 'package.json');
+	if (this.filenameExists(filename)) {
+		// a. Parse X/package.json, and look for "main" field.
+		var object = this.loadJavascriptObject(filename, context);
+		if (object && object.main) {
+			// b. let M = X + (json main field)
+			var m = path.resolve(id, object.main);
+			// c. LOAD_AS_FILE(M)
+			return this.loadAsFile(m, context);
+		}
+	}
+
+	// 2. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
+	filename = path.resolve(id, 'index.js');
+	if (this.filenameExists(filename)) {
+		return this.loadJavascriptText(filename, context);
+	}
+	// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
+	filename = path.resolve(id, 'index.json');
+	if (this.filenameExists(filename)) {
+		return this.loadJavascriptObject(filename, context);
+	}
+
+	return null;
+}
+
+/**
+ * Setup a sandbox and run the module's script inside it.
+ * Returns the result of the executed script.
+ * @param  {String} source   [description]
+ * @param  {String} filename [description]
+ * @return {[type]}          [description]
+ */
 Module.prototype._runScript = function (source, filename) {
 	var self = this,
 		url = "app://" + filename;
@@ -341,80 +583,21 @@ Module.prototype._runScript = function (source, filename) {
 	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
 }
 
-// Determine the paths where the requested module could live.
-// Returns [id, paths]  where id is the module ID and paths
-// is the list of path names.
-function resolveLookupPaths(request, parentModule) {
-
-	// "absolute" in Titanium is relative to the Resources folder
-	if (request.charAt(0) === '/') {
-		request = request.substring(1);
-	}
-
-	var start = request.substring(0, 2);
-	if (start !== './' && start !== '..') {
-		var paths = Module.paths;
-		if (parentModule) {
-			if (!parentModule.paths) {
-				parentModule.paths = [];
-			}
-			// Check if parent is root CommonJS module packaged
-			// with a native external module, in which case the
-			// module id is itself a path that needs to be checked.
-			var parentId = parentModule.id;
-			var pos = parentId.lastIndexOf(".commonjs");
-			if (pos === parentId.length - ".commonjs".length) {
-				paths = [parentId.substr(0, pos)].concat(paths);
-			}
-			paths = parentModule.paths.concat(paths);
-		}
-		return [request, paths];
-	}
-
-	// Get the path to the parent module. If the parent
-	// is an index file, its ID is already the directory path.
-	// Ex: path.id = "a/" if index
-	//     path.id = "a/b" if non-index
-	var isIndex = /^index\.\w+?$/.test(path.basename(parentModule.filename));
-	var parentIdPath = isIndex ? parentModule.id : path.dirname(parentModule.id);
-
-	var id = path.resolve(parentIdPath, request);
-
-	// make sure require('./path') and require('path') get distinct ids, even
-	// when called from the toplevel js file
-	if (parentIdPath === '.' && id.indexOf('/') === -1) {
-		id = './' + id;
-	}
-
-	// The module ID is resolved now, so we use the root "Module.paths" as the lookup base
-	return [id, Module.paths];
-}
-
-// Determine the filename that contains the request
-// module's source code. If no file is found an exception
-// will be thrown.
-Module.prototype.resolveFilename = function (request) {
-	var resolvedModule = resolveLookupPaths(request, this);
-	var id = resolvedModule[0];
-	var paths = resolvedModule[1];
-
-	// Try each possible path where the module's source file
-	// could be located.
-	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
-		var filename = path.resolve(paths[i], id) + '.js';
-		if (this.filenameExists(filename)) {
-			return [id, filename];
-		}
-	}
-
-	return null;
-}
-
+/**
+ * The loaded index.json file from the app. Used to store the encrypted JS assets'
+ * filenames/offsets.
+ */
 var fileIndex;
 
+/**
+ * Look up a filename in the app's index.json file
+ * @param  {String} filename the file we're looking for
+ * @return {Boolean}         true if the filename exists in the index.json
+ */
 Module.prototype.filenameExists = function (filename) {
+	filename = 'Resources' + filename; // When we actually look for files, assume "Resources/" is the root
 	if (!fileIndex) {
-		var json = assets.readAsset("index.json");
+		var json = assets.readAsset('index.json');
 		fileIndex = JSON.parse(json);
 	}
 

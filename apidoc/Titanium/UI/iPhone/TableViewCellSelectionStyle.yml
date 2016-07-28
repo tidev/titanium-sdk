@@ -9,7 +9,7 @@ platforms: [iphone, ipad]
 createable: false
 deprecated:
     since: "5.4.0"
-    notes: Use [Titanium.UI.iOS.TableViewCellSelectionStyle](Titanium.UI.iOS.TableViewCellSelectionStyle) instead.
+    notes: Use <Titanium.UI.iOS.TableViewCellSelectionStyle> instead.
 
 properties:
   - name: BLUE

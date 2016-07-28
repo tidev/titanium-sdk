@@ -28,7 +28,7 @@ import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 
-import com.appcelerator.analytics.APSAnalyticsHelper;
+import com.appcelerator.aps.APSAnalyticsHelper;
 
 @SuppressWarnings("deprecation")
 public class TiPlatformHelper extends APSAnalyticsHelper

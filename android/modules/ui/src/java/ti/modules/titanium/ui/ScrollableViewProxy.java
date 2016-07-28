@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -45,7 +44,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_SET_ENABLED = MSG_FIRST_ID + 109;
 	public static final int MSG_INSERT_VIEWS_AT = MSG_FIRST_ID + 110;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
+
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
 
 	protected AtomicBoolean inScroll;
@@ -56,11 +55,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
-	}
-
-	public ScrollableViewProxy(TiContext context)
-	{
-		this();
 	}
 
 	@Override
@@ -310,7 +304,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
 	}
-	
+
 	@Override
 	public void setActivity(Activity activity)
 	{
