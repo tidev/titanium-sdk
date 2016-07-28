@@ -1537,6 +1537,12 @@ properties:
     type: Boolean
     since: "5.4.0"
 
+  - name: statusBarBackgroundColor
+    summary: Sets the global status bar background color for the application.
+    type: String
+    since: "6.0.0"
+    default: Undefined (Uses the native defaults)
+                                                                                                              
 methods:
   - name: createTransitionAnimation
     summary: |
@@ -1633,7 +1639,7 @@ properties:
     summary: Animation to hide the current window.
     type: Titanium.UI.Animation
 
-  - name: tranistionTo
+  - name: transitionTo
     summary: Animation to show the new window.
     type: Titanium.UI.Animation
 
