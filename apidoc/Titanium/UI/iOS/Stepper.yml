@@ -5,8 +5,8 @@ summary: |
 description: |
     <table id="IOS Stepper">
       <tr>
-        <td><img src="images/stepper/Stepper.png" height="50" /></td>
-        <td><img src="images/stepper/Stepper_customImages.png" height="51" /></td>
+        <td><img src="images/Stepper/Stepper.png" height="50" /></td>
+        <td><img src="images/Stepper/Stepper_customImages.png" height="51" /></td>
       </tr>
       <tr><th colspan="2">iOS</th></tr>
     </table>
