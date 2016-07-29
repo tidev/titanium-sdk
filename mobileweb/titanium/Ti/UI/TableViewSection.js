@@ -1,6 +1,6 @@
 /*global define*/
-define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/MobileWeb/TableViewSeparatorStyle', 'Ti/UI'],
-	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
+define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style', 'Ti/UI'],
+	function(declare, lang, Widget, style, UI) {
 
 	var is = require.is,
 		setStyle = style.set,
@@ -41,7 +41,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 		_tableView: null,
 
 		_createSeparator: function() {
-			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE,
+			var showSeparator = this._tableView && this._tableView.separatorStyle === UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE,
 				separator = UI.createView({
 					height: showSeparator ? 1 : 0,
 					width: UI.INHERIT,
@@ -81,7 +81,7 @@ define(['Ti/_/declare', 'Ti/_/lang', 'Ti/_/UI/Widget', 'Ti/_/style','Ti/UI/Mobil
 
 				for (i = 0; i < rows.length; i += 2) {
 					row = rows[i];
-					if (tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
+					if (tableView.separatorStyle === UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
 						row.height = 1;
 						row.backgroundColor = tableView.separatorColor;
 					} else {

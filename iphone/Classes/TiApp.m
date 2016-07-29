@@ -34,6 +34,7 @@ int TiDebugPort = 2525;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
+extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString * TITANIUM_VERSION;
 
@@ -67,6 +68,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize backgroundTransferCompletionHandlers;
 @synthesize localNotification;
 @synthesize appBooted;
+@synthesize userAgent;
 
 #ifdef TI_USE_KROLL_THREAD
 +(void)initialize
@@ -292,7 +294,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 		if(launchedShortcutItem != nil) {
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-			launchedShortcutItem = nil;
+			RELEASE_TO_NIL(launchedShortcutItem);
 		}
 
 		if (localNotification != nil) {
@@ -414,7 +416,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
         if (shortcut != nil) {
-            launchedShortcutItem = shortcut;
+            launchedShortcutItem = [shortcut retain];
         }
     }
     
@@ -1090,7 +1092,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message
 {
-	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+	if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO)
 	{
 		NSLog(@"[ERROR] Application received error: %@",message);
 		return;
@@ -1144,17 +1146,19 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[super dealloc];
 }
 
+- (NSString*)systemUserAgent
+{
+    UIDevice *currentDevice = [UIDevice currentDevice];
+    NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
+    NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
+    NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
+    
+    return [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
+}
+
 - (NSString*)userAgent
 {
-	if (userAgent==nil)
-	{
-		UIDevice *currentDevice = [UIDevice currentDevice];
-		NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
-		NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
-		NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
-		userAgent = [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
-	}
-	return userAgent;
+    return !userAgent ? [self systemUserAgent] : userAgent;
 }
 
 -(NSString*)remoteDeviceUUID
@@ -1231,6 +1235,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if(shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
+    
+    // Update launchOptions to include the mapped dictionary-shortcut instead of the UIShortcutItem
+    [launchOptions setObject:dict forKey:UIApplicationLaunchOptionsShortcutItemKey];
     
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut

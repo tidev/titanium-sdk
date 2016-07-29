@@ -205,47 +205,10 @@
 	
 	NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
 	
-	if (url!=nil)
-	{
-        DebugLog(@"[WARN] The Ti.Window.url property is deprecated and will be remove on the next release");
-        // Window based JS can only be loaded from local filesystem within app resources
-		if ([url isFileURL] && [[[url absoluteString] lastPathComponent] hasSuffix:@".js"])
-		{
-			// since this function is recursive, only do this if we haven't already created the context
-			if (context==nil)
-			{
-				RELEASE_TO_NIL(context);
-				// remember our base url so we can restore on close
-				oldBaseURL = [[self _baseURL] retain];
-				// set our new base
-				[self _setBaseURL:url];
-				contextReady=NO;
-				context = [[KrollBridge alloc] initWithHost:[self _host]];
-				id theTabGroup = [tab tabGroup];
-				id theTab = (theTabGroup == nil)?nil:tab;
-				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",theTabGroup,@"currentTabGroup",theTab,@"currentTab",nil];
-				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
-				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
-				[context boot:latch url:url preload:preload];
-				if ([latch waitForBoot])
-				{
-                    if ([context evaluationError]) {
-                        DebugLog(@"Could not boot context. Context has evaluation error");
-                        return NO;
-                    }
-                    contextReady = YES;
-					return [super _handleOpen:args];
-				}
-				else 
-				{
-					return NO;
-				}
-			}
-		}
-		else 
-		{
-			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
-		}
+	if (url != nil) {
+		DEPRECATED_REMOVED(@"UI.Window.url", @"2.0.0", @"6.0.0");
+		DebugLog(@"[ERROR] Please use require() to manage your application components.");
+		DebugLog(@"[ERROR] More infos: http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium");
 	}
 	
 	return [super _handleOpen:args];
@@ -920,6 +883,70 @@
 	
 }
 
+-(void)setHidesBarsOnSwipe:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
+
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsOnSwipe = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnSwipe"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsOnTap:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsOnTap = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsOnTap"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsWhenVerticallyCompact:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
+
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsWhenVerticallyCompact = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenVerticallyCompact"] def:NO];
+            }
+        }, NO);
+    }
+}
+
+-(void)setHidesBarsWhenKeyboardAppears:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+
+    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
+    
+    if ([TiUtils isIOS8OrGreater]) {
+        TiThreadPerformOnMainThread(^{
+            if ((controller != nil) && ([controller navigationController] != nil)) {
+                UINavigationController *ourNC = [controller navigationController];
+                ourNC.hidesBarsWhenKeyboardAppears = [TiUtils boolValue:[self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"] def:NO];
+            }
+        }, NO);
+    }
+}
+
 
 #define SETPROP(m,x) \
 {\
@@ -970,6 +997,10 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
+    SETPROP(@"hidesBarsOnSwipe", setHidesBarsOnSwipe);
+    SETPROP(@"hidesBarsOnTap", setHidesBarsOnTap);
+    SETPROP(@"hidesBarsWhenVerticallyCompact", setHidesBarsWhenVerticallyCompact);
+    SETPROP(@"hidesBarsWhenKeyboardAppears", setHidesBarsWhenKeyboardAppears);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
     [self updateNavButtons];

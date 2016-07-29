@@ -154,7 +154,7 @@
             return;
     }
     [self setHighlighting:button.highlighted];
-    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andView:self]];
     if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
         [self.proxy fireEvent:fireActionEvent withObject:evt];
     }
@@ -263,7 +263,7 @@
 {
 	[backgroundImageCache release];
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
-	backgroundImageCache = [[self loadImage:value] retain];
+	backgroundImageCache = [TiUtils loadBackgroundImage:value forProxy:[self proxy]];
     self.backgroundImage = value;
 	[self updateBackgroundImage];
 }
@@ -352,7 +352,7 @@
         [[self button] setTitleShadowColor:nil forState:UIControlStateNormal];
     } else {
         color = [TiUtils colorValue:color];
-        [[self button] setTitleShadowColor:[color color] forState:UIControlStateNormal];
+        [[self button] setTitleShadowColor:[(TiColor*)color color] forState:UIControlStateNormal];
     }
 }
 

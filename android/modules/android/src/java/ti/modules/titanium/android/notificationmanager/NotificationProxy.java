@@ -14,7 +14,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -52,11 +51,6 @@ public class NotificationProxy extends KrollProxy
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
 		audioStreamType = Notification.STREAM_DEFAULT;
-	}
-
-	public NotificationProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override

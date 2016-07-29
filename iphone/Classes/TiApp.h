@@ -189,22 +189,35 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)hideModalController:(UIViewController*)controller animated:(BOOL)animated;
 
 /**
- Returns user agent string to use for network requests.
- 
- @return User agent string
- */
--(NSString*)userAgent;
-
-/**
  Returns unique identifier for the current application launch.
  
  @return Current session id.
  */
 -(NSString*)sessionId;
 
+/**
+ Starts searching for background services.
+ */
 -(void)beginBackgrounding;
+
+/**
+ Ends background services operations.
+ */
 -(void)endBackgrounding;
 
+/**
+ Returns the user agent string to use for system network requests.
+ */
+-(NSString*)systemUserAgent;
+
+/**
+ Returns or set the user agent string to use for network requests.
+ */
+@property(nonatomic, retain) NSString* userAgent;
+
+/**
+ Determines if the application finished booting.
+ */
 @property(nonatomic,readonly) BOOL appBooted;
 
 -(void)registerBackgroundService:(TiProxy*)proxy;

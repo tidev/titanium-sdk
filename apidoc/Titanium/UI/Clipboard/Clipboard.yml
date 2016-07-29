@@ -76,8 +76,32 @@ methods:
   - name: hasText
     summary: Indicates whether any text data is stored in the clipboard.
     returns:
-        - type: Boolean
-        - type: Number
+        type: Boolean
+
+      
+  - name: hasURLs
+    summary: Indicates whether any URLs are stored in the clipboard.
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    returns:
+        type: Boolean
+     
+  - name: hasImages
+    summary: Indicates whether any images are stored in the clipboard.
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    returns:
+        type: Boolean
+      
+  - name: hasColors
+    summary: Indicates whether any colors are stored in the clipboard.
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    returns:
+        type: Boolean
     
   - name: setData
     summary: Stores data of the specified MIME type in the clipboard.
