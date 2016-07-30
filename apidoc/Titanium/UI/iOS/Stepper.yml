@@ -25,6 +25,7 @@ description: |
 
 extends: Titanium.UI.View
 since: "5.4.0"
+platforms: [iphone, ipad]
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]
