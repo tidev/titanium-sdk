@@ -1,3 +1,7 @@
+/**
+ * Set a global background-color (used for iOS)
+ */
+Ti.UI.setBackgroundColor("#fff");
 
 /**
  * Create a new `Ti.UI.TabGroup`.
@@ -7,8 +11,8 @@ var tabGroup = Ti.UI.createTabGroup();
 /**
  * Add the two created tabs to the tabGroup object.
  */
-tabGroup.addTab(createTab("Tab 1", "I am Window 1", "assets/images/tab1.png"));  
-tabGroup.addTab(createTab("Tab 2", "I am Window 2", "assets/images/tab2.png"));  
+tabGroup.addTab(createTab("Tab 1", "I am Window 1", "assets/images/tab1.png"));
+tabGroup.addTab(createTab("Tab 2", "I am Window 2", "assets/images/tab2.png"));
 
 /**
  * Open the tabGroup
@@ -23,26 +27,25 @@ tabGroup.open();
  * @return {String} icon The icon used in the `Ti.UI.Tab`
  */
 function createTab(title, message, icon) {
-    var win = Ti.UI.createWindow({  
+    var win = Ti.UI.createWindow({
         title: title,
-        barColor: "#ad172b",
         backgroundColor: '#fff'
     });
 
-    var tab = Ti.UI.createTab({  
+    var label = Ti.UI.createLabel({
+        text: message,
+        font: {
+            fontSize: 20
+        }
+    });
+
+    win.add(label);
+
+    var tab = Ti.UI.createTab({
         title: title,
         icon: icon,
         window: win
     });
 
-    var label = Ti.UI.createLabel({
-    	text: message,
-    	font: {
-            fontSize: 20
-        }
-    });
-
-    win.add(label2);
-    
     return tab;
 }
