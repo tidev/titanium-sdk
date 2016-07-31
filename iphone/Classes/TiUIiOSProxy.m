@@ -199,7 +199,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
