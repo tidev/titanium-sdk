@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
@@ -31,7 +32,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
 	private static final String NAME = "v8";
-	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
 
 	private boolean libLoaded = false;
@@ -44,19 +44,32 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
+	public static boolean isEmulator() {
+		return "goldfish".equals(Build.HARDWARE)
+			|| Build.FINGERPRINT.startsWith("generic")
+			|| Build.FINGERPRINT.startsWith("unknown")
+			|| Build.MODEL.contains("google_sdk")
+			|| Build.MODEL.contains("Emulator")
+			|| Build.MODEL.contains("Android SDK built for x86")
+			|| Build.MANUFACTURER.contains("Genymotion")
+			|| (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+			|| "google_sdk".equals(Build.PRODUCT);
+	}
+
 	@Override
 	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
-		TiDeployData deployData = getKrollApplication().getDeployData();
+		KrollApplication application = getKrollApplication();
+		TiDeployData deployData = application.getDeployData();
 
-		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
+		if (isEmulator()) {
 			Log.d(TAG, "Emulator detected, storing global references in a global Map", Log.DEBUG_MODE);
 			useGlobalRefs = false;
 		}
 
 		if (!libLoaded) {
-			System.loadLibrary("stlport_shared");
+			System.loadLibrary("c++_shared");
 			System.loadLibrary("kroll-v8");
 
 			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
@@ -77,15 +90,21 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		boolean DBG = true;
-		String deployType = getKrollApplication().getDeployType();
+		String deployType = application.getDeployType();
 		if (deployType.equals("production")) {
 			DBG = false;
 		}
 
-		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG, deployData.isProfilerEnabled());
+		// Instantiate a debugger here and pass it along to C++ code
+		JSDebugger jsDebugger = null;
+		if (deployData.getDebuggerPort() >= 0) {
+			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), new Handler(Looper.getMainLooper()), application.getSDKVersion());
+		}
 
-		if (deployData.isDebuggerEnabled()) {
-			dispatchDebugMessages();
+		nativeInit(useGlobalRefs, jsDebugger, DBG, deployData.isProfilerEnabled());
+
+		if (jsDebugger != null) {
+			jsDebugger.start();
 		} else if (deployData.isProfilerEnabled()) {
 			try {
 				Class<?> clazz = Class.forName("org.appcelerator.titanium.profiler.TiProfiler");
@@ -190,28 +209,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
-	public boolean handleMessage(Message message)
-	{
-		switch (message.what) {
-			case MSG_PROCESS_DEBUG_MESSAGES:
-				nativeProcessDebugMessages();
-				dispatchDebugMessages();
-
-				return true;
-		}
-
-		return super.handleMessage(message);
-	}
-
-	@Override
 	public String getRuntimeName()
 	{
 		return NAME;
-	}
-
-	protected void dispatchDebugMessages()
-	{
-		handler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
 	}
 
 	public void addExternalModule(String libName, Class<? extends KrollExternalModule> moduleClass)
@@ -237,12 +237,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG, boolean profilerEnabled);
+	private native void nativeInit(boolean useGlobalRefs, JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native Object nativeEvalString(String source, String filename);
-	private native void nativeProcessDebugMessages();
 	private native boolean nativeIdle();
 	private native void nativeDispose();
 	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
 }
-

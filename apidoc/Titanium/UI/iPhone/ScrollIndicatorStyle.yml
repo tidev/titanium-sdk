@@ -5,6 +5,9 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "5.4.0"
+    notes: Use <Titanium.UI.iOS.ScrollIndicatorStyle> instead.
 
 properties:
   - name: BLACK

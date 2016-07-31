@@ -40,30 +40,6 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
 }
 #endif
 
-#ifdef USE_TI_UIIPADSPLITWINDOW
--(id)createSplitWindow:(id)args
-{
-	if ([TiUtils isIPad])
-	{
-        DEPRECATED_REPLACED(@"UI.iPad.createSplitWindow", @"3.6.0", @"Ti.UI.iOS.createSplitWindow()")
-		return [[[TiUIiPadSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-	}
-	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
-}
-#endif
-
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
--(id)createDocumentViewer:(id)args
-{
-	if ([TiUtils isIPad])
-	{
-        DEPRECATED_REPLACED(@"UI.iPad.createDocumentViewer", @"2.1.1", @"Ti.UI.iOS.createDocumentViewer()")
-        return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-	}
-	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
-}
-#endif
-
 @end
 
 #endif

@@ -231,12 +231,22 @@ events:
         Touching it launches the app, and fires this event.
         
         This is only applicable if you have set [showTrayNotification](Modules.CloudPush.showTrayNotification) to true.
+    properties:
+      - name: payload
+        summary: A JSON string of your data payload. Use JSON.parse to turn this into an object you can use.
+        type: String
+
   - name: trayClickFocusedApp
     summary: Fired when a tray notification is shown and the application is already running.
     description: |
         Touching it focuses the app, and fires this event.
         
         This is only applicable if you have set [showTrayNotification](Modules.CloudPush.showTrayNotification) to true.
+    properties:
+      - name: payload
+        summary: A JSON string of your data payload. Use JSON.parse to turn this into an object you can use.
+        type: String
+    
   - name: callback
     summary: Fired whenever a push notification is received.
     description: |
@@ -259,7 +269,7 @@ events:
         a push notification can return a user to your application.
     properties:
       - name: payload
-        summary: A JSON string of your data payload. Use JSON.parse to turn this in to an object you can use.
+        summary: A JSON string of your data payload. Use JSON.parse to turn this into an object you can use.
         type: String
 examples:
   - title: Listening for Push Notifications

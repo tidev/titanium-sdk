@@ -15,7 +15,7 @@
 // problemmatic and we try and solve it here.
 //
 
-@interface TiUIImageView : TiUIView <ImageLoaderDelegate>
+@interface TiUIImageView : TiUIView <ImageLoaderDelegate, TiProxyDelegate>
 {
 @private
 	NSMutableArray *images;

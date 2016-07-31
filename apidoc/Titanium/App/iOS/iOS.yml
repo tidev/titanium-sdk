@@ -165,7 +165,7 @@ methods:
     parameters:
       - name: handlerID
         summary: |
-            Unique string identifer for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
+            Unique string identifier for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
             that initiated the background opertation mode.
         type: String
     osver: {ios: {min: "7.0"}}
@@ -191,7 +191,7 @@ methods:
     parameters:
       - name: handlerId
         summary: |
-            Unique string identifer for the event (`watchkitextensionrequest`)
+            Unique string identifier for the event (`watchkitextensionrequest`)
             that initiated from the WatchKit extension calling the openParentApplication:reply method.
         type: String
       - name: userInfo
@@ -748,7 +748,7 @@ events:
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the `backgroundfetch` event. This identifier should be passed as the argument
+            Unique string identifier for the `backgroundfetch` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
     platforms: [iphone, ipad]
@@ -789,7 +789,7 @@ events:
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the `silentpush` event. This identifier should be passed as the argument
+            Unique string identifier for the `silentpush` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
     platforms: [iphone, ipad]
@@ -825,7 +825,7 @@ events:
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the `backgroundtransfer` event. This identifier should be passed as the argument
+            Unique string identifier for the `backgroundtransfer` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
       - name: sessionId
@@ -845,8 +845,14 @@ events:
         This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
       - name: taskIdentifier
-        summary: The `urlSession` download task's identifer.
+        summary: The `urlSession` download task's identifier.
         type: Number
+
+      - name: sessionIdentifier
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
+        type: String
 
       - name: bytesWritten
         summary: The number of bytes transferred since the last time this event was fired.
@@ -864,6 +870,39 @@ events:
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
+  - name: uploadprogress
+    summary: |
+        Fired periodically to inform the app about the upload's progress of a [urlSession](Modules.URLSession).
+        Available only on iOS 7 and later.
+    description: |
+        This event only needs to be used if your app is using the `urlSession` module to upload data.
+    properties:
+      - name: taskIdentifier
+        summary: The `urlSession` upload task's identifier.
+        type: Number
+
+      - name: sessionIdentifier
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
+        type: String
+
+      - name: bytesSent
+        summary: The number of bytes transferred since the last time this event was fired.
+        type: Number
+
+      - name: totalBytesSent
+        summary: The total number of bytes transferred so far.
+        type: Number
+
+      - name: totalBytesExpectedToSend
+        summary: |
+            The expected length of the file, as provided by the Content-Length header. If this
+            header was not provided, the value is zero.
+        type: Number
+    osver: {ios: {min: "7.0"}}
+    since: "3.2.0"
+
   - name: downloadcompleted
     summary: |
         Fired to indicate that a [urlSession's](Modules.URLSession) download task has finished downloading.
@@ -872,8 +911,14 @@ events:
         This event only needs to be used if your app is using the `urlSession` module to download data.
     properties:
       - name: taskIdentifier
-        summary: The `urlSession` download task's identifer.
+        summary: The `urlSession` download task's identifier.
         type: Number
+
+      - name: sessionIdentifier
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
+        type: String
 
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
@@ -893,8 +938,14 @@ events:
         the hostname or connect to the host.
     properties:
       - name: taskIdentifier
-        summary: The `urlSession` download task's identifer.
+        summary: The `urlSession` download task's identifier.
         type: Number
+
+      - name: sessionIdentifier
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
+        type: String
 
       - name: success
         summary:  Indicates if the operation succeeded. Returns true if download succeeded, false otherwise.
@@ -929,6 +980,12 @@ events:
         is now safe to invoke [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler)
         method with the `handlerID` or to begin any internal updates that may result in invoking
         this method.
+    properties:
+      - name: sessionIdentifier
+        summary: | 
+            The `urlSession` session identifier. If it does not exist, this property is not provided.
+            This property is available since Titanium Mobile 5.4.0.GA.
+        type: String
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -970,7 +1027,7 @@ events:
     properties:
       - name: handlerId
         summary: |
-            Unique string identifer for the `watchkitextensionrequest` event. This identifier should be passed an argument
+            Unique string identifier for the `watchkitextensionrequest` event. This identifier should be passed an argument
             to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
         type: String
       - name: userInfo
@@ -995,7 +1052,7 @@ events:
     properties:
       - name: activityType
         summary: |
-            Unique string identifer for the handoff user activity. The identifier must be defined in your `tiapp.xml` file.
+            Unique string identifier for the handoff user activity. The identifier must be defined in your `tiapp.xml` file.
         type: String
       - name: searchableItemActivityIdentifier
         summary: |
@@ -1061,6 +1118,12 @@ properties:
     type: String
     optional: true
 
+  - name: alertTitle
+    summary: Alert title to display. Available since Titanium SDK 5.4.0.
+    type: String
+    optional: true
+    since: "5.4.0"
+
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
     type: String
@@ -1104,6 +1167,18 @@ properties:
     type: Dictionary
     optional: true
 
+  - name: region
+    summary: | 
+        Region the notification will be triggered in. Allowed parameter are:
+        
+        - `latitude`: Latitude of the location center, in decimal degrees (required).
+        - `longitude`: Longitude of the location center, in decimal degrees (required).
+        - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
+        - `identifier`: Identifier of the region (optional).
+    type: Dictionary
+    optional: true
+    since: "5.4.0"
+    
 ---
 name: UserNotificationSettings
 summary: |

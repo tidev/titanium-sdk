@@ -271,7 +271,14 @@ public class TiSound
 			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
-
+    
+	public int  getAudioSessionId() {
+		if (mp != null) {
+			return mp.getAudioSessionId();
+		}
+		return 0;
+	}
+    
 	public void release()
 	{
 		try {
@@ -363,7 +370,9 @@ public class TiSound
 			}
 
 			try {
-				mp.seekTo(position);
+			    if (mp.getDuration() >= 0) {
+			        mp.seekTo(position);
+			    }
 			} catch (IllegalStateException e) {
 				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}

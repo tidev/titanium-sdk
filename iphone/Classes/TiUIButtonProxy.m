@@ -82,10 +82,12 @@
     return YES;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *) parentViewForChild:(TiViewProxy *)child
 {
 	return [(TiUIButton *)[self view] viewGroupWrapper];
 }
+#endif
 
 -(void)removeBarButtonView
 {
@@ -133,6 +135,7 @@
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -141,6 +144,7 @@
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 USE_VIEW_FOR_CONTENT_HEIGHT
 USE_VIEW_FOR_CONTENT_WIDTH

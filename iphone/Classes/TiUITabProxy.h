@@ -43,6 +43,7 @@
 -(void)setIcon:(id)title;
 -(void)setBadge:(id)title;
 -(void)setActive:(id)value;
+-(void)setIconInsets:(id)args;
 
 - (void)handleWillBlur;
 - (void)handleDidBlur:(NSDictionary *)event;

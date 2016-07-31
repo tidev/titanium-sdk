@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -34,12 +35,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.Display;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
+	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
@@ -475,7 +479,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (activity != null)
 		{
-			return TiOrientationHelper.convertRotationToTiOrientationMode(activity.getWindowManager().getDefaultDisplay().getRotation());
+		    DisplayMetrics dm = new DisplayMetrics();
+		    Display display = activity.getWindowManager().getDefaultDisplay();
+		    display.getMetrics(dm);
+		    int width = dm.widthPixels;
+		    int height = dm.heightPixels;
+		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
@@ -518,12 +527,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity) {
-	    if (LOLLIPOP_OR_GREATER && !sharedElementPairs.isEmpty()) {
+	    if (hasActivityTransitions()) {
 	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
 	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
 	        return b;
 	    } else {
 	        return null;
 	    }
+	}
+	
+	/** 
+	 * @return true if this window has activity transitions  
+	 */
+	protected boolean hasActivityTransitions() {
+	    final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
+	    return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
 	}
 }

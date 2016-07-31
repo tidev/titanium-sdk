@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -346,18 +347,25 @@ public class WheelView extends View {
 	 * @return the desired layout height
 	 */
 	private int getDesiredHeight(Layout layout) {
-		if (layout == null) {
-			return 0;
-		}
+	    if (layout == null) {
+	        return 0;
+	    }
 
-		int linecount = layout.getLineCount();
-		int desired = layout.getLineTop(linecount) - getItemOffset() * 2
-				- getAdditionalItemHeight();
+	    int linecount = layout.getLineCount();
 
-		// Check against our minimum height
-		desired = Math.max(desired, getSuggestedMinimumHeight());
+	    // APPCELERATOR TITANIUM CUSTOMIZATION:
+	    int desired = layout.getLineTop(linecount) - getAdditionalItemHeight();
 
-		return desired;
+	    if (Build.VERSION.SDK_INT < 21) {
+	        desired -= getItemOffset() * 2;
+	    } else {
+	        desired += getTextSize();
+	    }
+
+	    // Check against our minimum height
+	    desired = Math.max(desired, getSuggestedMinimumHeight());
+
+	    return desired;
 	}
 
 	/**

@@ -15,6 +15,6 @@
 
 @property(nonatomic, readonly, retain) UIToolbar* toolbar;
 
--(void)setItems:(NSArray<TiLayoutView*>*)items;
+-(void)setItems:(id)items;
 
 @end

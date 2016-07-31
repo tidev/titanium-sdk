@@ -56,16 +56,18 @@ description: |
     re-intiializes the application. The benefit to this approach is that it avoids a full
     application restart, which occurs with the first option.
 
-            var initialLaunchPerformed = false;
-            Ti.Android.currentActivity.addEventListener("resume", function() {
-                if (!initialLaunchPerformed) {
-                    initialLaunchPerformed = true;
-                    return;
-                }
-                // If we reach this point the root activity is being resumed for the second (or greater time).
-                // Re-run the application-specific start-up code again.
-                runApplication();
-            });   
+            if(Ti.Platform.osname == "android") {
+                var initialLaunchPerformed = false;
+                Ti.Android.currentActivity.onResume = function() {
+                    if (!initialLaunchPerformed) {
+                        initialLaunchPerformed = true;
+                        return;
+                    }
+                    // If we reach this point the root activity is being resumed for the second (or greater time).
+                    // Re-run the application-specific start-up code again.
+                    runApplication();
+                };
+            }
 
             function runApplication() {
                 // Start-up code here...
@@ -251,7 +253,7 @@ events:
     summary: Fired from the activity's `onCreate` method.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onCreate](Titanium.Android.Activity.onCreate) property instead.
+        notes: Use <Titanium.Android.Activity.onCreate> instead.
     description: |
         See also:
         [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -261,7 +263,7 @@ events:
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onDestroy](Titanium.Android.Activity.onDestroy) property instead.
+        notes: Use <Titanium.Android.Activity.onDestroy> instead.
     description: |
         See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
@@ -269,9 +271,7 @@ events:
   - name: newIntent
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [newintent](Titanium.Android.Activity.newintent)
-            (all lowercase).
+        notes: Use <Titanium.Android.Activity.newintent> instead.
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
         See also:
@@ -298,7 +298,7 @@ events:
     summary: Fired when the activity is paused.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onPause](Titanium.Android.Activity.onPause) property instead.
+        notes: Use <Titanium.Android.Activity.onPause> instead.
     description: |
         See also:
         [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -308,7 +308,7 @@ events:
     summary: Fired when the activity is resumed.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onResume](Titanium.Android.Activity.onResume) property instead.
+        notes: Use <Titanium.Android.Activity.onResume> instead.
     description: |
         See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -317,7 +317,7 @@ events:
     summary: Fired when the activity is started.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onStart](Titanium.Android.Activity.onStart) property instead.
+        notes: Use <Titanium.Android.Activity.onStart> instead.
     description: |
         See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -326,7 +326,7 @@ events:
     summary: Fired when the activity is stopped.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onStop](Titanium.Android.Activity.onStop) property instead.
+        notes: Use <Titanium.Android.Activity.onStop> instead.
     description: |
         See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.

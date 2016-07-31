@@ -4,25 +4,23 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
 #import "TiViewProxy.h"
 
-@interface TiUIiOSPreviewActionProxy : TiViewProxy
-{
+@interface TiUIiOSPreviewActionProxy : TiViewProxy {
     UIPreviewAction *action;
 }
 
 /**
     The index of the action inside the previewing context.
  */
-@property(nonatomic) int actionIndex;
+@property(nonatomic, assign) NSUInteger actionIndex;
 
 /**
     The style of the preview action
  */
-@property(nonatomic) UIPreviewActionStyle style;
+@property(nonatomic, assign) UIPreviewActionStyle style;
 
 /**
     The title of the preview action
@@ -48,5 +46,5 @@
 -(void)fireEventWithAction:(UIPreviewAction*)action;
 
 @end
-#endif
+
 #endif

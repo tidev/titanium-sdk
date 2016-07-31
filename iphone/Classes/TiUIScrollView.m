@@ -12,6 +12,7 @@
 
 @implementation TiUIScrollViewImpl
 
+
 -(void)setTouchHandler:(TiUIView*)handler
 {
     //Assign only. No retain
@@ -72,10 +73,24 @@
 @implementation TiUIScrollView
 @synthesize contentWidth;
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 - (void) dealloc
 {
 #ifndef TI_USE_AUTOLAYOUT
 	RELEASE_TO_NIL(wrapperView);
+#endif
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(refreshControl);
+#endif
 #endif
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
@@ -114,9 +129,6 @@
         [contentView setDefaultWidth:TiDimensionAutoSize];
         
         [scrollView addSubview:contentView];
-        
-        [self setDefaultHeight:TiDimensionAutoFill];
-        [self setDefaultWidth:TiDimensionAutoFill];
         
         [super addSubview:scrollView];
         
@@ -335,6 +347,28 @@
 }
 #endif
 
+-(void)setRefreshControl_:(id)args
+{
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+    if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
+        return;
+    }
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[refreshControl control] removeFromSuperview];
+    RELEASE_TO_NIL(refreshControl);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        refreshControl = [args retain];
+        [[self scrollView] setRefreshControl:[refreshControl control]];
+    }
+#endif
+#else
+    NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
+#endif
+}
+
 -(void)setShowHorizontalScrollIndicator_:(id)value
 {
 	[[self scrollView] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
@@ -360,6 +394,13 @@
     BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
     [[self scrollView] setScrollEnabled:scrollingEnabled];
     [[self proxy] replaceValue:NUMBOOL(scrollingEnabled) forKey:@"scrollingEnabled" notification:NO];
+}
+
+-(void)setKeyboardDismissMode_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self scrollView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+    [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
 }
 
 -(void)setScrollsToTop_:(id)value

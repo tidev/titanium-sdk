@@ -29,6 +29,7 @@
 USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -37,7 +38,7 @@ USE_VIEW_FOR_VERIFY_WIDTH
 {
     return TiDimensionAutoSize;
 }
-
+#endif
 
 @end
 

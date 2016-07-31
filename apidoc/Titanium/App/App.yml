@@ -183,6 +183,12 @@ events:
         summary: Whether accessibility is now enabled or disabled.
         type: Boolean
 
+  - name: close
+    summary: Fired by the system when the application is about to be terminated.
+    description: It is the last event that can be received before the application gets closed.
+    platforms: [iphone, ipad]
+    since: "1.5.0"
+
   - name: memorywarning
     summary: Fired when the app receives a warning from the operating system about low memory availability.
     platforms: [iphone, ipad]
@@ -194,7 +200,9 @@ events:
         Available on iOS 4.0 and later.
         
         This event fires when the user leaves the application or for certain types of temporary interruptions 
-        such as a notification or incoming phone call.  
+        such as a notification or incoming phone call. On an iPad application with split view enabled,
+        the event will be called once the application is put in the background and a different split view
+        application is focused.
         
         See the `applicationWillResignActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
@@ -293,8 +301,9 @@ events:
     summary: Fired when the application returns to the foreground.
     description: |
         This event fires when the application enters the foreground with the `resume` event or 
-        returns to focus after a notification or incoming phone call.
-        
+        returns to focus after a notification or incoming phone call. On an iPad with split view enabled,
+        this event will be called every time the application resized.
+
         See the `applicationDidBecomeActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
         for the exact behavior that triggers this event.
@@ -304,9 +313,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "4.0.0"
-        notes: |
-            Renamed to [keyboardframechanged](Titanium.App.keyboardframechanged)
-            (all lowercase).
+        notes: Use <Titanium.App.keyboardframechanged> instead.
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
         This event fires when the application presents the soft keyboard on/off the screen . The 

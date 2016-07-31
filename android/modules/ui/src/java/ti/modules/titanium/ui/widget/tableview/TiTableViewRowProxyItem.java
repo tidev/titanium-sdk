@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,10 +14,10 @@ import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -73,11 +73,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	}
 
-	public TiTableViewRowProxyItem(TiContext tiContext)
-	{
-		this(tiContext.getActivity());
-	}
-
 	protected TableViewRowProxy getRowProxy() {
 		return (TableViewRowProxy)item.proxy;
 	}
@@ -114,10 +109,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private boolean checkBorderProps(TiViewProxy oldProxy, TiViewProxy newProxy){
 		KrollDict oldProperties = oldProxy.getProperties();
 		KrollDict newProperties = newProxy.getProperties();
-		boolean oldHasBorder = oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+		boolean oldHasBorder = oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 				|| oldProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
-		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
+		boolean newHasBorder = newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 				|| newProperties.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
 
@@ -157,7 +152,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	/*
-	 * Check if views can be reused. 
+	 * Check if views can be reused.
 	 */
 	private boolean canUseExistingViews(ArrayList<TiViewProxy> proxies){
 
@@ -172,7 +167,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 			}
 			return true;
-		} 
+		}
 
 		return false;
 	}
@@ -192,7 +187,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				}
 			}
 		}
-		
+
 		//Second get the properties that are only in the newProps
 		for (String name : newProps.keySet()) {
 			if (!oldProps.containsKey(name)) {
@@ -228,11 +223,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	 */
 	protected void createControls()
 	{
-		
+
 		TableViewRowProxy parent = getRowProxy();
 		ArrayList<TiViewProxy> proxies = parent.getControls();
 		int len = proxies.size();
-		
+
 		if (!canUseExistingViews(proxies)) {
 			content.removeAllViews();
 			if(views == null) {
@@ -250,9 +245,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				if (v.getParent() == null) {
 					content.addView(v, view.getLayoutParams());
 				}
-			}			
+			}
 		} else {
-			//Ok the view heirarchies are the same. 
+			//Ok the view heirarchies are the same.
 			//Transfer over the views and modelListeners from the old proxies to the new proxies
 			for (int i=0;i<len;i++) {
 				TiUIView view = views.get(i);
@@ -338,7 +333,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	public void setRowData(TableViewRowProxy rp) {
 //		hasControls = rp.hasControls();
-		
+
 		Object newSelectorSource = null;
 		if (rp.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
 			newSelectorSource = rp.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
@@ -537,8 +532,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		// Make these associations here to avoid doing them on measurement passes
 		getRowProxy().setTableViewItem(this);
-		
-		
 		int contentLeft = left;
 		int contentRight = right;
 		bottom = bottom - top;
@@ -574,6 +567,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
 		}
+
+		if (changed) {
+			TiUIHelper.firePostLayoutEvent(getRowProxy());
+		}
 	}
 
 	private static String[] filteredProperties = new String[]{
@@ -582,7 +579,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	};
 	private KrollDict filterProperties(KrollDict d) {
 		if (d == null) return new KrollDict();
-		
+
 		KrollDict filtered = new KrollDict(d);
 		for (int i = 0;i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {
@@ -598,7 +595,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
 			|| rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
 	}
-	
+
 	@Override
 	public Drawable getSelectorDrawable() {
 		TableViewRowProxy rowProxy = getRowProxy();
@@ -615,7 +612,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		return selectorDrawable;
 	}
-	
+
 	@Override
 	public void release() {
 		super.release();
@@ -637,6 +634,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			hasChildDrawable.setCallback(null);
 			hasChildDrawable = null;
 		}
-		
+
 	}
 }

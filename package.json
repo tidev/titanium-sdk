@@ -1,7 +1,13 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "5.2.0",
+  "version": "6.0.0",
+  "moduleApiVersion": {
+    "iphone": "2",
+    "android": "3",
+    "mobileweb": "2",
+    "windows": "2"
+  },
   "keywords": [
     "appcelerator",
     "titanium",
@@ -18,39 +24,43 @@
   },
   "dependencies": {
     "adm-zip": "0.4.7",
-    "archiver": "0.16.0",
-    "async": "1.5.0",
-    "buffer-equal": "0.0.1",
-    "clean-css": "3.4.6",
+    "archiver": "1.0.0",
+    "async": "1.5.2",
+    "buffer-equal": "1.0.0",
+    "clean-css": "3.4.18",
     "colors": "1.1.2",
     "css-parse": "2.0.0",
-    "ejs": "2.3.4",
+    "ejs": "2.4.2",
     "fields": "0.1.24",
+	"glob": "7.0.5",
     "humanize": "0.0.9",
-    "ioslib": "0.9.0",
-    "moment": "2.10.6",
+    "ioslib": "0.12.0",
+    "lodash.defaultsdeep": "4.4.0",
     "markdown": "0.5.0",
-    "node-appc": "0.2.33",
-    "node-uuid": "1.4.3",
-    "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
-    "request": "2.65.0",
+    "moment": "2.13.0",
+    "node-appc": "0.2.36",
+    "node-uuid": "1.4.7",
+    "pngjs": "2.3.1",
+    "request": "2.72.0",
     "sprintf": "0.1.5",
+    "stream-splitter": "~0.3.2",
     "temp": "0.8.3",
-    "uglify-js": "2.5.0",
-    "windowslib": "0.1.21",
-    "wrench": "1.5.8",
-    "xcode": "0.8.2",
-    "xmldom": "0.1.19"
+    "uglify-js": "2.6.4",
+    "unorm": "^1.4.1",
+    "windowslib": "0.4.15",
+    "wrench": "1.5.9",
+    "xcode": "0.8.8",
+    "xmldom": "0.1.22"
   },
   "devDependencies": {
-    "grunt-cli": "*",
-    "grunt-contrib-clean": "^0.6.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
     "grunt-clang-format": "*",
     "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.12.7",
     "mocha": "*",
-    "optimist": "~0.6.1",
-    "should": "~7.1.1"
+    "optimist": "^0.6.1",
+    "should": "^9.0.2"
   },
   "repository": {
     "type": "git",
@@ -60,10 +70,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=0.10.0 <=5.0.x"
+    "node": ">=4.0 <=5.x"
   },
   "engines": {
-    "node": ">=0.10.13"
+    "node": ">=4.0"
   },
   "license": "Apache-2.0"
 }

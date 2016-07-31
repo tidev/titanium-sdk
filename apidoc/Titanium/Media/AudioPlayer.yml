@@ -151,6 +151,12 @@ methods:
         On Android, this method should be called when you are done streaming a given
         audio object, to release underlying resources, including buffered data.
     platforms: [android]
+  - name: getAudioSessionId
+    summary: Returns the audio session id.
+    returns: 
+        type: Number
+    since: "5.4.0"
+    platforms: [android]
   - name: start
     summary: Starts or resumes audio playback.
   - name: stateDescription
@@ -321,9 +327,9 @@ properties:
 
         On iOS, to adjust the volume of the device, set the `volume` property of
         <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionMode> property
-        to either <Titanium.Media.AUDIO_SESSION_MODE_AMBIENT>,
-        <Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT>,
-        or <Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK>.
+        to either <Titanium.Media.AUDIO_SESSION_CATEGORY_AMBIENT>,
+        <Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT>,
+        or <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>.
     type: Number
     since: "2.1.0"
   - name: waiting

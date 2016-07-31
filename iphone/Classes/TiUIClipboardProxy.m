@@ -92,7 +92,9 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_UNKNOWN:
 		default:
 		{
-			[board setData: nil forPasteboardType: mimeTypeToUTType(mimeType)];
+			NSData *data = [[NSData alloc] init];
+			[board setData:data forPasteboardType: mimeTypeToUTType(mimeType)];
+			[data release];
 		}
 	}
 }
@@ -147,7 +149,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		{
 			UIImage *image = board.image;
 			if (image) {
-				return [[[TiBlob alloc] initWithImage: image] autorelease];
+				return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 			} else {
 				return nil;
 			}
@@ -158,7 +160,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 			NSData *data = [board dataForPasteboardType: mimeTypeToUTType(mimeType)];
 
 			if (data) {
-				return [[[TiBlob alloc] initWithData: data mimetype: mimeType] autorelease];
+				return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimeType] autorelease];
 			} else {
 				return nil;
 			}
@@ -219,10 +221,54 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	}, YES);
 	return NUMBOOL(result);
 }
+
+
 	 
--(id)hasText:(id)args
+-(id)hasText:(id)unused
 {
-	return [self hasData: @"text/plain"];
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMBOOL([[UIPasteboard generalPasteboard] hasStrings]);
+    }
+#endif
+    
+    return [self hasData: @"text/plain"];
+}
+
+-(id)hasColors:(id)unused
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMBOOL([[UIPasteboard generalPasteboard] hasColors]);
+    }
+#endif
+
+    NSLog(@"[WARN] Ti.UI.Clipboard.hasColors() is only available on iOS 10 and later.");
+    return NUMBOOL(NO);
+}
+
+-(id)hasImages:(id)unused
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMBOOL([[UIPasteboard generalPasteboard] hasImages]);
+    }
+#endif
+    
+    NSLog(@"[WARN] Ti.UI.Clipboard.hasImages() is only available on iOS 10 and later.");
+    return NUMBOOL(NO);
+}
+
+-(id)hasURLs:(id)unused
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMBOOL([[UIPasteboard generalPasteboard] hasURLs]);
+    }
+#endif
+    
+    NSLog(@"[WARN] Ti.UI.Clipboard.hasURLs() is only available on iOS 10 and later.");
+    return NUMBOOL(NO);
 }
 
 -(void)setData:(id)args

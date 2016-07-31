@@ -155,6 +155,13 @@ typedef enum
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 
 /**
+ Changes to image rotation, so the image is facing up.
+ @param Image The image to be rotated.
+ @return The rotated image.
+ */
++(UIImage *)adjustRotation:(UIImage *)image;
+
+/**
  Constructs URL from string using provided base URL.
  @param relativeString The relative URL
  @param rootPath The base URL.
@@ -463,10 +470,10 @@ typedef enum
 /**
  Converts input values in to a NSDictionary.
  @param touch The UITouch object. Containing all the UITouch attributes.
- @param point The point on the view , before the touch even is triggered.
+ @param view  The view, in which the touch is being used.
  @return NSDictionary containing the point coordinates and UITouch properties.
  */
-+(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point;
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andView:(UIView*)view;
 
 +(UIEdgeInsets)contentInsets:(id)value;
 
@@ -582,6 +589,18 @@ typedef enum
 +(BOOL)isIOS9_1OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 9.3.
+ @return _YES_ if the current OS version is equal to or greater thann 9.3, _NO_ otherwise.
+ */
++(BOOL)isIOS9_3OrGreater;
+
+/**
+ Whether or not the current OS version is equal to or greater than 10.0.
+ @return _YES_ if the current OS version is equal to or greater thann 10.0, _NO_ otherwise.
+ */
++(BOOL)isIOS10OrGreater;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
@@ -670,5 +689,11 @@ typedef enum
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)forceTouchSupported;
+
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
 
 @end

@@ -7,8 +7,12 @@
 #ifdef USE_TI_MEDIA
 
 #import <AudioToolbox/AudioToolbox.h>
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#endif
 
 #import "TiMediaSoundProxy.h"
 #import "TiUtils.h"
@@ -43,9 +47,9 @@
 	volume = 1.0;
 	resumeTime = 0;
 	
-    dispatch_async(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-    });
+    }, NO);
 }
 
 -(NSString*)apiName
@@ -62,9 +66,9 @@
 		}
 		[player setDelegate:nil];
 	}
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    TiThreadPerformOnMainThread( ^{
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
-    });
+    }, YES);
 	
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(url);
@@ -143,10 +147,10 @@
     if (player != nil) {
         resumeTime = 0;
         paused = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread( ^{
             [player stop];
             RELEASE_TO_NIL(player);
-        });
+        }, YES);
     }
     [self forgetSelf];
     [self _destroy];
@@ -327,7 +331,7 @@
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player withFlags:(NSUInteger)flags
 {
-	if (flags != AVAudioSessionInterruptionFlags_ShouldResume) {
+	if (flags != AVAudioSessionInterruptionOptionShouldResume) {
 		[self stop:nil];
 	}
 	

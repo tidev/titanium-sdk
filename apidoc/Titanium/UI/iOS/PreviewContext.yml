@@ -51,7 +51,7 @@ events:
     summary: Fired when the user peeks the preview. You can configure the preview
     description: |
         You can configure the preview in this event before it is displayed. If the preview context is assigned to a 
-        normal view like a <Ti.UI.Button> the `preview` property can be received here to change the content of it 
+        normal view like a <Titanium.UI.Button> the `preview` property can be received here to change the content of it 
         before displaying. If the preview context is assigned to a <Titanium.UI.ListView>, you can also receive the 
         properties `sectionIndex`, `itemIndex` and `itemId` here to access item-specific data to display. 
         
@@ -83,7 +83,7 @@ events:
     summary: Fired when the user pop the preview. You will most likely open a fullscreen window here.
     description: |
         You can open a window here or update your current UI. If the preview context is assigned to a 
-        normal view like a <Ti.UI.Button> the `preview` property can be received here to change the content of it 
+        normal view like a <Titanium.UI.Button> the `preview` property can be received here to change the content of it 
         before displaying. If the preview context is assigned to a <Titanium.UI.ListView>, you can also receive the 
         properties `sectionIndex`, `itemIndex` and `itemId` here to access item-specific data to display. 
         

@@ -1,12 +1,9 @@
-//
-//  TiPreviewingDelegate.h
-//  Titanium
-//
-//  Created by Hans Knöchel on 25/09/15.
-//
-//
-
-#if IS_XCODE_7
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
 #import <Foundation/Foundation.h>
@@ -21,17 +18,27 @@
 
 @interface TiPreviewingDelegate : NSObject <UIViewControllerPreviewingDelegate>
 
-@property(nonatomic, assign) TiUIiOSPreviewContextProxy *previewContext;
+/**
+    The preview context that holds actions
+    and action groups.
+ */
+@property(nonatomic, retain) TiUIiOSPreviewContextProxy *previewContext;
 
-@property(nonatomic, assign) TiViewProxy* preview;
-@property(nonatomic, assign) TiViewProxy* sourceView;
-@property(nonatomic, retain) NSArray* actions;
-@property(nonatomic) int contentHeight;
+/**
+    The event to be set when source is a UITableView.
+ */
 @property(nonatomic, retain) NSDictionary* listViewEvent;
 
+/**
+    Initializes a new previewContext.
+ */
 - (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
-- (CGRect)createSourceRectWithLocation:(CGPoint*)location;
+
+/**
+    Creates a new source rect that represents the
+    visible area that is not blurred during peek.
+ */
+- (CGRect)createSourceRectWithLocation:(CGPoint)location;
 
 @end
-#endif
 #endif

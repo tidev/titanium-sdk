@@ -9,5 +9,5 @@
 
 @interface TiLabel : TiLayoutView
 
--(void)setText:(NSString*) text;
+@property (nonatomic, retain) NSString* text;
 @end

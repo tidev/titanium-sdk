@@ -12,12 +12,21 @@
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 @implementation TiUILabel
 
 #pragma mark Internal
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
 
 -(id)init
 {
@@ -149,6 +158,7 @@
 #endif
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
@@ -156,6 +166,7 @@
 {
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
+#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
@@ -288,7 +299,11 @@
             return NO;
         }
         NSRange theRange = NSMakeRange(0, 0);
-        NSString *url = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&theRange];
+        NSString *url = nil;
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+        TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
+        url = [tempString getLink:idx];
+#endif
         if(url != nil && url.length) {
             NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                        url, @"url",
@@ -421,8 +436,7 @@
 -(void)setEllipsize_:(id)value
 {
 	ENSURE_SINGLE_ARG(value, NSNumber);
-	//for bool case and parity with android
-	if ([TiUtils intValue:value] == 1) {
+	if ([[TiUtils stringValue:value] isEqualToString:@"true"]) {
 		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
 		return;
 	}
@@ -474,7 +488,7 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#if defined (USE_TI_UIIOSATTRIBUTEDSTRING) || defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];

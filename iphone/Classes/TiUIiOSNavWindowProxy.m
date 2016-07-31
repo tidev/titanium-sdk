@@ -98,10 +98,12 @@
 
 -(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    if (current != nil) {
+    BOOL isRootWindow = (current == rootWindow);
+
+    if (current != nil && !isRootWindow) {
         return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
     }
-    return YES;
+    return !isRootWindow;
 }
 
 -(void)openWindow:(NSArray*)args
@@ -137,12 +139,21 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-    if (window == rootWindow) {
+    if (window == rootWindow && ![[TiApp app] willTerminate]) {
         DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
         return;
     }
     TiThreadPerformOnMainThread(^{
         [self popOnUIThread:args];
+    }, YES);
+}
+
+-(void)popToRootWindow:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+
+    TiThreadPerformOnMainThread(^{
+        [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
     }, YES);
 }
 

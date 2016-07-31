@@ -101,6 +101,19 @@ public class TiWebViewClient extends WebViewClient
 	{
 		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
 
+		if (webView.getProxy().hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
+		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
+		    for(String site : blacklistedSites) {
+		        if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
+		            KrollDict data = new KrollDict();
+		            data.put("url", url);
+		            data.put("message", "Webview did not load blacklisted url.");
+		            webView.getProxy().fireEvent(TiC.PROPERTY_ON_STOP_BLACKISTED_URL, data);
+		            return true;
+		        }
+		    }
+		}
+
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
 			webView.getProxy().setPropertyAndFire(TiC.PROPERTY_URL, url);
@@ -193,6 +206,7 @@ public class TiWebViewClient extends WebViewClient
 
 		} else {
 			Log.e(TAG, "SSL error occurred: " + error.toString());
+			handler.cancel();
 		}
 	}
 

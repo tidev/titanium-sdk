@@ -157,6 +157,14 @@ properties:
     platforms: [android, iphone, ipad]
     default: System default bar color.
 
+  - name: cancelButtonTitle
+    summary: The title of the cancel button when the search bar field is focused.
+    description: Use this property if you want to display a custom cancel title.
+    type: String
+    default: System-localized "Cancel"
+    since: "5.4.0"
+    platforms: [iphone,ipad]
+
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
@@ -173,7 +181,16 @@ properties:
     summary: Keyboard type constant to use when the field is focused.
     type: Number
     platforms: [iphone, ipad]
-    default: System default keyboard.
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard to be displayed the field is focused.
+    type: Number
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
@@ -202,6 +219,14 @@ properties:
         [setShowCancel](Titanium.UI.SearchBar.setShowCancel).
     type: Boolean
     default: false
+
+  - name: style
+    summary: Determines the style of the search bar.
+    type: Number
+    since: 5.4.0
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.iOS.SEARCH_BAR_STYLE_*
+    default: <Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT>
 
   - name: value
     summary: Value of the search bar.

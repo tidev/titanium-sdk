@@ -15,7 +15,8 @@
 	CLLocationManager *locationManager;
 	CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
 	CLLocationManager *locationPermissionManager; // used for just permissions requests
-    
+	CLLocationManager *iOS7PermissionManager; // specific to iOS7 to maintain parity with iOS8 permissions behavior.
+
 	CLLocationAccuracy accuracy;
 	CLLocationDistance distance;
 	CLLocationDegrees heading;

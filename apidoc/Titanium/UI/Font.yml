@@ -43,7 +43,7 @@ properties:
         For example, if you were using the "Burnstown Dam" font whose file name is
         named `burnstown_dam.ttf`, then you specify `fontFamily: 'burnstown_dam'`.
 
-        * On iOS you use the font's [PostScript name](http://docs.appcelerator.com/platform/3.0/#!/guide/Custom_Fonts-section-29004935_CustomFonts-Findingafont%27sPostScriptname).
+        * On iOS you use the font's [PostScript name](http://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts-section-29004935_CustomFonts-Findingafont%27sPostScriptname).
         For example, the PostScript name for Burnstown Dam is "BurnstownDam-Regular so you'd specify: `fontFamily: 'BurnstownDam-Regular'`.
 
         For an example of using a custom font, see [Custom Fonts](http://docs.appcelerator.com/platform/#!/guide/Custom_Fonts).

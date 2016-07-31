@@ -17,9 +17,9 @@
 }
 
 
-MAKE_SYSTEM_PROP(DONE,UIBarButtonItemStyleDone);
-MAKE_SYSTEM_PROP(BORDERED,UIBarButtonItemStyleBordered);
-MAKE_SYSTEM_PROP(PLAIN,UIBarButtonItemStylePlain);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE,UIBarButtonItemStyleDone,@"UI.iPhone.SystemButtonStyle.DONE",@"5.4.0",@"UI.iOS.SystemButtonStyle.DONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BORDERED,UIBarButtonItemStyleBordered,@"UI.iPhone.SystemButtonStyle.BORDERED",@"5.4.0",@"UI.iOS.SystemButtonStyle.BORDERED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,UIBarButtonItemStylePlain,@"UI.iPhone.SystemButtonStyle.PLAIN",@"5.4.0",@"UI.iOS.SystemButtonStyle.PLAIN");
 MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(BAR,2,@"UI.iPhone.SystemButtonStyle.BAR",@"3.4.2",@"3.6.0");
 
 @end

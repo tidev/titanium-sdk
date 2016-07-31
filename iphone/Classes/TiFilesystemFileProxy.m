@@ -17,8 +17,6 @@
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
 
-static const char* backupAttr = "com.apple.MobileBackup";
-
 @implementation TiFilesystemFileProxy
 
 -(id)initWithFile:(NSString*)path_
@@ -108,19 +106,10 @@ FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
 	return NUMBOOL([fileType isEqualToString:NSFileTypeSymbolicLink]);
 }
 
--(id)writeable
-{
-	// Note: Despite previous incarnations claiming writeable is the proper API,
-	// writable is the correct spelling.
-	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"Ti.Filesystem.FileProxy.writable");
-	return [self writable];
-}
-
 -(id)writable
 {
 	return NUMBOOL(![[self readonly] boolValue]);
 }
-
 
 #define FILENOOP(name) \
 -(id)name\
@@ -313,7 +302,7 @@ FILENOOP(setHidden:(id)x);
 {
 	BOOL exists = [fm fileExistsAtPath:path];
 	if(!exists) return nil;
-	return [[[TiBlob alloc] initWithFile:path] autorelease];
+	return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:path] autorelease];
 }
 
 -(id)append:(id)args
@@ -492,34 +481,52 @@ FILENOOP(setHidden:(id)x);
 
 -(NSNumber*)remoteBackup
 {
-    u_int8_t value;
-    const char* fullPath = [[self path] fileSystemRepresentation];
-    
-    ssize_t result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
-    if (result == -1) {
-        // Doesn't matter what errno is set to; this means that we're backing up.
-        return [NSNumber numberWithBool:YES];
+    NSURL *URL = [NSURL fileURLWithPath: [self path]];
+    NSError *error;
+    NSNumber *isExcluded;
+   
+    BOOL success = [URL getResourceValue:&isExcluded
+                                  forKey:NSURLIsExcludedFromBackupKey error:&error];
+    if (!success) {
+        // Doesn't matter what error is set to; this means that we're backing up.
+        return NUMBOOL(YES);
     }
 
-    // A value of 0 means backup, so:
-    return [NSNumber numberWithBool:!value];
+    // A value of @FALSE means backup, so:
+    return NUMBOOL([isExcluded isEqualToNumber:@YES] ? NO : YES);
 }
 
--(void)setRemoteBackup:(NSNumber *)remoteBackup
+-(void)setRemoteBackup:(id)value
 {
-    // Value of 1 means nobackup
-    u_int8_t value = ![TiUtils boolValue:remoteBackup def:YES];
-    const char* fullPath = [[self path] fileSystemRepresentation];
+    ENSURE_TYPE(value, NSNumber);
+    BOOL isExcluded = ![TiUtils boolValue:value def:YES];
     
-    int result = setxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
-    if (result != 0) {
-        // Throw an exception with the errno
-        char* errmsg = strerror(errno);
-        [self throwException:@"Error setting remote backup flag:" 
-                   subreason:[NSString stringWithUTF8String:errmsg] 
-                    location:CODELOCATION];
-        return;
+    [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[self path]] withFlag:isExcluded];
+}
+
+-(void)addSkipBackupAttributeToFolder:(NSURL*)folder withFlag:(BOOL)flag
+{
+    [self addSkipBackupAttributeToItemAtURL:folder withFlag:flag];
+    
+    NSError* error = nil;
+    NSArray* folderContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[folder path] error:&error];
+    
+    for (NSString* item in folderContent) {
+        [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[folder.path stringByAppendingPathComponent:item]] withFlag:flag];
     }
+}
+
+-(BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL withFlag:(BOOL)flag
+{
+    NSError *error = nil;
+    BOOL success = [URL setResourceValue:[NSNumber numberWithBool: flag]
+                                  forKey: NSURLIsExcludedFromBackupKey error: &error];
+    
+    if(!success) {
+        NSLog(@"[ERROR] Remote-backup status of %@ could not be changed: %@", [URL lastPathComponent], [error localizedDescription]);
+    }
+    
+    return success;
 }
 
 @end

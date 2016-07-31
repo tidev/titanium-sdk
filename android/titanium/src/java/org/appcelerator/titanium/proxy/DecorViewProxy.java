@@ -16,6 +16,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 
 
@@ -54,7 +56,12 @@ public class DecorViewProxy extends TiViewProxy
 
 		if (activity != null)
 		{
-			return TiOrientationHelper.convertRotationToTiOrientationMode(activity.getWindowManager().getDefaultDisplay().getRotation());
+		    DisplayMetrics dm = new DisplayMetrics();
+		    Display display = activity.getWindowManager().getDefaultDisplay();
+		    display.getMetrics(dm);
+		    int width = dm.widthPixels;
+		    int height = dm.heightPixels;
+		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);

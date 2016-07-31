@@ -13,7 +13,7 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -259,11 +259,24 @@
 
 #pragma mark Internal
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:textWidgetView positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
 }
+
+#endif
+
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (void) dealloc
 {
@@ -272,16 +285,18 @@
 	[super dealloc];
 }
 
-
 -(UIView<UITextInputTraits>*)textWidgetView
 {
 	if (textWidgetView==nil)
 	{
-		textWidgetView = [[TiTextField alloc] initWithFrame:CGRectZero];
-		((TiTextField *)textWidgetView).delegate = self;
-		((TiTextField *)textWidgetView).text = @"";
-		((TiTextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
-		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+		textWidgetView = [[TiTextField alloc] init];
+#ifdef TI_USE_AUTOLAYOUT
+		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
+#endif
+		((UITextField *)textWidgetView).delegate = self;
+		((UITextField *)textWidgetView).text = @"";
+		((UITextField *)textWidgetView).textAlignment = NSTextAlignmentLeft;
+		((UITextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
 		[(TiTextField *)textWidgetView setTouchHandler:self];
 		[self addSubview:textWidgetView];
@@ -301,7 +316,7 @@
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
-#if IS_XCODE_7
+
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     
     [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
@@ -313,7 +328,6 @@
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];
     }
-#endif
 }
 
 -(void)setPaddingLeft_:(id)value
@@ -374,12 +388,27 @@
 
 -(void)setHintText_:(id)value
 {
-	[(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    
+    if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
+        [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+    }
+}
+
+-(void)setHintTextColor_:(id)value
+{
+    NSString *hintText = [[self proxy] valueForUndefinedKey:@"hintText"];
+    
+    if (!hintText) {
+        hintText = @"";
+    }
+    
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:hintText attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
 }
 
 -(void)setAttributedHintText_:(id)value
 {
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
 	[[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
 	[(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
@@ -516,6 +545,8 @@
     if (range.length + range.location > [[tf text] length]) {
         return NO;
     }
+    
+    [self processKeyPressed:string];
     
     NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
    

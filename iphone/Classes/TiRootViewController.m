@@ -122,9 +122,11 @@
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
+#ifndef LAUNCHSCREEN_STORYBOARD
         defaultImageView = [[UIImageView alloc] init];
         [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
         [defaultImageView setContentMode:UIViewContentModeScaleToFill];
+#endif
 		
         [self processInfoPlist];
         
@@ -181,6 +183,14 @@
     if ([TiUtils isIOS8OrGreater]) {
         hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
         hostView.backgroundColor = [UIColor clearColor];
+
+#ifdef LAUNCHSCREEN_STORYBOARD
+        UIView *launchScreenContainer = [[UIView alloc] initWithFrame:[rootView bounds]];
+        [launchScreenContainer addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
+        [hostView addSubview:launchScreenContainer];
+        [launchScreenContainer release];
+#endif
+        
         hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         [rootView addSubview:hostView];
         theHost = hostView;
@@ -209,7 +219,19 @@
 -(void)updateBackground
 {
 	UIView * ourView = [self view];
-	UIColor * chosenColor = (bgColor==nil)?[UIColor blackColor]:bgColor;
+	UIColor * chosenColor = bgColor;
+
+	if (chosenColor == nil) {
+#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
+		chosenColor = [UIColor colorWithRed: DEFAULT_BGCOLOR_RED
+									  green: DEFAULT_BGCOLOR_GREEN
+									   blue: DEFAULT_BGCOLOR_BLUE
+									  alpha: 1.0f];
+#else
+		chosenColor = [UIColor blackColor];
+#endif
+	}
+
 	[ourView setBackgroundColor:chosenColor];
 	[[ourView superview] setBackgroundColor:chosenColor];
 	if (bgImage!=nil)
@@ -249,6 +271,12 @@
         [defaultImageView removeFromSuperview];
         RELEASE_TO_NIL(defaultImageView);
     }
+    
+#ifdef LAUNCHSCREEN_STORYBOARD
+    if (hostView) {
+        [[[hostView subviews] objectAtIndex:0] removeFromSuperview];
+    }
+#endif
 }
 
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
@@ -1208,7 +1236,7 @@
             return retVal;
         }
     }
-    return [self orientationFlags];
+    return (UIInterfaceOrientationMask)[self orientationFlags];
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation

@@ -54,11 +54,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
+import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
-import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalytics.DeployType;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics.DeployType;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -353,6 +354,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
+	}
+
+	@Override
 	public void onCreate()
 	{
 		super.onCreate();
@@ -593,16 +600,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return appProperties;
 	}
 
-	/**
-	 * @deprecated
-	 */
-	public TiProperties getSystemProperties()
-	{
-		// This should actually be removed, but we are changing it to 'appProperties' instead so we don't break module
-		// developers who use this.
-		return appProperties;
-	}
-
 	public ITiAppInfo getAppInfo()
 	{
 		return appInfo;
@@ -648,17 +645,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		return getAppInfo().isAnalyticsEnabled();
 	}
-	
+
 	public boolean runOnMainThread()
 	{
 		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
-	
+
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
 	}
-	
+
 	public boolean isAnalyticsFiltered(String eventName)
 	{
 		if (filteredAnalyticsEvents == null) {
@@ -670,7 +667,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-					
+
 		}
 		return false;
 	}
@@ -686,6 +683,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public String getTiBuildVersion()
 	{
 		return buildVersion;
+	}
+
+	public String getSDKVersion()
+	{
+		return getTiBuildVersion();
 	}
 
 	public String getTiBuildTimestamp()
@@ -903,4 +905,3 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
-

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,7 +22,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
@@ -39,9 +38,9 @@ import android.util.Pair;
 import org.json.JSONObject;
 
 /**
- * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
- * queried by the user through a module or another proxy's API. When you create a native view with 
- * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
+ * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
+ * queried by the user through a module or another proxy's API. When you create a native view with
+ * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
@@ -90,12 +89,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
-
-	public KrollProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	/**
 	 * The default KrollProxy constructor. Equivalent to <code>KrollProxy("")</code>
 	 * @module.api
@@ -120,13 +113,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
 	{
-		// Store reference to the native object that represents this proxy so we can drive changes to the JS 
+		// Store reference to the native object that represents this proxy so we can drive changes to the JS
 		// object
 		krollObject = object;
 		object.setProxySupport(this);
 		this.creationUrl = creationUrl;
 
-		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
+		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
 		initActivity(TiApplication.getInstance().getCurrentActivity());
@@ -144,31 +137,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			return proxyInstance;
 
 		} catch (Exception e) {
-			Log.e(TAG, ERROR_CREATING_PROXY, e);
-		}
-
-		return null;
-	}
-
-	/*
-	 * This method exists so that it can be used in the situations (mainly custom modules) where a proxy
-	 * is being created with the old TiContext argument.
-	 */
-	public static KrollProxy createDeprecatedProxy(Class<? extends KrollProxy> proxyClass,
-		KrollObject object, Object[] creationArguments, String creationUrl)
-	{
-		try {
-			Constructor<? extends KrollProxy> oldConstructor = proxyClass.getConstructor(TiContext.class);
-
-			TiUrl url = TiUrl.createProxyUrl(creationUrl);
-			TiContext tiContext = new TiContext(TiApplication.getInstance().getCurrentActivity(), url.baseUrl);
-			KrollProxy proxyInstance = oldConstructor.newInstance(tiContext);
-
-			proxyInstance.setupProxy(object, creationArguments, url);
-			return proxyInstance;
-
-		} catch (Exception e) {
-			// Reflection, you my only friend
 			Log.e(TAG, ERROR_CREATING_PROXY, e);
 		}
 
@@ -243,7 +211,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * @return the language conversion table used to load localized values for certain properties from the locale files.
 	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a
-	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
+	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file
 	 *	is used for "title."
 	 *
 	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
@@ -368,18 +336,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			int resid = TiRHelper.getResource("string." + lookupId);
 			if (resid != 0) {
 				return getActivity().getString(resid);
-			} 
+			}
 			return null;
-		
+
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			return null;
-		} 
+		}
 	}
 
 	/**
 	 * Handles the creation {@link KrollDict} passed into the create method for this proxy.
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
-	 * 
+	 *
 	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
 	 * @param dict
 	 * @module.api
@@ -463,7 +431,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		KrollRuntime.getInstance().initObject(this);
 	}
 
-	/** 
+	/**
 	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
 	 * @module.api
 	 */
@@ -471,7 +439,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		return creationUrl;
 	}
-	
+
 	@Kroll.method
 	public void setCreationUrl(String url)
 	{
@@ -485,13 +453,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		if (options == null || options.isEmpty()) {
 			return;
 		}
-		
+
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
 			Object value = options.get(name);
 
-			// dont just fire the change event, make sure we set the property back on the KrollObject 
+			// dont just fire the change event, make sure we set the property back on the KrollObject
 			// since the property change may not be driven from JS (KrollObject->Java proxy)
 			setProperty(name, value);
 
@@ -564,6 +532,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	/**
+	 * @param name  the lookup key.
+	 * @return  true if the proxy contains this property and it is not null, false otherwise.
+	 * @module.api
+	 */
+	public boolean hasPropertyAndNotNull(String name)
+	{
+		return properties.containsKeyAndNotNull(name);
+	}
+
+	/**
 	 * Returns the property value given its key.
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
 	 * @param name  the lookup key.
@@ -573,20 +551,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	public Object getProperty(String name)
 	{
 		return properties.get(name);
-	}
-
-	/**
-	 * @deprecated use setPropertyAndFire instead
-	 */
-	@Deprecated
-	public void setProperty(String name, Object value, boolean fireChange)
-	{
-		if (!fireChange) {
-			setProperty(name, value);
-
-		} else {
-			setPropertyAndFire(name, value);
-		}
 	}
 
 	/**
@@ -606,13 +570,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			message.sendToTarget();
 		}
 	}
-	
+
 	public class KrollPropertyChangeSet extends KrollPropertyChange {
 		public int entryCount;
 		public String[] keys;
 		public Object[] oldValues;
 		public Object[] newValues;
-		
+
 		public KrollPropertyChangeSet(int capacity) {
 			super(null,null,null);
 			entryCount = 0;
@@ -620,14 +584,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			oldValues = new Object[capacity];
 			newValues = new Object[capacity];
 		}
-		
+
 		public void addChange(String key, Object oldValue, Object newValue){
 			keys[entryCount] = key;
 			oldValues[entryCount] = oldValue;
 			newValues[entryCount] = newValue;
 			entryCount ++;
 		}
-		
+
 		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
 			if (listener == null) {
 				return;
@@ -637,7 +601,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 		}
 	}
-	
+
 	@Kroll.method
 	public void applyProperties(Object arg)
 	{
@@ -662,9 +626,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					modelListener.propertyChanged(name, current, value, this);
 				}
 			}
-			return;		
+			return;
 		}
-		
+
 		KrollPropertyChangeSet changes = new KrollPropertyChangeSet(props.size());
 		for (Object key : props.keySet()) {
 			String name = TiConvert.toString(key);
@@ -857,7 +821,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				}
 			}
 		}
-		
+
 		if (krollData != null) {
 			Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
 			if (hashValue != null) {
@@ -876,12 +840,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 						krollData.remove(TiC.PROPERTY_SUCCESS);
 						krollData.remove(TiC.PROPERTY_CODE);
 					} else {
-						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 					}
 				} else if ( successValue ) {
-					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 				} else {
-					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);					
+					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
 				}
 			} else if (hashValue != null) {
 				Log.w(TAG, "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
@@ -904,7 +868,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				krollData = null;
 			}
 		}
-		
+
 		return getKrollObject().fireEvent(source, event, krollData, bubbles, reportSuccess, code, message);
 	}
 
@@ -1165,9 +1129,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	//       is added or the last one has been removed.
 	/**
 	 * Called when a event listener is added to the proxy
-	 * 
+	 *
 	 * @param event			the event that the listener has been added for
-	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * @param count			the number of listeners for this event.  should not be used as this value
 	 * 						is not reported correctly
 	 * @param proxy			the proxy that the event was added to.  otherwise known as "this"
 	 * @return				<code>void</code>
@@ -1179,9 +1143,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * Called when a event listener is removed from the proxy
-	 * 
+	 *
 	 * @param event			the event that the listener has been removed for
-	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * @param count			the number of listeners for this event.  should not be used as this value
 	 * 						is not reported correctly
 	 * @param proxy			the proxy that the event was removed from.  otherwise known as "this"
 	 * @return				<code>void</code>
@@ -1317,13 +1281,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
-	// TODO RM_TICONTEXT
-	@Deprecated
-	public TiContext getTiContext()
-	{
-		return new TiContext(getActivity(), proxyId);
-	}
-
 	// For subclasses to override
 	@Kroll.method @Kroll.getProperty
 	public String getApiName()
@@ -1379,4 +1336,3 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	public void onStop(Activity activity) {
 	}
 }
-

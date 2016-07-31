@@ -39,7 +39,7 @@ properties:
         from <Titanium.Codec>, for example, <Titanium.Codec.TYPE_DOUBLE>.
         
         When `value` is a String, specify a `CHARSET` constant from <Titanium.Codec>.
-    default: For string values, defaults to [CHARSET_UTF8](Titanium.Codec.CHARSET_UTF8).
+    default: For string values, defaults to <Titanium.Codec.CHARSET_UTF8>.
 
   - name: byteOrder
     type: Number

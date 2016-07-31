@@ -350,14 +350,11 @@ function exportEditUrl (api) {
 
 		var urlReplacements = {
 			'%MODULE_NAME%': modulename,
-			'%MODULE_PATH%': modulepath
+			'%MODULE_PATH%': file.substr(file.indexOf('apidoc/') || 0)
 		};
-		index = file.indexOf('apidoc/');
-		modulepath = file.substr(index);
 		rv = urlTemplate.replace(/%\w+%/g, function (all) {
 			return urlReplacements[all] || all;
 		});
-
 	} else if (file.indexOf('titanium_mobile_tizen/modules/tizen/apidoc') !== -1) {
 		index = file.indexOf('modules/tizen/apidoc/');
 		basePath = 'https://github.com/appcelerator/titanium_mobile_tizen/edit/master/';

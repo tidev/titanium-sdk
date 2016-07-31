@@ -214,7 +214,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('fail with bad iOS Sim UDID', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('fail with bad iOS Sim UDID', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -229,7 +229,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim + bad Watch Sim UDID + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim + bad Watch Sim UDID + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -251,7 +251,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('fail with good iOS 9.0 Sim UDID + bad Watch Sim UDID + watch app', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('fail with good iOS 9.0 Sim UDID + bad Watch Sim UDID + watch app', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -267,7 +267,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 8.4 Sim + Watch 1.0 Sim + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 8.4 Sim + Watch 1.0 Sim + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -290,7 +290,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 8.4 Sim is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 8.4 Sim is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -312,7 +312,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 8.4 Sim + Watch 1.0 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 8.4 Sim + Watch 1.0 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -336,7 +336,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 8.4 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 8.4 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -359,7 +359,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 8.4 Sim + Watch 2.0 Sim + watch app is invalid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 8.4 Sim + Watch 2.0 Sim + watch app is invalid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -376,7 +376,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim + Watch 2.0 Sim + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim + Watch 2.0 Sim + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -399,7 +399,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -421,7 +421,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim + Watch 2.0 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim + Watch 2.0 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -445,7 +445,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -468,7 +468,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iOS 9.0 Sim + Watch 1.0 Sim + watch app is invalid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iOS 9.0 Sim + Watch 1.0 Sim + watch app is invalid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -485,7 +485,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + Watch 1.0 Sim + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + Watch 1.0 Sim + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -507,7 +507,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + no Watch Sim + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + no Watch Sim + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -528,7 +528,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + app + no Watch Sim + no watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + app + no Watch Sim + no watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -550,7 +550,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + app + Watch 1.0 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + app + Watch 1.0 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -574,7 +574,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + app + no Watch Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + app + no Watch Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -597,7 +597,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('no iOS Sim + app + Watch 2.0 Sim + watch app is valid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('no iOS Sim + app + Watch 2.0 Sim + watch app is valid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -621,7 +621,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iPad Sim + Watch 2.0 Sim + watch app is invalid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iPad Sim + Watch 2.0 Sim + watch app is invalid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -638,7 +638,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('iPad Sim + watch app is invalid', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('iPad Sim + watch app is invalid', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -654,7 +654,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('find a Xcode 7 iOS 9 iOS and Watch Sim', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('find a Xcode 7 iOS 9 iOS and Watch Sim', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -679,7 +679,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should launch the default simulator and stop it', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should launch the default simulator and stop it', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -706,7 +706,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and log basic logs', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to launch simulator and log basic logs', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -747,7 +747,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and log ti mocha results', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to launch simulator and log ti mocha results', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -794,7 +794,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and log ti mocha results with multiple lines', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to launch simulator and log ti mocha results with multiple lines', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -841,7 +841,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and detect crash with Objective-C exception', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to launch simulator and detect crash with Objective-C exception', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -891,7 +891,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should be able to launch simulator and detect crash with C exception', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to launch simulator and detect crash with C exception', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -942,7 +942,7 @@ describe('simulator', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('should launch the default simulator and launch the watchOS 1 app', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should launch the default simulator and launch the watchOS 1 app', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
@@ -981,7 +981,7 @@ describe('simulator', function () {
 	});
 
 
-	(process.env.TRAVIS ? it.skip : it)('should launch the default simulator and launch the watchOS 2 app', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should launch the default simulator and launch the watchOS 2 app', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 

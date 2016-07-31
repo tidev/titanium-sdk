@@ -16,12 +16,13 @@
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
-#import <MobileCoreServices/MobileCoreServices.h>
-#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
-#endif
+
+#import <MobileCoreServices/MobileCoreServices.h>
+#import <CoreLocation/CLCircularRegion.h>
+
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -163,7 +164,6 @@
 }
 
 #pragma mark Public
-#if IS_XCODE_7
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
@@ -248,8 +248,6 @@
 
     return proxy;
 }
-#endif
-
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
@@ -346,12 +344,10 @@
 	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
 	notifAction.authenticationRequired = authenticationRequired;
     
-#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         NSInteger behavior = [TiUtils intValue:[args objectForKey:@"behavior"]];
         notifAction.behavior = behavior;
     }
-#endif
     
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	ap.notificationAction = notifAction;
@@ -558,6 +554,10 @@
 	id alertBody = [args objectForKey:@"alertBody"];
 	if (alertBody!=nil) {
 		localNotif.alertBody = alertBody;
+    }
+	id alertTitle = [args objectForKey:@"alertTitle"];
+	if (alertTitle!=nil) {
+		localNotif.alertTitle = alertTitle;
 	}
 	id alertAction = [args objectForKey:@"alertAction"];
 	if (alertAction!=nil) {
@@ -571,6 +571,29 @@
 	id badge = [args objectForKey:@"badge"];
 	if (badge!=nil) {
 		localNotif.applicationIconBadgeNumber = [TiUtils intValue:badge];
+	}
+    
+	id region = [args objectForKey:@"region"];
+	if (region!=nil) {
+        ENSURE_TYPE(region, NSDictionary);
+        
+		BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
+		double latitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+		double longitude = [TiUtils doubleValue:[region valueForKey:@"latitide"] def:0];
+		NSString *identifier = [TiUtils stringValue:[region valueForKey:@"identifier"]];
+
+		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
+        
+		if (!CLLocationCoordinate2DIsValid(center)) {
+			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+			return;
+		}
+        
+		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
+                                                              radius:kCLDistanceFilterNone
+                                                          identifier:identifier ? identifier : @"notification"];
+		
+		localNotif.regionTriggersOnce = regionTriggersOnce;
 	}
 
 	id sound = [args objectForKey:@"sound"];
@@ -823,21 +846,19 @@
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorDefault);
     }
-#endif
+
     return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorTextInput);
     }
-#endif
+
     return NUMINT(0);
 }
 

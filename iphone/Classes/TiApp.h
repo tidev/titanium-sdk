@@ -64,9 +64,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
-#if IS_XCODE_7
     UIApplicationShortcutItem *launchedShortcutItem;
-#endif
 }
 
 @property (nonatomic) BOOL forceSplashAsSnapshot;
@@ -106,6 +104,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 
+@property (nonatomic,readonly) BOOL willTerminate;
 /**
  Returns singleton instance of TiApp application object.
  */
@@ -190,22 +189,35 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)hideModalController:(UIViewController*)controller animated:(BOOL)animated;
 
 /**
- Returns user agent string to use for network requests.
- 
- @return User agent string
- */
--(NSString*)userAgent;
-
-/**
  Returns unique identifier for the current application launch.
  
  @return Current session id.
  */
 -(NSString*)sessionId;
 
+/**
+ Starts searching for background services.
+ */
 -(void)beginBackgrounding;
+
+/**
+ Ends background services operations.
+ */
 -(void)endBackgrounding;
 
+/**
+ Returns the user agent string to use for system network requests.
+ */
+-(NSString*)systemUserAgent;
+
+/**
+ Returns or set the user agent string to use for network requests.
+ */
+@property(nonatomic, retain) NSString* userAgent;
+
+/**
+ Determines if the application finished booting.
+ */
 @property(nonatomic,readonly) BOOL appBooted;
 
 -(void)registerBackgroundService:(TiProxy*)proxy;

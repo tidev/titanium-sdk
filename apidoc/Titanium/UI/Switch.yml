@@ -47,6 +47,14 @@ methods:
     platforms: [mobileweb]
 
 properties:
+  - name: animated
+    summary: Determines if there is animation when the switch value changes.
+    description: Set to `true` if animation is desired or `false` for no animation. 
+    type: Boolean
+    default: undefined (equivalent to true)
+    platforms: [iphone, ipad]
+    since: 5.1.1
+
   - name: color
     summary: Color to use for switch text, as a color name or hex triplet.
     description: For information about color values, see the "Colors" section of <Titanium.UI>. 

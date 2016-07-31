@@ -43,7 +43,6 @@
 
 
 @interface TiMediaVideoPlayerProxy ()
-@property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
 @property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
 @end
 
@@ -320,31 +319,6 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
-// < 3.2 functions for controls - deprecated
--(void)setMovieControlMode:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
-	[self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlMode
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
-	return [self mediaControlStyle];
-}
-
--(void)setMovieControlStyle:(NSNumber *)value
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    [self setMediaControlStyle:value];
-}
-
--(NSNumber*)movieControlStyle
-{
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-    return [self mediaControlStyle];
-}
-
 -(void)setMediaControlStyle:(NSNumber *)value
 {
 	if (movie != nil) {
@@ -369,7 +343,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
-		[self setUrl:[NSURL fileURLWithPath:[media_ path]]];
+		[self setUrl:[NSURL fileURLWithPath:[(TiFile*)media_ path]]];
 	}
 	else if ([media_ isKindOfClass:[TiBlob class]])
 	{
@@ -882,7 +856,7 @@ NSArray* moviePlayerKeys = nil;
 		if (value==nil)
 		{
 			UIImage *image = [userinfo valueForKey:MPMoviePlayerThumbnailImageKey];
-			TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+			TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 			[event setObject:blob forKey:@"image"];
 		}
 		[event setObject:[userinfo valueForKey:MPMoviePlayerThumbnailTimeKey] forKey:@"time"];

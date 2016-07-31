@@ -4,7 +4,7 @@
  * @module xcode
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  * {@link https://github.com/digitalbazaar/forge}
@@ -35,6 +35,7 @@ var cache,
  * @param {Object} [options] - An object containing various settings.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects all Xcode installations.
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
+ * @param {String} [options.minTVosVersion] - The minimum AppleTV SDK to detect.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
  * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
  * @param {String} [options.sqlite] - Path to the <code>sqlite</code> executable (most likely named sqlite3)
@@ -112,18 +113,18 @@ exports.detect = function detect(options, callback) {
 			return vers.sort().reverse();
 		}
 
-		function findIosSims(dir, xcodeVer) {
-			var vers = findSDKs(dir, /^iPhoneSimulator(.+)\.sdk$/),
+		function findSims(dir, sdkRegExp, simRuntimeRegExp, minVer, xcodeVer) {
+			var vers = findSDKs(dir, sdkRegExp),
 				simRuntimesDir = '/Library/Developer/CoreSimulator/Profiles/Runtimes';
 
 			// for Xcode >=6.2 <7.0, the simulators are in a global directory
-			if (fs.existsSync(simRuntimesDir) && appc.version.gte(xcodeVer, '6.2')) {
+			if (fs.existsSync(simRuntimesDir) && (!xcodeVer || appc.version.gte(xcodeVer, '6.2'))) {
 				fs.readdirSync(simRuntimesDir).forEach(function (name) {
 					var file = path.join(simRuntimesDir, name);
 					if (!fs.existsSync(file) || !fs.statSync(file).isDirectory()) return;
 
-					var m = name.match(/^iOS (.+)\.simruntime$/);
-					if (m && (!options.minIosVersion || appc.version.gte(m[1], options.minIosVersion))) {
+					var m = name.match(simRuntimeRegExp);
+					if (m && (!minVer || appc.version.gte(m[1], minVer))) {
 						var ver = m[1];
 						file = path.join(file, 'Contents', 'Resources', 'RuntimeRoot', 'System', 'Library', 'CoreServices', 'SystemVersion.plist');
 						if (fs.existsSync(file)) {
@@ -228,7 +229,7 @@ exports.detect = function detect(options, callback) {
 					if (appc.version.gte(p.CFBundleShortVersionString, '7.0')) {
 						watchos = {
 							sdks: findSDKs(path.join(dir, 'Platforms', 'WatchOS.platform', 'Developer', 'SDKs'), /^WatchOS(.+)\.sdk$/, options.minWatchosVersion),
-							sims: findSDKs(path.join(dir, 'Platforms', 'WatchSimulator.platform', 'Developer', 'SDKs'), /^WatchSimulator(.+)\.sdk$/, options.minWatchosVersion)
+							sims: findSims(path.join(dir, 'Platforms', 'WatchSimulator.platform', 'Developer', 'SDKs'), /^WatchSimulator(.+)\.sdk$/, /^watchOS (.+)\.simruntime$/, options.minWatchosVersion)
 						};
 					} else if (appc.version.gte(p.CFBundleShortVersionString, '6.2')) {
 						watchos = {
@@ -236,6 +237,11 @@ exports.detect = function detect(options, callback) {
 							sims: ['1.0']
 						};
 					}
+
+					var tvos = {
+						sdks: findSDKs(path.join(dir, 'Platforms', 'AppleTVOS.platform', 'Developer', 'SDKs'), /^AppleTVOS(.+)\.sdk$/, options.minTVosVersion),
+						sims: findSims(path.join(dir, 'Platforms', 'AppleTVSimulator.platform', 'Developer', 'SDKs'), /^AppleTVSimulator(.+)\.sdk$/, /^tvOS (.+)\.simruntime$/, options.minTVosVersion)
+					};
 
 					var xc = results.xcode[ver] = {
 						xcodeapp:       dir.replace(/\/Contents\/Developer\/?$/, ''),
@@ -246,10 +252,11 @@ exports.detect = function detect(options, callback) {
 						supported:      supported,
 						eulaAccepted:   false,
 						sdks:           findSDKs(path.join(dir, 'Platforms', 'iPhoneOS.platform', 'Developer', 'SDKs'), /^iPhoneOS(.+)\.sdk$/, options.minIosVersion),
-						sims:           findIosSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), p.CFBundleShortVersionString),
+						sims:           findSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), /^iPhoneSimulator(.+)\.sdk$/, /^iPhoneOS(.+)\.sdk$/, options.minIosVersion, p.CFBundleShortVersionString),
 						simDeviceTypes: {},
 						simRuntimes:    appc.util.mix({}, globalSimRuntimes),
 						watchos:        watchos,
+						tvos:           tvos,
 						teams:          {},
 						executables: {
 							xcodebuild:     fs.existsSync(f = path.join(dir, 'usr', 'bin', 'xcodebuild')) ? f : null,

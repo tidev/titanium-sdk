@@ -55,7 +55,7 @@ namespace wstool
 			if (version != null) {
 				foreach (var appKeyName in appListKey.GetSubKeyNames()) {
 					if (appKeyName.IndexOf(appid + "_" + version + "_") == 0) {
-						// Save the name, in case sub key doesn't exist 
+						// Save the name, in case sub key doesn't exist
 						windowsAppName = appKeyName;
 						var appKey = appListKey.OpenSubKey(appKeyName);
 						var appClassKey = appKey.OpenSubKey("ActivatableClassId\\App");
@@ -79,7 +79,7 @@ namespace wstool
 						if (q != -1) {
 							string thisVersion = appKeyName.Substring(p + 1, q);
 							if (lastVersion == null || String.Compare(thisVersion, lastVersion, true) > 0) {
-								// Save the name, in case sub key doesn't exist 
+								// Save the name, in case sub key doesn't exist
 								windowsAppName = appKeyName;
 								var appKey = appListKey.OpenSubKey(appKeyName);
 								var appClassKey = appKey.OpenSubKey("ActivatableClassId\\App");
@@ -117,7 +117,7 @@ namespace wstool
 				if (windowsAppId == null) {
 					windowsAppId = "App";
 				}
-				
+
 				// then we conbine it with the Windows Store application id...wish it generates valid one
 				appUserModelId = String.Format("{0}!{1}", familyName, windowsAppId);
 			}
@@ -131,6 +131,7 @@ namespace wstool
 				var aam = new ApplicationActivationManager();
 				UInt32 id;
 				aam.ActivateApplication(appUserModelId, null, ActivateOptions.None, out id);
+				Console.WriteLine(id);
 			} catch (System.Runtime.InteropServices.COMException) {
 				Console.WriteLine("Could not find version " + version + " of application " + appid + " in the registry. Is the application installed?");
 				return 1;

@@ -4,7 +4,7 @@
  * @module appc
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -25,7 +25,8 @@ if (!global.dump) {
 	};
 }
 
-[	'analytics',
+[
+	'analytics',
 	'android',
 	'ast',
 	'async',
@@ -57,5 +58,9 @@ if (!global.dump) {
 	'xml',
 	'zip'
 ].forEach(function (m) {
-	exports[m.split('/').shift()] = require('./' + m);
+	Object.defineProperty(exports, m, {
+		get: function () {
+			return require('./' + m);
+		}
+	});
 });

@@ -14,7 +14,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -33,7 +32,7 @@ import android.support.v4.app.NotificationCompat.Builder;
 	TiC.PROPERTY_CONTENT_TEXT,
 	TiC.PROPERTY_CONTENT_TITLE
 })
-public class NotificationProxy extends KrollProxy 
+public class NotificationProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotification";
 
@@ -41,23 +40,17 @@ public class NotificationProxy extends KrollProxy
 	private int flags, ledARGB, ledOnMS, ledOffMS;
 	private Uri sound;
 	private int audioStreamType;
-	
-	public NotificationProxy() 
+
+	public NotificationProxy()
 	{
 		super();
 		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getInstance().getApplicationContext())
-        .setSmallIcon(android.R.drawable.stat_sys_warning)
-        .setWhen(System.currentTimeMillis());
-		
+		.setSmallIcon(android.R.drawable.stat_sys_warning)
+		.setWhen(System.currentTimeMillis());
+
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
 		audioStreamType = Notification.STREAM_DEFAULT;
-		
-	}
-
-	public NotificationProxy(TiContext tiContext) 
-	{
-		this();
 	}
 
 	@Override
@@ -112,6 +105,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_SOUND)) {
 			setSound(TiConvert.toString(d, TiC.PROPERTY_SOUND));
 		}
+		if (d.containsKey(TiC.PROPERTY_STYLE)) {
+			setStyle((StyleProxy)d.get(TiC.PROPERTY_STYLE));
+		}
 		if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 			setVibratePattern((Object[]) d.get(TiC.PROPERTY_VIBRATE_PATTERN));
 		}
@@ -151,13 +147,13 @@ public class NotificationProxy extends KrollProxy
 		}
 		setProperty(TiC.PROPERTY_ICON, icon);
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setLargeIcon(Object icon)
 	{
 		if(icon instanceof Number) {
 			Bitmap largeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), ((Number)icon).intValue());
-			notificationBuilder.setLargeIcon(largeIcon);   
+			notificationBuilder.setLargeIcon(largeIcon);
 		}else{
 			String iconUrl = TiConvert.toString(icon);
 			if (iconUrl == null) {
@@ -166,19 +162,18 @@ public class NotificationProxy extends KrollProxy
 			}
 			String iconFullUrl = resolveUrl(null, iconUrl);
 			Bitmap largeIcon = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), TiUIHelper.getResourceId(iconFullUrl));
-			notificationBuilder.setLargeIcon(largeIcon);    
+			notificationBuilder.setLargeIcon(largeIcon);
 		}
 		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setVisibility(int visibility)
 	{
 		notificationBuilder.setVisibility(visibility);
 		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
-	
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setPriority(int priority)
 	{
@@ -225,7 +220,7 @@ public class NotificationProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setContentIntent(PendingIntentProxy contentIntent)
 	{
-		notificationBuilder.setContentIntent(contentIntent.getPendingIntent());	
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent());
 		setProperty(TiC.PROPERTY_CONTENT_INTENT, contentIntent);
 	}
 
@@ -295,6 +290,12 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
+	public void setStyle(StyleProxy style) {
+		notificationBuilder.setStyle(style.getStyle());
+		setProperty(TiC.PROPERTY_STYLE, style);
+	}
+
+	@Kroll.method @Kroll.setProperty
 	public void setVibratePattern(Object[] pattern)
 	{
 		if (pattern != null) {
@@ -321,7 +322,6 @@ public class NotificationProxy extends KrollProxy
 				contentText = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TEXT);
 				notificationBuilder.setContentText(contentText);
 			}
-	
 		}
 	}
 
@@ -334,7 +334,7 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	public Notification buildNotification()
-	{ 
+	{
 		Notification notification = notificationBuilder.build();
 		notification.flags = this.flags;
 		return notification;

@@ -16,11 +16,11 @@ using namespace v8;
 
 namespace titanium {
 
-Handle<Value> JSException::fromJavaException(jthrowable javaException)
+Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable javaException)
 {
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
-		return GetJNIEnvironmentError();
+		return GetJNIEnvironmentError(isolate);
 	}
 
 	env->ExceptionDescribe();
@@ -36,17 +36,17 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 
 	jstring message = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
 	if (!message) {
-		return THROW("Java Exception occurred");
+		return THROW(isolate, "Java Exception occurred");
 	}
 
-	Handle<Value> jsMessage = TypeConverter::javaStringToJsString(env, message);
+	Local<Value> jsMessage = TypeConverter::javaStringToJsString(isolate, env, message);
 	env->DeleteLocalRef(message);
 
 	if (deleteRef) {
 		env->DeleteLocalRef(javaException);
 	}
 
-	return ThrowException(Exception::Error(jsMessage->ToString()));
+	return isolate->ThrowException(jsMessage->ToString(isolate));
 }
 
 }

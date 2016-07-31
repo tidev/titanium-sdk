@@ -24,8 +24,8 @@
         [_textField setTranslatesAutoresizingMaskIntoConstraints:NO];
         [self addSubview:_textField];
         
-        [self setDefaultHeight:TiDimensionFromObject(@"SIZE")];
-        [self setDefaultWidth:TiDimensionFromObject(@"FILL")];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        [self setDefaultWidth:TiDimensionAutoFill];
     }
     return self;
 }

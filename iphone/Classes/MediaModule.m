@@ -20,8 +20,12 @@
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
 #import <AVFoundation/AVMediaFormat.h>
@@ -29,9 +33,11 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
-
 #import <UIKit/UIPopoverController.h>
-// by default, we want to make the camera fullscreen and 
+#import <Photos/Photos.h>
+#import "TiUIiOSLivePhoto.h"
+
+// by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
 
 enum
@@ -182,7 +188,8 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_AUTHORIZED, AVAuthorizationStatusAuthorized);
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_DENIED, AVAuthorizationStatusDenied);
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_RESTRICTED, AVAuthorizationStatusRestricted);
-MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_NOT_DETERMINED, AVAuthorizationStatusNotDetermined);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CAMERA_AUTHORIZATION_NOT_DETERMINED, AVAuthorizationStatusNotDetermined, @"Media.CAMERA_AUTHORIZATION_NOT_DETERMINED", @"5.2.0", @"Media.CAMERA_AUTHORIZATION_UNKNOWN");
+MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_UNKNOWN, AVAuthorizationStatusNotDetermined);
 
 //Constants for audioLineType
 MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES,-1,@"Media.AUDIO_HEADPHONES",@"3.4.2",@"3.6.0");
@@ -219,34 +226,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 -(NSString*)AUDIO_SESSION_PORT_CARAUDIO
 {
     return AVAudioSessionPortCarAudio;
-}
-
-
-//Constants for AudioSessions
--(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
-}
--(NSNumber*)AUDIO_SESSION_MODE_RECORD
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
 }
 
 //Constants for AudioSessions
@@ -318,6 +297,15 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO,kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
 
+-(NSString*)MEDIA_TYPE_LIVEPHOTO
+{
+    if ([TiUtils isIOS9_1OrGreater] == YES) {
+        return (NSString*)kUTTypeLivePhoto;
+    }
+    
+    return @"";
+}
+
 //Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
@@ -340,12 +328,6 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 
-// Deprecated old-school video control modes, mapped to the new values
--(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
-{
-    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
-    return [self VIDEO_CONTROL_EMBEDDED];
-}
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
 {
     return [self VIDEO_CONTROL_NONE];
@@ -452,25 +434,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
 }
 
--(NSNumber*)audioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    NSString* category = [self audioSessionCategory];
-    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-        return [self AUDIO_SESSION_MODE_PLAYBACK];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_RECORD];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-    } else {
-        return NUMINT(-1);
-    }
-}
-
 -(void)setAudioSessionCategory:(NSString*)mode
 {
     [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -548,6 +511,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
  Check if camera is authorized, only available for >= iOS 7
  **/
 -(NSNumber*)cameraAuthorizationStatus
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        return nil;
+    }
+    
+    DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
+    return [self cameraAuthorization];
+}
+
+-(NSNumber*)cameraAuthorization
 {
     if (![TiUtils isIOS7OrGreater]) {
         return nil;
@@ -752,7 +725,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
     }
     
-    TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+    TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
     NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
     [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
@@ -820,6 +793,18 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             UISaveVideoAtPathToSavedPhotosAlbum(filePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
         }
+        else
+        {
+            KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
+            if (errorCallback != nil) {
+                NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Invalid mime type: Expected either image/* or video/*, was: %@",mime]];
+                [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+            } else {
+                [self throwException:@"Invalid mime type"
+                           subreason:[NSString stringWithFormat:@"Invalid mime type: Expected either image/* or video/*, was: %@",mime]
+                            location:CODELOCATION];
+            }
+        }
     }
     else if ([image isKindOfClass:[TiFile class]])
     {
@@ -840,11 +825,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         KrollCallback* errorCallback = [saveCallbacks valueForKey:@"error"];
         if (errorCallback != nil) {
-            NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"invalid media type: Exepcted either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
+            NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Invalid media type: Expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]];
             [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
         } else {
-            [self throwException:@"invalid media type"
-                       subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
+            [self throwException:@"Invalid media type"
+                       subreason:[NSString stringWithFormat:@"Expected either TiBlob or TiFile, was: %@",JavascriptNameForClass([image class])]
                         location:CODELOCATION];
         }
     }
@@ -931,6 +916,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)switchCamera:(id)args
 {
+    ENSURE_TYPE(args, NSArray);
+    
+    // TIMOB-17951
+    if ([args objectAtIndex:0] == [NSNull null]) {
+        return;
+    }
+    
     ENSURE_SINGLE_ARG(args,NSNumber);
     ENSURE_UI_THREAD(switchCamera,args);
     
@@ -969,8 +961,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
+            NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
             KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                      thisObject:self];
             [[callback context] enqueue:invocationEvent];
             RELEASE_TO_NIL(invocationEvent);
@@ -1237,7 +1230,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSDictionary *event = [TiUtils dictionaryWithCode:code message:nil];
+        
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1248,7 +1246,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (listener!=nil)
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled the picker"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"cancel",event,listener]];
+#endif
 	}
 }
 
@@ -1261,7 +1264,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	}
 	if (listener!=nil)
 	{
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,listener]];
+#endif
 	}
 }
 
@@ -1449,6 +1456,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         
         BOOL movieRequired = NO;
         BOOL imageRequired = NO;
+        BOOL livePhotoRequired = NO;
         
         if ([types isKindOfClass:[NSArray class]])
         {
@@ -1485,16 +1493,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             return ;
         }
         
-        // introduced in 3.1
-        id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
-        if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
+        double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
+        double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
+        
+        if (videoMaximumDuration != 0.0)
         {
-            [picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
+            [picker setVideoMaximumDuration:videoMaximumDuration/1000];
         }
-        id videoQuality = [args objectForKey:@"videoQuality"];
-        if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])
+
+        if (videoQuality != 0.0)
         {
-            [picker setVideoQuality:[videoQuality doubleValue]];
+            [picker setVideoQuality:videoQuality];
         }
     }
 
@@ -1575,14 +1584,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(void)saveCompletedForImage:(UIImage*)image error:(NSError*)error contextInfo:(void*)contextInfo
 {
 	NSDictionary* saveCallbacks = (NSDictionary*)contextInfo;
-	TiBlob* blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-	
+	TiBlob* blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+    
 	if (error != nil) {
 		KrollCallback* errorCallback = [saveCallbacks objectForKey:@"error"];
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:blob forKey:@"image"];
+
+#ifdef TI_USE_KROLL_THREAD
 			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1591,7 +1605,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:blob forKey:@"image"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
 }
 
@@ -1603,7 +1622,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		if (errorCallback != nil) {
 			NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 			[event setObject:path forKey:@"path"];
-			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];			
+
+#ifdef TI_USE_KROLL_THREAD
+			[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+#else
+			[self dispatchCallback:@[@"error",event,errorCallback]];
+#endif
 		}
 		return;
 	}
@@ -1612,7 +1636,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	if (successCallback != nil) {
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:path forKey:@"path"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];
+#else
+		[self dispatchCallback:@[@"success",event,successCallback]];
+#endif
 	}
     
     // This object was retained for use in this callback; release it.
@@ -1621,7 +1650,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)handleTrimmedVideo:(NSURL*)theURL withDictionary:(NSDictionary*)dictionary
 {
-    TiBlob* media = [[[TiBlob alloc] initWithFile:[theURL path]] autorelease];
+    TiBlob* media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[theURL path]] autorelease];
     NSMutableDictionary* eventDict = [NSMutableDictionary dictionaryWithDictionary:dictionary];
     [eventDict setObject:media forKey:@"media"];
     if (saveToRoll) {
@@ -1712,12 +1741,15 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (mediaType==nil) {
         mediaType = (NSString*)kUTTypeImage; // default to in case older OS
     }
+    
     BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
+    BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString*)kUTTypeLivePhoto]);
     
     NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
     NSDictionary *cropRect = nil;
     TiBlob *media = nil;
+    TiUIiOSLivePhoto *livePhoto = nil;
     TiBlob *thumbnail = nil;
 
     BOOL imageWrittenToAlbum = NO;
@@ -1725,7 +1757,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (isVideo) {
 
         UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-        thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
+        thumbnail = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:thumbnailImage] autorelease];
 
         if (picker.allowsEditing) {
             NSNumber *startTime = [editingInfo objectForKey:@"_UIImagePickerControllerVideoEditingStart"];
@@ -1771,7 +1803,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
         }
         
-        media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+        media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
         if ([media mimeType] == nil) {
             [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
         }
@@ -1784,7 +1816,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
         if ((mediaURL!=nil) && (editedImage == nil)) {
             
-            media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+            media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[mediaURL path]] autorelease];
             [media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
 			
             if (saveToRoll) {
@@ -1831,13 +1863,20 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? editedImage : originalImage;
+                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
             }
             
-            media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
+            media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [media setImage:resultImage];
+
             if (saveToRoll) {
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
+        }
+        
+        if(isLivePhoto) {
+            livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
+            [livePhoto setLivePhoto:[editingInfo objectForKey:UIImagePickerControllerLivePhoto]];
         }
     }
 	
@@ -1845,10 +1884,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [dictionary setObject:mediaType forKey:@"mediaType"];
     [dictionary setObject:media forKey:@"media"];
 
-    if (thumbnail!=nil) {
+    if (thumbnail != nil) {
         [dictionary setObject:thumbnail forKey:@"thumbnail"];
     }
-
+    if (livePhoto != nil) {
+        [dictionary setObject:livePhoto forKey:@"livePhoto"];
+    }
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }
@@ -1907,7 +1948,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
 		[event setObject:media forKey:@"media"];
+        
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1921,7 +1967,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"The user cancelled"];
 		[event setObject:NUMBOOL(YES) forKey:@"cancel"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 
@@ -1935,7 +1986,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	{
 		NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
 		[event setObject:NUMBOOL(NO) forKey:@"cancel"];
+
+#ifdef TI_USE_KROLL_THREAD
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+#else
+		[self dispatchCallback:@[@"error",event,listener]];
+#endif
 	}
 }
 

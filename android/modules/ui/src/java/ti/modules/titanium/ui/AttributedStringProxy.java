@@ -150,7 +150,7 @@ public class AttributedStringProxy extends KrollProxy
 															fontProperties[TiUIHelper.FONT_SIZE_POSITION], activity)),
 														range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 												}
-												if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
+												if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null || fontProperties[TiUIHelper.FONT_STYLE_POSITION] != null) {
 													int typefaceStyle = TiUIHelper.toTypefaceStyle(
 														fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
 														fontProperties[TiUIHelper.FONT_STYLE_POSITION]);

@@ -25,6 +25,8 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.view.ViewOutlineProvider;
+import android.graphics.Outline;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
@@ -45,6 +47,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private Path borderPath;
 	private Paint paint;
 	private View child;
+	private Rect bounds = new Rect();
 
 	public TiBorderWrapperView(Context context)
 	{
@@ -87,7 +90,6 @@ public class TiBorderWrapperView extends FrameLayout
 
 	private void updateBorderPath()
 	{
-		Rect bounds = new Rect();
 		getDrawingRect(bounds);
 		outerRect.set(bounds);
 
@@ -120,6 +122,16 @@ public class TiBorderWrapperView extends FrameLayout
 			borderPath.addRect(outerRect, Direction.CW);
 			borderPath.addRect(innerRect, Direction.CCW);
 			borderPath.setFillType(FillType.EVEN_ODD);
+		}
+		// set the outline for the view in order to use elevation
+		if (Build.VERSION.SDK_INT >= 21) {
+			ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+				@Override
+				public void getOutline(View view, Outline outline) {				            
+					outline.setRoundRect(bounds, radius);
+				}
+			};
+			setOutlineProvider(viewOutlineProvider);
 		}
 	}
 

@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
 #import "TiUIiOSPreviewActionProxy.h"
@@ -21,6 +20,8 @@
                   
 -(void)dealloc
 {
+    RELEASE_TO_NIL(_title);
+    RELEASE_TO_NIL(_listViewEvent);
     RELEASE_TO_NIL(action);
     
     [super dealloc];
@@ -34,7 +35,7 @@
 -(UIPreviewAction*)action
 {
     if (action == nil) {
-        action = [UIPreviewAction actionWithTitle:[self title] style:[self style] handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
+        action = [UIPreviewAction actionWithTitle:_title style:_style handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
             if ([self _hasListeners:@"click"]) {
                 [self fireEventWithAction:_action];
             }
@@ -47,7 +48,7 @@
 -(void)fireEventWithAction:(UIPreviewAction*)action
 {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
-        @"index" : NUMINT([self actionIndex]),
+        @"index" : NUMINTEGER([self actionIndex]),
         @"title" : [self title],
         @"style" : NUMINT([self style])
     }];
@@ -63,5 +64,4 @@
 }
 
 @end
-#endif
 #endif

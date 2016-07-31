@@ -38,16 +38,19 @@
 
 -(void)show:(id)args
 {
+    ENSURE_UI_THREAD(show, args);
     [[self menuPopup] show:args];
 }
 
 -(void)hide:(id)args
 {
+    ENSURE_UI_THREAD(hide, args);
     [[self menuPopup] hide:args];
 }
 
 -(void)setItems:(id)args
 {
+    ENSURE_UI_THREAD(setItems, args);
     ENSURE_TYPE_OR_NIL(args, NSArray);
     
     [self replaceValue:args forKey:@"items" notification:NO];

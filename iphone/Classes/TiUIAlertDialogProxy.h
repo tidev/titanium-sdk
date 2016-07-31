@@ -13,6 +13,7 @@
     BOOL persistentFlag;
     int cancelIndex;
     int destructiveIndex;
+    int preferredIndex;
     int style;
 }
 

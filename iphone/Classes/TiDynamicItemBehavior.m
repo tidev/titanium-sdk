@@ -73,14 +73,15 @@
 
 -(void)updateItems
 {
-    NSUInteger theIndex = 0;
-    for (TiViewProxy* theItem in _items) {
+    NSUInteger itemCount = [_items count];
+    
+    for (NSUInteger index = 0; index < itemCount; index++) {
+        TiViewProxy* theItem = [_items objectAtIndex:index];
         CGPoint linearVel = [_dynamicItemBehavior linearVelocityForItem:[theItem view]];
         CGFloat angVelocity = [_dynamicItemBehavior angularVelocityForItem:[theItem view]];
-        [_angularVelocities replaceObjectAtIndex:theIndex withObject:NUMFLOAT(angVelocity)];
-        TiPoint* thePoint = [_linearVelocities objectAtIndex:theIndex];
+        [_angularVelocities replaceObjectAtIndex:index withObject:NUMFLOAT(angVelocity)];
+        TiPoint* thePoint = [_linearVelocities objectAtIndex:index];
         [thePoint setPoint:linearVel];
-        theIndex ++;
     }
 }
 

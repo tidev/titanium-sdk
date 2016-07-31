@@ -113,8 +113,7 @@ events:
     description: |
         On Android, this event also fires before putting the activity in the background
         (before the activity enters the pause state).
-
-        On iOS, the <Titanium.UI.TabGroup.unselected> event deprecates this event since Release 5.1.0.
+    platforms: [iphone, ipad,android]
     properties:
       - name: index
         summary: |
@@ -149,8 +148,7 @@ events:
     description: |
         On Android, this event also fires when the activity enters the foreground
         (after the activity enters the resume state).
-
-        On iOS, the <Titanium.UI.TabGroup.selected> event deprecates this event since Release 5.1.0.
+    platforms: [iphone, ipad,android]
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -176,6 +174,9 @@ events:
         Fired when a tab is selected.
     since: 5.1.0
     platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.Tab.focus> instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -198,6 +199,9 @@ events:
         Fired when a tab is unselected.
     since: 5.1.0
     platforms: [iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.Tab.blur> instead.
     properties:
       - name: index
         summary: |
@@ -352,18 +356,6 @@ properties:
     platforms: [android]
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
-
-  - name: navBarHidden
-    summary: Hide the nav bar (`true`) or show the nav bar (`false`) for this tab group.
-    description: |
-        On other platforms, use [Window.navBarHidden](Titanium.UI.Window.navBarHidden) to
-        show and hide the nav bar for a tab group. On Android, the nav bar can only be
-        shown or hidden for the whole tab group. Setting this property to true disables 
-        the Action Bar since it is part of the navigation title bar.
-    platforms: [android]
-    default: false
-    type: Boolean
-    since: 3.0.0
 
   - name: swipeable
     summary: |

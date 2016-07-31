@@ -34,6 +34,15 @@
 
 DEFINE_EXCEPTIONS
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(void)dealloc
 {
 	if (timer!=nil)
@@ -177,7 +186,11 @@ DEFINE_EXCEPTIONS
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
 {
-	UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+#ifdef TI_USE_AUTOLAYOUT
+	UIView *view = [[TiLayoutView alloc] init];
+#else
+    UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+#endif
 	UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	
 	spinner.center = view.center;
@@ -504,6 +517,11 @@ DEFINE_EXCEPTIONS
             if (range.location != NSNotFound) {
                 imageArg = [pathStr substringFromIndex:range.location+5];
             }
+            //remove suffixes.
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
             if (imageArg != nil) {
                 unsigned char digest[CC_SHA1_DIGEST_LENGTH];
                 NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
@@ -569,7 +587,11 @@ DEFINE_EXCEPTIONS
 	{
 		// we use a separate container view so we can both have an image
 		// and a set of images
-		container = [[UIView alloc] initWithFrame:self.bounds];
+#ifdef TI_USE_AUTOLAYOUT
+        container = [[TiLayoutView alloc] initWithFrame:self.bounds];
+#else
+        container = [[UIView alloc] initWithFrame:self.bounds];
+#endif
 		container.userInteractionEnabled = NO;
 		[self addSubview:container];
 	}
@@ -724,6 +746,15 @@ DEFINE_EXCEPTIONS
 	{
 		[self fireLoadEventWithState:@"image"];
 	}
+}
+
+-(void)setTintColor_:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value, NSString);
+	UIImageRenderingMode renderingMode = value ? UIImageRenderingModeAlwaysTemplate : UIImageRenderingModeAlwaysOriginal;
+    
+	[imageView setImage:[[imageView image] imageWithRenderingMode:renderingMode]];
+	[imageView setTintColor:value ? [[TiUtils colorValue:value] _color]: nil];
 }
 
 -(void)setImages_:(id)args

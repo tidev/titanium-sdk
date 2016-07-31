@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIPADPOPOVER) || defined(USE_TI_UIIPADSPLITWINDOW)
+#ifdef USE_TI_UIIPADPOPOVER
 
 #import "TiUIiPadPopoverProxy.h"
 #import "TiUtils.h"
@@ -427,6 +427,7 @@ static NSArray* popoverSequence;
         UIPopoverPresentationController* thePresentationController = [theController popoverPresentationController];
         thePresentationController.permittedArrowDirections = directions;
         thePresentationController.delegate = self;
+        [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
         
         [[TiApp app] showModalController:theController animated:animated];
         return;
@@ -481,6 +482,7 @@ static NSArray* popoverSequence;
         if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
             [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
             viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
+
         } else {
             viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
         }
@@ -493,6 +495,7 @@ static NSArray* popoverSequence;
     if (popoverController == nil) {
         popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
         [popoverController setDelegate:self];
+
         [self updateContentSize];
     }
     return popoverController;

@@ -390,7 +390,7 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color. 
     description: |
-        Specify one of the constants from <Titanium.UI.iPhone.TableViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.iOS.TableViewCellSelectionStyle>.
     type: Number
     platforms: [iphone,ipad]
     

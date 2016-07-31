@@ -1,3 +1,17 @@
+0.2.35 (2/9/2015)
+------------------
+ * Added more logging for why a Titanium module was found incompatible [TIMOB-20275]
+ * Improved plist parsing
+ * Updated NPM dependencies
+
+0.2.34 (12/11/2015)
+------------------
+ * Individual library modules are loaded lazy loaded for improved performance
+
+0.2.33 (10/6/2016)
+------------------
+ * Added the bugs URL to the package.json [TIMOB-19671]
+
 0.2.32 (10/1/2015)
 ------------------
  * Added PNG info (width, height, alpha) to image lib [TIMOB-19512]
