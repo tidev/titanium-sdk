@@ -808,7 +808,7 @@ public abstract class TiUIView
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 					if (!nativeViewNull) {
 						if (canApplyTouchFeedback(d)) {
-							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
+							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 						} else {
 							nativeView.setBackgroundColor(bgColor);
 							// A bug only on Android 2.3 (TIMOB-14311).
