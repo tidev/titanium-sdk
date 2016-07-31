@@ -1232,8 +1232,7 @@ properties:
     summary: Border width of the view.
     type: Number
     default: 0
-
-    
+  
   - name: touchFeedback
     summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
     description: |
@@ -1242,17 +1241,17 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    since: "5.2.0"
-
-    
+    osver: {android: {min: "5.0"}}
+    since: "6.1.0"
+   
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true. 
     type: String
     default: Theme provided color. 
     platforms: [android]
-    since: "5.2.0"
-
-    
+    osver: {android: {min: "5.0"}}
+    since: "6.1.0"
+ 
   - name: bottom
     summary: View's bottom position, in platform-specific units.
     description: |
