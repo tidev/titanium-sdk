@@ -984,6 +984,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(NSNumber*)hasCameraPermissions:(id)unused
 {
+    NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
+    
+    // Camera permissions are always required
+    if ([TiUtils isIOS10OrGreater] && !cameraPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
+    }
+    
     return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized);
 }
 
@@ -1504,16 +1511,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             return ;
         }
         
-        // iOS 10 requires a certain number of permissions declared in the Info.plist (<ios><plist/></ios>) in order to run
+        // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
         if ([TiUtils isIOS10OrGreater]) {
-            NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
             NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
             NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
-            
-            // Camera permissions are always required
-            if (isCamera && !cameraPermission) {
-                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
-            }
             
             // Microphone permissions are required when using the video-camera
             if (movieRequired == YES && !microphonePermission) {
@@ -1521,7 +1522,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             // Gallery permissions are required when saving or selecting media from the gallery
-            if ((saveToRoll || customPicker) && !galleryPermission) {
+            if ((saveToRoll || !customPicker) && !galleryPermission) {
                 NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
             }
         }
