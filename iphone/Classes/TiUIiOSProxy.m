@@ -199,7 +199,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
@@ -229,7 +229,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSTATUSBAR
     RELEASE_TO_NIL(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
     RELEASE_TO_NIL(_SystemButton);
 #endif
 #ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
@@ -244,7 +244,7 @@ RELEASE_TO_NIL(x); \
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     FORGET_AND_RELEASE(_animationStyleProxy);
 #endif
 
