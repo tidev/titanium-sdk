@@ -152,8 +152,8 @@ methods:
         Apple has put on the camera API.
 
         Important: Use <Titanium.Media.hasCameraPermissions> and <Titanium.Media.requestCameraPermissions>
-        to ask for camera permissions. This is especially important when running iOS 8 and later, since the
-        application may crash otherwise.
+        to ask for camera permissions. This is especially important when running on iOS 10 and later, since 
+        the application may crash otherwise.
 
     platforms: [iphone, ipad, android]
     parameters:
