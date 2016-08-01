@@ -98,7 +98,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		// Instantiate a debugger here and pass it along to C++ code
 		JSDebugger jsDebugger = null;
 		if (deployData.getDebuggerPort() >= 0) {
-			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), new Handler(Looper.getMainLooper()), application.getSDKVersion());
+			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), application.getSDKVersion());
 		}
 
 		nativeInit(useGlobalRefs, jsDebugger, DBG, deployData.isProfilerEnabled());
