@@ -572,8 +572,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self requestAudioPermissions:args];
 }
 
+-(NSNumber*)hasAudioPermissions
+{
+    [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
+}
+
 -(void)requestAudioPermissions:(id)args
 {
+    NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+    
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;
     if ([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)]) {
@@ -1491,6 +1502,28 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             // no movie type supported...
             [self sendPickerError:MediaModuleErrorNoCamera];
             return ;
+        }
+        
+        // iOS 10 requires a certain number of permissions declared in the Info.plist (<ios><plist/></ios>) in order to run
+        if ([TiUtils isIOS10OrGreater]) {
+            NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
+            NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+            NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+            
+            // Camera permissions are always required
+            if (isCamera && !cameraPermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
+            }
+            
+            // Microphone permissions are required when using the video-camera
+            if (movieRequired == YES && !microphonePermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
+            }
+            
+            // Gallery permissions are required when saving or selecting media from the gallery
+            if ((saveToRoll || customPicker) && !galleryPermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+            }
         }
         
         double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
