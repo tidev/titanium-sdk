@@ -1767,11 +1767,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 int startMilliseconds = ([startTime doubleValue] * 1000);
                 int endMilliseconds = ([endTime doubleValue] * 1000);
                 
-                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-                NSString *documentsDirectory = [paths objectAtIndex:0];
+                NSString *tmpDirectory = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] path];
                 
                 NSFileManager *manager = [NSFileManager defaultManager];
-                NSString *outputURL = [documentsDirectory stringByAppendingPathComponent:@"editedVideo"];
+                NSString *outputURL = [tmpDirectory stringByAppendingPathComponent:@"editedVideo"];
                 [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
                 NSString* fileName = [[[NSString stringWithFormat:@"%f",CFAbsoluteTimeGetCurrent()] stringByReplacingOccurrencesOfString:@"." withString:@"-"] stringByAppendingString:@".MOV"];
                 outputURL = [outputURL stringByAppendingPathComponent:fileName];
