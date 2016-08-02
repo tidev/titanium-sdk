@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 
 public final class JSDebugger
 {
@@ -55,9 +56,6 @@ public final class JSDebugger
 	// The thread which acts as the main agent for listening to debugger and V8 messages
 	private DebugAgentThread agentThread;
 
-	// The Handler used to post runnables to the main thread
-	private final Handler mainHandler;
-
 	// The runnable used to tell V8 to process the debug messages on the main thread.
 	private final Runnable processDebugMessagesRunnable = new Runnable() {
 		@Override
@@ -66,9 +64,8 @@ public final class JSDebugger
 		}
 	};
 
-	public JSDebugger(int port, Handler mainHandler, String sdkVersion) {
+	public JSDebugger(int port, String sdkVersion) {
 		this.port = port;
-		this.mainHandler = mainHandler;
 		this.sdkVersion = sdkVersion;
 	}
 
@@ -78,7 +75,6 @@ public final class JSDebugger
 	 */
 	public void handleMessage(String message)
 	{
-		Log.v(TAG, "Received message from V8: " + message);
 		v8Messages.add(message);
 	}
 
@@ -94,14 +90,11 @@ public final class JSDebugger
 			// ignore, should never happen
 		}
 
-		Log.v(TAG, "Sending message to V8: " + message);
-
 		// Send the command to V8 via C++
 		nativeSendCommand(cmdBytes, cmdBytes.length);
 
-		// Tell V8 to process the message (on the main thread)
-		Log.v(TAG, "Asking V8 to process debug messages...");
-		mainHandler.post(processDebugMessagesRunnable);
+		// Tell V8 to process the message (on the runtime thread)
+		TiMessenger.postOnRuntime(processDebugMessagesRunnable);
 	}
 
 	public void start() {
@@ -109,7 +102,6 @@ public final class JSDebugger
 		this.agentThread.start();
 
 		// Tell C++ side to hook up the debug message handler
-		Log.v(TAG, "Enabling debugging with V8 in C++...");
 		nativeEnable();
 	}
 
@@ -152,8 +144,6 @@ public final class JSDebugger
 					Socket socket = null;
 					try {
 						socket = serverSocket.accept();
-
-						Log.v(TAG, "Received debugger connection!");
 
 						// handle messages coming from V8 -> Debugger
 						this.v8MessageHandler = new V8MessageHandler(socket);
@@ -228,7 +218,6 @@ public final class JSDebugger
 			{
 				try
 				{
-					Log.v("V8MessageHandler", "Waiting for next message from V8...");
 					String message = JSDebugger.this.v8Messages.take();
 					if (message.equals(STOP_MESSAGE))
 					{
@@ -257,7 +246,6 @@ public final class JSDebugger
 
 		private void sendHandshake()
 		{
-			Log.v("V8MessageHandler", "Sending handshake message from V8 to Debugger");
 			try
 			{
 				output.write(String.format(HANDSHAKE_MESSAGE, JSDebugger.this.sdkVersion).getBytes("UTF8"));
@@ -283,7 +271,6 @@ public final class JSDebugger
 				return;
 			}
 
-			Log.v("V8MessageHandler", "Forwarding message from V8 to Debugger: " + msg);
 			try
 			{
 				String s = "Content-Length: " + utf8.length;
@@ -340,7 +327,6 @@ public final class JSDebugger
 			{
 				while (!stop && ((line = (leftOver != null) ? leftOver : scanner.nextLine()) != null))
 				{
-					Log.v("DebuggerMessageHandler", "Received line from Debugger: " + line);
 					switch (state)
 					{
 					case Header:
