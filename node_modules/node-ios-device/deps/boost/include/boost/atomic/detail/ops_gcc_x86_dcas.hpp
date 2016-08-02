@@ -80,14 +80,9 @@ struct gcc_dcas_x86
                 "1: lock; cmpxchg8b 0(%[dest])\n\t"
                 "jne 1b\n\t"
                 "movl %[scratch], %%ebx"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
                 : [scratch] "=m,m" (scratch)
                 : [value_lo] "a,a" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
-#else
-                : [scratch] "=m" (scratch)
-                : [value_lo] "a" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
-#endif
-                : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "edx", "memory"
+                : "cc", "edx", "memory"
             );
 #else
             __asm__ __volatile__
@@ -98,12 +93,8 @@ struct gcc_dcas_x86
                 "1: lock; cmpxchg8b 0(%[dest])\n\t"
                 "jne 1b\n\t"
                 :
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
                 : [value_lo] "b,b" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
-#else
-                : [value_lo] "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
-#endif
-                : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "eax", "edx", "memory"
+                : "cc", "eax", "edx", "memory"
             );
 #endif
         }
@@ -155,7 +146,7 @@ struct gcc_dcas_x86
                 "lock; cmpxchg8b %[storage]"
                 : "=&A" (value)
                 : [storage] "m" (storage)
-                : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+                : "cc", "memory"
             );
 #endif
         }
@@ -192,14 +183,9 @@ struct gcc_dcas_x86
             "lock; cmpxchg8b %[dest]\n\t"
             "movl %[scratch], %%ebx\n\t"
             "sete %[success]"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
             : "+A,A,A,A,A,A" (expected), [dest] "+m,m,m,m,m,m" (storage), [scratch] "=m,m,m,m,m,m" (scratch), [success] "=q,m,q,m,q,m" (success)
             : [desired_lo] "S,S,D,D,m,m" ((uint32_t)desired), "c,c,c,c,c,c" ((uint32_t)(desired >> 32))
-#else
-            : "+A" (expected), [dest] "+m" (storage), [scratch] "=m" (scratch), [success] "=q" (success)
-            : [desired_lo] "S" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32))
-#endif
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+            : "cc", "memory"
         );
         return success;
 #else
@@ -208,14 +194,9 @@ struct gcc_dcas_x86
         (
             "lock; cmpxchg8b %[dest]\n\t"
             "sete %[success]"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
             : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
             : "b,b" ((uint32_t)desired), "c,c" ((uint32_t)(desired >> 32))
-#else
-            : "+A" (expected), [dest] "+m" (storage), [success] "=q" (success)
-            : "b" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32))
-#endif
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+            : "cc", "memory"
         );
         return success;
 #endif
@@ -254,7 +235,7 @@ struct gcc_dcas_x86_64
             "jne 1b"
             :
             : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (&storage)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "rax", "rdx", "memory"
+            : "cc", "rax", "rdx", "memory"
         );
     }
 
@@ -276,7 +257,7 @@ struct gcc_dcas_x86_64
             "lock; cmpxchg16b %[storage]"
             : "=&A" (value)
             : [storage] "m" (storage)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+            : "cc", "memory"
         );
 
         return value;
@@ -298,14 +279,9 @@ struct gcc_dcas_x86_64
         (
             "lock; cmpxchg16b %[dest]\n\t"
             "sete %[success]"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
             : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
             : "b,b" (p_desired[0]), "c,c" (p_desired[1])
-#else
-            : "+A" (expected), [dest] "+m" (storage), [success] "=q" (success)
-            : "b" (p_desired[0]), "c" (p_desired[1])
-#endif
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+            : "cc", "memory"
         );
         return success;
 #endif
