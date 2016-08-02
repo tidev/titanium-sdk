@@ -18,7 +18,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     return @"Ti.UI.iOS.Stepper";
 }
 
-
+-(NSNumber*)value
+{
+    return NUMINT([[(TiUIiOSStepper*)[self view]stepper] value]);
+}
 
 #ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
