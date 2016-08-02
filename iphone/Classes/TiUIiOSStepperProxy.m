@@ -20,7 +20,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 -(NSNumber*)value
 {
-    return NUMINT([[(TiUIiOSStepper*)[self view]stepper] value]);
+    return NUMDOUBLE([[(TiUIiOSStepper*)[self view] stepper] value]);
 }
 
 #ifndef TI_USE_AUTOLAYOUT
