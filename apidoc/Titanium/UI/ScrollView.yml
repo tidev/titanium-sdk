@@ -309,6 +309,15 @@ properties:
     platforms: [android]
     since: "3.1.0"
 
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the scroll view contents down.
+    description: |
+        An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    since: 6.0.0
+
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
     description: |
@@ -325,8 +334,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: scrollType

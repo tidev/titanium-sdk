@@ -1,3 +1,15 @@
+Warning: This Project Is Deprecated!
+----------------------------------------------------------------------------
+`wrench.js` is deprecated, and hasn't been updated in quite some time. **[I heavily recommend using fs-extra](https://github.com/jprichardson/node-fs-extra)** to do any extra filesystem operations.
+
+Wrench was built for the _early_ days of Node, and it solved a problem that needed solving. I'm proud of what it's done; at the time of writing this, it was still downloaded over 25,000 times yesterday, and over 500,000 times in the last month. The fact that it wound up being embedded in so many projects is humbling and a great source of fun for me, but I just don't have the time to keep up with this at the moment. No alternate maintainers have appeared, and fs-extra is very well maintained anyway - one community solution is likely better.
+
+So long, and thanks for all the fish. The original docs remain available here for anyone who may need them. If I could 301 a GitHub repository I'd do so.
+
+Cheers,
+- Ryan McGrath
+
+
 wrench.js - Recursive file operations in Node.js
 ----------------------------------------------------------------------------
 While I love Node.js, I've found myself missing some functions. Things like

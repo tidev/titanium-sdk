@@ -17,7 +17,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * API for accessing, storing, and modifying application properties that are 
+ * API for accessing, storing, and modifying application properties that are
  * exposed via Ti.App.Properties.
  */
 public class TiProperties
@@ -60,14 +60,6 @@ public class TiProperties
 		} else {
 			return def;
 		}
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public SharedPreferences getPreference()
-	{
-		return preferences;
 	}
 
 	public Object getPreference(String key)
@@ -149,7 +141,7 @@ public class TiProperties
 			}
 		}
 	}
-	
+
 	/**
 	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
 	 * @param key the key to set.
@@ -173,7 +165,7 @@ public class TiProperties
 		editor.putInt(key,value);
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key as a Double. If key does not exist, returns the default value.
 	 * @param key the lookup key.
@@ -223,7 +215,7 @@ public class TiProperties
 		editor.putString(key,value + "");
 		editor.commit();
 	}
-	
+
 	/**
 	 * Returns the mapping of a specified key, as a Boolean. If key does not exist, returns the default value.
 	 * @param key the lookup key.
@@ -399,6 +391,15 @@ public class TiProperties
 			editor.remove(key);
 			editor.commit();
 		}
+	}
+	
+	/**
+	 * Removes all keys from preferences.
+	 * @module.api
+	 */
+	public void removeAllProperties()
+	{
+		preferences.edit().clear().commit();
 	}
 
 	public static void setSystemProperties(JSONObject prop) {

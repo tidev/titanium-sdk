@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -50,11 +49,6 @@ public class ScrollViewProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
 
-	public ScrollViewProxy(TiContext context)
-	{
-		this();
-	}
-
 	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUIScrollView(this);
@@ -76,7 +70,7 @@ public class ScrollViewProxy extends TiViewProxy
 			handleScrollTo(x,y);
 		}
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setScrollingEnabled(Object enabled)
 	{
@@ -120,7 +114,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public void handleScrollTo(int x, int y) {
 		getScrollView().scrollTo(x, y);
 	}
-	
+
 	public void handleScrollToBottom() {
 		getScrollView().scrollToBottom();
 	}

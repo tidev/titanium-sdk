@@ -5,8 +5,8 @@ summary: |
 description: |
     <table id="IOS Stepper">
       <tr>
-        <td><img src="images/stepper/Stepper.png" height="50" /></td>
-        <td><img src="images/stepper/Stepper_customImages.png" height="51" /></td>
+        <td><img src="images/Stepper/Stepper.png" height="50" /></td>
+        <td><img src="images/Stepper/Stepper_customImages.png" height="51" /></td>
       </tr>
       <tr><th colspan="2">iOS</th></tr>
     </table>
@@ -25,6 +25,7 @@ description: |
 
 extends: Titanium.UI.View
 since: "5.4.0"
+platforms: [iphone, ipad]
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]

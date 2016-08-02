@@ -180,6 +180,12 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(NSNumber*)hasContactsPermissions:(id)unused
 {
+    NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSContactsUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSContactsUsageDescription\" inside the plist in your tiapp.xml when accessing the native contacts. Please add the key and re-run the application.");
+    }
+    
     return NUMBOOL(ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized);
 }
 

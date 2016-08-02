@@ -448,8 +448,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 			'-processor', 'org.appcelerator.kroll.annotations.generator.KrollJSONGenerator',
 			'-s', this.buildGenJsonDir,
 			'-Akroll.jsonFile='+ this.manifest.name +'.json',
-			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings',
-			'-Akroll.checkTiContext=true'
+			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings'
 		],
 		{},
 		next
@@ -1076,7 +1075,7 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 						}
 
 						this.dirWalker(this.buildGenLibsDir, function (file) {
-							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1) {
+							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 && file.indexOf('libc++_shared.so') == -1) {
 
 								var relativeName = path.relative(this.buildGenLibsDir, file),
 									targetDir = path.join(this.libsDir, path.dirname(relativeName));

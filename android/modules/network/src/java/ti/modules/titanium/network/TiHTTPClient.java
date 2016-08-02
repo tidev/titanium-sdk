@@ -22,6 +22,7 @@ import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -145,6 +146,8 @@ public class TiHTTPClient
 	public static final int READY_STATE_HEADERS_RECEIVED = 2; // Headers received, headers have returned and the status is available
 	public static final int READY_STATE_LOADING = 3; // Loading, responseText is being loaded with data
 	public static final int READY_STATE_DONE = 4; // Done, all operations have finished
+
+	public static final int REDIRECTS = 5;
 
 	private TiFile responseFile;
 
@@ -959,11 +962,6 @@ public class TiHTTPClient
 		// We don't have to handle SNI explicitly 
 		// https://developer.android.com/training/articles/security-ssl.html
 	}
-	
-	protected void setUpClient(HttpURLConnection connection)
-	{
-		connection.setInstanceFollowRedirects(autoRedirect);		
-	}
 
 	private Object titaniumFileAsPutData(Object value)
 	{
@@ -1098,7 +1096,6 @@ public class TiHTTPClient
 			try {
 				Thread.sleep(10);
 				Log.d(TAG, "send()", Log.DEBUG_MODE);
-
 				//If there are any custom authentication factories registered with the client add them here
 				/*
 				Enumeration<String> authSchemes = customAuthenticators.keys();
@@ -1115,46 +1112,9 @@ public class TiHTTPClient
 				try {
 					mURL = new URL(url);
 					client = (HttpURLConnection) mURL.openConnection();
-					setUpClient(client);
-					
-					if (client instanceof HttpsURLConnection) {
-					    HttpsURLConnection securedConnection = (HttpsURLConnection) client;
-					    setUpSSL(validatesSecureCertificate(), securedConnection);
-					}					
-								
-					if (timeout != -1) {
-						client.setReadTimeout(timeout);
-						client.setConnectTimeout(timeout);
-					}
-					
-					if (aborted) {
-						return;
-					}		
-					
 					boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
-					
-					client.setUseCaches(true);
-					client.setRequestMethod(method);
-					client.setDoInput(true);
-					if (isPostOrPutOrPatch) {
-						client.setDoOutput(true);
-					}
-					client.setUseCaches(false);
-					// This is to set gzip default to disable
-					// https://code.google.com/p/android/issues/detail?id=174949
-					client.setRequestProperty("Accept-Encoding", "identity");
-					client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
-					if (parts.size() > 0 && needMultipart) {
-						boundary = HttpUrlConnectionUtils.generateBoundary();
-						client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-					} else if (isPostOrPutOrPatch) {
-						client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-					}
+					setUpClient(client, isPostOrPutOrPatch);
 
-					for (String header : requestHeaders.keySet()) {
-						client.setRequestProperty(header, requestHeaders.get(header));
-					}
-					
 					if (isPostOrPutOrPatch) {			
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress) {
@@ -1203,6 +1163,36 @@ public class TiHTTPClient
 						} else {
 							handleURLEncodedData(form);
 						}
+					}
+
+					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
+					// This section of the code handles that.
+					if (autoRedirect) {
+					    // Hardcoded to follow a max of 5 redirects
+					    for (int i = 0; i < REDIRECTS; i++) {
+					        // Checks manually if a redirect is needed
+					        int status = client.getResponseCode();
+
+					        if (status != HttpURLConnection.HTTP_OK &&
+					                (status == HttpURLConnection.HTTP_MOVED_TEMP
+					                || status == HttpURLConnection.HTTP_MOVED_PERM
+					                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
+					            redirectedLocation = client.getHeaderField("Location");
+					            if (redirectedLocation != null) {
+					                client.disconnect();
+					                client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
+					                // Configure the headers and SSL connection again if required
+					                setUpClient(client, isPostOrPutOrPatch);
+					            } else {
+					                // There are no redirected URLs to follow.
+					                break;
+					            }
+					        } else {
+					            // No more redirects to follow.
+					            break;
+					        }
+					    }
 					}
 					handleResponse(client);
 
@@ -1265,6 +1255,48 @@ public class TiHTTPClient
 
 		}
 		
+		protected void setUpClient(HttpURLConnection client, Boolean isPostOrPutOrPatch) throws ProtocolException {
+		    client.setInstanceFollowRedirects(autoRedirect);
+		    if (client instanceof HttpsURLConnection) {
+		        HttpsURLConnection securedConnection = (HttpsURLConnection) client;
+		        setUpSSL(validatesSecureCertificate(), securedConnection);
+		    }
+
+		    if (timeout != -1) {
+		        client.setReadTimeout(timeout);
+		        client.setConnectTimeout(timeout);
+		    }
+
+		    if (aborted) {
+		        return;
+		    }
+
+		    client.setUseCaches(true);
+		    client.setRequestMethod(method);
+		    client.setDoInput(true);
+
+		    if (isPostOrPutOrPatch) {
+		        client.setDoOutput(true);
+		        client.setRequestProperty("Transfer-Encoding", "chunked");
+		        client.setChunkedStreamingMode(1024);
+		    }
+		    client.setUseCaches(false);
+		    // This is to set gzip default to disable
+		    // https://code.google.com/p/android/issues/detail?id=174949
+		    client.setRequestProperty("Accept-Encoding", "identity");
+		    client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
+		    if (parts.size() > 0 && needMultipart) {
+		        boundary = HttpUrlConnectionUtils.generateBoundary();
+		        client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+		    } else if (isPostOrPutOrPatch) {
+		        client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		    }
+
+		    for (String header : requestHeaders.keySet()) {
+		        client.setRequestProperty(header, requestHeaders.get(header));
+		    }
+		}
+
 	    private void addFilePart(String name, ContentBody contentBody) throws IOException{
 	    	String fileName = contentBody.getFilename();
 

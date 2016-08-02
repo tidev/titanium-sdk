@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -16,6 +16,14 @@
 
 namespace titanium {
 
+using v8::Persistent;
+using v8::Local;
+using v8::Context;
+using v8::Value;
+using v8::String;
+using v8::FunctionTemplate;
+using v8::FunctionCallbackInfo;
+
 // The base class for any object that emits events.
 // Provides an interface for listening to and firing events.
 // See events.js in the common runtime which implements most
@@ -23,15 +31,15 @@ namespace titanium {
 class EventEmitter : public NativeObject
 {
 public:
-	static v8::Persistent<v8::String> emitSymbol;
+	static Persistent<String> emitSymbol;
 
-	static v8::Handle<v8::Value> eventEmitterConstructor(const v8::Arguments& args);
-	static void initTemplate();
+	static void eventEmitterConstructor(const FunctionCallbackInfo<Value>& args);
+	static void initTemplate(Local<Context> context);
 	static void dispose();
 
-	static v8::Persistent<v8::FunctionTemplate> constructorTemplate;
+	static Persistent<FunctionTemplate> constructorTemplate;
 
-	bool emit(v8::Handle<v8::String> event, int argc, v8::Handle<v8::Value> *argv);
+	bool emit(Local<String> event, int argc, Local<Value> *argv);
 
 protected:
 	EventEmitter()

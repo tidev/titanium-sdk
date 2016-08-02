@@ -44,7 +44,7 @@ public class TiUILabel extends TiUIView
 
 	private int defaultColor;
 	private boolean wordWrap = true;
-	private TruncateAt ellipsize;
+	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
@@ -135,6 +135,7 @@ public class TiUILabel extends TiUIView
 		tv.setKeyListener(null);
 		tv.setFocusable(false);
 		tv.setSingleLine(false);
+		tv.setEllipsize(ellipsize);
 		TiUIHelper.styleText(tv, null);
 		defaultColor =  tv.getCurrentTextColor();
 		setNativeView(tv);
@@ -217,7 +218,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			
 			Object value = d.get(TiC.PROPERTY_ELLIPSIZE);
-
 			if (value instanceof Boolean){
 				ellipsize = (Boolean) value ? TruncateAt.END : null;
 			}

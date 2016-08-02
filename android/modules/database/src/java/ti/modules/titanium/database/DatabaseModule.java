@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -46,11 +45,6 @@ public class DatabaseModule extends KrollModule
 		super();
 	}
 
-	public DatabaseModule(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Kroll.method
 	public TiDatabaseProxy open(Object file)
 	{
@@ -61,7 +55,7 @@ public class DatabaseModule extends KrollModule
 				TiFileProxy tiFile = (TiFileProxy) file;
 				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
 				Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-				
+
 				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 				dbp = new TiDatabaseProxy(db);
 			} else {
@@ -69,7 +63,7 @@ public class DatabaseModule extends KrollModule
 				SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
 				dbp = new TiDatabaseProxy(name, db);
 			}
-			
+
 			Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 
 		} catch (SQLException e) {
@@ -85,7 +79,6 @@ public class DatabaseModule extends KrollModule
 	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
 	{
 		try {
-			//TiContext tiContext = invocation.getTiContext();
 			Context ctx = TiApplication.getInstance();
 			for (String dbname : ctx.databaseList())
 			{
@@ -103,7 +96,7 @@ public class DatabaseModule extends KrollModule
 				File f = new File(TiFileFactory.getDataDirectory(false), path);
 				name = f.getAbsolutePath();
 			}
-			
+
 			File dbPath = ctx.getDatabasePath(name);
 
 			Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
@@ -111,7 +104,7 @@ public class DatabaseModule extends KrollModule
 
 			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
 			String path = TiUrl.resolve(tiUrl.baseUrl, url, null);
-			
+
 			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(path, false);
 
 			Log.d(TAG, "new url is = " + url, Log.DEBUG_MODE);
@@ -119,14 +112,14 @@ public class DatabaseModule extends KrollModule
 			if (srcDb.isFile()) {
 				InputStream is = null;
 				OutputStream os = null;
-	
+
 				byte[] buf = new byte[8096];
 				int count = 0;
 				try
 				{
 					is = new BufferedInputStream(srcDb.getInputStream());
 					os = new BufferedOutputStream(new FileOutputStream(dbPath));
-	
+
 					while((count = is.read(buf)) != -1) {
 						os.write(buf, 0, count);
 					}

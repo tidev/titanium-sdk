@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 
 @Kroll.proxy(creatableInModule=MapModule.class, propertyAccessors = {
 	TiC.PROPERTY_ANIMATE,
@@ -35,19 +34,14 @@ import org.appcelerator.titanium.TiContext;
 public class AnnotationProxy extends KrollProxy
 {
 	private static final String TAG = "AnnotationProxy";
-	
+
 	private WeakReference<ViewProxy> viewProxy;
-	
+
 	public AnnotationProxy()
 	{
 		super();
 
 		Log.d(TAG, "Creating an Annotation", Log.DEBUG_MODE);
-	}
-
-	public AnnotationProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	public void setViewProxy(ViewProxy viewProxy)

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
@@ -50,12 +49,12 @@ public class NetworkModule extends KrollModule {
 	@Kroll.constant public static final int NETWORK_MOBILE = 2;
 	@Kroll.constant public static final int NETWORK_LAN = 3;
 	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
-	
+
 	@Kroll.constant public static final int TLS_DEFAULT = 0;
 	@Kroll.constant public static final int TLS_VERSION_1_0 = 1;
 	@Kroll.constant public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant public static final int TLS_VERSION_1_2 = 3;
-	
+
 	@Kroll.constant public static final int PROGRESS_UNKNOWN = -1;
 
     public enum State {
@@ -137,11 +136,6 @@ public class NetworkModule extends KrollModule {
 
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
-	}
-
-	public NetworkModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -247,17 +241,17 @@ public class NetworkModule extends KrollModule {
 			default : return "UNKNOWN";
 		}
 	}
-	
+
 	@Kroll.method @Kroll.topLevel
 	public String encodeURIComponent(String component) {
 		return Uri.encode(component);
 	}
-	
+
 	@Kroll.method @Kroll.topLevel
 	public String decodeURIComponent(String component) {
 		return Uri.decode(component);
 	}
-	
+
 	protected void manageConnectivityListener(boolean attach) {
 		if (attach) {
 			if (!isListeningForConnectivity) {
@@ -299,7 +293,7 @@ public class NetworkModule extends KrollModule {
 		manageConnectivityListener(false);
 		connectivityManager = null;
 	}
-	
+
 	public static java.net.CookieManager getCookieManagerInstance()
 	{
 		if (cookieManager == null) {
@@ -331,7 +325,7 @@ public class NetworkModule extends KrollModule {
 			getCookieManagerInstance().getCookieStore().add(uriDomain, cookie);
 		}
 	}
-	
+
 	/**
 	 * Gets all the cookies with the domain, path and name matched with the given values. If name is null, gets all the cookies with
 	 * the domain and path matched.
@@ -368,7 +362,7 @@ public class NetworkModule extends KrollModule {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets all the cookies with the domain matched with the given value.
 	 * @param domain the domain of the cookie to get. It is case-insensitive.
@@ -396,7 +390,7 @@ public class NetworkModule extends KrollModule {
 		}
 		return null;
 	}
-	
+
 	/** Removes the cookie with the domain, path and name exactly the same as the given values.
 	 * @param domain the domain of the cookie to remove. It is case-insensitive.
 	 * @param path the path of the cookie to remove. It is case-sensitive.
@@ -429,7 +423,7 @@ public class NetworkModule extends KrollModule {
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes all the cookies with the domain matched with the given value.
 	 * @param domain the domain of the cookie to remove. It is case-insensitive.
@@ -453,7 +447,7 @@ public class NetworkModule extends KrollModule {
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes all the cookies in the HTTPClient cookie store.
 	 */
@@ -463,7 +457,7 @@ public class NetworkModule extends KrollModule {
 		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
 		cookieStore.removeAll();
 	}
-	
+
 	/**
 	 * Adds a cookie to the system cookie store. Any existing cookie with the same domain, path and name will be replaced with
 	 * the new cookie. The cookie being set must not have expired, otherwise it will be ignored.
@@ -503,7 +497,7 @@ public class NetworkModule extends KrollModule {
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setCookie(domain, cookieString);
 		CookieSyncManager.getInstance().sync();
-		
+
 	}
 
 	/**

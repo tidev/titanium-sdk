@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)	
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import "AFOpenFlowView.h"
 #import "AFOpenFlowConstants.h"
@@ -183,6 +183,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)awakeFromNib {
 	[self setUpInitialState];
+	[super awakeFromNib];
 }
 
 - (id)initWithFrame:(CGRect)frame {
