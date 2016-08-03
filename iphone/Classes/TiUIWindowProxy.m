@@ -981,10 +981,6 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"tabBarHidden",setTabBarHidden);
-    SETPROP(@"hidesBarsOnSwipe", setHidesBarsOnSwipe);
-    SETPROP(@"hidesBarsOnTap", setHidesBarsOnTap);
-    SETPROP(@"hidesBarsWhenVerticallyCompact", setHidesBarsWhenVerticallyCompact);
-    SETPROP(@"hidesBarsWhenKeyboardAppears", setHidesBarsWhenKeyboardAppears);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
     [self updateNavButtons];
