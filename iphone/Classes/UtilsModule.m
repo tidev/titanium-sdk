@@ -45,61 +45,31 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
 -(TiBlob*)base64encode:(id)args
 {
     ENSURE_UI_THREAD(base64encode, args);
+    
     NSData *base64Data = nil;
     NSData *data = nil;
     
-    if ([args isKindOfClass:[NSArray class]]) {
-        NSArray *arguments = (NSArray*)args;
         
+    if([[args objectAtIndex:0] isKindOfClass:[NSString class]]) {
+        data = [[args objectAtIndex:0]
+                    dataUsingEncoding:NSUTF8StringEncoding];
         
-        if([[arguments objectAtIndex:0] isKindOfClass:[NSString class]]) {
-            data = [[arguments objectAtIndex:0]
-                        dataUsingEncoding:NSUTF8StringEncoding];
-        } else if ([[arguments objectAtIndex:0] isKindOfClass:[TiBlob class]]) {
-            data = [(TiBlob*)args data];
-        } else {
-            [self throwException:@"Invalid datatype passed in"
-                       subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[[arguments objectAtIndex:0] class]]
-                        location:CODELOCATION];
-        }
-        
-        if ([args count] == 2) {
-            if ([[arguments objectAtIndex:1] isKindOfClass:[NSNumber class]]) {
-                NSNumber *type = (NSNumber*)[arguments objectAtIndex:1];
-                
-                switch ([type integerValue]) {
-                    case NSDataBase64Encoding64CharacterLineLength:
-                        base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding64CharacterLineLength];
-                        break;
-                    case NSDataBase64Encoding76CharacterLineLength:
-                        base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
-                        break;
-                    case NSDataBase64EncodingEndLineWithCarriageReturn:
-                        base64Data = [data base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-                        break;
-                    case NSDataBase64EncodingEndLineWithLineFeed:
-                        base64Data = [data base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
-                        break;
-                    default:
-                        base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
-                        break;
-                }
-            }
-            
-        } else {
-            base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
-        }
-        
-    } else if ([args isKindOfClass:[TiBlob class]]) {
-        data = [(TiBlob*)args data];
-        base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
+    } else if ([[args objectAtIndex:0] isKindOfClass:[TiBlob class]]) {
+        data = [(TiBlob*)[args objectAtIndex:0] data];
     } else {
         [self throwException:@"Invalid datatype passed in"
-                   subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[args class]]
+                   subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[[args objectAtIndex:0] class]]
                     location:CODELOCATION];
     }
+
+    if ([args count] > 1) {
+        ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+        base64Data = [data base64EncodedDataWithOptions:[TiUtils intValue:[args objectAtIndex:1] def:NSDataBase64Encoding76CharacterLineLength]];
+        return  [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease];
+    }
     
-    return base64Data ? [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] : nil;
+    base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] ;
 }
 
 -(TiBlob*)base64decode:(id)args
@@ -112,16 +82,14 @@ MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
     if ([args isKindOfClass:[NSString class]]) {
         NSString *argument = [TiUtils stringValue:args];
         data = [argument dataUsingEncoding:NSUTF8StringEncoding];
-        base64Data = [[NSData alloc]initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
     } else if ([args isKindOfClass:[TiBlob class]]) {
         data = [(TiBlob*)args data];
-        base64Data = [[NSData alloc]initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
     } else {
         [self throwException:@"Invalid datatype passed in"
                    subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[args class]]
                     location:CODELOCATION];
     }
-
+    base64Data = [[NSData alloc]initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
     return base64Data ? [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] : nil;
     
 }

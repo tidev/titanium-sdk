@@ -31,7 +31,7 @@ properties:
     summary: |
         Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
     description: |
-        Set the maximum line length to 64 characters.
+        Set the maximum line length to 64 characters and line ending is Carriage Return + Line Feed.
     type: Number
     permission: read-only
     since: '6.0.0'
@@ -41,7 +41,7 @@ properties:
     summary: |
         Use with [base64decodes](Ti.Utils.base64encode) to specify the encode type.
     description: |
-        Set the maximum line length to 76 characters.
+        Set the maximum line length to 76 characters and line ending is Carriage Return + Line Feed.
     type: Number
     permission: read-only
     since: '6.0.0'
