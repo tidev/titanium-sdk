@@ -97,7 +97,7 @@ ChunkStream.prototype._end = function() {
 
   if (this._reads.length > 0) {
     this.emit('error',
-      new Error('There are some read requests waitng on finished stream')
+      new Error('There are some read requests waiting on finished stream')
     );
   }
 

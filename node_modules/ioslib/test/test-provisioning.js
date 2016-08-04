@@ -146,7 +146,7 @@ describe('provisioning', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('find best provisioning profiles with a cert, but without a device', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('find best provisioning profiles with a cert, but without a device', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -186,7 +186,7 @@ describe('provisioning', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('find best provisioning profiles without a cert, but with a device', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('find best provisioning profiles without a cert, but with a device', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -226,7 +226,7 @@ describe('provisioning', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('find best provisioning profiles with a cert and a device', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('find best provisioning profiles with a cert and a device', function (done) {
 		this.timeout(5000);
 		this.slow(2000);
 
@@ -269,7 +269,7 @@ describe('provisioning', function () {
 		});
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('watch for changes for 10 seconds', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('watch for changes for 10 seconds', function (done) {
 		this.timeout(80000);
 		this.slow(80000);
 
@@ -283,7 +283,7 @@ describe('provisioning', function () {
 		}, 10000);
 	});
 
-	(process.env.TRAVIS ? it.skip : it)('stop watching for updates', function (done) {
+	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('stop watching for updates', function (done) {
 		this.timeout(80000);
 		this.slow(80000);
 
