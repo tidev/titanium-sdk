@@ -101,7 +101,7 @@ Packager.prototype.generateManifestJSON = function (next) {
 		json = {
 			name: this.versionTag,
 			version: this.version,
-			moduleAPIVersion: this.moduleApiVersion.toString(),
+			moduleAPIVersion: this.moduleApiVersion,
 			timestamp: this.timestamp,
 			githash: this.gitHash
 		},
