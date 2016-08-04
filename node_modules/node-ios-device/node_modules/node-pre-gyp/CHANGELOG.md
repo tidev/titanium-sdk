@@ -1,5 +1,9 @@
 # node-pre-gyp changelog
 
+## 0.6.29
+
+ - Add known node versions for v0.10.45, v0.12.14, v4.4.4, v5.11.1, and v6.1.0
+
 ## 0.6.28
 
  - Now more verbose when remote binaries are not available. This is needed since npm is increasingly more quiet by default

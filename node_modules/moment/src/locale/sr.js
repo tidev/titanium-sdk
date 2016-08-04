@@ -1,5 +1,5 @@
 //! moment.js locale configuration
-//! locale : Serbian-latin (sr)
+//! locale : Serbian [sr]
 //! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 import moment from '../moment';
@@ -48,17 +48,17 @@ export default moment.defineLocale('sr', {
         nextDay: '[sutra u] LT',
         nextWeek: function () {
             switch (this.day()) {
-            case 0:
-                return '[u] [nedelju] [u] LT';
-            case 3:
-                return '[u] [sredu] [u] LT';
-            case 6:
-                return '[u] [subotu] [u] LT';
-            case 1:
-            case 2:
-            case 4:
-            case 5:
-                return '[u] dddd [u] LT';
+                case 0:
+                    return '[u] [nedelju] [u] LT';
+                case 3:
+                    return '[u] [sredu] [u] LT';
+                case 6:
+                    return '[u] [subotu] [u] LT';
+                case 1:
+                case 2:
+                case 4:
+                case 5:
+                    return '[u] dddd [u] LT';
             }
         },
         lastDay  : '[juče u] LT',

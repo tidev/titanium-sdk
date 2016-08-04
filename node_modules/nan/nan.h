@@ -12,7 +12,7 @@
  *
  * MIT License <https://github.com/nodejs/nan/blob/master/LICENSE.md>
  *
- * Version 2.3.5: current Node 6.2.0, Node 12: 0.12.14, Node 10: 0.10.45, iojs: 3.3.1
+ * Version 2.4.0: current Node 6.3.0, Node 12: 0.12.15, Node 10: 0.10.46, iojs: 3.3.1
  *
  * See https://github.com/nodejs/nan for the latest update to this file
  **********************************************************************************/
@@ -1348,37 +1348,24 @@ typedef void NAN_INDEX_QUERY_RETURN_TYPE;
 
 class Callback {
  public:
-  Callback() {
-    HandleScope scope;
-    v8::Local<v8::Object> obj = New<v8::Object>();
-    handle.Reset(obj);
-  }
+  Callback() {}
 
-  explicit Callback(const v8::Local<v8::Function> &fn) {
-    HandleScope scope;
-    v8::Local<v8::Object> obj = New<v8::Object>();
-    handle.Reset(obj);
-    SetFunction(fn);
-  }
+  explicit Callback(const v8::Local<v8::Function> &fn) : handle_(fn) {}
 
   ~Callback() {
-    if (handle.IsEmpty()) return;
-    handle.Reset();
+    handle_.Reset();
   }
 
   bool operator==(const Callback &other) const {
-    HandleScope scope;
-    v8::Local<v8::Value> a = New(handle)->Get(kCallbackIndex);
-    v8::Local<v8::Value> b = New(other.handle)->Get(kCallbackIndex);
-    return a->StrictEquals(b);
+    return handle_ == other.handle_;
   }
 
   bool operator!=(const Callback &other) const {
-    return !this->operator==(other);
+    return !operator==(other);
   }
 
   inline
-  v8::Local<v8::Function> operator*() const { return this->GetFunction(); }
+  v8::Local<v8::Function> operator*() const { return GetFunction(); }
 
   inline v8::Local<v8::Value> operator()(
       v8::Local<v8::Object> target
@@ -1393,20 +1380,25 @@ class Callback {
     return this->Call(argc, argv);
   }
 
+  // TODO(kkoopa): remove
   inline void SetFunction(const v8::Local<v8::Function> &fn) {
-    HandleScope scope;
-    Set(New(handle), kCallbackIndex, fn);
+    Reset(fn);
+  }
+
+  inline void Reset(const v8::Local<v8::Function> &fn) {
+    handle_.Reset(fn);
+  }
+
+  inline void Reset() {
+    handle_.Reset();
   }
 
   inline v8::Local<v8::Function> GetFunction() const {
-    EscapableHandleScope scope;
-    return scope.Escape(New(handle)->Get(kCallbackIndex)
-        .As<v8::Function>());
+    return New(handle_);
   }
 
   inline bool IsEmpty() const {
-    HandleScope scope;
-    return New(handle)->Get(kCallbackIndex)->IsUndefined();
+    return handle_.IsEmpty();
   }
 
   inline v8::Local<v8::Value>
@@ -1433,8 +1425,7 @@ class Callback {
 
  private:
   NAN_DISALLOW_ASSIGN_COPY_MOVE(Callback)
-  Persistent<v8::Object> handle;
-  static const uint32_t kCallbackIndex = 0;
+  Persistent<v8::Function> handle_;
 
 #if (NODE_MODULE_VERSION > NODE_0_10_MODULE_VERSION)
   v8::Local<v8::Value> Call_(v8::Isolate *isolate
@@ -1443,8 +1434,7 @@ class Callback {
                            , v8::Local<v8::Value> argv[]) const {
     EscapableHandleScope scope;
 
-    v8::Local<v8::Function> callback = New(handle)->
-        Get(kCallbackIndex).As<v8::Function>();
+    v8::Local<v8::Function> callback = New(handle_);
 # if NODE_MODULE_VERSION < IOJS_3_0_MODULE_VERSION
     return scope.Escape(New(node::MakeCallback(
         isolate
@@ -1469,8 +1459,7 @@ class Callback {
                            , v8::Local<v8::Value> argv[]) const {
     EscapableHandleScope scope;
 
-    v8::Local<v8::Function> callback = New(handle)->
-        Get(kCallbackIndex).As<v8::Function>();
+    v8::Local<v8::Function> callback = New(handle_);
     return scope.Escape(New(node::MakeCallback(
         target
       , callback
@@ -1589,9 +1578,11 @@ class Callback {
   char *errmsg_;
 };
 
-/* abstract */ class AsyncProgressWorker : public AsyncWorker {
+
+template<class T>
+/* abstract */ class AsyncProgressWorkerBase : public AsyncWorker {
  public:
-  explicit AsyncProgressWorker(Callback *callback_)
+  explicit AsyncProgressWorkerBase(Callback *callback_)
       : AsyncWorker(callback_), asyncdata_(NULL), asyncsize_(0) {
     async = new uv_async_t;
     uv_async_init(
@@ -1604,7 +1595,7 @@ class Callback {
     uv_mutex_init(&async_lock);
   }
 
-  virtual ~AsyncProgressWorker() {
+  virtual ~AsyncProgressWorkerBase() {
     uv_mutex_destroy(&async_lock);
 
     delete[] asyncdata_;
@@ -1612,12 +1603,12 @@ class Callback {
 
   void WorkProgress() {
     uv_mutex_lock(&async_lock);
-    char *data = asyncdata_;
+    T *data = asyncdata_;
     size_t size = asyncsize_;
     asyncdata_ = NULL;
     uv_mutex_unlock(&async_lock);
 
-    // Dont send progress events after we've already completed.
+    // Don't send progress events after we've already completed.
     if (callback) {
         HandleProgressCallback(data, size);
     }
@@ -1625,24 +1616,24 @@ class Callback {
   }
 
   class ExecutionProgress {
-    friend class AsyncProgressWorker;
+    friend class AsyncProgressWorkerBase;
    public:
     void Signal() const {
         uv_async_send(that_->async);
     }
-    // You could do fancy generics with templates here.
-    void Send(const char* data, size_t size) const {
+
+    void Send(const T* data, size_t size) const {
         that_->SendProgress_(data, size);
     }
 
    private:
-    explicit ExecutionProgress(AsyncProgressWorker* that) : that_(that) {}
+    explicit ExecutionProgress(AsyncProgressWorkerBase *that) : that_(that) {}
     NAN_DISALLOW_ASSIGN_COPY_MOVE(ExecutionProgress)
-    AsyncProgressWorker* const that_;
+    AsyncProgressWorkerBase* const that_;
   };
 
   virtual void Execute(const ExecutionProgress& progress) = 0;
-  virtual void HandleProgressCallback(const char *data, size_t size) = 0;
+  virtual void HandleProgressCallback(const T *data, size_t size) = 0;
 
   virtual void Destroy() {
       uv_close(reinterpret_cast<uv_handle_t*>(async), AsyncClose_);
@@ -1654,12 +1645,15 @@ class Callback {
       Execute(progress);
   }
 
-  void SendProgress_(const char *data, size_t size) {
-    char *new_data = new char[size];
-    memcpy(new_data, data, size);
+  void SendProgress_(const T *data, size_t size) {
+    T *new_data = new T[size];
+    {
+      T *it = new_data;
+      std::copy(data, data + size, it);
+    }
 
     uv_mutex_lock(&async_lock);
-    char *old_data = asyncdata_;
+    T *old_data = asyncdata_;
     asyncdata_ = new_data;
     asyncsize_ = size;
     uv_mutex_unlock(&async_lock);
@@ -1669,23 +1663,27 @@ class Callback {
   }
 
   inline static NAUV_WORK_CB(AsyncProgress_) {
-    AsyncProgressWorker *worker =
-            static_cast<AsyncProgressWorker*>(async->data);
+    AsyncProgressWorkerBase *worker =
+            static_cast<AsyncProgressWorkerBase*>(async->data);
     worker->WorkProgress();
   }
 
   inline static void AsyncClose_(uv_handle_t* handle) {
-    AsyncProgressWorker *worker =
-            static_cast<AsyncProgressWorker*>(handle->data);
+    AsyncProgressWorkerBase *worker =
+            static_cast<AsyncProgressWorkerBase*>(handle->data);
     delete reinterpret_cast<uv_async_t*>(handle);
     delete worker;
   }
 
   uv_async_t *async;
   uv_mutex_t async_lock;
-  char *asyncdata_;
+  T *asyncdata_;
   size_t asyncsize_;
 };
+
+// This ensures compatibility to the previous un-templated AsyncProgressWorker
+// class definition.
+typedef AsyncProgressWorkerBase<char> AsyncProgressWorker;
 
 inline void AsyncExecute (uv_work_t* req) {
   AsyncWorker *worker = static_cast<AsyncWorker*>(req->data);
