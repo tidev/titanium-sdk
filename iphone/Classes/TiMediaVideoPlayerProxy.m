@@ -71,8 +71,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)_destroy
 {
 	if (playing) {
-		[movie.player pause];
-		movie.player = nil;
+		[[movie player] pause];
+		[movie setPlayer:nil];
 	}
 	
     TiThreadPerformOnMainThread(^{
@@ -108,13 +108,16 @@ NSArray* moviePlayerKeys = nil;
     [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     
     // For load / loadstate / preload
-    [movie.player addObserver:self forKeyPath:@"status" options:0 context:nil];
+    [[movie player] addObserver:self forKeyPath:@"status" options:0 context:nil];
+
+    // naturalSize
+    [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
     
     // For complete
-    [nc addObserver:self selector: @selector(handlePlayerNotification:) name: AVPlayerItemDidPlayToEndTimeNotification object: [movie.player currentItem]];
+    [nc addObserver:self selector: @selector(handlePlayerNotification:) name: AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
     
     // For error
-    [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[movie.player currentItem]];
+    [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[[movie player] currentItem]];
 
 }
 
@@ -140,17 +143,15 @@ NSArray* moviePlayerKeys = nil;
 -(AVPlayerViewController *)ensurePlayer
 {
 	[playerLock lock];
-	if (movie == nil)
-	{
-		if (url==nil)
-		{
+	if (movie == nil) {
+		if (url == nil) {
 			[playerLock unlock];
 			// this is OK - we just need to delay creation of the 
 			// player until after the url is set 
 			return nil;
 		}
 		movie = [[AVPlayerViewController alloc] init];
-        movie.player = [AVPlayer playerWithURL:url];
+        [movie setPlayer:[AVPlayer playerWithURL:url]];
 		[self configurePlayer];
 	}
 	[playerLock unlock];
@@ -174,8 +175,8 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)viewDidDetach
 {
-	[movie.player pause];
-    movie.player = nil;
+	[[movie player] pause];
+    [movie setPlayer:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(movie);
 	reallyAttached = NO;
@@ -184,8 +185,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)windowWillClose
 {
     [super windowWillClose];
-    [movie.player pause];
-    movie.player = nil;
+    [[movie player] pause];
+    [movie setPlayer:nil];
     [(TiMediaVideoPlayer*)self.view setMovie:nil];
 }
 
@@ -230,8 +231,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	if (movie != nil) {
 		return [movie videoGravity];
-	}
-	else {
+	} else {
 		RETURN_FROM_LOAD_PROPERTIES(@"scalingMode", AVLayerVideoGravityResize);
 	}
 }
@@ -239,31 +239,29 @@ NSArray* moviePlayerKeys = nil;
 -(void)setAllowsAirPlay:(id)value
 {
     if (movie != nil) {
-        [movie.player setAllowsExternalPlayback:[TiUtils boolValue:value]];
-    }
-    else {
+        [[movie player] setAllowsExternalPlayback:[TiUtils boolValue:value]];
+    } else {
         [loadProperties setValue:value forKey:@"allowsAirPlay"];
     }
 }
 
--(BOOL)allowsAirPlay
+-(NSNumber*)allowsAirPlay
 {
     if (movie != nil) {
-        return [movie.player allowsExternalPlayback];
-    }
-    else {
+        return NUMBOOL([[movie player] allowsExternalPlayback]);
+    } else {
         [loadProperties valueForKey:@"allowsAirPlay"] || NUMBOOL(NO);
     }
 }
 
 -(void)setMediaControlStyle:(NSNumber *)value
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"5.1.0",@"Media.VideoPlayer.scalingMode");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"6.1.0",@"Media.VideoPlayer.scalingMode");
 }
 
 -(NSNumber*)mediaControlStyle
 {
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"5.1.0",@"Media.VideoPlayer.scalingMode");
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle",@"4.1.0",@"6.1.0",@"Media.VideoPlayer.scalingMode");
     return NUMINT(0);
 }
 
@@ -273,29 +271,20 @@ NSArray* moviePlayerKeys = nil;
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
         [self setUrl:[media_ absoluteURL]];
-	}
-	else if ([media_ isKindOfClass:[TiBlob class]])
-	{
+	} else if ([media_ isKindOfClass:[TiBlob class]]) {
 		TiBlob *blob = (TiBlob*)media_;
-		if ([blob type] == TiBlobTypeFile)
-		{
+		if ([blob type] == TiBlobTypeFile) {
             [self setUrl:[blob nativePath]];
-		}
-		else if ([blob type] == TiBlobTypeData)
-		{
+		} else if ([blob type] == TiBlobTypeData) {
 			RELEASE_TO_NIL(tempFile);
 			tempFile = [[TiUtils createTempFile:@"mov"] retain];
 			[blob writeTo:[tempFile path] error:nil];
             
             [self setUrl:[tempFile path]];
-		}
-		else
-		{
+		} else {
 			NSLog(@"[ERROR] Unsupported blob for video player: %@",media_);
 		}
-	}
-	else 
-	{
+	} else {
 		[self setUrl:media_];
 	}
 }
@@ -304,25 +293,23 @@ NSArray* moviePlayerKeys = nil;
 -(void)restart
 {
 	BOOL restart = playing;
-	if (playing)
-	{
-        [movie.player pause];
-        movie.player = nil;
+	if (playing) {
+        [[movie player] pause];
+        [movie setPlayer:nil];
 		playing = NO;
 	}
 	
 	if ([self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
         if (movie != nil) {
-            [movie.player seekToTime:kCMTimeZero];
+            [[movie player] seekToTime:kCMTimeZero];
         } else {
             [self ensurePlayer];
         }
 		[video frameSizeChanged:[video frame] bounds:[video bounds]];
 	}
 	
-	if (restart)
-	{ 
+	if (restart) {
 		TiThreadPerformOnMainThread(^{[self play:nil];}, NO);
 	}
 }
@@ -331,23 +318,22 @@ NSArray* moviePlayerKeys = nil;
 {
 	ENSURE_UI_THREAD(setUrl,url_);
     NSURL* newUrl = [TiUtils toURL:url_ proxy:self];
+    
     if ([url isEqual:newUrl]) {
         return;
     }
-	RELEASE_TO_NIL(url);
+	
+    RELEASE_TO_NIL(url);
     
 	url = [newUrl retain];
     loaded = NO;
 	sizeSet = NO;
-	if (movie!=nil)
-	{
-        AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL: url];
-        [movie.player replaceCurrentItemWithPlayerItem:newVideoItem];
-	}
-	else {
+	if (movie != nil) {
+        AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL:url];
+        [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
+	} else {
 		[self ensurePlayer];
 	}
-
 }
 
 -(id)url
@@ -358,10 +344,9 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)autoplay
 {	
 	if (movie != nil) {
-		return NUMBOOL(movie.player.currentItem.playbackLikelyToKeepUp == YES);
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"autoplay",NUMBOOL(YES));
+        return NUMBOOL([[[movie player] currentItem] isPlaybackLikelyToKeepUp]);
+	} else {
+		RETURN_FROM_LOAD_PROPERTIES(@"autoplay", NUMBOOL(YES));
 	}
 }
 
@@ -374,7 +359,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	__block float volume = 1.0;
 	TiThreadPerformOnMainThread(^{
-        volume = [TiUtils volumeFromObject:[MPMusicPlayerController applicationMusicPlayer] default:1.0];
+        volume = [[movie player] volume];
 	}, YES);
 	
 	return NUMFLOAT(volume);
@@ -385,35 +370,25 @@ NSArray* moviePlayerKeys = nil;
 	float volume = [TiUtils floatValue:newVolume def:-1.0];
     volume = MAX(0.0, MIN(volume, 1.0));
 	TiThreadPerformOnMainThread(^{
-        [TiUtils setVolume:volume onObject:[MPMusicPlayerController applicationMusicPlayer]];
+        [[movie player] setVolume:volume];
 	}, YES);
 }
 
 -(NSNumber*)pictureInPictureEnabled
 {
-#if IS_XCODE_7
-    if([TiUtils isIOS9OrGreater] == YES) {
-        return NUMBOOL(movie.allowsPictureInPicturePlayback);
-    } else {
-        return NUMBOOL(NO);
-    }
-#else
-    return NUMBOOL(NO);
-#endif
+    return NUMBOOL([TiUtils isIOS9OrGreater] && [movie allowsPictureInPicturePlayback]);
 }
 
 -(void)setPictureInPictureEnabled:(NSNumber*)value
 {
-#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
     }
-#endif
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"5.1.0", @"5.1.0")
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"6.1.0", @"6.1.0")
 }
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
@@ -427,7 +402,7 @@ NSArray* moviePlayerKeys = nil;
         return nil;
     }
     
-    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];
+    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:[movie player]];
     CGSize layerSize = CGSizeMake(layer.videoRect.size.width, layer.videoRect.size.height);
     
     UIImage* screenshot = [self takeScreenshotFromPlayer:layerSize andSpecifiedTime:CMTimeMakeWithSeconds(seconds, 1)];
@@ -437,8 +412,7 @@ NSArray* moviePlayerKeys = nil;
         return nil;
     }
     
-    TiBlob* result = [[TiBlob alloc] initWithImage:screenshot];
-    return result;
+    return [[[TiBlob alloc] initWithImage:screenshot] autorelease];
 }
 
 -(void)setInitialPlaybackTime:(id)time
@@ -450,8 +424,8 @@ NSArray* moviePlayerKeys = nil;
             ourTime /= 1000.0f; // convert from milliseconds to seconds
             
             // Handle both setting this value on running videos and on creation
-            if(movie.player.status == AVPlayerItemStatusReadyToPlay) {
-                [movie.player seekToTime: CMTimeMake(ourTime, 1)];
+            if([[movie player] status] == AVPlayerItemStatusReadyToPlay) {
+                [[movie player] seekToTime: CMTimeMake(ourTime, 1)];
             } else {
                 // Set the time in the "load" event
             }
@@ -473,20 +447,18 @@ NSArray* moviePlayerKeys = nil;
 	backgroundColor = [[TiUtils colorValue:color] retain];
 	
 	if (movie != nil) {
-        TiThreadPerformOnMainThread(^{[movie.view setBackgroundColor:[backgroundColor _color]];}, NO);
+        TiThreadPerformOnMainThread(^{[[movie view] setBackgroundColor:[backgroundColor _color]];}, NO);
 		return;
-	}
-	else {
+	} else {
 		[loadProperties setValue:color forKey:@"backgroundColor"];
 	}
 }
 
 -(NSNumber*)playableDuration
 {
-	if (movie != nil && [movie.player.currentItem.asset isPlayable] == YES) {
-        return NUMINT(CMTimeGetSeconds(movie.player.currentItem.asset.duration));
-	}
-	else {
+	if (movie != nil && [[[[movie player] currentItem] asset] isPlayable] == YES) {
+        return NUMINT(CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
+	} else {
 		return NUMINT(0);
 	}
 }
@@ -494,9 +466,8 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)duration
 {
 	if (movie != nil) {
-        return NUMFLOAT(CMTimeGetSeconds(movie.player.currentItem.asset.duration));
-	}
-	else {
+        return NUMFLOAT(CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]));
+	} else {
 		return NUMFLOAT(0);
 	}
 }
@@ -504,19 +475,17 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)currentPlaybackTime
 {
 	if (movie != nil) {
-		return NUMFLOAT(CMTimeGetSeconds(movie.player.currentItem.currentTime));
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"currentPlaybackTime", NUMINT(0));
+		return NUMFLOAT(CMTimeGetSeconds([[[movie player] currentItem] currentTime]));
+	} else {
+		RETURN_FROM_LOAD_PROPERTIES(@"currentPlaybackTime", NUMFLOAT(0));
 	}
 }
 
 -(void)setCurrentPlaybackTime:(id)time
 {
 	if (movie != nil) {
-        [movie.player.currentItem seekToTime: CMTimeMake([TiUtils doubleValue:time], 1000)];
-	}
-	else {
+        [[[movie player] currentItem] seekToTime: CMTimeMake([TiUtils doubleValue:time], 1000)];
+	} else {
 		[loadProperties setValue:time forKey:@"currentPlaybackTime"];
 	}
 }
@@ -527,7 +496,7 @@ NSArray* moviePlayerKeys = nil;
     NSError *error;
     CMTime actualTime;
     
-    AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset:movie.player.currentItem.asset];
+    AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset:[[[movie player] currentItem] asset]];
     
     // Setting a maximum size is not necessary for this code to
     // successfully get a screenshot, but it was useful for my project.
@@ -540,9 +509,8 @@ NSArray* moviePlayerKeys = nil;
     CFRelease(cgIm);
     
     if (nil != error) {
-        DebugLog(@"Error making screenshot!");
-        DebugLog(@"Actual screenshot time: %f Requested screenshot time: %f", CMTimeGetSeconds(actualTime),
-              CMTimeGetSeconds(movie.player.currentTime));
+        DebugLog(@"[ERROR] Error making screenshot: Actual screenshot time: %f, requested screenshot time: %f", CMTimeGetSeconds(actualTime),
+              CMTimeGetSeconds([[movie player] currentTime]));
         return nil;
     }
     
@@ -552,20 +520,20 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)endPlaybackTime
 {
 	if (movie != nil) {
-        NSTimeInterval n = CMTimeGetSeconds(movie.player.currentItem.asset.duration);
+        NSTimeInterval n = CMTimeGetSeconds([[[[movie player] currentItem] asset] duration]);
         if (n == -1) {
             n = NAN;
         }
 		return NUMDOUBLE(1000.0f * n);
 	} else {
-		return NUMINT(0);
+		return NUMDOUBLE(0);
 	}
 }
 
 -(NSNumber*)fullscreen
 {
 	if (movie != nil) {
-        CGRect movieBounds = movie.videoBounds;
+        CGRect movieBounds = [movie videoBounds];
         CGRect deviceBounds = [[UIScreen mainScreen] bounds];
 
         return NUMBOOL(movieBounds.size.width == deviceBounds.size.width && movieBounds.size.height == deviceBounds.size.height);
@@ -582,7 +550,7 @@ NSArray* moviePlayerKeys = nil;
         sizeSet = YES;
         TiThreadPerformOnMainThread(^{
         
-            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:movie.player];
+            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:[movie player]];
             [layer setBounds:[UIScreen mainScreen].bounds];
         
         }, NO);
@@ -604,7 +572,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)loadState
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"5.1.0", @"Please use Media.playbackState");
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"6.1.0", @"Media.VideoPlayer.playbackState");
     return [self playbackState];
 }
 
@@ -613,7 +581,7 @@ NSArray* moviePlayerKeys = nil;
     // Available media types: https://developer.apple.com/library/prerelease/ios/documentation/AVFoundation/Reference/AVFoundation_Constants/index.html#//apple_ref/doc/constant_group/Media_Types
     // TODO: Not always use the first asset track
 	if (movie != nil) {
-		return [movie.player.currentItem.asset.tracks[0] mediaType];
+		return [[[[[[movie player] currentItem] asset] tracks] objectAtIndex:0] mediaType];
 	}
 	else {
 		return AVMediaTypeVideo;
@@ -622,56 +590,47 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)sourceType
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"5.1.0", @"5.1.0");
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"6.1.0", @"6.1.0");
     return NUMINT(-1);
 }
 
 -(void)setSourceType:(id)type
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"5.1.0", @"5.1.0");
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"6.1.0", @"6.1.0");
 }
 
 -(NSNumber*)playbackState
 {
-	if (movie.player != nil) {
-		return NUMINT(movie.player.rate);
+	if ([movie player] != nil) {
+		return NUMINT([[movie player] rate]);
 	}
     return NUMINT(AVPlayerStatusUnknown);
 }
 
 -(void)setRepeatMode:(id)value
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"5.1.0", @"5.1.0");
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"6.1.0", @"6.1.0");
 }
 
 -(NSNumber*)repeatMode
 {
-    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"5.1.0", @"5.1.0");
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"6.1.0", @"6.1.0");
     return NUMINT(-1);
 }
 
 -(id)naturalSize
 {
-	if (movie != nil) {
-		NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-		CGRect size = [movie videoBounds];
-		[dictionary setObject:NUMDOUBLE(size.size.width) forKey:@"width"];
-		[dictionary setObject:NUMDOUBLE(size.size.height) forKey:@"height"];
-		return dictionary;
-	}
-	else {
-		return [NSDictionary dictionaryWithObjectsAndKeys:
-                                NUMDOUBLE(0),@"width",
-                                NUMDOUBLE(0),@"height",nil];
-	}
+    return @{
+        @"width": NUMFLOAT(movie ? [movie videoBounds].size.width : 0),
+        @"height": NUMFLOAT(movie ? [movie videoBounds].size.height : 0),
+    };
 }
 
 -(TiColor*)backgroundColor
 {
 	if (movie != nil) {
 		return backgroundColor;
-	}
-	else {
+	} else {
 		RETURN_FROM_LOAD_PROPERTIES(@"backgroundColor",nil);
 	}
 }
@@ -680,8 +639,8 @@ NSArray* moviePlayerKeys = nil;
 {
     ENSURE_UI_THREAD(stop, args);
 	playing = NO;
-	[movie.player seekToTime:CMTimeMake(0, 1)];
-    [movie.player pause];
+	[[movie player] seekToTime:CMTimeMake(0, 1)];
+    [[movie player] pause];
 }
 
 -(void)play:(id)args
@@ -691,18 +650,16 @@ NSArray* moviePlayerKeys = nil;
 		return;
 	}
 	
-	if (url == nil)
-	{
+	if (url == nil) {
 		[self throwException:TiExceptionInvalidType
 				subreason:@"Tried to play movie player without a valid url or media property"
 				location:CODELOCATION];
 	}
 	
 	playing = YES;
-    AVPlayer *player = [self ensurePlayer].player;
+    AVPlayer *player = [[self ensurePlayer] player];
     
-    if (seekToZeroBeforePlay == YES)
-    {
+    if (seekToZeroBeforePlay == YES) {
         seekToZeroBeforePlay = NO;
         [player seekToTime:kCMTimeZero];
     }
@@ -713,6 +670,7 @@ NSArray* moviePlayerKeys = nil;
 // Synonym for 'play' from the docs
 -(void)start:(id)args
 {
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.start", @"6.1.0", @"Media.VideoPlayer.play");
     [self play:args];
 }
 
@@ -723,10 +681,8 @@ NSArray* moviePlayerKeys = nil;
 		return;
 	}
 	
-	if ([movie.player respondsToSelector:@selector(pause)]) {
-		playing = NO;
-		[movie.player performSelector:@selector(pause)];
-	}
+	playing = NO;
+    [[movie player] pause];
 }
 
 -(void)release:(id)args
@@ -761,41 +717,32 @@ NSArray* moviePlayerKeys = nil;
 
 #pragma mark Delegate Callbacks
 
-- (void) handlePlayerNotification: (NSNotification *) notification
+- (void)handlePlayerNotification: (NSNotification *) notification
 {
-	if ([notification object] != [movie.player currentItem])
-	{
+	if ([notification object] != [[movie player] currentItem]) {
 		return;
 	}
 	
 	NSString * name = [notification name];
 	
-	if ([name isEqualToString:AVPlayerItemDidPlayToEndTimeNotification])
-	{
-		if ([self _hasListeners:@"complete"])
-		{
+	if ([name isEqualToString:AVPlayerItemDidPlayToEndTimeNotification]) {
+		if ([self _hasListeners:@"complete"]) {
 			NSNumber *reason = [[notification userInfo] objectForKey:AVPlayerItemDidPlayToEndTimeNotification];
 
 			NSString * errorMessage;
 			int errorCode;
-			if ([reason intValue] == AVPlayerStatusFailed)
-			{
+			if ([reason intValue] == AVPlayerStatusFailed) {
 				errorMessage = @"Video Playback encountered an error";
 				errorCode = -1;
-			}
-			else
-			{
+			} else {
 				errorMessage = nil;
 				errorCode = 0;
 			}
 
 			NSMutableDictionary *event;
-			if (reason!=nil)
-			{
+			if (reason != nil) {
 				event = [NSMutableDictionary dictionaryWithObject:reason forKey:@"reason"];
-			}
-			else
-			{
+			} else {
 				event = nil;
 			}
 			[self fireEvent:@"complete" withObject:event errorCode:errorCode message:errorMessage];
@@ -822,13 +769,13 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleDurationAvailableNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"durationAvailable"])
-	{	//TODO: Deprecate old event.
+	if ([self _hasListeners:@"durationAvailable"]) {
+		DEPRECATED_REPLACED(@"Media.VideoPlayer.Event.durationAvailable", @"6.1.0", @"Media.VideoPlayer.Event.durationavailable");
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
 		[self fireEvent:@"durationAvailable" withObject:event];
 	}
-	if ([self _hasListeners:@"durationavailable"])
-	{
+	
+    if ([self _hasListeners:@"durationavailable"]) {
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
 		[self fireEvent:@"durationavailable" withObject:event];
 	}
@@ -836,7 +783,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	if (movie.player.status == AVPlayerItemStatusReadyToPlay) {
+	if ([[movie player] status] == AVPlayerItemStatusReadyToPlay) {
 		if ([self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
@@ -847,17 +794,17 @@ NSArray* moviePlayerKeys = nil;
 				[self fireEvent:@"load" withObject:nil];
 			}
             
-            if([self _hasListeners:@"preload"]) {
-                DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"5.1.0", @"Media.VideoPlayer.load");
+            if ([self _hasListeners:@"preload"]) {
+                DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"6.1.0", @"Media.VideoPlayer.load");
             }
             
             // Seek to the initial playback time if set
-            if(initialPlaybackTime > 0) {
-                [movie.player seekToTime:CMTimeMake(initialPlaybackTime, 1000)];
+            if (initialPlaybackTime > 0) {
+                [[movie player] seekToTime:CMTimeMake(initialPlaybackTime, 1000)];
             }
             
             // Start the video if autoplay is enabled
-            if([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]] == YES) {
+            if ([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]] == YES) {
                 [self play:nil];
             }
 		} else {
@@ -889,15 +836,28 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"playbackstate" withObject:event];
 	}
     
-	switch (movie.player.status) {
+	switch ([[movie player] status]) {
 		case AVPlayerStatusUnknown:
 		case AVPlayerStatusFailed:
 			playing = NO;
 			break;
 		case AVPlayerStatusReadyToPlay:
-            playing = (movie.player.rate == 1.0);
+            playing = ([[movie player] rate] == 1.0);
 			break;
 	}
+}
+
+- (void)handleNaturalSizeAvailableNotification:(NSNotification*)note
+{
+    if ([self _hasListeners:@"naturalsizeavailable"])
+    {
+        [self fireEvent:@"naturalsizeavailable" withObject:@{
+            @"naturalSize": @{
+                @"width": NUMFLOAT(movie.videoBounds.size.width),
+                @"height": NUMFLOAT(movie.videoBounds.size.height)
+            }
+        }];
+    }
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
@@ -913,6 +873,9 @@ NSArray* moviePlayerKeys = nil;
     }
     if ([keyPath isEqualToString:@"status"]) {
         [self handleLoadStateChangeNotification:nil];
+    }
+    if ([keyPath isEqualToString:@"videoBounds"]) {
+        [self handleNaturalSizeAvailableNotification:nil];
     }
 }
 
