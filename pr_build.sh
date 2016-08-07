@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
-echo '*********** Remove and re-download Windows ***********'
-rm -rf windows
-curl http://studio-jenkins.appcelerator.org/job/titanium_mobile_windows_master/lastSuccessfulBuild/artifact/dist/windows/*zip*/windows.zip > windows.zip
-unzip -q windows.zip
-rm windows.zip
-echo '*****************************************'
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# DO NOT RUN THIS LOCALLY!
+#
+# THIS SHELL SCRIPT IS INTENDED FOR JENKINS CI BUILDS AGAINST PULL REQUESTS
+# IT MAKES LOTS OF ASSUMPTIONS ABOUT YOUR SYSTEM AND BUILDS ANDROID AND IOS
+# SPECIFICALLY FOR RUNNING OUR TEST SUITE AGAINST THEM.
+#
+# IF YOU'D LIKE TO BUILD TITANIUM LIKE YOU DID WITH SCONS BEFORE, PLEASE
+# SEE THE BUILDING SECTION IN README.MD
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 echo '*********** Building ***********'
 date
-#export JAVA_HOME=/usr/lib/jvm/java-6-sun
-#npm test
 
-# TODO Get the version from package.json!
-VERSION=`sed -n 's/^version *= *//p' build/titanium_version.py | tr -d "'" | tr -d '"'`
+# Get the version from package.json!
+VERSION=`sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ','`
 echo 'VERSION:         ' $VERSION
 
 TIMESTAMP=`date +'%Y%m%d%H%M%S'`
@@ -26,26 +30,18 @@ BASENAME=dist/mobilesdk-$VTAG
 echo 'BASENAME:        ' $BASENAME
 echo 'PATH:            ' $PATH
 
-PATH=/usr/local/bin:$PATH
-
-ANDROID_SDK=/Users/build/android-sdk-macosx
-ANDROID_NDK=/Users/build/android-ndk-r10e
-
-echo 'NODE_APPC_BRANCH: latest stable from npm'
-scons package_all=1 version_tag=$VTAG build_jsca=0
-
-if [ "$PYTHON" = "" ]; then
-    PYTHON=python
-fi
-
-echo
-echo 'TI_MOBILE_SCONS_ARGS: ' $TI_MOBILE_SCONS_ARGS
+cd build
+npm install .
+node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk
+node scons.js package android ios --version-tag $VTAG
+cd ..
 
 echo
 SDK_ARCHIVE="$BASENAME-osx.zip"
 echo 'SDK_ARCHIVE: ' $SDK_ARCHIVE
 
 echo Pulling down common test suite
+rm -rf titanium-mobile-mocha-suite
 git clone https://github.com/appcelerator/titanium-mobile-mocha-suite.git
 
 echo Copying local tests over top of common suite

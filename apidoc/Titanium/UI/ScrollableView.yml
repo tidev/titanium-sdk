@@ -202,7 +202,7 @@ events:
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.scrollend> instead.
     summary: Fired when the view has stopped moving completely.
     platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
@@ -219,7 +219,7 @@ events:
   - name: dragStart
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragstart](Titanium.UI.ScrollableView.dragstart) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.dragstart> instead.
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -229,8 +229,8 @@ events:
 
   - name: dragEnd
     deprecated:
-       since: "3.0.0"
-       notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
+        since: "3.0.0"
+        notes: Use <Titanium.UI.ScrollableView.dragend> instead.
     summary: Fired when the scrolling drag gesture on the view has been completed.
     platforms: [android, mobileweb]
     since: "2.1.0"

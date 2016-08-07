@@ -1,11 +1,11 @@
 //! moment.js locale configuration
-//! locale : norwegian nynorsk (nn)
+//! locale : Nynorsk [nn]
 //! author : https://github.com/mechuwind
 
 ;(function (global, factory) {
    typeof exports === 'object' && typeof module !== 'undefined'
        && typeof require === 'function' ? factory(require('../moment')) :
-   typeof define === 'function' && define.amd ? define(['moment'], factory) :
+   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
    factory(global.moment)
 }(this, function (moment) { 'use strict';
 
@@ -34,7 +34,7 @@
         },
         relativeTime : {
             future : 'om %s',
-            past : 'for %s sidan',
+            past : '%s sidan',
             s : 'nokre sekund',
             m : 'eit minutt',
             mm : '%d minutt',

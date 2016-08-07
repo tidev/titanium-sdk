@@ -32,7 +32,7 @@ description: |
     Finally, iOS also supports *transitions* between windows or views. You can create a transition 
     by creating an animation object and setting the `view` property to the view you want to 
     transition to. The `transition` property specifies the transition effect to apply. Use one of 
-    the transition style constants defined in <Titanium.UI.iPhone.AnimationStyle>.
+    the transition style constants defined in <Titanium.UI.iOS.AnimationStyle>.
     
     #### Android Platform Notes
     
@@ -172,14 +172,14 @@ properties:
         of the animating view. The animation replaces the current view from the 
         view heirarchy and adds the new view to it.
     type: Number
-    constants: Titanium.UI.iPhone.AnimationStyle.*
+    constants: Titanium.UI.iOS.AnimationStyle.*
     platforms: [iphone, ipad]
 
   - name: view
     summary: New view to transition to. 
     description: |
         Specify the `transition` property with one of the transition style constants defined 
-        in <Titanium.UI.iPhone.AnimationStyle> to select the effect to apply.
+        in <Titanium.UI.iOS.AnimationStyle> to select the effect to apply.
 
         The new view being transitioned to **should NOT** be a child of another view or
         of the animating view. The animation replaces the current view from the

@@ -61,7 +61,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 
     APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
-    [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+    [req addRequestHeader:@"User-Agent" value:[[TiApp app] systemUserAgent]];
     [req setUrl:[NSURL URLWithString:url]];
     [req setDelegate:self];
     [req setMethod:@"GET"];

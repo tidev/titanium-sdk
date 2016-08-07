@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -41,11 +40,6 @@ public class AlertProxy extends KrollProxy
 	public AlertProxy()
 	{
 		super();
-	}
-
-	public AlertProxy(TiContext context)
-	{
-		this();
 	}
 
 	public static String getAlertsUri()
@@ -88,19 +82,9 @@ public class AlertProxy extends KrollProxy
 		return alerts;
 	}
 
-	public static ArrayList<AlertProxy> queryAlerts(TiContext context, String query, String queryArgs[], String orderBy)
-	{
-		return AlertProxy.queryAlerts(query, queryArgs, orderBy);
-	}
-
 	public static ArrayList<AlertProxy> getAlertsForEvent(EventProxy event)
 	{
 		return queryAlerts("event_id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
-	}
-
-	public static ArrayList<AlertProxy> getAlertsForEvent(TiContext context, EventProxy event)
-	{
-		return AlertProxy.getAlertsForEvent(event);
 	}
 
 	public static AlertProxy createAlert(EventProxy event, int minutes)
@@ -137,11 +121,6 @@ public class AlertProxy extends KrollProxy
 		alert.minutes = minutes;
 		// FIXME this needs to be implemented alert.registerAlertIntent();
 		return alert;
-	}
-
-	public static AlertProxy createAlert(TiContext context, EventProxy event, int minutes)
-	{
-		return AlertProxy.createAlert(event, minutes);
 	}
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";

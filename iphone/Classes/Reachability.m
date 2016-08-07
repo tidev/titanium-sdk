@@ -416,7 +416,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 //         WiFi turned on:   Reachability Flag Status: -R ct----- Connection down. (Non-intuitive, empirically determined answer.)
 const SCNetworkReachabilityFlags kConnectionDown =  kSCNetworkReachabilityFlagsConnectionRequired | 
 												    kSCNetworkReachabilityFlagsTransientConnection;
-//         WiFi turned on:   Reachability Flag Status: -R ct-i--- Reachable but it will require user intervention (e.g. enter a WiFi password).
+//         WiFi turned on:   Reachability Flag Status: -R ct-i--- Reachable but it will require user intervention
 //         WiFi turned on:   Reachability Flag Status: -R -t----- Reachable via VPN.
 //
 // In the below method, an 'x' in the flag status means I don't care about its value.

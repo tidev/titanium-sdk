@@ -2,8 +2,6 @@
 
 Queries connected iOS devices and installs apps.
 
-[![NPM](https://nodei.co/npm/node-ios-device.png?downloads=true&stars=true)](https://nodei.co/npm/node-ios-device/)
-
 ## Prerequisites
 
 node-ios-device is currently compatible with the following versions:
@@ -135,20 +133,19 @@ callback is fired for every line. Empty lines are omitted.
 Returns a function to discontinue relaying the log output:
 
 ```javascript
-var off = iosDevice.log('<device udid>', function (msg) {
+var stop = iosDevice.log('<device udid>', function (msg) {
 	console.log(msg);
 });
 
 setTimeout(function () {
 	// turn off logging after 1 minute
-	off();
+	stop();
 }, 60000);
 ```
 
 After calling `log()`, it will print out several older messages. If you are only
 interested in new messages, then you'll have to have use a timer and some sort
 of ready flag like this:
-
 
 ```javascript
 var ready = false;

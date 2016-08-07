@@ -1,11 +1,11 @@
 //! moment.js locale configuration
-//! locale : talossan (tzl)
+//! locale : Talossan [tzl]
 //! author : Robin van der Vliet : https://github.com/robin0van0der0v with the help of Iustì Canun
 
 ;(function (global, factory) {
    typeof exports === 'object' && typeof module !== 'undefined'
        && typeof require === 'function' ? factory(require('../moment')) :
-   typeof define === 'function' && define.amd ? define(['moment'], factory) :
+   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
    factory(global.moment)
 }(this, function (moment) { 'use strict';
 
@@ -26,6 +26,10 @@
             LL : 'D. MMMM [dallas] YYYY',
             LLL : 'D. MMMM [dallas] YYYY HH.mm',
             LLLL : 'dddd, [li] D. MMMM [dallas] YYYY HH.mm'
+        },
+        meridiemParse: /d\'o|d\'a/i,
+        isPM : function (input) {
+            return 'd\'o' === input.toLowerCase();
         },
         meridiem : function (hours, minutes, isLower) {
             if (hours > 11) {

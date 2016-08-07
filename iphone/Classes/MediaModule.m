@@ -20,8 +20,12 @@
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
+#if IS_XCODE_8
+#import <AVFoundation/AVFAudio.h>
+#else
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
 #import <AVFoundation/AVMediaFormat.h>
@@ -224,34 +228,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
     return AVAudioSessionPortCarAudio;
 }
 
-
-//Constants for AudioSessions
--(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"6.0.0",@"Media.AUDIO_SESSION_CATEGORY_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"6.0.0", @"Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
-}
--(NSNumber*)AUDIO_SESSION_MODE_RECORD
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"6.0.0",  @"Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
-}
-
 //Constants for AudioSessions
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
@@ -352,12 +328,6 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 
-// Deprecated old-school video control modes, mapped to the new values
--(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"6.0.0", @"Media.VIDEO_CONTROL_EMBEDDED");
-    return [self VIDEO_CONTROL_EMBEDDED];
-}
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
 {
     return [self VIDEO_CONTROL_NONE];
@@ -462,25 +432,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             break;
     }
     
-}
-
--(NSNumber*)audioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    NSString* category = [self audioSessionCategory];
-    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-        return [self AUDIO_SESSION_MODE_PLAYBACK];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_RECORD];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-    } else {
-        return NUMINT(-1);
-    }
 }
 
 -(void)setAudioSessionCategory:(NSString*)mode
@@ -619,6 +570,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
     [self requestAudioPermissions:args];
+}
+
+-(NSNumber*)hasAudioPermissions
+{
+    NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+    
+    [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
 }
 
 -(void)requestAudioPermissions:(id)args
@@ -1022,6 +984,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(NSNumber*)hasCameraPermissions:(id)unused
 {
+    NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !cameraPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
+    }
+    
     return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized);
 }
 
@@ -1542,6 +1510,22 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             return ;
         }
         
+        // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
+        if ([TiUtils isIOS10OrGreater]) {
+            NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+            NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+            
+            // Microphone permissions are required when using the video-camera
+            if (movieRequired == YES && !microphonePermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
+            }
+            
+            // Gallery permissions are required when saving or selecting media from the gallery
+            if ((saveToRoll || !customPicker) && !galleryPermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+            }
+        }
+        
         double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
         double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
         
@@ -1816,11 +1800,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 int startMilliseconds = ([startTime doubleValue] * 1000);
                 int endMilliseconds = ([endTime doubleValue] * 1000);
                 
-                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-                NSString *documentsDirectory = [paths objectAtIndex:0];
+                NSString *tmpDirectory = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] path];
                 
                 NSFileManager *manager = [NSFileManager defaultManager];
-                NSString *outputURL = [documentsDirectory stringByAppendingPathComponent:@"editedVideo"];
+                NSString *outputURL = [tmpDirectory stringByAppendingPathComponent:@"editedVideo"];
                 [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
                 NSString* fileName = [[[NSString stringWithFormat:@"%f",CFAbsoluteTimeGetCurrent()] stringByReplacingOccurrencesOfString:@"." withString:@"-"] stringByAppendingString:@".MOV"];
                 outputURL = [outputURL stringByAppendingPathComponent:fileName];
@@ -1912,7 +1895,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? editedImage : originalImage;
+                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];

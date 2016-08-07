@@ -5,7 +5,7 @@
  * Licensed under the MIT license.
  * https://github.com/archiverjs/node-archiver/blob/master/LICENSE-MIT
  */
-var fs = require('fs');
+var fs = require('graceful-fs');
 var path = require('path');
 
 var _ = require('lodash');

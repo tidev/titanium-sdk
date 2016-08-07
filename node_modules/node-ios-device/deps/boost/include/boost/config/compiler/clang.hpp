@@ -23,6 +23,10 @@
 #define __has_extension __has_feature
 #endif
 
+#ifndef __has_attribute
+#define __has_attribute(x) 0
+#endif
+
 #if !__has_feature(cxx_exceptions) && !defined(BOOST_NO_EXCEPTIONS)
 #  define BOOST_NO_EXCEPTIONS
 #endif
@@ -53,14 +57,25 @@
 #define BOOST_HAS_LONG_LONG
 
 //
-// We disable this if the compiler is really nvcc as it
-// doesn't actually support __int128 as of CUDA_VERSION=5000
+// We disable this if the compiler is really nvcc with C++03 as it
+// doesn't actually support __int128 as of CUDA_VERSION=7500
 // even though it defines __SIZEOF_INT128__.
 // See https://svn.boost.org/trac/boost/ticket/10418
+//     https://svn.boost.org/trac/boost/ticket/11852
 // Only re-enable this for nvcc if you're absolutely sure
-// of the circumstances under which it's supported:
+// of the circumstances under which it's supported.
+// Similarly __SIZEOF_INT128__ is defined when targetting msvc
+// compatibility even though the required support functions are absent.
 //
-#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
+#if defined(__CUDACC__)
+#  if defined(BOOST_GCC_CXX11)
+#    define BOOST_NVCC_CXX11
+#  else
+#    define BOOST_NVCC_CXX03
+#  endif
+#endif
+
+#if defined(__SIZEOF_INT128__) && !defined(BOOST_NVCC_CXX03) && !defined(_MSC_VER)
 #  define BOOST_HAS_INT128
 #endif
 
@@ -201,16 +216,6 @@
 #  define BOOST_NO_CXX11_INLINE_NAMESPACES
 #endif
 
-// Apple Clang uses libc++ by default on Mavericks (OS X 10.9)  and higher
-// Apple Clang uses libstdc++ by default on Mountain Lion (OS X 10.8) and lower
-
-#ifdef __APPLE__
-#include <ciso646>
-#ifndef _LIBCPP_VERSION
-#  define BOOST_APPLE_CLANG_NO_LIBCXX
-#endif
-#endif
-
 #if !__has_feature(cxx_override_control)
 #  define BOOST_NO_CXX11_FINAL
 #endif
@@ -265,12 +270,14 @@
 // All versions with __cplusplus above this value seem to support this:
 #  define BOOST_NO_CXX14_DIGIT_SEPARATORS
 #endif
-
-
-// Unused attribute:
-#if defined(__GNUC__) && (__GNUC__ >= 4)
-#  define BOOST_ATTRIBUTE_UNUSED __attribute__((unused))
+//
+// __builtin_unreachable:
+#if defined(__has_builtin) && __has_builtin(__builtin_unreachable)
+#define BOOST_UNREACHABLE_RETURN(x) __builtin_unreachable();
 #endif
+
+// Clang has supported the 'unused' attribute since the first release.
+#define BOOST_ATTRIBUTE_UNUSED __attribute__((__unused__))
 
 #ifndef BOOST_COMPILER
 #  define BOOST_COMPILER "Clang version " __clang_version__

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 #include <v8.h>
 
 #include "JNIUtil.h"
+#include "Proxy.h"
 #include "TypeConverter.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
@@ -30,22 +31,27 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments)
 {
-	ENTER_V8(V8Runtime::globalContext);
+	HandleScope scope(V8Runtime::v8_isolate);
 	titanium::JNIScope jniScope(env);
 
-	Local<Object> thisObject = Local<Object>((Object *) thisPointer);
+	// construct this from pointer
+	titanium::Proxy* proxy = (titanium::Proxy*) thisPointer;
+	Local<Object> thisObject = proxy->handle(V8Runtime::v8_isolate);
 
-	// construct function from pointer
-	Function *jsFunction = (Function *) functionPointer;
+	// construct function from "pointer" - we used to use pointers to Persistent to re-construct Functions
+	// But that was a _BAD_ idea because V8 moves handles around as GC runs, resulting in the stored memory address being invalid
+	// So now we basically use a global map with an incrementing key to store the functions, where the "pointer" is the indx the function is stored under in the map.
+	Persistent<Function, CopyablePersistentTraits<Function>> persistentJSFunction = TypeConverter::functions.at(functionPointer);
+	Local<Function> jsFunction = persistentJSFunction.Get(V8Runtime::v8_isolate);
 
 	// create function arguments
 	int length;
-	v8::Handle<v8::Value> *jsFunctionArguments =
-		TypeConverter::javaObjectArrayToJsArguments(env, functionArguments, &length);
+	v8::Local<v8::Value>* jsFunctionArguments =
+		TypeConverter::javaObjectArrayToJsArguments(V8Runtime::v8_isolate, env, functionArguments, &length);
 
 	// call into the JS function with the provided argument
-	TryCatch tryCatch;
-	v8::Local<v8::Value> object = jsFunction->Call(thisObject, length, jsFunctionArguments);
+	TryCatch tryCatch(V8Runtime::v8_isolate);
+	v8::MaybeLocal<v8::Value> object = jsFunction->Call(V8Runtime::v8_isolate->GetCurrentContext(), thisObject, length, jsFunctionArguments);
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {
@@ -53,29 +59,32 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	}
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(tryCatch);
-		V8Util::reportException(tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
 
 		return NULL;
+	} else if (object.IsEmpty()) {
+		return NULL;
 	}
-	
+
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(env, object, &isNew);
+	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, object.ToLocalChecked(), &isNew);
 }
 
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong ptr)
 {
-	ASSERT(ptr != 0);
-	Persistent<Function> function = Persistent<Function>((Function*) ptr);
-
 	// Release the JS function so it can be collected.
-	function.Dispose();
-	function.Clear();
+	// We guard against "bad" pointers by searching by index before releasing
+	auto it = TypeConverter::functions.find(ptr);
+	if (it != TypeConverter::functions.end()) {
+		auto jsFunction = it->second;
+		jsFunction.Reset();
+		TypeConverter::functions.erase(it);
+	}
 }
 
 #ifdef __cplusplus
 }
 #endif
-
