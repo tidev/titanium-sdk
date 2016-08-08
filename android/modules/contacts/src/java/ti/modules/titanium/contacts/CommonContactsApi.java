@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,20 +12,24 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.ContactsContract;
 
-public abstract class CommonContactsApi 
+public abstract class CommonContactsApi
 {
 	private static final boolean TRY_NEWER_API = (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
 	private static final String TAG = "TiCommonContactsApi";
-	
+
 	protected static CommonContactsApi getInstance()
 	{
 		boolean useNew = false;
@@ -41,7 +45,7 @@ public abstract class CommonContactsApi
 		} else {
 			Log.e(TAG, "Contacts API 4 is not supported");
 		}
-		
+
 		if (useNew) {
 			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
@@ -57,20 +61,24 @@ public abstract class CommonContactsApi
 		return null;
 	}
 
-	protected static CommonContactsApi getInstance(TiContext tiContext)
-	{
-		return getInstance();
+	public boolean hasContactsPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
+		if (currentActivity != null &&
+				currentActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		Log.w(TAG, "Contact permissions are missing");
+		return false;
 	}
 
 	protected static Bitmap getContactImage(long contact_id)
 	{
 		CommonContactsApi api = getInstance();
 		return api.getInternalContactImage(contact_id);
-	}
-
-	protected static Bitmap getContactImage(TiContext context, long contact_id)
-	{
-		return getContactImage(contact_id);
 	}
 
 	protected abstract PersonProxy getPersonById(long id);
@@ -82,12 +90,12 @@ public abstract class CommonContactsApi
 	protected abstract Intent getIntentForContactsPicker();
 	protected abstract Bitmap getInternalContactImage(long id);
 	protected abstract void removePerson(PersonProxy person);
-	
+
 	protected PersonProxy[] getAllPeople()
 	{
 		return getAllPeople(Integer.MAX_VALUE);
 	}
-	
+
 	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons)
 	{
 		PersonProxy[] proxies = new PersonProxy[persons.size()];
@@ -99,13 +107,8 @@ public abstract class CommonContactsApi
 		return proxies;
 	}
 
-	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons, TiContext tiContext)
-	{
-		return proxifyPeople(persons);
-	}
-
 	// Happily, these codes are common across api level
-	protected static String getEmailTextType(int type) 
+	protected static String getEmailTextType(int type)
 	{
 		String key = "other";
 		if (type == ContactsContract.CommonDataKinds.Email.TYPE_HOME) {
@@ -115,7 +118,7 @@ public abstract class CommonContactsApi
 		}
 		return key;
 	}
-	
+
 	protected static String getDateTextType(int type)
 	{
 		String key = TiC.PROPERTY_OTHER;
@@ -216,8 +219,8 @@ public abstract class CommonContactsApi
 		}
 		return key;
 	}
-	
-	
+
+
 	protected static String getPostalAddressTextType(int type)
 	{
 		String key = "other";
@@ -228,7 +231,7 @@ public abstract class CommonContactsApi
 		}
 		return key;
 	}
-	
+
 	protected static class LightPerson
 	{
 		long id;
@@ -258,21 +261,21 @@ public abstract class CommonContactsApi
 		Map<String, ArrayList<String>> relatedNames = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> websites = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> dates = new HashMap<String, ArrayList<String>>();
-		
+
 		void addPersonInfoFromL5DataRow(Cursor cursor)
 		{
 			this.id = cursor.getLong(ContactsApiLevel5.DATA_COLUMN_CONTACT_ID);
 			this.name = cursor.getString(ContactsApiLevel5.DATA_COLUMN_DISPLAY_NAME);
 			this.hasImage = (cursor.getInt(ContactsApiLevel5.DATA_COLUMN_PHOTO_ID) > 0);
 		}
-		
+
 		void addPersonInfoFromL5PersonRow(Cursor cursor)
 		{
 			this.id = cursor.getLong(ContactsApiLevel5.PEOPLE_COL_ID);
 			this.name = cursor.getString(ContactsApiLevel5.PEOPLE_COL_NAME);
 			this.hasImage = (cursor.getInt(ContactsApiLevel5.PEOPLE_COL_PHOTO_ID) > 0);
 		}
-		
+
 		void addDataFromL5Cursor(Cursor cursor) {
 			String kind = cursor.getString(ContactsApiLevel5.DATA_COLUMN_MIMETYPE);
 			if (kind.equals(ContactsApiLevel5.KIND_ADDRESS)) {
@@ -360,7 +363,7 @@ public abstract class CommonContactsApi
 			}
 			collection.add(phoneNumber);
 		}
-		
+
 		void loadNoteFromL5DataRow(Cursor cursor)
 		{
 			this.notes = cursor.getString(ContactsApiLevel5.DATA_COLUMN_NOTE);
@@ -380,7 +383,7 @@ public abstract class CommonContactsApi
 			String emailAddress = emailsCursor.getString(ContactsApiLevel5.DATA_COLUMN_EMAIL_ADDR);
 			int type = emailsCursor.getInt(ContactsApiLevel5.DATA_COLUMN_EMAIL_TYPE);
 			String key = getEmailTextType(type);
-			
+
 			ArrayList<String> collection;
 			if (emails.containsKey(key)) {
 				collection = emails.get(key);
@@ -390,7 +393,7 @@ public abstract class CommonContactsApi
 			}
 			collection.add(emailAddress);
 		}
-		
+
 		void loadWebSiteL5DataRow(Cursor websitesCursor)
 		{
 			ArrayList<String>  collection;
@@ -437,7 +440,7 @@ public abstract class CommonContactsApi
 			this.mphonetic = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA8);
 			this.lphonetic = nameCursor.getString(ContactsApiLevel5.DATA_COLUMN_DATA7);
 		}
-		
+
 		void loadAddressFromL5DataRow(Cursor cursor)
 		{
 			// TODO add structured addresss
@@ -453,7 +456,7 @@ public abstract class CommonContactsApi
 			}
 			collection.add(fullAddress);
 		}
-		
+
 		PersonProxy proxify()
 		{
 			PersonProxy proxy = new PersonProxy();
@@ -484,14 +487,9 @@ public abstract class CommonContactsApi
 			proxy.setProperty(TiC.PROPERTY_ID, id);
 			proxy.hasImage = this.hasImage;
 			return proxy;
-			
-		}
 
-		PersonProxy proxify(TiContext tiContext)
-		{
-			return proxify();
 		}
 	}
-	
-	
+
+
 }

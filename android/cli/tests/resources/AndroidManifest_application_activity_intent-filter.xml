@@ -18,6 +18,19 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<data android:mimeType="vnd.android.cursor.item/vnd.google.note" />
 			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.SEND"/>
+				<action android:name="android.intent.action.SEND_MULTIPLE"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<data android:mimeType="application/vnd.google.panorama360+jpg"/>
+				<data android:mimeType="image/*"/>
+				<data android:mimeType="video/*"/>
+			</intent-filter>
+			<intent-filter>
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<action android:name="android.intent.action.VIEW" />
+			</intent-filter>
 		</activity>
 	</application>
 </manifest>

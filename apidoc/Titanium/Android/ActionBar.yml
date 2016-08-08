@@ -15,9 +15,8 @@ description: |
     In JavaScript, wait for the window or tab group's `open` event before accessing
     the action bar from the window or tab group's [activity](Titanium.Android.Activity).
 
-    Note that setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) or
-    [TabGroup.navBarHidden](Titanium.UI.TabGroup.navBarHidden) property to true disables the
-    Action Bar since it is part of the navigation title bar.
+    Note that setting the [Window.navBarHidden](Titanium.UI.Window.navBarHidden) property
+    to true disables the Action Bar since it is part of the navigation title bar.
 
     For more examples on using the Action Bar, refer to the
     [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
@@ -217,7 +216,7 @@ properties:
   - name: navigationMode
     summary: Controls the navigation mode.
     description: |
-        The navigation mode can be [NAVIGATION_MODE_STANDARD](Titanium.Android.NAVIGATION_MODE_STANDARD), or [NAVIGATION_MODE_TABS](Titanium.Android.NAVIGATION_MODE_TABS). 
+        The navigation mode can be [NAVIGATION_MODE_STANDARD](Titanium.Android.NAVIGATION_MODE_STANDARD), or [NAVIGATION_MODE_TABS](Titanium.Android.NAVIGATION_MODE_TABS).
         A TabGroup is initialized by Titanium Mobile with `NAVIGATION_MODE_TABS`, and can be hidden by setting to `NAVIGATION_MODE_STANDARD`. `NAVIGATION_MODE_LIST` is not yet supported.
         See also: [setNavigationMode](http://developer.android.com/reference/android/app/ActionBar.html#setNavigationMode(int))
         in the Android Developer Reference.

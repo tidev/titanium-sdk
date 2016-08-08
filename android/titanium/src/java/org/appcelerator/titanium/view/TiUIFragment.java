@@ -19,7 +19,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private static int viewId = 1000;
 
 	private Fragment fragment;
-	private Handler handler;
 	protected boolean fragmentOnly = false;
 
 
@@ -52,29 +51,17 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			transaction.add(container.getId(), fragment);
 			transaction.commitAllowingStateLoss();
 		}
-		// initialize handler
-		handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
-		// send a msg to skip a cycle to make sure the fragment's view is created and initialized
-		sendMessage();
 
 	}
 
-	public void sendMessage()
-	{
-		if (handler != null) {
-			handler.obtainMessage().sendToTarget();
-		}
-	}
 
 	public Fragment getFragment()
 	{
 		return fragment;
 	}
 
-	public boolean handleMessage(Message msg)
-	{
-		// we know here that the view is available, so we can process properties
-		onViewCreated();
+	public boolean handleMessage (Message msg) {
+		//overwriting so descendents don't have to
 		return true;
 	}
 
@@ -103,8 +90,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		}
 		super.release();
 	}
-
-	protected abstract void onViewCreated();
 
 	protected abstract Fragment createFragment();
 }

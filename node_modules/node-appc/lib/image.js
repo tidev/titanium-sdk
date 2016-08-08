@@ -4,18 +4,32 @@
  * @module image
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * Copyright (c) 2013 TJ Holowaychuk <tj@vision-media.ca>
+ * {@link https://github.com/component/png-size}
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
+module.exports.resize = resize;
+module.exports.pngInfo = pngInfo;
+
 var fs = require('./fs'),
 	i18n = require('./i18n')(__dirname),
 	__ = i18n.__;
 
-exports.resize = function (src, dest, callback, logger) {
+/**
+ * Takes a source image and resizes it to one or more images.
+ *
+ * @param {String} src - The path to the source image being resized.
+ * @param {Array|Object} dest - One or more destination objects consisting of the dest `file`, `width`, and `height`.
+ * @param {Function} callback - A function to call after the images have been resized.
+ * @param {Object} [logger] - A logger object containing a `trace()` function.
+ */
+function resize(src, dest, callback, logger) {
 	try {
 		if (!src) throw new Error('Missing source');
 		if (!fs.exists(src)) throw new Error('Source "' + src + '" does not exist');
@@ -58,3 +72,22 @@ exports.resize = function (src, dest, callback, logger) {
 		callback && callback.call && callback(ex);
 	}
 };
+
+/**
+ * Reads in a PNG file and returns the height, width, and color depth.
+ *
+ * @param {Buffer} buf - A buffer containing the contents of a PNG file.
+ *
+ * @returns {Object} An object containing the image's height, width, and color depth.
+ */
+function pngInfo(buf) {
+	function u32(o) {
+		return buf[o] << 24 | buf[o + 1] << 16 | buf[o + 2] << 8 | buf[o + 3];
+	}
+
+	return {
+		width: u32(16),
+		height: u32(16 + 4),
+		alpha: !!(buf[25] & 4)
+	};
+}

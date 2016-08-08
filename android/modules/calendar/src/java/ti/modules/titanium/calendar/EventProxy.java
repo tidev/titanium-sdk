@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
@@ -55,11 +54,6 @@ public class EventProxy extends KrollProxy {
 		super();
 	}
 
-	public EventProxy(TiContext context)
-	{
-		this();
-	}
-
 	public static String getEventsUri()
 	{
 		return CalendarProxy.getBaseCalendarUri() + "/events";
@@ -80,14 +74,12 @@ public class EventProxy extends KrollProxy {
 		return queryEvents(Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
 	}
 
-	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs)
-	{
-		return queryEvents(query, queryArgs);
-	}
-
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query, String[] queryArgs)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return events;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
@@ -133,15 +125,12 @@ public class EventProxy extends KrollProxy {
 		return events;
 	}
 
-	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query,
-		String[] queryArgs)
-	{
-		return queryEventsBetweenDates(date1, date2, query, queryArgs);
-	}
-
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return events;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		String visibility = "";
@@ -175,15 +164,12 @@ public class EventProxy extends KrollProxy {
 		return events;
 	}
 
-	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs,
-		String orderBy)
-	{
-		return queryEvents(uri, query, queryArgs, orderBy);
-	}
-
 	public static EventProxy createEvent(CalendarProxy calendar, KrollDict data)
 	{
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		EventProxy event = new EventProxy();
 
 		ContentValues eventValues = new ContentValues();
@@ -248,11 +234,6 @@ public class EventProxy extends KrollProxy {
 		return event;
 	}
 
-	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, KrollDict data)
-	{
-		return createEvent(calendar, data);
-	}
-
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar)
 	{
 		if (Build.VERSION.SDK_INT >= 11) {
@@ -260,11 +241,6 @@ public class EventProxy extends KrollProxy {
 		} else {
 			return queryEventsBetweenDates(date1, date2, "Calendars._id=" + calendar.getId(), null);
 		}
-	}
-
-	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar)
-	{
-		return queryEventsBetweenDates(date1, date2, calendar);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -400,6 +376,9 @@ public class EventProxy extends KrollProxy {
 	public KrollDict getExtendedProperties()
 	{
 		KrollDict extendedProperties = new KrollDict();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return extendedProperties;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		Cursor extPropsCursor = contentResolver.query(Uri.parse(getExtendedPropertiesUri()),
 			new String[] { "name", "value" }, "event_id = ?", new String[] { getId() }, null);
@@ -416,6 +395,9 @@ public class EventProxy extends KrollProxy {
 	@Kroll.method
 	public String getExtendedProperty(String name)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		Cursor extPropsCursor = contentResolver.query(Uri.parse(getExtendedPropertiesUri()), new String[] { "value" },
 			"event_id = ? and name = ?", new String[] { getId(), name }, null);
@@ -433,6 +415,9 @@ public class EventProxy extends KrollProxy {
 	@Kroll.method
 	public void setExtendedProperty(String name, String value)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return;
+		}
 		if (!hasExtendedProperties) {
 			hasExtendedProperties = true;
 		}

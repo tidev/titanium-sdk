@@ -32,8 +32,11 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.media.CamcorderProfile; 
+import android.media.MediaRecorder;
 import android.hardware.Camera.Size;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
@@ -44,17 +47,26 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.content.pm.PackageManager;
 
 @SuppressWarnings("deprecation")
-public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback
+public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
 {
 	private static final String TAG = "TiCameraActivity";
 	private static Camera camera;
 	private static Size optimalPreviewSize;
+	private static Size optimalVideoSize;
 	private static List<Size> supportedPreviewSizes;
+	private static List<Size> supportedVideoSizes;
 	private static int frontCameraId = Integer.MIN_VALUE; // cache
 	private static int backCameraId = Integer.MIN_VALUE; //cache
+	private static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
+	private static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
+	private static final String MEDIA_TYPE_PHOTO = "public.image";
+	private static final String MEDIA_TYPE_VIDEO = "public.video";
+	
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
 	private PreviewLayout previewLayout;
@@ -65,12 +77,21 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
 
+	public static MediaModule mediaContext;
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
 	public static boolean autohide = true;
+	
+	public static int videoMaximumDuration = 0;
+	public static int videoQuality = VIDEO_QUALITY_HIGH;
+	public static String mediaType = MEDIA_TYPE_PHOTO;
+	public static int cameraType = 0;
+	private static int cameraRotation = 0;
+	private static MediaRecorder recorder;
+	private static File videoFile = null;
 
 	private static class PreviewLayout extends FrameLayout
 	{
@@ -100,11 +121,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
+			final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+			final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+			setMeasuredDimension(width, height);
+		
 			int previewWidth = MeasureSpec.getSize(widthMeasureSpec);
 			int previewHeight = MeasureSpec.getSize(heightMeasureSpec);
 
 			// Set the preview size to the most optimal given the target size
 			optimalPreviewSize = getOptimalPreviewSize(supportedPreviewSizes, previewWidth, previewHeight);
+			optimalVideoSize = getOptimalPreviewSize(supportedVideoSizes, previewWidth, previewHeight);
 			if (optimalPreviewSize != null) {
 				if (previewWidth > previewHeight) {
 					aspectRatio = (double) optimalPreviewSize.width / optimalPreviewSize.height;
@@ -134,8 +160,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		setFullscreen(true);
-		
+		// setting Fullscreen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		super.onCreate(savedInstanceState);
 
 		// checks if device has only front facing camera and sets it
@@ -163,12 +189,25 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
-		startPreview(previewHolder);
+		// force initial onMeasure
+		previewLayout.prepareNewPreview(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				startPreview(preview.getHolder());
+			}
+		});
 	}
 
 	public void surfaceCreated(SurfaceHolder previewHolder)
 	{
 		try {
+			if (whichCamera == MediaModule.CAMERA_FRONT) {
+				openCamera(getFrontCameraId());
+			} else {
+				openCamera();
+			}
 			camera.setPreviewDisplay(previewHolder);
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
@@ -188,6 +227,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.release();
 			camera = null;
 		}
+		
+		releaseMediaRecorder();
 	}
 
 	@Override
@@ -270,6 +311,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
 
+		releaseMediaRecorder();
+		
 		cameraActivity = null;
 	}
 
@@ -334,7 +377,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		
 		camera.setDisplayOrientation(result);
 		param.setRotation(result2);
-
+		cameraRotation = result2;
+		
 		// Set appropriate focus mode if supported.
 		List<String> supportedFocusModes = param.getSupportedFocusModes();
 		if (supportedFocusModes.contains(MediaModule.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -344,14 +388,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		} else if (supportedFocusModes.contains(Parameters.FOCUS_MODE_MACRO)) {
 			param.setFocusMode(Parameters.FOCUS_MODE_MACRO);
 		}
-
+		
 		if (optimalPreviewSize != null) {
 			param.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
-			List<Size> pictSizes = param.getSupportedPictureSizes();
-			Size pictureSize = getOptimalPictureSize(pictSizes);
-			if (pictureSize != null) {
-				param.setPictureSize(pictureSize.width, pictureSize.height);
-			}
+		}
+		
+		List<Size> pictSizes = param.getSupportedPictureSizes();
+		Size pictureSize = getOptimalPictureSize(pictSizes);
+		
+		if (pictureSize != null) {
+			param.setPictureSize(pictureSize.width, pictureSize.height);
+		}
+		if (mediaType == MEDIA_TYPE_VIDEO) {
+			param.setRecordingHint(true);
 		}
 		camera.setParameters(param);
 
@@ -359,6 +408,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.setPreviewDisplay(previewHolder);
 			previewRunning = true;
 			camera.startPreview();
+			mediaContext.fireEvent(TiC.EVENT_CAMERA_READY, null);
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
 			finish();
@@ -373,6 +423,143 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 		camera.stopPreview();
 		previewRunning = false;
+	}
+	
+	static public void startVideoCapture()
+	{
+		// state "Initial"
+		try {
+			// Unlock the camera for recorder use, only if nessecarry.
+	    	camera.unlock();
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to unlock camera: " + e.getMessage());
+			return;		
+		}
+
+		if (saveToPhotoGallery) {
+			videoFile = MediaModule.createGalleryImageFile();
+		} else {
+			videoFile = TiFileFactory.createDataFile("tia", ".mp4");
+		}
+
+		if (recorder==null){
+			recorder = new MediaRecorder();
+			recorder.setOnInfoListener(cameraActivity);
+		}
+		recorder.setCamera(camera);
+		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+		
+		CamcorderProfile profile = CamcorderProfile.get(whichCamera, videoQuality);
+		
+		if (optimalVideoSize != null) {
+			profile.videoFrameWidth = optimalVideoSize.width;
+			profile.videoFrameHeight = optimalVideoSize.height;
+		} else {
+			Size videoSize = getOptimalPictureSize(supportedVideoSizes);
+			if (videoSize != null) {
+			    profile.videoFrameWidth = videoSize.width;
+			    profile.videoFrameHeight = videoSize.height;
+			}
+		}
+		int result  = TiApplication.getInstance().getRootActivity().checkCallingOrSelfPermission("android.permission.RECORD_AUDIO");
+		if (result == PackageManager.PERMISSION_GRANTED) {
+			recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	
+			recorder.setProfile(profile);		
+		} else {
+			// only video - no sound
+			Log.w(TAG, "To record audio please request RECORD_AUDIO permission");
+			recorder.setOutputFormat(profile.fileFormat);
+			recorder.setVideoFrameRate(profile.videoFrameRate);
+			recorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+			recorder.setVideoEncodingBitRate(profile.videoBitRate);
+			recorder.setVideoEncoder(profile.videoCodec);
+		}
+		
+		recorder.setOrientationHint(cameraRotation);
+		
+		if (videoMaximumDuration>0) {
+			recorder.setMaxDuration(videoMaximumDuration);
+		}
+		
+		recorder.setOutputFile(videoFile.getPath());
+		try {
+			recorder.prepare();
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to prepare recorder: " + e.getMessage());
+			return;
+		}
+
+		try {
+			recorder.start();
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to start recording: " + e.getMessage());
+			return;
+		}
+	}
+
+	static public void stopVideoCapture()
+	{
+		try {
+			recorder.stop();
+		} catch (Exception e){
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to stop recording: " + e.getMessage());
+		}
+		
+		try {
+			camera.reconnect();
+		} catch (Exception e) {
+			onError(MediaModule.UNKNOWN_ERROR, "Unable to reconnect to camera after recording: " + e.getMessage());
+		}
+		
+		
+		try {
+			if (successCallback != null) {
+				TiFile theFile = new TiFile(videoFile, videoFile.toURI().toURL().toExternalForm(), false);
+				TiBlob theBlob = TiBlob.blobFromFile(theFile);
+				KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+				
+				KrollDict previewRect = new KrollDict();
+				previewRect.put(TiC.PROPERTY_WIDTH, 0);
+				previewRect.put(TiC.PROPERTY_HEIGHT, 0);
+				response.put("previewRect", previewRect);
+				
+				successCallback.callAsync(callbackContext, response);
+			}				
+		} catch (Throwable t) {
+			if (errorCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(MediaModule.UNKNOWN_ERROR, t.getMessage());
+				errorCallback.callAsync(callbackContext, response);
+			}
+		}
+		
+		releaseMediaRecorder();
+		
+		if (autohide) {
+			hide();
+		} else {
+			if (camera!=null){
+				camera.startPreview();
+			}
+		}
+			
+	}
+	
+	private static void releaseMediaRecorder(){
+	   if (recorder != null) {
+		   recorder.reset();
+		   recorder.release();
+		   recorder = null;
+		   if (camera !=null){
+			   camera.lock();
+		   }
+	   }
+   }
+	
+	public void onInfo(MediaRecorder mr, int what, int extra) { 
+		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+			stopVideoCapture();
+		}
 	}
 
 	@Override
@@ -395,29 +582,37 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	 * @return the optimal size of the preview
 	 */
 	private static Size getOptimalPreviewSize(List<Size> sizes, int w, int h)
-	{
-		double targetRatio = 1;
-		if (w > h) {
-			targetRatio = (double) w / h;
-		} else {
-			targetRatio = (double) h / w;
-		}
-		if (sizes == null) {
-			return null;
-		}
-		Size optimalSize = null;
-		double minAspectDiff = Double.MAX_VALUE;
+	{		
+	    final double ASPECT_TOLERANCE = 0.1;
+	    double targetRatio = (double) w / h;
+	    if (sizes == null) return null;
 
-		// Try to find an size match aspect ratio and size
-		for (Size size : sizes) {
-			double ratio = (double) size.width / size.height;
-			if (Math.abs(ratio - targetRatio) < minAspectDiff) {
-				optimalSize = size;
-				minAspectDiff = Math.abs(ratio - targetRatio);
-			}
-		}
-		
-		return optimalSize;
+	    Size optimalSize = null;
+	    double minDiff = Double.MAX_VALUE;
+
+	    int targetHeight = h;
+
+	    // Try to find an size match aspect ratio and size
+	    for (Size size : sizes) {
+	        double ratio = (double) size.width / size.height;
+	        if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+	        if (Math.abs(size.height - targetHeight) < minDiff) {
+	            optimalSize = size;
+	            minDiff = Math.abs(size.height - targetHeight);
+	        }
+	    }
+
+	    // Cannot find the one match the aspect ratio, ignore the requirement
+	    if (optimalSize == null) {
+	        minDiff = Double.MAX_VALUE;
+	        for (Size size : sizes) {
+	            if (Math.abs(size.height - targetHeight) < minDiff) {
+	                optimalSize = size;
+	                minDiff = Math.abs(size.height - targetHeight);
+	            }
+	        }
+	    }
+	    return optimalSize;
 	}
 	
 	/**
@@ -470,7 +665,11 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				imageFile = MediaModule.createGalleryImageFile();
 			} else {
 				// Save the picture in the internal data directory so it is private to this application.
-				imageFile = TiFileFactory.createDataFile("tia", ".jpg");
+				String extension = ".jpg";
+				if (mediaType == MEDIA_TYPE_VIDEO) {
+					extension = ".mp4";
+				}
+				imageFile = TiFileFactory.createDataFile("tia", extension);
 			}
 			
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
@@ -493,24 +692,36 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	static public void takePicture()
 	{
-		String focusMode = camera.getParameters().getFocusMode();
-		if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF) || focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
-			.equals(Parameters.FOCUS_MODE_INFINITY))) {
-			AutoFocusCallback focusCallback = new AutoFocusCallback()
-			{
-				public void onAutoFocus(boolean success, Camera camera)
-				{
-					camera.takePicture(shutterCallback, null, jpegCallback);
-					if (!success) {
-						Log.w(TAG, "Unable to focus.");
-					}
-					camera.cancelAutoFocus();
-				}
-			};
-			camera.autoFocus(focusCallback);
-		} else {
-			camera.takePicture(shutterCallback, null, jpegCallback);
-		}
+	    try {
+	        String focusMode = camera.getParameters().getFocusMode();
+	        if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF)
+	                || focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
+	                .equals(Parameters.FOCUS_MODE_INFINITY))) {
+	            AutoFocusCallback focusCallback = new AutoFocusCallback()
+	            {
+	                public void onAutoFocus(boolean success, Camera camera)
+	                {
+	                    camera.takePicture(shutterCallback, null, jpegCallback);
+	                    if (!success) {
+	                        Log.w(TAG, "Unable to focus.");
+	                    }
+	                    // This is a Hotfix for TIMOB-20260
+	                    // "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera) 
+	                    // We need to move to android.hardware.camera2 APIs as soon as we can.
+	                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+	                        camera.cancelAutoFocus();
+	                    }
+	                }
+	            };
+	            camera.autoFocus(focusCallback);
+	        } else {
+	            camera.takePicture(shutterCallback, null, jpegCallback);
+	        }
+	    } catch (Exception e) {
+	        if (camera != null) {
+	            camera.release();
+	        }
+	    }
 	}
 
 	public boolean isPreviewRunning()
@@ -547,6 +758,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
 					TiBlob theBlob = TiBlob.blobFromFile(theFile);
 					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					
+					// add previewRect to response
+					KrollDict previewRect = new KrollDict();
+					if (optimalPreviewSize!=null){
+						previewRect.put(TiC.PROPERTY_WIDTH, optimalPreviewSize.width);
+						previewRect.put(TiC.PROPERTY_HEIGHT, optimalPreviewSize.height);
+					} else {
+						previewRect.put(TiC.PROPERTY_WIDTH, 0);
+						previewRect.put(TiC.PROPERTY_HEIGHT, 0);
+					}
+					response.put("previewRect", previewRect);
+					
 					successCallback.callAsync(callbackContext, response);
 				}				
 			} catch (Throwable t) {
@@ -574,8 +797,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		TiCameraActivity.getBackCameraId();
 		if (backCameraId == Integer.MIN_VALUE && frontCameraId != Integer.MIN_VALUE) {
 			TiCameraActivity.whichCamera = MediaModule.CAMERA_FRONT;
-		} else {
-			TiCameraActivity.whichCamera = MediaModule.CAMERA_REAR;
 		}
 	}
 
@@ -629,10 +850,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera = null;
 		}
 
-		if (cameraId == Integer.MIN_VALUE) {
-			camera = Camera.open();
-		} else {
-			camera = Camera.open(cameraId);
+		try {
+			if (cameraId == Integer.MIN_VALUE) {
+				camera = Camera.open();
+			} else {
+				camera = Camera.open(cameraId);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Could not open camera. Camera may be in use by another process or device policy manager has disabled the camera.", e);
 		}
 
 		if (camera == null) {
@@ -643,7 +868,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		supportedPreviewSizes = camera.getParameters()
 				.getSupportedPreviewSizes();
+		supportedVideoSizes = camera.getParameters()
+				.getSupportedVideoSizes();
+		if (supportedVideoSizes==null){
+			supportedVideoSizes = camera.getParameters()
+					.getSupportedPreviewSizes();
+		}
 		optimalPreviewSize = null; // Re-calc'd in PreviewLayout.onMeasure.
+		optimalVideoSize = null; // Re-calc'd in PreviewLayout.onMeasure.
 	}
 
 	protected void switchCamera(int whichCamera)

@@ -57,7 +57,7 @@
 {
 #if TARGET_IPHONE_SIMULATOR
 	if([TiUtils isIOS8OrGreater]) {
-		DebugLog(@"[INFO] iOS 8 Simulator does not support sending emails. Use a device instead.");
+		DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
 		return NUMBOOL(NO);
 	}
 #endif
@@ -84,9 +84,9 @@
 
 #if TARGET_IPHONE_SIMULATOR
 	if([TiUtils isIOS8OrGreater]) {
-		DebugLog(@"[INFO] iOS 8 Simulator does not support sending emails. Use a device instead.");
+		DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
-		[self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS 8 Simulator does not support sending emails. Use a device instead."];
+		[self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
 		return;
 	}
 #endif
@@ -119,7 +119,7 @@
 		{
 			if ([attachment isKindOfClass:[TiBlob class]])
 			{
-				NSString *path = [attachment path];
+				NSString *path = [(TiBlob*)attachment path];
 				if (path==nil)
 				{
 					path = @"attachment";

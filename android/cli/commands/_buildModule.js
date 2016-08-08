@@ -11,87 +11,25 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
-var ADB = require('titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
-	android = require('titanium-sdk/lib/android'),
+var AdmZip = require('adm-zip'),
 	androidDetect = require('../lib/detect').detect,
-	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
-	archiverCore = require('archiver/lib/archiver/core'),
 	async = require('async'),
 	Builder = require('titanium-sdk/lib/builder'),
-	cleanCSS = require('clean-css'),
 	crypto = require('crypto'),
-	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
-	exec = require('child_process').exec,
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
-	fields = require('fields'),
 	fs = require('fs'),
-	i18n = require('titanium-sdk/lib/i18n'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn,
 
-	afs = appc.fs,
-	i18nLib = appc.i18n(__dirname),
-	__ = i18nLib.__,
-	__n = i18nLib.__n,
-	version = appc.version,
-	xml = appc.xml;
-
-// Archiver 0.4.10 has a problem where the stack size is exceeded if the project
-// has lots and lots of files. Below is a function copied directly from
-// lib/archiver/core.js and modified to use a setTimeout to collapse the call
-// stack. Copyright (c) 2012-2013 Chris Talkington, contributors.
-archiverCore.prototype._processQueue = function _processQueue() {
-	if (this.archiver.processing) {
-		return;
-	}
-
-	if (this.archiver.queue.length > 0) {
-		var next = this.archiver.queue.shift();
-		var nextCallback = function(err, file) {
-			next.callback(err);
-
-			if (!err) {
-				this.archiver.files.push(file);
-				this.archiver.processing = false;
-				// do a setTimeout to collapse the call stack
-				setTimeout(function () {
-					this._processQueue();
-				}.bind(this), 0);
-			}
-		}.bind(this);
-
-		this.archiver.processing = true;
-
-		this._processFile(next.source, next.data, nextCallback);
-	} else if (this.archiver.finalized && this.archiver.writableEndCalled === false) {
-		this.archiver.writableEndCalled = true;
-		this.end();
-	} else if (this.archiver.finalize && this.archiver.queue.length === 0) {
-		this._finalize();
-	}
-};
-
-function hash(s) {
-	return crypto.createHash('md5').update(s || '').digest('hex');
-}
-
-function randomStr (len) {
-	return crypto.randomBytes(Math.ceil(len * 3 / 4))
-		.toString('base64')
-		.slice(0, len)
-		.replace(/\+/g, '0')
-		.replace(/\//g, '0');
-}
+	__ = appc.i18n(__dirname).__,
+	version = appc.version;
 
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -103,141 +41,135 @@ function AndroidModuleBuilder() {
 
 util.inherits(AndroidModuleBuilder, Builder);
 
-AndroidModuleBuilder.prototype.config = function config(logger, config, cli) {
-	Builder.prototype.config.apply(this, arguments);
-};
-
 AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.config.apply(this, arguments);
+	Builder.prototype.validate.apply(this, arguments);
 
-	this.projectDir = cli.argv['project-dir'];
+	return function (finished) {
+		this.projectDir = cli.argv['project-dir'];
+		this.buildOnly = cli.argv['build-only'];
 
-	this.cli = cli;
-	this.logger = logger;
+		this.cli = cli;
+		this.logger = logger;
 
-	this.manifest = this.cli.manifest;
+		this.manifest = this.cli.manifest;
 
-	// detect android environment
-	androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
-		this.androidInfo = androidInfo;
-		null;
-	}.bind(this));
+		// detect android environment
+		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
+			this.androidInfo = androidInfo;
 
-	if (!this.androidInfo.ndk.path) {
-		logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
-		process.exit(1);
-	}
-
-	var targetSDKMap = {};
-	Object.keys(this.androidInfo.targets).forEach(function (id) {
-		var t = this.androidInfo.targets[id];
-		if (t.type == 'platform') {
-			targetSDKMap[t.id.replace('android-', '')] = t;
-		}
-	}, this);
-
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(),
-			i = levels.length - 1;
-
-		for (; i >= 0; i--) {
-			if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
-				break;
-			}
-		}
-
-		if (!this.targetSDK) {
-			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
-			process.exit(1);
-		}
-	}
-
-	// check that we have this target sdk installed
-	this.androidTargetSDK = targetSDKMap[this.targetSDK];
-
-	if (!this.androidTargetSDK) {
-		logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
-
-		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
-			return ver > this.minSupportedApiLevel;
-		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
-
-		if (sdks.length) {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-			logger.log(
-				appc.string.wrap(
-					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-					config.get('cli.width', 100)
-				)
-			);
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <android>'.grey);
-			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk '
-				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-				+ 'android:targetSdkVersion="' + sdks[0] + '" '
-				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-				+ '/>').magenta);
-			logger.log('        </manifest>'.grey);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-		} else {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-		}
-		process.exit(1);
-	}
-
-	if (!this.androidTargetSDK.androidJar) {
-		logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.targetSDK < this.minSDK) {
-		logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.maxSDK && this.maxSDK < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
-		process.exit(1);
-	}
-
-	if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
-		// print warning that version this.targetSDK is not tested
-		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
-	}
-
-	// get the javac params
-	this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-	this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-	this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
-	this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
-
-	this.jdkInfo = null;
-
-	return function(finished) {
-		// detect java development kit
-		appc.jdk.detect(config, null, function (jdkInfo) {
-			if (!jdkInfo.version) {
-				logger.error(__('Unable to locate the Java Development Kit') + '\n');
-				logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
+			if (!this.androidInfo.ndk.path) {
+				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
 				process.exit(1);
 			}
 
-			if (!version.satisfies(jdkInfo.version, this.packageJson.vendorDependencies.java)) {
-				logger.error(__('JDK version %s detected, but only version %s is supported', jdkInfo.version, this.packageJson.vendorDependencies.java) + '\n');
+			var targetSDKMap = {};
+			Object.keys(this.androidInfo.targets).forEach(function (id) {
+				var t = this.androidInfo.targets[id];
+				if (t.type == 'platform') {
+					targetSDKMap[t.id.replace('android-', '')] = t;
+				}
+			}, this);
+
+			// if no target sdk, then default to most recent supported/installed
+			if (!this.targetSDK) {
+				var levels = Object.keys(targetSDKMap).sort(),
+					i = levels.length - 1;
+
+				for (; i >= 0; i--) {
+					if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
+						this.targetSDK = levels[i];
+						break;
+					}
+				}
+
+				if (!this.targetSDK) {
+					logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+					process.exit(1);
+				}
+			}
+
+			// check that we have this target sdk installed
+			this.androidTargetSDK = targetSDKMap[this.targetSDK];
+
+			if (!this.androidTargetSDK) {
+				logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
+
+				var sdks = Object.keys(targetSDKMap).filter(function (ver) {
+					return ver > this.minSupportedApiLevel;
+				}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
+
+				if (sdks.length) {
+					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+					logger.log(
+						appc.string.wrap(
+							__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+							config.get('cli.width', 100)
+						)
+					);
+					logger.log();
+					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+					logger.log('    <android>'.grey);
+					logger.log('        <manifest>'.grey);
+					logger.log(('            <uses-sdk '
+						+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+						+ 'android:targetSdkVersion="' + sdks[0] + '" '
+						+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+						+ '/>').magenta);
+					logger.log('        </manifest>'.grey);
+					logger.log('    </android>'.grey);
+					logger.log('</ti:app>'.grey);
+					logger.log();
+				} else {
+					logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
+				}
 				process.exit(1);
 			}
 
-			this.jdkInfo = jdkInfo;
+			if (!this.androidTargetSDK.androidJar) {
+				logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
+				process.exit(1);
+			}
 
+			if (this.targetSDK < this.minSDK) {
+				logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
+				process.exit(1);
+			}
+
+			if (this.maxSDK && this.maxSDK < this.targetSDK) {
+				logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+				process.exit(1);
+			}
+
+			if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
+				// print warning that version this.targetSDK is not tested
+				logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s', (''+this.targetSDK).cyan, this.titaniumSdkVersion));
+			}
+
+			// get the javac params
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
+			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
+			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+			this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+
+			// detect java development kit
+			appc.jdk.detect(config, null, function (jdkInfo) {
+				if (!jdkInfo.version) {
+					logger.error(__('Unable to locate the Java Development Kit') + '\n');
+					logger.log(__('You can specify the location by setting the %s environment variable.', 'JAVA_HOME'.cyan) + '\n');
+					process.exit(1);
+				}
+
+				if (!version.satisfies(jdkInfo.version, this.packageJson.vendorDependencies.java)) {
+					logger.error(__('JDK version %s detected, but only version %s is supported', jdkInfo.version, this.packageJson.vendorDependencies.java) + '\n');
+					process.exit(1);
+				}
+
+				this.jdkInfo = jdkInfo;
+
+				finished();
+			}.bind(this));
 		}.bind(this));
-
-		finished();
-
 	}.bind(this);
 };
 
@@ -246,7 +178,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 
 	appc.async.series(this, [
 		function (next) {
-			cli.emit('build.pre.construct', this, next);
+			cli.emit('build.module.pre.construct', this, next);
 		},
 
 		'doAnalytics',
@@ -254,9 +186,10 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'loginfo',
 
 		function (next) {
-			cli.emit('build.pre.compile', this, next);
+			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'compileAidlFiles',
 		'compileModuleJavaSrc',
 		'generateRuntimeBindings',
 		'generateV8Bindings',
@@ -271,30 +204,25 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'runModule',
 
 		function (next) {
-			cli.emit('build.post.compile', this, next);
+			cli.emit('build.module.post.compile', this, next);
 		}
 	], function (err) {
-		cli.emit('build.finalize', this, function () {
+		cli.emit('build.module.finalize', this, function () {
 			finished(err);
 		});
 	});
 
 };
 
-AndroidModuleBuilder.prototype.dirWalker = function (currentPath, callback) {
-	var files = fs.readdirSync(currentPath),
-		i;
-
-	for (i in files) {
-		var currentFile = path.join(currentPath, files[i]),
-			stats = fs.statSync(currentFile);
-
-		if (stats.isFile()) {
-			callback(currentFile);
-		} else if (stats.isDirectory()) {
+AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
+	fs.readdirSync(currentPath).forEach(function (name, i, arr) {
+		var currentFile = path.join(currentPath, name);
+		if (fs.statSync(currentFile).isDirectory()) {
 			this.dirWalker(currentFile, callback);
+		} else {
+			callback(currentFile, name, i, arr);
 		}
-	}
+	}, this);
 };
 
 AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
@@ -341,8 +269,8 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
-	['assets', 'documentation', 'example', 'platform'].forEach(function (folder) {
-		var dirName = folder+'Dir';
+	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
+		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
 			this[dirName] = path.join(this.projectDir, '..', folder);
@@ -403,9 +331,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	next();
 };
 
-AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
-	console.log("--- AndroidModuleBuilder loginfo");
-
+AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('javac Max Memory: %s', this.javacMaxMemory));
 	this.logger.info(__('javac Source: %s', this.javacSource));
 	this.logger.info(__('javac Target: %s', this.javacTarget));
@@ -416,8 +342,55 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('Documentation Dir: %s', this.documentationDir.cyan));
 	this.logger.info(__('Example Dir: %s', this.exampleDir.cyan));
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
+	this.logger.info(__('Resources Dir: %s', this.resourcesDir.cyan));
+};
 
-	next();
+AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
+	this.logger.log(__('Generating java files from the .aidl files'));
+
+	if (!this.androidTargetSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+		return next();
+	}
+
+	var aidlRegExp = /\.aidl$/,
+		aidlFiles = (function scan(dir) {
+			var f = [];
+			fs.readdirSync(dir).forEach(function (name) {
+				var file = path.join(dir, name);
+				if (fs.existsSync(file)) {
+					if (fs.statSync(file).isDirectory()) {
+						f = f.concat(scan(file));
+					} else if (aidlRegExp.test(name)) {
+						f.push(file);
+					}
+				}
+			});
+			return f;
+	}(this.javaSrcDir));
+
+	if (!aidlFiles.length) {
+		this.logger.info(__('No aidl files to compile'));
+		return next();
+	}
+
+	appc.async.series(this, aidlFiles.map(function (file) {
+		return function (callback) {
+			this.logger.info(__('Compiling aidl file: %s', file));
+
+			var aidlHook = this.cli.createHook('build.android.aidl', this, function (exe, args, opts, done) {
+					this.logger.info('Running aidl: %s', (exe + ' "' + args.join('" "') + '"').cyan);
+					appc.subprocess.run(exe, args, opts, done);
+				});
+
+			aidlHook(
+				this.androidInfo.sdk.executables.aidl,
+				['-p' + this.androidTargetSDK.aidl, '-I' + this.javaSrcDir, file],
+				{},
+				callback
+			);
+		};
+	}), next);
 };
 
 AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
@@ -475,8 +448,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 			'-processor', 'org.appcelerator.kroll.annotations.generator.KrollJSONGenerator',
 			'-s', this.buildGenJsonDir,
 			'-Akroll.jsonFile='+ this.manifest.name +'.json',
-			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings',
-			'-Akroll.checkTiContext=true'
+			'-Akroll.jsonPackage=org.appcelerator.titanium.bindings'
 		],
 		{},
 		next
@@ -735,7 +707,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 	var tasks = [
 		function (cb) {
-
 			Object.keys(bindingJson.proxies).forEach(function (proxy) {
 				var fullApi = getFullApiName(bindingJson.proxies[proxy]),
 					tree = apiTree,
@@ -776,7 +747,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		},
 
 		function (cb) {
-
 			var bootstrapJS = processNode(apiTree, '', 0);
 
 			var bootstrapContext = {
@@ -834,7 +804,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 	];
 
 	appc.async.series(this, tasks, next);
-
 };
 
 AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
@@ -1064,7 +1033,6 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 	var tasks = [
 
 		function (cb) {
-
 			fs.writeFileSync(
 				path.join(this.buildGenJniDir, 'Android.mk'),
 				ejs.render(fs.readFileSync(this.androidMkTemplateFile).toString(), {
@@ -1083,14 +1051,13 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 		},
 
 		function (cb) {
-
 			this.logger.info('Starting directory: ' + process.cwd());
 			try {
 				process.chdir(this.buildGenDir);
 				this.logger.info('New directory: ' + process.cwd());
 
 				appc.subprocess.run(
-					path.join(this.androidInfo.ndk.path, 'ndk-build'),
+					this.androidInfo.ndk.executables.ndkbuild,
 					[
 						'TI_MOBILE_SDK='+this.titaniumSdkPath,
 						'NDK_PROJECT_PATH='+this.buildGenDir,
@@ -1108,7 +1075,7 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 						}
 
 						this.dirWalker(this.buildGenLibsDir, function (file) {
-							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1) {
+							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 && file.indexOf('libc++_shared.so') == -1) {
 
 								var relativeName = path.relative(this.buildGenLibsDir, file),
 									targetDir = path.join(this.libsDir, path.dirname(relativeName));
@@ -1170,7 +1137,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 		this.logger.info('New directory: ' + process.cwd());
 
 		appc.subprocess.run(
-			path.join(this.androidInfo.ndk.path, 'ndk-build'),
+			this.androidInfo.ndk.executables.ndkbuild,
 			[
 				'TI_MOBILE_SDK='+this.titaniumSdkPath,
 				'NDK_PROJECT_PATH='+this.buildGenJniLocalDir,
@@ -1293,7 +1260,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		function (cb) {
 			// Generate documentation
 			if (fs.existsSync(this.documentationDir)) {
-				var markdown = require( 'markdown' ).markdown;
 				var files = fs.readdirSync(this.documentationDir);
 				for (var i in files) {
 					var file = files[i],
@@ -1383,30 +1349,52 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				this.logger.info(__('Creating module zip'));
 
 				// 1. documentation folder
-				this.documentation.forEach(function (item) {
-					var fileName = Object.keys(item),
-						content = item[fileName],
-						filePath;
+				var mdRegExp = /\.md$/;
+				(function walk(dir, parent) {
+					if (!fs.existsSync(dir)) return;
 
-					fileName = fileName.toString().replace('.md', '.html');
-					filePath = path.join(moduleFolder, 'documentation', fileName);
+					fs.readdirSync(dir).forEach(function (name) {
+						var file = path.join(dir, name);
+						if (!fs.existsSync(file)) return;
+						if (fs.statSync(file).isDirectory()) {
+							return walk(file, path.join(parent, name));
+						}
 
-					dest.append(content, { name: filePath });
+						var contents = fs.readFileSync(file).toString();
 
-				}, this);
+						if (mdRegExp.test(name)) {
+							contents = markdown.toHTML(contents);
+							name = name.replace(/\.md$/, '.html');
+						}
 
+						dest.append(contents, { name: path.join(parent, name) });
+					});
+				}(this.documentationDir, path.join(moduleFolder, 'documentation')));
+
+				// 2. example folder
 				this.dirWalker(this.exampleDir, function (file) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'example', path.relative(this.exampleDir, file)) });
 				}.bind(this));
 
+				// 3. platform folder
 				if (fs.existsSync(this.platformDir)) {
 					this.dirWalker(this.platformDir, function (file) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform', path.relative(this.platformDir, file)) });
 					}.bind(this));
 				}
 
+				// 4. Resources folder
+				if (fs.existsSync(this.resourcesDir)) {
+					this.dirWalker(this.resourcesDir, function (file, name) {
+						if (name !== 'README.md') {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'Resources', path.relative(this.resourcesDir, file)) });
+						}
+					}.bind(this));
+				}
+
+				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) != '.js' && path.basename(file) != 'README') {
+					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
@@ -1444,8 +1432,12 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 };
 
 AndroidModuleBuilder.prototype.runModule = function (next) {
+	if (this.buildOnly) {
+		return next();
+	}
+
 	var tmpName,
-		tmpDir,
+		tmpDir = temp.path('ti-android-module-build-'),
 		tmpProjectDir;
 
 	function checkLine(line, logger) {
@@ -1466,7 +1458,6 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 	}
 
 	function runTiCommand(cmd, args, logger, callback) {
-
 		// when calling a Windows batch file, we need to escape ampersands in the command
 		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
 			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
@@ -1479,21 +1470,17 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			data.toString().split('\n').forEach(function (line) {
 				checkLine(line, logger);
 			});
-
 		});
 
 		child.stderr.on('data', function (data) {
 			data.toString().split('\n').forEach(function (line) {
 				checkLine(line, logger);
 			});
-
 		});
 
 		child.on('close', function (code) {
 			if (code) {
 				logger.error(__('Failed to run ti %s', args[0]));
-				logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
 				logger.log();
 				process.exit(1);
 			}
@@ -1506,12 +1493,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 
 		function (cb) {
 			// 1. create temp dir
-			do {
-				tmpName = 'm' + randomStr(6) + 'ti';
-				tmpDir = path.join(process.env.TMPDIR, tmpName);
-			} while(fs.existsSync(tmpDir));
-
-			fs.mkdirSync(tmpDir);
+			wrench.mkdirSyncRecursive(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
@@ -1525,7 +1507,8 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 					'-t', 'app',
 					'-u', 'localhost',
 					'-d', tmpDir,
-					'-p', 'android'
+					'-p', 'android',
+					'--force'
 				],
 				this.logger,
 				cb
@@ -1543,7 +1526,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			fs.writeFileSync(path.join(tmpProjectDir, 'tiapp.xml'), result);
 
 			// 4. copy files in example to Resource
-			afs.copyDirSyncRecursive(
+			appc.fs.copyDirSyncRecursive(
 				this.exampleDir,
 				path.join(tmpProjectDir, 'Resources'),
 				{

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,10 +9,15 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 
+import android.Manifest;
+import android.app.Activity;
 import android.os.Build;
 
 @Kroll.module
@@ -43,9 +48,23 @@ public class CalendarModule extends KrollModule
 		super();
 	}
 
-	public CalendarModule(TiContext context)
+	@Kroll.method
+	public boolean hasCalendarPermissions()
 	{
-		this();
+		return CalendarProxy.hasCalendarPermissions();
+	}
+
+	@Kroll.method
+	public void requestCalendarPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	{
+		if (hasCalendarPermissions()) {
+			return;
+		}
+
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback, getKrollObject());
+		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, TiC.PERMISSION_CODE_CALENDAR);
+
 	}
 
 	@Kroll.getProperty @Kroll.method

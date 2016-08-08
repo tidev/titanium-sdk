@@ -17,6 +17,7 @@
 #import "TiFile.h"
 #import "UIImage+Resize.h"
 #import "TiUIImageViewProxy.h"
+#import <CommonCrypto/CommonDigest.h>
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -32,6 +33,15 @@
 #pragma mark Internal
 
 DEFINE_EXCEPTIONS
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
 
 -(void)dealloc
 {
@@ -176,7 +186,11 @@ DEFINE_EXCEPTIONS
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
 {
-	UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+#ifdef TI_USE_AUTOLAYOUT
+	UIView *view = [[TiLayoutView alloc] init];
+#else
+    UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+#endif
 	UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	
 	spinner.center = view.center;
@@ -496,7 +510,36 @@ DEFINE_EXCEPTIONS
         // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
         // why were we ever doing that in the first place...?
         if ([img isFileURL]) {
-            UIImage* image = [UIImage imageWithContentsOfFile:[img path]];
+            UIImage *image = nil;
+            NSString *pathStr = [img path];
+            NSRange range = [pathStr rangeOfString:@".app"];
+            NSString *imageArg = nil;
+            if (range.location != NSNotFound) {
+                imageArg = [pathStr substringFromIndex:range.location+5];
+            }
+            //remove suffixes.
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+            imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+            if (imageArg != nil) {
+                unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+                NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+                if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+                    // SHA-1 hash has been calculated and stored in 'digest'.
+                    NSMutableString *sha = [[NSMutableString alloc] init];
+                    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+                        [sha appendFormat:@"%02x", digest[i]];
+                    }
+					[sha appendString:@"."];
+                    [sha appendString:[img pathExtension]];
+                    image = [UIImage imageNamed:sha];
+                    RELEASE_TO_NIL(sha)
+                }
+            }
+            if (image == nil) {
+                image = [UIImage imageWithContentsOfFile:[img path]];
+            }
             if (image != nil) {
                 UIImage *imageToUse = [self rotatedImage:image];
                 autoWidth = imageToUse.size.width;
@@ -544,7 +587,11 @@ DEFINE_EXCEPTIONS
 	{
 		// we use a separate container view so we can both have an image
 		// and a set of images
-		container = [[UIView alloc] initWithFrame:self.bounds];
+#ifdef TI_USE_AUTOLAYOUT
+        container = [[TiLayoutView alloc] initWithFrame:self.bounds];
+#else
+        container = [[UIView alloc] initWithFrame:self.bounds];
+#endif
 		container.userInteractionEnabled = NO;
 		[self addSubview:container];
 	}
@@ -699,6 +746,15 @@ DEFINE_EXCEPTIONS
 	{
 		[self fireLoadEventWithState:@"image"];
 	}
+}
+
+-(void)setTintColor_:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value, NSString);
+	UIImageRenderingMode renderingMode = value ? UIImageRenderingModeAlwaysTemplate : UIImageRenderingModeAlwaysOriginal;
+    
+	[imageView setImage:[[imageView image] imageWithRenderingMode:renderingMode]];
+	[imageView setTintColor:value ? [[TiUtils colorValue:value] _color]: nil];
 }
 
 -(void)setImages_:(id)args

@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
@@ -19,12 +20,11 @@ import java.util.List;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.appcelerator.kroll.common.Log;
-
 import android.os.Build;
+import android.util.Log;
 
 public class TiSocketFactory extends SSLSocketFactory {
 	
@@ -40,7 +40,8 @@ public class TiSocketFactory extends SSLSocketFactory {
 	public TiSocketFactory(KeyManager[] keyManagers, TrustManager[] trustManagers, int protocol) throws NoSuchAlgorithmException, 
 	KeyManagementException, KeyStoreException, UnrecoverableKeyException
 	{
-		super(null,null,null,null,null,null);
+		super();
+		//super(null,null,null,null,null,null);
 		switch (protocol) {
 
 			case NetworkModule.TLS_VERSION_1_0:
@@ -75,6 +76,42 @@ public class TiSocketFactory extends SSLSocketFactory {
 	}
 	
 	@Override
+	public String[] getDefaultCipherSuites() {
+		return enabledProtocols;
+	}
+
+	@Override
+	public String[] getSupportedCipherSuites() {
+		return enabledProtocols;
+	}
+
+	@Override
+	public Socket createSocket(String host, int port) throws IOException,
+			UnknownHostException {
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(host, port);
+		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
+	}
+
+	@Override
+	public Socket createSocket(String host, int port, InetAddress localHost,
+			int localPort) throws IOException, UnknownHostException {
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(host, port, localHost, localPort);
+		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
+	}
+
+	@Override
+	public Socket createSocket(InetAddress host, int port) throws IOException {
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(host, port);
+		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
+	}
+
+	@Override
+	public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(address, port, localAddress, localPort);
+		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
+	}
+	
+	@Override
 	public Socket createSocket() throws IOException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket();
@@ -86,12 +123,6 @@ public class TiSocketFactory extends SSLSocketFactory {
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
-	}
-
-	@Override
-	public boolean isSecure(Socket socket) throws IllegalArgumentException 
-	{
-		return true;
 	}
 	
 	protected SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)

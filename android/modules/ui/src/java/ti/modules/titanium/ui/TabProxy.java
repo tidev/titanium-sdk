@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -39,11 +38,6 @@ public class TabProxy extends TiViewProxy
 	public TabProxy()
 	{
 		super();
-	}
-
-	public TabProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -124,7 +118,7 @@ public class TabProxy extends TiViewProxy
 		return this.tabGroupProxy;
 	}
 
-	public void setTabGroup(TabGroupProxy tabGroupProxy) 
+	public void setTabGroup(TabGroupProxy tabGroupProxy)
 	{
 		setParent(tabGroupProxy);
 		this.tabGroupProxy = tabGroupProxy;
@@ -141,12 +135,12 @@ public class TabProxy extends TiViewProxy
 	{
 		windowId = id;
 	}
-	
-	public int getWindowId() 
+
+	public int getWindowId()
 	{
 		return windowId;
 	}
-	
+
 	@Override
 	public void releaseViews()
 	{
@@ -213,18 +207,18 @@ public class TabProxy extends TiViewProxy
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
 		}
-		
+
 		// The focus and blur events for tab changes propagate like so:
 		//    window -> tab -> tab group
-		//    
-		// The window is optional and will be skipped if it does not exist.		
+		//
+		// The window is optional and will be skipped if it does not exist.
 		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
-		
+
 		if (window != null) {
 			window.fireEvent(event, null, false);
 		}
 		fireEvent(event, eventData, true);
-		
+
 	}
 
 	void close(boolean activityIsFinishing) {

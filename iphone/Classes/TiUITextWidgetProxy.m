@@ -128,9 +128,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 - (CGFloat) keyboardAccessoryHeight
 {
 	CGFloat result = MAX(keyboardAccessoryHeight,40);
+#ifndef TI_USE_AUTOLAYOUT
 	if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
 		result = [(TiViewProxy<LayoutAutosizing>*)[keyboardTiView proxy] verifyHeight:result];
 	}
+#endif
 	return result;
 }
 
@@ -276,6 +278,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	return nil;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -284,6 +287,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 -(NSDictionary*)selection
 {
@@ -309,10 +313,10 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
     TiThreadPerformOnMainThread(^{[(TiUITextWidget*)[self view] setSelectionFrom:arg to:property];}, NO);
 }
+#ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_HEIGHT
 USE_VIEW_FOR_CONTENT_WIDTH
-
-
+#endif
 @end
 
 #endif

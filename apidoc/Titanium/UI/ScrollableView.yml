@@ -27,6 +27,19 @@ platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
 
 methods:
+  - name: insertViewsAt
+    summary: Inserts views at the specified position in the [views](Titanium.UI.ScrollableView.views) array.
+    parameters:
+      - name: position
+        summary: Position(index) in the [views](Titanium.UI.ScrollableView.views) array to insert the view
+        type: Number
+
+      - name: views
+        summary: Views to insert.
+        type: Array<Titanium.UI.View>
+    since: 5.4.0
+    platforms: [android, iphone, ipad]
+
   - name: addView
     summary: Adds a new page to this Scrollable View.
     parameters:
@@ -189,7 +202,7 @@ events:
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [scrollend](Titanium.UI.ScrollableView.scrollend) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.scrollend> instead.
     summary: Fired when the view has stopped moving completely.
     platforms: [iphone, ipad, android, mobileweb]
     since: "2.1.0"
@@ -206,7 +219,7 @@ events:
   - name: dragStart
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragstart](Titanium.UI.ScrollableView.dragstart) (all lowercase).
+        notes: Use <Titanium.UI.ScrollableView.dragstart> instead.
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -214,11 +227,10 @@ events:
     since: "2.1.0"
     platforms: [mobileweb]
 
-
   - name: dragEnd
     deprecated:
-       since: "3.0.0"
-       notes: Renamed to [dragend](Titanium.UI.ScrollableView.dragend) (all lowercase).
+        since: "3.0.0"
+        notes: Use <Titanium.UI.ScrollableView.dragend> instead.
     summary: Fired when the scrolling drag gesture on the view has been completed.
     platforms: [android, mobileweb]
     since: "2.1.0"
@@ -229,7 +241,6 @@ events:
       - name: view
         summary: The currently visible view.
         type: Titanium.UI.View
-
 
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
@@ -242,7 +253,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
     since: '3.0.0'
-
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -274,7 +284,7 @@ properties:
         values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved 
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
-    platforms: [android,  iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: {android: "4.1.0"}
     
   - name: currentPage
@@ -283,7 +293,16 @@ properties:
         Since Titanium Mobile Release 3.3.0, using this property to change current page changes the 
         page without animation on iOS and Android.
     type: Number
-    
+  
+  - name: currentPageIndicatorColor
+    summary: Color for the current page of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: undefined (system-default white)
+    platforms: [iphone, ipad]  
+    since: "5.4.0"
+
   - name: disableBounce
     summary: Determines whether page bouncing effect is disabled.
     type: Boolean
@@ -312,12 +331,20 @@ properties:
     default: 20
     platforms: [iphone,ipad]
     
+  - name: pageIndicatorColor
+    summary: Color of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: undefined (system-default gray)
+    platforms: [iphone, ipad]
+    since: "5.4.0"
+    
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
     description: Set to `true` to show paging control.
     type: Boolean
     default: false
-
 
   - name: pagingControlTimeout
     summary: Number of milliseconds to wait before hiding the paging control.

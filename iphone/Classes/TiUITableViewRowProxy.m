@@ -26,10 +26,18 @@ NSString * const defaultRowTableClass = @"_default_";
 // TODO: Clean this up a bit
 #define NEEDS_UPDATE_ROW 1
 
+#ifdef TI_USE_AUTOLAYOUT
+@interface TiUITableViewRowContainer : TiLayoutView
+#else
 @interface TiUITableViewRowContainer : UIView
+#endif
 {
 	TiProxy * hitTarget;
 	CGPoint hitPoint;
+#ifdef TI_USE_AUTOLAYOUT
+    CGFloat m_height;
+    CGFloat m_width;
+#endif
 }
 @property(nonatomic,retain,readwrite) TiProxy * hitTarget;
 @property(nonatomic,assign,readwrite) CGPoint hitPoint;
@@ -117,6 +125,29 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self clearHitTarget];
 	[super dealloc];
 }
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultWidth:TiDimensionAutoSize];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setHeight_:@"SIZE"];
+}
+
+-(CGFloat)heightIfWidthWere:(CGFloat)width
+{
+    if (m_width != width) {
+        m_width = width;
+        m_height = [super heightIfWidthWere:width];
+    }
+    if (m_height == 0) {
+        m_height = [super heightIfWidthWere:width];
+    }
+    return m_height;
+}
+#endif
+
 
 
 @end
@@ -220,13 +251,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
                 return;
             }
         }
+#ifndef TI_USE_AUTOLAYOUT
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
+#else
+        [[self currentRowContainerView] setLayout_:value];
+#endif
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
         return;
     }
     [super setValue:value forUndefinedKey:key];
 }
-
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
     CGFloat width = oldWidth;
@@ -267,6 +301,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     return width;
 }
 
+
 -(CGFloat)rowHeight:(CGFloat)width
 {
 	if (TiDimensionIsDip(height))
@@ -274,6 +309,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		return height.value;
 	}
 	CGFloat result = 0;
+#ifndef TI_USE_AUTOLAYOUT
 	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
 		result = [self minimumParentHeightForSize:CGSizeMake(width, [self table].bounds.size.height)];
@@ -281,6 +317,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);
     }
+#else
+    result = [(TiLayoutView*)[self currentRowContainerView] heightIfWidthWere:width];
+    result = result == 0 ? 0 : result + 1;
+#endif
 	return (result == 0) ? [table tableRowHeight:0] : result;
 }
 
@@ -308,8 +348,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)configureTitle:(UITableViewCell*)cell
 {
 	UILabel * textLabel = [cell textLabel];
+	NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
 
-	NSString *title = [self valueForKey:@"title"];
 	if (title!=nil)
 	{
 		[textLabel setText:title]; //UILabel already checks to see if it hasn't changed.
@@ -532,9 +572,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 }
 
 //Private method : For internal use only
--(UIView*) currentRowContainerView
+-(TiUITableViewRowContainer*) currentRowContainerView
 {
-    return rowContainerView;
+    if (rowContainerView == nil) {
+        rowContainerView = [[TiUITableViewRowContainer alloc] init];
+    }
+    return (TiUITableViewRowContainer*)rowContainerView;
 }
 //Private method :For internal use only. Called from layoutSubviews of the cell.
 -(void)triggerLayout
@@ -543,7 +586,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         return;
     }
     modifyingRow = YES;
+#ifndef TI_USE_AUTOLAYOUT
     [TiLayoutQueue layoutProxy:self];
+#endif
     modifyingRow = NO;
     
 }
@@ -623,10 +668,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			}
 			if (rowContainerView == nil) {
 				rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
-				[contentView addSubview:rowContainerView];
 			} else {
 				[rowContainerView setFrame:rect];
 			}
+            if ([rowContainerView superview] == nil) {
+                [contentView addSubview:rowContainerView];
+            }
 			[rowContainerView setBackgroundColor:[UIColor clearColor]];
 			[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 			
@@ -652,6 +699,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[rowContainerView setFrame:rect];
 			[contentView addSubview:rowContainerView];
 		}
+#ifdef TI_USE_AUTOLAYOUT
+        [rowContainerView performSelector:@selector(updateWidthAndHeight)];
+#endif
 	}
 	configuredChildren = YES;
 }
@@ -882,7 +932,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
 	TiThreadPerformOnMainThread(^{[callbackCell setSelectedBackgroundGradient_:newGradient];}, NO);
 }
-
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {

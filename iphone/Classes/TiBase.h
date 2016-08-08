@@ -383,13 +383,13 @@ return map;\
 }\
 
 #define DEPRECATED_REMOVED(api,in,removed) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@: REMOVED in %@",api,in,removed);
     
 #define DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@, in favor of Ti.%@: REMOVED in %@",api,in,newapi,removed);
 
 #define DEPRECATED_REPLACED(api,in,newapi) \
-DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
+DebugLog(@"[WARN] Ti.%@ DEPRECATED in %@, in favor of Ti.%@",api,in,newapi);
     
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
@@ -594,8 +594,10 @@ extern NSString * const kTiURLSessionEventsCompleted;
 extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
 extern NSString * const kTiWatchKitExtensionRequest;
-extern NSString * const kTiHandOff;
+extern NSString * const kTiContinueActivity;
+extern NSString * const kTiApplicationShortcut;
     
+#ifndef TI_USE_AUTOLAYOUT
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;
 extern NSString* const kTiBehaviorAuto;
@@ -607,7 +609,7 @@ extern NSString* const kTiUnitDip;
 extern NSString* const kTiUnitDipAlternate;
 extern NSString* const kTiUnitSystem;
 extern NSString* const kTiUnitPercent;
-
+#endif
 extern NSString* const kTiExceptionSubreason;
 extern NSString* const kTiExceptionLocation;
 

@@ -15,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLConnection;
 import java.util.HashMap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -23,6 +22,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TitaniumBlob;
+import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
@@ -31,6 +31,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
+import android.util.Base64;
 
 /** 
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
@@ -75,6 +76,9 @@ public class TiBlob extends KrollProxy
 	private String mimetype;
 	private Bitmap image;
 	private int width, height;
+
+	// This handles the memory cache of images.
+	private TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
 
 	private TiBlob(int type, Object data, String mimetype)
 	{
@@ -558,7 +562,7 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public String toBase64()
 	{
-		return new String(Base64.encodeBase64(getBytes()));
+		return Base64.encodeToString(getBytes(), Base64.NO_WRAP);
 	}
 
 	public Bitmap getImage()
@@ -570,19 +574,47 @@ public class TiBlob extends KrollProxy
 	
 	private Bitmap getImage(BitmapFactory.Options opts) {
 		if (image == null && (width > 0 && height > 0)) {
+
 			if (opts == null) {
 				opts = new BitmapFactory.Options();
 				opts.inPreferredConfig = Bitmap.Config.RGB_565;
 			}
+
+			// The only opts that can be used to uniquely name an image is the inSampleSize
+			int inSampleSize = opts.inSampleSize;
+			String nativePath = getNativePath();
+			String key = null;
+			if (nativePath != null) {
+				key = getNativePath() + "_" + inSampleSize;
+				Bitmap bitmap = mMemoryCache.get(key);
+				if (bitmap != null) {
+					if (!bitmap.isRecycled()) {
+						return bitmap;
+					} else {
+						mMemoryCache.remove(key);
+					}
+				}
+			}
+
 			try {
+				Bitmap bitmap;
 				switch (type) {
 					case TYPE_FILE:
-						return BitmapFactory.decodeStream(getInputStream(),null,opts);
+						bitmap = BitmapFactory.decodeStream(getInputStream(),null,opts);
+						if (key != null) {
+						    mMemoryCache.put(key, bitmap);
+						}
+						return bitmap;
 					case TYPE_DATA:
 						byte[] byteArray = (byte[]) data;
-						return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,opts);
+						bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,opts);
+						if (key != null) {
+						    mMemoryCache.put(key, bitmap);
+						}
+						return bitmap;
 				}
 			} catch (OutOfMemoryError e) {
+				TiBlobLruCache.getInstance().evictAll();
 				Log.e(TAG, "Unable to get the image. Not enough memory: " + e.getMessage(), e);
 				return null;
 			}
@@ -612,18 +644,36 @@ public class TiBlob extends KrollProxy
 		int heightCropped = options.optInt(TiC.PROPERTY_HEIGHT, height);
 		int x = options.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2);
 		int y = options.optInt(TiC.PROPERTY_Y, (height - heightCropped) / 2);
+
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageAsCropped_" + rotation + "_" + widthCropped + "_" + heightCropped + "_" + x + "_" + y;
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Matrix matrix = new Matrix();
 			//rotate
 			matrix.postRotate(rotation);
 			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped, matrix, true);
 			if (img != image && img != imageCropped) {
-				img.recycle();
-				img = null;
+			    img.recycle();
+			    img = null;
 			}
-			
+			if (key != null) {
+			    mMemoryCache.put(key, imageCropped);
+			}
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -647,7 +697,7 @@ public class TiBlob extends KrollProxy
 		int dstHeight = height.intValue();
 		int imgWidth = this.width;
 		int imgHeight = this.height;
-		
+
 		BitmapFactory.Options opts = null;
 		boolean scaleDown = ((image == null) && (dstWidth < imgWidth) && (dstHeight < imgHeight));
 		if (scaleDown) {
@@ -678,6 +728,20 @@ public class TiBlob extends KrollProxy
 			rotation = TiImageHelper.getOrientation(getNativePath());
 		}
 		
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageAsResized_" + rotation + "_" + dstWidth + "_" + dstHeight;
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Bitmap imageResized = null;
 			imgWidth = img.getWidth();
@@ -698,8 +762,12 @@ public class TiBlob extends KrollProxy
 				img.recycle();
 				img = null;
 			}
+			if (key != null) {
+			    mMemoryCache.put(key, imageResized);
+			}
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -736,6 +804,20 @@ public class TiBlob extends KrollProxy
 			radius = cornerRadius.floatValue();
 		}
 
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_" + Float.toString(border) + "_" + Float.toString(radius);
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Bitmap imageFinal = null;
 			Bitmap imageThumbnail = ThumbnailUtils.extractThumbnail(img, thumbnailSize, thumbnailSize);
@@ -755,11 +837,15 @@ public class TiBlob extends KrollProxy
 			}
 			
 			if (rotation != 0) {
-				return blobFromImage(TiImageHelper.rotateImage(imageFinal, rotation));
+				imageFinal = TiImageHelper.rotateImage(imageFinal, rotation);
+			}
+			if (key != null) {
+			    mMemoryCache.put(key, imageFinal);
 			}
 			return blobFromImage(imageFinal);
 
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -783,6 +869,20 @@ public class TiBlob extends KrollProxy
 			rotation = TiImageHelper.getOrientation(getNativePath());
 		}
 		
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageWithAlpha_" + rotation;
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
 			if (img != image && img != imageWithAlpha) {
@@ -790,10 +890,14 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (rotation != 0) {
-			    return blobFromImage(TiImageHelper.rotateImage(imageWithAlpha, rotation));
+				imageWithAlpha = TiImageHelper.rotateImage(imageWithAlpha, rotation);
+			}
+			if (key != null) {
+			    mMemoryCache.put(key, imageWithAlpha);
 			}
 			return blobFromImage(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -824,6 +928,20 @@ public class TiBlob extends KrollProxy
 			border = borderSize.floatValue();
 		}
 
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageWithRoundedCorner_" + rotation + "_" + Float.toString(border) + "_" + Float.toString(radius);
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Bitmap imageRoundedCorner = TiImageHelper.imageWithRoundedCorner(img, radius, border);
 			if (img != image && img != imageRoundedCorner) {
@@ -831,10 +949,14 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (rotation != 0) {
-			    return blobFromImage(TiImageHelper.rotateImage(imageRoundedCorner, rotation));
+				imageRoundedCorner = TiImageHelper.rotateImage(imageRoundedCorner, rotation);
+			}
+			if (key != null) {
+			    mMemoryCache.put(key, imageRoundedCorner);
 			}
 			return blobFromImage(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -860,6 +982,21 @@ public class TiBlob extends KrollProxy
 		}
 		
 		int borderSize = size.intValue();
+
+		String nativePath = getNativePath();
+		String key = null;
+		if (nativePath != null) {
+			key = getNativePath() + "_imageWithTransparentBorder_" + rotation + "_" + borderSize;
+			Bitmap bitmap = mMemoryCache.get(key);
+			if (bitmap != null) {
+				if (!bitmap.isRecycled()) {
+					return blobFromImage(bitmap);
+				} else {
+					mMemoryCache.remove(key);
+				}
+			}
+		}
+
 		try {
 			Bitmap imageWithBorder = TiImageHelper.imageWithTransparentBorder(img, borderSize);
 			if (img != image && img != imageWithBorder) {
@@ -867,10 +1004,14 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (rotation != 0) {
-				return blobFromImage(TiImageHelper.rotateImage(imageWithBorder, rotation));
+				imageWithBorder = TiImageHelper.rotateImage(imageWithBorder, rotation);
+			}
+			if (key != null) {
+			    mMemoryCache.put(key, imageWithBorder);
 			}
 			return blobFromImage(imageWithBorder);
 		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {

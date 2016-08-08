@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package ti.modules.titanium.map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -128,11 +127,6 @@ public class TiOverlayItemView extends FrameLayout
 		addView(layout, fparams);
 
 		hitTestList = new View[] { leftPane, title, snippet, rightPane };
-	}
-
-	public TiOverlayItemView(Context context, TiContext tiContext)
-	{
-		this(context);
 	}
 
 	private RelativeLayout.LayoutParams createBaseParams()

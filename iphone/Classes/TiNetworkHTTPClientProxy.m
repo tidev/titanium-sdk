@@ -430,6 +430,11 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
     NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+    
+    if ([key isEqualToString:@"User-Agent"] && ![[[TiApp app] userAgent] isEqualToString:[[TiApp app] systemUserAgent]]) {
+        NSLog(@"[WARN] You already specified a custom 'User-Agent' using Ti.userAgent. The user-agents will be concatenated.");
+    }
+    
     [httpRequest addRequestHeader:key value:value];
 }
 
@@ -500,10 +505,10 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     TiBlob *blob;
     if([[self response] saveToFile]) {
-        blob = [[TiBlob alloc] initWithFile:[[self response] filePath]];
+        blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[[self response] filePath]];
     } else {
         NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];
-        blob = [[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType];
+        blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andData:[[self response] responseData] mimetype:contentType];
     }
     return [blob autorelease];
 }

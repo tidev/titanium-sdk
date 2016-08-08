@@ -339,6 +339,10 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 			});
 		}
 
+		if (goodValues.mobileweb) {
+			logger.warn(__('MobileWeb platform has been deprecated and will be removed in 7.0.0.'));
+		}
+
 		callback(null, Object.keys(goodValues).join(','));
 	}
 
@@ -453,8 +457,8 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 		}
 
 		// check if the project already exists
-		if (cli.argv.name && !cli.argv.force && workspaceDir) {
-			var projectDir = path.join(workspaceDir, cli.argv.name);
+		if (cli.argv.name && !cli.argv.force && dir) {
+			var projectDir = path.join(dir, cli.argv.name);
 			if (fs.existsSync(projectDir)) {
 				logger.error(__('Project already exists: %s', projectDir));
 				logger.error(__('Either change the project name, workspace directory, or re-run this command with the --force flag.') + '\n');
@@ -495,7 +499,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
-	var template = this.cli.argv.template || 'default',
+	var template = this.cli.argv.template = this.cli.argv.template || 'default',
 		builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template),
 		searchPaths = [],
 		additionalPaths = this.config.get('paths.templates'),

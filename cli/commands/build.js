@@ -36,7 +36,7 @@ exports.title = __('Build');
 exports.desc = __('builds a project');
 exports.extendedDesc = __('Builds an existing app or module project.');
 
-exports.config = function (logger, config, cli) {
+exports.config = function config(logger, config, cli) {
 	fields.setup({ colors: cli.argv.colors });
 
 	// start patching the logger here
@@ -44,6 +44,8 @@ exports.config = function (logger, config, cli) {
 
 	return function (finished) {
 		cli.createHook('build.config', function (callback) {
+			// note: it's currently impossible for the module build to declare any
+			// config options/flags.
 			ti.platformOptions(logger, config, cli, 'build', function (platformConf) {
 				var conf = {
 					flags: {
@@ -142,10 +144,14 @@ exports.config = function (logger, config, cli) {
 
 									var manifest = cli.manifest = ti.loadModuleManifest(logger, path.join(projectDir, 'manifest'));
 
-									timodule.properties || (timodule.properties = {});
+									// if they didn't explicitly set --platform and we have a platform in the manifest,
+									// then just use that and skip the platform prompting
+									if (!cli.argv.platform && manifest.platform) {
+										cli.argv.platform = ti.resolvePlatform(manifest.platform);
+										conf.options.platform.required = false;
+									}
 
-									// make sure the module manifest is sane
-									ti.validateModuleManifest(logger, cli, manifest);
+									timodule.properties || (timodule.properties = {});
 
 									cli.argv.type = 'module';
 
@@ -153,6 +159,8 @@ exports.config = function (logger, config, cli) {
 									// neither app nor module
 									return;
 								}
+
+								cli.scanHooks(path.join(projectDir, 'hooks'));
 
 								return projectDir;
 							},
@@ -227,9 +235,12 @@ exports.config = function (logger, config, cli) {
 	};
 };
 
-exports.validate = function (logger, config, cli) {
+exports.validate = function validate(logger, config, cli) {
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
+
+		// make sure the module manifest is sane
+		ti.validateModuleManifest(logger, cli, cli.manifest);
 
 		return function (finished) {
 			logger.log.init(function () {
@@ -273,16 +284,15 @@ exports.validate = function (logger, config, cli) {
 	}
 };
 
-exports.run = function (logger, config, cli, finished) {
-
-	var buildFile = (cli.argv.type === 'module') ? '_buildModule.js' :'_build.js',
+exports.run = function run(logger, config, cli, finished) {
+	var buildFile = cli.argv.type === 'module' ? '_buildModule.js' :'_build.js',
 		platform = ti.resolvePlatform(cli.argv.platform),
 		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile),
 		counter = 0;
 
 	if (!fs.existsSync(buildModule)) {
 		logger.error(__('Unable to find platform specific build command') + '\n');
-		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk update --force --default').cyan) + '\n');
+		logger.log(__("Your SDK installation may be corrupt. You can reinstall it by running '%s'.", (cli.argv.$ + ' sdk install --force --default').cyan) + '\n');
 		process.exit(1);
 	}
 
@@ -400,7 +410,7 @@ function patchLogger(logger, cli) {
 		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0766);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'ascii', 'mode': 0666 });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'utf8', 'mode': 0666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;

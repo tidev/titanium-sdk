@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef TI_USE_AUTOLAYOUT
+
 #import "TiLayoutQueue.h"
 #import "TiViewProxy.h"
 #import <CoreFoundation/CoreFoundation.h>
@@ -118,3 +120,5 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 }
 
 @end
+
+#endif

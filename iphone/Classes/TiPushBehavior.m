@@ -75,10 +75,11 @@
 {
     for (TiViewProxy* theItem in _items) {
         CGPoint center = [[theItem view] center];
-        
+#ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint* constraint = [theItem layoutProperties];
         constraint->centerX = TiDimensionDip(center.x);
         constraint->centerY = TiDimensionDip(center.y);
+#endif
     }
 }
 

@@ -24,10 +24,6 @@ description: |
     of the Analytics product. There is no plan to support the other event types, and they 
     should not be used.
 
-    See also [Ti
-    Analytics](http://docs.appcelerator.com/platform/latest/#!/guide/Ti_Analytics)
-    in the Titanium Mobile Guides.
-
 extends: Titanium.Module
 # technically these methods exist, but they serve no purpose and confuse the doc.
 excludes: { methods: [ addEventListener, applyProperties, fireEvent, removeEventListener ] }
@@ -59,7 +55,17 @@ methods:
         default: null
 
   - name: featureEvent
+    returns:
+      type: Number
+      summary: It returns 0 if it is successful. Otherwise, it is an error.
     summary: Sends a feature event for this application session.
+    description: |
+      From version "6.0.0", the JSON that is being sent will be validated. The JSON can have
+      a maximum of 5 nested levels, 1000 serialised byte length, 25 keys per level and key length
+      of up to 50 characters.
+
+      If this is successful, you will get a return number of 0. -1 is returned if it is a JSON
+      Validation error. -2 is returned if Analytics is disabled.
     parameters:
 
       - name: name
@@ -68,8 +74,7 @@ methods:
 
       - name: data
         summary: |
-            Extra data related to the event, **not displayed in Analytics UI**. 
-            The object must be serializable as JSON.
+            Extra data related to the event. Must be serializable as JSON.
         type: Object
         optional: true
         default: null
@@ -181,7 +186,6 @@ methods:
         optional: true
         default: null
 
-
 properties:
   - name: lastEvent
     summary: JSON representation of the last analytics event generated.
@@ -200,8 +204,8 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature.blah');
+            Titanium.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
-        'app.feature.blah' event was generated. 
+        'app.feature' event was generated.
 

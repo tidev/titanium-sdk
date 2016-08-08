@@ -4,7 +4,7 @@
  * @module env
  *
  * @copyright
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -66,7 +66,7 @@ exports.detect = function detect(options, callback) {
 						results.issues.push({
 							id: 'IOS_SECURITY_EXECUTABLE_NOT_FOUND',
 							type: 'error',
-							message: __("Unable to find the 'security' executable") + '\n'
+							message: __("Unable to find the 'security' executable.") + '\n'
 								+ __('Please verify your system path.') + '\n'
 								+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
 						});
@@ -83,7 +83,7 @@ exports.detect = function detect(options, callback) {
 						results.issues.push({
 							id: 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND',
 							type: 'error',
-							message: __("Unable to find the 'xcode-select' executable") + '\n'
+							message: __("Unable to find the 'xcode-select' executable.") + '\n'
 								+ __('Perhaps Xcode is not installed, your Xcode installation is corrupt, or your system path is incomplete.')
 						});
 					} else {

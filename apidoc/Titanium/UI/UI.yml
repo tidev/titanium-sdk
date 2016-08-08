@@ -124,6 +124,10 @@ description:  |
 
     On Android, if you want to create a semi-transparent window, set the `opacity`
     property **before** opening the window.
+
+    On iOS, you can set a global tinting using <Titanium.UI.tintColor>. All child views will inherit
+    the tint color by default and are able to override the color using `tintColor` on their own views.
+    The default `tintColor` on iOS is the blue (system-color).
     
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
@@ -452,6 +456,19 @@ properties:
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LINE_BREAK
+    summary: |
+        Use with <Attribute.type> to wrap and truncate the text.
+    description: |
+        Set <Attribute.value> to a `Titanium.UI.ATTRIBUTE_LINE_BREAK_*` constant.
+
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
         Use with <Attribute.value> to not draw a line.
@@ -674,10 +691,95 @@ properties:
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+    summary: |
+        Use with <Attribute.value> to wrap words at word boundaries.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+    summary: |
+        Use with <Attribute.value> to set lines to not draw past the edge of the text container.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the beginning of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the middle of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
+  - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+    summary: |
+        Use with <Attribute.value> to use ellipsis glyph at the end of the line for missing text.
+    description: |
+        Use this constant when <Attribute.type> is
+        <Titanium.UI.ATTRIBUTE_LINE_BREAK>.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "5.0.0"
+    osver: {ios: {min: "7.0"}}
+    permission: read-only
+
   - name: AUTODETECT_ADDRESS
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -688,6 +790,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        removed: "6.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -697,6 +800,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
     osver: {ios: {min: "4.0"}}
@@ -707,6 +811,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -716,6 +821,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
+        removed: "6.0.0"
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
@@ -725,6 +831,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        removed: "6.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -836,6 +943,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_CLEAR> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -846,6 +954,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -856,6 +965,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_BURN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -866,6 +976,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_DODGE> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -876,6 +987,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_COPY> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -886,6 +998,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DARKEN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -896,6 +1009,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_ATOP> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -906,6 +1020,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_IN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -916,6 +1031,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -926,6 +1042,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OVER> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -936,6 +1053,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_DIFFERENCE> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -946,6 +1064,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_EXCLUSION> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -956,6 +1075,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_HARD_LIGHT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -966,6 +1086,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_HUE> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -976,6 +1097,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_LIGHTEN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -986,6 +1108,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_LUMINOSITY> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -996,6 +1119,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_MULTIPLY> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1006,6 +1130,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_NORMAL> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1016,6 +1141,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_OVERLAY> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1026,6 +1152,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_DARKER> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1036,6 +1163,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_LIGHTER> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1046,6 +1174,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SATURATION> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1056,6 +1185,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SCREEN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1066,6 +1196,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOFT_LIGHT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1076,6 +1207,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_ATOP> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1086,6 +1218,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_IN> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1096,6 +1229,7 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
@@ -1106,19 +1240,47 @@ properties:
     deprecated:
         since: "1.8.0"
         notes: Use <Titanium.UI.iOS.BLEND_MODE_XOR> instead.
+        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   
+  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+    summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+    summary: Add ellipses before the first character that doesnt fit.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
+    summary: Lines are simply not drawn past the edge of the text container.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
     summary: Add ellipses at the beginning of the label if the text is too large to fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
@@ -1127,7 +1289,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_END
@@ -1136,7 +1298,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "4.1.0"
     
   - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
@@ -1148,6 +1310,15 @@ properties:
     platforms: [android]
     since: "4.1.0"
     
+  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+    summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
+    description: |
+        One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.0.0"
+        
   - name: EXTEND_EDGE_TOP
     summary: Specifies that the top edge of the window can extend.
     description: |
@@ -1315,19 +1486,53 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+
+  - name: INPUT_TYPE_CLASS_NUMBER
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout. Accepts only numbers.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: INPUT_TYPE_CLASS_TEXT
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.inputType> properties. This overrides any changes <Titanium.UI.TextField.keyboardType>
+        does to the inputType of the Android device.
+    type: Number
+    permission: read-only
+    platforms: [android]
     
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.
     type: Number
     permission: read-only
+    deprecated:
+        since: "5.4.0"
     platforms: [iphone, ipad]
-    
+
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    
+
+  - name: KEYBOARD_APPEARANCE_DARK
+    summary: Use the platform-specific dark keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_APPEARANCE_LIGHT
+    summary: Use the platform-specific light keyboard appearance.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
     description: |
@@ -1336,6 +1541,9 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_ASCII> instead.
 
   - name: KEYBOARD_DECIMAL_PAD
     summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
@@ -1347,6 +1555,9 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD> instead.
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -1355,7 +1566,10 @@ properties:
         properties.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_DEFAULT> instead.
+
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
     description: |
@@ -1363,10 +1577,13 @@ properties:
         properties.
         
         Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
-        overridden with `KEYBOARD_DEFAULT`.
+        overridden with `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_EMAIL> instead.
+
   - name: KEYBOARD_NAMEPHONE_PAD
     summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
     description: |
@@ -1375,7 +1592,10 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD> instead.
+
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
     description: |
@@ -1384,7 +1604,10 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION> instead.
+
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only, with the pad keyboard layout.
     description: |
@@ -1394,10 +1617,13 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD> instead.
+
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
     description: |
@@ -1407,31 +1633,163 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_PHONE_PAD> instead.
+
   - name: KEYBOARD_URL
-    summary: Use an keyboard optimized for entering URLs, with the standard keyboard layout.
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
         
         On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
-        `KEYBOARD_DEFAULT`.
+        `KEYBOARD_TYPE_DEFAULT`.
     type: Number
     permission: read-only
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.KEYBOARD_TYPE_URL> instead.
+
+  - name: KEYBOARD_TYPE_DECIMAL_PAD
+    type: Number
+    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_DEFAULT>.
+        type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_ASCII
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_DEFAULT
+    summary: Use the default keyboard, depending on the platform.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_EMAIL
+    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        Note: on Mobile Web, if you enable `passwordType`, the `keyboardType` value will be
+        overridden with `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NAMEPHONE_PAD
+    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
+    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_NUMBER_PAD
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_PHONE_PAD
+    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION>.
+
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_WEBSEARCH
+    summary: Use a keyboard optimized for web search terms and URL entry.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties. This type features the space and . characters prominently.
+
+        Note: This keyboard automatically sets the return key to "Go" (localized).
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_TWITTER
+    summary: Use a keyboard optimized for twitter text entry, with easy access to the @ and # characters.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "5.2.0"
+
+  - name: KEYBOARD_TYPE_URL
+    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
+    description: |
+        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
+        properties.
+
+        On Mobile Web, if you enable `passwordType`, the `keyboardType` value will be overridden with
+        `KEYBOARD_TYPE_DEFAULT`.
+    type: Number
+    permission: read-only
+    since: "5.2.0"
+
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
     description: |
         One of the group of orientation constants for the <Titanium.Gesture> module,
-        <Titanium.UI.PORTRAIT>, 
-        <Titanium.UI.UPSIDE_PORTRAIT>, 
-        <Titanium.UI.LANDSCAPE_LEFT>, 
-        <Titanium.UI.LANDSCAPE_RIGHT>, 
-        <Titanium.UI.FACE_UP>, 
-        <Titanium.UI.FACE_DOWN>, 
+        <Titanium.UI.PORTRAIT>,
+        <Titanium.UI.UPSIDE_PORTRAIT>,
+        <Titanium.UI.LANDSCAPE_LEFT>,
+        <Titanium.UI.LANDSCAPE_RIGHT>,
+        <Titanium.UI.FACE_UP>,
+        <Titanium.UI.FACE_DOWN>,
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
@@ -1593,7 +1951,21 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    
+
+  - name: RETURNKEY_CONTINUE
+    summary: Set the return key text to "Continue".
+    description: |
+        Use with the <Titanium.UI.TextField.returnKeyType> and
+        <Titanium.UI.TextArea.returnKeyType> properties.
+
+        Note: This constant is only available on iOS devices running iOS 9 or later. Older iOS
+        devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "5.2.0"
+
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
     description: |
@@ -1702,7 +2074,21 @@ properties:
     type: String
     permission: read-only
     since: "2.0.0"
-    
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
+    summary: The row divider is hidden.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
+  - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
+    summary: The row divider is shown as a single line.
+    type: Number
+    platforms: [iphone, ipad, android]
+    since: "5.2.0"
+    permission: read-only
+
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     description: |
@@ -1831,7 +2217,47 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
-    
+
+  - name: TEXT_STYLE_CALLOUT
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+   
+  - name: TEXT_STYLE_TITLE1
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE2
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
+  - name: TEXT_STYLE_TITLE3
+    summary: Specifies the text style for the <Font> Object.
+    description: |
+        One of the group of textStyle constants for the <Font> Object.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "9.0"}}
+    since: "6.0.0"
+
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     description: |
@@ -2060,6 +2486,14 @@ properties:
         notes: Use <Titanium.UI.Window.orientationModes> instead.
     type: Number
     platforms: [android, iphone, ipad]
+
+  - name: tintColor
+    summary: |
+        Sets the global tint color of the application. It is inherited by the child views and can be
+        overwritten by them using the `tintColor` property.
+    type: String
+    since: "6.0.0"
+    platforms: [iphone, ipad]
 
 examples:
   - title: Color Demo

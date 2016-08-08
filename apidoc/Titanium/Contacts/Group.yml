@@ -12,7 +12,9 @@ methods:
     summary: Adds a person to this group.
     parameters:
       - name: person
-        summary: Person to add.
+        summary: |
+            Person to add. For >= iOS9, it is not required to
+            call <Titanium.Contacts.save> after calling this method.
         type: Titanium.Contacts.Person
         
   - name: members
@@ -22,7 +24,9 @@ methods:
     platforms: [android, iphone, ipad]
     
   - name: remove
-    summary: Removes a person from this group.
+    summary: |
+        Removes a person from this group. For >= iOS9, it is not
+        required to call <Titanium.Contacts.save> after calling this method.
     parameters:
       - name: person
         summary: Person to remove.

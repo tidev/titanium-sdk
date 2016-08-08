@@ -131,8 +131,6 @@ if ([self propertyExists:key] && [ [self.defaultsObject objectForKey:key] isEqua
     return;\
 }\
 
-
-
 -(void)setBool:(id)args
 {
 	SETPROP
@@ -193,11 +191,13 @@ if ([self propertyExists:key] && [ [self.defaultsObject objectForKey:key] isEqua
 	[self.defaultsObject synchronize];
 }
 
--(void)removeAllProperties {
+-(void)removeAllProperties:(id)unused
+{
 	NSArray *keys = [[self.defaultsObject dictionaryRepresentation] allKeys];
 	for(NSString *key in keys) {
 		[self.defaultsObject removeObjectForKey:key];
 	}
+	[self.defaultsObject synchronize];
 }
 
 -(id)hasProperty:(id)args
@@ -206,7 +206,7 @@ if ([self propertyExists:key] && [ [self.defaultsObject objectForKey:key] isEqua
     return NUMBOOL([self propertyExists:[TiUtils stringValue:args]]);
 }
 
--(id)listProperties:(id)args
+-(id)listProperties:(id)unused
 {
     NSMutableArray *array = [NSMutableArray array];
     [array addObjectsFromArray:[[self.defaultsObject dictionaryRepresentation] allKeys]];

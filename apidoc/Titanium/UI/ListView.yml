@@ -161,24 +161,32 @@ description: |
 
     #### Editing Support (iOS)
 
-    Editing a list view through user initiated actions is supported through the following properties.
+    Editing a ListView through user initiated actions is supported through the following properties.
 
     - **ListItem properties**:
 
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted 
-          from the List View through a user initiated action. The item can only be deleted when the List View is 
+          from the ListView through a user initiated action. The item can only be deleted when the ListView is 
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
           property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
           is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
-          property of the listItem. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
-          In this scenario the listview does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
-          and the developer is free to update the listview as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+          property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
+          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [editaction](Titanium.UI.ListView.editaction) event is fired
+          and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
+
+        - [canInsert](Titanium.UI.ListItem.canInsert) - When this is set to true, it allows the item to insert a new item to the
+          ListView through a user initiated action. A new item can only be inserted when the ListView is
+          in editing mode. The ListView can enter 'editing' mode by explicitly setting the [editing](Titanium.UI.ListView.editing)
+          property to true. When the user clicks on the '+' sign of the item, an [insert](Titanium.UI.ListView.insert) event is fired.
+          Note: A new item is not inserted automatically when clicking on the '+' sign to let you decide the way to insert a new item.
+          You can use any inserting method of [Ti.UI.ListSection](Titanium.UI.ListSection), for example [insertItemsAt](Titanium.UI.ListSection.insertItemsAt)
+          and [appendItems](Titanium.UI.ListSection.appendItems).
 
         - [canMove](Titanium.UI.ListItem.canMove) - When this item is set to true, it allows the item to be moved
-          to a different location within the List View. The item can only be moved when the List View is put in 
+          to a different location within the ListView. The item can only be moved when the ListView is put in 
           editing mode by explicitly setting the [editing](Titanium.UI.ListView.editing) property to true. When the 
           user moves an item, a [move](Titanium.UI.ListView.move) event is fired.
 
@@ -280,6 +288,62 @@ events:
         summary: The item ID bound to the list item that generated the event.
         type: String
 
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+        
+  - name: insert
+    summary: Fired when a list row is inserted by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
+        before the user action.
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: section
+        summary: List section from which the item is deleted.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: dragstart
+    summary: Fired when the user starts dragging the list view.
+    description: |
+        Different to the `pull` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
+        is specified and the user drags inside the list view.
+    platforms: [iphone, ipad]
+    since: 5.2.0
+    properties:
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: dragend
+    summary: Fired when the user stops dragging the list view.
+    description: |
+        Different to the `pullend` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
+        is specified and the user drags inside the list view.
+    platforms: [iphone, ipad]
+    since: 5.2.0
+    properties:
       - name: bubbles
         summary: false. This event does not bubble.
         type: Boolean
@@ -398,6 +462,53 @@ events:
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
     platforms: [iphone, ipad]
+    since: 5.0.0
+    osver: {ios: {min: "8.0"}}
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: identifier
+        summary: |
+            The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+            if previously defined. Available in Titanium 6.0.0 and later.
+        type: String
+
+      - name: section
+        summary: List section from which the event was generated.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bubbles
+        summary: false. This event does not bubble.
+        type: Boolean
+
+  - name: rowAction
+    deprecated:
+        since: 5.0.0
+        removed: 5.0.0
+        notes: Use <Titanium.UI.ListView.editaction> instead.
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event.
+
+        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
+        before the user action.
+    platforms: [iphone, ipad]
     since: 4.1.0
     osver: {ios: {min: "8.0"}}
     properties:
@@ -493,8 +604,32 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-properties:
+  - name: scrolling
+    summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire while the list view is scrolling and the user releases the finger.
+        No event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
+        `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi). 
+        When `direction` is `down`, `velocity` is negative and viceversa. 
 
+    platforms: [iphone, ipad]
+    since: 5.4.0
+    properties:
+      - name: direction
+        summary: Direction of the scroll either 'up', or 'down'.
+        type: String
+
+      - name: velocity
+        summary: The velocity of the scroll in scale factor per second
+        type: Number
+
+      - name: targetContentOffset
+        summary: |
+           The expected y axis offset when the scrolling action decelerates to a stop. 
+        type: Number
+
+
+properties:
   - name: allowsSelection
     summary: Determines whether this item can be selected.
     description: |
@@ -515,6 +650,15 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad]
 
+  - name: disableBounce
+    summary: Determines whether the scroll-bounce of the list view should be disabled.
+    description: |
+        Set to `true` to disable the vertical bounce.        
+    type: Boolean
+    default: false
+    since: 5.4.0
+    platforms: [iphone, ipad]
+
   - name: editing
     summary: Determines if the list view is currently in editing mode.
     description: |
@@ -522,6 +666,25 @@ properties:
     type: Boolean
     default: false
     since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: allowsSelectionDuringEditing
+    summary: Determines whether this list View rows can be selected while editing the table.
+    type: Boolean
+    default: false
+    since: "5.4.0"
+    platforms: [iphone, ipad]
+
+  - name: lazyLoadingEnabled
+    summary: Determines if the list view should use lazy loading to load remote images.
+    description: |
+        Lazy loading is used to load remote images only if they are in the visible view area. It is enabled
+        by default. If you disable it, images will be loaded even if they are currently not visible. Disabling
+        improves the loading of images, but can also cause trouble in list views having a lot of
+        remote images, because every remote image opens a new HTTP request.
+    default: true
+    type: Boolean
+    since: 5.1.0
     platforms: [iphone, ipad]
 
   - name: pruneSectionsOnEdit
@@ -711,6 +874,14 @@ properties:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the list view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
+
   - name: sectionIndexTitles
     summary: Array of objects (with `title` and `index` properties) to control the list view index.
     description: |
@@ -723,8 +894,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: willScrollOnStatusTap
@@ -755,7 +926,6 @@ properties:
     description: |
         To make the line invisible, set this property to `transparent`, or the same value as the 
         [backgroundColor](Titanium.UI.ListView.backgroundColor) property. 
-        
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: platform-specific default color
@@ -764,10 +934,12 @@ properties:
 
   - name: separatorInsets
     summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
-        
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
     type: Dictionary
     since: 3.2.0
@@ -777,20 +949,82 @@ properties:
   - name: separatorStyle
     summary: Separator style constant. 
     type: Number
-    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
-    since: 3.2.0
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
+    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
+
     platforms: [iphone, ipad]
 
   - name: style
     summary: Style of the list view.
     description: Style should always be set before setting the sections on list view.
     type: Number
-    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
-    constants: Titanium.UI.iPhone.ListViewStyle.*
+    default: Titanium.UI.iOS.ListViewStyle.PLAIN
+    constants: Titanium.UI.iOS.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
 
+  - name: tableSeparatorInsets
+    deprecated:
+        since: "5.4.0"
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
+    summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
+ 
+        For example:
+ 
+             listView.setTableSeparatorInsets({
+                 left:10,
+                 right:10
+             });
 
+  
+    type: Dictionary
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: listSeparatorInsets
+    summary: The insets for the list view header and footer. This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. If the rowSeparatorInsets is not set, the listSeparatorInsets will also set the cell insets.
+ 
+        For example:
+ 
+             listView.setListSeparatorInsets({
+                 left:10,
+                 right:10
+             });
+
+  
+    type: Dictionary
+    since: "5.4.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: rowSeparatorInsets
+    summary: The insets for list view cells (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. This property is only available upon creation of the cells.
+ 
+        For example:
+ 
+             listView.setRowSeparatorInsets({
+                 left:10,
+                 right:10
+             });
+
+    type: Dictionary
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+    
 methods:
 
   - name: scrollToItem
@@ -1363,6 +1597,7 @@ examples:
                     </ListView>
                 </Window>
             </Alloy>
+
 ---
 name: ListViewAnimationProperties
 summary: |
@@ -1370,11 +1605,8 @@ summary: |
     sections or cells, or scrolling the list.
 description: |
     These properties are only used on iOS. Not all properties apply to all methods.
-
     `animationStyle` does not apply to the `scrollToItem` method.
-
     `positon` only applies to the `scrollToItem` method.
-
     Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
 platforms: [iphone, ipad, android]
 since: '3.1.0'
@@ -1383,22 +1615,20 @@ properties:
     summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
     type: Boolean
     default: true
-
   - name: animationStyle
     summary: Type of animation to use for cell insertions and deletions.
     type: Number
-    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    constants: Titanium.UI.iOS.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
-        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
-
+        [FADE](Titanium.UI.iOS.RowAnimationStyle.FADE).
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
-    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+    constants: Titanium.UI.iOS.ListViewScrollPosition.*
+    default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
----
+---      
 name: ListViewIndexEntry
 summary: A simple object that represents an index entry in a `ListView`.
 description: |
@@ -1409,7 +1639,6 @@ properties:
   - name: title
     summary: Title to display in the index bar.
     type: String
-    
   - name: index
     summary: Section index associated with this title.
     type: Number
@@ -1424,18 +1653,16 @@ description: |
         setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
 since: 3.2.0
 platforms: [iphone, ipad]
-
 properties:
   - name: animated
     summary: Determines whether the list view's content inset change is animated.
     type: Boolean
     default: false
-    
   - name: duration
     summary: The duration in `milliseconds` for animation while the content inset is  being changed.
     type: Number
 
----
+---     
 name: ListViewMarkerProps
 summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
 description: |
@@ -1445,12 +1672,10 @@ description: |
         addMarker({sectionIndex:7, itemIndex: 2});
 since: 3.2.0
 platforms: [iphone, ipad, android]
-
 properties:
   - name: sectionIndex
     summary: The sectionIndex of the reference item.
     type: Number
-    
   - name: itemIndex
     summary: The itemIndex of the reference item.
     type: Number
@@ -1466,7 +1691,6 @@ description: |
         setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
 since: 3.2.0
 platforms: [iphone, ipad]
-
 properties:
   - name: top
     summary: Value specifying the top insets for the enclosing scroll view of the list view.

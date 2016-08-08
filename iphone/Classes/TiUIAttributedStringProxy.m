@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #import "TiProxy.h"
 #import "TiUtils.h"
@@ -149,9 +149,8 @@
             break;
             
         case AttributeNameLink:
-            attrName = NSLinkAttributeName;
-            attrValue = [TiUtils stringValue:value];
-            break;
+            [self setLink:args];
+            return;
             
         case AttributeNameBaselineOffset:
             attrName = NSBaselineOffsetAttributeName;
@@ -176,6 +175,14 @@
         case AttributeNameExpansion:
             attrName = NSExpansionAttributeName;
             attrValue = [TiUtils numberFromObject:value];
+            break;
+            
+        case AttributeNameLineBreak:
+            attrName = NSParagraphStyleAttributeName;
+            NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+            NSNumber * num = [TiUtils numberFromObject:value];
+            [paragraphStyle setLineBreakMode:[num unsignedIntegerValue]];
+            attrValue = paragraphStyle;
             break;
 	}
 	if(errorMessage != nil) {
@@ -204,9 +211,48 @@
 	[_attributedString addAttribute:attrName value:attrValue range:rangeValue];
 }
 
+- (void)dealloc
+{
+    RELEASE_TO_NIL(_urls);
+    [super dealloc];
+}
+
 -(id)attributes
 {
 	return attributes;
+}
+
+-(void)setLink:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    
+    NSArray *range = [args valueForKey:@"range"];
+    NSRange rangeValue = NSMakeRange([TiUtils intValue:[range objectAtIndex:0]], [TiUtils intValue:[range objectAtIndex:1]]);
+    
+    [_attributedString addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:rangeValue];
+    [_attributedString addAttribute:NSUnderlineColorAttributeName value:[UIColor blueColor] range:rangeValue];
+    [_attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor] range:rangeValue];
+    
+    id temp = [args valueForKey:@"value"];
+    if (_urls == nil) {
+        _urls = [[NSMutableDictionary alloc] init];
+    }
+    [_urls setObject:[TiUtils stringValue:temp] forKey: NSStringFromRange(rangeValue)];
+    [attributes addObject: args];
+}
+
+-(NSString*)getLink:(NSUInteger)arg
+{
+    float tempIndx = ([[NSNumber numberWithUnsignedInteger: arg] floatValue]);
+    
+    for (NSString* key in _urls) {
+        NSRange range = NSRangeFromString(key);
+        CGFloat tempLenght = range.location + range.length;
+        if (range.location <= tempIndx && tempLenght >= tempIndx ) {
+            return [_urls valueForKey:key];
+       }
+    }
+    return nil;
 }
 
 -(void)setAttributes:(id)args

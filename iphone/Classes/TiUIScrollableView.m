@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,68 +19,201 @@
 
 #pragma mark Internal 
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
+#ifdef TI_USE_AUTOLAYOUT
+    RELEASE_TO_NIL(_scrollView);
+    RELEASE_TO_NIL(_dotsView);
+#else
 	RELEASE_TO_NIL(scrollview);
 	RELEASE_TO_NIL(pageControl);
+#endif
     RELEASE_TO_NIL(pageControlBackgroundColor);
+	RELEASE_TO_NIL(pageIndicatorColor);
+	RELEASE_TO_NIL(currentPageIndicatorColor);
 	[super dealloc];
 }
 
 -(id)init
 {
-	if (self = [super init]) {
+    if (self = [super init]) {
+#ifndef TI_USE_AUTOLAYOUT
         cacheSize = 3;
-        pageControlHeight=20;
-        pageControlBackgroundColor = [[UIColor blackColor] retain];
+#endif
+        pagingControlHeight=20;
+        pageControlBackgroundColor = nil;
+        pageIndicatorColor = nil;
+        currentPageIndicatorColor = nil;
+        pagingControlAlpha = 1.0;
         pagingControlOnTop = NO;
         overlayEnabled = NO;
-        pagingControlAlpha = 1.0;
         showPageControl = YES;
-	}
-	return self;
+    }
+    return self;
 }
 
--(void)initializerState
-{
-}
-
+#ifndef TI_USE_AUTOLAYOUT
 -(CGRect)pageControlRect
 {
 	
     if (!pagingControlOnTop) {
         CGRect boundsRect = [self bounds];
         return CGRectMake(boundsRect.origin.x, 
-                          boundsRect.origin.y + boundsRect.size.height - pageControlHeight,
+                          boundsRect.origin.y + boundsRect.size.height - pagingControlHeight,
                           boundsRect.size.width, 
-                          pageControlHeight);
+                          pagingControlHeight);
     }
     else {
         CGRect boundsRect = [self bounds];
         CGRect finalRect = CGRectMake(0,0,
                           boundsRect.size.width, 
-                          pageControlHeight);
+                          pagingControlHeight);
         return finalRect;
     }
     
 }
+#endif
 
 -(UIPageControl*)pagecontrol 
 {
-	if (pageControl==nil)
+#ifdef TI_USE_AUTOLAYOUT
+	if (_dotsView==nil)
 	{
+        _dotsView = [[UIPageControl alloc] init];
+        [_dotsView setBackgroundColor:pageControlBackgroundColor];
+        [_dotsView setPageIndicatorTintColor:pageIndicatorColor];
+        [_dotsView setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+        [_dotsView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [_dotsView addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
+        [super addSubview:_dotsView];
+    }
+    return _dotsView;
+#else
+    if (pageControl == nil) {
 		pageControl = [[UIPageControl alloc] initWithFrame:[self pageControlRect]];
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
 		[pageControl addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
 		[pageControl setBackgroundColor:pageControlBackgroundColor];
+		[pageControl setPageIndicatorTintColor:pageIndicatorColor];
+		[pageControl setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
 		[self addSubview:pageControl];
 	}
 	return pageControl;
+#endif
 }
+
+#ifdef TI_USE_AUTOLAYOUT
+-(UIView*)contentView
+{
+    if (_contentView == nil) {
+        _contentView = [[UIView alloc] init];
+        [_contentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    }
+    return _contentView;
+}
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (!_constraintAdded) {
+        _constraintAdded = YES;
+        _scrollView = [self scrollview];
+        _dotsView = [self pagecontrol];
+        _contentView = [self contentView];
+        NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);
+        [_scrollView addConstraints:TI_CONSTR(@"V:|[_contentView(_scrollView)]|", views)];
+        [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
+        NSString *dotsViewHeightConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pagingControlHeight];
+        [self addConstraints:TI_CONSTR(dotsViewHeightConstraints, views)];
+        [NSLayoutConstraint deactivateConstraints:[_dotsView constraints]];
+        [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
+        [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1 constant:0]];
+        [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+    }
+    
+    NSArray* children = [_contentView subviews];
+    NSUInteger length = [children count];
+    if (length != _childrenCount) {
+        _childrenCount = length;
+        for (NSUInteger index = 0; index < length; index++)
+        {
+            TiLayoutView* child = [children objectAtIndex:index];
+            [TiLayoutView removeConstraints:_contentView fromChild:child];
+            
+            NSDictionary* views;
+            if (index == 0) {
+                views =  NSDictionaryOfVariableBindings(_contentView, child, _scrollView);
+                [_contentView addConstraints: TI_CONSTR(@"H:|[child]", views)];
+            } else {
+                UIView *prev = [children objectAtIndex:index-1];
+                views =  NSDictionaryOfVariableBindings(_contentView, child, prev, _scrollView);
+                [_contentView addConstraints: TI_CONSTR(@"H:[prev][child]", views)];
+                
+            }
+            
+            if (index == length-1) {
+                [_contentView addConstraints:TI_CONSTR(@"H:[child]|", views)];
+            }
+            [_contentView addConstraints:TI_CONSTR(@"V:|[child]|", views)];
+            [_scrollView addConstraints:TI_CONSTR(@"H:[child(_scrollView)]", views)];
+            
+        }
+    }
+    [_dotsView setNumberOfPages:length];
+    [_dotsView setCurrentPage: _currentPage];
+
+    [_scrollView setContentOffset:CGPointMake(_currentPage * self.frame.size.width, 0) animated:NO];
+}
+
+#define WRAP_TI_VIEW(view) \
+TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
+[wrapperView setViewName: TI_STRING(@"scrollable.wrapper.view%lu", (unsigned long)[[self subviews] count])]; \
+[wrapperView addSubview:view]; \
+
+
+-(void)removeSubview:(nonnull UIView *)view
+{
+    [[view superview] removeFromSuperview];
+}
+
+-(void)addSubview:(nonnull UIView *)view
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] addSubview:wrapperView];
+}
+
+-(void)insertSubview:(UIView *)view aboveSubview:(UIView *)siblingSubview
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView aboveSubview:siblingSubview];
+}
+
+-(void)insertSubview:(UIView *)view atIndex:(NSInteger)index
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView atIndex:index];
+}
+-(void)insertSubview:(UIView *)view belowSubview:(UIView *)siblingSubview
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView belowSubview:siblingSubview];
+}
+#endif
 
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event 
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = _scrollView;
+#endif
     id value = [self.proxy valueForKey:@"hitRect"];
 
     if (value != nil) 
@@ -112,8 +245,22 @@
 
 -(UIScrollView*)scrollview 
 {
-	if (scrollview==nil)
-	{
+#ifdef TI_USE_AUTOLAYOUT
+	if (_scrollView==nil)
+	{        
+        _scrollView = [[UIScrollView alloc] init];
+        [_scrollView setDelegate:self];
+        [_scrollView setPagingEnabled:YES];
+        [_scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [_scrollView setShowsHorizontalScrollIndicator:NO];
+        [_scrollView setShowsVerticalScrollIndicator:NO];
+        [_scrollView addSubview:[self contentView]];
+        [super addSubview:_scrollView];
+    }
+    return _scrollView;
+#else
+    if (scrollview==nil)
+    {
 		scrollview = [[UIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[scrollview setPagingEnabled:YES];
@@ -133,20 +280,27 @@
         }
 	}
 	return scrollview;
+#endif
 }
 
 -(void)refreshPageControl
 {
-	if (showPageControl)
-	{
-		UIPageControl *pg = [self pagecontrol];
-		[pg setFrame:[self pageControlRect]];
+    if (showPageControl)
+    {
+        UIPageControl *pg = [self pagecontrol];
+#ifdef TI_USE_AUTOLAYOUT
+        NSInteger currentPage = _currentPage;
+#else
+        [pg setFrame:[self pageControlRect]];
+#endif
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
-		pg.currentPage = currentPage;
-        pg.alpha = pagingControlAlpha;
-        pg.backgroundColor = pageControlBackgroundColor;
-	}	
+        [pg setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+        [pg setPageIndicatorTintColor:pageIndicatorColor];
+        [pg setAlpha:pagingControlAlpha];
+        [pg setCurrentPage:currentPage];
+        [pg setBackgroundColor:pageControlBackgroundColor];
+    }
 }
 
 -(void)renderViewForIndex:(int)index
@@ -179,6 +333,7 @@
     }
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(NSRange)cachedFrames:(NSInteger)page
 {
     NSInteger startPage;
@@ -234,7 +389,7 @@
         }
     }
 }
-
+#endif
 -(void)listenerAdded:(NSString*)event count:(int)count
 {
     [super listenerAdded:event count:count];
@@ -261,6 +416,10 @@
 
 -(NSInteger)currentPage
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIScrollView* scrollview = [self scrollview];
+	NSInteger currentPage = _currentPage;
+#endif
 	NSInteger result = currentPage;
     if (scrollview != nil) {
         CGPoint offset = [[self scrollview] contentOffset];
@@ -271,26 +430,29 @@
             }
 		}
     }
-	[pageControl setCurrentPage:result];
+#ifdef TI_USE_AUTOLAYOUT
+	[[self pagecontrol] setCurrentPage:result];
+#endif	
     return result;
 }
 
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
 {
+#ifndef TI_USE_AUTOLAYOUT
 	CGRect viewBounds;
 	viewBounds.size.width = visibleBounds.size.width;
-	viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
+	viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pagingControlHeight : 0);
     if(overlayEnabled && showPageControl ) {
         viewBounds.size.height = visibleBounds.size.height;
         viewBounds.origin = CGPointMake(0, 0);
     }
     else {
-        viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
+        viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pagingControlHeight : 0);
         if(!pagingControlOnTop){
             viewBounds.origin = CGPointMake(0, 0);
         }
         else {
-            viewBounds.origin = CGPointMake(0, pageControlHeight);
+            viewBounds.origin = CGPointMake(0, pagingControlHeight);
         }
     }
 	UIScrollView *sv = [self scrollview];
@@ -335,12 +497,13 @@
 	
 	CGSize contentBounds;
 	contentBounds.width = viewBounds.size.width*viewsCount;
-	contentBounds.height = viewBounds.size.height-(showPageControl ? pageControlHeight : 0);
+	contentBounds.height = viewBounds.size.height-(showPageControl ? pagingControlHeight : 0);
 	
 	[sv setContentSize:contentBounds];
 	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
+#endif
 }
-
+#ifndef TI_USE_AUTOLAYOUT
 // We have to cache the current page because we need to scroll to the new (logical) position of the view
 // within the scrollable view.  Doing so, if we're resizing to a SMALLER frame, causes a content offset
 // reset internally, which screws with the currentPage number (since -[self scrollViewDidScroll:] is called).
@@ -359,7 +522,6 @@
     lastPage = [self currentPage];
     [super setBounds:bounds_];
 }
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
 	if (!CGRectIsEmpty(visibleBounds))
@@ -378,11 +540,12 @@
     
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
-
+#endif
 #pragma mark Public APIs
 
 -(void)setCacheSize_:(id)args
 {
+#ifndef TI_USE_AUTOLAYOUT
     ENSURE_SINGLE_ARG(args, NSNumber);
     int newCacheSize = [args intValue];
     if (newCacheSize < 3) {
@@ -395,8 +558,10 @@
     }
     cacheSize = newCacheSize;
     [self manageCache:[self currentPage]];
+#endif
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)setViews_:(id)args
 {
 	if ((scrollview!=nil) && ([scrollview subviews]>0))
@@ -404,20 +569,32 @@
 		[self refreshScrollView:[self bounds] readd:YES];
 	}
 }
+#endif
 
 -(void)setShowPagingControl_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIScrollView* scrollview = [self scrollview];
+	UIPageControl* pageControl = [self pagecontrol];
+#endif
 	showPageControl = [TiUtils boolValue:args];
     
 	if (pageControl!=nil)
 	{
 		if (showPageControl==NO)
 		{
+#ifndef TI_USE_AUTOLAYOUT
 			[pageControl removeFromSuperview];
 			RELEASE_TO_NIL(pageControl);
-		}
+        }
+#else
+            [_dotsView setHidden:YES];
+        } else {
+            [_dotsView setHidden:NO];
+        }
+#endif
 	}
-	
+
     if ((scrollview!=nil) && ([[scrollview subviews] count]>0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
@@ -427,10 +604,13 @@
 
 -(void)setPagingControlHeight_:(id)args
 {
-	pageControlHeight = [TiUtils floatValue:args def:20.0];
-	if (pageControlHeight < 5.0)
+#ifdef TI_USE_AUTOLAYOUT
+	UIScrollView* scrollview = [self scrollview];
+#endif
+	pagingControlHeight = [TiUtils floatValue:args def:20.0];
+	if (pagingControlHeight < 5.0)
 	{
-		pageControlHeight = 20.0;
+		pagingControlHeight = 20.0;
 	}
     
     if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
@@ -439,15 +619,11 @@
     }
 }
 
--(void)setPageControlHeight_:(id)arg
-{
-	// for 0.8 backwards compat, renamed all for consistency
-     DEPRECATED_REPLACED(@"ScrollableView.PageControlHeight()", @"2.1.0", @"Ti.ScrollableView.PagingControlHeight()");
-	[self setPagingControlHeight_:arg];
-}
-
 -(void)setPagingControlColor_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     TiColor* val = [TiUtils colorValue:args];
     if (val != nil) {
         RELEASE_TO_NIL(pageControlBackgroundColor);
@@ -457,12 +633,45 @@
         }
     }
 }
+-(void)setPageIndicatorColor_:(id)args
+{
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(pageIndicatorColor);
+        pageIndicatorColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setPageIndicatorTintColor:pageIndicatorColor];
+        }
+    }
+}
+
+-(void)setCurrentPageIndicatorColor_:(id)args
+{
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
+    TiColor* val = [TiUtils colorValue:args];
+    if (val != nil) {
+        RELEASE_TO_NIL(currentPageIndicatorColor);
+        currentPageIndicatorColor = [[val _color] retain];
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+            [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+        }
+    }
+}
+
 -(void)setPagingControlAlpha_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     pagingControlAlpha = [TiUtils floatValue:args def:1.0];
     if(pagingControlAlpha > 1.0){
         pagingControlAlpha = 1;
-    }    
+    }
     if(pagingControlAlpha < 0.0 ){
         pagingControlAlpha = 0;
     }
@@ -471,9 +680,13 @@
     }
     
 }
+
 -(void)setPagingControlOnTop_:(id)args
 {
-    pagingControlOnTop = [TiUtils boolValue:args def:NO];
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
+   pagingControlOnTop = [TiUtils boolValue:args def:NO];
     if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
@@ -482,6 +695,9 @@
 
 -(void)setOverlayEnabled_:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     overlayEnabled = [TiUtils boolValue:args def:NO];
     if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
         //No need to readd. Just set up the correct frame bounds
@@ -491,11 +707,21 @@
 
 -(void)addView:(id)viewproxy
 {
+#ifndef TI_USE_AUTOLAYOUT
 	[self refreshScrollView:[self bounds] readd:YES];
+#else
+	[self addSubview:[viewproxy view]];
+	[self layoutSubviews];
+	[self refreshPageControl];
+#endif
 }
 
 -(void)removeView:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIPageControl* pageControl = [self pagecontrol];
+	NSInteger currentPage = _currentPage;
+#endif
 	NSInteger page = [self currentPage];
 	NSUInteger pageCount = [[self proxy] viewCount];
 	if (page==pageCount)
@@ -504,11 +730,22 @@
 		[pageControl setCurrentPage:currentPage];
 		[self.proxy replaceValue:NUMINTEGER(currentPage) forKey:@"currentPage" notification:NO];
 	}
+#ifndef TI_USE_AUTOLAYOUT
 	[self refreshScrollView:[self bounds] readd:YES];
+#else
+	TiViewProxy *viewProxy = (TiViewProxy *)args;
+	[self removeSubview:[viewProxy view]];
+	[self refreshPageControl];
+#endif
 }
 
 
 -(void)setCurrentPage:(id)page animated:(NSNumber*)animate {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+    UIPageControl* pageControl = [self pagecontrol];
+    NSInteger currentPage = _currentPage;
+#endif
     int newPage = [TiUtils intValue:page];
     NSUInteger viewsCount = [[self proxy] viewCount];
     
@@ -516,7 +753,9 @@
         [scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:[animate boolValue]];
         currentPage = newPage;
         pageControl.currentPage = newPage;
+#ifndef TI_USE_AUTOLAYOUT
         [self manageCache:newPage];
+#endif
         [self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
     }
 }
@@ -541,6 +780,9 @@
 
 -(void)manageRotation
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+#endif
     if ([scrollview isDecelerating] || [scrollview isDragging]) {
         rotatedWhileScrolling = YES;
     }
@@ -550,13 +792,17 @@
 
 -(void)pageControlTouched:(id)sender
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIScrollView* scrollview = [self scrollview];
+	NSInteger currentPage = _currentPage;
+#endif
 	NSInteger pageNum = [(UIPageControl *)sender currentPage];
 	[scrollview setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
 	handlingPageControlEvent = YES;
-	
 	currentPage = pageNum;
+#ifndef TI_USE_AUTOLAYOUT
 	[self manageCache:currentPage];
-	
+#endif
 	[self.proxy replaceValue:NUMINTEGER(pageNum) forKey:@"currentPage" notification:NO];
 	
 	if ([self.proxy _hasListeners:@"click"])
@@ -570,6 +816,11 @@
 
 -(void)scrollViewDidScroll:(UIScrollView *)sender
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIScrollView* scrollview = [self scrollview];
+	UIPageControl* pageControl = [self pagecontrol];
+	NSInteger currentPage = _currentPage;
+#endif
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
     NSInteger page = currentPage;
@@ -584,6 +835,7 @@
 
 	}
     if (page != nextPage) {
+#ifndef TI_USE_AUTOLAYOUT
         NSInteger curCacheSize = cacheSize;
         NSInteger minCacheSize = cacheSize;
         if (enforceCacheRecalculation) {
@@ -594,26 +846,38 @@
         }
         pageChanged = YES;
         cacheSize = minCacheSize;
+#endif
         [pageControl setCurrentPage:nextPage];
         currentPage = nextPage;
         [self.proxy replaceValue:NUMINTEGER(currentPage) forKey:@"currentPage" notification:NO];
+#ifndef TI_USE_AUTOLAYOUT
         cacheSize = curCacheSize;
+#endif
     }
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     if (pageChanged) {
         [self manageCache:currentPage];
     }
 }
+#endif
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
+#ifdef TI_USE_AUTOLAYOUT
+    UIScrollView* scrollview = [self scrollview];
+    UIPageControl* pageControl = [self pagecontrol];
+#else
     //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
     if (pageChanged) {
+#endif
         [scrollview setUserInteractionEnabled:!decelerate];
+#ifndef TI_USE_AUTOLAYOUT
     }
+#endif
 }
 
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
@@ -624,15 +888,21 @@
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+#ifndef TI_USE_AUTOLAYOUT
     if (rotatedWhileScrolling) {
         CGFloat pageWidth = [self bounds].size.width;
         [[self scrollview] setContentOffset:CGPointMake(pageWidth * [self currentPage], 0) animated:YES];
         rotatedWhileScrolling = NO;
     }
-
 	// At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
 	NSInteger pageNum = [self currentPage];
 	handlingPageControlEvent = NO;
+#else
+    UIScrollView* scrollview = _scrollView;
+    UIPageControl* pageControl = _dotsView;
+    NSInteger pageNum = _currentPage;
+	NSInteger currentPage = _currentPage;
+#endif
 
 	[self.proxy replaceValue:NUMINTEGER(pageNum) forKey:@"currentPage" notification:NO];
 	
@@ -648,11 +918,18 @@
 													   NUMINTEGER(pageNum),@"currentPage",
 													   [[self proxy] viewAtIndex:pageNum],@"view",nil]]; 
 	}
+    [scrollview setUserInteractionEnabled:YES];
+#ifndef TI_USE_AUTOLAYOUT
+    pageChanged = NO;
 	currentPage=pageNum;
 	[self manageCache:currentPage];
-	pageChanged = NO;
-	[scrollview setUserInteractionEnabled:YES];
 	[pageControl setCurrentPage:pageNum];
+#else
+    currentPage=pageNum;
+    CGPoint contentOffset = [scrollView contentOffset];
+    _currentPage = ceil(contentOffset.x / self.frame.size.width);
+    [_dotsView setCurrentPage: _currentPage];
+#endif
 }
 
 @end

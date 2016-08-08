@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIOSTABBEDBAR) || defined(USE_TI_UITABBEDBAR)
+#ifdef USE_TI_UIIOSTABBEDBAR
 #import "TiUIiOSTabbedBarProxy.h"
 #import "TiUIButtonBar.h"
 
@@ -35,6 +35,7 @@
 USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_HEIGHT
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -43,6 +44,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 @end
 #endif

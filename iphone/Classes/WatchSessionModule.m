@@ -4,10 +4,54 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
 
 #import "WatchSessionModule.h"
 #import "TiUtils.h"
+#import "TiEvaluator.h"
+
+@interface WatchMessageCallback : NSObject
+{
+    id<TiEvaluator> context;
+    KrollCallback *callback;
+}
+-(id)initWithCallback:(KrollCallback*)callback context:(id<TiEvaluator>)context;
+@end
+
+@implementation WatchMessageCallback
+
+-(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
+{
+    //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
+    if (self = [super init])
+    {
+        callback = [callback_ retain];
+        context = [context_ retain];
+    }
+    return self;
+}
+-(void)dealloc
+{
+    RELEASE_TO_NIL(callback);
+    RELEASE_TO_NIL(context);
+    [super dealloc];
+}
+
+-(void)replySuccess:(NSDictionary*)replyMessage
+{
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    replyMessage,@"message",
+                                    NUMBOOL(YES),@"success",
+                                    NUMINT(0), @"code", nil];
+    [context fireEvent:callback withObject:event remove:NO thisObject:nil];
+}
+
+-(void)replyError:(NSError*)error
+{
+    NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+    [context fireEvent:callback withObject:event remove:NO thisObject:nil];
+}
+
+@end
 
 @implementation WatchSessionModule
 #pragma mark Titanium components
@@ -22,7 +66,7 @@
     if (watchSession == nil) {
         if ([WCSession isSupported]) {
             watchSession = [WCSession defaultSession];
-            watchSession.delegate = self;
+            [watchSession setDelegate:self];
             [watchSession activateSession];
         }
         else {
@@ -35,7 +79,7 @@
 -(void)dealloc
 {
     if (watchSession != nil) {
-        watchSession.delegate = nil;
+        [watchSession setDelegate:nil];
     }
     [super dealloc];
 }
@@ -51,7 +95,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isPaired]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -60,7 +104,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isWatchAppInstalled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -69,7 +113,7 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isComplicationEnabled]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
@@ -78,12 +122,52 @@
     if ([WCSession isSupported] == YES) {
         return NUMBOOL([[self watchSession] isReachable]);
     }
-    DebugLog(@"[ERROR] Target does not support watch connectivity");
+
     return NUMBOOL(NO);
 }
 
+-(NSNumber*)isActivated
+{
+    if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+        return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
+    }
+    return NUMBOOL(NO);
+}
+
+-(NSNumber*)hasContentPending
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMBOOL([[self watchSession] hasContentPending]);
+    }
+#endif
+    
+    return NUMBOOL(NO);
+}
+
+-(NSNumber*)remainingComplicationUserInfoTransfers
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+        return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
+    }
+#endif
+    
+    return NUMBOOL(0);
+}
+
+-(NSNumber*)activationState
+{
+    if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+        return [NSNumber numberWithInteger:[[self watchSession] activationState]];
+    }
+
+    DebugLog(@"[ERROR] Target does not support watch connectivity");
+    return nil;
+}
+
 //copy of most recent app context sent to watch
--(NSDictionary*)recentAppContext
+-(NSDictionary*)recentApplicationContext
 {
     if ([WCSession isSupported] == YES) {
         return [[self watchSession] applicationContext];
@@ -93,7 +177,12 @@
 }
 
 #pragma mark watch session methods
--(void)sendMessage:(id)value
+-(void)activateSession:(id)unused
+{
+    [self watchSession];
+}
+
+-(void)sendMessage:(id)args
 {
     if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
@@ -103,13 +192,23 @@
         DebugLog(@"[ERROR] No watch paired");
         return;
     }
-    ENSURE_SINGLE_ARG(value,NSDictionary)
-    id message = [value objectForKey:@"message"];
-    ENSURE_SINGLE_ARG(message, NSDictionary)
-    [[self watchSession] sendMessage:message replyHandler:nil errorHandler:nil];
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    NSDictionary *value = args;
+    KrollCallback *replyHandler = [value objectForKey:@"reply"];
+    if (replyHandler == nil) {
+        [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:nil errorHandler:nil];
+        return;
+    }
+    [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:^(NSDictionary<NSString *,id> * _Nonnull replyMessage) {
+        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        [wmc replySuccess:replyMessage];
+    } errorHandler:^(NSError * _Nonnull error) {
+        WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
+        [wmc replyError:error];
+    }];
 }
 //sent to watch so that it can update its state when it wakes
--(void)updateAppContext:(id)value
+-(void)updateApplicationContext:(id)value
 {
     if ([WCSession isSupported] == NO) {
         DebugLog(@"[ERROR] Target does not support watch connectivity");
@@ -120,10 +219,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id appContext = [value objectForKey:@"appContext"];
-    ENSURE_SINGLE_ARG(appContext, NSDictionary)
     NSError *error = nil;
-    if (![[self watchSession] updateApplicationContext:appContext error:&error]) {
+    if (![[self watchSession] updateApplicationContext:value error:&error]) {
         [self throwException:[NSString stringWithFormat:@"Unable to update Application Context: %@",[TiUtils messageFromError:error]]
                    subreason:nil
                     location:CODELOCATION];
@@ -142,10 +239,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id userInfo = [value objectForKey:@"userInfo"];
-    ENSURE_SINGLE_ARG(userInfo, NSDictionary)
     
-    [[self watchSession] transferUserInfo:userInfo];
+    [[self watchSession] transferUserInfo:value];
 }
 
 //sent in background
@@ -181,10 +276,8 @@
         return;
     }
     ENSURE_SINGLE_ARG(value,NSDictionary)
-    id complication = [value objectForKey:@"complication"];
-    ENSURE_SINGLE_ARG(complication, NSDictionary)
     
-    [[self watchSession] transferCurrentComplicationUserInfo:complication];
+    [[self watchSession] transferCurrentComplicationUserInfo:value];
 }
 
 -(void)cancelAllUserInfoTransfers:(id)value
@@ -230,76 +323,52 @@
 #pragma mark watch session delegates
 - (void)session:(nonnull WCSession *)session didReceiveMessage:(nonnull NSDictionary<NSString *,id> *)message
 {
-    if([self _hasListeners:@"watchSessionReceivedMessage"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:message forKey:@"message"];
-        [self fireEvent:@"watchSessionReceivedMessage" withObject:dict];
+    if ([self _hasListeners:@"receivemessage"]) {
+        [self fireEvent:@"receivemessage" withObject:@{@"message":message}];
     }
 }
-//these are context updates received right after [watchSession activate]
+//these are context updates received right after [watchSession activateSession]
 - (void)session:(nonnull WCSession *)session didReceiveApplicationContext:(nonnull NSDictionary<NSString *,id> *)applicationContext
 {
-    if([self _hasListeners:@"watchSessionReceivedAppContext"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:applicationContext forKey:@"appContext"];
-        [self fireEvent:@"watchSessionReceivedAppContext" withObject:dict];
+    if ([self _hasListeners:@"receiveapplicationcontext"]) {
+        [self fireEvent:@"receiveapplicationcontext" withObject:@{@"applicationContext":applicationContext}];
     }
 }
 
 -(void)session:(nonnull WCSession *)session didReceiveUserInfo:(nonnull NSDictionary<NSString *,id> *)userInfo
 {
-    if([self _hasListeners:@"watchSessionReceivedUserInfo"]){
-        NSDictionary *dict = [NSDictionary dictionaryWithObject:userInfo forKey:@"userInfo"];
-        [self fireEvent:@"watchSessionReceivedUserInfo" withObject:dict];
+    if ([self _hasListeners:@"receiveuserinfo"]) {
+        [self fireEvent:@"receiveuserinfo" withObject:@{@"userInfo": userInfo}];
     }
 }
 
 -(void)sessionWatchStateDidChange:(nonnull WCSession *)session
 {
-    if([self _hasListeners:@"watchStateChanged"]){
-        NSDictionary *dict = [NSDictionary
-                              dictionaryWithObjectsAndKeys:NUMBOOL([session isPaired]),@"isPaired",
-                              NUMBOOL([session isWatchAppInstalled]),@"isWatchAppInstalled",
-                              NUMBOOL([session isComplicationEnabled]),@"isComplicationEnabled",
-                              nil];
-        [self fireEvent:@"watchStateChanged" withObject:dict];
+    if ([self _hasListeners:@"watchstatechanged"]) {
+        [self fireEvent:@"watchstatechanged" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)sessionReachabilityDidChange:(nonnull WCSession *)session
 {
-    if([self _hasListeners:@"watchReachabilityChanged"]){
-        NSDictionary *dict = [NSDictionary
-                          dictionaryWithObjectsAndKeys:NUMBOOL([session isReachable]),@"isReachable",
-                          nil];
-        [self fireEvent:@"watchReachabilityChanged" withObject:dict];
+    if ([self _hasListeners:@"reachabilitychanged"]) {
+        [self fireEvent:@"reachabilitychanged" withObject:[self dictionaryFromWatchSession:session]];
     }
 }
 
 -(void)session:(WCSession * _Nonnull)session didFinishUserInfoTransfer:(nonnull WCSessionUserInfoTransfer *)userInfoTransfer error:(nullable NSError *)error
 {
-    if([self _hasListeners:@"watchSessionFinishedUserInfoTransfer"]){
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     [userInfoTransfer userInfo], @"userInfo",
-                                     nil];
-        if (error) {
-            NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                        NUMINTEGER([error code]), @"errorCode",
-                                        [error localizedDescription], @"message",
-                                        nil];
-            [dict addEntriesFromDictionary:errorinfo];
-        } else {
-            NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                      NUMINT(0), @"errorCode",
-                                      @"", @"message",
-                                      nil];
-            [dict addEntriesFromDictionary:success];
-        }
-        [self fireEvent:@"watchSessionFinishedUserInfoTransfer" withObject:dict];
+    if ([self _hasListeners:@"finishuserinfotransfer"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{@"userInfo": [userInfoTransfer userInfo]}];
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
+
+        [self fireEvent:@"finishuserinfotransfer" withObject:dict];
     }
 }
 
 -(void)session:(nonnull WCSession *)session didReceiveFile:(nonnull WCSessionFile *)file
 {
-    if([self _hasListeners:@"watchSessionReceivedFile"]){
+    if ([self _hasListeners:@"receivefile"]) {
         NSError *error;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *destinationFilename = [[file fileURL] lastPathComponent];
@@ -324,7 +393,7 @@
             [dict addEntriesFromDictionary:errorinfo];
         }
         else {
-            downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
+            downloadedData = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[destinationURL path]] autorelease];
             NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                       NUMINT(0), @"errorCode",
                                       @"", @"message",
@@ -332,35 +401,106 @@
                                       nil];
             [dict addEntriesFromDictionary:success];
         }
-        [self fireEvent:@"watchSessionReceivedFile" withObject:dict];
+        [self fireEvent:@"receivefile" withObject:dict];
     }
 }
 
 -(void)session:(nonnull WCSession *)session didFinishFileTransfer:(nonnull WCSessionFileTransfer *)fileTransfer error:(nullable NSError *)error
 {
-    if([self _hasListeners:@"watchSessionFinishedFileTransfer"]){
-        WCSessionFile *file = [fileTransfer file];
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     [file fileURL], @"fileURL",
-                                     [file metadata], @"metaData",
-                                     nil];
-        if (error) {
-            NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                        NUMINTEGER([error code]), @"errorCode",
-                                        [error localizedDescription], @"message",
-                                        nil];
-            [dict addEntriesFromDictionary:errorinfo];
-        } else {
-            NSDictionary * success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                      NUMINT(0), @"errorCode",
-                                      @"", @"message",
-                                      nil];
-            [dict addEntriesFromDictionary:success];
-        }
-        [self fireEvent:@"watchSessionFinishedFileTransfer" withObject:dict];
+    if ([self _hasListeners:@"finishfiletransfer"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"fileURL": [[fileTransfer file] fileURL],
+            @"metaData": [[fileTransfer file] metadata]
+        }];
+        
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
+        [self fireEvent:@"finishfiletransfer" withObject:dict];
     }
 }
 
-@end
+-(void)sessionDidBecomeInactive:(WCSession *)session
+{
+    if ([self _hasListeners:@"inactive"]) {
+        [self fireEvent:@"inactive" withObject:[self dictionaryFromWatchSession:session]];
+    }
+}
 
+-(void)sessionDidDeactivate:(WCSession *)session
+{
+    if ([self _hasListeners:@"deactivate"]) {
+        [self fireEvent:@"deactivate" withObject:[self dictionaryFromWatchSession:session]];
+    }
+}
+
+-(void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(NSError *)error
+{
+    if ([self _hasListeners:@"activationCompleted"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[self dictionaryFromWatchSession:session]];
+        [dict addEntriesFromDictionary:[self dictionaryFromError:error]];
+        
+        [self fireEvent:@"activationCompleted" withObject:dict];
+    }
+}
+
+#pragma mark WatchSession activation states
+
+-(NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateNotActivated);
+}
+
+-(NSNumber *)ACTIVATION_STATE_INACTIVE
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateInactive);
+}
+
+-(NSNumber *)ACTIVATION_STATE_ACTIVATED
+{
+    if (![TiUtils isIOS9_3OrGreater]) {
+        return nil;
+    }
+    return NUMINTEGER(WCSessionActivationStateActivated);
+}
+
+#pragma mark Helper
+
+-(NSDictionary*)dictionaryFromWatchSession:(WCSession*)session
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"isPaired": [self isPaired],
+        @"isReachable":[self isReachable],
+        @"isWatchAppInstalled": [self isWatchAppInstalled],
+        @"isComplicationEnabled": [self isComplicationEnabled]
+    }];
+    
+    if ([TiUtils isIOS9_3OrGreater]) {
+        [dict setObject:[self isActivated] forKey:@"isActivated"];
+        [dict setObject:[self activationState] forKey:@"activationState"];
+    }
+    
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
+        [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
+    }
 #endif
+    
+    return dict;
+}
+
+-(NSDictionary*)dictionaryFromError:(NSError*)error
+{
+    return @{
+        @"success": NUMBOOL(!error),
+        @"errorCode": NUMINTEGER(error ? [error code]: 0),
+        @"message": error ? [error localizedDescription]: @""
+    };
+}
+
+@end

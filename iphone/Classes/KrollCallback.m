@@ -114,6 +114,12 @@ static NSLock *callbackLock;
 	return NO;
 }
 
+-(void)callAsync:(NSArray*)args thisObject:(id)thisObject_
+{
+    TiThreadPerformOnMainThread(^{
+        [self call:args thisObject:thisObject_];
+    }, [NSThread isMainThread]);
+}
 -(id)call:(NSArray*)args thisObject:(id)thisObject_
 {
 #ifdef TI_USE_KROLL_THREAD

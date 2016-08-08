@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -35,11 +34,6 @@ public class ReminderProxy extends KrollProxy {
 		super();
 	}
 
-	public ReminderProxy(TiContext context)
-	{
-		this();
-	}
-
 	public static String getRemindersUri()
 	{
 		return CalendarProxy.getBaseCalendarUri() + "/reminders";
@@ -48,6 +42,9 @@ public class ReminderProxy extends KrollProxy {
 	public static ArrayList<ReminderProxy> getRemindersForEvent(EventProxy event)
 	{
 		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return reminders;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		Uri uri = Uri.parse(getRemindersUri());
 
@@ -68,13 +65,11 @@ public class ReminderProxy extends KrollProxy {
 		return reminders;
 	}
 
-	public static ArrayList<ReminderProxy> getRemindersForEvent(TiContext context, EventProxy event)
-	{
-		return getRemindersForEvent(event);
-	}
-
 	public static ReminderProxy createReminder(EventProxy event, int minutes, int method)
 	{
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			return null;
+		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues eventValues = new ContentValues();
 
@@ -93,11 +88,6 @@ public class ReminderProxy extends KrollProxy {
 		reminder.method = method;
 
 		return reminder;
-	}
-
-	public static ReminderProxy createReminder(TiContext context, EventProxy event, int minutes, int method)
-	{
-		return createReminder(event, minutes, method);
 	}
 
 	@Kroll.getProperty @Kroll.method

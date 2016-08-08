@@ -11,6 +11,15 @@
 
 @implementation TiUISwitch
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(void)dealloc
 {
 	[switchView removeTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
@@ -22,6 +31,8 @@
 {
 	if (switchView==nil)
 	{
+		animated = YES;
+		firstInit = YES;
 		switchView = [[UISwitch alloc] init];
 		[switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
 		[self addSubview:switchView];
@@ -76,6 +87,12 @@
 	[[self switchView] setEnabled:[TiUtils boolValue:value]];
 }
 
+-(void)setAnimated_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber)
+	animated = [TiUtils boolValue:value];
+}
+
 -(void)setValue_:(id)value
 {
 	// need to check if we're in a reproxy when this is set
@@ -84,13 +101,20 @@
 	// reproxy as we scroll
 	BOOL reproxying = [self.proxy inReproxy];
 	BOOL newValue = [TiUtils boolValue:value];
-	BOOL animated = !reproxying;
+	BOOL newAnimated;
+	if (firstInit || reproxying) {
+		newAnimated = NO;
+		firstInit = NO;
+	}
+	else {
+		newAnimated = animated;
+	}
 	UISwitch * ourSwitch = [self switchView];
     if ([ourSwitch isOn] == newValue) {
         return;
     }
-	[ourSwitch setOn:newValue animated:animated];
-	
+	[ourSwitch setOn:newValue animated:newAnimated];
+
 	// Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
 	// This only seems to happen in 4.2+ - could be an Apple bug.
 	if ((reproxying == NO) && configurationSet && [self.proxy _hasListeners:@"change"])

@@ -11,9 +11,8 @@
 #include "ThirdpartyNS.h"
 #import <AvailabilityInternal.h>
 
-#ifdef __IPHONE_9_0
-#define IS_XCODE_7 true
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
+#define IS_XCODE_8 true
 #else
-#define IS_XCODE_7 false
+#define IS_XCODE_8 false
 #endif
-

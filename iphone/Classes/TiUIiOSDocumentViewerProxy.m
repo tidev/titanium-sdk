@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
@@ -101,7 +101,7 @@
 	
 	for (UIImage *image in [self controller].icons)
 	{
-		TiBlob *blob = [[TiBlob alloc] initWithImage:image];
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
 		[result addObject:image];
 		[blob release];
 	}

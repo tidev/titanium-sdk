@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -52,7 +51,7 @@ public class PersonProxy extends KrollProxy
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 	private String fullName = "";
-	
+
 	// Contact Modifications
 	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
 
@@ -61,36 +60,31 @@ public class PersonProxy extends KrollProxy
 		super();
 	}
 
-	public PersonProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	private boolean isPhotoFetchable()
 	{
 		long id = (Long) getProperty(TiC.PROPERTY_ID);
 		return (id > 0 && hasImage );
 	}
-	
+
 	public void finishModification()
 	{
 		modified.clear();
 	}
 
 	@Kroll.method @Kroll.getProperty
-	public String getFullName() 
+	public String getFullName()
 	{
 		return fullName;
 	}
-	
-	public void setFullName(String fname) 
+
+	public void setFullName(String fname)
 	{
 		fullName = fname;
 	}
-	
-	
+
+
 	@Kroll.method @Kroll.getProperty
-	public long getId() 
+	public long getId()
 	{
 		return (Long) getProperty(TiC.PROPERTY_ID);
 	}
@@ -99,7 +93,7 @@ public class PersonProxy extends KrollProxy
 	{
 		return (modified.containsKey(field) && modified.get(field));
 	}
-	
+
 
 	@Kroll.method @Kroll.getProperty
 	public TiBlob getImage()
@@ -116,7 +110,7 @@ public class PersonProxy extends KrollProxy
 		}
 		return this.image;
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setImage(TiBlob blob)
 	{
@@ -140,17 +134,17 @@ public class PersonProxy extends KrollProxy
 	{
 		setProperty(TiC.PROPERTY_EMAIL, contactMethodMapToDict(map));
 	}
-	
+
 	protected void setDateFromMap(Map<String, ArrayList<String>> map)
 	{
 		setProperty(TiC.PROPERTY_DATE, contactMethodMapToDict(map));
 	}
-	
+
 	protected void setIMFromMap(Map<String, ArrayList<String>> map)
 	{
 		setProperty(TiC.PROPERTY_INSTANTMSG, contactMethodMapToDict(map));
 	}
-	
+
 	protected void setRelatedNameFromMap(Map<String, ArrayList<String>> map)
 	{
 		setProperty(TiC.PROPERTY_RELATED_NAMES, contactMethodMapToDict(map));
@@ -165,7 +159,7 @@ public class PersonProxy extends KrollProxy
 	{
 		setProperty(TiC.PROPERTY_PHONE, contactMethodMapToDict(map));
 	}
-	
+
 	protected void setAddressFromMap(Map<String, ArrayList<String>> map)
 	{
 		// We're supposed to support "Street", "CountryCode", "State", etc.
@@ -184,27 +178,27 @@ public class PersonProxy extends KrollProxy
 
 		setProperty(TiC.PROPERTY_ADDRESS, address);
 	}
-	
+
 	public void onPropertyChanged(String name, Object value)
 	{
 		if (name == null) {
 			Log.w(TAG, "Property is null. Unable to process change");
 			return;
 		}
-		
+
 		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
 			modified.put(TiC.PROPERTY_NAME, true);
 		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION) ||
-				name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME) || 
+				name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME) ||
 				name.equals(TiC.PROPERTY_PHONE) || name.equals(TiC.PROPERTY_ADDRESS) ||
-				name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL) || 
+				name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL) ||
 				name.equals(TiC.PROPERTY_EMAIL) || name.equals(TiC.PROPERTY_RELATED_NAMES) ||
 				name.equals(TiC.PROPERTY_DATE) || name.equals(TiC.PROPERTY_KIND) ||
 				name.equals(TiC.PROPERTY_PREFIX) || name.equals(TiC.PROPERTY_SUFFIX) ||
 				name.equals(TiC.PROPERTY_FIRSTPHONETIC) || name.equals(TiC.PROPERTY_MIDDLEPHONETIC) ||
-				name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE) || 
+				name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE) ||
 				name.equals(TiC.PROPERTY_DEPARTMENT)) {
-			
+
 			modified.put(name, true);
 		}
 		super.onPropertyChanged(name, value);

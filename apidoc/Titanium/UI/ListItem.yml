@@ -177,6 +177,16 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
+  - name: canInsert
+    summary: Specifies if the item can be inserted by a user initiated action.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: false
+    since: 5.2.0
+    platforms: [iphone, ipad]
+    accessors: false
+
   - name: canMove
     summary: Specifies if the item can be reordered within the list view by a user initiated action.
     description: |
@@ -228,6 +238,7 @@ properties:
     summary: Row height in platform-specific units.
     description: |
         On Android, the value can be either a float value or a dimension string, for example, '40dp'.
+        By default, the minimum height is 30 dp on the Android platform.
 
         On iOS, the value can only be an absolute value.
     type: [Number,String]
@@ -258,7 +269,7 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iPhone.ListViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.iOS.ListViewCellSelectionStyle>.
     type: Number
     platforms: [iphone,ipad]
     accessors: false
@@ -341,8 +352,8 @@ examples:
         index.js
 
             <!-- controllers/index.js -->
-            listView.addEventListener('itemclick', function(e){
-                var item = section.getItemAt(e.itemIndex);
+            $.listView.addEventListener('itemclick', function(e){
+                var item = $.section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
@@ -351,7 +362,7 @@ examples:
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
-                section.updateItemAt(e.itemIndex, item);
+                $.section.updateItemAt(e.itemIndex, item);
             });
 
   - title: List Items with an Item Template
@@ -580,7 +591,7 @@ description: |
     By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
     This object lets developers define custom titles for editing actions supported on the row. 
     This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
-    [rowAction](Titanium.UI.ListView.rowAction) event. 
+    [editaction](Titanium.UI.ListView.editaction) event. 
 platforms: [ipad, iphone]
 since: '4.1.0' 
 osver: {ios: {min: "8.0"}}
@@ -589,6 +600,12 @@ properties:
     type: String
     summary: The title of the row action.
     optional: false
+    
+  - name: identifier
+    summary: |
+        The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+        if previously defined. Available in Titanium 6.0.0 and later.
+    type: String
 
   - name: style
     type: Number

@@ -18,6 +18,11 @@
 	UIColor * textColor;
 	UIColor * spinnerColor;
 	UILabel * messageLabel;
+
+#ifdef TI_USE_AUTOLAYOUT
+    UIView* backgroundView;
+    BOOL _constraintsAdded;
+#endif
 }
 
 -(UIActivityIndicatorView*)indicatorView;

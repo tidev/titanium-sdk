@@ -970,24 +970,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		return;
 	}
-#ifndef TI_USE_KROLL_THREAD
-    dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-        TiBindingEvent ourEvent;
-        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-        if (report || (code != 0))
-        {
-            TiBindingEventSetErrorCode(ourEvent, code);
-        }
-        if (message != nil)
-        {
-            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-        }
-        TiBindingEventSetBubbles(ourEvent, propagate);
-        TiBindingEventFire(ourEvent);
-#ifndef TI_USE_KROLL_THREAD
-    });
-#endif
+    TiBindingEvent ourEvent;
+    ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+    if (report || (code != 0))
+    {
+        TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil)
+    {
+        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
 }
 
 //Temporary method until source is removed, for our subclasses.
@@ -998,20 +992,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		return;
 	}
 	
-    dispatch_async(dispatch_get_main_queue(), ^{
-        TiBindingEvent ourEvent;
-        
-        ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-        if (report || (code != 0)) {
-            TiBindingEventSetErrorCode(ourEvent, code);
-        }
-        if (message != nil)
-        {
-            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-        }
-        TiBindingEventSetBubbles(ourEvent, propagate);
-        TiBindingEventFire(ourEvent);
-    });
+    TiBindingEvent ourEvent;
+    
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    if (report || (code != 0)) {
+        TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil)
+    {
+        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
 }
 
 

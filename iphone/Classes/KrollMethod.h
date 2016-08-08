@@ -47,4 +47,7 @@ typedef enum KrollMethodType {
 @property(nonatomic,assign)	BOOL updatesProperty;
 @property(nonatomic,copy)	NSString * propertyKey;
 
+#ifdef TI_USE_KROLL_THREAD
+-(NSString*)threadName;
+#endif
 @end

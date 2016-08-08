@@ -21,18 +21,19 @@ excludes:
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
                 barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
                 titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
-                backButtonTitleImage, shadowImage, hideShadow, transitionAnimation]
+                backButtonTitleImage, shadowImage, hideShadow, transitionAnimation,
+                swipeToClose]
 
 properties:
   - name: window
-    summary: Window to add to this navigation group.
+    summary: Window to add to this navigation window.
     type: Titanium.UI.Window
     availability: creation
     optional: false
 
 methods:
   - name: closeWindow
-    summary: Closes a window and removes it from the navigation group.
+    summary: Closes a window and removes it from the navigation window.
     parameters:
       - name: window
         summary: Window to close.
@@ -41,11 +42,11 @@ methods:
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
-            will be animated (default) while being closed.
+            will be animated (default) while being closed (default: true).
         type: Dictionary
         
   - name: openWindow
-    summary: Opens a window within the navigation group.
+    summary: Opens a window within the navigation window.
     parameters:
       - name: window
         summary: Window to open.
@@ -54,13 +55,24 @@ methods:
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window 
-            will be animated (default) while being opened.
+            will be animated (default) while being opened (default: true).
         type: Dictionary
 
+  - name: popToRootWindow
+    summary: Closes all windows that are currently opened inside the navigation window.
+    description: Note that only the `close` event of the most recently opened window is fired.
+    parameters:
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the windows
+            will be animated (default) while being closed (default: false).
+        type: Dictionary
+    since: "6.0.0"
+
 examples:
-  - title: Simple Navigation Group
+  - title: Simple Navigation Window
     example: |
-        Creates a navigation group with the first window colored red.
+        Creates a navigation window with the first window colored red.
         Press the button to open the blue window.
         Use the back button to return to the red root window.
 

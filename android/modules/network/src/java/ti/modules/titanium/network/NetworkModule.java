@@ -1,19 +1,19 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
+import java.net.CookieHandler;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -21,7 +21,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
@@ -40,7 +39,7 @@ import android.webkit.CookieSyncManager;
 public class NetworkModule extends KrollModule {
 
 	private static final String TAG = "TiNetwork";
-	private static CookieStore httpCookieStore;
+	private static java.net.CookieManager cookieManager;
 
 	public static final String EVENT_CONNECTIVITY = "change";
 	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
@@ -50,12 +49,12 @@ public class NetworkModule extends KrollModule {
 	@Kroll.constant public static final int NETWORK_MOBILE = 2;
 	@Kroll.constant public static final int NETWORK_LAN = 3;
 	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
-	
+
 	@Kroll.constant public static final int TLS_DEFAULT = 0;
 	@Kroll.constant public static final int TLS_VERSION_1_0 = 1;
 	@Kroll.constant public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant public static final int TLS_VERSION_1_2 = 3;
-	
+
 	@Kroll.constant public static final int PROGRESS_UNKNOWN = -1;
 
     public enum State {
@@ -137,11 +136,6 @@ public class NetworkModule extends KrollModule {
 
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
-	}
-
-	public NetworkModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -247,17 +241,17 @@ public class NetworkModule extends KrollModule {
 			default : return "UNKNOWN";
 		}
 	}
-	
+
 	@Kroll.method @Kroll.topLevel
 	public String encodeURIComponent(String component) {
 		return Uri.encode(component);
 	}
-	
+
 	@Kroll.method @Kroll.topLevel
 	public String decodeURIComponent(String component) {
 		return Uri.decode(component);
 	}
-	
+
 	protected void manageConnectivityListener(boolean attach) {
 		if (attach) {
 			if (!isListeningForConnectivity) {
@@ -300,12 +294,13 @@ public class NetworkModule extends KrollModule {
 		connectivityManager = null;
 	}
 
-	public static CookieStore getHTTPCookieStoreInstance()
+	public static java.net.CookieManager getCookieManagerInstance()
 	{
-		if (httpCookieStore == null) {
-			httpCookieStore = new BasicCookieStore();
+		if (cookieManager == null) {
+			cookieManager = new java.net.CookieManager();
+			CookieHandler.setDefault(cookieManager);
 		}
-		return httpCookieStore;
+		return cookieManager;
 	}
 
 	/**
@@ -318,9 +313,16 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void addHTTPCookie(CookieProxy cookieProxy)
 	{
-		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
+		HttpCookie cookie = cookieProxy.getHTTPCookie();
+		String cookieDomain = cookie.getDomain();
 		if (cookie != null) {
-			getHTTPCookieStoreInstance().addCookie(cookie);
+			URI uriDomain;
+			try {
+				uriDomain = new URI(cookieDomain);
+			} catch (Exception e) {
+				uriDomain = null;
+			}
+			getCookieManagerInstance().getCookieStore().add(uriDomain, cookie);
 		}
 	}
 
@@ -345,8 +347,8 @@ public class NetworkModule extends KrollModule {
 			path = "/";
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
-		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		for (Cookie cookie : cookies) {
+		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
+		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
 			String cookieDomain = cookie.getDomain();
 			String cookiePath = cookie.getPath();
@@ -376,8 +378,8 @@ public class NetworkModule extends KrollModule {
 			return null;
 		}
 		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
-		List<Cookie> cookies = getHTTPCookieStoreInstance().getCookies();
-		for (Cookie cookie : cookies) {
+		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
+		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
 			if (domainMatch(cookieDomain, domain)) {
 				cookieList.add(new CookieProxy(cookie));
@@ -403,15 +405,21 @@ public class NetworkModule extends KrollModule {
 			}
 			return;
 		}
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
-		cookieStore.clear();
-		for (Cookie cookie : cookies) {
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		cookieStore.removeAll();
+		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
 			String cookieDomain = cookie.getDomain();
 			String cookiePath = cookie.getPath();
 			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
-				cookieStore.addCookie(cookie);
+				URI uriDomain;
+				try {
+					uriDomain = new URI(cookieDomain);
+				} catch (URISyntaxException e) {
+					uriDomain = null;
+				}
+				cookieStore.add(uriDomain, cookie);
 			}
 		}
 	}
@@ -423,13 +431,19 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeHTTPCookiesForDomain(String domain)
 	{
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
-		cookieStore.clear();
-		for (Cookie cookie : cookies) {
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		cookieStore.removeAll();
+		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
 			if (!(domainMatch(cookieDomain, domain))) {
-				cookieStore.addCookie(cookie);
+				URI uriDomain;
+				try {
+					uriDomain = new URI(cookieDomain);
+				} catch (URISyntaxException e) {
+					uriDomain = null;
+				}
+				cookieStore.add(uriDomain, cookie);
 			}
 		}
 	}
@@ -440,8 +454,8 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeAllHTTPCookies()
 	{
-		CookieStore cookieStore = getHTTPCookieStoreInstance();
-		cookieStore.clear();
+		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+		cookieStore.removeAll();
 	}
 
 	/**
@@ -450,37 +464,40 @@ public class NetworkModule extends KrollModule {
 	 * @param cookieProxy the cookie to add
 	 */
 	@Kroll.method
-	public void addSystemCookie(CookieProxy cookieProxy)
+	public void addSystemCookie(CookieProxy cookieURLConnectionProxy)
 	{
-		BasicClientCookie cookie = cookieProxy.getHTTPCookie();
-		String cookieString = cookie.getName() + "=" + cookie.getValue();
+		HttpCookie cookie = cookieURLConnectionProxy.getHTTPCookie();
+		String cookieString = cookie.getName() + "=" + cookie.getValue() + ";";
 		String domain = cookie.getDomain();
 		if (domain == null) {
 			Log.w(TAG, "Unable to add system cookie. Need to provide domain.");
 			return;
 		}
-		cookieString += "; domain=" + domain;
+		//cookieString += " Domain=" + domain + ";";
 
 		String path = cookie.getPath();
-		Date expiryDate = cookie.getExpiryDate();
-		boolean secure = cookie.isSecure();
-		boolean httponly = TiConvert.toBoolean(cookieProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
+		//Date expiryDate = cookie.getExpiryDate();
+		boolean secure = cookie.getSecure();
+		boolean httponly = TiConvert.toBoolean(cookieURLConnectionProxy.getProperty(TiC.PROPERTY_HTTP_ONLY), false);
 		if (path != null) {
-			cookieString += "; path=" + path;
+			cookieString += " Path=" + path + ";";
 		}
+		/*
 		if (expiryDate != null) {
 			cookieString += "; expires=" + CookieProxy.systemExpiryDateFormatter.format(expiryDate);
 		}
+		*/
 		if (secure) {
-			cookieString += "; secure";
+			cookieString += " Secure;";
 		}
 		if (httponly) {
-			cookieString += " httponly";
+			cookieString += " Httponly";
 		}
 		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setCookie(domain, cookieString);
 		CookieSyncManager.getInstance().sync();
+
 	}
 
 	/**

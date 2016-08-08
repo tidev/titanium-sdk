@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,11 @@
 #include "EventEmitter.h"
 #include "NativeObject.h"
 
+// FIXME This and NativeObject duplicate a lot of functionality!
+// We should be using NativeObject to Wrap/Unwrap
+// but we need some of the Java specifics this provides with managing the
+// reference table - moving java objects to weak or strong - and reviving
+// them when getJavaObject is called, or destroying when destructor is called!
 namespace titanium {
 
 // Provides an interface between a JavaScript object
@@ -30,18 +35,15 @@ public:
 	// Delete this object once the Java object has been finalized.
 	virtual ~JavaObject();
 
-  // Test if the JavaScript object wraps a Java object.
-	static bool isJavaObject(v8::Handle<v8::Object> jsObject)
+	// Test if the JavaScript object wraps a Java object.
+	static bool isJavaObject(v8::Local<v8::Object> jsObject)
 	{
-		if (jsObject->InternalFieldCount() > 0) {
-			return true;
-		}
-		return false;
+		return jsObject->InternalFieldCount() > 0;
 	}
 
 	// Wrap the given JavaScript object which provides
 	// bindings to this Java object.
-	void wrap(v8::Handle<v8::Object> jsObject);
+	void wrap(v8::Isolate* isolate, v8::Local<v8::Object> jsObject);
 
 	// Attach to the given Java object. A reference
 	// to this object will be held until it is detached.

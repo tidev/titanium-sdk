@@ -11,12 +11,21 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
 
 @implementation TiUITextWidget
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (id) init
 {
@@ -33,7 +42,7 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
 	[[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
 	[(id)[self textWidgetView] setAttributedText:[arg attributedString]];
@@ -162,7 +171,17 @@
 
 -(void)setAppearance_:(id)value
 {
-	[[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
+    NSString *className = [NSStringFromClass([self class]) substringFromIndex:4];
+    NSString *deprecatedApi = [NSString stringWithFormat:@"UI.%@%@", className, @".appearance"];
+    NSString *newApi = [NSString stringWithFormat:@"UI.%@%@", className, @".keyboardAppearance"];
+    
+    DEPRECATED_REPLACED(deprecatedApi, @"5.2.0", newApi);
+    [self setKeyboardAppearance_:value];
+}
+
+-(void)setKeyboardAppearance_:(id)value
+{
+    [[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
 }
 
 -(void)setAutocapitalization_:(id)value

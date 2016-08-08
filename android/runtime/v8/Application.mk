@@ -1,6 +1,6 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -8,11 +8,12 @@
 
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-10
-APP_STL := stlport_shared
+APP_CPPFLAGS += -std=c++11
+APP_STL := c++_shared
 ifeq ($(BUILD_X86), 1)
-	APP_ABI := armeabi armeabi-v7a x86
+	APP_ABI := armeabi-v7a x86
 else
-	APP_ABI := armeabi armeabi-v7a
+	APP_ABI := armeabi-v7a
 endif
 
 

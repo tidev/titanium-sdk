@@ -408,8 +408,10 @@ self.p = v;\
 		// to add to the view hiearchry inside the animation block or you'll get the sizings as part of the
 		// animation.. which we don't want
 		TiViewProxy * ourProxy = (TiViewProxy*)[view_ proxy];
+#ifndef TI_USE_AUTOLAYOUT
 		LayoutConstraint *contraints = [ourProxy layoutProperties];
 		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
+#endif
 		[ourProxy layoutChildren:NO];
 	}
 
@@ -488,10 +490,12 @@ self.p = v;\
             if ([view_ isKindOfClass:[TiUIView class]])
             {	//TODO: Shouldn't we be updating the proxy's properties to reflect this?
                 TiUIView *uiview = (TiUIView*)view_;
+#ifndef TI_USE_AUTOLAYOUT
                 LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
-                
+#endif
                 BOOL doReposition = NO;
-                
+#ifndef TI_USE_AUTOLAYOUT
+ 
 #define CHECK_LAYOUT_CHANGE(a) \
 if (a!=nil && layoutProperties!=NULL) \
 {\
@@ -515,7 +519,7 @@ doReposition = YES;\
                     layoutProperties->centerY = [center yDimension];
                     doReposition = YES;
                 }
-                
+#endif
                 if (zIndex!=nil)
                 {
                     [reverseAnimation setZIndex:[(TiViewProxy*)[(TiUIView*) view_ proxy] zIndex]];

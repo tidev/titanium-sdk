@@ -73,8 +73,6 @@
 
 @implementation TiUITextArea
 
-@synthesize leadingBarButtonGroups, trailingBarButtonGroups;
-
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -104,14 +102,6 @@
         
         textViewImpl.text = @""; //Setting TextArea text to empty string
         
-        // iOS9 QuickType (undo/redo)
-        if([TiUtils isIOS9OrGreater] == YES) {
-#if IS_XCODE_7
-            self.leadingBarButtonGroups = textViewImpl.inputAssistantItem.leadingBarButtonGroups;
-            self.trailingBarButtonGroups = textViewImpl.inputAssistantItem.trailingBarButtonGroups;
-#endif
-        }
-        
         textWidgetView = textViewImpl;
         
     }
@@ -133,21 +123,23 @@
 
 #pragma mark Public APIs
 
--(void)setShowUndoRedoActions_:(id)value
+-(void)setShowUndoRedoActions:(id)value
 {
-    if(![TiUtils isIOS9OrGreater]){
+    if (![TiUtils isIOS9OrGreater]){
         return;
     }
-#if IS_XCODE_7
+    
     UITextView *tv = (UITextView *)[self textWidgetView];
-    if([TiUtils boolValue:value] == YES) {
-        tv.inputAssistantItem.leadingBarButtonGroups = self.leadingBarButtonGroups;
-        tv.inputAssistantItem.trailingBarButtonGroups = self.trailingBarButtonGroups;
+    if ([TiUtils boolValue:value] == YES) {
+        
+        tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+        tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+        
     } else {
+        
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];
     }
-#endif
 }
 
 -(void)setEnabled_:(id)value
@@ -275,7 +267,9 @@
 			return NO;
 		}
 	}
-	
+    
+    [self processKeyPressed:text];
+        
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;

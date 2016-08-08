@@ -284,12 +284,12 @@ static NSString* ARG_KEY = @"arg";
 #pragma mark Public API : Functions
 
 // Used to bump API calls onto the socket thread if necessary
-#define ENSURE_SOCKET_THREAD(f,x) \
+#define ENSURE_SOCKET_THREAD(f,x,w) \
 if (socketThread == nil) { \
 return; \
 } \
 if ([NSThread currentThread] != socketThread) { \
-[self performSelector:@selector(f:) onThread:socketThread withObject:x waitUntilDone:YES]; \
+[self performSelector:@selector(f:) onThread:socketThread withObject:x waitUntilDone:w]; \
 return; \
 } \
 
@@ -368,7 +368,7 @@ NSCondition* temp = [condition retain]; \
 
     NSDictionary* args = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(args, arg, 0, NSDictionary);
-    ENSURE_SOCKET_THREAD(accept,arg);
+    ENSURE_SOCKET_THREAD(accept,arg,YES);
     [acceptArgs setValue:arg forKey:ARG_KEY];
     
     CFSocketRef sock = [socket getCFSocket];
@@ -387,7 +387,7 @@ NSCondition* temp = [condition retain]; \
         return;
     }
     
-    ENSURE_SOCKET_THREAD(close,_void);
+    ENSURE_SOCKET_THREAD(close,_void,NO);
     
     [self cleanupSocket];
     internalState = SOCKET_CLOSED;

@@ -114,9 +114,9 @@ properties:
     summary: |
         Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
-    type: [Number, Boolean]
-    default: false
-    platforms: [android, mobileweb]
+    type: Number
+    default: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END
+    platforms: [android, mobileweb, iphone, ipad]
     
   - name: font
     summary: Font to use for the label text.
@@ -150,6 +150,12 @@ properties:
     type: Number
     since: "4.1.0"
     
+  - name: lineSpacing
+    summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
+    platforms: [android]
+    type: Dictionary
+    since: "5.4.0"
+        
   - name: maxLines
     summary: Makes the label at most this many lines tall.
     platforms: [android]

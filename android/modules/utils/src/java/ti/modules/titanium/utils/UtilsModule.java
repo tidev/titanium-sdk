@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,15 +14,15 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
+import android.util.Base64;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -45,11 +45,6 @@ public class UtilsModule extends KrollModule
 		}
 	}
 
-	public UtilsModule(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Kroll.method
 	public TiBlob base64encode(Object obj)
 	{
@@ -66,7 +61,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromString(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+				return TiBlob.blobFromString(new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -80,7 +75,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromData(Base64.decodeBase64(data.getBytes("UTF-8")));
+				return TiBlob.blobFromData(Base64.decode(data.getBytes("UTF-8"), Base64.NO_WRAP));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -115,7 +110,7 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d) 
+	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d)
 	{
 		return true;
 	}
@@ -151,7 +146,7 @@ public class UtilsModule extends KrollModule
 	public String transcodeString(String orig, String inEncoding, String outEncoding)
 	{
 		try {
-			
+
 			Charset charsetOut = Charset.forName(outEncoding);
 			Charset charsetIn = Charset.forName(inEncoding);
 
@@ -166,9 +161,9 @@ public class UtilsModule extends KrollModule
 			byte[] dataOut = bufferOut.array();
 			bufferOut.clear();
 			bufferOut = null;
-			
+
 			return new String(dataOut, charsetOut.name());
-			
+
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "Unsupported encoding: " + e.getMessage(), e);
 		}

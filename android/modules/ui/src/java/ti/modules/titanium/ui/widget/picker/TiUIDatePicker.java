@@ -84,8 +84,8 @@ public class TiUIDatePicker extends TiUIView
 		Calendar calendar = Calendar.getInstance();
         DatePicker picker = (DatePicker) getNativeView();
 
-        if (d.containsKey("value")) {
-        	calendar.setTime((Date) d.get("value"));
+        if (d.containsKey(TiC.PROPERTY_VALUE)) {
+        	calendar.setTime((Date) d.get(TiC.PROPERTY_VALUE));
             valueExistsInProxy = true;
         }   
         if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
@@ -141,7 +141,7 @@ public class TiUIDatePicker extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
-		if (key.equals("value"))
+		if (key.equals(TiC.PROPERTY_VALUE))
 		{
 			Date date = (Date)newValue;
 			setValue(date.getTime());
@@ -171,12 +171,28 @@ public class TiUIDatePicker extends TiUIView
 			targetCalendar.setTime(maxDate);
 			setValue(maxDate.getTime(), true);
 		}
+		
+		Date newTime = targetCalendar.getTime();
+		Object oTime = proxy.getProperty(TiC.PROPERTY_VALUE);
+		Date oldTime = null;
+		
+		if (oTime instanceof Date) {
+			oldTime = (Date) oTime;
+		}
+		
+		// Due to a native Android bug in 4.x, this callback is called twice, so here 
+		// we check if the dates are identical, we don't fire "change" event or reset value.
+		if (oldTime != null && oldTime.equals(newTime)) {
+			return;
+		}
+
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
-			data.put("value", targetCalendar.getTime());
-			fireEvent("change", data);
+			data.put(TiC.PROPERTY_VALUE, newTime);
+			fireEvent(TiC.EVENT_CHANGE, data);
 		}
-		proxy.setProperty("value", targetCalendar.getTime());
+		
+		proxy.setProperty(TiC.PROPERTY_VALUE, newTime);
 	}
 	
 	public void setValue(long value)

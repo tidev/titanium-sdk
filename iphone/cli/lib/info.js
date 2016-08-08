@@ -123,7 +123,8 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 				logger.log('  ' + rpad('  ' + __('Watch Simulators'))              + ' = ' + styleValue(__('not supported')));
 			}
 
-			logger.log('  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? 'maybe' : x.supported ? 'yes' : 'no'));
+			logger.log('  ' + rpad('  ' + __('Supported by TiSDK %s', data.tisdk)) + ' = ' + styleValue(x.supported == 'maybe' ? __('maybe') : x.supported ? __('yes') : __('no')));
+			logger.log('  ' + rpad('  ' + __('EULA Accepted'))                     + ' = ' + styleValue(x.eulaAccepted ? __('yes') : __('no')));
 
 			if (Object.keys(x.teams).length) {
 				Object.keys(x.teams).forEach(function (id, i) {

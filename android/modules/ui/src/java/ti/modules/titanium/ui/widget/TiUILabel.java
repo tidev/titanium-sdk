@@ -44,7 +44,7 @@ public class TiUILabel extends TiUIView
 
 	private int defaultColor;
 	private boolean wordWrap = true;
-	private TruncateAt ellipsize;
+	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
@@ -135,6 +135,7 @@ public class TiUILabel extends TiUIView
 		tv.setKeyListener(null);
 		tv.setFocusable(false);
 		tv.setSingleLine(false);
+		tv.setEllipsize(ellipsize);
 		TiUIHelper.styleText(tv, null);
 		defaultColor =  tv.getCurrentTextColor();
 		setNativeView(tv);
@@ -173,6 +174,7 @@ public class TiUILabel extends TiUIView
 			}
 		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT), TextView.BufferType.SPANNABLE);
+			
 		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
 			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
 		}
@@ -186,7 +188,13 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
 			tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
 		}
-
+		if (d.containsKey(TiC.PROPERTY_LINE_SPACING)) {
+			Object value = d.get(TiC.PROPERTY_LINE_SPACING);
+			if (value instanceof HashMap) {
+				HashMap dict = (HashMap) value;
+				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
+		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
@@ -210,7 +218,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
 			
 			Object value = d.get(TiC.PROPERTY_ELLIPSIZE);
-
 			if (value instanceof Boolean){
 				ellipsize = (Boolean) value ? TruncateAt.END : null;
 			}
@@ -265,7 +272,7 @@ public class TiUILabel extends TiUIView
 			if (attributedString instanceof AttributedStringProxy) {
 				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
 				if (spannableText != null) {
-					tv.setText(spannableText);
+					tv.setText(spannableText, TextView.BufferType.NORMAL);
 				}
 			}
 		}
@@ -352,7 +359,12 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
 			if (spannableText != null) {
-				tv.setText(spannableText);
+				tv.setText(spannableText, TextView.BufferType.NORMAL);
+			}
+		} else if (key.equals(TiC.PROPERTY_LINE_SPACING)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

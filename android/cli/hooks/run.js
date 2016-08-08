@@ -233,44 +233,57 @@ exports.init = function (logger, config, cli) {
 
 				function (next) {
 					var logBuffer = [],
+						lastLogLevel,
 						displayStartLog = true,
 						tiapiRegExp = /^(\w\/TiAPI\s*\:)/,
+						nonTiLogRegexp = /^\w\/\w+\s*\(\s*\d+\):/,
 						instances = deviceInfo.length,
 						endLog = false;
 
 					function printData(device, deviceName, line) {
+						var logLevel = lastLogLevel; // if continuing from middle of last message, keep same log level
+
+						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
 							line = line.trim().replace(/\%/g, '%%').replace(device.appPidRegExp, ':');
-							var logLevel = line.charAt(0).toLowerCase();
+							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
 								line = line.replace(tiapiRegExp, '').trim();
 							} else {
 								line = line.replace(/^\w\/(\w+)\s*\:/g, '$1:').grey;
 							}
 							line = deviceName + line;
-							switch (logLevel) {
-								case 'v':
-									logger.trace(line);
-									break;
-								case 'd':
-									logger.debug(line);
-									break;
-								case 'w':
-									logger.warn(line);
-									break;
-								case 'e':
-									logger.error(line);
-									break;
-								case 'i':
-								default:
-									logger.info(line);
+						} else {
+							// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
+							if (nonTiLogRegexp.test(line)) {
+								return;
 							}
 						}
+
+						switch (logLevel) {
+							case 'v':
+								logger.trace(line);
+								break;
+							case 'd':
+								logger.debug(line);
+								break;
+							case 'w':
+								logger.warn(line);
+								break;
+							case 'e':
+								logger.error(line);
+								break;
+							case 'i':
+							default:
+								logger.info(line);
+						}
+						lastLogLevel = logLevel;
 					}
 
 					deviceInfo.forEach(function (device) {
 						var deviceName = deviceInfo.length > 1 ? ('[' + (device.model || device.manufacturer || device.id) + '] ').magenta : '';
 						adb.logcat(device.id, function (data) {
+							// logcat now guarantees we get per-line output
 							if (device.appPidRegExp) {
 								if (displayStartLog) {
 									var startLogTxt = __('Start application log');

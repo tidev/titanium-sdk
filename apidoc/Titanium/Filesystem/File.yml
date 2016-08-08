@@ -24,7 +24,7 @@ description: |
 
     For random access to a file, such as accessing a small portion of a larger file, 
     you can open a file as a [FileStream](Titanium.Filesystem.FileStream) object. Use the 
-    [open](Titanium.Filesystem.File.open) method to get a `FileStream` for an 
+    [open](Titanium.Filesystem.File.open) method to get a `FileStream` for an
     existing `File` object, or use the <Titanium.Filesystem.openStream> method 
     to get a `FileStream` directly without calling `getFile` first.
 
@@ -372,7 +372,6 @@ properties:
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android, mobileweb]
 
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
@@ -406,7 +405,8 @@ properties:
   - name: writeable
     deprecated:
         since: "1.8.1"
-        notes: Use [writable](Titanium.Filesystem.File.writable) instead.
+        notes: Use <Titanium.Filesystem.File.writable> instead.
+        removed: "6.0.0"
     summary: |
         `true` if the file identified by this object is writable.
     type: Boolean

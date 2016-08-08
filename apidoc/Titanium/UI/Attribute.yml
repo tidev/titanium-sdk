@@ -25,12 +25,12 @@ properties:
     constants: [ Titanium.UI.ATTRIBUTE_FONT, Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
                  Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
                  Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE, Titanium.UI.ATTRIBUTE_LINK, 
-                 Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR, Titanium.UI.iOS.ATTRIBUTE_LIGATURE,
+                 Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR, Titanium.UI.ATTRIBUTE_LIGATURE,
                  Titanium.UI.ATTRIBUTE_KERN, Titanium.UI.ATTRIBUTE_STROKE_COLOR,
                  Titanium.UI.ATTRIBUTE_STROKE_WIDTH, Titanium.UI.ATTRIBUTE_SHADOW,
                  Titanium.UI.ATTRIBUTE_WRITING_DIRECTION, Titanium.UI.ATTRIBUTE_TEXT_EFFECT,
                  Titanium.UI.ATTRIBUTE_BASELINE_OFFSET, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR,
-                 Titanium.UI.ATTRIBUTE_OBLIQUENESS, Titanium.UI.ATTRIBUTE_EXPANSION]
+                 Titanium.UI.ATTRIBUTE_OBLIQUENESS, Titanium.UI.ATTRIBUTE_EXPANSION, Titanium.UI.ATTRIBUTE_LINE_BREAK]
     optional: false
   - name: value
     summary: Attribute value.
@@ -93,6 +93,17 @@ properties:
         On IOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the only supported iOS 7 constant
         <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE>.
 
+        On IOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
+        these constants:
+
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING>
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING>
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_CLIPPING>
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD>
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL>
+          * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE>
+
+        These can also be combined the same way as the underline styles.
     type: Number
     constants: [ Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_*,
                  Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_*,

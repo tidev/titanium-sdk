@@ -207,6 +207,10 @@ properties:
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
         or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
         Mobile Web.
+
+        For Android, if there is a redirect and change in protocol, it will not follow. For example,
+        from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
+        for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
@@ -214,6 +218,10 @@ properties:
         Array of images to animate, defined using local filesystem paths, `File` objects, 
         remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
         objects are not supported on Mobile Web.
+        
+        When using this property, an initial `start()` needs to be called upon the ImageView before any image will show in this imageview. 
+        
+        Related properties/methods to look at: `start`, `stop`, `pause`, `reverse`, `resume` and `repeatCount` 
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
 
     
@@ -242,12 +250,19 @@ properties:
     type: Boolean
     default: false
 
+  - name: tintColor
+    summary: The view's tintColor.
+    type: String
+    default: null
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0", mobileweb: "4.1.0"}
+
   - name: url
     summary: URL to the image to display.
     deprecated:
         since: "1.5.0"
         removed: "3.0.0"
-        notes: Use [image](Titanium.UI.ImageView.image) instead.
+        notes: Use <Titanium.UI.ImageView.image> instead.
     type: String
 
 examples:

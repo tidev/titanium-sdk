@@ -22,7 +22,37 @@ description: |
         or a 256-bit or greater ECC key
       * Application must be compatible with IPv6 DNS64/NAT64 networks as part of App Store submissions
 
-    Because of the new requirements, you may need to make some updates to your application.
+    Because of the new requirements, Titanium disables the App Transport Security (ATS)
+    requirements, which only includes the TLS and certificate cipher requirements,
+    to allow all connections.
+
+    If you wish to re-enable ATS, add the `NSAppTransportSecurity` dict to the `ios plist` section
+    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+
+        <ti:app>
+          ...
+          <ios>
+            <plist>  
+              <dict>
+                <key>NSAppTransportSecurity</key>  
+                <dict>
+                  <key>NSAllowsArbitraryLoads</key><true/>
+                </dict>
+              </dict>  
+            </plist>  
+          </ios>
+          ...
+        </ti:app>
+
+    Note that Titanium will inject code into the plist file to whitelist `appcelerator.com` subdomains,
+    which is needed to communicate with the Appcelerator Anayltics server. To disable the whitelist,
+    set the `ios.whitelist.appcelerator.com` tiapp application property to false.
+
+        <ti:app>
+            <property name="ios.whitelist.appcelerator.com" type="bool">false</property>
+        </ti:app>
+
+    Listed below are other guidelines from Apple.
 
     **Avoid hard-coded IPv4 address literals**
 
@@ -30,12 +60,13 @@ description: |
 
     **Whitelist URLs**
 
-    If the web service you are trying to contact does not support the new security guidelines,
-    iOS will not allow you to connect to the service.  To allow the connection, you will need to add
-    a `NSAppTransportSecurity` dict to the `ios plist` section of the `tiapp.xml` file.
+    If ATS is enabled and the web service you are trying to contact does not support the new security guidelines,
+    iOS will not allow you to connect to the service. An error will be returned in the network response
+    stating the connection failed because it did not meet the ATS policy standards.
 
-    In the `NSAppTransportSecurity` dict, you can either set the `NSAllowsArbitraryLoads` key to `false`
-    to disable the new security requirements, or add a `NSExceptionDomains` dict to whitelist
+    To allow the connection, you will need to add
+    a `NSAppTransportSecurity` dict to the `ios plist` section of the `tiapp.xml` file.
+    In the `NSAppTransportSecurity` dict, you add the `NSExceptionDomains` dict to whitelist
     specific domains.
 
     For more information, see
@@ -50,11 +81,7 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>  
                 <dict>
-                  <!--
-                    Disable new security measures for any domain not listed below
-                    Domains will use their specified settings  
-                  -->
-                  <key>NSAllowsArbitraryLoads</key><false/>
+                  <key>NSAllowsArbitraryLoads</key><true/>
                   <key>NSExceptionDomains</key>
                   <dict>
                     <!-- Loosen security measure for www.foo.com domain -->
@@ -100,7 +127,7 @@ methods:
     deprecated:
         since: "1.7.0"
         removed: "3.0.0"
-        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
     summary: |
         Legacy method to add a connectivity listener to listen for network changes.
     parameters:
@@ -375,7 +402,7 @@ methods:
     deprecated:
         since: "1.7.0"
         removed: "3.0.0"
-        notes: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
     summary: |
         Legacy method to remove a connectivity listener.
     parameters:

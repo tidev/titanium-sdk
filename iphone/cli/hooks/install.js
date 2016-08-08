@@ -188,6 +188,8 @@ exports.init = function (logger, config, cli) {
 							details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.');
 						} else if (err.indexOf('0xe8008016') !== -1) {
 							details = __('Your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
+						} else {
+							details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
 						}
 						next && next(new appc.exception(err, details));
 						next = null;

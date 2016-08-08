@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,9 @@
 {
     pthread_rwlock_init(&viewsLock, NULL);
     [self initializeProperty:@"currentPage" defaultValue:NUMINT(0)];
-    [self initializeProperty:@"pagingControlColor" defaultValue:@"black"];
+    [self initializeProperty:@"pagingControlColor" defaultValue:nil];
+    [self initializeProperty:@"pageIndicatorTintColor" defaultValue:nil];
+    [self initializeProperty:@"currentPageIndicatorTintColor" defaultValue:nil];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];
     [self initializeProperty:@"pagingControlAlpha" defaultValue:NUMFLOAT(1.0)];
@@ -80,40 +82,79 @@
 	[self lockViewsForWriting];
 	for (id oldViewProxy in viewProxies)
 	{
+#ifdef TI_USE_AUTOLAYOUT
+		[self makeViewPerformSelector:@selector(removeSubview:) withObject:[oldViewProxy view] createIfNeeded:NO waitUntilDone:NO];
+#else
+		TiThreadPerformOnMainThread(^{
+		  [[oldViewProxy view] removeFromSuperview];
+		}, NO);
+#endif
 		if (![args containsObject:oldViewProxy])
 		{
 			[oldViewProxy setParent:nil];
 			TiThreadPerformOnMainThread(^{[oldViewProxy detachView];}, NO);
-			[self forgetProxy:oldViewProxy];			
+			[self forgetProxy:oldViewProxy];
 		}
 	}
 	[viewProxies autorelease];
 	viewProxies = [args mutableCopy];
+    
+#ifdef TI_USE_AUTOLAYOUT
+	for (TiViewProxy* proxy in viewProxies)
+	{
+		[self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
+	}
+#endif
 	[self unlockViews];
 	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
+-(void)insertViewsAt:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+    ENSURE_UI_THREAD(insertViewsAt, args);
+    ENSURE_TYPE([args objectAtIndex:0], NSNumber);
+    
+    NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    id arg = [args objectAtIndex:1];
+    
+    if ([arg isKindOfClass:[TiViewProxy class]]) {
+        [self _addView:arg atIndex:insertIndex];
+    } else if ([arg isKindOfClass:[NSArray class]]) {
+        for (id newViewProxy in arg) {
+            [self _addView:newViewProxy atIndex:insertIndex++];
+        }
+    }
+}
+
 -(void)addView:(id)args
 {
-	ENSURE_SINGLE_ARG(args,TiViewProxy);
+    ENSURE_SINGLE_ARG(args,TiViewProxy);
+    [self _addView:args atIndex:viewProxies ? [viewProxies count] : 0];
+}
 
-	[self lockViewsForWriting];
-	[self rememberProxy:args];
-	[args setParent:self];
-	if (viewProxies != nil)
-	{
-		[viewProxies addObject:args];
-	}
-	else
-	{
-		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
-	}
-	[self unlockViews];	
-	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
+// Private, used to have only one method repsonsible for adding views
+-(void)_addView:(TiViewProxy*)proxy atIndex:(NSUInteger)index
+{
+    [self lockViewsForWriting];
+    [self rememberProxy:proxy];
+    [proxy setParent:self];
+    
+    if (viewProxies != nil) {
+        [viewProxies insertObject:proxy atIndex:index];
+    } else {
+        viewProxies = [[NSMutableArray alloc] initWithObjects:proxy,nil];
+    }
+    
+    [self unlockViews];
+    [self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
+#if defined(TI_USE_AUTOLAYOUT) || defined(TI_USE_KROLL_THREAD)
+	ENSURE_UI_THREAD(removeView, args)
+#endif
 	ENSURE_SINGLE_ARG(args,NSObject);
 
 	[self lockViewsForWriting];
@@ -151,7 +192,9 @@
 				[args class]] location:CODELOCATION];
 		return;
 	}
-
+#ifdef TI_USE_AUTOLAYOUT
+	args = doomedView;
+#endif
 	TiThreadPerformOnMainThread(^{[doomedView detachView];}, NO);
 	[self forgetProxy:doomedView];
 	[viewProxies removeObject:doomedView];
@@ -240,6 +283,7 @@
 	return result;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	[self lockViews];
@@ -265,7 +309,7 @@
 	//Adding the view to a scrollable view is invalid.
 	return nil;
 }
-
+#endif
 -(CGFloat)autoWidthForSize:(CGSize)size
 {
     CGFloat result = 0.0;
@@ -301,9 +345,11 @@
 
 -(void)willChangeLayout
 {
+#ifndef TI_USE_AUTOLAYOUT
     if (layoutProperties.layoutStyle != TiLayoutRuleAbsolute) {
         layoutProperties.layoutStyle = TiLayoutRuleAbsolute;
     }
+#endif
     [super willChangeLayout];
 }
 

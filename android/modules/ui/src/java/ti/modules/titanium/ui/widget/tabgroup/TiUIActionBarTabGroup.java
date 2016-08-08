@@ -35,7 +35,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBar.TabListener;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
@@ -118,7 +118,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(true);
 
-		tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
+		tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
 
 		tabGroupViewPager = (new ViewPager(proxy.getActivity()){
 			@Override
@@ -304,7 +304,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		if (restoredFragmentIds.size() > 0) {
 			itemId = restoredFragmentIds.remove(0).longValue();
 			String restoredFragmentTag = restoredFragmentTags.remove(0);
-			FragmentManager fm = ((ActionBarActivity)tabActivity.get()).getSupportFragmentManager();
+			FragmentManager fm = ((AppCompatActivity)tabActivity.get()).getSupportFragmentManager();
 			TabFragment fragment = (TabFragment) fm.findFragmentByTag(restoredFragmentTag);
 			if (fragment != null) {
 				actionBarTab.setTabOnFragment(fragment);

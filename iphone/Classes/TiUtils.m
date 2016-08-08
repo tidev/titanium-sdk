@@ -20,6 +20,7 @@
 #import "TiBlob.h"
 #import "Base64Transcoder.h"
 #import "TiExceptionHandler.h"
+#import "TiApp.h"
 
 // for checking version
 #import <sys/utsname.h>
@@ -193,6 +194,25 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isIOS9OrGreater
 {
     return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
+}
+
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
++(BOOL)isIOS9_3OrGreater
+{
+    return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
+}
+
++(BOOL)isIOS10OrGreater
+{
+#if IS_XCODE_8
+    return [[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending;
+#else
+    return NO;
+#endif
 }
 
 +(BOOL)isIPad
@@ -668,6 +688,95 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return image;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
++(UIImage *)adjustRotation:(UIImage *) image {
+    
+    CGImageRef imgRef = image.CGImage;
+    CGFloat width = CGImageGetWidth(imgRef);
+    CGFloat height = CGImageGetHeight(imgRef);
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    CGRect bounds = CGRectMake(0, 0, width, height);
+    CGFloat scaleRatio = bounds.size.width / width;
+    CGSize imageSize = CGSizeMake(CGImageGetWidth(imgRef), CGImageGetHeight(imgRef));
+    CGFloat boundHeight;
+    UIImageOrientation orient = image.imageOrientation;
+    switch(orient) {
+            
+        case UIImageOrientationUp: //EXIF = 1
+            transform = CGAffineTransformIdentity;
+            break;
+            
+        case UIImageOrientationUpMirrored: //EXIF = 2
+            transform = CGAffineTransformMakeTranslation(imageSize.width, 0.0);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            break;
+            
+        case UIImageOrientationDown: //EXIF = 3
+            transform = CGAffineTransformMakeTranslation(imageSize.width, imageSize.height);
+            transform = CGAffineTransformRotate(transform, M_PI);
+            break;
+            
+        case UIImageOrientationDownMirrored: //EXIF = 4
+            transform = CGAffineTransformMakeTranslation(0.0, imageSize.height);
+            transform = CGAffineTransformScale(transform, 1.0, -1.0);
+            break;
+            
+        case UIImageOrientationLeftMirrored: //EXIF = 5
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(imageSize.height, imageSize.width);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationLeft: //EXIF = 6
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(0.0, imageSize.width);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationRightMirrored: //EXIF = 7
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+            
+        case UIImageOrientationRight: //EXIF = 8
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(imageSize.height, 0.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+            
+        default:
+            [NSException raise:NSInternalInconsistencyException format:@"Invalid image orientation"];
+    }
+    
+    UIGraphicsBeginImageContext(bounds.size);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    if (orient == UIImageOrientationRight || orient == UIImageOrientationLeft) {
+        CGContextScaleCTM(context, -scaleRatio, scaleRatio);
+        CGContextTranslateCTM(context, -height, 0);
+    } else {
+        CGContextScaleCTM(context, scaleRatio, -scaleRatio);
+        CGContextTranslateCTM(context, 0, -height);
+    }
+    
+    CGContextConcatCTM(context, transform);
+    
+    CGContextDrawImage(UIGraphicsGetCurrentContext(), CGRectMake(0, 0, width, height), imgRef);
+    UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return imageCopy;
+}
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
 {
@@ -1137,6 +1246,32 @@ If the new path starts with / and the base url is app://..., we have to massage 
 			[NSNumber numberWithDouble:size.width],@"width",
 			[NSNumber numberWithDouble:size.height],@"height",
 			nil];
+}
+
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andView:(UIView*)view
+{
+    if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
+         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+         [NSNumber numberWithDouble:[touch locationInView:view].x],@"x",
+         [NSNumber numberWithDouble:[touch locationInView:view].y],@"y",
+         [NSNumber numberWithFloat:touch.force],@"force",
+         [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+         [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
+         nil];
+        
+        if ([self isIOS9_1OrGreater]) {
+            [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
+        }
+        
+        if ([self validatePencilWithTouch:touch]) {
+            [dict setValue:[NSNumber numberWithFloat:[touch azimuthUnitVectorInView:view].dx] forKey:@"azimuthUnitVectorInViewX"];
+            [dict setValue:[NSNumber numberWithFloat:[touch azimuthUnitVectorInView:view].dy] forKey:@"azimuthUnitVectorInViewY"];
+        }
+
+        return dict;
+    }
+    
+    return [self pointToDictionary:[touch locationInView:view]];
 }
 
 +(CGRect)contentFrame:(BOOL)window
@@ -1842,6 +1977,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     else if ([image isKindOfClass:[NSString class]]) {
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil)
+        {
+            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+        }
         if (resultImage==nil && [image isEqualToString:@"Default.png"])
         {
             // special case where we're asking for Default.png and it's in Bundle not path
@@ -1856,7 +1995,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
     }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
+        resultImage = [(TiBlob*)image image];
     }
     return resultImage;
 }
@@ -1925,6 +2064,19 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return r;
 }
 
++(BOOL)forceTouchSupported
+{
+    if ([self isIOS9OrGreater] == NO) {
+        return NO;
+    }
+    return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+}
+
++(BOOL)livePhotoSupported
+{
+    return [self isIOS9_1OrGreater] == YES;
+}
+
 +(NSString*)currentArchitecture
 {
 #ifdef __arm64__
@@ -1940,6 +2092,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return @"i386";
 #endif
     return @"Unknown";
+}
+
++(BOOL)validatePencilWithTouch:(UITouch*)touch
+{
+    if ([self isIOS9_1OrGreater]) {
+        return [touch type] == UITouchTypeStylus;
+    } else {
+        return NO;
+    }
 }
 
 @end

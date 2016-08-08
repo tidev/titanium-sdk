@@ -341,6 +341,19 @@ describe('AndroidManifest', function () {
 									"data": [
 										{ "mimeType": "vnd.android.cursor.item/vnd.google.note" }
 									]
+								},
+								{
+									"action": [ "android.intent.action.SEND", "android.intent.action.SEND_MULTIPLE" ],
+									"category": [ "android.intent.category.DEFAULT" ],
+									"data": [
+										{ "mimeType": "application/vnd.google.panorama360+jpg" },
+										{ "mimeType": "image/*" },
+										{ "mimeType": "video/*" }
+									]
+								},
+								{
+									"action": [ "android.intent.action.VIEW" ],
+									"category": [ "android.intent.category.DEFAULT", "android.intent.category.BROWSABLE" ]
 								}
 							]
 						}
@@ -354,7 +367,7 @@ describe('AndroidManifest', function () {
 		});
 
 		it("toString('json')", function () {
-			am.toString('json').should.equal('{"application":{"activity":{"TestActivity1":{"name":"TestActivity1","intent-filter":[{"icon":"@drawable/icon","label":"testFilter","priority":123,"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]},{"action":["android.intent.action.VIEW","android.intent.action.EDIT","android.intent.action.PICK"],"category":["android.intent.category.DEFAULT"],"data":[{"mimeType":"vnd.android.cursor.dir/vnd.google.note"}]},{"action":["android.intent.action.GET_CONTENT"],"category":["android.intent.category.DEFAULT"],"data":[{"mimeType":"vnd.android.cursor.item/vnd.google.note"}]}]}}}}');
+			am.toString('json').should.equal('{"application":{"activity":{"TestActivity1":{"name":"TestActivity1","intent-filter":[{"icon":"@drawable/icon","label":"testFilter","priority":123,"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]},{"action":["android.intent.action.VIEW","android.intent.action.EDIT","android.intent.action.PICK"],"category":["android.intent.category.DEFAULT"],"data":[{"mimeType":"vnd.android.cursor.dir/vnd.google.note"}]},{"action":["android.intent.action.GET_CONTENT"],"category":["android.intent.category.DEFAULT"],"data":[{"mimeType":"vnd.android.cursor.item/vnd.google.note"}]},{"action":["android.intent.action.SEND","android.intent.action.SEND_MULTIPLE"],"category":["android.intent.category.DEFAULT"],"data":[{"mimeType":"application/vnd.google.panorama360+jpg"},{"mimeType":"image/*"},{"mimeType":"video/*"}]},{"category":["android.intent.category.DEFAULT","android.intent.category.BROWSABLE"],"action":["android.intent.action.VIEW"]}]}}}}');
 		});
 
 		it("toString('pretty-json')", function () {
@@ -403,6 +416,35 @@ describe('AndroidManifest', function () {
 				'								"mimeType": "vnd.android.cursor.item/vnd.google.note"',
 				'							}',
 				'						]',
+				'					},',
+				'					{',
+				'						"action": [',
+				'							"android.intent.action.SEND",',
+				'							"android.intent.action.SEND_MULTIPLE"',
+				'						],',
+				'						"category": [',
+				'							"android.intent.category.DEFAULT"',
+				'						],',
+				'						"data": [',
+				'							{',
+				'								"mimeType": "application/vnd.google.panorama360+jpg"',
+				'							},',
+				'							{',
+				'								"mimeType": "image/*"',
+				'							},',
+				'							{',
+				'								"mimeType": "video/*"',
+				'							}',
+				'						]',
+				'					},',
+				'					{',
+				'						"category": [',
+				'							"android.intent.category.DEFAULT",',
+				'							"android.intent.category.BROWSABLE"',
+				'						],',
+				'						"action": [',
+				'							"android.intent.action.VIEW"',
+				'						]',
 				'					}',
 				'				]',
 				'			}',
@@ -433,6 +475,19 @@ describe('AndroidManifest', function () {
 				'				<action android:name="android.intent.action.GET_CONTENT"/>',
 				'				<category android:name="android.intent.category.DEFAULT"/>',
 				'				<data android:mimeType="vnd.android.cursor.item/vnd.google.note"/>',
+				'			</intent-filter>',
+				'			<intent-filter>',
+				'				<action android:name="android.intent.action.SEND"/>',
+				'				<action android:name="android.intent.action.SEND_MULTIPLE"/>',
+				'				<category android:name="android.intent.category.DEFAULT"/>',
+				'				<data android:mimeType="application/vnd.google.panorama360+jpg"/>',
+				'				<data android:mimeType="image/*"/>',
+				'				<data android:mimeType="video/*"/>',
+				'			</intent-filter>',
+				'			<intent-filter>',
+				'				<category android:name="android.intent.category.DEFAULT"/>',
+				'				<category android:name="android.intent.category.BROWSABLE"/>',
+				'				<action android:name="android.intent.action.VIEW"/>',
 				'			</intent-filter>',
 				'		</activity>',
 				'	</application>',
@@ -1719,7 +1774,7 @@ describe('AndroidManifest', function () {
 					'xmlns:android': 'http://schemas.android.com/apk/res/android',
 					'package': 'com.appcelerator.testapp',
 					'android:versionCode': 1,
-					'android:versionName': 1
+					'android:versionName': '1.0'
 				},
 				'uses-sdk': { minSdkVersion: 10, targetSdkVersion: 14, maxSdkVersion: 18 },
 				application: {
@@ -1768,7 +1823,7 @@ describe('AndroidManifest', function () {
 		});
 
 		it("toString('json')", function () {
-			am.toString('json').should.equal('{"__attr__":{"xmlns:android":"http://schemas.android.com/apk/res/android","package":"com.appcelerator.testapp","android:versionCode":1,"android:versionName":1},"uses-sdk":{"minSdkVersion":10,"targetSdkVersion":14,"maxSdkVersion":18},"application":{"icon":"@drawable/appicon","label":"Testapp","name":"TestappApplication","debuggable":false,"activity":{".TestappActivity":{"name":".TestappActivity","label":"Testapp","theme":"@style/Theme.Titanium","configChanges":["keyboardHidden","orientation"],"intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},"org.appcelerator.titanium.TiActivity":{"name":"org.appcelerator.titanium.TiActivity","configChanges":["keyboardHidden","orientation"]},"org.appcelerator.titanium.TiTranslucentActivity":{"name":"org.appcelerator.titanium.TiTranslucentActivity","configChanges":["keyboardHidden","orientation"],"theme":"@android:style/Theme.Translucent"},"ti.modules.titanium.ui.android.TiPreferencesActivity":{"name":"ti.modules.titanium.ui.android.TiPreferencesActivity"}},"service":{"org.appcelerator.titanium.analytics.TiAnalyticsService":{"name":"org.appcelerator.titanium.analytics.TiAnalyticsService","exported":false}}}}');
+			am.toString('json').should.equal('{"__attr__":{"xmlns:android":"http://schemas.android.com/apk/res/android","package":"com.appcelerator.testapp","android:versionCode":1,"android:versionName":"1.0"},"uses-sdk":{"minSdkVersion":10,"targetSdkVersion":14,"maxSdkVersion":18},"application":{"icon":"@drawable/appicon","label":"Testapp","name":"TestappApplication","debuggable":false,"activity":{".TestappActivity":{"name":".TestappActivity","label":"Testapp","theme":"@style/Theme.Titanium","configChanges":["keyboardHidden","orientation"],"intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},"org.appcelerator.titanium.TiActivity":{"name":"org.appcelerator.titanium.TiActivity","configChanges":["keyboardHidden","orientation"]},"org.appcelerator.titanium.TiTranslucentActivity":{"name":"org.appcelerator.titanium.TiTranslucentActivity","configChanges":["keyboardHidden","orientation"],"theme":"@android:style/Theme.Translucent"},"ti.modules.titanium.ui.android.TiPreferencesActivity":{"name":"ti.modules.titanium.ui.android.TiPreferencesActivity"}},"service":{"org.appcelerator.titanium.analytics.TiAnalyticsService":{"name":"org.appcelerator.titanium.analytics.TiAnalyticsService","exported":false}}}}');
 		});
 
 		it("toString('pretty-json')", function () {
@@ -1778,7 +1833,7 @@ describe('AndroidManifest', function () {
 				'		"xmlns:android": "http://schemas.android.com/apk/res/android",',
 				'		"package": "com.appcelerator.testapp",',
 				'		"android:versionCode": 1,',
-				'		"android:versionName": 1',
+				'		"android:versionName": "1.0"',
 				'	},',
 				'	"uses-sdk": {',
 				'		"minSdkVersion": 10,',
@@ -1843,7 +1898,7 @@ describe('AndroidManifest', function () {
 		it("toString('xml')", function () {
 			am.toString('xml').should.equal([
 				'<?xml version="1.0" encoding="UTF-8"?>',
-				'<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.appcelerator.testapp" android:versionCode="1" android:versionName="1">',
+				'<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.appcelerator.testapp" android:versionCode="1" android:versionName="1.0">',
 				'	<uses-sdk android:minSdkVersion="10" android:targetSdkVersion="14" android:maxSdkVersion="18"/>',
 				'	<application android:icon="@drawable/appicon" android:label="Testapp" android:name="TestappApplication" android:debuggable="false">',
 				'		<activity android:name=".TestappActivity" android:label="Testapp" android:theme="@style/Theme.Titanium" android:configChanges="keyboardHidden|orientation">',
@@ -1869,7 +1924,7 @@ describe('AndroidManifest', function () {
 			am.should.eql({
 				__attr__: {
 					'android:versionCode': 1,
-					'android:versionName': 1,
+					'android:versionName': '1',
 					package: 'com.appcelerator.testapp2',
 					'xmlns:android': 'http://schemas.android.com/apk/res/android'
 				},
@@ -2007,7 +2062,7 @@ describe('AndroidManifest', function () {
 		});
 
 		it("toString('json')", function () {
-			am.toString('json').should.equal('{"__attr__":{"android:versionCode":1,"android:versionName":1,"package":"com.appcelerator.testapp2","xmlns:android":"http://schemas.android.com/apk/res/android"},"uses-sdk":{"minSdkVersion":10,"targetSdkVersion":17},"permission":{"com.appcelerator.testapp2.permission.C2D_MESSAGE":{"name":"com.appcelerator.testapp2.permission.C2D_MESSAGE","protectionLevel":"signature"}},"application":{"debuggable":false,"icon":"@drawable/appicon","label":"testapp2","name":"Testapp2Application","activity":{".TestappActivity":{"alwaysRetainTaskState":true,"configChanges":["keyboardHidden","orientation"],"label":"testapp","name":".TestappActivity","theme":"@style/Theme.Titanium","intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},".Testapp2Activity":{"configChanges":["keyboardHidden","orientation"],"label":"testapp2","name":".Testapp2Activity","theme":"@style/Theme.Titanium","intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},"com.appcelerator.testapp2.TestactivityActivity":{"configChanges":["keyboardHidden","orientation"],"name":"com.appcelerator.testapp2.TestactivityActivity"},"org.appcelerator.titanium.TiActivity":{"configChanges":["keyboardHidden","orientation"],"name":"org.appcelerator.titanium.TiActivity"},"org.appcelerator.titanium.TiTranslucentActivity":{"configChanges":["keyboardHidden","orientation"],"name":"org.appcelerator.titanium.TiTranslucentActivity","theme":"@android:style/Theme.Translucent"},"ti.modules.titanium.ui.android.TiPreferencesActivity":{"name":"ti.modules.titanium.ui.android.TiPreferencesActivity"}},"service":{"com.appcelerator.cloud.push.PushService":{"name":"com.appcelerator.cloud.push.PushService"},"org.appcelerator.titanium.analytics.TiAnalyticsService":{"exported":false,"name":"org.appcelerator.titanium.analytics.TiAnalyticsService"},"com.appcelerator.testapp2.TestserviceService":{"name":"com.appcelerator.testapp2.TestserviceService"}},"receiver":{"ti.cloudpush.IntentReceiver":{"name":"ti.cloudpush.IntentReceiver"},"ti.cloudpush.MQTTReceiver":{"name":"ti.cloudpush.MQTTReceiver","intent-filter":[{"action":["android.intent.action.BOOT_COMPLETED","android.intent.action.USER_PRESENT","com.appcelerator.cloud.push.PushService.MSG_ARRIVAL"],"category":["android.intent.category.HOME"]}],"meta-data":{"com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity":{"name":"com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity","value":"ti.cloudpush.MQTTReceiver"}}},"ti.cloudpush.GCMReceiver":{"name":"ti.cloudpush.GCMReceiver","permission":"com.google.android.c2dm.permission.SEND","intent-filter":[{"action":["com.google.android.c2dm.intent.RECEIVE"],"category":["com.appcelerator.testapp2"]}]},"com.appcelerator.cloud.push.PushBroadcastReceiver":{"name":"com.appcelerator.cloud.push.PushBroadcastReceiver","permission":"com.google.android.c2dm.permission.SEND","intent-filter":[{"action":["com.google.android.c2dm.intent.REGISTRATION"],"category":["com.appcelerator.testapp2"]}]}}},"uses-permission":["android.permission.VIBRATE","android.permission.ACCESS_NETWORK_STATE","android.permission.WRITE_EXTERNAL_STORAGE","com.google.android.c2dm.permission.RECEIVE","android.permission.WAKE_LOCK","android.permission.ACCESS_WIFI_STATE","android.permission.RECEIVE_BOOT_COMPLETED","com.appcelerator.testapp2.permission.C2D_MESSAGE","android.permission.READ_PHONE_STATE","android.permission.INTERNET","android.permission.GET_ACCOUNTS"]}');
+			am.toString('json').should.equal('{"__attr__":{"android:versionCode":1,"android:versionName":"1","package":"com.appcelerator.testapp2","xmlns:android":"http://schemas.android.com/apk/res/android"},"uses-sdk":{"minSdkVersion":10,"targetSdkVersion":17},"permission":{"com.appcelerator.testapp2.permission.C2D_MESSAGE":{"name":"com.appcelerator.testapp2.permission.C2D_MESSAGE","protectionLevel":"signature"}},"application":{"debuggable":false,"icon":"@drawable/appicon","label":"testapp2","name":"Testapp2Application","activity":{".TestappActivity":{"alwaysRetainTaskState":true,"configChanges":["keyboardHidden","orientation"],"label":"testapp","name":".TestappActivity","theme":"@style/Theme.Titanium","intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},".Testapp2Activity":{"configChanges":["keyboardHidden","orientation"],"label":"testapp2","name":".Testapp2Activity","theme":"@style/Theme.Titanium","intent-filter":[{"action":["android.intent.action.MAIN"],"category":["android.intent.category.LAUNCHER"]}]},"com.appcelerator.testapp2.TestactivityActivity":{"configChanges":["keyboardHidden","orientation"],"name":"com.appcelerator.testapp2.TestactivityActivity"},"org.appcelerator.titanium.TiActivity":{"configChanges":["keyboardHidden","orientation"],"name":"org.appcelerator.titanium.TiActivity"},"org.appcelerator.titanium.TiTranslucentActivity":{"configChanges":["keyboardHidden","orientation"],"name":"org.appcelerator.titanium.TiTranslucentActivity","theme":"@android:style/Theme.Translucent"},"ti.modules.titanium.ui.android.TiPreferencesActivity":{"name":"ti.modules.titanium.ui.android.TiPreferencesActivity"}},"service":{"com.appcelerator.cloud.push.PushService":{"name":"com.appcelerator.cloud.push.PushService"},"org.appcelerator.titanium.analytics.TiAnalyticsService":{"exported":false,"name":"org.appcelerator.titanium.analytics.TiAnalyticsService"},"com.appcelerator.testapp2.TestserviceService":{"name":"com.appcelerator.testapp2.TestserviceService"}},"receiver":{"ti.cloudpush.IntentReceiver":{"name":"ti.cloudpush.IntentReceiver"},"ti.cloudpush.MQTTReceiver":{"name":"ti.cloudpush.MQTTReceiver","intent-filter":[{"action":["android.intent.action.BOOT_COMPLETED","android.intent.action.USER_PRESENT","com.appcelerator.cloud.push.PushService.MSG_ARRIVAL"],"category":["android.intent.category.HOME"]}],"meta-data":{"com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity":{"name":"com.appcelerator.cloud.push.BroadcastReceiver.ArrivalActivity","value":"ti.cloudpush.MQTTReceiver"}}},"ti.cloudpush.GCMReceiver":{"name":"ti.cloudpush.GCMReceiver","permission":"com.google.android.c2dm.permission.SEND","intent-filter":[{"action":["com.google.android.c2dm.intent.RECEIVE"],"category":["com.appcelerator.testapp2"]}]},"com.appcelerator.cloud.push.PushBroadcastReceiver":{"name":"com.appcelerator.cloud.push.PushBroadcastReceiver","permission":"com.google.android.c2dm.permission.SEND","intent-filter":[{"action":["com.google.android.c2dm.intent.REGISTRATION"],"category":["com.appcelerator.testapp2"]}]}}},"uses-permission":["android.permission.VIBRATE","android.permission.ACCESS_NETWORK_STATE","android.permission.WRITE_EXTERNAL_STORAGE","com.google.android.c2dm.permission.RECEIVE","android.permission.WAKE_LOCK","android.permission.ACCESS_WIFI_STATE","android.permission.RECEIVE_BOOT_COMPLETED","com.appcelerator.testapp2.permission.C2D_MESSAGE","android.permission.READ_PHONE_STATE","android.permission.INTERNET","android.permission.GET_ACCOUNTS"]}');
 		});
 
 		it("toString('pretty-json')", function () {
@@ -2015,7 +2070,7 @@ describe('AndroidManifest', function () {
 				'{',
 				'	"__attr__": {',
 				'		"android:versionCode": 1,',
-				'		"android:versionName": 1,',
+				'		"android:versionName": "1",',
 				'		"package": "com.appcelerator.testapp2",',
 				'		"xmlns:android": "http://schemas.android.com/apk/res/android"',
 				'	},',
@@ -14961,7 +15016,7 @@ describe('AndroidManifest', function () {
 			am2.should.eql({
 				__attr__: {
 					'android:versionCode': 1,
-					'android:versionName': 1,
+					'android:versionName': '1',
 					package: 'com.appcelerator.testapp2',
 					'xmlns:android': 'http://schemas.android.com/apk/res/android'
 				},

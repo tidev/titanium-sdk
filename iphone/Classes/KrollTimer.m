@@ -109,9 +109,9 @@
 
 #ifndef TI_USE_KROLL_THREAD
         if (![NSThread isMainThread]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            TiThreadPerformOnMainThread( ^{
                 [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
-            });
+            }, NO);
         } else
 #endif
         {

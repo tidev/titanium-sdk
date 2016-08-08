@@ -18,6 +18,15 @@
 
 #pragma mark Internal
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(picker);
@@ -47,16 +56,35 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
+		float width = 320;
+		float height = 216;
+        
+		if ([TiUtils isIOS9OrGreater]) {
+			width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+			height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
+		}
+        
+		NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
+		NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
+		NSNumberFormatter *shouldSize = [[[NSNumberFormatter alloc] init] autorelease];
+        
+		if ([shouldSize numberFromString:widthString] != nil) {
+			[[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
+		}
+		if ([shouldSize numberFromString:heightString] != nil) {
+			[[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
+		}
+        
 		if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
-		else 
+		else
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -196,6 +224,30 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	else if ([self isDatePicker])
 	{
 		[(UIDatePicker*)[self picker] setMaximumDate:date];
+	}
+}
+
+-(void)setBackgroundColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	if (picker != nil) {
+		[[self picker] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+	}
+}
+
+-(void)setDateTimeColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+
+	if (picker != nil) {
+		[(UIDatePicker*)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
+		SEL selector = NSSelectorFromString(@"setHighlightsToday:");
+		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDatePicker instanceMethodSignatureForSelector:selector]];
+		BOOL no = NO;
+		
+		[invocation setSelector:selector];
+		[invocation setArgument:&no atIndex:2];
+		[invocation invokeWithTarget:(UIDatePicker*)[self picker]];
 	}
 }
 

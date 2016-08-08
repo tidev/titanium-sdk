@@ -51,6 +51,17 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
 		}
 		[jsonkey release];
 	}
+
+	// if this looks like a JS Error object, get the message
+	if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
+		TiStringRef prop = TiStringCreateWithUTF8CString("message");
+		TiValueRef val = TiObjectGetProperty(jsContext, obj, prop, NULL);
+		id value = TiBindingTiValueToNSObject(jsContext, val);
+		if (value && ![value isEqual:[NSNull null]]) {
+			[dict setObject:value forKey:@"message"];
+		}
+		TiStringRelease(prop);
+	}
 	
 	TiPropertyNameArrayRelease(props);
 	
@@ -113,6 +124,23 @@ NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef)
 			if ([privateObject isKindOfClass:[KrollObject class]]) {
 				return [privateObject target];
 			}
+			if ([privateObject isKindOfClass:[TiProxy class]]) {
+				return privateObject;
+			}
+#ifdef HYPERLOOP
+			// this is a special hyperloop wrapped object, unwrap it
+			if (privateObject == nil) {
+				TiStringRef jsString = TiStringCreateWithUTF8CString("$native");
+				TiValueRef jsValue = TiObjectGetProperty(jsContext, obj, jsString, NULL);
+				TiStringRelease(jsString);
+				if (TiValueIsObject(jsContext, jsValue)) {
+					privateObject = (id)TiObjectGetPrivate(TiValueToObject(jsContext, jsValue, NULL));
+					if (privateObject != nil) {
+						return privateObject;
+					}
+				}
+			}
+#endif
 			if (TiValueIsArray(jsContext,obj)) {
 				TiValueRef length = TiObjectGetProperty(jsContext, obj, kTiStringLength, NULL);
 				double len = TiValueToNumber(jsContext, length, NULL);

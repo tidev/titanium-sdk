@@ -273,7 +273,6 @@ methods:
         summary: Basic auth password.
         type: String
 
-
   - name: stopLoading
     summary: Stops loading a currently loading page.
     description: |
@@ -289,7 +288,6 @@ methods:
       - name: hardStop
         summary: Forces the web view to destroy the iFrame (Mobile Web only).
         type: Boolean
-
 
 events:
 
@@ -390,8 +388,48 @@ events:
       - name: code
         summary: SSL error code.
         type: Number
+
+  - name: onStopBlacklistedUrl
+    summary: Fired when a blacklisted Url is stopped
+    description: |
+        This event is fired when a blacklisted Url is stopped
+    platforms: [android]
+    since: "5.4.0"
+    properties:
+      - name: url
+        summary: URL of the web document that is stopped.
         
 properties:
+
+  - name: allowsLinkPreview
+    summary: |
+        A Boolean value that determines whether pressing on a link displays a preview of the 
+        destination for the link.
+    description: |
+        This property is available on devices that support 3D Touch. Default value is `false`.
+
+        If you set this value to `true` for a web view, users (with devices that support 3D Touch) 
+        can preview link destinations, and can preview detected data such as addresses, by pressing on links. 
+        Such previews are known to users as peeks. If a user presses deeper, the preview navigates (or pops, 
+        in user terminology) to the destination. Because pop navigation switches the user from your app to 
+        Safari, it is opt-in, by way of this property, rather default behavior for this class.
+    type: Boolean
+    default: false
+    since: "5.4.0"
+    osver: {ios: {min: "9.0"}}
+    platforms: [iphone]
+
+  - name: blacklistedURLs
+    summary: |
+        An array of url strings to blacklist.
+    description: |
+        An array of url strings to blacklist. This will stop the webview from going to urls listed in
+        the blacklist. Note, this only applies in the links clicked inside the webview. The first website
+        that is loaded will not be stopped even if it matches the blacklist.
+    type: Array<String>
+    since: "5.4.0"
+    platforms: [android]
+    availability: creation
 
   - name: data
     summary: Web content to load.

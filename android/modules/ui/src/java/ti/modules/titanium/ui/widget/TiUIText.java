@@ -193,7 +193,7 @@ public class TiUIText extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
 			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)
-			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
+			|| d.containsKey(TiC.PROPERTY_EDITABLE) || d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
 			handleKeyboard(d);
 		}
 		
@@ -214,8 +214,34 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
 			TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
+		}
+		
 	}
 
+	private void setTextPadding(HashMap<String, Object> d)
+	{
+		int paddingLeft = 0;
+		int paddingRight = 0;
+		
+		if (d.containsKey(TiC.PROPERTY_LEFT)) {
+			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+		} else {
+			paddingLeft = tv.getPaddingLeft();
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
+		} else {
+			paddingRight = tv.getPaddingRight();
+		}
+		
+		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
+		if (field) {
+			tv.setGravity(Gravity.CENTER_VERTICAL);
+		}
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -266,7 +292,7 @@ public class TiUIText extends TiUIView
 				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE)
+		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_INPUT_TYPE))
 			|| (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION)
 				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
@@ -281,6 +307,8 @@ public class TiUIText extends TiUIView
 			setAttributedStringHint((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringText((AttributedStringProxy)newValue);
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setTextPadding((HashMap)newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -440,14 +468,36 @@ public class TiUIText extends TiUIView
 			autocorrect = 0;
 		}
 
-		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
-			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
+		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
+		    passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 		}
 
-		if (!editable) {
-			tv.setInputType(InputType.TYPE_NULL);
-			tv.setCursorVisible(false);
+		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
+		    editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
+		}
 
+		tv.setEnabled(true);
+
+		if (!editable) {
+		    tv.setInputType(InputType.TYPE_NULL);
+		    tv.setCursorVisible(false);
+		    tv.setEnabled(false);
+		    if (passwordMask) {
+		        Typeface origTF = tv.getTypeface();
+		        // Sometimes password transformation does not work properly when the input type is set after the
+		        // transformation method.
+		        // This issue has been filed at http://code.google.com/p/android/issues/detail?id=7092
+		        tv.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		        // Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
+		        // with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
+		        tv.setTypeface(origTF);
+		        tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+		        // turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in
+		        // landscape mode.
+		        if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
+		            tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+		        }
+		    }
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);
@@ -474,10 +524,6 @@ public class TiUIText extends TiUIView
 						Log.w(TAG, "Unknown AutoCapitalization Value [" + d.getString(TiC.PROPERTY_AUTOCAPITALIZATION) + "]");
 						break;
 				}
-			}
-
-			if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
-				passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK, false);
 			}
 
 			if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
@@ -522,7 +568,7 @@ public class TiUIText extends TiUIView
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 					break;
 				case KEYBOARD_DECIMAL_PAD:
-					textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+					textTypeAndClass = (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
 				case KEYBOARD_NUMBER_PAD:
 					tv.setKeyListener(DigitsKeyListener.getInstance(true, true));
 					textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
@@ -534,6 +580,28 @@ public class TiUIText extends TiUIView
 				case KEYBOARD_EMAIL_ADDRESS:
 					textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 					break;
+			}
+
+			if (d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
+			    Object obj = d.get(TiC.PROPERTY_INPUT_TYPE);
+			    boolean combineInput = false;
+			    int[] inputTypes = null;
+			    int combinedInputType = 0;
+
+			    if (obj instanceof Object[]) {
+			        inputTypes = TiConvert.toIntArray((Object[]) obj);
+			    }
+
+			    if (inputTypes != null) {
+			        combineInput = true;
+			        for (int inputType: inputTypes) {
+			            combinedInputType |= inputType;
+			        }
+			    }
+
+			    if (combineInput) {
+			        textTypeAndClass = combinedInputType;
+			    }
 			}
 
 			if (passwordMask) {
@@ -577,6 +645,13 @@ public class TiUIText extends TiUIView
 			Log.w(TAG, "Invalid range for text selection. Ignoring.");
 			return;
 		}
+
+		// http://stackoverflow.com/a/35527348/1504248
+		Editable text = tv.getText();
+		if (text.length() > 0) {
+			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+		}
+		
 		tv.setSelection(start, end);
 	}
 	

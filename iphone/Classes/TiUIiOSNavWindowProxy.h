@@ -8,7 +8,7 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 #import "TiWindowProxy.h"
 
-@interface TiUIiOSNavWindowProxy : TiWindowProxy<UINavigationControllerDelegate,TiOrientationController,TiTab> {
+@interface TiUIiOSNavWindowProxy : TiWindowProxy<UINavigationControllerDelegate,UIGestureRecognizerDelegate, TiOrientationController,TiTab> {
 @private
     UINavigationController *navController;
     TiWindowProxy *rootWindow;

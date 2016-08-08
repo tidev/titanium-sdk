@@ -67,6 +67,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -75,10 +76,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	return [[(TiUILabel*)[self view] label] superview];
+}
+
+-(NSNumber*)ellipsize:(id)unused
+{
+    return NUMINTEGER([[(TiUILabel*)[self view] label] lineBreakMode]);
 }
 
 @end

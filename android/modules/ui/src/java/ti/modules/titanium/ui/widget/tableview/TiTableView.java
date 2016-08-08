@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -23,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Color;
@@ -47,8 +47,7 @@ public class TiTableView extends FrameLayout
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
 
-	//TODO make this configurable
-	protected static final int MAX_CLASS_NAMES = 32;
+	protected int maxClassname = 32;
 
 	private TableViewModel viewModel;
 	private ListView listView;
@@ -62,6 +61,7 @@ public class TiTableView extends FrameLayout
 	private String filterAttribute;
 	private String filterText;
 
+	private int dividerHeight;
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private boolean filterAnchored = false;
@@ -160,7 +160,9 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return MAX_CLASS_NAMES;
+		        // Fix for TIMOB-20038. Seems that there are 3 more
+		        // hidden views that needs to be recreated onLayout
+			return maxClassname + 3;
 		}
 
 		@Override
@@ -173,19 +175,19 @@ public class TiTableView extends FrameLayout
 		/*
 		 * IMPORTANT NOTE:
 		 * getView() is called by the Android framework whenever it needs a view.
-		 * The call to getView() could come on a measurement pass or on a layout 
+		 * The call to getView() could come on a measurement pass or on a layout
 		 * pass.  It's not possible to tell from the arguments whether the framework
 		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
 		 * it is important that getView() and all methods call by getView() only create
 		 * the views and fill them in with the appropriate data.  What getView() and the
-		 * methods call by getView MUST NOT do is to make any associations between 
+		 * methods call by getView MUST NOT do is to make any associations between
 		 * proxies and views.   Those associations must be made only for the views
 		 *  that are used for layout, and should be driven from the onLayout() callback.
 		 */
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
-			
+
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
 				// Default creates view for each Item
@@ -277,6 +279,9 @@ public class TiTableView extends FrameLayout
 		super(proxy.getActivity());
 		this.proxy = proxy;
 
+		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
+		    maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
+		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
 		rowTypes.put(TableViewProxy.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
@@ -296,7 +301,7 @@ public class TiTableView extends FrameLayout
 		{
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
-			
+
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
@@ -340,9 +345,14 @@ public class TiTableView extends FrameLayout
 				}
 			}
 		});
-
+		// get default divider height
+		dividerHeight = listView.getDividerHeight();
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+		    setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+		}
+
+		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
+		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -384,7 +394,7 @@ public class TiTableView extends FrameLayout
 		});
 		addView(listView);
 	}
-	
+
 	public void removeHeaderView(TiViewProxy viewProxy)
 	{
 		TiUIView peekView = viewProxy.peekView();
@@ -422,11 +432,6 @@ public class TiTableView extends FrameLayout
 			listView.setAdapter(adapter);
 		}
 	}
-	
-	public TiTableView(TiContext tiContext, TableViewProxy proxy)
-	{
-		this(proxy);
-	}
 
 	private TiBaseTableViewItem getParentTableViewItem(View view)
 	{
@@ -449,7 +454,7 @@ public class TiTableView extends FrameLayout
 			listView.setSelector(selector);
 		}
 	}
-	
+
 	public Item getItemAtPosition(int position)
 	{
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -471,7 +476,7 @@ public class TiTableView extends FrameLayout
 		}
 		return -1;
 	}
-	
+
 	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
@@ -527,7 +532,7 @@ public class TiTableView extends FrameLayout
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		
+
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
 		return tiView;
@@ -550,9 +555,16 @@ public class TiTableView extends FrameLayout
 
 	public void setSeparatorColor(String colorstring) {
 		int sepColor = TiColorHelper.parseColor(colorstring);
-		int dividerHeight = listView.getDividerHeight();
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);
+	}
+
+	public void setSeparatorStyle(int style) {
+	    if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+	        listView.setDividerHeight(0);
+	    } else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+	        listView.setDividerHeight(dividerHeight);
+	    }
 	}
 
 	public TableViewModel getTableViewModel() {

@@ -11,6 +11,7 @@
 #import "TiFilesystemBlobProxy.h"
 #import "TiFilesystemFileStreamProxy.h"
 #import "TiHost.h"
+#import <CommonCrypto/CommonDigest.h>
 
 #if TARGET_IPHONE_SIMULATOR 
 extern NSString * TI_APPLICATION_RESOURCE_DIR;
@@ -23,7 +24,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 {
 	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
 	{
-		return [arg path];
+		return [(TiFilesystemFileProxy*)arg path];
 	}
 	return [TiUtils stringValue:arg];
 }
@@ -188,6 +189,45 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	}
 	
 	return [[[TiFilesystemFileProxy alloc] initWithFile:newpath] autorelease];
+}
+
+-(id)getAsset:(id)args
+{
+    NSString* newpath = [self pathFromComponents:args];
+    
+    if ([newpath hasPrefix:[self resourcesDirectory]] &&
+        ([newpath hasSuffix:@".jpg"]||
+         [newpath hasSuffix:@".png"]))
+    {
+        UIImage *image = nil;
+        NSRange range = [newpath rangeOfString:@".app"];
+        NSString *imageArg = nil;
+        if (range.location != NSNotFound) {
+            imageArg = [newpath substringFromIndex:range.location+5];
+        }
+        //remove suffixes.
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+        
+        if (imageArg != nil) {
+            unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+            NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+            if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+                // SHA-1 hash has been calculated and stored in 'digest'.
+                NSMutableString *sha = [[NSMutableString alloc] init];
+                for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+                    [sha appendFormat:@"%02x", digest[i]];
+                }
+                [sha appendString:[newpath substringFromIndex:[newpath length] - 4]];
+                image = [UIImage imageNamed:sha];
+                RELEASE_TO_NIL(sha)
+            }
+        }
+        return [[TiBlob alloc] _initWithPageContext:[self executionContext] andImage:image];
+    }
+    return [NSNull null];
 }
 
 -(NSString*)IOS_FILE_PROTECTION_NONE

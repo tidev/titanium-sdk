@@ -9,8 +9,6 @@
 
 @interface TiUIRefreshControlProxy : TiProxy {
     UIRefreshControl* _refreshControl;
-    NSAttributedString* _attributedString;
-    UIColor* refreshTintColor;
 }
 
 #pragma mark - Internal Use Only

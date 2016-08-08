@@ -28,6 +28,12 @@ if (![NSThread isMainThread]) { \
 return; \
 } \
 
+#define ENSURE_IOS_API(version, message) \
+if ([[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending) { \
+    NSLog(@"[WARN] %@ is only available on iOS %@ and later.", message, version); \
+    return; \
+} \
+
 //TODO: Now that we have TiThreadPerform, we should optimize this out.
 #define ENSURE_UI_THREAD_WITH_OBJ(x,y,z) \
 if (![NSThread isMainThread]) { \

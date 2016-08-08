@@ -12,12 +12,21 @@
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined (USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 @implementation TiUILabel
 
 #pragma mark Internal
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
 
 -(id)init
 {
@@ -90,6 +99,7 @@
 
 -(void)padLabel
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
     UIControlContentVerticalAlignment alignment = verticalAlign;
     if (alignment == UIControlContentVerticalAlignmentFill) {
@@ -145,8 +155,10 @@
         [self updateBackgroundImageFrameWithPadding];
     }
 	return;
+#endif
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 // FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
@@ -154,11 +166,14 @@
 {
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
+#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     initialLabelFrame = bounds;
     [wrapperView setFrame:initialLabelFrame];
+#endif
     [self padLabel];
     [super frameSizeChanged:frame bounds:bounds];
 }
@@ -170,11 +185,15 @@
         label = [[UILabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;
+#ifndef TI_USE_AUTOLAYOUT
         wrapperView = [[UIView alloc] initWithFrame:[self bounds]];
         [wrapperView addSubview:label];
         wrapperView.clipsToBounds = YES;
         [wrapperView setUserInteractionEnabled:NO];
         [self addSubview:wrapperView];
+#else
+        [self addSubview:label];
+#endif
         minFontSize = 0;
     }
 	return label;
@@ -280,7 +299,11 @@
             return NO;
         }
         NSRange theRange = NSMakeRange(0, 0);
-        NSString *url = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&theRange];
+        NSString *url = nil;
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+        TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
+        url = [tempString getLink:idx];
+#endif
         if(url != nil && url.length) {
             NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                        url, @"url",
@@ -410,6 +433,16 @@
 	[[self label] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
 }
 
+-(void)setEllipsize_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber);
+	if ([[TiUtils stringValue:value] isEqualToString:@"true"]) {
+		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
+		return;
+	}
+	[[self label] setLineBreakMode:[TiUtils intValue:value]];
+}
+
 -(void)setHighlightedColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];
@@ -455,7 +488,7 @@
 
 -(void)setAttributedString_:(id)arg
 {
-#if defined (USE_TI_UIIOSATTRIBUTEDSTRING) || defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];

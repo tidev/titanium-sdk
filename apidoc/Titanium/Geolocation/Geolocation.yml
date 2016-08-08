@@ -225,6 +225,45 @@ methods:
         type: Callback<LocationResults>
     platforms: [android, iphone, ipad, mobileweb]
 
+  - name: hasLocationPermissions
+    summary: Returns `true` if the app has location access.
+    parameters:
+      - name: authorizationType
+        summary: |
+            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on 
+            Android and iOS 7.
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
+        type: Number 
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+  
+  - name: requestLocationPermissions
+    summary: Requests for location access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings. If the user asks for permissions or 
+        tries to get unauthorized location information, then the app should call the request method to show 
+        the permission settings. This method requests `Manifest.permission.ACCESS_FINE_LOCATION` on Android. 
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
+
+        In iOS 8, Apple introduced the Info.plist keys `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription`
+        that are used to display an own description while requesting location permissions. In addition to this method, you need to
+        include one of these keys (based on how your location updates should behave) or the application will crash if your app does not. 
+        Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
+    parameters:
+      - name: authorizationType
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
+        type: Number
+      - name: callback
+        summary: Function to call upon user decision to grant location access.
+        type: Callback<LocationAuthorizationResponse>
+    platforms: [iphone, ipad, android]
+    since: "5.1.0"
+
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
     description: |
@@ -802,7 +841,7 @@ properties:
     default: true
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
-    since: "4.3.0"
+    since: "5.0.0"
 
   - name: activityType
     summary: |
@@ -1256,4 +1295,8 @@ properties:
     summary: Full address.
     type: String
     platforms: [android, iphone, ipad]
+---
+name: LocationAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
 

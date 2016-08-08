@@ -75,7 +75,17 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
+
+  - name: keyboardAppearance
+    summary: Determines the appearance of the keyboard displayed when this field is focused.
+    type: Number
+    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: attributedString
     summary: TextField attributed string. 
     description: |
@@ -273,11 +283,16 @@ properties:
     default: No hint text.
 
   - name: hintTextColor
-    summary: Hint text color.
-    platforms: [android]
-    since: 4.1.0
+    summary: Hint text color to display when the field is empty.
+    platforms: [iphone, ipad, android]
+    since: {iphone: "5.4.0", ipad: "5.4.0", android: "4.1.0"}
     description: |
-        Hint text color in Android is determined by the theme of the application. By default, the
+        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overriden
+        by the <Titanium.UI.TextField.attributedHintText> which provides an advanced configuration to
+        style hint texts.
+
+        *Note for Android*:
+        The hint text color in Android is determined by the theme of the application. By default, the
         theme is 'Theme.AppCompat' which is a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
         edit the tiapp.xml file with another theme. Example as follows:
@@ -290,8 +305,20 @@ properties:
 
         Another way to change the hint text color is to use this property and specify a color.
     type: String
-    default: Default Android theme's hint text color.
-    
+    default: The platform's default hint text color.
+
+  - name: inputType
+    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    description: |
+        When asking for a specific kind of user input, such as a phone number or email 
+        address, you should always specify the input type that is accepted. This overrides
+        any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
+    type: Array<Number>
+    constants: [Titanium.UI.INPUT_TYPE_*]
+    platforms: [android]
+    default: Empty array. If not defined, default is Keyboard type specified by <Titanium.UI.TextField.keyboardType>.
+    since: 5.2.0
+
   - name: keyboardToolbar
     summary: |
         Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
@@ -341,8 +368,8 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
-    constants: Titanium.UI.KEYBOARD_*
-    default: <Titanium.UI.KEYBOARD_DEFAULT>
+    constants: Titanium.UI.KEYBOARD_TYPE_*
+    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
     
   - name: leftButton
     summary: Left button view to display in the `TextField`.
@@ -389,16 +416,28 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     
+  - name: padding
+    summary: Sets the padding of this text field. 
+    type: TextFieldPadding
+    platforms: [android, iphone, ipad]
+    since: 6.0.0
+
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextField.padding> instead.
     
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
-    
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextField.padding> instead.
+            
   - name: passwordMask
     summary: Obscure the input text from the user.
     description: |
@@ -485,7 +524,7 @@ properties:
     default: true
     platforms: [ipad]
     osver: {ios: {min: "9.0"}}
-    since: 4.3.0
+    since: 5.0.0
 
   - name: textAlign
     summary: Text alignment within this text field.
@@ -579,28 +618,28 @@ examples:
         This code excerpt creates a text field with a toolbar:
         
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
+                backgroundColor: 'white'
             });
 
-            var send = Titanium.UI.createButton({
+            var send = Ti.UI.createButton({
                 title : 'Send',
-                style : Titanium.UI.iPhone.SystemButtonStyle.DONE,
+                style : Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CAMERA,
+            var camera = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.CANCEL
+            var cancel = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            var flexSpace = Titanium.UI.createButton({
-                systemButton : Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            var flexSpace = Ti.UI.createButton({
+                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var textfield = Titanium.UI.createTextField({
-                borderStyle : Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
+            var textfield = Ti.UI.createTextField({
+                borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
                 hintText : 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
                 keyboardToolbarColor : '#999',
@@ -647,11 +686,11 @@ examples:
                         <KeyboardToolbar>
                             <Toolbar>
                                 <Items>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                                    <Button systemButton="CANCEL" />
                                     <FlexSpace/>
-                                    <Button systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                                    <Button systemButton="CAMERA" />
                                     <FlexSpace/>
-                                    <Button style="Ti.UI.iPhone.SystemButtonStyle.DONE">Send</Button>
+                                    <Button style="DONE">Send</Button>
                                 </Items>
                             </Toolbar>
                         </KeyboardToolbar>
@@ -673,3 +712,16 @@ properties:
   - name: length
     summary: Number of characters selected.
     type: Number
+---    
+name: TextFieldPadding
+summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
+since: "6.0.0"
+platforms: [android, iphone, ipad]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+    
+  - name: right
+    type: Number
+    summary: Right padding

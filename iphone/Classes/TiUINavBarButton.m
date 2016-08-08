@@ -72,7 +72,7 @@ DEFINE_EXCEPTIONS
 	id systemButton = [proxy_ valueForKey:@"systemButton"];
 	if (systemButton!=nil)
 	{
-		int type = [TiUtils intValue:systemButton];
+		UIBarButtonSystemItem type = [TiUtils intValue:systemButton];
 		UIView *button = [TiButtonUtil systemButtonWithType:type];
 		if (button!=nil)
 		{
@@ -106,7 +106,7 @@ DEFINE_EXCEPTIONS
             self = [super initWithCustomView:[proxy_ view]];
             self.target = self;
             self.action = @selector(clicked:);
-
+#ifndef TI_USE_AUTOLAYOUT
             if ([[proxy_ view] isKindOfClass:[UIControl class]])
             { 
                 [(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
@@ -115,13 +115,14 @@ DEFINE_EXCEPTIONS
             CGRect bounds = [[proxy_ view] bounds];
             if (bounds.size.width == 0) {
                 CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
-                bounds.size.width = desiredWidth;                        
+                bounds.size.width = desiredWidth;
             }
             if (bounds.size.height == 0) {
                 CGFloat desiredHeight = [proxy_ autoHeightForSize:CGSizeMake(bounds.size.width, 1000)];
                 bounds.size.height = desiredHeight;
             }
             [[proxy_ view] setBounds:bounds];
+#endif
         }
         else if (image!=nil) {
             NSURL *url = [TiUtils toURL:image proxy:proxy_];
@@ -134,6 +135,8 @@ DEFINE_EXCEPTIONS
     }
     proxy = proxy_; // Don't retain
 
+    self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
+    
     self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
     //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
     // we need to listen manually to proxy change events if we want to be

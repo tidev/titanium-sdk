@@ -274,6 +274,7 @@ public class TiFileProxy extends KrollProxy
 	public boolean write(Object[] args)
 	{
 		try {
+
 			if (args != null && args.length > 0) {
 				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {

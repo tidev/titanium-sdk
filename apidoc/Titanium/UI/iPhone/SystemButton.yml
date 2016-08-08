@@ -12,10 +12,12 @@ description: |
 
         <Button systemButton="CAMERA"/>
         <!-- Instead of -->
-        <Button systemButton="Titanium.UI.iPhone.SystemButton.CAMERA"/>
+        <Button systemButton="Titanium.UI.iOS.SystemButton.CAMERA"/>
 
     A few of these constants are used with [Button.style](Titanium.UI.Button.style) to
     create standard iOS buttons that can be used in other places, including table view rows.
+    Note: Starting at Titanium SDK 5.0, all icons have are automatically sized in the native behavior
+    and are not distorted any more.
     These standard button types are:
 
     * [CONTACT_ADD](Titanium.UI.iPhone.SystemButton.CONTACT_ADD)
@@ -31,6 +33,9 @@ extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "5.4.0"
+    notes: Use <Titanium.UI.iOS.SystemButton> instead.
 
 properties:
   - name: ACTION

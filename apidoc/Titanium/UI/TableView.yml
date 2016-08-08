@@ -426,7 +426,7 @@ events:
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
+        notes: Use <Titanium.UI.TableView.scrollend> instead.
     summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
@@ -580,11 +580,36 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchend
     summary: Fired when a touch gesture is complete.
     description: |
-        On Android and iOS, be aware that a row or table touch event and a table 
-        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        On Android and iOS, be aware that a row or table touch event and a table
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
         
@@ -619,7 +644,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+    
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -633,11 +683,36 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
     description: |
-        On Android and iOS, be aware that a row or table touch event and a table 
+        On Android and iOS, be aware that a row or table touch event and a table
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
         before the `scroll` event begins.
@@ -674,7 +749,32 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
+
+      - name: force
+        summary: |
+            The current force value of the touch event.
+            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: maximumPossibleForce
+        summary: |
+            Maximum possible value of the force property.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: altitudeAngle
+        summary: |
+            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
+            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
+            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
+        type: Number
+
+      - name: timestamp
+        summary: |
+           The time (in seconds) when the touch was used in correlation with the system start up.
+            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad, mobileweb]
@@ -690,7 +790,7 @@ events:
   - name: dragStart
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragstart](Titanium.UI.TableView.dragstart) (all lowercase).
+        notes: Use <Titanium.UI.TableView.dragstart> instead.
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -700,7 +800,7 @@ events:
   - name: dragEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragend](Titanium.UI.TableView.dragend) (all lowercase).
+        notes: Use <Titanium.UI.TableView.dragend> instead.
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -1188,6 +1288,16 @@ properties:
     summary: Table view footer title.
     type: String
 
+  - name: maxClassname
+    summary: Max number of row class names.
+    description: |
+        See <Titanium.UI.TableViewRow.className> for more details. This property will default to
+        32 when it is set to a number lesser than that.
+    availability: creation
+    type: Number
+    default: 32
+    platforms: [android]
+    since: "5.2.0"
     
   - name: headerPullView
     summary: |
@@ -1437,9 +1547,11 @@ properties:
     type: String
     default: platform-specific default color
 
-    
   - name: separatorInsets
     summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    deprecated:
+        since: "5.2.0"
+        notes: Use <Titanium.UI.TableView.tableSeparatorInsets> instead.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
         This property sets the default inset for all cells in the table. Set this to a dictionary 
@@ -1451,23 +1563,58 @@ properties:
                 left:10,
                 right:10
             });
-        
-        
+
     type: Dictionary
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
-    
-  - name: separatorStyle
-    summary: Separator style constant. 
+
+  - name: tableSeparatorInsets
+    summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
     description: |
-        For iOS specify one of the 
-        [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-        
-        For Mobile Web specify one of the
-        [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
+
+        For example:
+
+            tableView1.setTableSeparatorInsets({
+                left:10,
+                right:10
+            });
+
+
+    type: Dictionary
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: rowSeparatorInsets
+    summary: The insets for table view cells (applies to all cells). This property is applicable on iOS 7 and greater.
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
+        right edge. This property is only available upon creation of the cells.
+
+        For example:
+
+            tableView1.setRowSeparatorInsets({
+                left:10,
+                right:10
+            });
+
+
+    type: Dictionary
+    since: "5.2.0"
+    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad]
+
+  - name: separatorStyle
+    summary: Separator style constant.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
+    platforms: [iphone, ipad, mobileweb, android]
+    since: {android: "5.2.0"}
     
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.

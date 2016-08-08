@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiProxy.h"
 
 @interface TiUIAttributedStringProxy : TiProxy
@@ -13,6 +13,8 @@
 	NSMutableAttributedString *_attributedString;
 	NSMutableArray *attributes;
 }
+
+-(NSString*)getLink:(NSUInteger)arg;
 
 typedef enum {
 	AttributeNameFont,
@@ -35,12 +37,13 @@ typedef enum {
 	AttributeNameUnderlineColor,
 	AttributeNameStrikethroughColor,
 	AttributeNameObliqueness,
-	AttributeNameExpansion
+	AttributeNameExpansion,
+    AttributeNameLineBreak
 } AttributeName;
 
 #pragma mark - Not exposed to JS. Internal Use Only.
 @property(nonatomic, readonly) NSMutableAttributedString *attributedString;
-
+@property(nonatomic, readonly) NSMutableDictionary *urls;
 @end
 
 #endif

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.util.TiConvert;
@@ -37,7 +36,7 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_STOPPING = TiSound.STATE_STOPPING;
 	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
-	
+
 	protected TiSound snd;
 	private boolean windowFocused;
 	private boolean resumeInOnWindowFocusChanged;
@@ -52,11 +51,6 @@ public class AudioPlayerProxy extends KrollProxy
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME,0);
-	}
-
-	public AudioPlayerProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -84,13 +78,13 @@ public class AudioPlayerProxy extends KrollProxy
 		Log.i(TAG, "Creating audio player proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
 			Log.DEBUG_MODE);
 	}
-	
-	
+
+
 	@Kroll.getProperty @Kroll.method
 	public String getUrl() {
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setUrl(String url) {
 		if (url != null) {
@@ -105,7 +99,7 @@ public class AudioPlayerProxy extends KrollProxy
 			return s.getDuration();
 		}
 		return 0;
-	} 
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isPlaying() {
@@ -124,8 +118,8 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 		return false;
 	}
-	
-	
+
+
 	// An alias for play so that
 	@Kroll.method
 	public void start() {
@@ -169,14 +163,23 @@ public class AudioPlayerProxy extends KrollProxy
 			s.stop();
 		}
 	}
-	
+
+	@Kroll.method
+	public int getAudioSessionId() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getAudioSessionId();
+		}
+		return 0;
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public double getTime() {
 		TiSound s = getSound();
 		if (s != null) {
 			int time = s.getTime();
 			setProperty(TiC.PROPERTY_TIME, time);
-		} 
+		}
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 

@@ -6,12 +6,10 @@
  */
 
 #import "TiAppiOSUserActivityProxy.h"
-#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
-#endif
 #import "TiUtils.h"
 
-#ifdef USE_TI_APPIOS
+#ifdef USE_TI_APPIOSUSERACTIVITY
 
 @implementation TiAppiOSUserActivityProxy
 
@@ -49,6 +47,15 @@
                                        objectForInfoDictionaryKey:@"NSUserActivityTypes"];
     
     return[supportedActivityTypes containsObject:activityType];
+}
+
+-(id)isSupported:(id)unused
+{
+    if ([TiUtils isIOS8OrGreater] == YES) {
+        return NUMBOOL(_supported);
+    } else {
+        return NUMBOOL(NO);
+    }
 }
 
 -(BOOL) determineMinRequirements:(NSDictionary *)props
@@ -94,7 +101,7 @@
     if([props objectForKey:@"needsSave"]){
         [_userActivity setNeedsSave:[TiUtils boolValue:@"needsSave" properties:props]];
     }
-#if IS_XCODE_7
+
     if([TiUtils isIOS9OrGreater]){
         if([props objectForKey:@"eligibleForPublicIndexing"]){
             [_userActivity setEligibleForPublicIndexing:[TiUtils boolValue:@"eligibleForPublicIndexing" properties:props]];
@@ -113,15 +120,15 @@
                                               [TiUtils stringValue:@"expirationDate" properties:props]]];
         }
         
-        if([props objectForKey:@"keyWords"]){
-            [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keyWords"]]];
+        if([props objectForKey:@"keywords"]){
+            [_userActivity setKeywords:[NSSet setWithArray:[props objectForKey:@"keywords"]]];
         }
         
         if([props objectForKey:@"requiredUserInfoKeys"]){
             [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
         }
     }
-#endif
+
     _userActivity.delegate = self;
 }
 
@@ -177,6 +184,7 @@
 
 -(NSNumber*)supported
 {
+    DEPRECATED_REPLACED(@"App.iOS.UserActivity.getSupported()" ,@"5.1.0",@"App.iOS.UserActivity.isSupported()")
     return NUMBOOL(_supported);
 }
 
@@ -187,6 +195,7 @@
 - (void)userActivityWillSave:(NSUserActivity *)userActivity
 {
     if([self _hasListeners:@"useractivitywillsave"]){
+        DebugLog(@"[WARN] Titanium.App.iOS.UserActivity.useractivitywillsave event is deprecated. Update user activity and then set Titanium.App.iOS.UserActivity.needsSave property to true if you need it to be saved before handing it off to another device.");
         [self fireEvent:@"useractivitywillsave" withObject:[[self copyActivity] autorelease]];
     }
 }
@@ -270,7 +279,7 @@
 
 -(void)setNeedsSave:(id)value
 {
-    ENSURE_SINGLE_ARG(value, NSString);
+    ENSURE_SINGLE_ARG(value, NSNumber);
     ENSURE_UI_THREAD(setNeedsSave,value);
     
     [_userActivity setNeedsSave:[TiUtils boolValue:value]];
@@ -291,7 +300,7 @@
 #pragma mark Add ContentAttributeSet
 -(void)addContentAttributeSet:(id)contentAttributeSet
 {
-#if IS_XCODE_7
+#if defined(USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET)
     ENSURE_SINGLE_ARG(contentAttributeSet,TiAppiOSSearchableItemAttributeSetProxy);
     ENSURE_UI_THREAD(addContentAttributeSet,contentAttributeSet);
     if(![TiUtils isIOS9OrGreater]){
@@ -302,7 +311,6 @@
 }
 
 #pragma mark iOS 9 UserActivity Methods
-#if IS_XCODE_7
 -(NSNumber*)eligibleForPublicIndexing
 {
     if(![TiUtils isIOS9OrGreater]){
@@ -398,7 +406,7 @@
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:keys]];
 }
 
--(NSArray*)keyWords
+-(NSArray*)keywords
 {
     if(![TiUtils isIOS9OrGreater]){
         return;
@@ -425,7 +433,6 @@
     }
     [_userActivity resignCurrent];
 }
-#endif
 @end
 
 #endif

@@ -4,12 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_7
+#ifdef USE_TI_APPIOSSEARCHABLEINDEX
 #import "TiAppiOSSearchableIndexProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiUtils.h"
 
-#ifdef USE_TI_APPIOS
 @implementation TiAppiOSSearchableIndexProxy
 
 -(NSString*)apiName
@@ -26,7 +25,7 @@
     }
 }
 
--(void)AddToDefaultSearchableIndex:(id)args
+-(void)addToDefaultSearchableIndex:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
     NSArray *searchItems = [args objectAtIndex:0];
@@ -35,7 +34,7 @@
     KrollCallback *callback = [args objectAtIndex:1];
     ENSURE_TYPE(callback,KrollCallback);
     
-    ENSURE_UI_THREAD(AddToDefaultSearchableIndex,args);
+    ENSURE_UI_THREAD(addToDefaultSearchableIndex,args);
     
     //Convert from Proxy to search item
     NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
@@ -138,5 +137,4 @@
 }
 
 @end
-#endif
 #endif

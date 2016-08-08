@@ -12,14 +12,30 @@
 
 @implementation TiUIProgressBar
 
--(id)initWithStyle:(UIProgressViewStyle)style_
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
+-(id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
 {
 	if (self = [super initWithFrame:CGRectZero])
 	{
-		style = style_;
-		min = 0;
-		max = 1;
+		style = _style;
+		min = _min;
+		max = _max;
 		[self setHidden:YES];
+        
+#ifdef TI_USE_AUTOLAYOUT
+        backgroundView = [[UIView alloc] init];
+        [backgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self addSubview:backgroundView];
+#endif
+        
 	}
 	return self;
 }
@@ -31,6 +47,7 @@
 	[super dealloc];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSAttributedString *value = [messageLabel attributedText];
@@ -52,6 +69,7 @@
 	CGSize progressSize = [progress sizeThatFits:fontSize];
 	return fontSize.height + progressSize.height;
 }
+#endif
 
 #pragma mark Accessors
 
@@ -60,8 +78,12 @@
 	if (progress==nil)
 	{
 		progress = [[UIProgressView alloc] initWithProgressViewStyle:style];
-		
-		[self addSubview:progress];
+#ifdef TI_USE_AUTOLAYOUT
+        [progress setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [backgroundView addSubview:progress];
+#else
+        [self addSubview:progress];
+#endif
 	}
 	return progress;
 }
@@ -71,10 +93,14 @@
 	if (messageLabel==nil)
 	{
 		messageLabel=[[UILabel alloc] init];
-		[messageLabel setBackgroundColor:[UIColor clearColor]];
 		
-		[self setNeedsLayout];
-		[self addSubview:messageLabel];
+#ifdef TI_USE_AUTOLAYOUT
+        [messageLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [backgroundView addSubview:messageLabel];
+#else
+        [self setNeedsLayout];
+        [self addSubview:messageLabel];
+#endif
 	}
 	return messageLabel;
 }
@@ -88,6 +114,7 @@
 
 -(void)layoutSubviews
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if(progress == nil)
 	{
 		return;
@@ -118,6 +145,7 @@
 	[messageLabel setBounds:CGRectMake(0, 0, messageSize.width, messageSize.height)];
 	[messageLabel setCenter:CGPointMake(centerPoint.x,
 			centerPoint.y - (fittingHeight - messageSize.height)/2)];
+#endif
 }
 
 #pragma mark Properties
@@ -135,7 +163,7 @@
 -(void)setValue_:(id)value
 {
 	CGFloat newValue = ([TiUtils floatValue:value] - min) / (max-min);
-	[[self progress] setProgress:newValue];
+    [[self progress] setProgress:newValue];
 }
 
 
@@ -171,6 +199,32 @@
 	[self setNeedsLayout];
 }
 
+-(void)setTrackTintColor_:(id)value
+{
+    UIColor * newColor = [[TiUtils colorValue:value] _color];
+    [[self progress] setTrackTintColor:newColor];
+}
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)updateConstraints
+{
+    if (!_constraintsAdded) {
+        _constraintsAdded = YES;
+        messageLabel = [self messageLabel];
+        progress = [self progress];
+        [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+        [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                  multiplier:1
+                                                                    constant:0]];
+    }
+        [super updateConstraints];
+}
+#endif
 
 @end
 

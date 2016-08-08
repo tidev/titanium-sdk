@@ -1,0 +1,738 @@
+# Titanium SDK 5.0.0 General Availability - 16 September 2015
+
+#### Contents
+
+  * [About This Release](#about)
+    * [Android Support](#android)
+    * [CLI 5.0.0](#cli)
+    * [iOS and watchOS Support](#ios)
+    * [Studio 4.2.0](#studio)
+  * [Notice of Feature and Behavior Changes](#changes)
+    * [Android Platform](#deprecated_android)
+      * [Cookie Expiration](#cookie_expiration)
+    * [iOS Platform](#deprecated_ios)
+      * [Application Transport Security](#ats)
+      * [Contacts](#contacts)
+      * [Icons and Launch Images](#deprecated_icons)
+      * [IPv6 DNS64/NAT64 Compatibility](#ipv6)
+      * [ListView Edit Actions](#edit_actions)
+    * [Windows Platform](#deprecated_windows)
+      * [Windows Publisher ID](#win_publisher_id)
+  * [New Features](#features)
+    * [Android Platform](#new_android)
+      * [Large Icon Support for Notifications](#large_icon)
+      * [Network Support](#network_support)
+      * [Titanium Themes](#titanium_themes)
+    * [iOS Platform](#new_ios)
+      * [Attributed String Line Break](#attributed_string)
+      * [Handoff](#handoff)
+      * [Icons and Launch Images](#new_icons)
+      * [Spotlight Search](#spotlight)
+      * [Watch Connectivity](#watch_connectivity)      
+    * [Windows Platform](#new_windows)
+      * [API Parity](#windows_parity)
+      * [Direct API Access](#direct)
+  * [Known Issues](#known_issues)
+    * [Camera Causes Application to Crash with Android SDK 6.0](#camera_crash)
+    * [Can Only Detect One iOS 9.0 Device](#one_ios_9_device)
+  * [API Changes](#apis) 
+    * [New APIs](#new_apis)
+    * [Deprecated APIs](#deprecated_apis)
+    * [Removed APIs](#removed_apis)
+
+
+<a name="about"></a>
+## About This Release
+
+This is a general availability (GA) version of Titanium SDK 5.0.0.
+
+Note that this release includes feature and behavior changes.
+See [Notice of Feature and Behavior Changes](#changes) for details.
+
+This Release introduces a number of new features.  See [New Features](#features) for
+a summary of new features in this release. Notable issues include support for
+Android 6.0 (Marshmallow), iOS 9.0, watchOS 2 and direct API access for Windows.
+
+This Release includes over 150 bug fixes and improvements, see the
+[full list of issues that were addressed in Release 5.0.0](https://jira.appcelerator.org/issues/?filter=16923).
+
+<a name="android"></a>
+### Android Support
+
+This Release includes support to build your application with the Android 6.0 (Marshmallow) SDK.
+
+Note there is a [known issue](#camera_crash) where the application will crash if the camera is used
+
+<a name="cli"></a>
+### CLI 5.0.0
+
+This Release coincides with the release of Appcelerator CLI 5.0.0,
+which includes [Alloy 1.7.8](https://github.com/appcelerator/alloy/releases)
+and [Titanium CLI 5.0.3](https://github.com/appcelerator/titanium/releases).
+
+For more details, see the
+[CLI Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Appcelerator_CLI_Release_Notes).
+
+<a name="ios"></a>
+### iOS and watchOS Support
+
+This Release includes support for iOS 9.0, watchOS 2 and Xcode 7.0.
+
+Note there is a [known issue](#one_ios_9_device) that the SDK can only detect one iOS 9.0 device
+when multiple devices are plugged in. 
+
+Note that this Release only supports watchOS 2 applications built with Xcode;
+iOS app extensions and watchOS 1 applications are not supported in this Release.
+
+To get started with watchOS 2, see:
+
+ * [Integrate a WatchKit App Built in Xcode](http://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_WatchKit_App_Built_in_Xcode)
+ * [appc-sample-watchos2](https://github.com/appcelerator-developer-relations/appc-sample-watchos2)
+
+<a name="studio"></a>
+### Studio 4.3.0
+
+This Release coincides with the release of Studio 4.3.0, which includes support for
+building, running and packaging watchOS 2 applications built in Xcode.
+
+For more details, see the
+[Studio Release Notes](http://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
+
+<a name="changes"></a>
+## Notice of Feature and Behavior Changes
+
+<a name="android_deprecated"></a>
+### Android Platform
+
+<a name="cookie_expiration"></a>
+#### Cookie Expiration
+
+Due to the switch from the Apache HTTP Client library to the java.net package for
+network support, you can no longer set the expiration date of the cookie using the `expiryDate`
+property. 
+
+Instead, set the
+[maxAge](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.Cookie-property-maxAge)
+property of the Cookie object on the Android platform.
+
+<a name="ios_deprecated"></a>
+### iOS Platform
+
+<a name="ats"></a>
+#### Application Transport Security
+
+Starting with iOS 9.0, Apple introduced new security guidelines for network connections, which
+requires TLS 1.2 or greater, and specific cipher criteria. If a connection does not meet the
+guidelines, Apple will refuse the connection and an error will be returned in the network response.
+
+Because of the strict guidelines, the Titanium SDK disables ATS by default.  If you wish to re-enable ATS,
+add the
+[`NSAppTransportSecurity` dict](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html)
+to the `ios plist` section of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+
+Note that you may need to whitelist URLs in order to connect to the web services.
+
+For more information, see the _iOS 9 Application Note_ in the
+[Titanium.Network API reference](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network).
+
+<a name="contacts"></a>
+#### Contacts
+
+Starting with iOS 9.0, to get the ID of a `Titanium.Contacts.Person` object use the `identifier` property.
+
+Prior to iOS 9.0, use the `recordId` property.
+
+<a name="deprecated_icons"></a>
+#### Icons and Launch Images
+
+Icons (app, settings and spotlight) and launch images are now added to the Asset Catalog.
+Due to the change, you can no longer reference these assets from the filesystem.
+For example, you can no longer set the `backgroundImage` property to a launch image.
+
+Also all app icons are required to be added to the project in order to build an iOS application.
+If any application icon is missing, the build will fail.  The build will not fail if you omit spotlight or settings icons.
+
+All icons must be square, that is, the height and width must be equal, and in PNG format.
+If an icon does not meet the requirements, it will be ignored during the build process.
+
+You are recommended to add a 1024 x 1024 PNG image, named `DefaultIcon.png` placed
+in the project's root folder, which is used to generate all or only omitted icons for the project.
+New Titanium projects will have the `DefaultIcon.png` file.
+
+<a name="ipv6"></a>
+#### IPv6 DNS64/NAT64 Compatibility
+
+If you submit an iOS 9 application to the iTunes App Store, your application must be compatible with
+IPv6 DNS64/NAT64 networks as part of App Store submissions.
+
+Apple recommends not to include hard-coded IPv4 address literals in your application, for example, 127.0.0.1,
+and to test the application with an IPv6 DNS64/NAT64 network.
+
+For more information, see the _iOS 9 Application Note_ in the
+[Titanium.Network API reference](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network).
+
+<a name="edit_actions"></a>
+#### ListView Edit Actions
+
+The `rowAction` event was renamed to the `editaction` event, which is fired when a user interacts
+with a custom edit action in a list item. Update your application to listen for the
+[`editaction`](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ListView-event-editaction) event.
+
+
+<a name="windows_deprecated"></a>
+### Windows Platform
+
+<a name="win_publisher_id"></a>
+#### Windows Publisher ID
+
+Starting with this Release, to build Windows Phone or Store applications with the CLI,
+add the `--win-publisher-id <WINDOW_PUBLISHER_ID>` option to `appc run` command.  If prompting is
+turned on, the CLI will prompt you for your Windows Publisher ID. You may also set the Titanium
+CLI configuration variable `windows.publisherId` rather than using the command-line option.
+
+If you are using Studio, set the Windows Publisher ID in Studio Preferences.
+
+The Windows Publisher ID can be retrieved from the [Windows Dev Center Dashboard](https://dev.windows.com).
+
+
+<a name="features"></a>
+## New Features
+
+This section describes new features introduced in Release 5.0.0.
+
+<a name="new_android"></a>
+### Android Platform
+
+This section lists new features and improvements only available on the Android platform.
+
+<a name="large_icon"></a>
+#### Large Icon Support for Notifications
+
+This Release supports adding a large icon to be shown in the content area of a notificaiton.  Set the
+[largeIcon](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-largeIcon)
+property of the Ti.Android.Notification object.
+
+<a name="network_support"></a>
+#### Network Support
+
+On Android, the java.net package replaces the Apache HTTP Client library for network support.
+Google removed support the Apache HTTP Client library in Android 6.0 in favor of using the
+java.net.HttpURLConnection class, which is "more efficient because it reduces network use through
+transparent compression and response caching, and minimizes power consumption."
+
+
+<a name="titanium_themes"></a>
+#### Titanium Themes
+
+This Release introduces new predefined Titanium themes for Android to hide the action bar and optionally the status bar.
+
+Set the `android:theme` attribute of the Android manifest `application` element or set a Window object's
+`theme` property to one of the following new themes:
+
+  * `Theme.AppCompat.NoTitleBar`: hides the action and title bar
+  * `Theme.AppCompat.NoTitleBar.Fullscreen`: Same as Theme.AppCompat.NoTitleBar with a fullscreen window (covers the status bar).
+
+
+<a name="new_ios"></a>
+### iOS Platform
+
+This section lists new features and improvements only available on the iOS platform.
+
+<a name="attributed_string"></a>
+#### Attributed String Line Break
+
+iOS now supports changing the line break behavior with AttributedStrings.  Set the attribute type to
+[`ATTRIBUTE_LINE_BREAK`](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI-property-ATTRIBUTE_LINE_BREAK)
+and the attribute value to an `ATTRIBUTE_LINE_BREAK_*` constant.
+
+<a name="handoff"></a>
+#### Handoff
+
+This Release supports Handoff, a feature introduced in iOS 8 that allows a user to transfer an
+in-progress activity from one Apple device to another. For example, if a user starts reading a
+book on an iPad, they can use Handoff to read the same book on an iPhone from where they stopped
+reading.
+
+For more information, see:
+
+  * [Titanium.App.iOS.UserActivity API reference](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.App.iOS.UserActivity)
+  * [Handoff User Activites guide](http://docs.appcelerator.com/platform/latest/#!/guide/Handoff_User_Activities)
+
+<a name="icons_new"></a>
+#### Icons and Launch Images
+
+The Titanium SDK now uses the Asset Catalog to support icons and launch images,
+allowing the SDK to support App Thinning.
+
+You are recommended to add a 1024 x 1024 PNG image, named `DefaultIcon.png` placed
+in the project's root folder, which is used to generate all or only omitted icons for the project.
+New Titanium projects will have the `DefaultIcon.png` file.
+
+Note that the localized launch images in the `i18n` folder are not supported by Asset Catalog.
+
+For more details, see the
+[Icons and Splash Screens guide](http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens-section-29004897_IconsandSplashScreens-iOSgraphicassetrequirementsandoptions).
+
+<a name="spotlight"></a>
+#### Spotlight Search
+
+Starting with iOS 9, you can add your application's content, user activities and web content to either
+the private on-device index or public Apple server-side index so the user can find it using iOS Spotlight.
+
+For more information, see:
+
+  * _Index Application Content_ section in [Titanium.App.iOS API reference](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.App.iOS)
+  * [Spotlight Search guide](http://docs.appcelerator.com/platform/latest/#!/guide/Spotlight_Search)
+  * [appc-sample-appsearch](https://github.com/appcelerator-developer-relations/appc-sample-appsearch)
+
+<a name="watch_connectivity"></a>
+#### Watch Connectivity
+
+To communicate with watchOS 2 applications, use the
+[Titanum.WatchSession API](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.WatchSession)
+to exchange data and files.
+
+Note that the application must run on an iOS 9 iPhone that supports watch apps and a watchOS 2 watch,
+and needs to be built with iOS 9 and Xcode 7.
+
+To get started with Watch Connectivity, see:
+
+ * [Integrate a WatchKit App Built in Xcode](http://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_WatchKit_App_Built_in_Xcode)
+ * [appc-sample-watchos2](https://github.com/appcelerator-developer-relations/appc-sample-watchos2)
+
+
+
+<a name="new_windows"></a>
+### Windows Platform
+
+This section lists new features and improvements only available on the Windows platform.
+
+<a name="windows_parity"></a>
+#### API Parity
+
+The Windows Platform expands support for several APIs, including:
+
+  * Support for [Titanium.UI.Clipboard](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Clipboard)
+  * Events for [Titanium.Media.AudioPlayer](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.AudioPlayer),
+    [Titanium.Media.Sound](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.Sound) and
+    [Titanium.Media.VideoPlayer](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.VideoPlayer)
+  * Expanded support for [Titanium.UI.Button](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Button)
+    [Titanium.UI.ScrollView](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ScrollView) and
+    [Titanium.UI.View](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.View)
+
+For details, see the [New APIs section below](#new_apis).
+
+<a name="direct"></a>
+#### Direct API Access
+
+This Release supports using the
+[Windows Runtime C++ APIs](https://msdn.microsoft.com/en-us/library/windows/apps/br211377.aspx)
+directly in JavaScript. Note that the Windows C#, VB and JavaScript APIs are not supported as well as
+any Windows 10 API. Check the Windows API reference to see if it supports the C++ API and Windows 8
+and 8.1 before using it.
+
+To use the WinRT APIs, pass the `require()` method the fully qualified name of the class you want
+to use, then invoke API calls on the object.
+
+For details, see the
+[Window Runtime Direct API Access](http://docs.appcelerator.com/platform/latest/#!/guide/Windows_Runtime_Direct_API_Access).
+
+<a name="known_issues"></a>
+## Known Issues
+
+<a name="camera_crash"></a>
+### Camera Causes Application to Crash with Android SDK 6.0
+
+The application crashes when the camera is shown and built against Android SDK 6.0
+([TIMOB-19422](https://jira.appcelerator.org/browse/TIMOB-19422)).
+
+If you want to deploy to Android 6.0 devices with camera support, change the target SDK
+to version 22 (Android SDK 5.1).
+
+<a name="one_ios_9_device"></a>
+### Can Only Detect One iOS 9.0 Device
+
+When using Xcode 7, the Titanium SDK can only detect one iOS 9.0 if multiple devices are plugged in.
+([TIMOB-19468](https://jira.appcelerator.org/browse/TIMOB-19468)).
+
+<a name="apis"></a>
+## API Changes
+
+<a name="new_apis"></a>
+<h2>New APIs</h2>
+
+The following APIs are new or have expanded platform support in Release 5.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+
+  <tr><td>Titanium.Android.Notification.getLargeIcon</td><td>method</td><td><p>Gets the value of the Titanium.Android.Notification.largeIcon property. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.Android.Notification.largeIcon</td><td>property</td><td><p>Add a large icon to the notification (and the ticker on some devices) specified as an Android resource ID, or a local URL to a density-specific image. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.Android.Notification.setLargeIcon</td><td>method</td><td><p>Sets the value of the Titanium.Android.Notification.largeIcon property. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.SearchableIndex</td><td>object</td><td><p>The SearchableIndex module is used to add or remove Ti.App.iOS.SearchableItem objects from the device search index. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.SearchableItem</td><td>object</td><td><p>Used to create a unique object containing all of the search information that will appear in the device search index. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.SearchableItemAttributeSet</td><td>object</td><td><p>The SearchableItemAttributeSet module defines metadata properties for SearchItem and UserActivity objects. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_APPLE_ICNS</td><td>property</td><td><p>Uniform type identifier for Mac OS icon images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_APPLE_PROTECTED_MPEG4_AUDIO</td><td>property</td><td><p>Uniform type identifier for protected MPEG-4 audio (iTunes music store format).
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_AUDIO</td><td>property</td><td><p>Uniform type identifier for all audio content.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_BMP</td><td>property</td><td><p>Uniform type identifier for Windows bitmap images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_FLAT_RTFD</td><td>property</td><td><p>Uniform type identifier for Rich Text with content embedding, pasteboard format.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_GIF</td><td>property</td><td><p>Uniform type identifier for GIF images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_HTML</td><td>property</td><td><p>Uniform type identifier for HTML.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_ICO</td><td>property</td><td><p>Uniform type identifier for Windows icon images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_IMAGE</td><td>property</td><td><p>Uniform type identifier for all image types.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_JPEG</td><td>property</td><td><p>Uniform type identifier for JPEG images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_JPEG2000</td><td>property</td><td><p>Uniform type identifier for JPEG 2000 images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_MOVIE</td><td>property</td><td><p>Uniform type identifier for all audiovisual content.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_MP3</td><td>property</td><td><p>Uniform type identifier for MP3 audio.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_MPEG</td><td>property</td><td><p>Uniform type identifier for MPEG-1 and MPEG-2 content.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_MPEG4</td><td>property</td><td><p>Uniform type identifier for MPEG-4 content.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_MPEG4_AUDIO</td><td>property</td><td><p>Uniform type identifier for MPEG-4 audio.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_PDF</td><td>property</td><td><p>Uniform type identifier for PDF data.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_PICT</td><td>property</td><td><p>Uniform type identifier for PICT images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_PLAIN_TEXT</td><td>property</td><td><p>Uniform type identifier for a plain text type, equivalent to MIME type text/plain.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_PNG</td><td>property</td><td><p>Uniform type identifier for PNG images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_QUICKTIME_IMAGE</td><td>property</td><td><p>Uniform type identifier for QuickTime images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_QUICKTIME_MOVIE</td><td>property</td><td><p>Uniform type identifier for QuickTime movies.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_RTF</td><td>property</td><td><p>Uniform type identifier for Rich Text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_RTFD</td><td>property</td><td><p>Uniform type identifier for Rich Text Format Directory, that is, Rich Text with content embedding, on-disk format.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_TEXT</td><td>property</td><td><p>Uniform type identifier for all text types.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_TIFF</td><td>property</td><td><p>Uniform type identifier for TIFF images.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_TXN_TEXT_AND_MULTIMEDIA_DATA</td><td>property</td><td><p>Uniform type identifier for MLTE (Textension) format for mixed text and multimedia data.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_UTF16_EXTERNAL_PLAIN_TEXT</td><td>property</td><td><p>Uniform type identifier for Unicode-16 with byte-order mark (BOM), or if BOM is not present,
+an external representation byte order (big-endian).
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_UTF16_PLAIN_TEXT</td><td>property</td><td><p>Uniform type identifier for Unicode-16, native byte order, with an optional byte-order mark (BOM).
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_UTF8_PLAIN_TEXT</td><td>property</td><td><p>Uniform type identifier for Unicode-8 plain text type.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_VIDEO</td><td>property</td><td><p>Uniform type identifier for all video content without audio.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_WEB_ARCHIVE</td><td>property</td><td><p>Uniform type identifier for WebKit webarchive format.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UTTYPE_XML</td><td>property</td><td><p>Uniform type identifier for XML.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.UserActivity</td><td>object</td><td><p>The UserActivity module is used to enable device Handoff and to create User Activities. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.continueactivity</td><td>event</td><td><p>Fired when iOS continueactivity calls <code>continueUserActivity</code>. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.createSearchableIndex</td><td>method</td><td><p>Creates and returns an instance of Titanium.App.iOS.SearchableIndex.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.createSearchableItem</td><td>method</td><td><p>Creates and returns an instance of Titanium.App.iOS.SearchableItem.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.createSearchableItemAttributeSet</td><td>method</td><td><p>Creates and returns an instance of Titanium.App.iOS.SearchableItemAttributeSet.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.createUserActivity</td><td>method</td><td><p>Creates and returns an instance of Titanium.App.iOS.UserActivity.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.getSupportedUserActivityTypes</td><td>method</td><td><p>Gets the value of the Titanium.App.iOS.supportedUserActivityTypes property. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.supportedUserActivityTypes</td><td>property</td><td><p>Provides an Array of the NSUserActivityTypes keys defined within your Titanium project.
+(available on iOS 8 and later).
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Contacts.getGroupByIdentifier</td><td>method</td><td><p>Gets the group with the specified identifier. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Contacts.getPersonByIdentifier</td><td>method</td><td><p>Gets the person with the specified identifier. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Contacts.Person.identifier</td><td>property</td><td><p>Identifier of the person. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Geolocation.allowsBackgroundLocationUpdates</td><td>property</td><td><p>Determines if the app can do background location updates.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Geolocation.getAllowsBackgroundLocationUpdates</td><td>method</td><td><p>Gets the value of the Titanium.Geolocation.allowsBackgroundLocationUpdates property. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Geolocation.setAllowsBackgroundLocationUpdates</td><td>method</td><td><p>Sets the value of the Titanium.Geolocation.allowsBackgroundLocationUpdates property. (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.Media.AudioPlayer.change</td><td>event</td><td><p>Fired when the state of the playback changes. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.AudioPlayer.complete</td><td>event</td><td><p>Fired when the audio has finished playing. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.AudioPlayer.error</td><td>event</td><td><p>Fired when there's an error. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.Sound.change</td><td>event</td><td><p>Fired when the state of the playback changes. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.Sound.complete</td><td>event</td><td><p>Fired when the audio has finished playing. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.Sound.error</td><td>event</td><td><p>Fired when an error occurs while playing the audio. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.VideoPlayer.complete</td><td>event</td><td><p>Fired when movie playback ends or a user exits playback. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Media.VideoPlayer.error</td><td>event</td><td><p>Fired when movie playback encounters an error. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.Network.Cookie.getMaxAge</td><td>method</td><td><p>Gets the value of the Titanium.Network.Cookie.maxAge property. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.Network.Cookie.maxAge</td><td>property</td><td><p>Sets the Max-Age attribute of a Cookie, in delta-seconds. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.Network.Cookie.setMaxAge</td><td>method</td><td><p>Sets the value of the Titanium.Network.Cookie.maxAge property. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK</td><td>property</td><td><p>Use with Attribute.type to wrap and truncate the text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING</td><td>property</td><td><p>Use with Attribute.value to wrap words at word boundaries.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_CLIPPING</td><td>property</td><td><p>Use with Attribute.value to set lines to not draw past the edge of the text container.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD</td><td>property</td><td><p>Use with Attribute.value to use ellipsis glyph at the beginning of the line for missing text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE</td><td>property</td><td><p>Use with Attribute.value to use ellipsis glyph at the middle of the line for missing text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL</td><td>property</td><td><p>Use with Attribute.value to use ellipsis glyph at the end of the line for missing text.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING</td><td>property</td><td><p>Use with Attribute.value to wrap words at word boundaries.
+ (New API, supported on iPhone and iPad.)</p></td></tr>
+
+
+  <tr><td>Titanium.UI.Clipboard</td><td>object</td><td><p>A module used for accessing clipboard data. (Added support for Windows Phone.)</p></td></tr>
+
+
+  <tr><td>Titanium.UI.ListView.noresults</td><td>event</td><td><p>Fired when the search using either searchView or searchText has no results. (Added support for Android.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ListView.editaction</td><td>event</td><td>Fired when the user interacts with one of the custom edit actions.</td></tr>
+
+  <tr><td>Titanium.UI.Picker.getSelectionOpens</td><td>method</td><td><p>Gets the value of the Titanium.UI.Picker.selectionOpens property. (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Picker.selectionOpens</td><td>property</td><td><p>Determines whether calling the method <code>setSelectedRow</code> opens when called
+ (New API, supported on Android.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.canCancelEvents</td><td>property</td><td><p>Determines whether this scroll view can cancel subview touches in order to scroll instead. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.contentOffset</td><td>property</td><td><p>X and Y coordinates to which to reposition the top-left point of the scrollable region.
+ (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.decelerationRate</td><td>property</td><td><p>The deceleration rate of the ScrollView. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.disableBounce</td><td>property</td><td><p>Determines whether scroll bounce of the scrollable region is enabled. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getCanCancelEvents</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.canCancelEvents property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getContentOffset</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.contentOffset property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getDecelerationRate</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.decelerationRate property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getDisableBounce</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.disableBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getHorizontalBounce</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.horizontalBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getMaxZoomScale</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.maxZoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getMinZoomScale</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.minZoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getOverScrollMode</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.overScrollMode property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getScrollIndicatorStyle</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.scrollIndicatorStyle property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getScrollType</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.scrollType property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getScrollsToTop</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.scrollsToTop property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getVerticalBounce</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.verticalBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.getZoomScale</td><td>method</td><td><p>Gets the value of the Titanium.UI.ScrollView.zoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.horizontalBounce</td><td>property</td><td><p>Determines whether horizontal scroll bounce of the scrollable region is enabled. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.maxZoomScale</td><td>property</td><td><p>Maximum scaling factor of the scrollable region and its content. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.minZoomScale</td><td>property</td><td><p>Minimum scaling factor of the scrollable region and its content. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.overScrollMode</td><td>property</td><td><p>Determines the behavior when the user overscolls the view. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.scrollIndicatorStyle</td><td>property</td><td><p>Style of the scrollbar. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.scrollType</td><td>property</td><td><p>Limits the direction of the scrollable region, overriding the deduced setting. Set to 
+<code>horizontal</code> or <code>vertical</code>.
+ (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.scrollsToTop</td><td>property</td><td><p>Controls whether the scroll-to-top gesture is effective. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setCanCancelEvents</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.canCancelEvents property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setContentOffset</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.contentOffset property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setDecelerationRate</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.decelerationRate property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setDisableBounce</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.disableBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setHorizontalBounce</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.horizontalBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setMaxZoomScale</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.maxZoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setMinZoomScale</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.minZoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setOverScrollMode</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.overScrollMode property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setScrollIndicatorStyle</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.scrollIndicatorStyle property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setScrollType</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.scrollType property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setScrollsToTop</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.scrollsToTop property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setVerticalBounce</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.verticalBounce property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.setZoomScale</td><td>method</td><td><p>Sets the value of the Titanium.UI.ScrollView.zoomScale property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.verticalBounce</td><td>property</td><td><p>Determines whether vertical scroll bounce of the scrollable region is enabled. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.ScrollView.zoomScale</td><td>property</td><td><p>Scaling factor of the scroll view's content. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.color</td><td>property</td><td><p>Color to use for switch text, as a color name or hex triplet. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.enabled</td><td>property</td><td><p>Determines whether the switch is enabled. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.getColor</td><td>method</td><td><p>Gets the value of the Titanium.UI.Switch.color property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.getEnabled</td><td>method</td><td><p>Gets the value of the Titanium.UI.Switch.enabled property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.getTitleOff</td><td>method</td><td><p>Gets the value of the Titanium.UI.Switch.titleOff property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.getTitleOn</td><td>method</td><td><p>Gets the value of the Titanium.UI.Switch.titleOn property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.setColor</td><td>method</td><td><p>Sets the value of the Titanium.UI.Switch.color property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.setEnabled</td><td>method</td><td><p>Sets the value of the Titanium.UI.Switch.enabled property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.setTitleOff</td><td>method</td><td><p>Sets the value of the Titanium.UI.Switch.titleOff property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.setTitleOn</td><td>method</td><td><p>Sets the value of the Titanium.UI.Switch.titleOn property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.titleOff</td><td>property</td><td><p>Text to display on the switch in its "off" state, when the toggle button style is in use. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.Switch.titleOn</td><td>property</td><td><p>Text to display on the switch in its "on" state, when the toggle button style is in use. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextArea.getShowUndoRedoActions</td><td>method</td><td><p>Gets the value of the Titanium.UI.TextArea.showUndoRedoActions property. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextArea.setShowUndoRedoActions</td><td>method</td><td><p>Sets the value of the Titanium.UI.TextArea.showUndoRedoActions property. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextArea.showUndoRedoActions</td><td>property</td><td><p>Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextField.getShowUndoRedoActions</td><td>method</td><td><p>Gets the value of the Titanium.UI.TextField.showUndoRedoActions property. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextField.setShowUndoRedoActions</td><td>method</td><td><p>Sets the value of the Titanium.UI.TextField.showUndoRedoActions property. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.TextField.showUndoRedoActions</td><td>property</td><td><p>Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. (New API, supported on iPad.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.backgroundImage</td><td>property</td><td><p>Background image for the view, specified as a local file path or URL. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.getBackgroundImage</td><td>method</td><td><p>Gets the value of the Titanium.UI.View.backgroundImage property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.getZIndex</td><td>method</td><td><p>Gets the value of the Titanium.UI.View.zIndex property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.setBackgroundImage</td><td>method</td><td><p>Sets the value of the Titanium.UI.View.backgroundImage property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.setZIndex</td><td>method</td><td><p>Sets the value of the Titanium.UI.View.zIndex property. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.UI.View.zIndex</td><td>property</td><td><p>Z-index stack order position, relative to other sibling views. (Added support for Windows Phone.)</p></td></tr>
+
+  <tr><td>Titanium.WatchSession</td><td>object</td><td><p>Used to enable data and file transfers between a watchOS and iOS application. (New API, supported on iPhone.)</p></td></tr>
+
+<tr>
+</table>
+
+
+
+<a name="deprecated_apis"></a>
+<h2>Deprecated APIs</h2>
+
+The following APIs are deprecated in Release 5.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+
+  <tr><td>Titanium.App.iOS.sendWatchExtensionReply</td><td>method</td><td><p>Use Titanium.App.iOS.WatchConnectivity instead, which is supported on iOS 9 and later.</p></td></tr>
+
+  <tr><td>Titanium.App.iOS.watchkitextensionrequest</td><td>event</td><td><p>Use Titanium.App.iOS.WatchConnectivity instead, which is supported on iOS9 and later.</p></td></tr>
+
+<tr>
+</table>
+
+
+
+<a name="removed_apis"></a>
+
+<h2>Removed APIs</h2>
+
+The following APIs have been removed in Release 5.0.0.
+
+<table>
+<tr><th>API</th><th>Type</th><th>Notes</th></tr>
+
+  <tr><td>Titanium.Network.HTTPClient.addAuthFactory</td><td>method</td><td></td></tr>
+  <tr><td>Titanium.UI.ListView.rowAction</td><td>event</td><td>Event renamed to editaction</td></tr>
+
+<tr>
+</table>

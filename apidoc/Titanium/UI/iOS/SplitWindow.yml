@@ -35,7 +35,7 @@ extends: Titanium.UI.Window
 platforms: [iphone,ipad]
 since: "3.6.0"
 excludes:
-    properties: [transitionAnimation]
+    properties: [transitionAnimation, swipeToClose]
 
 methods:
   - name: setShowMasterInPortrait
@@ -86,14 +86,14 @@ properties:
     description: |
         These values are capped in the range 0.25 to 0.5. Any values outside this range are ignored.
     type: Number
-    default: Undefined
+    default: The width of the master-view divided by the screen-width
     
   - name: landscapeSplit
     summary: Determines the width of the `masterView` in landscape mode. 
     description: |
         These values are capped in the range 0.25 to 0.5. Any values outside this range are ignored.
     type: Number
-    default: Undefined
+    default: The width of the master-view divided by the screen-height
 
 examples:
   - title: Split Window

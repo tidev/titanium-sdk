@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,13 +23,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Bitmap;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
 @Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_PACKAGE_NAME,
 	TiC.PROPERTY_URL
 })
 /**
@@ -54,6 +54,33 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;
+
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getPackageName()
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getPackageName();
+		}
+		return null;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getClassName()
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getClassName();
+		}
+		return null;
 	}
 
 	protected static char[] escapeChars = new char[] {
@@ -176,6 +203,9 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
+		if (value == null) {
+			return;
+		}
 		if (value instanceof String) {
 			intent.putExtra(key, (String) value);
 		} else if (value instanceof Boolean) {
@@ -186,6 +216,10 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Integer) value);
 		} else if (value instanceof Long) {
 			intent.putExtra(key, (Long) value);
+		} else if (value instanceof IntentProxy) {
+			intent.putExtra(key, (Intent) ((IntentProxy) value).getIntent());
+		} else if (value instanceof TiBlob) {
+			intent.putExtra(key, ((TiBlob) value).getImage());
 		} else if (value instanceof Object[]) {
 			try {
 				Object[] objVal = (Object[]) value;
@@ -219,9 +253,27 @@ public class IntentProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void putExtraUri(String key, String uri)
+	public void putExtraUri(String key, Object value)
 	{
-		intent.putExtra(key, Uri.parse(uri));
+	    if (value == null) {
+	        return;
+	    } 
+	    
+	    if (value instanceof String) {
+	        intent.putExtra(key, Uri.parse((String) value));
+	    } else if (value instanceof Object[]) {
+	        try {
+	            Object[] objVal = (Object[]) value;
+	            String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+	            ArrayList<Uri> imageUris = new ArrayList<Uri>();
+	            for(String s: stringArray) {
+	                imageUris.add(Uri.parse(s));
+	            }
+	            intent.putParcelableArrayListExtra(key, imageUris);
+	        } catch (Exception ex) {
+	            Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
+	        }
+	    }
 	}
 
 	@Kroll.method

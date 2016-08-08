@@ -64,7 +64,7 @@ description: |
     On Android 3.0 and later, menu items can be displayed as _action items_ in the action
     bar. To enable this, the application must be built with a theme that supports the
     action bar, such as the Holo theme. (See
-    [Android Themes](http://docs.appcelerator.com/platform/3.0/#!/guide/Android_Themes) in
+    [Android Themes](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes) in
     the Titanium Guides for information on setting your application's theme.)
 
     For menu items displayed in the menu, the `onCreateOptionsMenu` function is called

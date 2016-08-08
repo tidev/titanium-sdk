@@ -10,19 +10,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -381,20 +376,36 @@ public class TiDrawableReference
 				}
 				// If decoding fails, we try to get it from httpclient.
 				if (b == null) {
-					HttpClient client = new DefaultHttpClient();
-					HttpGet request = new HttpGet(url);
-					HttpResponse response;
-					try {
-						response = (HttpResponse)client.execute(request);           
-						HttpEntity entity = response.getEntity();
-						BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
-						InputStream inputStream = bufferedEntity.getContent();
-						b = BitmapFactory.decodeStream(inputStream, null, opts);
-					} catch (ClientProtocolException e) {
-						Log.e(TAG, "ClientProtocolException" + e.getStackTrace());
-					} catch (IOException e) {
-						//Ignore
-					}
+				    HttpURLConnection connection = null;
+				    try {
+				        URL mURL = new URL(url);
+				        connection = (HttpURLConnection) mURL.openConnection();
+				        connection.setInstanceFollowRedirects(true);
+				        connection.setDoInput(true);
+				        connection.connect();
+				        int responseCode = connection.getResponseCode();
+				        if (responseCode == 200) {
+				            b = BitmapFactory.decodeStream(connection.getInputStream());
+				        } else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+				            String location = connection.getHeaderField("Location");
+				            URL nURL = new URL(location);
+				            String prevProtocol = mURL.getProtocol();
+				            //HttpURLConnection doesn't handle http to https redirects so we do it manually.
+				            if (prevProtocol != null && !prevProtocol.equals(nURL.getProtocol())) {
+				                b = BitmapFactory.decodeStream(nURL.openStream());
+				            } else {
+				                b = BitmapFactory.decodeStream(connection.getInputStream());
+				            }
+				        } else {
+				            b = null;
+				        }
+				    } catch (Exception e) {
+				        b = null;
+				    } finally {
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
+                    }
 				}
 			} else {
 				if (is == null) {

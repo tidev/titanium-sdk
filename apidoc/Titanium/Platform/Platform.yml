@@ -27,6 +27,8 @@ methods:
     description: |
         On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
         unless the URL is empty or undefined.
+        
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
     platforms: [iphone, ipad]
@@ -205,7 +207,7 @@ properties:
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
-        platform (iPhone, iPad, or iPod Touch), and `mobileweb` for the Mobile Web platform.
+        platform (iPhone, iPad, or iPod Touch), `windows` for the Windows platform, and `mobileweb` for the Mobile Web platform.
     type: String
     permission: read-only
     
@@ -218,7 +220,7 @@ properties:
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, and `mobileweb` for the Mobile Web
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, `windowsstore` for Windows Store, and `mobileweb` for the Mobile Web
         platform.
     type: String
     permission: read-only

@@ -21,7 +21,7 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
@@ -252,7 +252,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
-		ActionBarActivity activity = (ActionBarActivity) getWrappedActivity();
+		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {
 			actionBarProxy = new ActionBarProxy(activity);
 		}
@@ -290,8 +290,8 @@ public class ActivityProxy extends KrollProxy
 	private void handleInvalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null && activity instanceof ActionBarActivity) {
-			((ActionBarActivity)activity).supportInvalidateOptionsMenu();
+		if (activity != null && activity instanceof AppCompatActivity) {
+			((AppCompatActivity)activity).supportInvalidateOptionsMenu();
 		}
 	}
 

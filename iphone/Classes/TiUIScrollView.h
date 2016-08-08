@@ -6,6 +6,12 @@
  */
 #ifdef USE_TI_UISCROLLVIEW
 
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+#import "TiUIRefreshControlProxy.h"
+#endif
+#endif
+
 #import "TiUIView.h"
 
 @interface TiUIScrollViewImpl : UIScrollView {
@@ -20,11 +26,20 @@
 
 @private
 	TiUIScrollViewImpl * scrollView;
+#ifdef TI_USE_AUTOLAYOUT
+    TiLayoutView* contentView;
+#else
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
-	
+#endif
 	CGFloat minimumContentHeight;
+    
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+    TiUIRefreshControlProxy* refreshControl;
+#endif
+#endif
 	
 	BOOL needsHandleContentSize;
 	
@@ -40,7 +55,9 @@
 -(void)handleContentSize;
 -(void)setContentOffset_:(id)value withObject:(id)property;
 -(void)setZoomScale_:(id)value withObject:(id)property;
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)wrapperView;
+#endif
 -(void)scrollToBottom;
 
 @end

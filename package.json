@@ -1,7 +1,13 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "5.0.0",
+  "version": "6.1.0",
+  "moduleApiVersion": {
+    "iphone": "2",
+    "android": "3",
+    "mobileweb": "2",
+    "windows": "2"
+  },
   "keywords": [
     "appcelerator",
     "titanium",
@@ -18,39 +24,43 @@
   },
   "dependencies": {
     "adm-zip": "0.4.7",
-    "archiver": "0.14.4",
-    "async": "1.4.2",
-    "buffer-equal": "0.0.1",
-    "clean-css": "3.3.9",
+    "archiver": "1.0.1",
+    "async": "2.0.1",
+    "buffer-equal": "1.0.0",
+    "clean-css": "3.4.19",
     "colors": "1.1.2",
     "css-parse": "2.0.0",
-    "ejs": "2.3.3",
+    "ejs": "2.5.1",
     "fields": "0.1.24",
+	"glob": "7.0.5",
     "humanize": "0.0.9",
-    "ioslib": "0.6.2",
-    "moment": "2.10.6",
-    "node-appc": "0.2.28",
-    "node-uuid": "1.4.3",
-    "png-size": "^0.1.0",
-    "request": "2.60.0",
+    "ioslib": "0.13.0",
+    "lodash.defaultsdeep": "4.5.1",
+    "markdown": "0.5.0",
+    "moment": "2.14.1",
+    "node-appc": "0.2.36",
+    "node-uuid": "1.4.7",
+    "pngjs": "3.0.0",
+    "request": "2.74.0",
     "sprintf": "0.1.5",
-    "sqlite3": "^3.0.10",
+    "stream-splitter": "~0.3.2",
     "temp": "0.8.3",
-    "uglify-js": "2.4.24",
-    "windowslib": "0.1.15",
-    "wrench": "1.5.8",
-    "xcode": "0.8.0",
-    "xmldom": "0.1.19"
+    "uglify-js": "2.7.0",
+    "unorm": "^1.4.1",
+    "windowslib": "0.4.15",
+    "wrench": "1.5.9",
+    "xcode": "0.8.9",
+    "xmldom": "0.1.22"
   },
   "devDependencies": {
-    "grunt-cli": "*",
-    "grunt-contrib-clean": "^0.6.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
     "grunt-clang-format": "*",
     "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.12.7",
     "mocha": "*",
-    "optimist": "~0.6.1",
-    "should": "~7.0.3"
+    "optimist": "^0.6.1",
+    "should": "^10.0.0"
   },
   "repository": {
     "type": "git",
@@ -60,10 +70,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=0.10.0 <=0.12.x"
+    "node": ">=4.0 <=5.x"
   },
   "engines": {
-    "node": ">=0.10.13"
+    "node": ">=4.0"
   },
   "license": "Apache-2.0"
 }

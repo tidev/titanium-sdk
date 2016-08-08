@@ -7,6 +7,9 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
+deprecated:
+    since: "5.4.0"
+    notes: Use <Titanium.UI.iOS.TableViewStyle> instead.
 
 properties:
   - name: GROUPED

@@ -114,6 +114,8 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.deployType = cli.argv['deploy-type'];
 	this.buildType = cli.argv['build-type'] || '';
 
+	this.logger.warn(__('MobileWeb platform has been deprecated and will be removed in 7.0.0.'));
+
 	switch (this.deployType) {
 		case 'production':
 			this.minifyJS = true;
@@ -903,7 +905,7 @@ MobileWebBuilder.prototype.assembleTitaniumCSS = function assembleTitaniumCSS(ne
 	}, this);
 
 	// write the titanium.css
-	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS().minify(tiCSS.join('')).styles : tiCSS.join(''));
+	fs.writeFileSync(path.join(this.buildDir, 'titanium.css'), this.deployType == 'production' ? new CleanCSS({ processImport: false }).minify(tiCSS.join('')).styles : tiCSS.join(''));
 
 	next();
 };

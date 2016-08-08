@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef TI_USE_AUTOLAYOUT
+
 #import "LayoutConstraint.h"
 #import "QuartzCore/QuartzCore.h"
 #import "TiUtils.h"
@@ -388,3 +390,4 @@ BOOL IsLayoutUndefined(LayoutConstraint *constraint)
 		   TiDimensionIsUndefined(constraint->width)&&
 		   TiDimensionIsUndefined(constraint->height);
 }
+#endif

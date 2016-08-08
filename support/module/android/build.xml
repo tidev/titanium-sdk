@@ -150,7 +150,29 @@ timodule.xml.
 		<mkdir dir="${dist}"/>
 	</target>
 
-	<target name="process.annotations" depends="init"
+	<target name="process.aidl" depends="init">
+		<echo>Generating java files from the .aidl files</echo>
+
+		<path id="aidlexe">
+			<last>
+				<fileset dir="${android.platform}/../../build-tools">
+					<include name="**/*/aidl"/>
+				</fileset>
+			</last>
+		</path>
+		<echo message="${toString:aidlexe}" />
+
+		<apply executable="${toString:aidlexe}" failonerror="true">
+			<arg value="-p${android.platform}/framework.aidl" />
+			<arg value="-I${src}" />
+			<fileset dir="${src}" id="aidlfiles">
+				<include name="**/*.aidl"/>
+			</fileset>
+		</apply>
+		<echo message="${toString:aidlfiles}" />
+	</target>
+
+	<target name="process.annotations" depends="process.aidl, init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${genjson}"/>
 
@@ -167,7 +189,6 @@ timodule.xml.
 				<compilerarg value="${genjson}"/>
 				<compilerarg line="-Akroll.jsonFile=${manifest.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
-				<compilerarg line="-Akroll.checkTiContext=true"/>
 				<classpath refid="project.classpath"/>
 		</javac>
 	</target>
@@ -329,6 +350,7 @@ timodule.xml.
 			<fileset dir="${gen}/libs">
 				<include name="**/*"/>
 				<exclude name="**/libstlport_shared.so"/>
+				<exclude name="**/libc++_shared.so"/>
 			</fileset>
 		</copy>
 	</target>

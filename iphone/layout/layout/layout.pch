@@ -1,0 +1,15 @@
+//
+//  layout.pch
+//  layout
+//
+//  Created by Pedro Enrique on 8/4/15.
+//  Copyright © 2015 Pedro Enrique. All rights reserved.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <UIKit/UIKit.h>
+#endif
+#define TI_USE_AUTOLAYOUT
+#define TI_UNIT_TESTS
+
