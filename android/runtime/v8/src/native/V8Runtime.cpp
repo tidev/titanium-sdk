@@ -49,13 +49,13 @@ bool V8Runtime::initialized = false;
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
-  virtual void* Allocate(size_t length) {
-    void* data = AllocateUninitialized(length);
-    return data == NULL ? data : memset(data, 0, length);
-  }
+  virtual void* Allocate(size_t length) { return calloc(length, 1); }
   virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
   virtual void Free(void* data, size_t) { free(data); }
 };
+
+// Make allocator global so it sticks around?
+ArrayBufferAllocator allocator;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -214,7 +214,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	Isolate* isolate;
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
-		ArrayBufferAllocator allocator;
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
 		isolate = Isolate::New(create_params);
