@@ -336,6 +336,12 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
+	// Java object may be null if we get here during call to DefineOwnProperty for _properties of Proxy::proxyConstructor (and we haven't init'd the Java object yet)
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
+	}
+
 	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
