@@ -995,25 +995,23 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
     
-    NSMutableDictionary *dict = [NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
-                                 nil];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{@"activityType": [userActivity activityType]}];
 
-    if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
-        if([userActivity userInfo] !=nil){
+    if ([TiUtils isIOS9OrGreater] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+        if ([userActivity userInfo] != nil) {
             [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
         }
     }
 
-    if([userActivity title] !=nil){
+    if ([userActivity title] != nil) {
         [dict setObject:[userActivity title] forKey:@"title"];
     }
     
-    if([userActivity webpageURL] !=nil){
+    if ([userActivity webpageURL] != nil) {
         [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
     }
     
-    if([userActivity userInfo] !=nil){
+    if ([userActivity userInfo] != nil) {
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
 	
@@ -1022,10 +1020,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
 	[launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 	
-    if (appBooted){
+    if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
-    }
-    else{
+    } else {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
         });
