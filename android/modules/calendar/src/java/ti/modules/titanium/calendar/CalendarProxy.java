@@ -237,23 +237,23 @@ public class CalendarProxy extends KrollProxy {
 		return hidden;
 	}
     
-    @Kroll.getProperty @Kroll.method
-    public String getSourceName()
-    {
-        return sourceName;
-    }
+	@Kroll.getProperty @Kroll.method
+	public String getSourceName()
+	{
+		return sourceName;
+	}
     
-    @Kroll.getProperty @Kroll.method
-    public String getSourceType()
-    {
-        return sourceType;
-    }
+	@Kroll.getProperty @Kroll.method
+	public String getSourceType()
+	{
+		return sourceType;
+	}
     
-    @Kroll.getProperty @Kroll.method
-    public String getSourceIdentifier()
-    {
-        return sourceIdentifier;
-    }
+	@Kroll.getProperty @Kroll.method
+	public String getSourceIdentifier()
+	{
+		return sourceIdentifier;
+	}
 
 	@Override
 	public String getApiName()
