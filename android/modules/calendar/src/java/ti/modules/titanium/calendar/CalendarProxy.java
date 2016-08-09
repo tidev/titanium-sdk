@@ -90,15 +90,15 @@ public class CalendarProxy extends KrollProxy {
 				String sourceType = null;
 				String sourceIdentifier = null;
                 
-				if (cursor.getColumnIndex("account_name")) {
+				if (cursor.getColumnIndex("account_name") != -1) {
 					sourceName = cursor.getString(cursor.getColumnIndex("account_name"));
 				}
                 
-				if (cursor.getColumnIndex("account_type")) {
+				if (cursor.getColumnIndex("account_type") != -1) {
 					sourceType = cursor.getString(cursor.getColumnIndex("account_type"));
 				}
 
-				if (cursor.getColumnIndex("_sync_id")) {
+				if (cursor.getColumnIndex("_sync_id") != -1) {
 					sourceIdentifier = cursor.getString(cursor.getColumnIndex("_sync_id"));
 				}
 
