@@ -293,34 +293,32 @@
 
 -(NSString*)sourceTitle
 {
-    if (![NSThread isMainThread]) {
-        __block id result;
-        TiThreadPerformOnMainThread(^{result = [[[self calendar] source] title];}, YES);
-        return [result autorelease];
-    }
-    return [[[self calendar] source] title];
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = [[[self calendar] source] title];
+    },YES);
+    
+    return result;
 }
 
 -(NSNumber*)sourceType
 {
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = NUMINT([[[self calendar] source] sourceType]);
+    },YES);
     
-    if (![NSThread isMainThread]) {
-        __block id result;
-        TiThreadPerformOnMainThread(^{result = NUMINT([[[self calendar] source] sourceType]);}, YES);
-        return [result autorelease];
-    }
-    
-    return NUMINT([[[self calendar] source] sourceType]);
+    return result;
 }
 
 -(NSString*)sourceIdentifier
 {
-    if (![NSThread isMainThread]) {
-        __block id result;
-        TiThreadPerformOnMainThread(^{result = [[[self calendar] source] sourceIdentifier];}, YES);
-        return [result autorelease];
-    }
-    return [[[self calendar] source] sourceIdentifier];
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = [[[self calendar] source] sourceIdentifier];
+    },YES);
+
+    return result;
 }
 
 @end
