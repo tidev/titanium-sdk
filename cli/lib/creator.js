@@ -340,7 +340,7 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 		}
 
 		if (goodValues.mobileweb) {
-			logger.warn(__('MobileWeb platform has been deprecated and will be removed in 7.0.0.'));
+			logger.warn(__('MobileWeb platform has been deprecated in 5.4.0 and will be removed in 7.0.0.'));
 		}
 
 		callback(null, Object.keys(goodValues).join(','));
