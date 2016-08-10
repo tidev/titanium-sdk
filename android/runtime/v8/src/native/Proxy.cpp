@@ -331,12 +331,12 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	JNIEnv *env = JNIScope::getEnv();
 	Local<Object> jsProxy = args.This();
 
-	// every instance gets a special "_properties" object for us to use internally for get/setProperty
-	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
-
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
 	Proxy* proxy = new Proxy(NULL);
 	proxy->wrap(isolate, jsProxy);
+
+	// every instance gets a special "_properties" object for us to use internally for get/setProperty
+	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// Now we hook up a java Object from the JVM...
 	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args); // do we already have one that got passed in?
