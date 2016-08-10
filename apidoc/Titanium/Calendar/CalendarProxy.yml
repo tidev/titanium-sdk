@@ -126,6 +126,7 @@ properties:
     type: Number
     permission: read-only
     since: "6.1.0"
+    constants: Titanium.Calendar.SOURCE_TYPE_*
     platforms: [iphone, ipad]
 
   - name: sourceIdentifier
