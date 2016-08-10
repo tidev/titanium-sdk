@@ -70,8 +70,9 @@ function detect(options, callback) {
 			'HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio', // should be the same as the one above, but just to be safe
 			'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\VSWinExpress', // there should not be anything here because VS is currently 32-bit and we'll find it next
 			'HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\VSWinExpress', // this is where VS should be found because it's 32-bit
-			'HKEY_CURRENT_USER\\Software\\Microsoft\\VSWinExpress' // should be the same as the one above, but just to be safe
-			], function (keyPath, next) {
+			'HKEY_CURRENT_USER\\Software\\Microsoft\\VSWinExpress', // should be the same as the one above, but just to be safe
+			'HKEY_CURRENT_USER\\Software\\Microsoft\\VPDExpress' // VS express
+		], function (keyPath, next) {
 			appc.subprocess.run('reg', ['query', keyPath], function (code, out, err) {
 				if (!code) {
 					out.trim().split(/\r\n|\n/).forEach(function (configKey) {
