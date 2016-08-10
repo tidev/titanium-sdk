@@ -1258,7 +1258,7 @@ description: |
             </Window>
         </Alloy>
 
-    `app/controllers/index.xml`:
+    `app/controllers/index.js`:
 
         var foo = require('foo');
         foo.setData({foobar: 42});
