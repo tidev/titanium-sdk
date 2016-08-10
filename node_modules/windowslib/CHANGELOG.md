@@ -1,3 +1,7 @@
+0.4.16 (8/9/2016)
+-------------------
+  * [TIMOB-23748] Fix: Failed to connect to WP 8.1 device
+
 0.4.15 (7/13/2016)
 -------------------
   * [TIMOB-23279] Only report detected device 

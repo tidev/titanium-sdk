@@ -149,7 +149,11 @@ function wptoolEnumerate(wpsdk, options, next) {
 		async.parallel([
 			// discover windows 10 devices in network using WinAppDeployCmd
 			function (cb) {
-				winAppDeployCmdEnumerate(phoneResults.windowsphone[wpsdk].deployCmd, cb);
+				if (wpsdk == '10.0') {
+					winAppDeployCmdEnumerate(phoneResults.windowsphone[wpsdk].deployCmd, cb);
+				} else {
+					nativeEnumerate(wpsdk, options, cb);
+				}
 			},
 			// Use our custom wptool binary to gather Windows 10 emulators
 			function (cb) {
