@@ -68,6 +68,12 @@
 @property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_RESOURCE;
 @property (nonatomic, readonly)NSNumber* ATTENDEE_TYPE_GROUP;
 
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_LOCAL;
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_EXCHANGE;
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_CALDAV;
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_MOBILEME;
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_SUBSCRIBED;
+@property (nonatomic, readonly)NSNumber* SOURCE_TYPE_BIRTHDAYS;
 
 @end
 
