@@ -830,9 +830,15 @@ function wpToolInstall(deployCmd, device, appPath, options, callback) {
 		clearTimeout(abortTimer);
 
 		if (code) {
-			var errmsg = out.trim().split(/\r\n|\n/).shift(),
-				ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to install app (code %s): %s', code, out));
-			callback(ex);
+			// handle duplicate package identity error code from Windows 10.0.14393 tooling and above
+			if (code == '2148734208') {
+				options.forceUnInstall = true;
+				wpToolInstall(deployCmd, device, appPath, options, callback);
+			} else {
+				var errmsg = out.trim().split(/\r\n|\n/).shift(),
+					ex = new Error(/^Error: /.test(errmsg) ? errmsg.substring(7) : __('Failed to install app (code %s): %s', code, out));
+				callback(ex);
+			}
 		} else {
 			var errmsg = /failed\. (\w*)\r?\n(.*)/.exec(out);
 			if (errmsg) {
