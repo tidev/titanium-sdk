@@ -608,12 +608,15 @@ events:
     summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
         This event will fire while the list view is scrolling and the user releases the finger.
-        No event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
+        On iOS no event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi). 
-        When `direction` is `down`, `velocity` is negative and viceversa. 
+        When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
 
-    platforms: [iphone, ipad]
-    since: 5.4.0
+    platforms: [android, iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 5.4.0
+        ipad: 5.4.0
     properties:
       - name: direction
         summary: Direction of the scroll either 'up', or 'down'.
