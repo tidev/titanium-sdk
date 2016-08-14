@@ -318,7 +318,7 @@ methods:
     returns:
         type: Boolean 
     platforms: [iphone, ipad]
-    since: "6.0.0"    
+    since: "5.5.0"    
 
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.

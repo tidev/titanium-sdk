@@ -924,7 +924,7 @@ properties:
         Creates a blurring effect in the view. The blurring effect is the default one specified in iOS 10.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_PROMINENT
@@ -934,7 +934,7 @@ properties:
         Creates a blurring effect in the view. The area of the view is presented more prominent than the underlying view.
     type: Number
     permission: read-only
-    since: "6.0.0"
+    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
 
   - name: AD_SIZE_PORTRAIT
