@@ -47,6 +47,11 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     return @"Ti.UI.TextField";
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"hintText",@"hinttextid",nil];
+}
+
 @end
 
 
