@@ -34,6 +34,11 @@
 	[super setRightViewMode:UITextFieldViewModeAlways];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"hintText",@"hinttextid",nil];
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(left);

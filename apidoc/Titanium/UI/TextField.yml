@@ -307,6 +307,14 @@ properties:
     type: String
     default: The platform's default hint text color.
 
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.TextField.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.1.0"
+
   - name: inputType
     summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
     description: |

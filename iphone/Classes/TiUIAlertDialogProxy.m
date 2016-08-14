@@ -35,6 +35,9 @@ static BOOL alertShowing = NO;
 			@"title",@"titleid",
 			@"ok",@"okid",
 			@"message",@"messageid",
+			@"hintText",@"hinttextid",
+			@"loginHintText",@"loginhinttextid",
+			@"passwordHintText",@"passwordhinttextid",
 			nil];
 }
 

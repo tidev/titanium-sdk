@@ -275,6 +275,15 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad]
 
+  - name: loginhinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [loginHintText](Titanium.UI.AlertDialog.loginHintText) property.
+    description: Only one of `loginHintText` or `loginhinttextid` should be specified.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+
   - name: loginReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
@@ -339,6 +348,15 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad]
 
+  - name: passwordhinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [passwordHintText](Titanium.UI.AlertDialog.passwordHintText) property.
+    description: Only one of `passwordHintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+
   - name: passwordReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
@@ -380,6 +398,15 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "5.4.0"
+    platforms: [iphone, ipad]
+
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.AlertDialog.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.1.0"
     platforms: [iphone, ipad]
 
   - name: persistent
