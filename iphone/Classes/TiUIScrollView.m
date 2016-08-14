@@ -87,6 +87,11 @@
 #ifndef TI_USE_AUTOLAYOUT
 	RELEASE_TO_NIL(wrapperView);
 #endif
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+    RELEASE_TO_NIL(refreshControl);
+#endif
+#endif
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
 }
@@ -341,6 +346,28 @@
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 #endif
+
+-(void)setRefreshControl_:(id)args
+{
+#if IS_XCODE_8
+#ifdef USE_TI_UIREFRESHCONTROL
+    if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
+        return;
+    }
+    ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
+    [[refreshControl control] removeFromSuperview];
+    RELEASE_TO_NIL(refreshControl);
+    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
+    if (args != nil) {
+        refreshControl = [args retain];
+        [[self scrollView] setRefreshControl:[refreshControl control]];
+    }
+#endif
+#else
+    NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
+#endif
+}
 
 -(void)setShowHorizontalScrollIndicator_:(id)value
 {
