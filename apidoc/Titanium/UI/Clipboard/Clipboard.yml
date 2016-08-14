@@ -81,7 +81,7 @@ methods:
       
   - name: hasURLs
     summary: Indicates whether any URLs are stored in the clipboard.
-    since: "6.0.0"
+    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
     returns:
@@ -89,7 +89,7 @@ methods:
      
   - name: hasImages
     summary: Indicates whether any images are stored in the clipboard.
-    since: "6.0.0"
+    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
     returns:
@@ -97,7 +97,7 @@ methods:
       
   - name: hasColors
     summary: Indicates whether any colors are stored in the clipboard.
-    since: "6.0.0"
+    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
     returns:
