@@ -248,6 +248,10 @@
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
 		3A811CD01C2C21E50023468C /* TiUIiOSBlurViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */; };
 		3A811CD31C2C21FE0023468C /* TiUIiOSBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */; };
+		3A8D34B41D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D34AD1D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.m */; };
+		3A8D34B51D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D34AF1D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.m */; };
+		3A8D34B61D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D34B11D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.m */; };
+		3A8D34B71D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D34B31D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m */; };
 		3AB9137C1BB60F070063A4AD /* TiPreviewingDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */; };
 		3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */; };
 		4688700715E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
@@ -821,6 +825,14 @@
 		3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurViewProxy.m; sourceTree = "<group>"; };
 		3A811CD11C2C21FE0023468C /* TiUIiOSBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSBlurView.h; sourceTree = "<group>"; };
 		3A811CD21C2C21FE0023468C /* TiUIiOSBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurView.m; sourceTree = "<group>"; };
+		3A8D34AC1D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneListViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
+		3A8D34AD1D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneListViewCellSelectionStyleProxy.m; sourceTree = "<group>"; };
+		3A8D34AE1D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneListViewScrollPositionProxy.h; sourceTree = "<group>"; };
+		3A8D34AF1D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneListViewScrollPositionProxy.m; sourceTree = "<group>"; };
+		3A8D34B01D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneListViewSeparatorStyleProxy.h; sourceTree = "<group>"; };
+		3A8D34B11D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneListViewSeparatorStyleProxy.m; sourceTree = "<group>"; };
+		3A8D34B21D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneListViewStyleProxy.h; sourceTree = "<group>"; };
+		3A8D34B31D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneListViewStyleProxy.m; sourceTree = "<group>"; };
 		3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiPreviewingDelegate.h; sourceTree = "<group>"; };
 		3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiPreviewingDelegate.m; sourceTree = "<group>"; };
 		3AB9137E1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionProxy.h; sourceTree = "<group>"; };
@@ -1737,6 +1749,14 @@
 				243ED8EC11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m */,
 				245B455F1139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.h */,
 				245B45601139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m */,
+				3A8D34AC1D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.h */,
+				3A8D34AD1D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.m */,
+				3A8D34AE1D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.h */,
+				3A8D34AF1D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.m */,
+				3A8D34B01D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.h */,
+				3A8D34B11D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.m */,
+				3A8D34B21D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.h */,
+				3A8D34B31D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m */,
 				4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */,
 				4688700515E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.h */,
 			);
@@ -2704,6 +2724,7 @@
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
+				3A8D34B51D61CE6C00A4B2B6 /* TiUIiPhoneListViewScrollPositionProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
 				24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				24CA8B8A111161FE0084E2DE /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
@@ -2809,6 +2830,7 @@
 				159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
+				3A8D34B61D61CE6C00A4B2B6 /* TiUIiPhoneListViewSeparatorStyleProxy.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
 				24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
 				24E25CC4112A698C0083D43D /* SCListener.m in Sources */,
@@ -2880,6 +2902,7 @@
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
 				D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
+				3A8D34B71D61CE6C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m in Sources */,
 				B480501F1278AB010030AA3F /* TiThreading.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,
 				DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */,
@@ -2899,6 +2922,7 @@
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
+				3A8D34B41D61CE6C00A4B2B6 /* TiUIiPhoneListViewCellSelectionStyleProxy.m in Sources */,
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
