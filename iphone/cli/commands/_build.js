@@ -76,7 +76,11 @@ function iOSBuilder() {
 		'_codesignature',
 		'embedded.mobileprovision',
 		'info.plist',
-		'pkginfo'
+		'pkginfo',
+		'assets.car',
+		'modules',
+		'LaunchScreen.storyboardc',
+		'hyperloop'
 	];
 
 	this.graylistDirectories = [
@@ -1265,7 +1269,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
 		var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
-		this.blacklistDirectories.push(this.tiapp.name);
+
+		if (this.blacklistDirectories.indexOf(this.tiapp.name.toLowerCase()) !== -1 || this.tiapp.name.toLowerCase() === 'frameworks') {
+			logger.error(__('The app name conflicts with a reserved file.'));
+			logger.error(__('You must change the name of the app in the tiapp.xml.') + '\n');
+			process.exit(1);
+		}
+
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
 			path.join(this.projectDir, 'Resources', 'ios')
@@ -1281,23 +1291,23 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 				if (this.blacklistDirectories.indexOf(lcaseFilename) !== -1) {
 					if (isDir) {
-						logger.error(__('Found blacklisted directory in the Resources directory'));
+						logger.error(__('Found blacklisted directory in the Resources directory.'));
 						logger.error(__('The directory "%s" is a reserved directory.', filename));
 						logger.error(__('You must rename this directory to something else.') + '\n');
 					} else {
-						logger.error(__('Found blacklisted file in the Resources directory'));
+						logger.error(__('Found blacklisted file in the Resources directory.'));
 						logger.error(__('The file "%s" is a reserved file.', filename));
 						logger.error(__('You must rename this file to something else.') + '\n');
 					}
 					process.exit(1);
 				} else if (this.graylistDirectories.indexOf(lcaseFilename) !== -1) {
 					if (isDir) {
-						logger.warn(__('Found graylisted directory in the Resources directory'));
+						logger.warn(__('Found graylisted directory in the Resources directory.'));
 						logger.warn(__('The directory "%s" is potentially a reserved directory.', filename));
 						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 						logger.warn(__('It is highly recommended you rename this directory to something else.'));
 					} else {
-						logger.warn(__('Found graylisted file in the Resources directory'));
+						logger.warn(__('Found graylisted file in the Resources directory.'));
 						logger.warn(__('The file "%s" is potentially a reserved file.', filename));
 						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 						logger.warn(__('It is highly recommended you rename this file to something else.'));
