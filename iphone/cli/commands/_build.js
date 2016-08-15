@@ -1448,7 +1448,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					}
 
 					var tiappTargets = {},
-						swiftRegExp = /\.swift$/,
 						proj = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync();
 
 					// flag each target we care about
@@ -1808,26 +1807,35 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function validateCapabilities() {
-				// check if we have any capabilities that we should need a team id
-				if (!this.tiapp.ios['team-id'] && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
-					logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
-					if (Object.keys(this.xcodeEnv.teams).length) {
-						logger.log(__('Available teams:'));
-						Object.keys(this.xcodeEnv.teams).forEach(function (id) {
-							var team = this.xcodeEnv.teams[id];
-							logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
-						}, this);
+				// check if we have any capabilities or if we're building with a watch app using Xcode 8 or newer that we should need a team id
+				if (!this.tiapp.ios['team-id']) {
+					var hasCapabilities = Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this);
+					var hasWatchApp = this.hasWatchAppV2orNewer && version.gte(this.xcodeEnv.version, '8.0.0');
+					if (hasCapabilities || hasWatchApp) {
+						if (hasCapabilities) {
+							logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
+						} else {
+							logger.error(__('Xcode %s requires Watch Extensions have a team specified, but a <team-id> is not set.', this.xcodeEnv.version) + '\n');
+						}
+
+						if (Object.keys(this.xcodeEnv.teams).length) {
+							logger.log(__('Available teams:'));
+							Object.keys(this.xcodeEnv.teams).forEach(function (id) {
+								var team = this.xcodeEnv.teams[id];
+								logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
+							}, this);
+							logger.log();
+						} else {
+							logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+						}
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
 						logger.log();
-					} else {
-						logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+						process.exit(1);
 					}
-					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('    <ios>'.grey);
-					logger.log('        <team-id>TEAM ID</team-id>'.magenta);
-					logger.log('    </ios>'.grey);
-					logger.log('</ti:app>'.grey);
-					logger.log();
-					process.exit(1);
 				}
 			},
 
@@ -1859,8 +1867,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
 				var defaultMinIosSdk = this.packageJson.minIosVersion;
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '8.0')) {
+					defaultMinIosSdk = '8.0';
+				}
+
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-				if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '8.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '8.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '8.0'));
+				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
 				} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
@@ -2786,8 +2803,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}, this);
 
 	// set the target-specific build settings
+	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		if (legacySwift) {
+			delete bs.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		} else {
+			delete bs.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
 	});
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
@@ -2893,6 +2916,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	// add extensions and their targets to the project
 	if (this.extensions.length) {
 		this.logger.trace(__n('Adding %%d iOS extension', 'Adding %%d iOS extensions', this.extensions.length === 1 ? 1 : 2, this.extensions.length));
+
+		var swiftRegExp = /\.swift$/;
 
 		this.extensions.forEach(function (ext) {
 			var extObjs = ext.objs,
@@ -3052,6 +3077,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.PBXFileReference[productUuid + '_comment'] = extObjs.PBXFileReference[productUuid + '_comment'];
 
 				// add the groups and files
+				var hasSwiftFiles = false;
 				extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
 					if (child.comment !== target.name) return;
 
@@ -3073,6 +3099,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							if (extObjs.PBXFileReference[child.value]) {
 								xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
 								xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+								if (!hasSwiftFiles && swiftRegExp.test(xobjs.PBXFileReference[child.value + '_comment'])) {
+									hasSwiftFiles = true;
+								}
 							}
 
 							if (extObjs.PBXVariantGroup && extObjs.PBXVariantGroup[child.value]) {
@@ -3081,6 +3110,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								varGroup.children && varGroup.children.forEach(function (child) {
 									xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
 									xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+									if (!hasSwiftFiles && swiftRegExp.test(xobjs.PBXFileReference[child.value + '_comment'])) {
+										hasSwiftFiles = true;
+									}
 								});
 							}
 						});
@@ -3157,6 +3189,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							value: entFileRefUuid,
 							comment: entFile
 						});
+					}
+
+					if (hasSwiftFiles && !extBuildSettings.SWIFT_VERSION) {
+						extBuildSettings.SWIFT_VERSION = '2.2';
 					}
 				}, this);
 
