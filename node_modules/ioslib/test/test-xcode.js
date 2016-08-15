@@ -2,7 +2,7 @@
  * Tests ioslib's xcode module.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -15,7 +15,9 @@ const
 
 function checkXcode(xcode) {
 	should(xcode).be.an.Object;
-	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build', 'supported', 'eulaAccepted', 'sdks', 'sims', 'simDeviceTypes', 'simRuntimes', 'watchos', 'teams', 'executables');
+	should(xcode).have.keys('xcodeapp', 'path', 'selected', 'version', 'build',
+		'supported', 'eulaAccepted', 'sdks', 'sims', 'simDeviceTypes',
+		'simRuntimes', 'watchos', 'tvos', 'teams', 'executables');
 
 	should(xcode.xcodeapp).be.a.String;
 	should(xcode.xcodeapp).not.equal('');
