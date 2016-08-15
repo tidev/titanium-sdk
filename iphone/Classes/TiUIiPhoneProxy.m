@@ -56,20 +56,23 @@
 #ifdef USE_TI_UIIPADPOPOVER
 	#import "TiUIiPadPopoverProxy.h"
 #endif
+#ifdef USE_TI_UIIPADSPLITWINDOW
+	#import "TiUIiPadSplitWindowProxy.h"
+#endif
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
  	#import "TiUIiPhoneAlertDialogStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSTYLE
-	#import "TiUIiPhoneTableViewStyleProxy.h"
+	#import "TiUIiPhoneListViewStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
-	#import "TiUIiPhoneTableViewScrollPositionProxy.h"
+	#import "TiUIiPhoneListViewScrollPositionProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
-#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
+	#import "TiUIiPhoneListViewCellSelectionStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
-#import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
+	#import "TiUIiPhoneListViewSeparatorStyleProxy.h"
 #endif
 
 @implementation TiUIiPhoneProxy
@@ -204,16 +207,16 @@ RELEASE_TO_NIL(x); \
 	DEFINE_SUBPROXY(AlertDialogStyle, alertDialogStyle);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSTYLE
-DEFINE_SUBPROXY_AS(ListViewStyle,TableViewStyle, listViewStyle);
+	DEFINE_SUBPROXY(ListViewStyle, listViewStyle);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
-DEFINE_SUBPROXY_AS(ListViewScrollPosition, TableViewScrollPosition, listViewScrollPosition);
+	DEFINE_SUBPROXY(ListViewScrollPosition, listViewScrollPosition);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
-DEFINE_SUBPROXY_AS(ListViewCellSelectionStyle, TableViewCellSelectionStyle, listViewCellSelectionStyle);
+	DEFINE_SUBPROXY(ListViewCellSelectionStyle, listViewCellSelectionStyle);
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
-DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
+	DEFINE_SUBPROXY(ListViewSeparatorStyle, listViewSeparatorStyle);
 #endif
 
 -(NSString*)apiName
