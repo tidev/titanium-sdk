@@ -464,47 +464,49 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-- (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
+- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleExtraLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber* )BLUR_EFFECT_STYLE_LIGHT
+- (id)BLUR_EFFECT_STYLE_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_DARK
+- (id)BLUR_EFFECT_STYLE_DARK
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleDark);
     }
-    return nil;
+    return [NSNull null];
 }
 
-#if IS_XCODE_8
-- (NSNumber*) BLUR_EFFECT_STYLE_REGULAR
+- (id)BLUR_EFFECT_STYLE_REGULAR
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleRegular);
     }
-    return nil;
+#endif
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_PROMINENT
+- (id)BLUR_EFFECT_STYLE_PROMINENT
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleProminent);
     }
-    return nil;
-}
 #endif
+    return [NSNull null];
+}
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
