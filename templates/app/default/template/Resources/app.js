@@ -34,6 +34,7 @@ function createTab(title, message, icon) {
 
     var label = Ti.UI.createLabel({
         text: message,
+        color: "#333",
         font: {
             fontSize: 20
         }
