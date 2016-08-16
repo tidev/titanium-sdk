@@ -273,17 +273,6 @@ methods:
         summary: Basic auth password.
         type: String
         
-  - name: setRequestHeaders
-    summary: |
-        Sets extra request headers for this web view to use on subsequent URL requests.
-    platforms: [android]
-    since: "6.1.0"
-    parameters:
-
-      - name: parameter
-        summary: Key-value pairs.
-        type: Dictionary
-
   - name: stopLoading
     summary: Stops loading a currently loading page.
     description: |
@@ -721,6 +710,16 @@ properties:
     platforms: [android]
     since: "3.2.0"
     default: true
+    
+  - name: requestHeaders
+    summary: Sets extra request headers for this web view to use on subsequent URL requests.
+    description: |
+        Setting this property allows you to set custom headers to the URL requests. 
+        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`            
+    type: Dictionary
+    platforms: [android]
+    since: "6.1.0"
+
 
 examples:
   - title: Basic Web View to External URL 
