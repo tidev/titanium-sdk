@@ -732,6 +732,11 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
+	public HashMap getRequestHeaders()
+	{
+		return extraHeaders;
+	}
+
 	public boolean canGoBack()
 	{
 		return getWebView().canGoBack();

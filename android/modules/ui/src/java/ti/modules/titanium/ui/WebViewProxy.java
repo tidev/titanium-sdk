@@ -57,6 +57,7 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
+	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -166,6 +167,11 @@ public class WebViewProxy extends ViewProxy
 					getWebView().setRequestHeaders((HashMap)msg.obj);
 					return true;
 				}
+				case MSG_GET_HEADERS: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().getRequestHeaders());
+					return true;
+				}
 				case MSG_CAN_GO_BACK: {
 					AsyncResult result = (AsyncResult) msg.obj;
 					result.setResult(getWebView().canGoBack());
@@ -257,6 +263,20 @@ public class WebViewProxy extends ViewProxy
 				}
 			}
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public HashMap getRequestHeaders()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			if (TiApplication.isUIThread()) {
+				return currWebView.getRequestHeaders();
+			} else {
+				return (HashMap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_HEADERS));
+			}
+		}
+		return new HashMap<String, String>();
 	}
 
 	@Kroll.method
