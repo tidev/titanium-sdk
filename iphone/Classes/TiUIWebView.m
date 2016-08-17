@@ -675,6 +675,30 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+	BOOL allHeadersIncluded = NO;
+	int requiredHeaders = (int)[newHeaders count];
+    
+	for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
+		for (NSString* newHeader in [newHeaders allKeys]) {
+			if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
+				requiredHeaders--;
+			}
+		}
+	}
+    
+	// If there are custom headers and not all of them are included, add them
+	if (newHeaders != nil && requiredHeaders > 0) {
+		NSMutableURLRequest* newRequest = [request mutableCopy];
+		for (NSString* newHeader in [newHeaders allKeys]) {
+			[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+		}
+		[self loadURLRequest:newRequest];
+		[newRequest release];
+        
+		return NO;
+	}
+
 	NSURL * newUrl = [request URL];
 
 	if ([self.proxy _hasListeners:@"beforeload"])
