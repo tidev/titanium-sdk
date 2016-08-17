@@ -246,7 +246,12 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 		return;
 	}
 
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+	Local<Object> holder = args.Holder();
+	// If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(baseProxyTemplate.Get(isolate));
+	}
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	Local<String> eventType = args[0]->ToString(isolate);
 	Local<Boolean> hasListeners = args[1]->ToBoolean(isolate);
@@ -277,7 +282,12 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 		return;
 	}
 
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+	Local<Object> holder = args.Holder();
+	// If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(baseProxyTemplate.Get(isolate));
+	}
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	Local<String> eventType = args[0]->ToString(isolate);
 	Local<Value> eventData = args[1];
