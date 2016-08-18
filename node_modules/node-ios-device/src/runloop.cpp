@@ -66,40 +66,43 @@ static void on_device_notification(am_device_notification_callback_info* info, v
 	debug("Resetting timer due to new device notification");
 	stopInitTimer();
 
-	if (info->msg == ADNCI_MSG_CONNECTED) {
-		std::lock_guard<std::mutex> lock(deviceMutex);
-		node_ios_device::Device* device = new node_ios_device::Device(info->dev);
+	// ensure that the device is connected via USB
+	if (::AMDeviceGetInterfaceType(info->dev) == 1) {
+		if (info->msg == ADNCI_MSG_CONNECTED) {
+			std::lock_guard<std::mutex> lock(deviceMutex);
+			node_ios_device::Device* device = new node_ios_device::Device(info->dev);
 
-		if (!::CFDictionaryContainsKey(connectedDevices, device->udid)) {
-			node_ios_device::debug("Device connected");
+			if (!::CFDictionaryContainsKey(connectedDevices, device->udid)) {
+				node_ios_device::debug("Device connected");
 
-			try {
-				device->init();
+				try {
+					device->init();
 
-				// if we already have the device info, don't get it again
-				if (device->loaded && !::CFDictionaryContainsKey(connectedDevices, device->udid)) {
-					::CFDictionarySetValue(connectedDevices, device->udid, device);
-					changed = true;
+					// if we already have the device info, don't get it again
+					if (device->loaded && !::CFDictionaryContainsKey(connectedDevices, device->udid)) {
+						::CFDictionarySetValue(connectedDevices, device->udid, device);
+						changed = true;
+					}
+				} catch (...) {
+					node_ios_device::debug("Failed to init device");
+					delete device;
 				}
-			} catch (...) {
-				node_ios_device::debug("Failed to init device");
-				delete device;
 			}
-		}
 
-	} else if (info->msg == ADNCI_MSG_DISCONNECTED) {
-		std::lock_guard<std::mutex> lock(deviceMutex);
-		CFStringRef udid = ::AMDeviceCopyDeviceIdentifier(info->dev);
+		} else if (info->msg == ADNCI_MSG_DISCONNECTED) {
+			std::lock_guard<std::mutex> lock(deviceMutex);
+			CFStringRef udid = ::AMDeviceCopyDeviceIdentifier(info->dev);
 
-		if (::CFDictionaryContainsKey(connectedDevices, udid)) {
-			// remove the device from the dictionary and destroy it
-			node_ios_device::Device* device = (node_ios_device::Device*)::CFDictionaryGetValue(connectedDevices, udid);
-			::CFDictionaryRemoveValue(connectedDevices, udid);
+			if (::CFDictionaryContainsKey(connectedDevices, udid)) {
+				// remove the device from the dictionary and destroy it
+				node_ios_device::Device* device = (node_ios_device::Device*)::CFDictionaryGetValue(connectedDevices, udid);
+				::CFDictionaryRemoveValue(connectedDevices, udid);
 
-			node_ios_device::debug("Device disconnected: %s", device->props["udid"].c_str());
+				node_ios_device::debug("Device disconnected: %s", device->props["udid"].c_str());
 
-			delete device;
-			changed = true;
+				delete device;
+				changed = true;
+			}
 		}
 	}
 
