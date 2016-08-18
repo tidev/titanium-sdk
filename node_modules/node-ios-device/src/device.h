@@ -102,16 +102,6 @@ public:
 		// connect to the device and get its information
 		this->connect();
 
-		CFNumberRef valueNum = (CFNumberRef)AMDeviceCopyValue(this->handle, 0, CFSTR("HostAttached"));
-		int64_t value = 0;
-		CFNumberGetValue(valueNum, kCFNumberSInt64Type, &value);
-		CFRelease(valueNum);
-		if (value != 1) {
-			// not physically connected
-			debug("Device is not physically connected to host, ignoring");
-			return;
-		}
-
 		this->set("name",            CFSTR("DeviceName"));
 		this->set("buildVersion",    CFSTR("BuildVersion"));
 		this->set("cpuArchitecture", CFSTR("CPUArchitecture"));
@@ -321,18 +311,19 @@ private:
 	 * destructor.
 	 */
 	void disconnect(const bool force = false) {
-		this->connected--;
-
-		if (this->connected == 0 || (force && this->connected > 0)) {
-			debug("Stopping session: %s", this->props["udid"].c_str());
-			::AMDeviceStopSession(this->handle);
-			debug("Disconnecting from device: %s", this->props["udid"].c_str());
-			::AMDeviceDisconnect(this->handle);
-		} else {
+		if (this->connected == 0) {
 			debug("Already disconnected");
+		} else {
+			if (force || this->connected == 1) {
+				debug("Stopping session: %s", this->props["udid"].c_str());
+				::AMDeviceStopSession(this->handle);
+				debug("Disconnecting from device: %s", this->props["udid"].c_str());
+				::AMDeviceDisconnect(this->handle);
+				this->connected = 0;
+			} else {
+				this->connected--;
+			}
 		}
-
-		this->connected = 0;
 	}
 
 	/**

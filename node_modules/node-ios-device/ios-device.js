@@ -196,7 +196,7 @@ function log(udid, callback) {
 		stopped = true;
 		emitter.removeListener(udid, callback);
 
-		if (emitter._events[udid].length <= 0) {
+		if (!emitter._events[udid] || emitter._events[udid].length <= 0) {
 			binding.stopLogRelay(udid);
 		}
 
