@@ -320,6 +320,13 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setCacheMode(mode);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_REQUEST_HEADERS)) {
+			Object value = d.get(TiC.PROPERTY_REQUEST_HEADERS);
+			if (value instanceof HashMap) {
+				setRequestHeaders((HashMap) value);
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
@@ -377,6 +384,10 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+		} else if(TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
+			if (newValue instanceof HashMap) {
+				setRequestHeaders((HashMap) newValue);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
