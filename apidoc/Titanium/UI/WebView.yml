@@ -714,10 +714,13 @@ properties:
   - name: requestHeaders
     summary: Sets extra request headers for this web view to use on subsequent URL requests.
     description: |
-        Setting this property allows you to set custom headers to the URL requests. 
-        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`            
+        Setting this property allows you to set custom headers to the URL requests.
+        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`
+        
+        On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
+        inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
-    platforms: [android]
+    platforms: [android,iphone,ipad]
     since: "6.1.0"
 
 
