@@ -16,7 +16,6 @@ see the LICENSE file for specific details.
 
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
-
 Features
 --------------------
 
