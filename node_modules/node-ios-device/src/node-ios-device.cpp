@@ -254,7 +254,13 @@ NAN_METHOD(installApp) {
  */
 NAN_METHOD(startLogRelay) {
 	VALIDATE_UDID_AND_GET_DEVICE(0)
-	device->startLogRelay();
+
+	try {
+		device->startLogRelay();
+	} catch (std::runtime_error& e) {
+		return Nan::ThrowError(Exception::Error(Nan::New(e.what()).ToLocalChecked()));
+	}
+
 	info.GetReturnValue().SetUndefined();
 }
 
