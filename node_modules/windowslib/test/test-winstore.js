@@ -100,7 +100,7 @@ describe('winstore', function () {
 				should(results.windows).be.an.Object;
 				Object.keys(results.windows).forEach(function (ver) {
 					should(results.windows[ver]).be.an.Object;
-					should(results.windows[ver]).have.keys('version', 'registryKey', 'supported', 'path', 'signTool', 'selected', 'makeCert', 'pvk2pfx');
+					should(results.windows[ver]).have.keys('version', 'registryKey', 'supported', 'path', 'signTool', 'selected', 'makeCert', 'pvk2pfx', 'sdks');
 
 					should(results.windows[ver].version).be.a.String;
 					should(results.windows[ver].version).not.equal('');

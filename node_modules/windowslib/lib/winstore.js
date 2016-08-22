@@ -396,7 +396,8 @@ function detect(options, callback) {
 								signTool: null,
 								makeCert: null,
 								pvk2pfx: null,
-								selected: false
+								selected: false,
+								sdks: []
 							};
 						}
 					});
@@ -459,6 +460,15 @@ function detect(options, callback) {
 						__('You will be unable to build Windows Store apps.')
 					});
 					return finalize();
+				}
+
+				// fetch all Windows 10 SDK install information
+				var win10 = '10.0'
+				if (results.windows[win10] && results.windows[win10].path) {
+					var sdks_path = path.join(results.windows[win10].path, 'Extension SDKs', 'WindowsDesktop');
+					if (fs.existsSync(sdks_path)) {
+						results.windows[win10].sdks = fs.readdirSync(sdks_path);
+					}
 				}
 
 				var preferred = options.preferred;
