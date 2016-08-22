@@ -134,15 +134,7 @@ methods:
         `Ti.UI.Clipboard.setItems(["Appc", "rocks"], {Ti.UI.PASTEBOARD_OPTION_LOCAL_ONLY: true})`
     parameters:
       - name: items
-        summary: An array of items to add to the pasteboard.
-        type: Array
-
-      - name: options
-        summary: | 
-            The privacy options to apply to all the items on the pasteboard. The available options are 
-            described in `Ti.UI.PASTEBOARD_OPTION_*`. Depending on the key, the value can be a Date or
-            Boolean.
-        type: Dictionary
+        type: ClipboardItemsType
     since: "6.1.0"
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
@@ -162,3 +154,49 @@ examples:
             Ti.UI.Clipboard.setText('hello');
             Ti.API.info('Clipboard.hasText(), should be true: ' + Ti.UI.Clipboard.hasText()); // returns true on Android and 1 on iOS
             Ti.API.info('Clipboard.getText(), should be hello: ' + Ti.UI.Clipboard.getText());
+
+  - title: Set multiple items including privacy options (iOS 10 and later)
+    example: |
+        The items are represented as an array that holds different objects of key-value items. Additionally, 
+        you can set privacy options described in `Ti.UI.PASTEBOARD_OPTION_*`:
+        
+            var win = Ti.UI.createWindow({
+                backgroundColor : "#fff"
+            }); 
+            var btn = Ti.UI.createButton({
+                title : "Set pasteboard items"
+            });
+             
+            btn.addEventListener("click", function() {
+            	var localOnly = Ti.UI.PASTEBOARD_OPTION_LOCAL_ONLY;
+            	var expirationDate = Ti.UI.PASTEBOARD_OPTION_EXPIRATION_DATE;
+            	
+                Ti.UI.Clipboard.setItems({
+            		items: [{
+            			firstName: "John",
+            			lastName: "Doe"
+            		}],
+            		options: {
+            			localOnly: true,
+            			expirationDate: new Date(2020, 04, 20)
+            		}
+            	});
+            });
+             
+            win.add(btn);
+            win.open();
+
+---
+name: ClipboardItemsType
+summary: Dictionary describing the items for <Titanium.UI.Clipboard.setItems>. 
+properties:
+  - name: items
+    summary: An array of key-value items to add to the pasteboard.
+    type: Array<Dictionary>
+
+  - name: options
+    summary: | 
+        The privacy options to apply to all the items on the pasteboard. The available options are 
+        described in `Ti.UI.PASTEBOARD_OPTION_*`. Depending on the key, the value can be a Date or
+        Boolean.
+    type: Dictionary

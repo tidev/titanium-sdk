@@ -276,15 +276,22 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        NSArray *items = [args objectAtIndex:0];
-        NSDictionary *options = [args objectAtIndex:1];
+        NSArray *items = [args objectForKey:@"items"];
+        NSDictionary *options = [args objectForKey:@"options"];
+        
+        // The key of the items must be a string
+        for (id item in items) {
+            for (id key in item) {
+                ENSURE_TYPE(key, NSString);
+            }
+        }
         
         // The option must be a UIPasteboardOption which is mapped to strings
         for (id option in options) {
             ENSURE_TYPE(option, NSString);
         }
         
-        [[UIPasteboard generalPasteboard] setItems:args options:options];
+        [[UIPasteboard generalPasteboard] setItems:items options:options];
     }
 #endif
 }
