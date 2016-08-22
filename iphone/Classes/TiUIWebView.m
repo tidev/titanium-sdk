@@ -488,6 +488,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 
+- (void)setUserAgent_:(id)args
+{
+    ENSURE_TYPE(args, NSString);
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:args], @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
+}
+
 - (void)setUrl_:(id)args
 {
 	ignoreNextRequest = YES;
