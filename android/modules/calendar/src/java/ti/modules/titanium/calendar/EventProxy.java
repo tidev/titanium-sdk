@@ -254,7 +254,6 @@ public class EventProxy extends KrollProxy {
 			event.location = eventCursor.getString(3);
 			event.begin = new Date(eventCursor.getLong(4));
 			event.end = new Date(eventCursor.getLong(5));
-			event.duration = RFC2445ToMilliseconds(eventCursor.getString(6));
 			event.allDay = !eventCursor.getString(7).equals("0");
 			event.hasAlarm = !eventCursor.getString(8).equals("0");
 			event.status = eventCursor.getInt(9);
@@ -263,6 +262,12 @@ public class EventProxy extends KrollProxy {
 			event.rrule = eventCursor.getString(12);
 			event.calendarID = eventCursor.getString(13);
 			event.isInstance = uri == Instances.CONTENT_URI;
+
+			if (eventCursor.getString(6) != null) {
+				event.duration = RFC2445ToMilliseconds(eventCursor.getString(6));
+			} else {
+				event.duration = event.end.getTime() - event.begin.getTime();
+			}
 
 			events.add(event);
 		}
