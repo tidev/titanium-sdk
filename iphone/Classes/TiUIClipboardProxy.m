@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
 #import "TiUtils.h"
 #import "TiApp.h"
@@ -349,3 +350,4 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 	 
  @end
+#endif
