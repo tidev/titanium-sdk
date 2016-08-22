@@ -131,7 +131,7 @@ methods:
     summary: Adds an array of items to a pasteboard, and sets privacy options for all included items.
     description: |
         You can pass multiple options to the options object, example: 
-        `myPasteboard.setItems(["Appc", "rocks"], {Ti.UI.PASTEBOARD_OPTION_LOCAL_ONLY: true})`
+        `Ti.UI.Clipboard.setItems(["Appc", "rocks"], {Ti.UI.PASTEBOARD_OPTION_LOCAL_ONLY: true})`
     parameters:
       - name: items
         summary: An array of items to add to the pasteboard.
