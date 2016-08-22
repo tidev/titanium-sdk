@@ -624,6 +624,29 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 }
 #endif
 
+#ifdef USE_TI_UICLIPBOARD
+-(NSString*)PASTEBOARD_OPTION_LOCAL_ONLY
+{
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return UIPasteboardOptionLocalOnly;
+#endif
+    } else {
+        return @"";
+    }
+}
+-(NSString*)PASTEBOARD_OPTION_EXPIRATION_DATE
+{
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return UIPasteboardOptionExpirationDate;
+#endif
+    } else {
+        return @"";
+    }
+}
+#endif
+
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE,UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
 
