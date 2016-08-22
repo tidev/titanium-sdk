@@ -1909,6 +1909,22 @@ properties:
     permission: read-only
     platforms: [android]
     
+  - name: PASTEBOARD_OPTION_LOCAL_ONLY
+    summary: Specifies that the pasteboard items should not be available to other devices through Handoff.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "6.1.0"
+        
+  - name: PASTEBOARD_OPTION_EXPIRATION_DATE
+    summary: Specifies the time and date that you want the system to remove the pasteboard items from the pasteboard.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "6.1.0"
+    
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     summary: Use a picker with a countdown timer appearance, showing hours and minutes.
     description: |
