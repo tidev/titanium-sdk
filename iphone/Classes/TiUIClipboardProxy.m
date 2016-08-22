@@ -271,6 +271,23 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     return NUMBOOL(NO);
 }
 
+-(void)setItems:(id)args
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        NSArray *items = [args objectAtIndex:0];
+        NSDictionary *options = [args objectAtIndex:1];
+        
+        // The option must be a UIPasteboardOption which is mapped to strings
+        for (id option in options) {
+            ENSURE_TYPE(option, NSString);
+        }
+        
+        [[UIPasteboard generalPasteboard] setItems:args options:options];
+    }
+#endif
+}
+
 -(void)setData:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);
