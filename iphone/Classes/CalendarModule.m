@@ -310,21 +310,52 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
     EKCalendar *calendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
 
-    // Instead of creating calendar in a predefined source like Local,
-    // we assume that the default calendar has our best source
-    calendar.source = [ourStore defaultCalendarForNewEvents].source;
+    EKSource *theSource = nil;
+
+    // First of all, search for and iCloud account
+    for (EKSource *source in ourStore.sources) {
+        if (source.sourceType == EKSourceTypeCalDAV && [source.title isEqualToString:@"iCloud"]) {
+            theSource = source;
+            break;
+        }
+    }
+    
+    // If iCloud is off, create new calendar in Locale because we can't write other calendars (like Gmail or Yahoo!)
+    for (EKSource *source in ourStore.sources) {
+        if (source.sourceType == EKSourceTypeLocal) {
+            theSource = source;
+            break;
+        }
+    }
+    
+    // Otherwise, just rely on default calendar (but it will crash, we are sure about this)
+    if (theSource == nil) {
+        theSource = [[ourStore defaultCalendarForNewEvents] source];
+    }
+
+    if (theSource == nil) {
+        NSLog(@"Error creating calendar: No available source");
+        return;
+    }
+    
+    calendar.source = theSource;
     calendar.title = name;
 
     NSError* error = nil;
     BOOL result;
-
-    result = [ourStore saveCalendar:calendar commit:YES error:&error];
-
-    if (result) {
-        return calendar.calendarIdentifier;
-    } else {
+    
+    // But we are smart and we try-catch all the things to avoid an application fatal crash
+    @try {
+        result = [ourStore saveCalendar:calendar commit:YES error:&error];
+    } @catch (NSException *exception) {
+        NSLog(@"Error creating calendar: %@.", exception.reason);
+    }
+    
+    if (result == false) {
         NSLog(@"Error creating calendar: %@.", error);
     }
+    
+    return calendar.calendarIdentifier;
 }
 
 -(BOOL) deleteCalendarById:(id)arg
