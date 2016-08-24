@@ -83,7 +83,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	return [[(TiUILabel*)[self view] label] superview];
 }
 
--(NSNumber*)ellipsize:(id)unused
+-(NSNumber*)ellipsize
 {
     return NUMINTEGER([[(TiUILabel*)[self view] label] lineBreakMode]);
 }
