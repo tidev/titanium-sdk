@@ -369,7 +369,7 @@ RELEASE_TO_NIL(x); \
 }
 #endif
 
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
 -(TiUIiOSProgressBarStyleProxy*)ProgressBarStyle
 {
     if (_ProgressBarStyle == nil) {
