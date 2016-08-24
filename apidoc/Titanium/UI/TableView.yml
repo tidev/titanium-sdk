@@ -1210,7 +1210,7 @@ properties:
     
   - name: data
     summary: Rows of the table view.
-    type: [ Dictionary, Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection> ]
+    type: Dictionary|Array<Titanium.UI.TableViewRow>|Array<Titanium.UI.TableViewSection>
     
   - name: editable
     summary: |
