@@ -490,9 +490,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)setUserAgent_:(id)args
 {
-    ENSURE_TYPE(args, NSString);
-    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:args], @"UserAgent", nil];
+    ENSURE_TYPE_OR_NIL(args, NSString);
+    NSString *userAgent = [TiUtils stringValue:args];
+    
+    if (!userAgent) {
+        userAgent = [[TiApp app] systemUserAgent];
+    }
+    
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:userAgent, @"UserAgent", nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
+    [[self proxy] replaceValue:userAgent forKey:@"userAgent" notification:NO];
 }
 
 - (void)setUrl_:(id)args

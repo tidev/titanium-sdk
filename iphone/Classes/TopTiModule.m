@@ -44,8 +44,15 @@
 
 -(void)setUserAgent:(id)value
 {
-    ENSURE_TYPE(value, NSString);
-    [[TiApp app] setUserAgent:[TiUtils stringValue:value]];
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    NSString *userAgent = [TiUtils stringValue:value];
+    
+    if (!userAgent) {
+        [[TiApp app] setUserAgent:[[TiApp app] systemUserAgent]];
+        return;
+    }
+    
+    [[TiApp app] setUserAgent:userAgent];
 }
 
 -(NSString*)apiName
