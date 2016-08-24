@@ -291,6 +291,35 @@
     return [[self calendar] title];
 }
 
+-(NSString*)sourceTitle
+{
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = [[[self calendar] source] title];
+    },YES);
+    
+    return result;
+}
+
+-(NSNumber*)sourceType
+{
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = NUMINT([[[self calendar] source] sourceType]);
+    },YES);
+    
+    return result;
+}
+
+-(NSString*)sourceIdentifier
+{
+    __block id result;
+    TiThreadPerformOnMainThread(^{
+        result = [[[self calendar] source] sourceIdentifier];
+    },YES);
+
+    return result;
+}
 
 @end
 

@@ -418,7 +418,7 @@ properties:
     
   - name: padding
     summary: Sets the padding of this text field. 
-    type: Padding
+    type: TextFieldPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
 
@@ -713,7 +713,7 @@ properties:
     summary: Number of characters selected.
     type: Number
 ---    
-name: Padding
+name: TextFieldPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
 since: "6.0.0"
 platforms: [android, iphone, ipad]

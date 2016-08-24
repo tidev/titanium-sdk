@@ -426,6 +426,17 @@ Inherits from `Store`.
 
 A just-in-memory CookieJar synchronous store implementation, used by default. Despite being a synchronous implementation, it's usable with both the synchronous and asynchronous forms of the `CookieJar` API.
 
+## Community Cookie Stores
+
+These are some Store implementations authored and maintained by the community. They aren't official and we don't vouch for them but you may be interested to have a look:
+
+- [`db-cookie-store`](https://github.com/JSBizon/db-cookie-store): SQL including SQLite-based databases
+- [`file-cookie-store`](https://github.com/JSBizon/file-cookie-store): Netscape cookie file format on disk
+- [`redis-cookie-store`](https://github.com/benkroeger/redis-cookie-store): Redis
+- [`tough-cookie-filestore`](https://github.com/mitsuru/tough-cookie-filestore): JSON on disk
+- [`tough-cookie-web-storage-store`](https://github.com/exponentjs/tough-cookie-web-storage-store): DOM localStorage and sessionStorage
+
+
 # Serialization Format
 
 **NOTE**: if you want to have custom `Cookie` properties serialized, add the property name to `Cookie.serializableProperties`.

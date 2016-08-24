@@ -31,7 +31,7 @@ extern NSString * const TI_APPLICATION_GUID;
 extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
-		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"/%@\";%@;\n"
+		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
 		"return exports;})({})";
 
@@ -68,11 +68,11 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 
 		if (TI_APPLICATION_ANALYTICS)
 		{
-            APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-            if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
-                [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
-            }
-            [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
+			APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+			if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
+				[sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
+			}
+			[sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
 			[sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
 		}
 	}
@@ -238,43 +238,43 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-    OSSpinLockLock(&proxyLock);
-    if (registeredProxies == NULL) {
-        OSSpinLockUnlock(&proxyLock);
-        [self gc];
-        return;
-    }
+	OSSpinLockLock(&proxyLock);
+	if (registeredProxies == NULL) {
+		OSSpinLockUnlock(&proxyLock);
+		[self gc];
+		return;
+	}
 
-    BOOL keepWarning = YES;
-    signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
-    OSSpinLockUnlock(&proxyLock);
+	BOOL keepWarning = YES;
+	signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
+	OSSpinLockUnlock(&proxyLock);
 
-    //During a memory panic, we may not get the chance to copy proxies.
-    while (keepWarning)
-    {
-        keepWarning = NO;
+	//During a memory panic, we may not get the chance to copy proxies.
+	while (keepWarning)
+	{
+		keepWarning = NO;
 
-        for (id proxy in (NSDictionary *)registeredProxies)
-        {
-            [proxy didReceiveMemoryWarning:notification];
+		for (id proxy in (NSDictionary *)registeredProxies)
+		{
+			[proxy didReceiveMemoryWarning:notification];
 
-            OSSpinLockLock(&proxyLock);
-            if (registeredProxies == NULL) {
-                OSSpinLockUnlock(&proxyLock);
-                break;
-            }
+			OSSpinLockLock(&proxyLock);
+			if (registeredProxies == NULL) {
+				OSSpinLockUnlock(&proxyLock);
+				break;
+			}
 
-            signed long newCount = CFDictionaryGetCount(registeredProxies);
-            OSSpinLockUnlock(&proxyLock);
+			signed long newCount = CFDictionaryGetCount(registeredProxies);
+			OSSpinLockUnlock(&proxyLock);
 
-            if (newCount != proxiesCount)
-            {
-                proxiesCount = newCount;
-                keepWarning = YES;
-                break;
-            }
-        }
-    }
+			if (newCount != proxiesCount)
+			{
+				proxiesCount = newCount;
+				keepWarning = YES;
+				break;
+			}
+		}
+	}
 
 	[self gc];
 }
@@ -382,12 +382,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(BOOL)evaluationError
 {
-    return evaluationError;
+	return evaluationError;
 }
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_
 {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
 	NSError *error = nil;
 	TiValueRef exception = NULL;
@@ -439,27 +439,27 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	const char *urlCString = [[url_ absoluteString] UTF8String];
 
-    TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
+	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 
 	if (exception == NULL) {
 #ifndef USE_JSCORE_FRAMEWORK
-        if ([[self host] debugMode]) {
-            TiDebuggerBeginScript(context_,urlCString);
-        }
+		if ([[self host] debugMode]) {
+			TiDebuggerBeginScript(context_,urlCString);
+		}
 
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-        if ([[self host] debugMode]) {
-            TiDebuggerEndScript(context_);
-        }
+		if ([[self host] debugMode]) {
+			TiDebuggerEndScript(context_);
+		}
 #else
-        TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
+		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 #endif
-        if (exception == NULL) {
-            evaluationError = NO;
-        } else {
-            evaluationError = YES;
-        }
+		if (exception == NULL) {
+			evaluationError = NO;
+		} else {
+			evaluationError = YES;
+		}
 	}
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
@@ -469,7 +469,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
-    [pool release];
+	[pool release];
 }
 
 - (void)evalFile:(NSString*)path callback:(id)callback selector:(SEL)selector
@@ -500,10 +500,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	KrollObject* eventKrollObject = [self krollObjectForProxy:proxy];
 
 	KrollEvent * newEvent = [[KrollEvent alloc]
-                             initWithType:type
-                             ForKrollObject:eventKrollObject
-                             eventObject:obj
-                             thisObject:eventKrollObject];
+							 initWithType:type
+							 ForKrollObject:eventKrollObject
+							 eventObject:obj
+							 thisObject:eventKrollObject];
 
 	[context enqueue:newEvent];
 	[newEvent release];
@@ -557,9 +557,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-    // Load the "Titanium" object into the global scope
+	// Load the "Titanium" object into the global scope
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 
@@ -571,18 +571,18 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRef prop2 = TiStringCreateWithCFString((CFStringRef) [NSString stringWithFormat:@"%si","T"]);
 	TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
 	TiObjectSetProperty(jsContext, globalRef, prop, tiRef,
-                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
-                        NULL);
+						kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
+						NULL);
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef,
-                        kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
-                        NULL);
+						kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
+						NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);
 
-    // Load the "console" object into the global scope
-    console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
-    prop = TiStringCreateWithCFString((CFStringRef)@"console");
-    TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
+	// Load the "console" object into the global scope
+	console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
+	prop = TiStringCreateWithCFString((CFStringRef)@"console");
+	TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 
 	//if we have a preload dictionary, register those static key/values into our namespace
 	if (preload!=nil)
@@ -623,7 +623,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 #endif
 
-    [pool release];
+	[pool release];
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll
@@ -659,7 +659,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiThreadPerformOnMainThread(^{[self unregisterForMemoryWarning];}, NO);
 	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
-    RELEASE_TO_NIL(console);
+	RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 #ifdef HYPERLOOP
@@ -757,21 +757,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
 
 	// Get the relative path to the Resources directory
-	NSString *relativePath = [sourceURL path];
-	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
-	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
+	NSString *filename = [[sourceURL path] stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
+	NSString *dirname = [filename stringByDeletingLastPathComponent];
 
-	NSString *dirname = [relativePath length] == 0 ? @"." : relativePath;
-	/*
-	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
-	 * otherwise the __dirname returns the folder names separated by "/"
-	 * for example:
-	 *      "/Resources/constants.js"           __dirname = "."
-	 *      "/Resources/views/login/window.js"  __dirname = "views/login"
-	 */
-
-	NSString *filename = [NSString stringWithFormat:@"%@/%@", dirname, [sourceURL lastPathComponent]];
-	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename,code];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename, code];
 
 	/* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
@@ -846,65 +835,65 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// TODO Handle the oddball case of mixing in JS to the native module...
 	/*
-    // TODO: Support package.json 'main' file identifier which will load instead
-    // of module JS. Currently neither iOS nor Android support package information.
-    NSRange separatorLocation = [fullPath rangeOfString:@"/"];
-    if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
-    loadNativeJS:
-        if ([module isJSModule]) {
-            data = [module moduleJS];
-        }
-        [self setCurrentURL:[NSURL URLWithString:fullPath relativeToURL:[[self host] baseURL]]];
-    }
-    else {
-        NSString* assetPath = [fullPath substringFromIndex:separatorLocation.location+1];
-        // Handle the degenerate case (supported by MW) where we're loading
-        // module.id/module.id, which should resolve to module.id and mixin.
-        // Rather than create a utility method for this (or C&P if native loading changes)
-        // we use a goto to jump into the if block above.
+	// TODO: Support package.json 'main' file identifier which will load instead
+	// of module JS. Currently neither iOS nor Android support package information.
+	NSRange separatorLocation = [fullPath rangeOfString:@"/"];
+	if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
+	loadNativeJS:
+		if ([module isJSModule]) {
+			data = [module moduleJS];
+		}
+		[self setCurrentURL:[NSURL URLWithString:fullPath relativeToURL:[[self host] baseURL]]];
+	}
+	else {
+		NSString* assetPath = [fullPath substringFromIndex:separatorLocation.location+1];
+		// Handle the degenerate case (supported by MW) where we're loading
+		// module.id/module.id, which should resolve to module.id and mixin.
+		// Rather than create a utility method for this (or C&P if native loading changes)
+		// we use a goto to jump into the if block above.
 
-        if ([assetPath isEqualToString:moduleID]) {
-            goto loadNativeJS;
-        }
+		if ([assetPath isEqualToString:moduleID]) {
+			goto loadNativeJS;
+		}
 
-        NSString* filepath = [assetPath stringByAppendingString:@".js"];
-        data = [module loadModuleAsset:filepath];
-        // Have to reset module so that this code doesn't get mixed in and is loaded as pure JS
-        module = nil;
-    }
+		NSString* filepath = [assetPath stringByAppendingString:@".js"];
+		data = [module loadModuleAsset:filepath];
+		// Have to reset module so that this code doesn't get mixed in and is loaded as pure JS
+		module = nil;
+	}
 
-    if (data == nil && isAbsolute) {
-        // We may have an absolute URL which tried to load from a module instead of a directory. Fix
-        // the fullpath back to the right value, so we can try again.
-        fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
-    }
-    else if (data != nil) {
-        // Set the current URL; it should be the fullPath relative to the host's base URL.
-            [self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
-    }
+	if (data == nil && isAbsolute) {
+		// We may have an absolute URL which tried to load from a module instead of a directory. Fix
+		// the fullpath back to the right value, so we can try again.
+		fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
+	}
+	else if (data != nil) {
+		// Set the current URL; it should be the fullPath relative to the host's base URL.
+			[self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
+	}
 
-    // For right now, we need to mix any compiled JS on top of a compiled module, so that both components
-    // are accessible. We store the exports object and then put references to its properties on the toplevel
-    // object.
+	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
+	// are accessible. We store the exports object and then put references to its properties on the toplevel
+	// object.
 
-    TiContextRef jsContext = [[self krollContext] context];
-    TiObjectRef jsObject = [wrapper jsobject];
-    KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
-    [moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
+	TiContextRef jsContext = [[self krollContext] context];
+	TiObjectRef jsObject = [wrapper jsobject];
+	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
+	[moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
 
-    TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
-    size_t count = TiPropertyNameArrayGetCount(properties);
-    for (size_t i=0; i < count; i++) {
-    // Mixin the property onto the module JS object if it's not already there
-    TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
-    if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
-    TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
-    TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
-    }
-    }
-    TiPropertyNameArrayRelease(properties);
+	TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
+	size_t count = TiPropertyNameArrayGetCount(properties);
+	for (size_t i=0; i < count; i++) {
+	// Mixin the property onto the module JS object if it's not already there
+	TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
+	if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
+	TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
+	TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
+	}
+	}
+	TiPropertyNameArrayRelease(properties);
 
-    */
+	*/
 
 	return module;
 }
@@ -976,8 +965,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
 		@throw [NSException exceptionWithName:@"org.appcelerator.kroll"
-		                               reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object", filename]
-		                             userInfo:nil];
+									   reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object", filename]
+									 userInfo:nil];
 	}
 
 	// register the module if it's pure JS
@@ -1080,30 +1069,30 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (NSArray *)nodeModulesPaths:(NSString *)path
 {
-    // What if we're at root? path may be nil here. So let's hack that case
-    if (path == nil) {
-        path = @"/";
-    }
-    // 1. let PARTS = path split(START)
-    NSArray* parts = [path componentsSeparatedByString:@"/"];
-    // 2. let I = count of PARTS - 1
-    NSInteger i = [parts count] - 1;
-    // 3. let DIRS = []
-    NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
+	// What if we're at root? path may be nil here. So let's hack that case
+	if (path == nil) {
+		path = @"/";
+	}
+	// 1. let PARTS = path split(START)
+	NSArray* parts = [path componentsSeparatedByString:@"/"];
+	// 2. let I = count of PARTS - 1
+	NSInteger i = [parts count] - 1;
+	// 3. let DIRS = []
+	NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
 	// 4. while I >= 0,
-    while (i >= 0) {
-        // a. if PARTS[I] = "node_modules" CONTINUE
-        if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
-            continue;
-        }
-        // b. DIR = path join(PARTS[0 .. I] + "node_modules")
-        NSString* dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
-        // c. DIRS = DIRS + DIR
-        [dirs addObject:dir];
-        // d. let I = I - 1
-        i = i - 1;
-    }
-    return dirs;
+	while (i >= 0) {
+		// a. if PARTS[I] = "node_modules" CONTINUE
+		if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
+			continue;
+		}
+		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
+		NSString* dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
+		// c. DIRS = DIRS + DIR
+		[dirs addObject:dir];
+		// d. let I = I - 1
+		i = i - 1;
+	}
+	return dirs;
 }
 
 - (TiModule *)loadNodeModules:(NSString *)path withDir:(NSString *)start withContext:(KrollContext *)kroll
@@ -1312,12 +1301,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(BOOL)shouldDebugContext
 {
-    return [[self host] debugMode];
+	return [[self host] debugMode];
 }
 
 - (BOOL)shouldProfileContext
 {
-    return [[self host] profileMode];
+	return [[self host] profileMode];
 }
 
 @end

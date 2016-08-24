@@ -117,6 +117,17 @@ RELEASE_TO_NIL(x); \
     return NUMBOOL([TiUtils forceTouchSupported]);
 }
 
+-(void)setStatusBarBackgroundColor:(id)value
+{
+    ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
+    ENSURE_SINGLE_ARG(value, NSString);
+    
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+        statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+    }
+}
+
 -(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
 {
     return NUMFLOAT(UIScrollViewDecelerationRateNormal);
@@ -191,7 +202,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
@@ -221,7 +232,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSTATUSBAR
     RELEASE_TO_NIL(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
     RELEASE_TO_NIL(_SystemButton);
 #endif
 #ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
@@ -236,7 +247,7 @@ RELEASE_TO_NIL(x); \
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     FORGET_AND_RELEASE(_animationStyleProxy);
 #endif
 
@@ -453,47 +464,49 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-- (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
+- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleExtraLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber* )BLUR_EFFECT_STYLE_LIGHT
+- (id)BLUR_EFFECT_STYLE_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_DARK
+- (id)BLUR_EFFECT_STYLE_DARK
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleDark);
     }
-    return nil;
+    return [NSNull null];
 }
 
-#if IS_XCODE_8
-- (NSNumber*) BLUR_EFFECT_STYLE_REGULAR
+- (id)BLUR_EFFECT_STYLE_REGULAR
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleRegular);
     }
-    return nil;
+#endif
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_PROMINENT
+- (id)BLUR_EFFECT_STYLE_PROMINENT
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleProminent);
     }
-    return nil;
-}
 #endif
+    return [NSNull null];
+}
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP

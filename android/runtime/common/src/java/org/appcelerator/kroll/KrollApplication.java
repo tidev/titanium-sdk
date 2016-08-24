@@ -34,16 +34,18 @@ public interface KrollApplication
 	public String getAppGUID();
 
 	public boolean isDebuggerEnabled();
-	
+
 	public boolean runOnMainThread();
 
 	public void dispose();
-	
+
 	public String getDeployType();
 
 	public String getDefaultUnit();
 
+	public String getSDKVersion();
+
 	public void cancelTimers();
 
-    public void loadAppProperties();
+	public void loadAppProperties();
 }

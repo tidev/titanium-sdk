@@ -71,7 +71,7 @@ Module.runModule = function (source, filename, activityOrService) {
 	if (!Module.main) {
 		Module.main = module;
 	}
-
+	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 	module.load(filename, source)
 	return module;
 }
@@ -98,10 +98,13 @@ Module.prototype.load = function (filename, source) {
 	this.path = path.dirname(filename);
 
 	if (!source) {
-		source = assets.readAsset(filename);
+		source = assets.readAsset('Resources' + filename);
 	}
 
-	this._runScript(source, filename.replace('Resources/', ''));
+	// Stick it in the cache
+	Module.cache[this.filename] = this;
+
+	this._runScript(source, this.filename);
 
 	this.loaded = true;
 }
@@ -255,9 +258,9 @@ Module.prototype.require = function (request, context) {
 		if (loaded) {
 			return loaded;
 		}
-	// Treat '/' special as Resources/
+	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory('Resources' + request, context);
+		loaded = this.loadAsFileOrDirectory(request, context);
 		if (loaded) {
 			return loaded;
 		}
@@ -266,12 +269,12 @@ Module.prototype.require = function (request, context) {
 		if (request.indexOf('/') == -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
 			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
-			loaded = this.loadAsFile('Resources/' + request + '/' + request + '.js', context);
+			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
 			if (loaded) {
 				return loaded;
 			}
 			// Then try module.id as directory
-			loaded = this.loadAsDirectory('Resources/' + request, context);
+			loaded = this.loadAsDirectory('/' + request, context);
 			if (loaded) {
 				return loaded;
 			}
@@ -288,7 +291,7 @@ Module.prototype.require = function (request, context) {
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
 		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
-		loaded = this.loadAsFileOrDirectory('Resources/' + request, context);
+		loaded = this.loadAsFileOrDirectory('/' + request, context);
 		if (loaded) {
 			return loaded;
 		}
@@ -428,25 +431,16 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
  * @return {Object}          module.exports of the file.
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
-	var module,
-		source;
+	var module;
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
 		return Module.cache[filename].exports;
 	}
 
-	module = new Module(filename, this, context); // difference in id vs filename?
-	module.filename = filename;
-	module.path = path.dirname(filename);
-	source = assets.readAsset(filename);
+	module = new Module(filename, this, context);
+	module.load(filename);
 
-	// Stick it in the cache already?
-	Module.cache[filename] = module;
-
-	module._runScript(source, filename.replace('Resources/', ''));
-
-	module.loaded = true;
 	return module.exports;
 }
 
@@ -466,12 +460,12 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 		return Module.cache[filename].exports;
 	}
 
-	module = new Module(filename, this, context); // difference in id vs filename?
+	module = new Module(filename, this, context);
 	module.filename = filename;
 	module.path = path.dirname(filename);
-	source = assets.readAsset(filename);
+	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
 
-	// Stick it in the cache already?
+	// Stick it in the cache
 	Module.cache[filename] = module;
 
 	module.exports = JSON.parse(source);
@@ -601,6 +595,7 @@ var fileIndex;
  * @return {Boolean}         true if the filename exists in the index.json
  */
 Module.prototype.filenameExists = function (filename) {
+	filename = 'Resources' + filename; // When we actually look for files, assume "Resources/" is the root
 	if (!fileIndex) {
 		var json = assets.readAsset('index.json');
 		fileIndex = JSON.parse(json);

@@ -80,17 +80,27 @@ const deviceStateNames = exports.deviceStateNames = {
  * what Watch Simulator. It's a mystery!
  */
 const devicePairCompatiblity = exports.devicePairCompatiblity = {
-	'>=6.2 <7.0': {     // Xcode 6.2, 6.3, 6.4
-		'>=8.2 <9.0': { // iOS 8.2, 8.3, 8.4
-			'1.x': true // watchOS 1.0
+	'>=6.2 <7.0': {      // Xcode 6.2, 6.3, 6.4
+		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
+			'1.x': true  // watchOS 1.0
 		}
 	},
-	'7.x': {            // Xcode 7.0
-		'>=8.2 <9.0': { // iOS 8.2, 8.3, 8.4
-			'1.x': true // watchOS 1.0
+	'7.x': {             // Xcode 7.x
+		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
+			'1.x': true  // watchOS 1.0
 		},
-		'9.x': {        // iOS 9.0
-			'2.x': true // watchOS 2.0
+		'9.x': {         // iOS 9.x
+			'2.x': true  // watchOS 2.x
+		}
+	},
+	'8.x': {             // Xcode 8.x
+		'9.x': {         // iOS 9.x
+			'2.x': true, // watchOS 2.x
+			'3.x': true  // watchOS 3.x
+		},
+		'10.x': {        // iOS 10.x
+			'2.x': true, // watchOS 2.x
+			'3.x': true  // watchOS 3.x
 		}
 	}
 };
@@ -155,7 +165,6 @@ function detect(options, callback) {
 			simulators: {
 				ios: {},
 				watchos: {},
-				devicePairs: {},
 				crashDir: appc.fs.resolvePath('~/Library/Logs/DiagnosticReports'),
 			},
 			issues: []
@@ -285,17 +294,6 @@ function detect(options, callback) {
 					results.simulators[type][ver].sort(compareSims);
 				});
 			});
-
-			// load the device pairs
-			var deviceSetPlist = readPlist(path.join(coreSimDir, 'device_set.plist'));
-			if (deviceSetPlist && deviceSetPlist.DevicePairs) {
-				Object.keys(deviceSetPlist.DevicePairs).forEach(function (udid) {
-					results.simulators.devicePairs[udid] = {
-						phone: deviceSetPlist.DevicePairs[udid].companion,
-						watch: deviceSetPlist.DevicePairs[udid].gizmo
-					};
-				});
-			}
 
 			// the cache must be a clean copy that we'll clone for subsequent detect() calls
 			// because we can't allow the cache to be modified by reference
@@ -1123,31 +1121,54 @@ function launch(simHandleOrUDID, options, callback) {
 						return next();
 					}
 
-					// we need to pair, check if we're already paired
-					if (Object.keys(simInfo.simulators.devicePairs).some(function (udid) { var dp = simInfo.simulators.devicePairs[udid]; return dp.phone === simHandle.udid && dp.watch === watchSimHandle.udid; })) {
-						// already paired!
-						emitter.emit('log-debug', __('iOS and watchOS simulators already paired'));
-						return next();
-					}
+					emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' list pairs --json'));
+					appc.subprocess.run(selectedXcode.executables.simctl, ['list', 'pairs', '--json'], function (code, out, err) {
+						if (code) {
+							return next(code ? new Error(err.trim()) : null);
+						}
 
-					// check if we need to unpair
-					async.eachSeries(Object.keys(simInfo.simulators.devicePairs), function (udid, next) {
-						var dp = simInfo.simulators.devicePairs[udid];
-						if (dp.phone === simHandle.udid || dp.watch === watchSimHandle.udid) {
+						var devicePairs;
+						try {
+							devicePairs = JSON.parse(out.substring(out.indexOf('{'))).pairs;
+						} catch (e) {
+							return next(e);
+						}
+
+						// we need to pair, check if we're already paired
+						if (Object.keys(devicePairs).some(function (udid) {
+							var dp = devicePairs[udid];
+							return dp.phone.udid === simHandle.udid && dp.watch.udid === watchSimHandle.udid;
+						})) {
+							// already paired!
+							emitter.emit('log-debug', __('iOS and watchOS simulators already paired'));
+							return next();
+						}
+
+						// check if we need to unpair
+						async.eachSeries(Object.keys(devicePairs), function (udid, next) {
+							var dp = devicePairs[udid];
+							if (dp.phone.udid !== simHandle.udid && dp.watch.udid !== watchSimHandle.udid) {
+								return next();
+							}
+
 							emitter.emit('log-debug', __('Unpairing iOS and watchOS simulator pair: %s', udid));
 							var args = ['unpair', udid];
 							emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
-							appc.subprocess.run(selectedXcode.executables.simctl, args, next);
-						} else {
-							next();
-						}
-					}, function () {
-						// pair!
-						emitter.emit('log-debug', __('Pairing iOS and watchOS simulator pair: %s -> %s', watchSimHandle.udid, simHandle.udid));
-						var args = ['pair', watchSimHandle.udid, simHandle.udid];
-						emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
-						appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
-							next(code);
+							appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
+								next(code ? new Error(err.trim()) : null);
+							});
+						}, function (err) {
+							if (err) {
+								return next(err);
+							}
+
+							// pair!
+							emitter.emit('log-debug', __('Pairing iOS and watchOS simulator pair: %s -> %s', watchSimHandle.udid, simHandle.udid));
+							var args = ['pair', watchSimHandle.udid, simHandle.udid];
+							emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
+							appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
+								next(code ? new Error(err.trim()) : null);
+							});
 						});
 					});
 				},
@@ -1324,6 +1345,7 @@ function launch(simHandleOrUDID, options, callback) {
 				}
 			], function (err) {
 				if (err) {
+					emitter.emit('error', err);
 					return callback(err);
 				}
 

@@ -13,9 +13,16 @@
 #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+if [ "$1" != "" ]; then
+    BRANCH=$1
+else
+    BRANCH="master"
+fi
+
+
 echo '*********** Remove and re-download Windows ***********'
 rm -rf windows
-curl http://studio-jenkins.appcelerator.org/job/titanium_mobile_windows_master/lastSuccessfulBuild/artifact/dist/windows/*zip*/windows.zip > windows.zip
+curl http://studio-jenkins.appcelerator.org/job/titanium_mobile_windows_${BRANCH//_/.}/lastSuccessfulBuild/artifact/dist/windows/*zip*/windows.zip > windows.zip
 unzip -q windows.zip
 rm windows.zip
 echo '*****************************************'
@@ -66,14 +73,14 @@ echo Latest changes:
 echo $CHANGES_SINCE_LAST_SUCCESS
 echo
 
-# $PYTHON $TITANIUM_BUILD/common/s3_cleaner.py mobile master
-$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-osx.zip master $GIT_COMMIT $BUILD_URL
-$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-linux.zip master $GIT_COMMIT $BUILD_URL
-$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-win32.zip master $GIT_COMMIT $BUILD_URL
+# $PYTHON $TITANIUM_BUILD/common/s3_cleaner.py mobile $BRANCH
+$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-osx.zip $BRANCH $GIT_COMMIT $BUILD_URL
+$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-linux.zip $BRANCH $GIT_COMMIT $BUILD_URL
+$PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-win32.zip $BRANCH $GIT_COMMIT $BUILD_URL
 
 if [ -e "dist/parity.html" ]; then
     mv dist/parity.html $BASENAME-parity.html
-    $PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-parity.html master $GIT_COMMIT $BUILD_URL
+    $PYTHON $TITANIUM_BUILD/common/s3_uploader.py mobile $BASENAME-parity.html $BRANCH $GIT_COMMIT $BUILD_URL
 fi
 
 date

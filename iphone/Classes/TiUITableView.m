@@ -129,7 +129,7 @@
         if ([proxy _hasListeners:@"touchmove"])
         {
             UITouch *touch = [touches anyObject];
-            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+            NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andView:self]];
             [proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
         }
     }
@@ -155,7 +155,7 @@
     if ([proxy _hasListeners:@"touchcancel"]) {
         
         UITouch *touch = [touches anyObject];
-        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andView:self]];
         [proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
     }
     [super touchesCancelled:touches withEvent:event];
@@ -285,7 +285,7 @@
 }
 
 - (NSMutableDictionary*)payloadWithTouch:(UITouch*)touch {
-    NSDictionary* touchProps = [TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]];
+    NSDictionary* touchProps = [TiUtils touchPropertiesToDictionary:touch andView:self];
     NSMutableDictionary* payload = [proxy createEventObject:nil];
     [payload addEntriesFromDictionary:touchProps];
     return payload;

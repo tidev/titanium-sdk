@@ -299,7 +299,7 @@ properties:
  
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
-    type: Padding
+    type: TextAreaPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
     
@@ -542,7 +542,7 @@ properties:
     summary: Number of characters selected.
     type: Number
 ---    
-name: Padding
+name: TextAreaPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
 since: "6.0.0"
 platforms: [android, iphone, ipad]

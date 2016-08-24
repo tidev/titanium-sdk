@@ -17,6 +17,10 @@
     BOOL forceLayout;
     UIImageView* defaultImageView;
     
+#ifdef LAUNCHSCREEN_STORYBOARD
+    UIView *storyboardView;
+#endif
+    
     //Keyboard stuff
     BOOL updatingAccessoryView;
     UIView * enteringAccessoryView;	//View that will enter.

@@ -54,6 +54,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Looper;
+import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
@@ -350,6 +351,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				Log.e(TAG, "Unable to load app properties.");
 			}
 		}
+	}
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
 	}
 
 	@Override
@@ -676,6 +683,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public String getTiBuildVersion()
 	{
 		return buildVersion;
+	}
+
+	public String getSDKVersion()
+	{
+		return getTiBuildVersion();
 	}
 
 	public String getTiBuildTimestamp()

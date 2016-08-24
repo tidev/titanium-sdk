@@ -24,7 +24,8 @@ Documentation.prototype.generateParityReport = function (next) {
 	var args = [path.join(DOC_DIR, 'docgen.js'), '-f', 'parity'],
 		prc;
 	if (this.hasWindows) {
-		args = args.concat(['-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium')]);
+		args = args.concat(['-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
+							'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly')]);
 	}
 
 	console.log('Generating parity report...');
@@ -48,7 +49,8 @@ Documentation.prototype.generateJSCA = function (next) {
 	var args = [path.join(DOC_DIR, 'docgen.js'), '-f', 'jsca', '-o', this.outputDir + path.sep],
 		prc;
 	if (this.hasWindows) {
-		args = args.concat(['-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium')]);
+		args = args.concat(['-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
+							'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly')]);
 	}
 	console.log('Generating JSCA...');
 	console.log(args);

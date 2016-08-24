@@ -72,13 +72,15 @@ function Compressor(options, false_by_default) {
         pure_getters  : false,
         pure_funcs    : null,
         negate_iife   : !false_by_default,
-        screw_ie8     : false,
+        screw_ie8     : true,
         drop_console  : false,
         angular       : false,
         warnings      : true,
         global_defs   : {},
         passes        : 1,
     }, true);
+    var sequences = this.options["sequences"];
+    this.sequences_limit = sequences == 1 ? 200 : sequences | 0;
     this.warnings_produced = {};
 };
 
@@ -190,7 +192,7 @@ merge(Compressor.prototype, {
             if ((1 / val) < 0) {
                 return make_node(AST_UnaryPrefix, orig, {
                     operator: "-",
-                    expression: make_node(AST_Number, null, { value: -val })
+                    expression: make_node(AST_Number, orig, { value: -val })
                 });
             }
 
@@ -266,7 +268,7 @@ merge(Compressor.prototype, {
             if (compressor.option("if_return")) {
                 statements = handle_if_return(statements, compressor);
             }
-            if (compressor.option("sequences")) {
+            if (compressor.sequences_limit > 0) {
                 statements = sequencesize(statements, compressor);
             }
             if (compressor.option("join_vars")) {
@@ -721,7 +723,7 @@ merge(Compressor.prototype, {
                 seq = [];
             };
             statements.forEach(function(stat){
-                if (stat instanceof AST_SimpleStatement && seqLength(seq) < 2000) {
+                if (stat instanceof AST_SimpleStatement && seqLength(seq) < compressor.sequences_limit) {
                     seq.push(stat.body);
                 } else {
                     push_seq();

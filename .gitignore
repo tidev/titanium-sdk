@@ -24,6 +24,8 @@ node_modules/grunt
 node_modules/mocha
 node_modules/should
 node_modules/node-ios-device/build
+!node_modules/**/*~
+!node_modules/**/*.orig
 
 anvil/driver/titanium_mobile
 anvil/hub/config.js
