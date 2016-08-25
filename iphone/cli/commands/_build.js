@@ -5659,6 +5659,8 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UISLIDER',
 			'#define USE_TI_UITEXTFIELD',
 			'#define USE_TI_UITEXTAREA',
+			'#define USE_TI_UISCROLLABLEVIEW',
+			'#define USE_TI_UIIOSSTEPPER',
 			'#endif'
 		);
 
