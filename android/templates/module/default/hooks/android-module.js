@@ -91,6 +91,10 @@ exports.init = function (logger, config, cli, appc) {
 					return '<classpathentry kind="lib" path="' + lib + '"/>';
 				}).join('\n\t');
 
+				if (/^\d/.test(variables.moduleNameCamel)) {
+					variables.moduleNameCamel = 'k' + variables.moduleNameCamel;
+				}
+
 				// set the Android platform path
 				variables.androidPlatformPath = api && api.platformPath ? api.platformPath.replace(/\\/g, '\\\\') : '';
 
