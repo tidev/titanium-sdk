@@ -3,7 +3,7 @@
  * Hook that performa Android specific functions when creating an Android module.
  *
  * @copyright
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -19,7 +19,7 @@ exports.cliVersion = '>=3.2';
 exports.init = function (logger, config, cli, appc) {
 	var __ = appc.i18n(__dirname).__;
 
-	cli.on('create.copyFiles.platform.android', {
+	var arg = {
 		pre: function (data, callback) {
 			// create the build/.apt_generated directory
 			var aptgenDir = path.join(this.projectDir, 'android', 'build', '.apt_generated');
@@ -91,8 +91,9 @@ exports.init = function (logger, config, cli, appc) {
 					return '<classpathentry kind="lib" path="' + lib + '"/>';
 				}).join('\n\t');
 
-				if (/^\d/.test(variables.moduleNameCamel)) {
-					variables.moduleNameCamel = 'k' + variables.moduleNameCamel;
+				if (/^\d/.test(variables.moduleName)) {
+					variables.moduleNameCamel = 'my' + variables.moduleNameCamel;
+					variables.moduleNameJSSafe = 'my' + variables.moduleNameJSSafe;
 				}
 
 				// set the Android platform path
@@ -107,5 +108,8 @@ exports.init = function (logger, config, cli, appc) {
 				callback();
 			}.bind(this));
 		}
-	});
+	};
+
+	cli.on('create.copyFiles', arg);
+	cli.on('create.copyFiles.platform.android', arg);
 };
