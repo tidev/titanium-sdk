@@ -19,6 +19,7 @@
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
+#import "TiAppiOSSearchQueryProxy.h"
 
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CoreLocation/CLCircularRegion.h>
@@ -249,6 +250,20 @@
     return proxy;
 }
 #endif
+
+-(id)createSearchQuery:(id)args
+{
+    if (![TiUtils isIOS10OrGreater]) {
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchQuery:args] retain];}, YES);
+        return [result autorelease];
+    }
+    
+    return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+}
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
 -(id)createUserActivity:(id)args
