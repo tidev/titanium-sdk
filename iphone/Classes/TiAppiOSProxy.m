@@ -191,6 +191,7 @@
     }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
+    RELEASE_TO_NIL(event);
 }
 
 #ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
@@ -575,6 +576,7 @@
             trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:[calendar components:components
                                                                                                    fromDate:date]
                                                                                repeats:(repeat != nil)];
+            RELEASE_TO_NIL(calendar);
         } else if (region) {
             BOOL triggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
             double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
@@ -587,6 +589,7 @@
             
             trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
                                                                repeats:triggersOnce];
+            RELEASE_TO_NIL(circularRegion);
         } else {
             DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
             return;
@@ -728,14 +731,15 @@
             
             if (!CLLocationCoordinate2DIsValid(center)) {
                 NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+                RELEASE_TO_NIL(content);
                 return;
             }
             
-            content.region = [[CLCircularRegion alloc] initWithCenter:center
+            content.region = [[[CLCircularRegion alloc] initWithCenter:center
                                                                radius:radius
                                                            identifier:[TiUtils stringValue:@"identifier"
                                                                                 properties:args
-                                                                                       def:@"notification"]];
+                                                                                       def:@"notification"]] autorelease];
             
             content.regionTriggersOnce = regionTriggersOnce;
         }
