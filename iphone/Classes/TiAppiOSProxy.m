@@ -350,15 +350,13 @@
 		}
 	}
 
-    NSUInteger types;
+    NSUInteger types = UIUserNotificationTypeNone;
     
-    if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
         types = UNAuthorizationOptionNone;
-#endif
-    } else {
-        types = UIUserNotificationTypeNone;
     }
+#endif
     
     if (typesRequested != nil) {
         for (id thisTypeRequested in typesRequested)
@@ -533,24 +531,25 @@
 {
     ENSURE_SINGLE_ARG(args,NSDictionary);
 
-    id identifier = [args objectForKey:@"identifier"];
     id repeat = [args objectForKey:@"repeat"];
     id date = [args objectForKey:@"date"];
     id region = [args objectForKey:@"region"];
     id alertTitle = [args objectForKey:@"alertTitle"];
-    id alertSubtitle = [args objectForKey:@"alertSubtitle"];
     id alertBody = [args objectForKey:@"alertBody"];
     id alertLaunchImage = [args objectForKey:@"alertLaunchImage"];
     id badge = [args objectForKey:@"badge"];
-    id category = [args objectForKey:@"category"];
     id userInfo = [args objectForKey:@"userInfo"];
     id sound = [args objectForKey:@"sound"];
-    id attachments = [args objectForKey:@"attachments"];
 
     TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
+        id identifier = [args objectForKey:@"identifier"];
+        id alertSubtitle = [args objectForKey:@"alertSubtitle"];
+        id category = [args objectForKey:@"category"];
+        id attachments = [args objectForKey:@"attachments"];
+        
         UNNotificationTrigger *trigger;
         
         if (date) {

@@ -27,17 +27,17 @@
 {
     if (_notificationAction == nil) {
         
-        id identifier = [properties valueForKey:@"identifier"];
-        id title = [properties valueForKey:@"title"];
-        id activationMode = [properties valueForKey:@"activationMode"];
-        id authenticationRequired = [properties valueForKey:@"authenticationRequired"];
-        id destructive = [properties valueForKey:@"destructive"];
-        id behavior = [properties valueForKey:@"behavior"];
-        id textInputButtonTitle = [properties valueForKey:@"textInputButtonTitle"];
-        id textInputButtonPlaceholder = [properties valueForKey:@"textInputButtonPlaceholder"];
-        
         if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
+            id identifier = [properties valueForKey:@"identifier"];
+            id title = [properties valueForKey:@"title"];
+            id activationMode = [properties valueForKey:@"activationMode"];
+            id authenticationRequired = [properties valueForKey:@"authenticationRequired"];
+            id destructive = [properties valueForKey:@"destructive"];
+            id behavior = [properties valueForKey:@"behavior"];
+            id textInputButtonTitle = [properties valueForKey:@"textInputButtonTitle"];
+            id textInputButtonPlaceholder = [properties valueForKey:@"textInputButtonPlaceholder"];
+
             UNNotificationActionOptions options = UNNotificationActionOptionNone;
             
             if (destructive) {
