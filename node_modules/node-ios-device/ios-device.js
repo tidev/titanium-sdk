@@ -197,7 +197,15 @@ function log(udid, callback) {
 		emitter.removeListener(udid, callback);
 
 		if (!emitter._events[udid] || emitter._events[udid].length <= 0) {
-			binding.stopLogRelay(udid);
+			try {
+				// if the device has been disconnected before this stop()
+				// function has been called, then node-ios-device will throw an
+				// error that it can't stop relaying the syslog since the
+				// device has been disconnected
+				binding.stopLogRelay(udid);
+			} catch (e) {
+				// squeltch
+			}
 		}
 
 		if (--activeCalls === 0) {
