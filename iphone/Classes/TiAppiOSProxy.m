@@ -583,9 +583,7 @@
 
             CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
                                                                          radius:radius
-                                                                     identifier:[TiUtils stringValue:@"identifier"
-                                                                                          properties:args
-                                                                                                 def:@"notification"]];
+                                                                     identifier:[TiUtils stringValue:@"identifier"] ?: @"notification"];
             
             trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
                                                                repeats:triggersOnce];
@@ -659,7 +657,7 @@
             [content setCategoryIdentifier:[TiUtils stringValue:category]];
         }
         
-        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier]
+        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier] ?: @"notification"
                                                                                  content:content
                                                                                  trigger:trigger];
         

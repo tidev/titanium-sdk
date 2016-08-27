@@ -36,8 +36,10 @@ properties:
     summary: Array of notification actions to display for non-dialog-style notification.
     description: |
         If not specified, the first two actions from `actionsForDefaultContent` are displayed.
+        Note: This property has been removed in iOS 10 and iOS will handle the actions internally.
     type: Array<Titanium.App.iOS.UserNotificationAction>
     accessors: false
+    osver: {ios: {max: 9.3}}
     availability: creation
 
   - name: identifier

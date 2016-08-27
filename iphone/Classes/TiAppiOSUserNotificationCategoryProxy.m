@@ -44,15 +44,19 @@
             [minimalActions addObject:[action notificationAction]];
         }
         
-        if (!intentIdentifiers) {
-            intentIdentifiers = @[];
+        if (intentIdentifiers) {
+            for (id itentIdentifier in intentIdentifiers) {
+                if (![itentIdentifier isKindOfClass:[NSString class]]) {
+                    NSLog(@"[ERROR] All elements in itentIdentifiers must be a String, \"%@\" is not!", itentIdentifier);
+                }
+            }
         }
         
         if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
             _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
                                                                            actions:defaultActions
-                                                                 intentIdentifiers:intentIdentifiers
+                                                                  intentIdentifiers:intentIdentifiers ?: @[]
                                                                             options:UNNotificationCategoryOptionCustomDismissAction] retain];
 #endif
         } else {
