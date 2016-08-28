@@ -7,6 +7,7 @@
 #ifdef USE_TI_UISWITCH
 
 #import "TiUISwitchProxy.h"
+#import "TiUISwitch.h"
 
 @implementation TiUISwitchProxy
 
@@ -24,6 +25,11 @@
 -(NSString*)apiName
 {
     return @"Ti.UI.Switch";
+}
+
+-(NSNumber*)value
+{
+    return [(TiUISwitch*)[self view] value];
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
