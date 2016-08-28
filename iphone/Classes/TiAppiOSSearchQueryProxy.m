@@ -8,6 +8,7 @@
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
+#import "TiUtils.h"
 
 @implementation TiAppiOSSearchQueryProxy
 
@@ -20,11 +21,14 @@
 - (CSSearchQuery*)query
 {
     if (query == nil) {
-        NSString *queryString = [self valueForKey:@"queryString"];
-        NSArray *attributes = [self valueForKey:@"attributes"];
+        id queryString = [self valueForKey:@"queryString"];
+        id attributes = [self valueForKey:@"attributes"];
         
-        query = [[CSSearchQuery alloc] initWithQueryString:queryString
-                                                attributes:attributes];
+        ENSURE_TYPE(queryString, NSString);
+        ENSURE_TYPE_OR_NIL(attributes, NSArray);
+        
+        query = [[[CSSearchQuery alloc] initWithQueryString:[TiUtils stringValue:queryString]
+                                                attributes:attributes] retain];
         
         [query setFoundItemsHandler:^(NSArray<CSSearchableItem*> *items) {
             if ([self _hasListeners:@"founditems"]) {
@@ -39,16 +43,15 @@
                 [self fireEvent:@"founditems" withObject:@{
                     @"items": result,
                     @"foundItemCount": NUMUINTEGER([query foundItemCount])
-                }];
-                
-                RELEASE_TO_NIL(result);
+                }];                
             }
         }];
         
         [query setCompletionHandler:^(NSError *error) {
            if ([self _hasListeners:@"completed"]) {
                 NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
-                    @"success": NUMBOOL(error == nil)
+                    @"success": NUMBOOL(error == nil),
+                    @"foundItemCount": NUMUINTEGER([query foundItemCount])
                 }];
                
                 if (error != nil) {
@@ -56,7 +59,6 @@
                 }
                 
                 [self fireEvent:@"completed" withObject:dict];
-                RELEASE_TO_NIL(dict);
             }
         }];
 
