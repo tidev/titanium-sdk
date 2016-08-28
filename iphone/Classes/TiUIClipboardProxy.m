@@ -20,6 +20,7 @@ typedef enum {
 	CLIPBOARD_TEXT,
 	CLIPBOARD_URI_LIST,
 	CLIPBOARD_IMAGE,
+	CLIPBOARD_COLOR,
 	CLIPBOARD_UNKNOWN
 } ClipboardType;
 
@@ -40,6 +41,10 @@ static ClipboardType mimeTypeToDataType(NSString *mimeType)
 	else if ([mimeType hasPrefix: @"image"])
 	{
 		return CLIPBOARD_IMAGE;
+	}
+	else if ([mimeType isEqualToString: @"color"])
+	{
+		return CLIPBOARD_COLOR;
 	}
 	else
 	{
@@ -89,6 +94,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_IMAGE:
 		{
 			board.images = nil;
+			break;
+		}
+		case CLIPBOARD_COLOR:
+		{
+			board.colors = nil;
 			break;
 		}
 		case CLIPBOARD_UNKNOWN:
@@ -146,6 +156,10 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_URI_LIST:
 		{
 			return [board.URL absoluteString];
+		}
+		case CLIPBOARD_COLOR:
+		{
+			return [TiUtils hexColorValue:[board color]];
 		}
 		case CLIPBOARD_IMAGE:
 		{
@@ -211,6 +225,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 			case CLIPBOARD_IMAGE:
 			{
 				result=[board containsPasteboardTypes: UIPasteboardTypeListImage];
+				break;
+			}
+			case CLIPBOARD_COLOR:
+			{
+				result=[board containsPasteboardTypes: UIPasteboardTypeListColor];
 				break;
 			}
 			case CLIPBOARD_UNKNOWN:
@@ -326,6 +345,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_IMAGE:
 		{
 			board.image = [TiUtils toImage: data proxy: self];
+			break;
+		}
+		case CLIPBOARD_COLOR:
+		{
+			board.color = [[TiUtils colorValue:data] color];
 			break;
 		}
 		case CLIPBOARD_UNKNOWN:
