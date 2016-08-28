@@ -39,6 +39,19 @@ properties:
     type: Array<String>
     osver: {ios: {min: "10.0"}}
     accessors: false
+    
+methods:
+  - name: start
+    summary: Asynchronously queries the index for items that match the query object's specifications.
+    
+  - name: cancel
+    summary: Cancels a query operation.
+    
+  - name: isCancelled
+    summary: A Boolean value that indicates if the query has been cancelled (`true`) or not (`false`).
+    returns:
+        type: Boolean
+        summary: Returns `true` if the query was cancelled.
 
 events:
   - name: founditems

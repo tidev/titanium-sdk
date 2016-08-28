@@ -102,9 +102,9 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
+            Available in Titanium SDK 5.2.0 and later.
         type: Dictionary
         platforms: [iphone, ipad]
-        since: "5.2.0"
 
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
