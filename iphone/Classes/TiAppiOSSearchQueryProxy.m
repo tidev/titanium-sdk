@@ -8,42 +8,54 @@
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
+#import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
 @implementation TiAppiOSSearchQueryProxy
 
 - (void)dealloc
 {
+    RELEASE_TO_NIL(queryString);
+    RELEASE_TO_NIL(attributes);
     RELEASE_TO_NIL(query);
+    
     [super dealloc];
+}
+
+- (id)_initWithPageContext:(id<TiEvaluator>)context andArguments:(NSDictionary*)args
+{
+    if (self == [super _initWithPageContext:context]) {
+        ENSURE_TYPE([args objectForKey:@"queryString"], NSString);
+        ENSURE_TYPE([args objectForKey:@"attributes"], NSArray);
+        
+        queryString = [[args objectForKey:@"queryString"] retain];
+        attributes = [[args objectForKey:@"attributes"] retain];    
+    }
+    
+    return self;
 }
 
 - (CSSearchQuery*)query
 {
     if (query == nil) {
-        id queryString = [self valueForKey:@"queryString"];
-        id attributes = [self valueForKey:@"attributes"];
         
-        ENSURE_TYPE(queryString, NSString);
-        ENSURE_TYPE_OR_NIL(attributes, NSArray);
-        
-        query = [[[CSSearchQuery alloc] initWithQueryString:[TiUtils stringValue:queryString]
+        query = [[[CSSearchQuery alloc] initWithQueryString:queryString
                                                 attributes:attributes] retain];
         
         [query setFoundItemsHandler:^(NSArray<CSSearchableItem*> *items) {
             if ([self _hasListeners:@"founditems"]) {
-                NSMutableArray *result = [NSMutableArray arrayWithCapacity:[query foundItemCount]];
+                NSMutableArray *result = [NSMutableArray array];
                 
                 for (CSSearchableItem *item in items) {
                     [result addObject:[[[TiAppiOSSearchableItemProxy alloc] initWithUniqueIdentifier:[item uniqueIdentifier]
-                                                                               withDomainIdentifier:[item domainIdentifier ]
-                                                                                   withAttributeSet:[item attributeSet]] autorelease]];
+                                                                            withDomainIdentifier:[item domainIdentifier ]
+                                                                                withAttributeSet:[item attributeSet]] autorelease]];
                 }
                 
                 [self fireEvent:@"founditems" withObject:@{
                     @"items": result,
                     @"foundItemCount": NUMUINTEGER([query foundItemCount])
-                }];                
+                }];
             }
         }];
         
@@ -57,8 +69,10 @@
                 if (error != nil) {
                     [dict setValue:[error localizedDescription] forKey:@"error"];
                 }
-                
-                [self fireEvent:@"completed" withObject:dict];
+               
+                TiThreadPerformOnMainThread(^{
+                   [self fireEvent:@"completed" withObject:dict];
+                }, NO);
             }
         }];
 
