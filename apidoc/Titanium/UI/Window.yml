@@ -1364,13 +1364,13 @@ description: |
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var nav = Ti.UI.iOS.createNavigationWindow({
+        var win = Ti.UI.iOS.createNavigationWindow({
             window: Ti.UI.createWindow({
-                title: "Modal-Window"
+                title: "Modal Window"
             })
         });
 
-        nav.open({
+        win.open({
             modal: true,
             modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
             modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET

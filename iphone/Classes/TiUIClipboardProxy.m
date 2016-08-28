@@ -68,11 +68,12 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 -(void)clearData:(id)arg
 {
 	ENSURE_UI_THREAD(clearData, arg);
-	ENSURE_STRING_OR_NIL(arg);
+	ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
 
-	NSString *mimeType = arg;
+	NSString *mimeType = arg ?: @"application/octet-stream";
 	UIPasteboard *board = [UIPasteboard generalPasteboard];
 	ClipboardType dataType = mimeTypeToDataType(mimeType);
+	
 	switch (dataType)
 	{
 		case CLIPBOARD_TEXT:
