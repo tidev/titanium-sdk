@@ -17,6 +17,8 @@
 
 -(id)initWithItemContentType:(NSString *)itemContentType withProps:(NSDictionary*)props;
 
+-(id)initWithItemAttributeSet:(CSSearchableItemAttributeSet*)attributeSet;
+
 @property(nonatomic,retain) CSSearchableItemAttributeSet *attributes;
 
 @end

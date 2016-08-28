@@ -268,7 +268,9 @@
         return [result autorelease];
     }
     
-    return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+        
+    return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext] andArguments:args] autorelease];
 }
 #endif
 #endif
