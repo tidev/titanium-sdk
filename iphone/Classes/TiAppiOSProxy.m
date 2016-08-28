@@ -19,7 +19,12 @@
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
+
+#ifdef IS_XCODE_8
+#ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
+#endif
+#endif
 
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CoreLocation/CLCircularRegion.h>
@@ -191,8 +196,7 @@
         return nil;
     }
     
-    TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
-    return proxy;
+    return [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];;
 }
 #endif
 
@@ -219,10 +223,9 @@
     TiAppiOSSearchableItemAttributeSetProxy *attributeSet = nil;
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
-    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
-                                           initWithUniqueIdentifier:uniqueIdentifier
-                                           withDomainIdentifier:domainIdentifier
-                                           withAttributeSet:attributeSet.attributes] autorelease];
+    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc] initWithUniqueIdentifier:uniqueIdentifier
+                                                                                   withDomainIdentifier:domainIdentifier
+                                                                                       withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
 }
 #endif
@@ -251,9 +254,12 @@
 }
 #endif
 
+#ifdef IS_XCODE_8
+#ifdef USE_TI_APPIOSSEARCHQUERY
 -(id)createSearchQuery:(id)args
 {
     if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"[ERROR] Search-Queries are only available in iOS 10 and later.");
         return nil;
     }
     if (![NSThread isMainThread]) {
@@ -264,6 +270,8 @@
     
     return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
 }
+#endif
+#endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
 -(id)createUserActivity:(id)args
