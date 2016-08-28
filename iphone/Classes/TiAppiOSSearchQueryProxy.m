@@ -4,7 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#ifdef IS_XCODE_8
+#ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 
@@ -29,14 +30,15 @@
             if ([self _hasListeners:@"founditems"]) {
                 NSMutableArray *result = [NSMutableArray arrayWithCapacity:[query foundItemCount]];
                 
-                for (CSSearchableItem* item in items) {
+                for (CSSearchableItem *item in items) {
                     [result addObject:[[[TiAppiOSSearchableItemProxy alloc] initWithUniqueIdentifier:[item uniqueIdentifier]
                                                                                withDomainIdentifier:[item domainIdentifier ]
                                                                                    withAttributeSet:[item attributeSet]] autorelease]];
                 }
                 
                 [self fireEvent:@"founditems" withObject:@{
-                    @"items": result
+                    @"items": result,
+                    @"foundItemCount": NUMUINTEGER([query foundItemCount])
                 }];
                 
                 RELEASE_TO_NIL(result);
@@ -45,8 +47,10 @@
         
         [query setCompletionHandler:^(NSError *error) {
            if ([self _hasListeners:@"completed"]) {
-                NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(error == nil), @"success", nil];
-                
+                NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{
+                    @"success": NUMBOOL(error == nil)
+                }];
+               
                 if (error != nil) {
                     [dict setValue:[error localizedDescription] forKey:@"error"];
                 }
@@ -71,9 +75,11 @@
     [[self query] cancel];
 }
 
-- (NSNumber*)isCancelled
+- (NSNumber*)isCancelled:(id)unused
 {
     return NUMBOOL([[self query] isCancelled]);
 }
 
 @end
+#endif
+#endif
