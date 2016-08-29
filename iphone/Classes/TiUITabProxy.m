@@ -217,6 +217,7 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+		[self setBadgeColor:[self valueForKey:@"badgeColor"]];
 		[self setIconInsets:[self valueForKey:@"iconInsets"]];
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
@@ -496,19 +497,27 @@
 	}
 	ENSURE_UI_THREAD_0_ARGS;
 	
-    UIViewController* rootController = [rootWindow hostingController];
-    id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
+	UIViewController* rootController = [rootWindow hostingController];
+	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
 #if IS_XCODE_8
-    id badgeColor = [self valueForKey:@"badgeColor"];
+	id badgeColor = [self valueForKey:@"badgeColor"];
 #endif
-    id iconInsets = [self valueForKey:@"iconInsets"];
+	id iconInsets = [self valueForKey:@"iconInsets"];
 	id icon = [self valueForKey:@"icon"];
 	
+	// System-icons
 	if ([icon isKindOfClass:[NSNumber class]])
 	{
 		int value = [TiUtils intValue:icon];
 		UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
 		[newItem setBadgeValue:badgeValue];
+
+#if IS_XCODE_8
+		if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+			[newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+		}
+#endif
+
 		[rootController setTabBarItem:newItem];
 		[newItem release];
 		systemTab = YES;
@@ -579,9 +588,9 @@
     }
     
 #if IS_XCODE_8
-    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
-        [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
-    }
+	if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+		[ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+	}
 #endif
     
     [ourItem setBadgeValue:badgeValue];
@@ -713,8 +722,8 @@
 
 -(void)setBadgeColor:(id)value
 {
-    [self replaceValue:value forKey:@"badgeColor" notification:NO];
-    [self updateTabBarItem];
+	[self replaceValue:value forKey:@"badgeColor" notification:NO];
+	[self updateTabBarItem];
 }
 
 -(void)willChangeSize
