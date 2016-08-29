@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef IS_XCODE_8
+#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiProxy.h"
 #import <CoreSpotlight/CoreSpotlight.h>

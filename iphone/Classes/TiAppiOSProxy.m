@@ -20,7 +20,7 @@
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
 
-#ifdef IS_XCODE_8
+#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #endif
@@ -254,7 +254,7 @@
 }
 #endif
 
-#ifdef IS_XCODE_8
+#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 -(id)createSearchQuery:(id)args
 {
