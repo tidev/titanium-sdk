@@ -97,7 +97,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
-    [_tableView release];
+
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        _tableView.prefetchDataSource = nil;
+    }
+#endif
+
+        [_tableView release];
     [_templates release];
     [_defaultItemTemplate release];
     [_headerViewProxy setProxyObserver:nil];
@@ -185,6 +192,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _tableView.delegate = self;
         _tableView.dataSource = self;
+        
+#if IS_XCODE_8
+        if ([TiUtils isIOS10OrGreater]) {
+            _tableView.prefetchDataSource = self;
+        }
+#endif
 
         if (TiDimensionIsDip(_rowHeight)) {
             [_tableView setRowHeight:_rowHeight.value];
@@ -542,6 +555,17 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - Public API
+
+#if IS_XCODE_8
+-(void)prefetchItems:(id)unused
+{
+    if ([TiUtils isIOS10OrGreater]) {
+        [[self tableView] prefetchDataSource];
+    } else {
+        NSLog(@"[ERROR] Table view prefetching is only available in iOS 10 and later.");
+    }
+}
+#endif
 
 -(void)setSeparatorInsets_:(id)arg
 {
@@ -1490,6 +1514,65 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
     }
     return [[self.listViewProxy sectionForIndex:section] footerTitle];
+}
+
+#pragma mark - UITableViewDataSourcePrefetching
+
+#if IS_XCODE_8
+- (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"prefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [NSMutableArray arrayWithCapacity:[indexPaths count]];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedCells": cells}];
+    RELEASE_TO_NIL(cells);
+}
+
+- (void)tableView:(UITableView *)tableView cancelPrefetchingForRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"prefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [NSMutableArray arrayWithCapacity:[indexPaths count]];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+    
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedCells": cells}];
+    RELEASE_TO_NIL(cells);
+}
+#endif
+
+- (NSDictionary*)listItemFromIndexPath:(NSIndexPath*)indexPath
+{
+    NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+    
+    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+    NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+    NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                        section, @"section",
+                                        NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                        NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                        nil];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id itemId = [properties objectForKey:@"itemId"];
+    if (itemId != nil) {
+        [eventObject setObject:itemId forKey:@"itemId"];
+    }
+    
+    return eventObject;
 }
 
 #pragma mark - UITableViewDelegate
