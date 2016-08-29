@@ -40,6 +40,14 @@
     return self;
 }
 
+-(id)initWithItemAttributeSet:(CSSearchableItemAttributeSet*)attributeSet
+{
+    if (self = [super init]) {
+        _attributes = [attributeSet retain];
+    }
+    return self;
+}
+
 -(void)applyLoadTimeProperties:(NSDictionary*)props
 {
     [props enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop) {
