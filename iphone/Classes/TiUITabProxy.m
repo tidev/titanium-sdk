@@ -497,8 +497,11 @@
 	ENSURE_UI_THREAD_0_ARGS;
 	
     UIViewController* rootController = [rootWindow hostingController];
-	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
-	id iconInsets = [self valueForKey:@"iconInsets"];
+    id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
+#if IS_XCODE_8
+    id badgeColor = [self valueForKey:@"badgeColor"];
+#endif
+    id iconInsets = [self valueForKey:@"iconInsets"];
 	id icon = [self valueForKey:@"icon"];
 	
 	if ([icon isKindOfClass:[NSNumber class]])
@@ -574,6 +577,12 @@
             [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
         }
     }
+    
+#if IS_XCODE_8
+    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+        [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+    }
+#endif
     
     [ourItem setBadgeValue:badgeValue];
     [rootController setTabBarItem:ourItem];
@@ -702,7 +711,11 @@
 	[self updateTabBarItem];
 }
 
-
+-(void)setBadgeColor:(id)value
+{
+    [self replaceValue:value forKey:@"badgeColor" notification:NO];
+    [self updateTabBarItem];
+}
 
 -(void)willChangeSize
 {

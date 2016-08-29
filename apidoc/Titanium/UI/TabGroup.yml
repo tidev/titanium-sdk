@@ -439,6 +439,17 @@ properties:
     since: { mobileweb: "2.0.0", iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
 
+  - name: unselectedItemTintColor
+    summary: |
+        Unselected items in this tab group will be tinted with this color. Setting this value to null 
+        indicates that the tab group should use its default value instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
     description: |
