@@ -2216,6 +2216,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 
 	public static final String PROPERTY_REVERSE = "reverse";

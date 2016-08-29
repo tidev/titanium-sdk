@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -55,6 +56,7 @@ public class TiUIWebView extends TiUIView
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
+	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -318,6 +320,13 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setCacheMode(mode);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_REQUEST_HEADERS)) {
+			Object value = d.get(TiC.PROPERTY_REQUEST_HEADERS);
+			if (value instanceof HashMap) {
+				setRequestHeaders((HashMap) value);
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
@@ -375,6 +384,10 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+		} else if(TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
+			if (newValue instanceof HashMap) {
+				setRequestHeaders((HashMap) newValue);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -471,7 +484,11 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		isLocalHTML = false;
-		getWebView().loadUrl(finalUrl);
+		if (extraHeaders.size()>0){
+			getWebView().loadUrl(finalUrl, extraHeaders);
+		} else {
+			getWebView().loadUrl(finalUrl);
+		}
 	}
 
 	public void changeProxyUrl(String url)
@@ -716,6 +733,19 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView currWebView = getWebView();
 		return (currWebView != null) ? currWebView.getSettings().getUserAgentString() : "";
+	}
+
+	public void setRequestHeaders(HashMap items)
+	{
+		Map<String, String> map = items;
+		for (Map.Entry<String, String> item : map.entrySet()) {
+			extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+		}
+	}
+
+	public HashMap getRequestHeaders()
+	{
+		return extraHeaders;
 	}
 
 	public boolean canGoBack()
