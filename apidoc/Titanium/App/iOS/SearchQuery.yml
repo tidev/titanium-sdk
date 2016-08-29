@@ -18,7 +18,7 @@ description: |
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 osver: {ios: {min: "10.0"}}
-since: "6.1.0"
+since: "5.5.0"
 createable: true
 
 properties:
@@ -77,7 +77,7 @@ events:
         type: String
 
 examples:
-  - title: Perform a simple search-query for all items at include a "Searchable" in it.
+  - title: Perform a simple search-query for all items that start with "Searchable" in it.
     example: |
             var win = Ti.UI.createWindow({
                 backgroundColor: "#fff"
