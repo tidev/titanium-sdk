@@ -14,6 +14,8 @@
 	BOOL animated;
 }
 
+- (NSNumber*)value;
+
 - (IBAction)switchChanged:(id)sender;
 
 @end

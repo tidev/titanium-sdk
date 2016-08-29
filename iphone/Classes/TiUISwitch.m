@@ -123,6 +123,11 @@
 	}
 }
 
+-(NSNumber*)value
+{
+	return NUMBOOL([[self switchView] isOn]);
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[super frameSizeChanged:frame bounds:bounds];
