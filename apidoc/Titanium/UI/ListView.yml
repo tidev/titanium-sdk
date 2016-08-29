@@ -443,12 +443,10 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-
   - name: prefetch
     summary: |
         Fired when new list items are prefetched. The items are ordered ascending by geometric distance 
-        from the list view. Note that this event is only available on iOS 10 and later and after calling the 
-        method <Titanium.UI.ListView.prefetchItems>.
+        from the list view. Note that this event is only available on iOS 10 and later.
     since: 6.1.0
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
@@ -1082,12 +1080,6 @@ properties:
     platforms: [iphone, ipad]
     
 methods:
-
-  - name: prefetchItems
-    summary: Prefetches the list items before they are in the visible area.
-    platforms: [iphone, ipad]
-    since: 6.1.0
-    osver: {ios: {min: "10.0"}}
 
   - name: scrollToItem
     summary: Scrolls to a specific item.

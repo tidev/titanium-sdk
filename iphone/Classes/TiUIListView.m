@@ -556,17 +556,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - Public API
 
-#if IS_XCODE_8
--(void)prefetchItems:(id)unused
-{
-    if ([TiUtils isIOS10OrGreater]) {
-        [[self tableView] prefetchDataSource];
-    } else {
-        NSLog(@"[ERROR] Table view prefetching is only available in iOS 10 and later.");
-    }
-}
-#endif
-
 -(void)setSeparatorInsets_:(id)arg
 {
     DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
@@ -1526,30 +1515,30 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         return;
     }
     
-    NSMutableArray *cells = [NSMutableArray arrayWithCapacity:[indexPaths count]];
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
     
     for (NSIndexPath *indexPath in indexPaths) {
         [cells addObject:[self listItemFromIndexPath:indexPath]];
     }
 
-    [self.proxy fireEvent:eventName withObject:@{@"prefetchedCells": cells}];
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
     RELEASE_TO_NIL(cells);
 }
 
 - (void)tableView:(UITableView *)tableView cancelPrefetchingForRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
 {
-    NSString *eventName = @"prefetch";
+    NSString *eventName = @"cancelprefetch";
     if (![self.proxy _hasListeners:eventName]) {
         return;
     }
     
-    NSMutableArray *cells = [NSMutableArray arrayWithCapacity:[indexPaths count]];
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
     
     for (NSIndexPath *indexPath in indexPaths) {
         [cells addObject:[self listItemFromIndexPath:indexPath]];
     }
     
-    [self.proxy fireEvent:eventName withObject:@{@"prefetchedCells": cells}];
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
     RELEASE_TO_NIL(cells);
 }
 #endif
