@@ -299,21 +299,48 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         NSArray *items = [args objectForKey:@"items"];
         NSDictionary *options = [args objectForKey:@"options"];
         
-        // The key of the items must be a string
+        __block NSMutableArray *result = [[[NSMutableArray alloc] init] retain];
+        
+        // The key of the items must be a string (mime-type)
         for (id item in items) {
+            NSMutableDictionary *newDict = [[NSMutableDictionary alloc] init];
             for (id key in item) {
                 ENSURE_TYPE(key, NSString);
+                [newDict setValue:[item valueForKey:key] forKey:mimeTypeToUTType(key)];
             }
+            if (newDict != nil) {
+                [result addObject:newDict];
+            }
+            RELEASE_TO_NIL(newDict);
         }
         
-        // The option must be a UIPasteboardOption which is mapped to strings
-        for (id option in options) {
-            ENSURE_TYPE(option, NSString);
-        }
-        
-        [[UIPasteboard generalPasteboard] setItems:items options:options];
+        TiThreadPerformOnMainThread(^{
+            if (options == nil) {
+                [[UIPasteboard generalPasteboard] setItems:result];
+            } else {
+                [[UIPasteboard generalPasteboard] setItems:result options:options];
+            }
+            RELEASE_TO_NIL(result);
+        }, YES);
     }
 #endif
+}
+
+-(id)getItems:(id)unused
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        __block id result;
+        
+        TiThreadPerformOnMainThread(^{
+            result = [[[UIPasteboard generalPasteboard] items] retain];
+        }, YES);
+        
+        return [result autorelease];
+    }
+#endif
+    
+    return @[];
 }
 
 -(void)setData:(id)args
