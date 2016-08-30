@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
 #import "TiUtils.h"
 #import "TiApp.h"
@@ -19,6 +20,7 @@ typedef enum {
 	CLIPBOARD_TEXT,
 	CLIPBOARD_URI_LIST,
 	CLIPBOARD_IMAGE,
+	CLIPBOARD_COLOR,
 	CLIPBOARD_UNKNOWN
 } ClipboardType;
 
@@ -39,6 +41,10 @@ static ClipboardType mimeTypeToDataType(NSString *mimeType)
 	else if ([mimeType hasPrefix: @"image"])
 	{
 		return CLIPBOARD_IMAGE;
+	}
+	else if ([mimeType isEqualToString: @"color"])
+	{
+		return CLIPBOARD_COLOR;
 	}
 	else
 	{
@@ -88,6 +94,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_IMAGE:
 		{
 			board.images = nil;
+			break;
+		}
+		case CLIPBOARD_COLOR:
+		{
+			board.colors = nil;
 			break;
 		}
 		case CLIPBOARD_UNKNOWN:
@@ -145,6 +156,10 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_URI_LIST:
 		{
 			return [board.URL absoluteString];
+		}
+		case CLIPBOARD_COLOR:
+		{
+			return [TiUtils hexColorValue:[board color]];
 		}
 		case CLIPBOARD_IMAGE:
 		{
@@ -212,6 +227,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 				result=[board containsPasteboardTypes: UIPasteboardTypeListImage];
 				break;
 			}
+			case CLIPBOARD_COLOR:
+			{
+				result=[board containsPasteboardTypes: UIPasteboardTypeListColor];
+				break;
+			}
 			case CLIPBOARD_UNKNOWN:
 			default:
 			{
@@ -272,6 +292,57 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     return NUMBOOL(NO);
 }
 
+-(void)setItems:(id)args
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        NSArray *items = [args objectForKey:@"items"];
+        NSDictionary *options = [args objectForKey:@"options"];
+        
+        __block NSMutableArray *result = [[[NSMutableArray alloc] init] retain];
+        
+        // The key of the items must be a string (mime-type)
+        for (id item in items) {
+            NSMutableDictionary *newDict = [[NSMutableDictionary alloc] init];
+            for (id key in item) {
+                ENSURE_TYPE(key, NSString);
+                [newDict setValue:[item valueForKey:key] forKey:mimeTypeToUTType(key)];
+            }
+            if (newDict != nil) {
+                [result addObject:newDict];
+            }
+            RELEASE_TO_NIL(newDict);
+        }
+        
+        TiThreadPerformOnMainThread(^{
+            if (options == nil) {
+                [[UIPasteboard generalPasteboard] setItems:result];
+            } else {
+                [[UIPasteboard generalPasteboard] setItems:result options:options];
+            }
+            RELEASE_TO_NIL(result);
+        }, YES);
+    }
+#endif
+}
+
+-(id)getItems:(id)unused
+{
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        __block id result;
+        
+        TiThreadPerformOnMainThread(^{
+            result = [[[UIPasteboard generalPasteboard] items] retain];
+        }, YES);
+        
+        return [result autorelease];
+    }
+#endif
+    
+    return @[];
+}
+
 -(void)setData:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);
@@ -301,6 +372,11 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_IMAGE:
 		{
 			board.image = [TiUtils toImage: data proxy: self];
+			break;
+		}
+		case CLIPBOARD_COLOR:
+		{
+			board.color = [[TiUtils colorValue:data] color];
 			break;
 		}
 		case CLIPBOARD_UNKNOWN:
@@ -333,3 +409,4 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 	 
  @end
+#endif

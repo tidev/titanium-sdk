@@ -606,6 +606,16 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return nil;
 }
 
++ (NSString *)hexColorValue:(UIColor *)color
+{
+    const CGFloat *components = CGColorGetComponents(color.CGColor);
+    
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
+            lroundf(components[0] * 255),
+            lroundf(components[1] * 255),
+            lroundf(components[2] * 255)];
+}
+
 +(TiDimension)dimensionValue:(id)value
 {
 	return TiDimensionFromObject(value);

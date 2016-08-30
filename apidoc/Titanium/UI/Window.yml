@@ -1413,7 +1413,7 @@ description: |
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
-        a.addEventListener('complete', function(){
+        a.addEventListener('complete', function() {
             $.index.animate({
                 transform: Ti.UI.create2DMatrix(),
                 duration: 200
