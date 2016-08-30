@@ -123,10 +123,20 @@ public class TiCompositeLayout extends ViewGroup
 
 			public int compare(View o1, View o2)
 			{
-				TiCompositeLayout.LayoutParams p1 = (TiCompositeLayout.LayoutParams) o1.getLayoutParams();
-				TiCompositeLayout.LayoutParams p2 = (TiCompositeLayout.LayoutParams) o2.getLayoutParams();
+			    // TIMOB-20206 and https://android-review.googlesource.com/#/c/257511/1/ojluni/src/main/java/java/util/TreeMap.java
+			    // We need to check if o1 or o2 is null
+			    if (o1 == null || o2 == null) {
+			        throw new NullPointerException("null view");
+			    }
+			    // We need to check if the view being compared is itself and return 0.
+			    if (o2.equals(o1)) {
+			        return 0;
+			    }
 
-				int result = 0;
+			    TiCompositeLayout.LayoutParams p1 = (TiCompositeLayout.LayoutParams) o1.getLayoutParams();
+			    TiCompositeLayout.LayoutParams p2 = (TiCompositeLayout.LayoutParams) o2.getLayoutParams();
+
+			    int result = 0;
 
 				if (p1.optionZIndex != NOT_SET && p2.optionZIndex != NOT_SET) {
 					if (p1.optionZIndex < p2.optionZIndex) {
