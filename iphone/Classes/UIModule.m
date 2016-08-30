@@ -658,7 +658,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 #endif
 
 #ifdef USE_TI_UICLIPBOARD
--(NSString*)PASTEBOARD_OPTION_LOCAL_ONLY
+-(NSString*)CLIPBOARD_OPTION_LOCAL_ONLY
 {
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
@@ -668,7 +668,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
         return @"";
     }
 }
--(NSString*)PASTEBOARD_OPTION_EXPIRATION_DATE
+-(NSString*)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
