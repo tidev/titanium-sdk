@@ -443,6 +443,60 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: prefetch
+    summary: |
+        Fired when new list items are prefetched. The items are ordered ascending by geometric distance 
+        from the list view. Note that this event is only available on iOS 10 and later.
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: section
+        summary: List section if the item is contained in a list section.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+  - name: cancelprefetch
+    summary: |
+        Fired when list items that previously were considered as candidates for pre-fetching were not 
+        actually used. Note that this event is only available on iOS 10 and later
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: section
+        summary: List section if the item is contained in a list section.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
   - name: pullend
     summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
     platforms: [iphone, ipad]
