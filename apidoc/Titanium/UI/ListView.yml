@@ -454,21 +454,9 @@ events:
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
         the event, and use the `bindId` to check which child control fired the event. 
     properties:
-      - name: section
-        summary: List section if the item is contained in a list section.
-        type: Titanium.UI.ListSection
-
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
-      - name: itemId
-        summary: The item ID bound to the list item that generated the event.
-        type: String
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
 
   - name: cancelprefetch
     summary: |
@@ -481,21 +469,9 @@ events:
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
         the event, and use the `bindId` to check which child control fired the event. 
     properties:
-      - name: section
-        summary: List section if the item is contained in a list section.
-        type: Titanium.UI.ListSection
-
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
-      - name: itemId
-        summary: The item ID bound to the list item that generated the event.
-        type: String
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
 
   - name: pullend
     summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
@@ -1761,3 +1737,25 @@ properties:
   - name: bottom
     summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
     type: Number
+
+---
+name: ListItemEventType
+summary: The arguments for the <Titanium.UI.ListView.prefetch> and <Titanium.UI.ListView.cancelprefetch> events.
+since: 6.1.0
+platforms: [iphone, ipad]
+properties:
+  - name: section
+    summary: List section if the item is contained in a list section.
+    type: Titanium.UI.ListSection
+
+  - name: sectionIndex
+    summary: Section index.
+    type: Number
+
+  - name: itemIndex
+    summary: Item index.
+    type: Number
+
+  - name: itemId
+    summary: The item ID bound to the list item that generated the event.
+    type: String
