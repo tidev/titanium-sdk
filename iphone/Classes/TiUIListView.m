@@ -1561,7 +1561,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [eventObject setObject:itemId forKey:@"itemId"];
     }
     
-    return eventObject;
+    return [eventObject autorelease];
 }
 
 #pragma mark - UITableViewDelegate
