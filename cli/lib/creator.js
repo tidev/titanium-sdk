@@ -199,7 +199,7 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 		}
 
 		if (value.indexOf('_') != -1) {
-			if (cli.argv.type != 'app' || cli.argv.platforms.indexOf('ios') != -1 || cli.argv.platforms.indexOf('iphone') != -1 || cli.argv.platforms.indexOf('ipad') != -1) {
+			if (cli.argv.type != 'app' && (cli.argv.platforms.indexOf('ios') != -1 || cli.argv.platforms.indexOf('iphone') != -1 || cli.argv.platforms.indexOf('ipad') != -1)) {
 				logger.error(__('Invalid App ID "%s"', value));
 				logger.error(__('Underscores are not allowed in the App ID when targeting %s.', 'iOS'.cyan) + '\n');
 				return callback(true);
