@@ -1040,6 +1040,29 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: QUALITY_640x480
+    summary: Media type constant for medium-quality video recording. 
+    description: |
+        If recording, specifies that you want to use VGA-quality video recording (pixel dimensions 
+        of 640x480).
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 6.1.0 
+  - name: QUALITY_IFRAME_1280x720
+    summary: Media type constant for medium-quality video recording. 
+    description: If recording, specifies that you want to use 1280x720 iFrame format.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 6.1.0 
+  - name: QUALITY_IFRAME_960x540
+    summary: Media type constant for medium-quality video recording. 
+    description: If recording, specifies that you want to use 960x540 iFrame format.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 6.1.0 
   - name: UNKNOWN_ERROR
     summary: Constant for unknown media error.
     type: Number
@@ -1590,10 +1613,10 @@ properties:
     default: false
   - name: mediaTypes 
     summary: | 
-        Array of media type constants to allow. Note: iOS 9.1 only allows to
-        select existing photos from the gallery, capturing new live photos is 
-        not supported by the iOS public API, yet.
-    constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
+        Array of media type constants to allow. Note: If you want to select live photos, iOS only  allows
+        you to select existing live photos from the gallery, capturing new live photos is not supported by 
+        iOS public API, yet.
+    constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_LIVEPHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
     platforms: [android, iphone, ipad]
@@ -1609,6 +1632,7 @@ properties:
     summary: Constant to indicate the video quality during capture. 
     type: Number
     platforms: [android, iphone, ipad]
+    constants: Titanium.Media.QUALITY_*
     since:
         android: 5.4.0  
   - name: whichCamera
