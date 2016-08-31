@@ -70,7 +70,7 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=4.0 <=5.x"
+    "node": "4.x || 6.x"
   },
   "engines": {
     "node": ">=4.0"
