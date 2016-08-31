@@ -4,7 +4,7 @@
 * @module cli/_buildModule
 *
 * @copyright
-* Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+* Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
 *
 * @license
 * Licensed under the terms of the Apache Public License
@@ -100,7 +100,7 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiXcconfig',
 		'compileJS',
 		'buildModule',
-		'createUniBinary',
+		'createUniversalBinary',
 		'verifyBuildArch',
 		'packageModule',
 		'runModule',
@@ -370,51 +370,56 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 };
 
 iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
-	var opts = { cwd: this.projectDir };
+	var opts = { env: {} };
+	Object.keys(process.env).forEach(function (key) {
+		opts.env[key] = process.env[key];
+	});
+	opts.env.cwd = this.projectDir;
+	opts.env.DEVELOPER_DIR = this.xcodeEnv.path;
+
 	var xcodebuildHook = this.cli.createHook('build.module.ios.xcodebuild', this, function (exe, args, opts, type, done) {
-			var p = spawn(exe, args, opts),
-				out = [],
-				err = [],
-				stopOutputting = false;
+		this.logger.debug(__('Running: %s', ('DEVELOPER_DIR=' + opts.env.DEVELOPER_DIR + ' ' + exe + ' ' + args.join(' ')).cyan));
+		var p = spawn(exe, args, opts),
+			out = [],
+			err = [],
+			stopOutputting = false;
 
-			p.stdout.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					if (line.length) {
-						out.push(line);
-						if (line.indexOf('Failed to minify') != -1) {
-							stopOutputting = true;
-						}
-						if (!stopOutputting) {
-							this.logger.trace('[' + type + '] ' + line);
-						}
+		p.stdout.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				if (line.length) {
+					out.push(line);
+					if (line.indexOf('Failed to minify') != -1) {
+						stopOutputting = true;
 					}
-				}, this);
-			}.bind(this));
-
-			p.stderr.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					if (line.length) {
-						err.push(line);
+					if (!stopOutputting) {
+						this.logger.trace('[' + type + '] ' + line);
 					}
-				}, this);
-			}.bind(this));
-
-			p.on('close', function (code, signal) {
-				if (code) {
-					// just print the entire error buffer
-					err.forEach(function (line) {
-						this.logger.error('[' + type + '] ' + line);
-					}, this);
-					this.logger.log();
-					process.exit(1);
 				}
+			}, this);
+		}.bind(this));
 
-				// end of the line
-				done(code);
-			}.bind(this));
-		});
+		p.stderr.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				if (line.length) {
+					err.push(line);
+				}
+			}, this);
+		}.bind(this));
 
-	process.env.DEVELOPER_DIR = this.xcodeEnv.path;
+		p.on('close', function (code, signal) {
+			if (code) {
+				// just print the entire error buffer
+				err.forEach(function (line) {
+					this.logger.error('[' + type + '] ' + line);
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+
+			// end of the line
+			done(code);
+		}.bind(this));
+	}.bind(this));
 
 	var count = 0;
 	function done() {
@@ -436,32 +441,35 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	], opts, 'xcode-sim', done);
 };
 
-iOSModuleBuilder.prototype.createUniBinary = function createUniBinary(next) {
+iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	// Create a universal build by merging the all builds to a single binary
-	var binaryFiles = [],
-		outputFile = path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a'),
-		lipoArgs = [
-			'-create',
-			'-output',
-			outputFile
-		];
+	var args = [
+		path.join(this.projectDir, 'build', 'Release-iphoneos', 'lib' + this.moduleId + '.a'),
+		path.join(this.projectDir, 'build', 'Release-iphonesimulator', 'lib' + this.moduleId + '.a'),
+		'-create',
+		'-output',
+		path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a')
+	];
 
-	this.dirWalker(this.universalBinaryDir, function (file) {
-		if (path.extname(file) === '.a'
-			&& file.indexOf( this.moduleName + '.build') === -1
-			&& file.indexOf('Release-') > -1
-		) {
-			binaryFiles.push(file);
+	this.logger.info(__('Creating universal library'));
+	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+
+	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to generate universal binary (code %s):', code));
+			this.logger.error(err.trim() + '\n');
+			process.exit(1);
 		}
-	}.bind(this));
 
-	appc.subprocess.run(this.xcodeEnv.executables.lipo, binaryFiles.concat(lipoArgs), function (code, out, err) {
 		next();
 	});
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	var args = [ '-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a') ];
+
+	this.logger.info(__('Verifying universal library'));
+	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
 		if (code) {
