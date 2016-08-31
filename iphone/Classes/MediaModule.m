@@ -311,6 +311,8 @@ MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 MAKE_SYSTEM_PROP(QUALITY_640x480,UIImagePickerControllerQualityType640x480);
+MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720,UIImagePickerControllerQualityTypeIFrame1280x720);
+MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540,UIImagePickerControllerQualityTypeIFrame960x540);
 
 //Constants for MediaTypes in VideoPlayer
 MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_NONE,MPMovieMediaTypeMaskNone);
@@ -1527,17 +1529,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
         
         double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
-        double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
         
         if (videoMaximumDuration != 0.0)
         {
             [picker setVideoMaximumDuration:videoMaximumDuration/1000];
         }
-
-        if (videoQuality != 0.0)
-        {
-            [picker setVideoQuality:videoQuality];
-        }
+        
+        [picker setVideoQuality:[TiUtils intValue:[args objectForKey:@"videoQuality"] def:UIImagePickerControllerQualityTypeMedium]];
     }
 
     // do this afterwards above so we can first check for video support
