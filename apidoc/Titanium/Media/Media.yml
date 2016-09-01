@@ -1048,21 +1048,20 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 6.1.0 
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording. 
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 6.1.0 
+    since: 6.0.0 
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording. 
     description: If recording, specifies that you want to use 960x540 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 6.1.0 
+    since: 6.0.0 
   - name: UNKNOWN_ERROR
     summary: Constant for unknown media error.
     type: Number
