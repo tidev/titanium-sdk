@@ -2789,7 +2789,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
 		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
+			return (keychains[keychain].distribution || []).some(function (d) {
 				if (!d.invalid && d.name === this.certDistributionName) {
 					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
 					return true;
