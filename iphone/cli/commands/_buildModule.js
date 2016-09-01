@@ -462,7 +462,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		}
 
 		next();
-	});
+	}.bind(this));
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
