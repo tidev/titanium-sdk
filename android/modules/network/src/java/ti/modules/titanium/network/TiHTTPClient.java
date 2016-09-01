@@ -1277,8 +1277,6 @@ public class TiHTTPClient
 
 		    if (isPostOrPutOrPatch) {
 		        client.setDoOutput(true);
-		        client.setRequestProperty("Transfer-Encoding", "chunked");
-		        client.setChunkedStreamingMode(1024);
 		    }
 		    client.setUseCaches(false);
 		    // This is to set gzip default to disable
