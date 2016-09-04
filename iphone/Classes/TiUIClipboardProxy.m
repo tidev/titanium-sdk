@@ -104,9 +104,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_UNKNOWN:
 		default:
 		{
-			NSData *data = [[NSData alloc] init];
-			[board setData:data forPasteboardType: mimeTypeToUTType(mimeType)];
-			[data release];
+			[[UIPasteboard generalPasteboard] setItems:@[]];
 		}
 	}
 }
@@ -330,13 +328,29 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        __block id result;
+        __block id items;
         
         TiThreadPerformOnMainThread(^{
-            result = [[[UIPasteboard generalPasteboard] items] retain];
+            items = [[[UIPasteboard generalPasteboard] items] retain];
+            
+            // Check for invalid UTI's / mime-types to prevent a runtime-crash
+            for (NSDictionary *item in items) {
+                for (NSString *key in [item allKeys]) {
+                    if ([key hasPrefix:@"dyn."]) {
+                        NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
+                        
+                        RELEASE_TO_NIL(items);
+                        items = @[];
+                        break;
+                    }
+                }
+                if ([items count] == 0) {
+                    break;
+                }
+            }
         }, YES);
         
-        return [result autorelease];
+        return [items autorelease];
     }
 #endif
     
