@@ -5,6 +5,17 @@ description: |
     The Media module is used to access the device's media-related functionality, such
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
+    
+    #### Android Platform Notes
+
+    Currently, on Android, camera permissions must be explicitly configured in
+    `tiapp.xml` in order to access the camera:
+    
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest>
+                <uses-permission android:name="android.permission.CAMERA" />
+            </manifest>
+        </android>
 
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
