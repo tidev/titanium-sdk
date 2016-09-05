@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
@@ -464,7 +465,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			if (saveToGallery) {
 				imageFile = MediaModule.createGalleryImageFile();
 			} else {
-				imageFile = TiApplication.getInstance().getTempFileHelper().createTempFile("tia", ".jpg");
+				// Save the picture in the internal data directory so it is private to this application.
+				imageFile = TiFileFactory.createDataFile("tia", ".jpg");
 			}
 			
 			FileOutputStream imageOut = new FileOutputStream(imageFile);
