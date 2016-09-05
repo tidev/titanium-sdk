@@ -669,7 +669,6 @@ public abstract class TiBaseActivity extends Activity
 			}
 			removeDialog(dialog);
 		}
-		dialogs = null;
 	}
 
 	@Override

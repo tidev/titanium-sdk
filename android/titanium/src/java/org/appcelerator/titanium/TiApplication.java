@@ -240,10 +240,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 		while ((activityStackSize = activityStack.size()) > 0) {
 			Activity activity = (activityStack.get(activityStackSize - 1)).get();
-			if (activity == null) {
-				Log.i(LCAT, "activity reference is invalid, removing from activity stack");
-				activityStack.remove(activityStackSize -1);
 
+			// Skip and remove any activities which are dead or in the process of finishing.
+			if (activity == null || activity.isFinishing()) {
+				activityStack.remove(activityStackSize -1);
 				continue;
 			}
 
