@@ -307,6 +307,26 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_SUPERSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in an upper position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: ATTRIBUTE_SUBSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in a lower position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
         Use with <Attribute.type> to specify a color for the stroke text.
