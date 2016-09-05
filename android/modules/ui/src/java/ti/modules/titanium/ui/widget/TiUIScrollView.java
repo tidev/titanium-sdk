@@ -17,6 +17,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
@@ -92,6 +93,50 @@ public class TiUIScrollView extends TiUIView
 			}
 
 			return super.dispatchTouchEvent(ev);
+		}
+
+		@Override
+		protected int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
+			int measuredHeight)
+		{
+			int height = measuredHeight;
+
+			// Check for fill behavior (NOTE: we also use fill if autoFillsHeight is true since the measure pass for
+			// children added to a scroll doesn't work correctly)
+			if ((params.autoFillsHeight || params.sizeOrFillHeightEnabled) && params.optionHeight == null) {
+				int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
+				// This is to handle TIMOB-8243. When we set the contentHeight property to anything >= the screen size,
+				// a measure call on TiScrollViewLayout's children results in 0. To correct this behavior, use the max
+				// of measuredHeight/contentHeight property.
+				if (contentHeight == AUTO || contentHeight > this.parentHeight) {
+					height = Math.max(contentHeight, this.measuredHeight);
+				}
+			} else {
+				height = super.calculateHeightFromPins(params, parentTop, parentBottom, parentHeight, measuredHeight);
+			}
+			return height;
+		}
+
+		@Override
+		protected int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
+			int measuredWidth)
+		{
+			int width = measuredWidth;
+
+			// Check for fill behavior (NOTE: we also use fill if autoFillsWidth is true since the measure pass for
+			// children added to a scroll doesn't work correctly)
+			if ((params.autoFillsWidth || params.sizeOrFillWidthEnabled) && params.optionWidth == null) {
+				int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
+				// This is to handle TIMOB-8243. When we set the contentWidth property to anything >= the screen size,
+				// a measure call on TiScrollViewLayout's children results in 0. To correct this behavior, use the max
+				// of measuredWidth/contentWidth property.
+				if (contentWidth == AUTO || contentWidth > this.parentWidth) {
+					width = Math.max(contentWidth, this.measuredWidth);
+				}
+			} else {
+				width = super.calculateWidthFromPins(params, parentLeft, parentRight, parentWidth, measuredWidth);
+			}
+			return width;
 		}
 
 		private int getContentProperty(String property)
@@ -186,6 +231,7 @@ public class TiUIScrollView extends TiUIView
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
+			setFillViewport(true);
 			super.addView(layout, params);
 		}
 
