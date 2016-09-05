@@ -989,8 +989,8 @@ properties:
     summary: |
         The normal style for preview actions.
     description: |
-        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
-        property and <Titanium.UI.iOS.PreviewAction.click> event.
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
     type: Number
     permission: read-only
     since: "5.1.0"
@@ -999,8 +999,8 @@ properties:
   - name: PREVIEW_ACTION_STYLE_SELECTED
     summary: The selected style for preview actions.
     description: |
-        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
-        property and <Titanium.UI.iOS.PreviewAction.click> event.
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
     type: Number
     permission: read-only
     since: "5.1.0"
@@ -1009,8 +1009,8 @@ properties:
   - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for preview actions.
     description: |
-        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / Titanium.UI.iOS.PreviewActionGroup.style>
-        property and <Titanium.UI.iOS.PreviewAction.click> event.
+        Used in conjunction with <Titanium.UI.iOS.PreviewAction.style> / <Titanium.UI.iOS.PreviewActionGroup.style>
+        property.
     type: Number
     permission: read-only
     since: "5.1.0"
