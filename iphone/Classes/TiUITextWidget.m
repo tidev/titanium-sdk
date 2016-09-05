@@ -219,7 +219,7 @@
 {
     id<UITextInput> textView = (id<UITextInput>)[self textWidgetView];
     if ([textView conformsToProtocol:@protocol(UITextInput)]) {
-        if([self becomeFirstResponder] || [self isFirstResponder]) {
+        if([self becomeFirstResponder]) {
             UITextPosition *beginning = textView.beginningOfDocument;
             UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: start]];
             UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue: end]];
