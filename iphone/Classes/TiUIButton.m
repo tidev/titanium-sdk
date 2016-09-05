@@ -256,6 +256,15 @@
 	}
 }
 
+-(void)setTintColor_:(id)value
+{
+	if (value!=nil && [[self button] respondsToSelector:@selector(setTintColor:)])
+	{
+		TiColor *color = [TiUtils colorValue:value];
+		[[self button] setTintColor:[color _color]];
+	}
+}
+
 -(void)setFont_:(id)font
 {
 	if (font!=nil)
