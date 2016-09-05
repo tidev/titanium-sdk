@@ -28,6 +28,7 @@
 #endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVCaptureDevice.h>
 #import <AVFoundation/AVMediaFormat.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
@@ -476,6 +477,22 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [types addObject:NUMINT(UIImagePickerControllerCameraDeviceRear)];
     }
     return types;
+}
+
+-(void)requestCameraAuthorization:(id)args
+{
+	ENSURE_SINGLE_ARG(args, KrollCallback);
+	KrollCallback * callback = args;
+
+	TiThreadPerformOnMainThread(^(){
+		[AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+			KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+				eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+				thisObject:self];
+			[[callback context] enqueue:invocationEvent];
+			RELEASE_TO_NIL(invocationEvent);
+		}];
+	}, NO);
 }
 
 -(id)cameraFlashMode
