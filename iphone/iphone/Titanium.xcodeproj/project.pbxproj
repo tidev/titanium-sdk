@@ -4139,7 +4139,6 @@
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Debug;
 		};
@@ -4174,7 +4173,6 @@
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Release;
 		};
@@ -4183,11 +4181,9 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ARCHS = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
@@ -4229,11 +4225,9 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ARCHS = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
@@ -4272,11 +4266,9 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ARCHS = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphoneos*]" = (
-					armv6,
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
@@ -4390,7 +4382,6 @@
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Developer;
 		};
@@ -4433,7 +4424,6 @@
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Developer;
 		};
@@ -4476,7 +4466,6 @@
 				PRODUCT_NAME = Titanium;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Debug;
 		};
@@ -4512,7 +4501,6 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = "armv6 armv7 i386";
 			};
 			name = Release;
 		};
