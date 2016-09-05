@@ -162,6 +162,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 		Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
 		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+		i.putExtra(TiC.INTENT_EXTRA_RESTART, true);
 		i.addCategory(Intent.CATEGORY_LAUNCHER);
 		i.setAction(Intent.ACTION_MAIN);
 		app.startActivity(i);

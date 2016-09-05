@@ -469,6 +469,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			// We need it. No other checks to make.
 			return finishing2373;
 		}
+		
+		//If user restarts it dynamically, return false.
+		if (intent.getBooleanExtra(TiC.INTENT_EXTRA_RESTART, false)) {
+			return finishing2373;
+		}
 
 		String action = intent.getAction();
 		if (action == null || !action.equals(Intent.ACTION_MAIN)) {
