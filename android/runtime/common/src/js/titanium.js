@@ -77,6 +77,13 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
+	Object.defineProperty(this, "resourcesRelativePath", {
+		get: function() {
+			var value = context.sourceUrl.replace("app://", "/");
+			return value;
+		}
+	});
+
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
 		module: context.module,
