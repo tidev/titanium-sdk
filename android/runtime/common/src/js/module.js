@@ -82,7 +82,7 @@ Module.prototype.load = function (filename, source) {
 	this.paths = [path.dirname(filename)];
 
 	if (!source) {
-		source = assets.readAsset(filename);
+		source = assets.readCustomAsset(filename);
 	}
 
 	this._runScript(source, filename.replace("Resources/", ""));
@@ -275,6 +275,18 @@ Module.prototype.require = function (request, context, useCache) {
 			}
 		}
 	}
+	
+	try{
+		if(!located){
+			var customResourceContents = assets.readCustomAsset(filename+".js");
+			if(customResourceContents){
+				filename += ".js";
+				located = true;
+			}
+		}
+	}catch(e){
+		
+	}
 
 	if (!located) {
 		throw new Error("Requested module not found: " + request);
@@ -296,7 +308,9 @@ Module.prototype.require = function (request, context, useCache) {
 
 	if (externalCommonJsContents) {
 		module.load(filename, externalCommonJsContents);
-	} else {
+	} else if(customResourceContents){
+		module.load(filename, customResourceContents);
+	}else{
 		module.load(filename);
 	}
 
@@ -374,7 +388,7 @@ function resolveLookupPaths(request, parentModule) {
 	// Get the path to the parent module. If the parent
 	// is an index file, its ID is already the directory path.
 	// Ex: path.id = "a/" if index
-	//     path.id = "a/b" if non-index
+	//	 path.id = "a/b" if non-index
 	var isIndex = /^index\.\w+?$/.test(path.basename(parentModule.filename));
 	var parentIdPath = isIndex ? parentModule.id : path.dirname(parentModule.id);
 

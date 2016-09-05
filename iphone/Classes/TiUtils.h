@@ -130,6 +130,13 @@ typedef enum
 +(TiFile*)createTempFile:(NSString*)extension;
 
 /**
+ Loads application bundle resource by custom URL.
+ @param url The resource URL
+ @return The resource data.
+ */
++(NSData *)loadCustomAppResource:(NSURL*)url;
+
+/**
  Loads application bundle resource by URL.
  @param url The resource URL
  @return The resource data.

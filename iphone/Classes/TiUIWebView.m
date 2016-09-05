@@ -575,7 +575,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		// convert it into a app:// relative path to load the resource
 		// from our application
 		url = [[self fileURLToAppURL:url] retain];
-		NSData *data = [TiUtils loadAppResource:url];
+		NSData *data = [TiUtils loadCustomAppResource:url];
 		NSString *html = nil;
 		if (data != nil) {
 			html = [[[NSString alloc] initWithData:data encoding:encoding] autorelease];
@@ -841,7 +841,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	NSString *contentTextEncoding = [[self class] propertyForKey:kContentTextEncoding inRequest:request];
 	NSData *contentData = [[self class] propertyForKey:kContentData inRequest:request];
 	if (contentData == nil) {
-		contentData = [TiUtils loadAppResource:url];
+		contentData = [TiUtils loadCustomAppResource:url];
 		if (contentData == nil) {
 			contentData = [NSData dataWithContentsOfFile:absolutePath];
 			if (contentData == nil) {

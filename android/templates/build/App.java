@@ -14,6 +14,8 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
+import org.appcelerator.titanium.util.TiResourceUtils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +35,10 @@ public final class <%= classname %>Application extends TiApplication
 		postAppInfo();
 
 <% if (encryptJS) { %>
-	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+		KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 <% } %>
+
+		KrollAssetHelper.setTiResourceUtils(new TiResourceUtils());
 
 		V8Runtime runtime = new V8Runtime();
 

@@ -152,7 +152,7 @@ public class TiJSIntervalService extends TiJSService
 			this.proxy = proxy;
 			this.interval = interval;
 			this.url = url;
-			this.source = KrollAssetHelper.readAsset(url);
+			this.source = KrollAssetHelper.readCustomAsset(url);
 			this.serviceSimpleName = service.getClass().getSimpleName();
 		}
 
