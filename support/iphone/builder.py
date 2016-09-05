@@ -486,6 +486,11 @@ def main(args):
 	xcode_build = False
 	force_xcode = False
 	simtype = devicefamily
+	interactive = True # disable launching of interactive events
+
+	# load in ENV
+	if os.environ.has_key('TI_INTERACTIVE') and os.environ['TI_INTERACTIVE'].lower() == 'false':
+		interactive = False
 
 	# when you run from xcode, we'll pass xcode as the command and the 
 	# xcode script will simply pass some additional args as well as xcode
@@ -1455,16 +1460,18 @@ def main(args):
 					else:
 						distribute_xc3(uuid, provisioning_profile, name, o)
 
-					# open xcode + organizer after packaging
-					# Have to force the right xcode open...
-					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
-					o.write("Launching xcode: %s\n" % xc_path)
-					os.system('open -a %s' % xc_path)
+					if interactive == True:
+						# open xcode + organizer after packaging
+						# Have to force the right xcode open...
+						xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+						o.write("Launching xcode: %s\n" % xc_path)
+						os.system('open -a %s' % xc_path)
 					
-					ass = os.path.join(template_dir,'xcode_organizer.scpt')
-					cmd = "osascript \"%s\"" % ass
-					os.system(cmd)
-					
+						ass = os.path.join(template_dir,'xcode_organizer.scpt')
+						cmd = "osascript \"%s\"" % ass
+						os.system(cmd)
+					# end interactive
+
 					o.write("Finishing build\n")
 					script_ok = True
 
