@@ -72,6 +72,15 @@
 	[context setCurrentURL:oldUrl];
 }
 
+-(id)resourcesRelativePath
+{
+	id<TiEvaluator> context = [self executionContext];
+	NSURL * oldUrl = [context currentURL];
+	NSURL * rootURL = (oldUrl != nil)?oldUrl:[self _baseURL];
+    NSString * result = [[rootURL absoluteString] stringByReplacingOccurrencesOfString:[[self _baseURL] absoluteString] withString:@""];
+	return result;
+}
+
 #ifdef DEBUG
 // an internal include that works with absolute URLs (debug mode only)
 -(void)includeAbsolute:(NSArray*)jsfiles
