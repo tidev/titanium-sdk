@@ -28,21 +28,59 @@ description: |
     iOS buttons have two special properties, `style` and `systemButton`.
 
     The `style` property specifies the type of button decoration, and can be set to one 
-    of the values described in <Titanium.UI.iPhone.SystemButtonStyle>. 
-    
-    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
-    system button styles serve this purpose.
+    of the values described in <Titanium.UI.iPhone.SystemButtonStyle>. On iOS 6 and earlier, the 
+    default `SystemButtonStyle` is [BORDERED](Titanium.UI.iPhone.SystemButtonStyle.BORDERED), which
+    decorates the button with a rounded rectangle. On iOS 7, the rounded rectangle button has been deprecated.
 
-    Button style decorations are drawn above the background gradient and background color, 
-    and below any background images. 
+    <div style="text-align: center; margin-bottom: 10px">
+    <div style="display: table-cell; width: 240px">
+        <img src="images/button/rounded_rect_button_2x.png"/>        
+        <p style="font-weight: bold;">iOS 6 rounded rectangle button</p>
+    </div>
+    <div style="display: table-cell;">
+        <img src="images/button/system_button_2x.png"/>        
+        <p style="font-weight: bold;">iOS 7 system button</p>
+    </div>
+    </div>
 
-    To use a custom button style, for example using a background gradient,
-    you may need to explicitly set `style` to `PLAIN`, to prevent the button style from  
-    overriding any background color or gradient. In addition, the `backgroundImage` must be 
+    On iOS 6, button style decorations are drawn above the background gradient and background color, 
+    and below any background images. This means, for example, that setting the <Titanium.UI.Button.backgroundColor>
+    only affects the areas outside the rounded border; on iOS 7, however, setting the background color 
+    affects the button's entire bounding box area. This difference can produce unexpected results on 
+    iOS 6 if the button's label color is white, as shown below:
+
+    <div style="text-align: center; margin-bottom: 10px">
+    <div style="display: table-cell; width: 240px">
+        <img src="images/button/ios6_invisible.png"/>        
+        <p style="font-weight: bold;">iOS 6 rounded rectangle button</p>
+    </div>
+    <div style="display: table-cell;">
+        <img src="images/button/ios7_good.png"/>        
+        <p style="font-weight: bold;">iOS 7 system button</p>
+    </div>
+    </div>
+
+    Depending on the design requirements, there are a couple of solutions to this:
+
+    * To make the button on iOS 6 match the iOS 7 style, set the button's <Titanium.UI.iPhone.SystemButtonStyle>
+     property to [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN). This removes all decoration from 
+     the button so that it looks the same on both types of devices.
+    * To make the button on iOS 7 match the rounded rectangle style of iOS 6, set 
+    <Titanium.UI.iPhone.SystemButtonStyle> to [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) and
+    and assign a custom image to <Titanium.UI.Button.backgroundImage> that provides the 
+
+    To use a custom button style, such as a background gradient, you may need to explicitly set 
+    the button's `style` property to `PLAIN`, to prevent the button style from overriding any background color or gradient. 
+
+    Also note:
+
+    * When assigning a a custom image to the `backgroundImage` property, the image must be 
     partially or wholly transparent for the background color or background gradient to be visible.
-
-    In order for a background gradient to show through, the `backgroundColor` may need to be
+    * Similarly, for an assigned background gradient to show through, the `backgroundColor` may need to be
     set to 'transparent'.
+
+    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
+    system button styles serve this purpose. 
 
     The `systemButton` property lets you create a predefined system-defined button, 
     such as the **Camera** or **Add** buttons, for use in toolbars and nav bars.
