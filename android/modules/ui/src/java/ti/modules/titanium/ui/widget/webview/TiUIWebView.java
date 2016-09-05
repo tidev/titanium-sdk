@@ -399,6 +399,7 @@ public class TiUIWebView extends TiUIView
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
+			String nativePath = tiFile.nativePath();
 			if (tiFile != null) {
 				StringBuilder out = new StringBuilder();
 				InputStream fis = null;
@@ -429,7 +430,7 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl), "text/html"); // keep app:// etc. intact in case
+					setHtmlInternal(out.toString(), (originalUrlHasScheme ? nativePath : finalUrl), "text/html"); // keep app:// etc. intact in case
 																								   	       // html in file contains links
 																						 				   // to JS that use app:// etc.
 					return;
