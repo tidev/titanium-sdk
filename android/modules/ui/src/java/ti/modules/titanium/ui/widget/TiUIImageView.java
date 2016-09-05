@@ -780,12 +780,19 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
 		}
+
 		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
 		}
+
+		if (d.containsKey(TiC.PROPERTY_IMAGE_SCALE)) {
+			view.setScale(TiConvert.toFloat(d, TiC.PROPERTY_IMAGE_SCALE));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
+
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
@@ -838,6 +845,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
+		}else if (key.equals(TiC.PROPERTY_IMAGE_SCALE)) {
+			view.setScale(TiConvert.toFloat(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
 				setImageSource(newValue);

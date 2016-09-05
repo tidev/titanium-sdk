@@ -303,7 +303,7 @@ public class TiDrawableReference
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inInputShareable = true;
 		opts.inPurgeable = true;
-		opts.inPreferredConfig = Bitmap.Config.RGB_565;
+		opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
 		try {
 			if (needRetry) {

@@ -90,7 +90,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			@Override
 			public boolean onDown(MotionEvent e)
 			{
-				if (zoomControls.getVisibility() == View.VISIBLE) {
+				if (true || zoomControls.getVisibility() == View.VISIBLE) {
 					super.onDown(e);
 					return true;
 				} else {
@@ -104,7 +104,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 			{
 				boolean retValue = false;
 				// Allow scrolling only if the image is zoomed in
-				if (zoomControls.getVisibility() == View.VISIBLE && scaleFactor > 1) {
+				if ((true || zoomControls.getVisibility() == View.VISIBLE) && scaleFactor > 1) {
 					// check if image scroll beyond its borders
 					if (!checkImageScrollBeyondBorders(dx, dy)) {
 						changeMatrix.postTranslate(-dx, -dy);
@@ -171,6 +171,15 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		updateScaleType();
 	}
 
+	public void setScale(float dscale)
+	{
+		Log.d(TAG, "setScale: " + dscale);
+		Log.d(TAG, "scale: " + scaleFactor + " > " + scaleMin + " && " + scaleFactor + " < " + scaleMax);
+		//if (scaleFactor > scaleMin && scaleFactor < scaleMax) {
+			onViewChanged(dscale);
+		//}
+	}
+
 	public Drawable getImageDrawable() {
 		return imageView.getDrawable();
 	}
@@ -203,11 +212,13 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		boolean sendClick = true;
 		if (enableZoomControls) {
+			/*
 			if (zoomControls.getVisibility() != View.VISIBLE) {
 				sendClick = false;
 				manageControls();
 				zoomControls.setVisibility(View.VISIBLE);
 			}
+			*/
 			scheduleControlTimeout();
 		}
 		if (sendClick && clickListener != null) {
@@ -236,6 +247,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void manageControls()
 	{
+		zoomControls.setIsZoomInEnabled((scaleFactor != scaleMax));
+		zoomControls.setIsZoomOutEnabled((scaleFactor != scaleMin));
+		/*
 		if (scaleFactor == scaleMax) {
 			zoomControls.setIsZoomInEnabled(false);
 		} else {
@@ -247,6 +261,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		} else {
 			zoomControls.setIsZoomOutEnabled(true);
 		}
+		*/
 	}
 
 	private void onViewChanged(float dscale)
@@ -340,7 +355,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		boolean handled = false;
 		if (enableZoomControls) {
 			if (zoomControls.getVisibility() == View.VISIBLE) {
-				zoomControls.onTouchEvent(ev);
+				//zoomControls.onTouchEvent(ev);
 			}
 			handled = gestureDetector.onTouchEvent(ev);
 		}
@@ -406,15 +421,15 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		computeBaseMatrix();
 		imageView.setImageMatrix(getViewMatrix());
-
+		
 		int parentLeft = 0;
 		int parentRight = right - left;
 		int parentTop = 0;
 		int parentBottom = bottom - top;
-
+		
 		// imageView.layout(parentLeft, parentTop, imageView.getMeasuredWidth(), imageView.getMeasuredHeight());
 		imageView.layout(parentLeft, parentTop, parentRight, parentBottom);
-		if (enableZoomControls && zoomControls.getVisibility() == View.VISIBLE) {
+		if (true && enableZoomControls && zoomControls.getVisibility() == View.VISIBLE) {
 			int zoomWidth = zoomControls.getMeasuredWidth();
 			int zoomHeight = zoomControls.getMeasuredHeight();
 			zoomControls.layout(parentRight - zoomWidth, parentBottom - zoomHeight, parentRight, parentBottom);
