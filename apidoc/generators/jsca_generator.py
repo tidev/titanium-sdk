@@ -55,6 +55,13 @@ def clean_namespace(ns_in):
 			return part
 	return ".".join([clean_part(s) for s in ns_in.split(".") ])
 
+# Do not prepend 'Global' to class names (TIDOC-860)
+def clean_class_name(class_name):
+	if class_name.startswith('Global.'):
+		return class_name[7:]
+	else:
+		return class_name
+
 def build_deprecation_message(api):
 	# Returns the message in markdown format.
 	result = None
@@ -227,7 +234,7 @@ def to_jsca_type(api):
 		return None
 	log.trace("Converting %s to jsca" % api.name)
 	result = {
-			"name": clean_namespace(api.name),
+			"name": clean_class_name(clean_namespace(api.name)),
 			"isInternal": False,
 			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"], api),
 			"deprecated": api.deprecated is not None and len(api.deprecated) > 0,
@@ -241,7 +248,8 @@ def to_jsca_type(api):
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
 	# mark it as internal.  This avoids it being displayed in Code Assist.
-	if api.typestr == "proxy":
+	# TIDOC-860. Do not mark Global types as internal.
+	if api.typestr == "proxy" and not (api.name).startswith('Global.'):
 		can_hide = True
 		for p in result["properties"]:
 			if p["isClassProperty"]:
