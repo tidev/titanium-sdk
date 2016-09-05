@@ -1188,6 +1188,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
 			process.exit(1);
 		}
+
+		if (this.targetSDK < this.minTargetApiLevel) {
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
 	}
 
 	// check that we have this target sdk installed
