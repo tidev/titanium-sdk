@@ -676,6 +676,14 @@ DEFINE_EXCEPTIONS
 	
 	if (image == nil) 
 	{
+        // TIMOB-18262
+        if ([arg isKindOfClass:[NSString class]] && [arg hasPrefix:@"/Users"]) {
+            NSString *newPath = [@"file://" stringByAppendingString:arg];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:arg]) {
+                arg = [NSString stringWithString:newPath];
+            }
+        }
+        
         NSURL* imageURL = [[self proxy] sanitizeURL:arg];
         if (![imageURL isKindOfClass:[NSURL class]]) {
             [self throwException:@"invalid image type" 
