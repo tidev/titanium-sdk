@@ -1,3 +1,7 @@
+0.4.21 (8/26/2016)
+-------------------
+  * [TIMOB-23834] Ability to skip windows phone detection
+
 0.4.20 (8/26/2016)
 -------------------
   * [TIMOB-23816] Fix 8.1 emulator listing
