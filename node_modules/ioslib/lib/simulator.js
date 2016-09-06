@@ -95,11 +95,11 @@ const devicePairCompatiblity = exports.devicePairCompatiblity = {
 	},
 	'8.x': {             // Xcode 8.x
 		'9.x': {         // iOS 9.x
-			'2.x': true, // watchOS 2.x
+			'2.2': true, // watchOS 2.2
 			'3.x': true  // watchOS 3.x
 		},
 		'10.x': {        // iOS 10.x
-			'2.x': true, // watchOS 2.x
+			'2.2': true, // watchOS 2.2
 			'3.x': true  // watchOS 3.x
 		}
 	}
