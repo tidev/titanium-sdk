@@ -786,6 +786,33 @@ events:
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
+        
+        You can send extra information with a silent push using extra:
+        
+            {
+              aps: {
+                'content-available': 1
+              },
+              extra: {
+                foo: 'bar'
+              }
+            }
+            
+        In the event handler for <code>silentpush</code>, your code may look something like this:
+        
+            {
+              "handlerId": "SilentPush-1415976886.375816",
+              "aps": {
+                "content-available": 1,
+              },
+              "extra": {
+                "foo": "bar"
+              },
+              "bubbles": true,
+              "type": "silentpush",
+              "source": {},
+              "cancelBubble": false
+            }
     properties:
       - name: handlerId
         summary: |
