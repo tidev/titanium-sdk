@@ -179,13 +179,13 @@ function detect(paramsOrSearchPaths, logger, callback, bypassCache) {
  * @param {Array<Object>|Object} [params.modules] - An array of modules to search for.
  * @param {Array<String>|String} [params.platforms] - An array of platform names (if the platform has more than one name) or a string of comma-separated platform names.
  * @param {Array<String>|String} [params.deployType] - An array of deploy types or a string of comma-separated deploy types to filter by.
- * @param {String} [params.sdkVersion] - The version of the Titanium SDK to be used for the minimum SDK check.
+ * @param {Object} [params.tiManifest] - The Titanium SDK manifest data.
  * @param {Array<String>} [params.searchPaths] - An array of paths to search for Titanium modules.
  * @param {Object} [params.logger] - A logger instance.
  * @param {Function} [params.callback] - A function to call when done.
  * @param {Boolean} [params.bypassCache=false] - When true, re-detects all modules.
  */
-function find(modulesOrParams, platforms, deployType, sdkVersion, searchPaths, logger, callback, bypassCache) {
+function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, logger, callback, bypassCache) {
 	var params,
 		result = {
 			found: [],
@@ -194,7 +194,16 @@ function find(modulesOrParams, platforms, deployType, sdkVersion, searchPaths, l
 			conflict: []
 		},
 		visited = {},
-		modulesById = {};
+		modulesById = {},
+		sdkVersion,
+		moduleAPIVersion;
+
+	if (tiManifest && typeof tiManifest === 'object') {
+		sdkVersion = tiManifest.version;
+		moduleAPIVersion = tiManifest.moduleAPIVersion;
+	} else {
+		sdkVersion = tiManifest;
+	}
 
 	if (arguments.length === 1 && typeof modulesOrParams === 'object' && modulesOrParams !== null) {
 		params = modulesOrParams;
@@ -282,6 +291,15 @@ function find(modulesOrParams, platforms, deployType, sdkVersion, searchPaths, l
 								if (params.logger) {
 									params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
 									params.logger.debug(__('Module %s requires Titanium SDK %s or newer, but the selected SDK is %s', tmp.id.cyan, info.manifest.minsdk, params.sdkVersion));
+								}
+								result.incompatible.push(tmp);
+								return;
+							}
+
+							if (moduleAPIVersion && moduleAPIVersion[platform] && info.manifest && info.manifest.apiversion && info.manifest.apiversion !== moduleAPIVersion[platform]) {
+								if (params.logger) {
+									params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+									params.logger.debug(__('Module %s has apiversion=%s, but the selected SDK supports module apiversion=%s on platform=%s', tmp.id.cyan, info.manifest.apiversion.cyan, moduleAPIVersion[platform].cyan, platform.cyan));
 								}
 								result.incompatible.push(tmp);
 								return;
