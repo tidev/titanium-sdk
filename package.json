@@ -38,7 +38,7 @@
     "lodash.defaultsdeep": "4.5.1",
     "markdown": "0.5.0",
     "moment": "2.14.1",
-    "node-appc": "0.2.36",
+    "node-appc": "0.2.37",
     "node-uuid": "1.4.7",
     "pngjs": "3.0.0",
     "request": "2.74.0",
