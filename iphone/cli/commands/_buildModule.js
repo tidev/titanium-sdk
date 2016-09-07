@@ -442,14 +442,39 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 };
 
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
+	var findLib = function (dest) {
+		var lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleId + '.a');
+		if (!fs.existsSync(lib)) {
+			// unfortunately the initial module project template incorrectly
+			// used the camel-cased module id
+			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
+			if (!fs.existsSync(lib)) {
+				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+			}
+		}
+		return lib;
+	}.bind(this);
+
 	// Create a universal build by merging the all builds to a single binary
-	var args = [
-		path.join(this.projectDir, 'build', 'Release-iphoneos', 'lib' + this.moduleId + '.a'),
-		path.join(this.projectDir, 'build', 'Release-iphonesimulator', 'lib' + this.moduleId + '.a'),
+	var args = [];
+
+	var lib = findLib('iphoneos');
+	if (lib instanceof Error) {
+		return next(lib);
+	}
+	args.push(lib);
+
+	lib = findLib('iphonesimulator');
+	if (lib instanceof Error) {
+		return next(lib);
+	}
+	args.push(lib);
+
+	args.push(
 		'-create',
 		'-output',
 		path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a')
-	];
+	);
 
 	this.logger.info(__('Creating universal library'));
 	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
