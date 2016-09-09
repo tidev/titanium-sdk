@@ -83,7 +83,7 @@ exports.bootstrap = function(Titanium) {
 	function lookup(name) {
 		var lastDotIndex = name.lastIndexOf('.');
 		var proxy = eval(name.substring(0, lastDotIndex));
-		if (typeof(proxy) == undefined) return;
+		if (typeof(proxy) == 'undefined') return;
 
 		var proxyName = name.slice(lastDotIndex + 1);
 		return proxy['create' + proxyName];
