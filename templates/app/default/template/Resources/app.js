@@ -1,7 +1,9 @@
 /**
  * Set a global background-color (used for iOS)
  */
-Ti.UI.setBackgroundColor("#fff");
+if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+    Ti.UI.setBackgroundColor("#fff");
+}
 
 /**
  * Create a new `Ti.UI.TabGroup`.
