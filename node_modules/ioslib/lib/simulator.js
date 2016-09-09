@@ -71,41 +71,6 @@ const deviceStateNames = exports.deviceStateNames = {
 };
 
 /**
- * A lookup table of valid iOS Simulator -> Watch Simulator pairings.
- *
- * This table MUST be maintained!
- *
- * The actual device pairing is done by the CoreSimulator private framework.
- * I have no idea how it determines what iOS Simulators are compatible with
- * what Watch Simulator. It's a mystery!
- */
-const devicePairCompatiblity = exports.devicePairCompatiblity = {
-	'>=6.2 <7.0': {      // Xcode 6.2, 6.3, 6.4
-		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
-			'1.x': true  // watchOS 1.0
-		}
-	},
-	'7.x': {             // Xcode 7.x
-		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
-			'1.x': true  // watchOS 1.0
-		},
-		'9.x': {         // iOS 9.x
-			'2.x': true  // watchOS 2.x
-		}
-	},
-	'8.x': {             // Xcode 8.x
-		'9.x': {         // iOS 9.x
-			'2.2': true, // watchOS 2.2
-			'3.x': true  // watchOS 3.x
-		},
-		'10.x': {        // iOS 10.x
-			'2.2': true, // watchOS 2.2
-			'3.x': true  // watchOS 3.x
-		}
-	}
-};
-
-/**
  * Helper function for comparing two simulators based on the model name.
  *
  * @param {Object} a - A simulator handle.
@@ -261,25 +226,22 @@ function detect(options, callback) {
 			// this is pretty nasty, but necessary...
 			// basically this will populate the watchCompanion property for each iOS Simulator
 			// so that it makes choosing simulator pairs way easier
-			Object.keys(results.simulators.ios).forEach(function (iosSDK) {
-				results.simulators.ios[iosSDK].forEach(function (iosSim) {
+			Object.keys(results.simulators.ios).forEach(function (iosSimVersion) {
+				results.simulators.ios[iosSimVersion].forEach(function (iosSim) {
 					Object.keys(iosSim.supportsWatch).forEach(function (xcodeId) {
 						if (iosSim.supportsWatch[xcodeId]) {
 							var xc = xcodeInfo.xcode[xcodeId];
-							Object.keys(devicePairCompatiblity).forEach(function (xcodeRange) {
-								if (appc.version.satisfies(xc.version, xcodeRange)) {
-									Object.keys(devicePairCompatiblity[xcodeRange]).forEach(function (iOSRange) {
-										if (appc.version.satisfies(iosSDK, iOSRange)) {
-											Object.keys(devicePairCompatiblity[xcodeRange][iOSRange]).forEach(function (watchOSRange) {
-												Object.keys(results.simulators.watchos).forEach(function (watchosSDK) {
-													results.simulators.watchos[watchosSDK].forEach(function (watchSim) {
-														if (appc.version.satisfies(watchSim.version, watchOSRange)) {
-															iosSim.watchCompanion[watchSim.udid] = watchSim;
-														}
-													});
-												});
+							Object.keys(xc.simDevicePairs).forEach(function (iOSRange) {
+								if (appc.version.satisfies(iosSim.version, iOSRange)) {
+									Object.keys(xc.simDevicePairs[iOSRange]).forEach(function (watchOSRange) {
+										Object.keys(results.simulators.watchos).forEach(function (watchosSDK) {
+											results.simulators.watchos[watchosSDK].forEach(function (watchSim) {
+												if (appc.version.satisfies(watchSim.version, watchOSRange)) {
+													iosSim.watchCompanion[xcodeId] || (iosSim.watchCompanion[xcodeId] = []);
+													iosSim.watchCompanion[xcodeId].push(watchSim.udid);
+												}
 											});
-										}
+										});
 									});
 								}
 							});
