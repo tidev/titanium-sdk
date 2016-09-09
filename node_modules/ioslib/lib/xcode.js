@@ -30,6 +30,44 @@ var cache,
 	waiting = [];
 
 /**
+ * A lookup table of valid iOS Simulator -> Watch Simulator pairings.
+ *
+ * This table MUST be maintained!
+ *
+ * The actual device pairing is done by the CoreSimulator private framework.
+ * I have no idea how it determines what iOS Simulators are compatible with
+ * what Watch Simulator. It's a mystery!
+ */
+const simulatorDevicePairCompatiblity = {
+	'>=6.2 <7.0': {      // Xcode 6.2, 6.3, 6.4
+		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
+			'1.x': true  // watchOS 1.0
+		}
+	},
+	'7.x': {             // Xcode 7.x
+		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
+			'1.x': true  // watchOS 1.0
+		},
+		'9.x': {         // iOS 9.x
+			'2.x': true  // watchOS 2.x
+		}
+	},
+	'8.x': {             // Xcode 8.x
+		'>=9.0 <=9.2': { // iOS 9.0, 9.1, 9.2
+			'>=2.0 <=2.1': true // watchOS 2.0, 2.1
+		},
+		'>=9.3': {       // iOS 9.x
+			'2.2': true, // watchOS 2.2
+			'3.x': true  // watchOS 3.x
+		},
+		'10.x': {        // iOS 10.x
+			'2.2': true, // watchOS 2.2
+			'3.x': true  // watchOS 3.x
+		}
+	}
+};
+
+/**
  * Detects Xcode installations.
  *
  * @param {Object} [options] - An object containing various settings.
@@ -150,6 +188,7 @@ exports.detect = function detect(options, callback) {
 			results = {
 				selectedXcode: null,
 				xcode: {},
+				iosSDKtoXcode: {},
 				issues: []
 			},
 			selectedXcodePath = null,
@@ -255,6 +294,7 @@ exports.detect = function detect(options, callback) {
 						sims:           findSims(path.join(dir, 'Platforms', 'iPhoneSimulator.platform', 'Developer', 'SDKs'), /^iPhoneSimulator(.+)\.sdk$/, /^iPhoneOS(.+)\.sdk$/, options.minIosVersion, p.CFBundleShortVersionString),
 						simDeviceTypes: {},
 						simRuntimes:    appc.util.mix({}, globalSimRuntimes),
+						simDevicePairs: {},
 						watchos:        watchos,
 						tvos:           tvos,
 						teams:          {},
@@ -271,6 +311,13 @@ exports.detect = function detect(options, callback) {
 							simctl:         fs.existsSync(f = path.join(dir, 'usr', 'bin', 'simctl')) ? f : null
 						}
 					};
+
+					Object.keys(simulatorDevicePairCompatiblity).some(function (xcodeRange) {
+						if (appc.version.satisfies(xc.version, xcodeRange)) {
+							xc.simDevicePairs = simulatorDevicePairCompatiblity[xcodeRange];
+							return true;
+						}
+					});
 
 					['iPhoneSimulator.platform', 'WatchSimulator.platform'].forEach(function (platform) {
 						// read in the device types
@@ -394,16 +441,22 @@ exports.detect = function detect(options, callback) {
 					sdkCounter = 0,
 					simCounter = 0;
 
-				Object.keys(results.xcode).forEach(function (x) {
-					if (results.xcode[x].supported) {
+				Object.keys(results.xcode).forEach(function (xcodeId) {
+					results.xcode[xcodeId].sdks.forEach(function (iosVersion) {
+						if (results.xcode[xcodeId].selected || !results.iosSDKtoXcode[iosVersion]) {
+							results.iosSDKtoXcode[iosVersion] = xcodeId;
+						}
+					});
+
+					if (results.xcode[xcodeId].supported) {
 						// we're counting maybe's as valid
 						validXcodes++;
 					}
-					if (results.xcode[x].sdks) {
-						sdkCounter += results.xcode[x].sdks.length;
+					if (results.xcode[xcodeId].sdks) {
+						sdkCounter += results.xcode[xcodeId].sdks.length;
 					}
-					if (results.xcode[x].sims) {
-						simCounter += results.xcode[x].sims.length;
+					if (results.xcode[xcodeId].sims) {
+						simCounter += results.xcode[xcodeId].sims.length;
 					}
 				});
 
