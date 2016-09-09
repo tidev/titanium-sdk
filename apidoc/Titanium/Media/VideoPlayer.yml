@@ -205,7 +205,7 @@ methods:
     summary: Stops playing the video.
 
   - name: thumbnailImageAtTime
-     deprecated:
+    deprecated:
         since: '3.4.2'
         notes: Use <Titanium.Media.VideoPlayer.mediaControlStyle> instead.
         removed: '3.6.0'
