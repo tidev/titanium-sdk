@@ -95,7 +95,7 @@
         return;
     }
     
-    ENSURE_TYPE(value, NSNumber);
+    ENSURE_SINGLE_ARG(value, NSNumber);
     
     [(UINotificationFeedbackGenerator*)[self generator] notificationOccurred:[TiUtils intValue:value]];
 }
