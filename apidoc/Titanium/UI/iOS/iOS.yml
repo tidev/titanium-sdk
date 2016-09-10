@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.iOS
 summary: |
-    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will 
+    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will
     only work on Apple iOS devices.
 extends: Titanium.Module
 since: "1.4"
@@ -14,7 +14,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
         slowly and speeds up.
     type: Number
     permission: read-only
@@ -25,7 +25,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
@@ -36,7 +36,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
@@ -47,7 +47,7 @@ properties:
         notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
         removed: "6.0.0"
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
         at a constant rate.
     type: Number
     permission: read-only
@@ -154,7 +154,7 @@ properties:
         removed: "6.0.0"
     description: |
         Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
- 
+
         See <Attribute> for more information.
     type: Number
     osver: {ios: {min: "6.0"}}
@@ -550,7 +550,7 @@ properties:
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
     summary: |
-        Use with <Attribute.value> to use the 
+        Use with <Attribute.value> to use the
         [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
         to determine which direction to use.
     deprecated:
@@ -900,7 +900,7 @@ properties:
     summary: |
         Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
     description: |
-        Creates a blurring effect in the view. The area of the view is the same approximate hue 
+        Creates a blurring effect in the view. The area of the view is the same approximate hue
         of the underlying view.
     type: Number
     permission: read-only
@@ -1003,19 +1003,19 @@ properties:
     osver: {ios: {min: "7.0"}}
 
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
-    summary: Returns the iOS system texture used to render the background on a group table view. 
+    summary: Returns the iOS system texture used to render the background on a group table view.
     description: |
         Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
-        
-        This constant has been deprecated in iOS 6. Group style table views still default to using the standard iOS group table 
-        view background texture if no background color is specified. However, specifying this constant explicitly on iOS 6 and 
+
+        This constant has been deprecated in iOS 6. Group style table views still default to using the standard iOS group table
+        view background texture if no background color is specified. However, specifying this constant explicitly on iOS 6 and
         above results in a black background color.
-        
+
         Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
     type: String
     permission: read-only
     since: "2.1.0"
-    
+
   - name: COLOR_SCROLLVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the area behind scrollable content.
     deprecated:
@@ -1028,7 +1028,7 @@ properties:
     type: String
     permission: read-only
     since: "2.1.0"
-    
+
   - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
     summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
     deprecated:
@@ -1065,9 +1065,78 @@ properties:
     osver: {ios: {min: "9.0"}}
     permission: read-only
 
+  - name: FEEDBACK_GENERATOR_TYPE_SELECTION
+    summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_TYPE_IMPACT
+    summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
+    summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
+    summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
+    summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
+    summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
+    summary: |
+        The light impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
+    summary: |
+        The medium impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
+    summary: |
+        The heavy impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
     summary: |
-        Plays back the entire motion and sound content of the Live Photo, including transition 
+        Plays back the entire motion and sound content of the Live Photo, including transition
         effects at the start and end.
     description: This style matches the effect seen when pressing on a photo in the Photos app.
     type: Number
@@ -1078,7 +1147,7 @@ properties:
   - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
     summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
     description: |
-        This style matches the effect seen in various iOS interface elements for hinting to the user 
+        This style matches the effect seen in various iOS interface elements for hinting to the user
         when an asset contains Live Photo content.
     type: Number
     since: "5.2.0"
@@ -1089,22 +1158,22 @@ properties:
     summary: An arrow that points upward.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_DOWN
     summary: An arrow that points downward.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_LEFT
     summary: An arrow that points toward the left.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_RIGHT
     summary: An arrow that points toward the right.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_DEFAULT
     summary: An arrow that is automatically aligned.
     type: Number
@@ -1190,7 +1259,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.3"
-    
+
   - name: SCROLL_DECELERATION_RATE_NORMAL
     summary: |
         Use with <Titanium.UI.ScrollView.decelerationRate> to control deceleration rate.
@@ -1218,7 +1287,7 @@ properties:
     summary: |
         Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
     description: |
-        The keyboard follows the dragging touch offscreen, and can be pulled 
+        The keyboard follows the dragging touch offscreen, and can be pulled
         upward again to cancel the dismiss.
     type: Number
     permission: read-only
@@ -1232,7 +1301,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-  
+
   - name: SEARCH_BAR_STYLE_MINIMAL
     summary: |
         Use with <Titanium.UI.Searchbar.style> to change the search bar style.
@@ -1563,7 +1632,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
- 
+
   - name: SHORTCUT_ICON_TYPE_UPDATE
     summary: Number that represents the icon used for the application shortcut
     description: |
@@ -1588,7 +1657,7 @@ properties:
     type: String
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
-                                                                                                              
+
 methods:
   - name: createTransitionAnimation
     summary: |
@@ -1688,4 +1757,3 @@ properties:
   - name: transitionTo
     summary: Animation to show the new window.
     type: Titanium.UI.Animation
-

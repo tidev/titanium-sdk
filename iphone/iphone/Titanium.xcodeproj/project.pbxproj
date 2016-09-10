@@ -343,6 +343,7 @@
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
@@ -1031,6 +1032,8 @@
 		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
+		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
+		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1963,8 +1966,6 @@
 				3A0E54341BE81111003EE654 /* MenuPopup */,
 				CAC225581BB79659008A332B /* ApplicationShortcuts */,
 				3AB9137D1BB61EB00063A4AD /* PreviewActions */,
-				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
-				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
 				84A00FED17FB392E00D4BF94 /* Dynamics */,
 				84E00A9917B6462900B6DCE2 /* Nav Window */,
 				84EB07FE1A71920300D35815 /* SplitViewWindow */,
@@ -1975,9 +1976,13 @@
 				24D06FE311D0216100F615D8 /* iAd */,
 				24CA8C5E1111655E0084E2DE /* iPhone */,
 				24FB4ECF115C8120001AAF99 /* iPad */,
+				24E50E031160661600AF54AF /* Dashboard */,
 				24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */,
 				24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */,
-				24E50E031160661600AF54AF /* Dashboard */,
+				DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */,
+				DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */,
+				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
+				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
 				159C59961C357D7B009A8860 /* TiUIiOSAnimationStyleProxy.h */,
 				159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */,
 				159C59991C383080009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.h */,
@@ -2775,6 +2780,7 @@
 				24CA8C09111161FE0084E2DE /* APIModule.m in Sources */,
 				24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */,
 				3A8D34C31D61D34C00A4B2B6 /* TiUIiPhoneListViewStyleProxy.m in Sources */,
+				DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */,
 				B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */,
 				B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */,
 				B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */,
