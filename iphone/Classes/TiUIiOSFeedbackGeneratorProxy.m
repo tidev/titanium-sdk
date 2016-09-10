@@ -26,15 +26,13 @@
 - (UIFeedbackGenerator*)generator
 {
     if (!generator) {
-        UIFeedbackGenerator *_generator;
-        
         ENSURE_TYPE([self valueForKey:@"type"], NSNumber);
         type = [TiUtils intValue:[self valueForKey:@"type"]];
         
         switch (type) {
             case TiUIiOSFeedbackGeneratorTypeSelection:
             {
-                _generator = [UISelectionFeedbackGenerator new];
+                generator = [UISelectionFeedbackGenerator new];
                 break;
             }
             case TiUIiOSFeedbackGeneratorTypeImpact:
@@ -45,12 +43,12 @@
                     NSLog(@"[WARN] When using the Ti.UI.IOS.FEEDBACK_GENERATOR_TYPE_IMPACT generator, you also need to specify the `style` property to define the proposed impact style. Falling back to Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM.");
                 }
                 
-                _generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:[TiUtils intValue:style def:UIImpactFeedbackStyleMedium]];
+                generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:[TiUtils intValue:style def:UIImpactFeedbackStyleMedium]];
                 break;
             }
             case TiUIiOSFeedbackGeneratorTypeNotification:
             {
-                _generator = [UINotificationFeedbackGenerator new];
+                generator = [UINotificationFeedbackGenerator new];
                 break;
             }
             default:
@@ -82,7 +80,7 @@
 
 - (void)impactOccurred:(id)unused
 {
-    if (type != TiUIiOSFeedbackGeneratorTypeSelection) {
+    if (type != TiUIiOSFeedbackGeneratorTypeImpact) {
         NSLog(@"[ERROR] The `impactOccurred` method is only available for generators of the type Ti.Ui.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT.");
         return;
     }
@@ -92,7 +90,7 @@
 
 - (void)notificationOccurred:(id)value
 {
-    if (type != TiUIiOSFeedbackGeneratorTypeSelection) {
+    if (type != TiUIiOSFeedbackGeneratorTypeNotification) {
         NSLog(@"[ERROR] The `notificationOccurred` method is only available for generators of the type Ti.Ui.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION.");
         return;
     }

@@ -19,6 +19,12 @@ typedef NS_ENUM(NSInteger, TiUIiOSFeedbackGeneratorType) {
     TiUIiOSFeedbackGeneratorType type;
 }
 
+- (void)prepare:(id)unused;
+
+- (void)impactOccurred:(id)unused;
+
+- (void)notificationOccurred:(id)value;
+
 @end
 
 #endif
