@@ -236,5 +236,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
 #endif
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+-(id)createFeedbackGenerator:(id)args;
+#endif
 
 @end
