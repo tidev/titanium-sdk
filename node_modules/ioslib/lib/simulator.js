@@ -394,44 +394,6 @@ function findSimulators(options, callback) {
 				selectedXcode;
 
 			if (options.simHandleOrUDID) {
-				if (options.watchAppBeingInstalled) {
-					Object.keys(simHandle.supportsXcode).some(function (xcodeId) {
-						if (simHandle.supportsXcode[xcodeId]) {
-							return Object.keys(watchSimHandle.supportsXcode).some(function (xcodeId2) {
-								if (watchSimHandle.supportsXcode[xcodeId2] && xcodeId === xcodeId2) {
-									selectedXcode = xcodeInfo.xcode[xcodeId];
-									return true;
-								}
-							});
-						}
-					});
-				} else {
-					// no watch sim, just an ios sim
-					// find the version of Xcode
-					Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
-						if (simHandle.supportsXcode[id] &&
-							xcodeInfo.xcode[id].supported &&
-							(!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1) &&
-							(!options.minIosVersion || xcodeInfo.xcode[id].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); }))
-						) {
-							selectedXcode = xcodeInfo.xcode[id];
-							return true;
-						}
-					});
-				}
-
-				if (!selectedXcode) {
-					if (options.iosVersion) {
-						return callback(new Error(__('Unable to find any Xcode installations that support both iOS %s and iOS Simulator %s.', options.iosVersion, options.simHandleOrUDID)));
-					} else if (options.minIosVersion) {
-						return callback(new Error(__('Unable to find any Xcode installations that support at least iOS %s and iOS Simulator %s.', options.minIosVersion, options.simHandleOrUDID)));
-					} else {
-						return callback(new Error(__('Unable to find any supported Xcode installations. Please install the latest Xcode.')));
-					}
-				}
-
-				var selectedXcodeId = selectedXcode.version + ':' + selectedXcode.build;
-
 				// validate the udid
 				if (!(options.simHandleOrUDID instanceof SimHandle)) {
 					var vers = Object.keys(simInfo.simulators.ios);
@@ -473,16 +435,13 @@ function findSimulators(options, callback) {
 								return callback(new Error(__('Unable to find a Watch Simulator with the UDID "%s".', options.watchHandleOrUDID)));
 							}
 						}
-
-						if (!simHandle.watchCompanion[selectedXcodeId][watchSimHandle.udid]) {
-							return callback(new Error(__('Specified Watch Simulator "%s" is not compatible with iOS Simulator "%s".', watchSimHandle.udid, simHandle.udid)));
-						}
 					} else {
 						logger(__('Watch app present, autoselecting a Watch Simulator'));
 
-						var companions = simHandle.watchCompanion[selectedXcodeId];
+						var xcodeId = Object.keys(simHandle.watchCompanion).sort().pop();
+						var companions = simHandle.watchCompanion[xcodeId];
 
-						companions
+						Object.keys(companions)
 							.sort(function (a, b) {
 								return companions[a].model < companions[b].model ? 1 : companions[a].model > companions[b].model ? -1 : 0;
 							})
@@ -495,6 +454,44 @@ function findSimulators(options, callback) {
 							return callback(new Error(__('Specified iOS Simulator "%s" does not support watch apps.', options.simHandleOrUDID)));
 						}
 					}
+
+					Object.keys(simHandle.supportsXcode).some(function (xcodeId) {
+						if (simHandle.supportsXcode[xcodeId]) {
+							return Object.keys(watchSimHandle.supportsXcode).some(function (xcodeId2) {
+								if (watchSimHandle.supportsXcode[xcodeId2] && xcodeId === xcodeId2) {
+									selectedXcode = xcodeInfo.xcode[xcodeId];
+									return true;
+								}
+							});
+						}
+					});
+				} else {
+					// no watch sim, just an ios sim
+					// find the version of Xcode
+					Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
+						if (simHandle.supportsXcode[id] &&
+							xcodeInfo.xcode[id].supported &&
+							(!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1) &&
+							(!options.minIosVersion || xcodeInfo.xcode[id].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); }))
+						) {
+							selectedXcode = xcodeInfo.xcode[id];
+							return true;
+						}
+					});
+				}
+
+				if (!selectedXcode) {
+					if (options.iosVersion) {
+						return callback(new Error(__('Unable to find any Xcode installations that support both iOS %s and iOS Simulator %s.', options.iosVersion, options.simHandleOrUDID)));
+					} else if (options.minIosVersion) {
+						return callback(new Error(__('Unable to find any Xcode installations that support at least iOS %s and iOS Simulator %s.', options.minIosVersion, options.simHandleOrUDID)));
+					} else {
+						return callback(new Error(__('Unable to find any supported Xcode installations. Please install the latest Xcode.')));
+					}
+				}
+
+				if (watchSimHandle && !simHandle.watchCompanion[selectedXcode.version + ':' + selectedXcode.build][watchSimHandle.udid]) {
+					return callback(new Error(__('Specified Watch Simulator "%s" is not compatible with iOS Simulator "%s".', watchSimHandle.udid, simHandle.udid)));
 				}
 
 				if (options.watchAppBeingInstalled && !options.watchHandleOrUDID && !watchSimHandle) {
