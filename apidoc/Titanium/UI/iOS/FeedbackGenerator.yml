@@ -36,6 +36,13 @@ since: "6.1.0"
 createable: true
 
 methods:
+    
+  - name: prepare
+    summary: Used to prepare the haptic sensor for the upcoming interaction with it.
+    description: |
+        Apple recommends to use this method before calling one of the `selectionChanged`,
+        `impactOccurred` or `notificationOccurred` methods to reduce a possible latency.      
+
   - name: selectionChanged
     summary: Used to trigger a haptic feedback after a selection has been made.
     description: |
@@ -53,7 +60,6 @@ methods:
     description: |
         Note that this method can only be used if the feeback generator type is set to
         <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>. The single argument provided is one of the
-
     parameters:
       - name: notificationType
         summary: |
