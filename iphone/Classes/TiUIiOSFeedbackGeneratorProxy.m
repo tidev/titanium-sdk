@@ -40,7 +40,7 @@
                 id style = [self valueForKey:@"style"];
                 
                 if (!style) {
-                    NSLog(@"[WARN] When using the Ti.UI.IOS.FEEDBACK_GENERATOR_TYPE_IMPACT generator, you also need to specify the `style` property to define the proposed impact style. Falling back to Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM.");
+                    NSLog(@"[WARN] When using the Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT generator, you also need to specify the `style` property to define the proposed impact style. Falling back to Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM.");
                 }
                 
                 generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:[TiUtils intValue:style def:UIImpactFeedbackStyleMedium]];
@@ -53,7 +53,7 @@
             }
             default:
             {
-                NSLog(@"[ERROR] Unknown feedback generator type specified: %lu", (NSNumber*)type);
+                NSLog(@"[ERROR] Unknown feedback generator type specified: %@", type);
             }
         }
     }
@@ -71,7 +71,7 @@
 - (void)selectionChanged:(id)unused
 {
     if (type != TiUIiOSFeedbackGeneratorTypeSelection) {
-        NSLog(@"[ERROR] The `selectionChanged` method is only available for generators of the type Ti.Ui.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION.");
+        NSLog(@"[ERROR] The `selectionChanged` method is only available for generators of the type Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION");
         return;
     }
     
@@ -81,7 +81,7 @@
 - (void)impactOccurred:(id)unused
 {
     if (type != TiUIiOSFeedbackGeneratorTypeImpact) {
-        NSLog(@"[ERROR] The `impactOccurred` method is only available for generators of the type Ti.Ui.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT.");
+        NSLog(@"[ERROR] The `impactOccurred` method is only available for generators of the type Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT");
         return;
     }
     
@@ -91,7 +91,7 @@
 - (void)notificationOccurred:(id)value
 {
     if (type != TiUIiOSFeedbackGeneratorTypeNotification) {
-        NSLog(@"[ERROR] The `notificationOccurred` method is only available for generators of the type Ti.Ui.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION.");
+        NSLog(@"[ERROR] The `notificationOccurred` method is only available for generators of the type Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION");
         return;
     }
     
