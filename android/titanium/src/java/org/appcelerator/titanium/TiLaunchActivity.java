@@ -84,23 +84,37 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * This happens before the script is loaded.
 	 */
 	protected void contextCreated() { }
+	
+	protected String resolveUrl(String url) {
+		String fullUrl = TiUrl.normalizeWindowUrl(url).resolve();
+
+		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
+			fullUrl = fullUrl.replaceAll("app:/", "Resources");
+		} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+		}
+
+		return fullUrl;
+	}
+	protected String resolveUrl(TiUrl url) {
+		return resolveUrl(url.url);
+	}
 
 	protected void loadActivityScript()
 	{
 		try {
-			String fullUrl = url.resolve();
-
-			Log.d(TAG, "Eval JS Activity:" + fullUrl, Log.DEBUG_MODE);
-
-			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
-				fullUrl = fullUrl.replaceAll("app:/", "Resources");
-
-			} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
-				fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+			String fullUrl = resolveUrl(url);
+			
+			// TIMOB-20502: if Alloy app and root activity is not available then
+			// run root activity first to initialize Alloy global variables etc...
+			// NOTE: this will only occur when launching from an intent or shortcut
+			if (isJSActivity() && !getTiApp().isRootActivityAvailable() && KrollAssetHelper.assetExists("Resources/alloy.js")) {
+				String rootUrl = resolveUrl("app.js");
+				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(rootUrl), rootUrl, activityProxy);
+				KrollRuntime.getInstance().evalString(KrollAssetHelper.readAsset(fullUrl), fullUrl);
+			} else {
+				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 			}
-
-			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
-
 		} finally {
 			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
