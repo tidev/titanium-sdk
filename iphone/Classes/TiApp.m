@@ -436,6 +436,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	} else {
 		[launchOptions setObject:sourceApplication forKey:@"source"];
 	}
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
 	return YES;
 }
 
