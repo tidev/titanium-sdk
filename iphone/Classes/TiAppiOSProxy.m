@@ -110,6 +110,12 @@
         }
     }
 
+    if ((count == 1) && [type isEqual:@"handleurl"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didHandleURL:)
+                                                     name:kTiApplicationLaunchedFromURL
+                                                   object:nil];
+    }
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -187,6 +193,13 @@
     }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
+}
+
+-(void)didHandleURL:(NSNotification*)info
+{
+    [self fireEvent:@"handleurl" withObject:@{
+        @"launchOptions": [info userInfo]
+    }];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
