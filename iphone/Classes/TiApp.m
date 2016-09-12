@@ -426,16 +426,31 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return YES;
 }
 
+// Handle URL-schemes / iOS >= 9
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options
+{
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
+	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+    
+	[launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
+	return YES;
+}
+
+// Handle URL-schemes / iOS < 9
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-	if(sourceApplication == nil) {
-		[launchOptions setObject:[NSNull null] forKey:@"source"];
-	} else {
-		[launchOptions setObject:sourceApplication forKey:@"source"];
-	}
+
+	[launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
 	return YES;
 }
 
