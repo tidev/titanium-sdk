@@ -40,7 +40,7 @@ static struct {
 // Callback for V8 letting us know the JavaScript object is no longer reachable.
 // Once we receive this callback we can safely release our strong reference
 // on the wrapped Java object so it can become eligible for collection.
-static void DetachCallback(const v8::WeakCallbackData<v8::Object, JavaObject>& data)
+static void DetachCallback(const v8::WeakCallbackInfo<JavaObject>& data)
 {
 	JavaObject* javaObject = data.GetParameter();
 	javaObject->detach();
@@ -113,7 +113,7 @@ jobject JavaObject::getJavaObject()
 			isWeakRef_ = false; // not weak on Java side anymore
 
 			// tell V8 to let us know when it thinks the JS object can be collected again
-			persistent().SetWeak(this, DetachCallback);
+			persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kParameter);
 			persistent().MarkIndependent();
 
 			return javaObject;
@@ -207,7 +207,7 @@ void JavaObject::attach(jobject javaObject)
 
 	// So let's mark this JS object as independent and weak so V8 can tell us
 	// when the JS object is ready to be GCed, which is first step in it's death
-	persistent().SetWeak(this, DetachCallback);
+	persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kParameter);
 	persistent().MarkIndependent();
 }
 
