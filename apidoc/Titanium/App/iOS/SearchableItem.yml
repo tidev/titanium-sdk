@@ -66,7 +66,7 @@ examples:
             });
 
             var item = Ti.App.iOS.createSearchableItem({
-                identifier:"my-id",
+                uniqueIndentifier:"my-id",
                 domainIdentifier:"com.mydomain",
                 attributeSet:itemAttr
             });
