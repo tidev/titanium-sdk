@@ -48,8 +48,11 @@ const simulatorDevicePairCompatiblity = {
 		'>=8.2 <9.0': {  // iOS 8.2, 8.3, 8.4
 			'1.x': true  // watchOS 1.0
 		},
-		'9.x': {         // iOS 9.x
-			'2.x': true  // watchOS 2.x
+		'>=9.0 <=9.2': { // iOS 9.0, 9.1, 9.2
+			'>=2.0 <=2.1': true // watchOS 2.0, 2.1
+		},
+		'>=9.3': {       // iOS 9.x
+			'2.2': true  // watchOS 2.2
 		}
 	},
 	'8.x': {             // Xcode 8.x
