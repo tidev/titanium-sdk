@@ -1464,7 +1464,7 @@ function launch(simHandleOrUDID, options, callback) {
 									var logFile = path.join(dir, 'Documents', options.logFilename);
 									if (fs.existsSync(logFile)) {
 										emitter.emit('log-debug', __('Found application log file: %s', logFile));
-										logFileTail = new Tail(logFile, '\n', { interval: 500 }, /* fromBeginning */ true );
+										logFileTail = new Tail(logFile, '\n', { interval: 500, start: 0 });
 										logFileTail.on('line', function (msg) {
 											emitter.emit('log-file', msg);
 										});
