@@ -40,15 +40,16 @@ exports.init = function (logger, config, cli) {
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.simHandle, {
-				appPath: builder.xcodeAppDir,
-				focus: cli.argv['sim-focus'],
-				killIfRunning: false, // it will only kill the simulator if the device udid is different
-				launchBundleId: cli.argv['launch-bundle-id'],
-				launchWatchApp: builder.hasWatchApp && cli.argv['launch-watch-app'],
+				appPath:            builder.xcodeAppDir,
+				focus:              cli.argv['sim-focus'],
+				iosVersion:         builder.iosSdkVersion,
+				killIfRunning:      false, // it will only kill the simulator if the device udid is different
+				launchBundleId:     cli.argv['launch-bundle-id'],
+				launchWatchApp:     builder.hasWatchApp && cli.argv['launch-watch-app'],
 				launchWatchAppOnly: builder.hasWatchApp && cli.argv['launch-watch-app-only'],
-				logFilename: builder.tiapp.guid + '.log',
-				watchHandleOrUDID: builder.watchSimHandle,
-				watchAppName: cli.argv['watch-app-name']
+				logFilename:        builder.tiapp.guid + '.log',
+				watchHandleOrUDID:  builder.watchSimHandle,
+				watchAppName:       cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				// Titanium app log messages
 				if (!simStarted) {

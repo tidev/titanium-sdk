@@ -144,7 +144,11 @@ function detect(options, callback) {
 			var xcodeIds = Object
 				.keys(xcodeInfo.xcode)
 				.filter(function (ver) { return xcodeInfo.xcode[ver].supported; })
-				.sort(function (a, b) { return !xcodeInfo.xcode[a].selected || a > b; });
+				.sort(function (a, b) {
+					var v1 = xcodeInfo.xcode[a].version;
+					var v2 = xcodeInfo.xcode[b].version;
+					return xcodeInfo.xcode[a].selected || appc.version.lt(v1, v2) ? -1 : appc.version.eq(v1, v2) ? 0 : 1;
+				});
 
 			// if we have Xcode 6.2, 6.3, or 6.4, then inject some fake devices for WatchKit 1.x
 			xcodeIds.some(function (id) {
@@ -417,6 +421,23 @@ function findSimulators(options, callback) {
 				}
 
 				if (options.watchAppBeingInstalled) {
+					var xcodeId = Object
+						.keys(simHandle.watchCompanion)
+						.filter(function (xcodeId) {
+							return xcodeInfo.xcode[xcodeId].supported &&
+								(!options.iosVersion || xcodeInfo.xcode[xcodeId].sdks.indexOf(options.iosVersion) !== -1);
+						})
+						.sort(function (a, b) {
+							var v1 = xcodeInfo.xcode[a].version;
+							var v2 = xcodeInfo.xcode[b].version;
+							return xcodeInfo.xcode[a].selected || appc.version.lt(v1, v2) ? -1 : appc.version.eq(v1, v2) ? 0 : 1;
+						})
+						.pop();
+
+					if (!xcodeId) {
+						return callback(new Error(__('Unable to find any watchOS Simulators that can be paired with the specified iOS Simulator %s.', simHandle.udid)));
+					}
+
 					if (options.watchHandleOrUDID) {
 						if (!(options.watchHandleOrUDID instanceof SimHandle)) {
 							logger(__('Watch app present, validating Watch Simulator UDID %s', options.watchHandleOrUDID));
@@ -438,7 +459,6 @@ function findSimulators(options, callback) {
 					} else {
 						logger(__('Watch app present, autoselecting a Watch Simulator'));
 
-						var xcodeId = Object.keys(simHandle.watchCompanion).sort().pop();
 						var companions = simHandle.watchCompanion[xcodeId];
 
 						Object.keys(companions)
@@ -455,29 +475,28 @@ function findSimulators(options, callback) {
 						}
 					}
 
-					Object.keys(simHandle.supportsXcode).some(function (xcodeId) {
-						if (simHandle.supportsXcode[xcodeId]) {
-							return Object.keys(watchSimHandle.supportsXcode).some(function (xcodeId2) {
-								if (watchSimHandle.supportsXcode[xcodeId2] && xcodeId === xcodeId2) {
-									selectedXcode = xcodeInfo.xcode[xcodeId];
-									return true;
-								}
-							});
-						}
-					});
+					selectedXcode = xcodeInfo.xcode[xcodeId];
 				} else {
 					// no watch sim, just an ios sim
 					// find the version of Xcode
-					Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
-						if (simHandle.supportsXcode[id] &&
-							xcodeInfo.xcode[id].supported &&
-							(!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1) &&
-							(!options.minIosVersion || xcodeInfo.xcode[id].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); }))
-						) {
-							selectedXcode = xcodeInfo.xcode[id];
-							return true;
-						}
-					});
+					Object
+						.keys(simHandle.supportsXcode)
+						.sort(function (a, b) {
+							var v1 = xcodeInfo.xcode[a].version;
+							var v2 = xcodeInfo.xcode[b].version;
+							return xcodeInfo.xcode[a].selected || appc.version.lt(v1, v2) ? -1 : appc.version.eq(v1, v2) ? 0 : 1;
+						})
+						.reverse()
+						.some(function (id) {
+							if (simHandle.supportsXcode[id] &&
+								xcodeInfo.xcode[id].supported &&
+								(!options.iosVersion || xcodeInfo.xcode[id].sdks.indexOf(options.iosVersion) !== -1) &&
+								(!options.minIosVersion || xcodeInfo.xcode[id].sdks.some(function (ver) { return appc.version.gte(ver, options.minIosVersion); }))
+							) {
+								selectedXcode = xcodeInfo.xcode[id];
+								return true;
+							}
+						});
 				}
 
 				if (!selectedXcode) {
@@ -552,53 +571,60 @@ function findSimulators(options, callback) {
 						}
 						return true;
 					})
-					.sort(function (a, b) { return !xcodeInfo.xcode[a].selected || a > b; });
+					.sort(function (a, b) {
+						var v1 = xcodeInfo.xcode[a].version;
+						var v2 = xcodeInfo.xcode[b].version;
+						return xcodeInfo.xcode[a].selected || appc.version.lt(v1, v2) ? -1 : appc.version.eq(v1, v2) ? 0 : 1;
+					})
+					.reverse();
 
-				logger(__('Scanning Xcodes: %s', xcodeIds.join(' ')));
+				if (xcodeIds.length) {
+					logger(__('Scanning Xcodes: %s', xcodeIds.join(' ')));
 
-				// loop through xcodes
-				for (var i = 0; !simHandle && i < xcodeIds.length; i++) {
-					var xc = xcodeInfo.xcode[xcodeIds[i]],
-						simVers = xc.sims.sort().reverse();
+					// loop through xcodes
+					for (var i = 0; !simHandle && i < xcodeIds.length; i++) {
+						var xc = xcodeInfo.xcode[xcodeIds[i]],
+							simVers = xc.sims.sort().reverse();
 
-					// loop through each xcode simulators
-					for (var j = 0; !simHandle && j < simVers.length; j++) {
-						if ((!options.simVersion || simVers[j] === options.simVersion) && simInfo.simulators.ios[simVers[j]]) {
-							var sims = simInfo.simulators.ios[simVers[j]].sort(compareSims).reverse();
+						// loop through each xcode simulators
+						for (var j = 0; !simHandle && j < simVers.length; j++) {
+							if ((!options.simVersion || simVers[j] === options.simVersion) && simInfo.simulators.ios[simVers[j]]) {
+								var sims = simInfo.simulators.ios[simVers[j]].sort(compareSims).reverse();
 
-							// loop through each simulator
-							for (var k = 0; !simHandle && k < sims.length; k++) {
-								if (!options.simType || sims[k].family === options.simType) {
-									if (!options.appBeingInstalled || !options.watchAppBeingInstalled) {
-										logger(__('No app being installed, so picking first simulator'));
-										simHandle = new SimHandle(sims[k]);
-										Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
-											if (simHandle.supportsXcode[id]) {
-												selectedXcode = xcodeInfo.xcode[id];
-												return true;
+								// loop through each simulator
+								for (var k = 0; !simHandle && k < sims.length; k++) {
+									if (!options.simType || sims[k].family === options.simType) {
+										if (!options.appBeingInstalled || !options.watchAppBeingInstalled) {
+											logger(__('No app being installed, so picking first simulator'));
+											simHandle = new SimHandle(sims[k]);
+											Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
+												if (simHandle.supportsXcode[id]) {
+													selectedXcode = xcodeInfo.xcode[id];
+													return true;
+												}
+											});
+
+										// if we're installing a watch extension, make sure we pick a simulator that supports the watch
+										} else if (options.watchAppBeingInstalled) {
+											if (watchSimHandle) {
+												Object.keys(sims[k].supportsWatch).forEach(function (xcodeVer) {
+													if (watchSimHandle.supportsXcode[xcodeVer]) {
+														selectedXcode = xcodeInfo.xcode[xcodeVer];
+														simHandle = new SimHandle(sims[k]);
+														return true;
+													}
+												});
+											} else if (sims[k].supportsWatch[xcodeIds[i]]) {
+												// make sure this version of Xcode has a watch simulator that supports the watch app version
+												xc.watchos.sims.some(function (ver) {
+													if (appc.version.gte(ver, options.watchMinOSVersion) && simInfo.simulators.watchos[ver]) {
+														simHandle = new SimHandle(sims[k]);
+														selectedXcode = xcodeInfo.xcode[xcodeIds[i]];
+														watchSimHandle = new SimHandle(simInfo.simulators.watchos[ver].sort(compareSims).reverse()[0]);
+														return true;
+													}
+												});
 											}
-										});
-
-									// if we're installing a watch extension, make sure we pick a simulator that supports the watch
-									} else if (options.watchAppBeingInstalled) {
-										if (watchSimHandle) {
-											Object.keys(sims[k].supportsWatch).forEach(function (xcodeVer) {
-												if (watchSimHandle.supportsXcode[xcodeVer]) {
-													selectedXcode = xcodeInfo.xcode[xcodeVer];
-													simHandle = new SimHandle(sims[k]);
-													return true;
-												}
-											});
-										} else if (sims[k].supportsWatch[xcodeIds[i]]) {
-											// make sure this version of Xcode has a watch simulator that supports the watch app version
-											xc.watchos.sims.some(function (ver) {
-												if (appc.version.gte(ver, options.watchMinOSVersion) && simInfo.simulators.watchos[ver]) {
-													simHandle = new SimHandle(sims[k]);
-													selectedXcode = xcodeInfo.xcode[xcodeIds[i]];
-													watchSimHandle = new SimHandle(simInfo.simulators.watchos[ver].sort(compareSims).reverse()[0]);
-													return true;
-												}
-											});
 										}
 									}
 								}
@@ -608,7 +634,9 @@ function findSimulators(options, callback) {
 				}
 
 				if (!selectedXcode) {
-					if (options.iosVersion) {
+					if (options.iosVersion && watchSimHandle) {
+						return callback(new Error(__('Unable to find any Xcode installations that supports iOS %s and watchOS Simulator %s.', options.iosVersion, watchSimHandle.udid)));
+					} else if (options.iosVersion) {
 						return callback(new Error(__('Unable to find any Xcode installations that supports iOS %s.', options.iosVersion)));
 					} else if (options.minIosVersion) {
 						return callback(new Error(__('Unable to find any Xcode installations that supports at least iOS %s.', options.minIosVersion)));
@@ -666,6 +694,7 @@ function findSimulators(options, callback) {
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects Xcode and all simulators.
  * @param {Boolean} [options.focus=true] - Focus the iOS Simulator after launching. Overrides the "hide" option.
  * @param {Boolean} [options.hide=false] - Hide the iOS Simulator after launching. Useful for testing. Ignored if "focus" option is set to true.
+ * @param {String} [options.iosVersion] - The iOS version of the app so that ioslib picks the appropriate Xcode.
  * @param {Boolean} [options.killIfRunning] - Kill the iOS Simulator if already running.
  * @param {String} [options.launchBundleId] - Launches a specific app when the simulator loads. When installing an app, defaults to the app's id unless `launchWatchApp` is set to true.
  * @param {Boolean} [options.launchWatchApp=false] - When true, launches the specified app's watch app on an external display and the main app.
@@ -1087,55 +1116,89 @@ function launch(simHandleOrUDID, options, callback) {
 					}
 
 					emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' list pairs --json'));
-					appc.subprocess.run(selectedXcode.executables.simctl, ['list', 'pairs', '--json'], function (code, out, err) {
-						if (code) {
-							return next(code ? new Error(err.trim()) : null);
-						}
+					var tries = 0;
+					var devicePairs = null;
 
-						var devicePairs;
-						try {
-							devicePairs = JSON.parse(out.substring(out.indexOf('{'))).pairs;
-						} catch (e) {
-							return next(e);
-						}
+					async.whilst(
+						function () {
+							return devicePairs === null && tries++ < 3;
+						},
+						function (cb) {
+							appc.subprocess.run(selectedXcode.executables.simctl, ['list', 'pairs', '--json'], function (code, out, err) {
+								var ex = null;
 
-						// we need to pair, check if we're already paired
-						if (Object.keys(devicePairs).some(function (udid) {
-							var dp = devicePairs[udid];
-							return dp.phone.udid === simHandle.udid && dp.watch.udid === watchSimHandle.udid;
-						})) {
-							// already paired!
-							emitter.emit('log-debug', __('iOS and watchOS simulators already paired'));
-							return next();
-						}
+								if (!code) {
+									try {
+										devicePairs = JSON.parse(out.substring(out.indexOf('{'))).pairs;
+										return cb();
+									} catch (e) {
+										ex = e;
+									}
+								}
 
-						// check if we need to unpair
-						async.eachSeries(Object.keys(devicePairs), function (udid, next) {
-							var dp = devicePairs[udid];
-							if (dp.phone.udid !== simHandle.udid && dp.watch.udid !== watchSimHandle.udid) {
-								return next();
-							}
+								if (tries >= 3) {
+									return cb(ex || new Error(err.trim()));
+								}
 
-							emitter.emit('log-debug', __('Unpairing iOS and watchOS simulator pair: %s', udid));
-							var args = ['unpair', udid];
-							emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
-							appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
-								next(code ? new Error(err.trim()) : null);
+								emitter.emit('log-debug', __('Retrying list pairs'));
+								cb();
 							});
-						}, function (err) {
+						},
+						function (err) {
 							if (err) {
 								return next(err);
 							}
 
-							// pair!
-							emitter.emit('log-debug', __('Pairing iOS and watchOS simulator pair: %s -> %s', watchSimHandle.udid, simHandle.udid));
-							var args = ['pair', watchSimHandle.udid, simHandle.udid];
-							emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
-							appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
-								next(code ? new Error(err.trim()) : null);
+							if (!devicePairs) {
+								return next(new Error(__('Failed to list simulator device pairs')));
+							}
+
+							// we need to pair, check if we're already paired
+							/*
+							 * When switching back and forth between Xcode 7 and 8 simulators,
+							 * it's possible for syncing between the iOS sim and watch sim to
+							 * stall. apparently unpairing and re-pairing solves that. so even
+							 * if we already have the correct pairing, we just skip this and
+							 * unpair and re-pair below.
+							 *
+							if (Object.keys(devicePairs).some(function (udid) {
+								var dp = devicePairs[udid];
+								return dp.phone.udid === simHandle.udid && dp.watch.udid === watchSimHandle.udid;
+							})) {
+								// already paired!
+								emitter.emit('log-debug', __('iOS and watchOS simulators already paired'));
+								return next();
+							}
+							*/
+
+							// check if we need to unpair
+							async.eachSeries(Object.keys(devicePairs), function (udid, next) {
+								var dp = devicePairs[udid];
+								if (dp.phone.udid !== simHandle.udid && dp.watch.udid !== watchSimHandle.udid) {
+									return next();
+								}
+
+								emitter.emit('log-debug', __('Unpairing iOS and watchOS simulator pair: %s', udid));
+								var args = ['unpair', udid];
+								emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
+								appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
+									next(code ? new Error(err.trim()) : null);
+								});
+							}, function (err) {
+								if (err) {
+									return next(err);
+								}
+
+								// pair!
+								emitter.emit('log-debug', __('Pairing iOS and watchOS simulator pair: %s -> %s', watchSimHandle.udid, simHandle.udid));
+								var args = ['pair', watchSimHandle.udid, simHandle.udid];
+								emitter.emit('log-debug', __('Running: %s', selectedXcode.executables.simctl + ' ' + args.join(' ')));
+								appc.subprocess.run(selectedXcode.executables.simctl, args, function (code, out, err) {
+									next(code ? new Error(err.trim()) : null);
+								});
 							});
-						});
-					});
+						}
+					);
 				},
 
 				function startIosSim(next) {
