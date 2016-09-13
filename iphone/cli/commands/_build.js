@@ -2859,14 +2859,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}, this);
 
 	// set the target-specific build settings
-	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
-		if (legacySwift) {
-			delete bs.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
-		} else {
-			delete bs.EMBEDDED_CONTENT_CONTAINS_SWIFT;
-		}
+		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 	});
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
@@ -3359,6 +3353,20 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 		this.hasWatchApp = true;
 	}
+
+	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
+	Object.keys(xobjs.XCBuildConfiguration).forEach(function (key) {
+		var conf = xobjs.XCBuildConfiguration[key]
+		if (!conf || typeof conf !== 'object' || !conf.buildSettings) {
+			return;
+		}
+
+		if (legacySwift) {
+			delete conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		} else {
+			delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
+	});
 
 	// get the product names
 	this.products = productsGroup.children.map(function (product) {
