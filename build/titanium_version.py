@@ -1,2 +1,2 @@
-version = '5.5.0'
+version = '5.5.1'
 module_apiversion = '2'
