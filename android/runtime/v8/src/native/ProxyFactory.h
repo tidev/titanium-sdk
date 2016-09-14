@@ -13,7 +13,7 @@
 
 namespace titanium {
 
-// Titanium is split accross two runtime environments: Java and V8.
+// Titanium is split across two runtime environments: Java and V8.
 // Code must be exposed on both sides of the "bridge". To accomplish this
 // we create "proxy" objects on both sides.
 //
@@ -39,9 +39,6 @@ public:
 
 	// Setup a new proxy pair for some Kroll type.
 	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
-
-	// The generic constructor for all proxies
-	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	static void dispose();
 };

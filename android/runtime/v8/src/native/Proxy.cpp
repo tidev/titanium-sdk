@@ -57,8 +57,8 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	proxyTemplate->SetClassName(proxySymbol);
 	proxyTemplate->Inherit(EventEmitter::constructorTemplate.Get(isolate));
 
-	proxyTemplate->Set(javaClass, External::New(isolate, JNIUtil::krollProxyClass),
-		static_cast<PropertyAttribute>(DontDelete | DontEnum));
+	// Can't set an External via ->Set() on templates anymore. So we cheat and set up a native getter for __javaClass__ that gets passed the jclass as data, and that getter just returns the data/wrapped jclass External.
+	proxyTemplate->SetNativeDataProperty(javaClass, javaClassPropertyCallback, NULL, External::New(isolate, JNIUtil::krollProxyClass), static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	SetProtoMethod(isolate, proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
 	SetProtoMethod(isolate, proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
@@ -66,7 +66,8 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 
 	baseProxyTemplate.Reset(isolate, proxyTemplate);
 
-	exports->Set(proxySymbol, proxyTemplate->GetFunction(context).ToLocalChecked());
+	Local<Function> constructor = proxyTemplate->GetFunction(context).ToLocalChecked();
+	exports->Set(proxySymbol, constructor);
 }
 
 static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, Local<Object> proxy)
@@ -319,18 +320,27 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 {
 	EscapableHandleScope scope(isolate);
 
-	Local<Value> wrappedClass = External::New(isolate, javaClass);
 	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, callback);
-
-	inheritedTemplate->Set(javaClassSymbol.Get(isolate), wrappedClass, static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	inheritedTemplate->SetClassName(className);
 	inheritedTemplate->Inherit(superTemplate);
 
+	// We can't set an External via #Set() anymore. So let's get creative and hack this.
+	// We'll hang a __javaClass__ property with a native getter callback at #javaClassPropertyCallback
+	// We set the Data property as the External we wanted to wrap.
+	// Then that getter can just return our External wrapping the jclass
+	Local<Value> wrappedClass = External::New(isolate, javaClass);
+	inheritedTemplate->SetNativeDataProperty(javaClassSymbol.Get(isolate), javaClassPropertyCallback, NULL, wrappedClass, static_cast<PropertyAttribute>(DontDelete | DontEnum));
+
 	return scope.Escape(inheritedTemplate);
 }
 
+void Proxy::javaClassPropertyCallback(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	// When we set up the callback, we set the wrapped jclass in an External as the data property for the callback
+	info.GetReturnValue().Set(info.Data());
+}
 
 void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
