@@ -471,7 +471,7 @@ function detect(options, callback) {
 					}
 				}
 
-				var preferred = options.preferred;
+				var preferred = options.preferredWindowsSDK;
 				if (!results.windows[preferred] || !results.windows[preferred].supported) {
 					preferred = Object.keys(results.windows).filter(function (v) { return results.windows[v].supported; }).sort().pop();
 				}
