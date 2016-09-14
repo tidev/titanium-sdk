@@ -442,7 +442,6 @@ properties:
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
-
   - name: disableBounce
     summary: |
         Determines whether the view will bounce when scrolling to the edge of the scrollable region.
@@ -451,6 +450,16 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+    
+  - name: disableSelection
+    summary: |
+        Determines whether the webview should not be able to select a range of text and show the
+        contextual callout-bubble.
+    description: Set to `true` to disable the text-selection and callout-bubble.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "6.1.0"
 
   - name: enableJavascriptInterface
     summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
