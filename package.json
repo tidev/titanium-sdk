@@ -4,7 +4,7 @@
   "version": "6.2.0",
   "moduleApiVersion": {
     "iphone": "2",
-    "android": "3",
+    "android": "4",
     "mobileweb": "2",
     "windows": "2"
   },
