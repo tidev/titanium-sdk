@@ -208,6 +208,8 @@ properties:
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
         platform (iPhone, iPad, or iPod Touch), `windows` for the Windows platform, and `mobileweb` for the Mobile Web platform.
+        
+        Since 5.5.0.GA return 'iOS' for for the iOS platform (iPhone, iPad, or iPod Touch).
     type: String
     permission: read-only
     
