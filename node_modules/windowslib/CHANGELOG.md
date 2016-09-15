@@ -1,3 +1,7 @@
+0.4.22 (9/14/2016)
+-------------------
+  * [TIMOB-23661] Fix typo around preferred SDK
+
 0.4.21 (8/26/2016)
 -------------------
   * [TIMOB-23834] Ability to skip windows phone detection

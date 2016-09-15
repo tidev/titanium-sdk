@@ -248,7 +248,7 @@ function detect(options, callback) {
 					return finalize();
 				}
 
-				var preferred = options.preferred;
+				var preferred = options.preferredWindowsPhoneSDK;
 				if (!results.windowsphone[preferred] || !results.windowsphone[preferred].supported) {
 					preferred = Object.keys(results.windowsphone).filter(function (v) { return results.windowsphone[v].supported; }).sort().pop();
 				}
