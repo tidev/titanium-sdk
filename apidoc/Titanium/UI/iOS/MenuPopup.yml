@@ -109,9 +109,9 @@ properties:
     summary: Indicates the arrow direction of the menu popup.
     description: Use this property to indicate the menu popups arrow to use. 
     type: Number
-    constants: [Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_UP,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DOWN,
+    constants: [ Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_UP,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DOWN,
                 Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_LEFT,Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_RIGHT,
-                Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DEFAULT]
+                Titanium.UI.iOS.MENU_POPUP_ARROW_DIRECTION_DEFAULT ]
 
 ---
 name: MenuPopupHideParams
