@@ -719,7 +719,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, android]
     properties:
       - name: index
         summary: Row index.
