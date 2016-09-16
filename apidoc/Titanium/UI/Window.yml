@@ -638,6 +638,7 @@ properties:
         This was separated from the <Ti.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
     type: Callback<Object>
+    platforms: [android]
   
   - name: orientationModes
     summary: |
