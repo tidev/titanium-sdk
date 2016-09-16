@@ -147,7 +147,7 @@ methods:
         Sends an app context update to the apple watch.
     description: |
         Sends an app context update to the apple watch. If watchapp is in background during transfer,
-        watchapp will fire the <Titanium.WatchSession.event.receiveapplicationcontext> immediately when 
+        watchapp will fire the <Titanium.WatchSession.receiveapplicationcontext> event immediately when 
         it becomes active. Only one app context is stored at any one time. Subsequent updates will simply 
         replace the earlier one sent.
     parameters: 

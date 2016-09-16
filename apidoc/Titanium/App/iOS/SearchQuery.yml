@@ -79,6 +79,11 @@ events:
 examples:
   - title: Perform a simple search-query for all items that start with "Searchable" in it.
     example: |
+        The following example demonstrates how to search a Ti.App.iOS.SearchableItem using the iOS 10
+        Ti.App.iOS.SearchQuery API.
+
+        #### app.js
+
             var win = Ti.UI.createWindow({
                 backgroundColor: "#fff"
             });
