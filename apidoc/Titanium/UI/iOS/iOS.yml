@@ -1068,42 +1068,42 @@ properties:
   - name: FEEDBACK_GENERATOR_TYPE_SELECTION
     summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_IMPACT
     summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
     summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
     summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
     summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
     summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
@@ -1112,7 +1112,7 @@ properties:
         The light impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
@@ -1121,7 +1121,7 @@ properties:
         The medium impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
@@ -1130,7 +1130,7 @@ properties:
         The heavy impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
-    since: "6.1.0"
+    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
