@@ -5,7 +5,7 @@ description: |
     The Media module is used to access the device's media-related functionality, such
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
-
+na
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
@@ -1657,7 +1657,9 @@ properties:
   - name: transform
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
-        Can be used to size and position the camera or photogallery view behind an overlay view. 
+        Can be used to size and position the camera or photogallery view behind an overlay view.
+        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
+        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]
