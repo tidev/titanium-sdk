@@ -5,6 +5,27 @@ summary: |
     create and manage local notifications and background services.
 description: |
 
+    ### Remote Notifications with Xcode 8+
+    
+    In Xcode 8 and later, you need to add the push capabilities to your application manually, since Xcode does not reference 
+    them from the provisioning profile automatically any more. To do so, you need to create an entitlements file called 
+    `<app-name>.entitlements`, where `<app-name>` should be replaced with the app-name used in your `tiapp.xml`. When using Alloy, 
+    the file needs to be created in `app/platform/iphone/` and in `platform/ios/` when using a classic project. The content of 
+    that file should look like this:
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+        	<key>aps-environment</key>
+        	<string>development</string>
+        </dict>
+        </plist>
+    
+    Please note that you either need to specify **development** for device-builds or **production** for distribution builds on 
+    the App Store. We are working on automating that process, so the developer does not need to do additional steps. 
+    Please follow [TIMOB-23908](https://jira.appcelerator.org/browse/TIMOB-23908) on JIRA for the process of that.
+
     ### Local Notifications
 
     Local notifications are a way for an application that is not running in the foreground to let
