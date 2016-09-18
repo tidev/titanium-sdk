@@ -1,8 +1,8 @@
 ---
 name: Titanium.UI.iOS.FeedbackGenerator
 summary: |
-    The feedback generator API is introduced in iOS 10 to handle the haptic engine feedback when using an iPhone 7
-    and later.
+    The feedback generator API is introduced in iOS 10 to handle the haptic feedback when using an iPhone 7 or 
+    later devices.
 description: |
     On supported devices, haptics provide a way to physically engage users with tactile feedback that gets attention and
     reinforces actions. Some system-provided interface elements, such as pickers, switches, and sliders, automatically provide
@@ -11,20 +11,20 @@ description: |
 
     There are three different kind of feedback generators that can be used for different interaction scenarios:
       1. **Selection feedback**: Indicates that a task or action, such as depositing a check or unlocking a vehicle, has completed,
-      failed, or produced a warning of some kind.. This feedback type can be used when specifying the
-      <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION> constant in the `type` property of the feedback generator.
+         failed, or produced a warning of some kind.. This feedback type can be used when specifying the
+         <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION> constant in the `type` property of the feedback generator.
 
       2. **Impact feedback**: Provides a physical metaphor that complements the visual experience. For example, the user might feel
-      a thud when a view slides into place or two objects collide. This feedback type can be used when specifying the
-      <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT> constant in the `type` property of the feedback generator. Note that if you use
-      this generator type, you also have to specify the `style` property that can be one of the
-      <Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT>, <Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM> or
-      <Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY> constant.
+         a thud when a view slides into place or two objects collide. This feedback type can be used when specifying the
+         <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT> constant in the `type` property of the feedback generator. Note that if you use
+         this generator type, you also have to specify the `style` property that can be one of the
+         <Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT>, <Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM> or
+         <Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY> constant.
 
       3. **Notification feedback**: Indicates that the selection is actively changing. For example, the user feels light taps while
-      scrolling a picker wheel. This feedback is intended for communicating movement through a series of discrete values, not
-      making or confirming a selection. This feedback type can be used when using the <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>
-      constant in the `type` property of the feedback generator.
+         scrolling a picker wheel. This feedback is intended for communicating movement through a series of discrete values, not
+         making or confirming a selection. This feedback type can be used when using the <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>
+         constant in the `type` property of the feedback generator.
 
       See also:
 
@@ -35,8 +35,14 @@ osver: {ios: {min: "10.0"}}
 since: "6.0.0"
 createable: true
 
+properties:
+  - name: type
+    type: Number
+    constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_*
+    availability: creation
+    optional: false
+
 methods:
-    
   - name: prepare
     summary: Used to prepare the haptic sensor for the upcoming interaction with it.
     description: |
@@ -47,19 +53,19 @@ methods:
     summary: Used to trigger a haptic feedback after a selection has been made.
     description: |
         Note that this method can only be used if the feeback generator type is set to
-        <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION>.
+        <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_SELECTION>.
 
   - name: impactOccurred
     summary: Used to trigger a haptic feedback after an impact occurred.
     description: |
         Note that this method can only be used if the feeback generator type is set to
-        <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+        <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
 
   - name: notificationOccurred
     summary: Used to trigger a haptic feedback after a notification has been received.
     description: |
         Note that this method can only be used if the feeback generator type is set to
-        <Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>. The single argument provided is one of the
+        <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>. The single argument provided is one of the
     parameters:
       - name: notificationType
         summary: |
