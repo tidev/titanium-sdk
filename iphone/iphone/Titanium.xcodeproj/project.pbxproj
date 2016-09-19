@@ -315,6 +315,7 @@
 		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
+		C6BEA5861D8FD0B100485DAC /* TiMediaAlertProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = C6BEA5851D8FD0B100485DAC /* TiMediaAlertProxy.m */; };
 		CA0D39E51B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */; };
 		CA0D39E81B7F709E009D534C /* TiAppiOSSearchableItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39E71B7F709E009D534C /* TiAppiOSSearchableItemProxy.m */; };
 		CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */; };
@@ -978,6 +979,8 @@
 		BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationCategoryProxy.m; sourceTree = "<group>"; };
 		BBDD81321A2C71C9003CDA10 /* TiUIAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIAttributedStringProxy.h; sourceTree = "<group>"; };
 		BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIAttributedStringProxy.m; sourceTree = "<group>"; };
+		C6BEA5841D8FD0B100485DAC /* TiMediaAlertProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAlertProxy.h; sourceTree = "<group>"; };
+		C6BEA5851D8FD0B100485DAC /* TiMediaAlertProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAlertProxy.m; sourceTree = "<group>"; };
 		CA0D39E31B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableItemAttributeSetProxy.h; sourceTree = "<group>"; };
 		CA0D39E41B7F55C6009D534C /* TiAppiOSSearchableItemAttributeSetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchableItemAttributeSetProxy.m; sourceTree = "<group>"; };
 		CA0D39E61B7F709E009D534C /* TiAppiOSSearchableItemProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchableItemProxy.h; sourceTree = "<group>"; };
@@ -1559,6 +1562,8 @@
 		24CA8C18111164440084E2DE /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				C6BEA5841D8FD0B100485DAC /* TiMediaAlertProxy.h */,
+				C6BEA5851D8FD0B100485DAC /* TiMediaAlertProxy.m */,
 				24CA8B04111161FE0084E2DE /* MediaModule.m */,
 				24CA8B05111161FE0084E2DE /* MediaModule.h */,
 				24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */,
@@ -2807,6 +2812,7 @@
 				BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */,
 				15CB440E1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
+				C6BEA5861D8FD0B100485DAC /* TiMediaAlertProxy.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				1592CC3D1C4D800B00C3DB83 /* TiUIiOSScrollIndicatorStyleProxy.m in Sources */,
 				245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
