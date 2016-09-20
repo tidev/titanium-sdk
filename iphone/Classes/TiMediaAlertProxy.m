@@ -49,7 +49,7 @@
         }
     } else if ([url_ isKindOfClass:[TiBlob class]]) {
         TiBlob *blob = (TiBlob*)url_;
-        if ([blob type]==TiBlobTypeFile){
+        if ([blob type] == TiBlobTypeFile){
             url = [[NSURL fileURLWithPath:[blob path]] retain];
         }
     } else if ([url_ isKindOfClass:[TiFile class]]) {
@@ -63,7 +63,7 @@
     AudioServicesCreateSystemSoundID((CFURLRef)url, &sound);
 }
  
--(void)play:(id)args
+-(void)play:(id)unused
 {
     if (url == nil) return;
     AudioServicesPlayAlertSound(sound);
