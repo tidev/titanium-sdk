@@ -167,7 +167,7 @@ methods:
     returns:
         type: Boolean 
     platforms: [iphone, ipad]
-    since: "6.1.0"
+    since: "6.0.0"
   - name: requestMusicLibraryPermissions
     summary: Request permissions for the native music-library.
     description: |
@@ -184,7 +184,7 @@ methods:
         summary: Function to call upon user decision to grant camera access.
         type: Callback<RequestMusicLibraryAccessResult>
     platforms: [iphone, ipad]
-    since: "6.1.0"
+    since: "6.0.0"
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
     description: | 
