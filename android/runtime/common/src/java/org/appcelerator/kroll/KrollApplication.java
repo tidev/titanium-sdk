@@ -35,8 +35,6 @@ public interface KrollApplication
 
 	public boolean isDebuggerEnabled();
 
-	public boolean runOnMainThread();
-
 	public void dispose();
 
 	public String getDeployType();
