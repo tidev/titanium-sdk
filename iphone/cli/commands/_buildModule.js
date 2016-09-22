@@ -370,11 +370,13 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 };
 
 iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
-	var opts = { env: {} };
+	var opts = {
+		cwd: this.projectDir,
+		env: {}
+	};
 	Object.keys(process.env).forEach(function (key) {
 		opts.env[key] = process.env[key];
 	});
-	opts.env.cwd = this.projectDir;
 	opts.env.DEVELOPER_DIR = this.xcodeEnv.path;
 
 	var xcodebuildHook = this.cli.createHook('build.module.ios.xcodebuild', this, function (exe, args, opts, type, done) {
@@ -622,8 +624,9 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
 		dest.finalize();
 	} catch (ex) {
-		console.error = origConsoleError;
 		throw ex;
+	} finally {
+		console.error = origConsoleError;
 	}
 };
 
@@ -632,58 +635,31 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 		return next();
 	}
 
-	var tmpName,
-		tmpDir = temp.path('ti-ios-module-build-'),
-		tmpProjectDir;
+	var tmpDir = temp.path('ti-ios-module-build-'),
+		tmpProjectDir = path.join(tmpDir, this.moduleName),
+		logger = this.logger;
 
-	function checkLine(line, logger) {
-		var re = new RegExp(
-			'(?:\u001b\\[\\d+m)?\\[?(' +
-			logger.getLevels().join('|') +
-			')\\]?\s*(?:\u001b\\[\\d+m)?(.*)', 'i'
-		);
-
-		if (line) {
-			var m = line.match(re);
-			if (m) {
-				logger[m[1].toLowerCase()](m[2].trim());
-			} else {
-				logger.debug(line);
+	function log(data) {
+		data.toString().split('\n').forEach(function (line) {
+			if (line = line.trim()) {
+				logger.trace(line);
 			}
-		}
+		});
 	}
 
-	function runTiCommand(cmd, args, logger, callback) {
-		// when calling a Windows batch file, we need to escape ampersands in the command
-		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
-			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
-			cmd = 'cmd.exe';
-		}
+	function runTiCommand(args, callback) {
+		logger.debug(__('Running: %s', ('titanium ' + args.join(' ')).cyan));
+		var child = spawn('titanium', args);
 
-		var child = spawn(cmd, args);
-
-		child.stdout.on('data', function (data) {
-			data.toString().split('\n').forEach(function (line) {
-				checkLine(line, logger);
-			});
-
-		});
-
-		child.stderr.on('data', function (data) {
-			data.toString().split('\n').forEach(function (line) {
-				checkLine(line, logger);
-			});
-		});
+		child.stdout.on('data', log);
+		child.stderr.on('data', log);
 
 		child.on('close', function (code) {
 			if (code) {
 				logger.error(__('Failed to run ti %s', args[0]));
-				logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
 				logger.log();
 				process.exit(1);
 			}
-
 			callback();
 		});
 	}
@@ -696,7 +672,6 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 			runTiCommand(
-				'ti',
 				[
 					'create',
 					'--id', this.moduleId,
@@ -705,15 +680,16 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 					'-u', 'localhost',
 					'-d', tmpDir,
 					'-p', 'ios',
-					'--force'
+					'--force',
+					'--no-prompt',
+					'--no-progress-bars',
+					'--no-colors'
 				],
-				this.logger,
 				cb
 			);
 		},
 
 		function (cb) {
-			tmpProjectDir = path.join(tmpDir, this.moduleName);
 			this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
 
 			// 3. patch tiapp.xml with module id
@@ -742,13 +718,14 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
 			runTiCommand(
-				'ti',
 				[
 					'build',
 					'-p', 'ios',
-					'-d', tmpProjectDir
+					'-d', tmpProjectDir,
+					'--no-prompt',
+					'--no-colors',
+					'--no-progress-bars'
 				],
-				this.logger,
 				cb
 			);
 		}
