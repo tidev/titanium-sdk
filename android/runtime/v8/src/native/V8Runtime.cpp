@@ -318,8 +318,8 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 	//}
 
 	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
-	double deadline_in_ms = (V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0;
-	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_ms);
+	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;
+	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
 }
 
 /*
