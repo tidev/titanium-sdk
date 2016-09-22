@@ -72,7 +72,7 @@
 	<string>Can we use your microphone?</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Can we access your music library?</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Can we use your location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Can we use your location</string>
 </dict>
 </plist>
