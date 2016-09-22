@@ -104,6 +104,11 @@ public final class JSDebugger
 
 		// Tell C++ side to hook up the debug message handler
 		nativeEnable();
+
+		// Immediately break the debugger so we can set up our breakpoints and
+		// options when we connect, before the app starts running.
+		// This allows us to hit breakpoints as early as the first line in app.js
+		nativeDebugBreak();
 	}
 
 	/**
