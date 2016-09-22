@@ -3441,8 +3441,10 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 
 			if (target === 'device') {
 				return getPP(provisioning.development, uuid);
-			} else if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
-				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid);
+			} else if (target === 'dist-appstore') {
+				return getPP(provisioning.distribution, uuid);
+			} else if (target === 'dist-adhoc'){
+				return getPP(provisioning.adhoc, uuid);
 			}
 		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
 
