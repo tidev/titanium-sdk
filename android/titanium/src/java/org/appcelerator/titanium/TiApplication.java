@@ -651,7 +651,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	
 	public boolean runOnMainThread()
 	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+		// TIMOB-23901: run on main thread currently causes threading issues
+ 		// disable running on main thread for now
+ 		// return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+ 		return false;
 	}
 	
 	public void setFilterAnalyticsEvents(String[] events)
