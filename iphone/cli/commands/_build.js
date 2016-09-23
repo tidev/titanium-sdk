@@ -2651,7 +2651,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
-			} else if ((obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) || (!this.hasWatchAppV2orNewer && obj.path === 'System/Library/Frameworks/ExternalAccessory.framework')) {
+			} else if (obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 				delete xobjs.PBXFileReference[id];
 
 				// remove the LaunchScreen.storyboard BuildFile and BuildPhase records
@@ -2684,7 +2684,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = '"' + appName + '.app"';
 					} else if (child.comment === 'Titanium.entitlements') {
 						child.comment = '"' + appName + '.entitlements"';
-					} else if ((child.comment === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) || child.comment === 'ExternalAccessory.framework') {
+					} else if (child.comment === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 						obj.children.splice(i--, 1);
 					}
 				}
