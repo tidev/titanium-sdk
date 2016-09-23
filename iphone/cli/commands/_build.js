@@ -3465,7 +3465,9 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 		if (!plist.hasOwnProperty('application-identifier')) {
 			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
-		plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
+		if (pp.apsEnvironment) {
+			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
+		}
 		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
 			plist['beta-reports-active'] = true;
 		}
