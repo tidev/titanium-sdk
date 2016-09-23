@@ -75,15 +75,14 @@ DoublyLinkedList.prototype.pop = function() {
 }
 
 DoublyLinkedList.prototype.remove = function(node) {
-  if (node.prev == null) {
-    if (node.next == null) return
+  if (this.firstNode == node) {
     this.firstNode = node.next
-  } else {
+  } else if (node.prev != null) {
     node.prev.next = node.next
   }
-  if (node.next == null) {
+  if (this.lastNode == node) {
     this.lastNode = node.prev
-  } else {
+  } else if (node.next != null) {
     node.next.prev = node.prev
   }
 }

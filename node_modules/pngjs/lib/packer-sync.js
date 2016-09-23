@@ -2,22 +2,13 @@
 
 var hasSyncZlib = true;
 var zlib = require('zlib');
-if (!zlib.deflateSync) {
-  // Backwards compatibility with 0.10.
-  try {
-    zlib = require('node-zlib-backport');
-  }
-  catch(ex) {
-    hasSyncZlib = false;
-  }
-}
 var constants = require('./constants');
 var Packer = require('./packer');
 
 module.exports = function(metaData, opt) {
 
   if (!hasSyncZlib) {
-    throw new Error('To use the sync capability of this library in old node versions, please also add a dependency on node-zlb-backport');
+    throw new Error('To use the sync capability of this library in old node versions, please pin pngjs to v2.3.0');
   }
 
   var options = opt || {};

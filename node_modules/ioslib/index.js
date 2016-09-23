@@ -50,7 +50,7 @@ function detect(options, callback) {
 		}
 
 		var results = {
-			detectVersion: '4.0',
+			detectVersion: '5.0',
 			issues: []
 		};
 

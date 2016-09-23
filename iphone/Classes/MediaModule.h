@@ -85,6 +85,8 @@
 @property(nonatomic,readonly) NSNumber* QUALITY_MEDIUM;
 @property(nonatomic,readonly) NSNumber* QUALITY_LOW;
 @property(nonatomic,readonly) NSNumber* QUALITY_640x480;
+@property(nonatomic,readonly) NSNumber* QUALITY_IFRAME_1280x720;
+@property(nonatomic,readonly) NSNumber* QUALITY_IFRAME_960x540;
 
 @property(nonatomic,readonly) NSArray* availableCameraMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoMediaTypes;

@@ -27,7 +27,7 @@ const
 exports.cliVersion = '>=3.2.1';
 
 exports.init = function (logger, config, cli) {
-	if (process.platform !== 'win32') {
+	if (process.platform !== 'win32' || (cli.argv['p'] || cli.argv['platform']) !== 'mobileweb') {
 		return;
 	}
 

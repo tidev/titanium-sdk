@@ -22,8 +22,7 @@ Known lack of support for:
 Requirements
 ============
 
-* Async - Node.js 0.10 / 0.12 / IO.js
-* Sync - Node.js 0.12 / IO.js (0.10 with [node-zlib-backport](https://www.npmjs.com/package/node-zlib-backport) dependency)
+* Node.js v4 (use older v2.3.0 for 0.10/0.12/iojs support)
 
 Comparison Table
 ================
@@ -267,6 +266,9 @@ PNG.adjustGamma(png);
 
 Changelog
 ============
+
+### 3.0.0 - 03/08/2016
+ - Drop support for node below v4 and iojs. Pin to 2.3.0 to use with old, unsupported or patched node versions.
 
 ### 2.3.0 - 22/04/2016
  - Support for sync in node 0.10

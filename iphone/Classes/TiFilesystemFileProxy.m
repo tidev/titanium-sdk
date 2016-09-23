@@ -501,7 +501,7 @@ FILENOOP(setHidden:(id)x);
     ENSURE_TYPE(value, NSNumber);
     BOOL isExcluded = ![TiUtils boolValue:value def:YES];
     
-    [self addSkipBackupAttributeToFolder:[NSURL URLWithString:[self path]] withFlag:isExcluded];
+    [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[self path]] withFlag:isExcluded];
 }
 
 -(void)addSkipBackupAttributeToFolder:(NSURL*)folder withFlag:(BOOL)flag

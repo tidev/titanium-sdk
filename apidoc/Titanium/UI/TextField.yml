@@ -200,7 +200,7 @@ properties:
     description: |     
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            textField.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants listed above.
@@ -418,7 +418,7 @@ properties:
     
   - name: padding
     summary: Sets the padding of this text field. 
-    type: Padding
+    type: TextFieldPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
 
@@ -713,7 +713,7 @@ properties:
     summary: Number of characters selected.
     type: Number
 ---    
-name: Padding
+name: TextFieldPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
 since: "6.0.0"
 platforms: [android, iphone, ipad]

@@ -15,8 +15,8 @@
     return @"Ti.UI.iPhone.TableViewStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,     UITableViewStylePlain,@"UI.iPhone.ListViewStyle.PLAIN",@"5.4.0",@"UI.iOS.ListViewStyle.PLAIN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GROUPED,   UITableViewStyleGrouped,@"UI.iPhone.ListViewStyle.GROUPED",@"5.4.0",@"UI.iOS.ListViewStyle.GROUPED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,UITableViewStylePlain,@"UI.iPhone.TableViewStyle.PLAIN",@"5.4.0",@"UI.iOS.TableViewStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GROUPED,UITableViewStyleGrouped,@"UI.iPhone.TableViewStyle.GROUPED",@"5.4.0",@"UI.iOS.TableViewStyle.GROUPED");
 
 @end
 

@@ -426,16 +426,31 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return YES;
 }
 
+// Handle URL-schemes / iOS >= 9
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options
+{
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
+	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+    
+	[launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
+	return YES;
+}
+
+// Handle URL-schemes / iOS < 9
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-	if(sourceApplication == nil) {
-		[launchOptions setObject:[NSNull null] forKey:@"source"];
-	} else {
-		[launchOptions setObject:sourceApplication forKey:@"source"];
-	}
+
+	[launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
 	return YES;
 }
 
@@ -995,25 +1010,23 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
     
-    NSMutableDictionary *dict = [NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
-                                 nil];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{@"activityType": [userActivity activityType]}];
 
-    if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
-        if([userActivity userInfo] !=nil){
+    if ([TiUtils isIOS9OrGreater] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+        if ([userActivity userInfo] != nil) {
             [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
         }
     }
 
-    if([userActivity title] !=nil){
+    if ([userActivity title] != nil) {
         [dict setObject:[userActivity title] forKey:@"title"];
     }
     
-    if([userActivity webpageURL] !=nil){
+    if ([userActivity webpageURL] != nil) {
         [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
     }
     
-    if([userActivity userInfo] !=nil){
+    if ([userActivity userInfo] != nil) {
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
 	
@@ -1022,10 +1035,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
 	[launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 	
-    if (appBooted){
+    if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
-    }
-    else{
+    } else {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
         });

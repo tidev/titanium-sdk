@@ -38,9 +38,14 @@
 
 -(void)setEffect_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber);
-    [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
+    ENSURE_TYPE_OR_NIL(value, NSNumber);
     
+    if (value == nil) {
+        DebugLog(@"[ERROR] The provided value for the Ti.UI.iOS.BlurView.effect property is not available in this iOS version.");
+        return;
+    }
+    
+    [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
     [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
 }
 
