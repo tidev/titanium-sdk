@@ -174,7 +174,7 @@ description: |
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
           is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
           property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
-          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [rowAction](Titanium.UI.ListView.rowAction) event is fired
+          In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [editaction](Titanium.UI.ListView.editaction) event is fired
           and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
 
         - [canInsert](Titanium.UI.ListItem.canInsert) - When this is set to true, it allows the item to insert a new item to the
@@ -443,6 +443,36 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: prefetch
+    summary: |
+        Fired when new list items are prefetched. The items are ordered ascending by geometric distance 
+        from the list view. Note that this event is only available on iOS 10 and later.
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
+
+  - name: cancelprefetch
+    summary: |
+        Fired when list items that previously were considered as candidates for pre-fetching were not 
+        actually used. Note that this event is only available on iOS 10 and later
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
+
   - name: pullend
     summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
     platforms: [iphone, ipad]
@@ -469,6 +499,12 @@ events:
         summary: The [title](RowActionType.title) as defined in the row action object.
         type: String
 
+      - name: identifier
+        summary: |
+            The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+            if previously defined. Available in Titanium 6.0.0 and later.
+        type: String
+
       - name: section
         summary: List section from which the event was generated.
         type: Titanium.UI.ListSection
@@ -493,7 +529,7 @@ events:
     deprecated:
         since: 5.0.0
         removed: 5.0.0
-        notes: Renamed to [editaction](Titanium.UI.ListView.editaction).
+        notes: Use <Titanium.UI.ListView.editaction> instead.
     summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
     description: |
         Do not rely on the `source` property to determine which item fired the event.  Use the
@@ -598,6 +634,34 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: scrolling
+    summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
+    description: |
+        This event will fire while the list view is scrolling and the user releases the finger.
+        On iOS no event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
+        `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi). 
+        When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
+
+    platforms: [android, iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 5.4.0
+        ipad: 5.4.0
+    properties:
+      - name: direction
+        summary: Direction of the scroll either 'up', or 'down'.
+        type: String
+
+      - name: velocity
+        summary: The velocity of the scroll in scale factor per second
+        type: Number
+
+      - name: targetContentOffset
+        summary: |
+           The expected y axis offset when the scrolling action decelerates to a stop. 
+        type: Number
+
+
 properties:
   - name: allowsSelection
     summary: Determines whether this item can be selected.
@@ -617,6 +681,15 @@ properties:
     type: Boolean
     default: true
     since: 3.2.0
+    platforms: [iphone, ipad]
+
+  - name: disableBounce
+    summary: Determines whether the scroll-bounce of the list view should be disabled.
+    description: |
+        Set to `true` to disable the vertical bounce.        
+    type: Boolean
+    default: false
+    since: 5.4.0
     platforms: [iphone, ipad]
 
   - name: editing
@@ -834,6 +907,14 @@ properties:
     platforms: [iphone, ipad]
     since: 3.2.0
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the list view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
+
   - name: sectionIndexTitles
     summary: Array of objects (with `title` and `index` properties) to control the list view index.
     description: |
@@ -846,8 +927,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: willScrollOnStatusTap
@@ -888,7 +969,7 @@ properties:
     summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
     deprecated:
         since: "5.2.0"
-        notes: Use listSeparatorInsets instead
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
@@ -901,23 +982,24 @@ properties:
   - name: separatorStyle
     summary: Separator style constant. 
     type: Number
-    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
-    since: 3.2.0
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
+    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
+
     platforms: [iphone, ipad]
 
   - name: style
     summary: Style of the list view.
     description: Style should always be set before setting the sections on list view.
     type: Number
-    default: Titanium.UI.iPhone.ListViewStyle.PLAIN
-    constants: Titanium.UI.iPhone.ListViewStyle.*
+    default: Titanium.UI.iOS.ListViewStyle.PLAIN
+    constants: Titanium.UI.iOS.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
 
   - name: tableSeparatorInsets
     deprecated:
         since: "5.4.0"
-        notes: Use listSeparatorInsets instead
+        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
@@ -1610,15 +1692,15 @@ properties:
   - name: animationStyle
     summary: Type of animation to use for cell insertions and deletions.
     type: Number
-    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    constants: Titanium.UI.iOS.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
-        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+        [FADE](Titanium.UI.iOS.RowAnimationStyle.FADE).
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: Titanium.UI.iPhone.ListViewScrollPosition.*
-    default: Titanium.UI.iPhone.ListViewScrollPosition.NONE
+    constants: Titanium.UI.iOS.ListViewScrollPosition.*
+    default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
 ---      
 name: ListViewIndexEntry
@@ -1699,3 +1781,25 @@ properties:
   - name: bottom
     summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
     type: Number
+
+---
+name: ListItemEventType
+summary: The arguments for the <Titanium.UI.ListView.prefetch> and <Titanium.UI.ListView.cancelprefetch> events.
+since: 6.1.0
+platforms: [iphone, ipad]
+properties:
+  - name: section
+    summary: List section if the item is contained in a list section.
+    type: Titanium.UI.ListSection
+
+  - name: sectionIndex
+    summary: Section index.
+    type: Number
+
+  - name: itemIndex
+    summary: Item index.
+    type: Number
+
+  - name: itemId
+    summary: The item ID bound to the list item that generated the event.
+    type: String

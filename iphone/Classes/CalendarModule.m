@@ -260,6 +260,12 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(NSNumber*) hasCalendarPermissions:(id)unused
 {
+    NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
+    }
+    
     return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);
 }
 
@@ -321,6 +327,33 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, EKAuthorizationStatusRestricted);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, EKAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, EKAuthorizationStatusAuthorized);
 
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_UNKNOWN, EKParticipantStatusUnknown);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_PENDING, EKParticipantStatusPending);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_ACCEPTED, EKParticipantStatusAccepted);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_DECLINED, EKParticipantStatusDeclined);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_TENTATIVE, EKParticipantStatusTentative);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_DELEGATED, EKParticipantStatusDelegated);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_COMPLETED, EKParticipantStatusCompleted);
+MAKE_SYSTEM_PROP(ATTENDEE_STATUS_IN_PROCESS, EKParticipantStatusInProcess);
+
+MAKE_SYSTEM_PROP(ATTENDEE_ROLE_UNKNOWN, EKParticipantRoleUnknown);
+MAKE_SYSTEM_PROP(ATTENDEE_ROLE_REQUIRED, EKParticipantRoleRequired);
+MAKE_SYSTEM_PROP(ATTENDEE_ROLE_OPTIONAL, EKParticipantRoleOptional);
+MAKE_SYSTEM_PROP(ATTENDEE_ROLE_CHAIR, EKParticipantRoleChair);
+MAKE_SYSTEM_PROP(ATTENDEE_ROLE_NON_PARTICIPANT, EKParticipantRoleNonParticipant);
+
+MAKE_SYSTEM_PROP(ATTENDEE_TYPE_UNKNOWN, EKParticipantTypeUnknown);
+MAKE_SYSTEM_PROP(ATTENDEE_TYPE_PERSON, EKParticipantTypePerson);
+MAKE_SYSTEM_PROP(ATTENDEE_TYPE_ROOM, EKParticipantTypeRoom);
+MAKE_SYSTEM_PROP(ATTENDEE_TYPE_RESOURCE, EKParticipantTypeResource);
+MAKE_SYSTEM_PROP(ATTENDEE_TYPE_GROUP, EKParticipantTypeGroup);
+
+MAKE_SYSTEM_PROP(SOURCE_TYPE_LOCAL, EKSourceTypeLocal);
+MAKE_SYSTEM_PROP(SOURCE_TYPE_EXCHANGE, EKSourceTypeExchange);
+MAKE_SYSTEM_PROP(SOURCE_TYPE_CALDAV, EKSourceTypeCalDAV);
+MAKE_SYSTEM_PROP(SOURCE_TYPE_MOBILEME, EKSourceTypeMobileMe);
+MAKE_SYSTEM_PROP(SOURCE_TYPE_SUBSCRIBED, EKSourceTypeSubscribed);
+MAKE_SYSTEM_PROP(SOURCE_TYPE_BIRTHDAYS, EKSourceTypeBirthdays);
 @end
 
 #endif

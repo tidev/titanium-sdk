@@ -172,7 +172,7 @@ describe('simulator', function () {
 			should(results).have.keys('simulators', 'issues');
 
 			should(results.simulators).be.an.Object;
-			should(results.simulators).have.keys('ios', 'watchos', 'devicePairs', 'crashDir');
+			should(results.simulators).have.keys('ios', 'watchos', 'crashDir');
 
 			should(results.simulators.ios).be.an.Object;
 			Object.keys(results.simulators.ios).forEach(function (ver) {
@@ -182,16 +182,6 @@ describe('simulator', function () {
 			should(results.simulators.watchos).be.an.Object;
 			Object.keys(results.simulators.watchos).forEach(function (ver) {
 				checkSims(results.simulators.watchos[ver]);
-			});
-
-			should(results.simulators.devicePairs).be.an.Object;
-			Object.keys(results.simulators.devicePairs).forEach(function (udid) {
-				should(results.simulators.devicePairs[udid]).be.an.Object;
-				should(results.simulators.devicePairs[udid]).have.keys('phone', 'watch');
-				should(results.simulators.devicePairs[udid].phone).be.a.String;
-				should(results.simulators.devicePairs[udid].phone).not.equal('');
-				should(results.simulators.devicePairs[udid].watch).be.a.String;
-				should(results.simulators.devicePairs[udid].watch).not.equal('');
 			});
 
 			should(results.simulators.crashDir).be.a.String;

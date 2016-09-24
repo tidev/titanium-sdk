@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#ifdef USE_TI_UI3DMATRIX
 #import "Ti3DMatrix.h"
 #import "TiBase.h"
 

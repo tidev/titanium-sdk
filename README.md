@@ -1,9 +1,8 @@
 Appcelerator Titanium Mobile
 ============================
-Travis CI Build [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile)
-
-Jenkins CI Automated Tests [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium_mobile_master_SG)](https://jenkins.appcelerator.org/job/titanium_mobile_master_SG/)
-
+| Travis CI  | Jenkins CI |
+|------------|------------|
+| [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile) | [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium_mobile_master)](https://jenkins.appcelerator.org/job/titanium_mobile_master/) |
 
 Welcome to the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
@@ -21,7 +20,7 @@ Features
 --------------------
 
 With Titanium, you use JavaScript to code your application.  Titanium's compiler will compile
-your application code into an efficient native executable for each target mobile platform. 
+your application code into an efficient native executable for each target mobile platform.
 Titanium writes native code so you don't have to. :)
 
 - Native apps built using web technologies
@@ -49,7 +48,7 @@ Titanium writes native code so you don't have to. :)
 - Support for complex native views such as Coverflow, Image viewers, Table views, Grouped Views, Composites, etc.
 - Completely extensible via Module API for building your own controls or extending capabilities at compile-time
 
-And much, much more.  
+And much, much more.
 
 Alloy
 -----
@@ -67,9 +66,9 @@ There are a number of ways to get help with Titanium.
 
 Please visit the official documentation site at [http://docs.appcelerator.com/](http://docs.appcelerator.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
 
-### Developer Community 
+### Developer Community
 
-[Appcelerator Developer](http://developer.appcelerator.com) is our developer community.  
+[Appcelerator Developer](http://developer.appcelerator.com) is our developer community.
 
 ### Video Tutorials
 
@@ -90,7 +89,7 @@ The Appcelerator blog is located at (http://www.appcelerator.com/blog).
 
 ### Commercial Support, Licensing
 
-We give our software away for FREE! In order to do that, we have programs for 
+We give our software away for FREE! In order to do that, we have programs for
 companies that require additional level of assistance through training or commercial support,
 need special licensing or want additional levels of capabilities. Please visit the
 [Appcelerator Website](http://www.appcelerator.com) for more information about Appcelerator or
@@ -101,20 +100,41 @@ email [info@appcelerator.com](mailto:info@appcelerator.com).
 Contributing
 ------------
 
-Titanium is an open source project.  Titanium wouldn't be where it is now without contributions by the community. Please consider forking Titanium to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request. 
+Titanium is an open source project.  Titanium wouldn't be where it is now without contributions by the community. Please consider forking Titanium to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
 
-To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once. 
+To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
 [You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
+
+Building Locally
+----------------
+
+Previously Titanium used scons and python scripts to build the SDK.
+If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
+
+	cd build
+	npm install
+	node scons.js build --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
+	node scons.js package
+	node scons.js install
+
+The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS, and Mobileweb on OS X; Windows, Android and MobileWeb on Windows)
+
+The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDROID_SDK env variables if not explicitly passed using command line arguments.
+
+You can use the `-h` flag to display the full list of comands and options.
+
+	cd build
+	npm install
+	node scons.js build [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+	node scons.js package [platform1] [platform2]
+	node scons.js install
 
 
 Legal Stuff
 -----------
 
-Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is 
+Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is
 a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
 privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
-
-
-

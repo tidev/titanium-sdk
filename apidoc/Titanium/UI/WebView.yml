@@ -272,7 +272,7 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
-
+        
   - name: stopLoading
     summary: Stops loading a currently loading page.
     description: |
@@ -442,7 +442,6 @@ properties:
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
-
   - name: disableBounce
     summary: |
         Determines whether the view will bounce when scrolling to the edge of the scrollable region.
@@ -451,6 +450,16 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+    
+  - name: disableSelection
+    summary: |
+        Determines whether the webview should not be able to select a range of text and show the
+        contextual callout-bubble.
+    description: Set to `true` to disable the text-selection and callout-bubble.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "6.1.0"
 
   - name: enableJavascriptInterface
     summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
@@ -710,6 +719,19 @@ properties:
     platforms: [android]
     since: "3.2.0"
     default: true
+    
+  - name: requestHeaders
+    summary: Sets extra request headers for this web view to use on subsequent URL requests.
+    description: |
+        Setting this property allows you to set custom headers to the URL requests.
+        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`
+        
+        On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
+        inside `createWebView()` or put it inside the window `open` event.
+    type: Dictionary
+    platforms: [android,iphone,ipad]
+    since: "6.1.0"
+
 
 examples:
   - title: Basic Web View to External URL 

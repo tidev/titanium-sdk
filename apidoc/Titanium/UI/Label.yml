@@ -74,7 +74,7 @@ properties:
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            label.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
             
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -114,8 +114,8 @@ properties:
     summary: |
         Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
-    type: [Number, Boolean]
-    default: false
+    type: Number
+    default: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END
     platforms: [android, mobileweb, iphone, ipad]
     
   - name: font

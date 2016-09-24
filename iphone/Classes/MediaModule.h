@@ -73,9 +73,7 @@
 @property(nonatomic,readonly) NSNumber* NO_VIDEO;
 @property(nonatomic,readonly) NSNumber* NO_MUSIC_PLAYER;
 
-// these have been deprecated in 3.2 but we map them to their new values
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_VOLUME_ONLY;
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_HIDDEN;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_SCALING_NONE;
@@ -87,6 +85,8 @@
 @property(nonatomic,readonly) NSNumber* QUALITY_MEDIUM;
 @property(nonatomic,readonly) NSNumber* QUALITY_LOW;
 @property(nonatomic,readonly) NSNumber* QUALITY_640x480;
+@property(nonatomic,readonly) NSNumber* QUALITY_IFRAME_1280x720;
+@property(nonatomic,readonly) NSNumber* QUALITY_IFRAME_960x540;
 
 @property(nonatomic,readonly) NSArray* availableCameraMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoMediaTypes;
@@ -126,12 +126,6 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GPP;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GP2;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AMR;
-
-@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_AMBIENT;
-@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_SOLO_AMBIENT;
-@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAYBACK;
-@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_RECORD;
-@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAY_AND_RECORD;
 
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_CATEGORY_AMBIENT;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;

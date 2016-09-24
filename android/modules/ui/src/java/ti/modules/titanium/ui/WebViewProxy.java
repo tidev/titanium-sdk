@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.util.TiConvert;
@@ -33,13 +32,14 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
+	TiC.PROPERTY_REQUEST_HEADERS,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
-public class WebViewProxy extends ViewProxy 
+public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
@@ -57,13 +57,15 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
+	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
+	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
 
 	private Message postCreateMessage;
-	
+
 	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
 
 	public WebViewProxy()
@@ -72,11 +74,6 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-	}
-
-	public WebViewProxy(TiContext context)
-	{
-		this();
 	}
 
 	@Override
@@ -167,6 +164,15 @@ public class WebViewProxy extends ViewProxy
 					result.setResult(getWebView().getUserAgentString());
 					return true;
 				}
+				case MSG_SET_HEADERS: {
+					getWebView().setRequestHeaders((HashMap)msg.obj);
+					return true;
+				}
+				case MSG_GET_HEADERS: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().getRequestHeaders());
+					return true;
+				}
 				case MSG_CAN_GO_BACK: {
 					AsyncResult result = (AsyncResult) msg.obj;
 					result.setResult(getWebView().canGoBack());
@@ -241,6 +247,37 @@ public class WebViewProxy extends ViewProxy
 			}
 		}
 		return "";
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setRequestHeaders(HashMap params)
+	{
+		if (params != null) {
+			TiUIWebView currWebView = getWebView();
+			if (currWebView != null) {
+				if (TiApplication.isUIThread()) {
+					currWebView.setRequestHeaders(params);
+				} else {
+					Message message = getMainHandler().obtainMessage(MSG_SET_HEADERS);
+					message.obj = params;
+					message.sendToTarget();
+				}
+			}
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public HashMap getRequestHeaders()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			if (TiApplication.isUIThread()) {
+				return currWebView.getRequestHeaders();
+			} else {
+				return (HashMap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_HEADERS));
+			}
+		}
+		return new HashMap<String, String>();
 	}
 
 	@Kroll.method
@@ -320,7 +357,7 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public void pause() 
+	public void pause()
 	{
 		if (peekView() != null) {
 			if (TiApplication.isUIThread()) {
@@ -365,7 +402,7 @@ public class WebViewProxy extends ViewProxy
 		fusername = null;
 		fpassword = null;
 	}
-	
+
 	public String getBasicAuthenticationUserName()
 	{
 		return fusername;

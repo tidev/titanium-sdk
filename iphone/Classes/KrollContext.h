@@ -22,10 +22,10 @@
 -(void)didStartNewContext:(KrollContext*)kroll;
 -(void)willStopNewContext:(KrollContext*)kroll;
 -(void)didStopNewContext:(KrollContext*)kroll;
-	
+
 @end
 
-@interface KrollContext : NSObject 
+@interface KrollContext : NSObject
 {
 @private
 	id<KrollDelegate> delegate;
@@ -42,10 +42,10 @@
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	void *debugger;
-    
+
 #ifdef TI_USE_KROLL_THREAD
     NSRecursiveLock *timerLock;
-	NSString *contextId;
+	NSString *krollContextId;
     NSRecursiveLock *lock;
     NSCondition *condition;
     NSMutableArray *queue;
@@ -86,7 +86,7 @@
 
 -(int)forceGarbageCollectNow;
 #ifdef TI_USE_KROLL_THREAD
--(NSString*)contextId;
+-(NSString*)krollContextId;
 -(NSString*)threadName;
 #endif
 @end
@@ -179,6 +179,3 @@ KrollContext* GetKrollContext(TiContextRef context);
 @property(nonatomic,readwrite,retain)	id invocationArg4;
 
 @end
-
-
-

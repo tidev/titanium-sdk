@@ -1,11 +1,11 @@
 //! moment.js locale configuration
-//! locale : Bengali (bn)
+//! locale : Bengali [bn]
 //! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 
 ;(function (global, factory) {
    typeof exports === 'object' && typeof module !== 'undefined'
        && typeof require === 'function' ? factory(require('../moment')) :
-   typeof define === 'function' && define.amd ? define(['moment'], factory) :
+   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
    factory(global.moment)
 }(this, function (moment) { 'use strict';
 
@@ -83,12 +83,18 @@
             });
         },
         meridiemParse: /রাত|সকাল|দুপুর|বিকাল|রাত/,
-        isPM: function (input) {
-            return /^(দুপুর|বিকাল|রাত)$/.test(input);
+        meridiemHour : function (hour, meridiem) {
+            if (hour === 12) {
+                hour = 0;
+            }
+            if ((meridiem === 'রাত' && hour >= 4) ||
+                    (meridiem === 'দুপুর' && hour < 5) ||
+                    meridiem === 'বিকাল') {
+                return hour + 12;
+            } else {
+                return hour;
+            }
         },
-        //Bengali is a vast language its spoken
-        //in different forms in various parts of the world.
-        //I have just generalized with most common one used
         meridiem : function (hour, minute, isLower) {
             if (hour < 4) {
                 return 'রাত';

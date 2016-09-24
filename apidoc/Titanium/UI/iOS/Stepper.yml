@@ -5,16 +5,16 @@ summary: |
 description: |
     <table id="IOS Stepper">
       <tr>
-        <td><img src="images/stepper/Stepper.png" height="50" /></td>
-        <td><img src="images/stepper/Stepper_customImages.png" height="51" /></td>
+        <td><img src="images/Stepper/Stepper.png" height="50" /></td>
+        <td><img src="images/Stepper/Stepper_customImages.png" height="51" /></td>
       </tr>
       <tr><th colspan="2">iOS</th></tr>
     </table>
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.
-    Use the <Titanium.UI.createStepper> method or a **`<Stepper>`** Alloy element to create a stepper
-    (see [Examples](#!/api/Titanium.UI.iOS.Stepper-examples)) .
+    Use the <Titanium.UI.iOS.createStepper> method or a **`<Stepper>`** Alloy element to create a stepper
+    (see the "Examples" section details).
 
     * When assigning a custom image to the `backgroundImage` property, the image must be
     partially or wholly transparent for the background color or background gradient to be visible.
@@ -25,6 +25,7 @@ description: |
 
 extends: Titanium.UI.View
 since: "5.4.0"
+platforms: [iphone, ipad]
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]

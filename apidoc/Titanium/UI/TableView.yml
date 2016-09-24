@@ -426,7 +426,7 @@ events:
   - name: scrollEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [scrollend](Titanium.UI.TableView.scrollend) (all lowercase).
+        notes: Use <Titanium.UI.TableView.scrollend> instead.
     summary: Fired when the table view stops scrolling.
     properties:
       - name: contentSize
@@ -719,7 +719,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, android]
     properties:
       - name: index
         summary: Row index.
@@ -790,7 +790,7 @@ events:
   - name: dragStart
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragstart](Titanium.UI.TableView.dragstart) (all lowercase).
+        notes: Use <Titanium.UI.TableView.dragstart> instead.
     summary: Fired when the scrollable region starts being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -800,7 +800,7 @@ events:
   - name: dragEnd
     deprecated:
         since: "3.0.0"
-        notes: Renamed to [dragend](Titanium.UI.TableView.dragend) (all lowercase).
+        notes: Use <Titanium.UI.TableView.dragend> instead.
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
@@ -1210,7 +1210,7 @@ properties:
     
   - name: data
     summary: Rows of the table view.
-    type: [ Dictionary, Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection> ]
+    type: [Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection>]
     
   - name: editable
     summary: |
@@ -1551,7 +1551,7 @@ properties:
     summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
     deprecated:
         since: "5.2.0"
-        notes: Use tableSeparatorInsets instead
+        notes: Use <Titanium.UI.TableView.tableSeparatorInsets> instead.
     description: |
         In iOS 7 and later, cell separators do not extend all the way to the edge of the table view. 
         This property sets the default inset for all cells in the table. Set this to a dictionary 
@@ -1611,17 +1611,8 @@ properties:
 
   - name: separatorStyle
     summary: Separator style constant.
-    description: |
-        For iOS specify one of the
-        [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-       
-        For Android specify one of the following:
-        [TABLE_VIEW_SEPARATOR_STYLE_NONE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) or
-        [TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE).
-
-        For Mobile Web specify one of the
-        [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
     type: Number
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     platforms: [iphone, ipad, mobileweb, android]
     since: {android: "5.2.0"}
     

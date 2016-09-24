@@ -102,9 +102,9 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
+            Available in Titanium SDK 5.2.0 and later.
         type: Dictionary
         platforms: [iphone, ipad]
-        since: "5.2.0"
 
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
@@ -270,6 +270,14 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, mobileweb]
+
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the scroll view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "6.0.0"
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -301,6 +309,15 @@ properties:
     platforms: [android]
     since: "3.1.0"
 
+  - name: refreshControl
+    summary: View positioned above the first row that is only revealed when the user drags the scroll view contents down.
+    description: |
+        An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
+    type: Titanium.UI.RefreshControl
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    since: 6.0.0
+
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
     description: |
@@ -317,8 +334,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     platforms: [iphone, ipad]
 
   - name: scrollType

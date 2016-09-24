@@ -87,7 +87,7 @@ Most of these values can be found by stat'ing a file.
   mtime: new Date(), // last modified date for entry. defaults to now.
   type: 'file',      // type of entry. defaults to file. can be:
                      // file | link | symlink | directory | block-device
-                     // character-device | fifo | contigious-file
+                     // character-device | fifo | contiguous-file
   linkname: 'path',  // linked file name
   uid: 0,            // uid of entry owner. defaults to 0
   gid: 0,            // gid of entry owner. defaults to 0

@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -76,7 +76,11 @@ function iOSBuilder() {
 		'_codesignature',
 		'embedded.mobileprovision',
 		'info.plist',
-		'pkginfo'
+		'pkginfo',
+		'assets.car',
+		'modules',
+		'LaunchScreen.storyboardc',
+		'hyperloop'
 	];
 
 	this.graylistDirectories = [
@@ -108,7 +112,6 @@ function iOSBuilder() {
 
 	// when true and building an app with a watch extension for the simulator and the --launch-watch-app
 	// flag is passed in, then show the external display and launch the watch app
-	this.hasWatchAppV1 = false;
 	this.hasWatchAppV2orNewer = false;
 
 	// if this app has any watch apps, then we need to know the min watchOS version for one of them
@@ -203,25 +206,58 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		deviceInfo.devices = {};
 
 		// build the list of simulators
-		Object.keys(this.iosInfo.simulators.ios).sort().reverse().forEach(function (ver) {
-			deviceInfo.devices[ver] || (deviceInfo.devices[ver] = []);
-			this.iosInfo.simulators.ios[ver].forEach(function (sim) {
-				sim.name.length > deviceInfo.maxName && (deviceInfo.maxName = sim.name.length);
-				deviceInfo.devices[ver].push({
-					udid: sim.udid,
-					name: sim.name,
-					deviceClass: sim.family,
-					model: sim.model,
-					productVersion: ver
-				});
-				deviceInfo.udids[sim.udid] = sim;
+		Object
+			.keys(this.iosInfo.simulators.ios)
+			.sort(function (v1, v2) {
+				return appc.version.eq(v1, v2) ? 0 : appc.version.lt(v1, v2) ? -1 : 1;
+			})
+			.reverse()
+			.forEach(function (ver) {
+				deviceInfo.devices[ver] || (deviceInfo.devices[ver] = []);
+				this.iosInfo.simulators.ios[ver].forEach(function (sim) {
+					var xcodeId = argv['ios-version'] && this.iosInfo.iosSDKtoXcode[argv['ios-version']];
+					if ((argv['launch-watch-app'] || argv['launch-watch-app-only']) && (!Object.keys(sim.watchCompanion).length || (xcodeId && !sim.watchCompanion[xcodeId]))) {
+						return;
+					}
 
-				// see if we should prefer this simulator
-				if (this.config.get('ios.autoSelectDevice', true) && argv['ios-version'] && !argv['device-id']) {
-					deviceInfo.preferred = deviceInfo.devices[argv['ios-version']] && deviceInfo.devices[argv['ios-version']][0];
-				}
+					var watchUDID = argv['watch-device-id'];
+					if (watchUDID) {
+						var isValid = Object
+							.keys(this.iosInfo.simulators.watchos)
+							.some(function (ver) {
+								return this.iosInfo.simulators.watchos[ver].some(function (wsim) {
+									return wsim.udid === watchUDID;
+								});
+							}, this);
+
+
+						if (isValid) {
+							if (!Object.keys(sim.watchCompanion).length) {
+								return;
+							}
+
+							if (!Object.keys(sim.watchCompanion).some(function (xcodeId) { return sim.watchCompanion[xcodeId][watchUDID]; })) {
+								return;
+							}
+						}
+					}
+
+					sim.name.length > deviceInfo.maxName && (deviceInfo.maxName = sim.name.length);
+					deviceInfo.devices[ver].push({
+						udid: sim.udid,
+						name: sim.name,
+						deviceClass: sim.family,
+						model: sim.model,
+						productVersion: ver
+					});
+					deviceInfo.udids[sim.udid] = sim;
+
+					// see if we should prefer this simulator
+					if (this.config.get('ios.autoSelectDevice', true) && argv['ios-version'] && !argv['device-id']) {
+						deviceInfo.preferred = deviceInfo.devices[argv['ios-version']] && deviceInfo.devices[argv['ios-version']][0];
+					}
+				}, this);
 			}, this);
-		}, this);
 	}
 
 	return this.deviceInfoCache = deviceInfo;
@@ -292,6 +328,25 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			minIosVersion:     this.packageJson.minIosVersion,
 			supportedVersions: this.packageJson.vendorDependencies.xcode
 		}, function (err, iosInfo) {
+			if (err) {
+				// this is bad and probably because we don't have a compatible
+				// node-ios-device binary for the current version of node
+				//
+				// ideally we'd failout, but we can't... the Titanium CLI doesn't
+				// allow the config() call to return an error. my bad design. :(
+				iosInfo = {
+					certs: {
+						keychains: {}
+					},
+					devices: [],
+					issues: [],
+					simulators: {
+						ios: []
+					},
+					xcode: {}
+				};
+			}
+
 			this.iosInfo = iosInfo;
 
 			// add itunes sync
@@ -374,6 +429,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120),
+						'hide-error-controller': {
+							hidden: true
+						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						'keychain':                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -530,6 +588,10 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 				return callback(true);
 			}
 
+			if (this.cli.argv['build-only']) {
+				return callback();
+			}
+
 			if (this.cli.argv.target === 'device' && udid === 'all') {
 				// we let 'all' slide by
 				return callback(null, udid);
@@ -604,7 +666,7 @@ iOSBuilder.prototype.configOptionDeveloperName = function configOptionDeveloperN
 			// sort the certs
 			Object.keys(developerCerts).forEach(function (keychain) {
 				developerCerts[keychain] = developerCerts[keychain].sort(function (a, b) {
-					return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 				});
 			});
 
@@ -694,7 +756,7 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 			// sort the certs
 			Object.keys(distributionCerts).forEach(function (keychain) {
 				distributionCerts[keychain] = distributionCerts[keychain].sort(function (a, b) {
-					return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+					return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 				});
 			});
 
@@ -1201,6 +1263,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		// manually inject the build profile settings into the tiapp.xml
 		switch (this.deployType) {
 			case 'production':
+				this.showErrorController = false;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1210,6 +1273,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				break;
 
 			case 'test':
+				this.showErrorController = true;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1220,6 +1284,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 			case 'development':
 			default:
+				this.showErrorController = true;
 				this.minifyJS = false;
 				this.encryptJS = false;
 				this.minifyCSS = false;
@@ -1230,6 +1295,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
+		}
+		if (cli.argv.hasOwnProperty('hide-error-controller')) {
+			this.showErrorController = false;
 		}
 
 		var appId = this.tiapp.id;
@@ -1256,7 +1324,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
 		var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
-		this.blacklistDirectories.push(this.tiapp.name);
+
+		if (this.blacklistDirectories.indexOf(this.tiapp.name.toLowerCase()) !== -1 || this.tiapp.name.toLowerCase() === 'frameworks') {
+			logger.error(__('The app name conflicts with a reserved file.'));
+			logger.error(__('You must change the name of the app in the tiapp.xml.') + '\n');
+			process.exit(1);
+		}
+
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
 			path.join(this.projectDir, 'Resources', 'ios')
@@ -1272,23 +1346,23 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 				if (this.blacklistDirectories.indexOf(lcaseFilename) !== -1) {
 					if (isDir) {
-						logger.error(__('Found blacklisted directory in the Resources directory'));
+						logger.error(__('Found blacklisted directory in the Resources directory.'));
 						logger.error(__('The directory "%s" is a reserved directory.', filename));
 						logger.error(__('You must rename this directory to something else.') + '\n');
 					} else {
-						logger.error(__('Found blacklisted file in the Resources directory'));
+						logger.error(__('Found blacklisted file in the Resources directory.'));
 						logger.error(__('The file "%s" is a reserved file.', filename));
 						logger.error(__('You must rename this file to something else.') + '\n');
 					}
 					process.exit(1);
 				} else if (this.graylistDirectories.indexOf(lcaseFilename) !== -1) {
 					if (isDir) {
-						logger.warn(__('Found graylisted directory in the Resources directory'));
+						logger.warn(__('Found graylisted directory in the Resources directory.'));
 						logger.warn(__('The directory "%s" is potentially a reserved directory.', filename));
 						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 						logger.warn(__('It is highly recommended you rename this directory to something else.'));
 					} else {
-						logger.warn(__('Found graylisted file in the Resources directory'));
+						logger.warn(__('Found graylisted file in the Resources directory.'));
 						logger.warn(__('The file "%s" is potentially a reserved file.', filename));
 						logger.warn(__('There is a good chance your app will be rejected by Apple.'));
 						logger.warn(__('It is highly recommended you rename this file to something else.'));
@@ -1429,7 +1503,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					}
 
 					var tiappTargets = {},
-						swiftRegExp = /\.swift$/,
 						proj = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync();
 
 					// flag each target we care about
@@ -1488,17 +1561,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
+						if (targetInfo.isWatchAppV1Extension || targetInfo.isWatchAppV1) {
+							logger.error(__('WatchOS1 app detected.'));
+							logger.error(__('Titanium %s does not support WatchOS1 apps.', this.titaniumSdkVersion) + '\n');
+							process.exit(1);
+						}
+
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
+						if (targetInfo.isWatchAppV2orNewer
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						if (targetInfo.isWatchAppV1) {
-							this.hasWatchAppV1 = true;
-							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
-						} else if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
@@ -1668,9 +1744,15 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				this.iosSdkVersion = cli.argv['ios-version'] || null;
 				this.xcodeEnv = null;
 
+				var xcodeInfo = this.iosInfo.xcode;
+
+				function sortXcodeIds(a, b) {
+					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+				}
+
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort().reverse().some(function (ver) {
+					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).reverse().some(function (ver) {
 						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
 							this.xcodeEnv = this.iosInfo.xcode[ver];
 							return true;
@@ -1688,16 +1770,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					var minVer = this.tiapp.ios['min-ios-ver'] && appc.version.gt(this.tiapp.ios['min-ios-ver'], this.minSupportedIosSdk) ? this.tiapp.ios['min-ios-ver'] : this.minSupportedIosSdk;
 					if (this.hasWatchAppV2orNewer && appc.version.lt(minVer, '9.0')) {
 						minVer = '9.0';
-					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
-						minVer = '8.4';
 					} else if (this.tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(minVer, '8.0')) {
 						minVer = '8.0';
 					}
 
-					var xcodeInfo = this.iosInfo.xcode;
 					Object.keys(xcodeInfo)
 						.filter(function (id) { return xcodeInfo[id].supported; })
-						.sort(function (a, b) { return !xcodeInfo[a].selected || a > b; })
+						.sort(sortXcodeIds)
 						.some(function (id) {
 							return xcodeInfo[id].sdks.sort().reverse().some(function (ver) {
 								if (appc.version.gte(ver, minVer)) {
@@ -1717,7 +1796,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc' || (cli.argv['build-only'] && cli.argv.target !== 'simulator')) {
+				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc' || cli.argv['build-only']) {
 					return next();
 				}
 
@@ -1731,17 +1810,15 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 
 				// if we found a watch app and --watch-device-id was set, but --launch-watch-app was not, then set it
-				if ((this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
+				if (this.hasWatchAppV2orNewer && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
 					cli.argv['launch-watch-app'] = true;
 				}
 
-				if (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']) {
-					// make sure we have a watch app
-					if (!this.hasWatchAppV1 && !this.hasWatchAppV2orNewer) {
-						logger.warn(__('%s flag was set, however there are no iOS extensions containing a watch app.', cli.argv['launch-watch-app'] ? '--launch-watch-app' : '--launch-watch-app-only'));
-						logger.warn(__('Disabling launch watch app flag'));
-						cli.argv['launch-watch-app'] = cli.argv['launch-watch-app-only'] = false;
-					}
+				// make sure we have a watch app
+				if ((cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']) && !this.hasWatchAppV2orNewer) {
+					logger.warn(__('%s flag was set, however there are no iOS extensions containing a watch app.', cli.argv['launch-watch-app'] ? '--launch-watch-app' : '--launch-watch-app-only'));
+					logger.warn(__('Disabling launch watch app flag'));
+					cli.argv['launch-watch-app'] = cli.argv['launch-watch-app-only'] = false;
 				}
 
 				// target is simulator
@@ -1761,7 +1838,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					iosVersion:             this.iosSdkVersion,
 					simType:                deviceFamily === 'ipad' ? 'ipad' : 'iphone',
 					simVersion:             this.iosSdkVersion,
-					watchAppBeingInstalled: (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
+					watchAppBeingInstalled: this.hasWatchAppV2orNewer && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
 					watchHandleOrUDID:      cli.argv['watch-device-id'],
 					watchMinOSVersion:      this.watchMinOSVersion,
 					logger: function (msg) {
@@ -1786,26 +1863,35 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function validateCapabilities() {
-				// check if we have any capabilities that we should need a team id
-				if (!this.tiapp.ios['team-id'] && Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this)) {
-					logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
-					if (Object.keys(this.xcodeEnv.teams).length) {
-						logger.log(__('Available teams:'));
-						Object.keys(this.xcodeEnv.teams).forEach(function (id) {
-							var team = this.xcodeEnv.teams[id];
-							logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
-						}, this);
+				// check if we have any capabilities or if we're building with a watch app using Xcode 8 or newer that we should need a team id
+				if (!this.tiapp.ios['team-id']) {
+					var hasCapabilities = Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this);
+					var hasWatchApp = this.hasWatchAppV2orNewer && version.gte(this.xcodeEnv.version, '8.0.0');
+					if (hasCapabilities || hasWatchApp) {
+						if (hasCapabilities) {
+							logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
+						} else {
+							logger.error(__('Xcode %s requires Watch Extensions have a team specified, but a <team-id> is not set.', this.xcodeEnv.version) + '\n');
+						}
+
+						if (Object.keys(this.xcodeEnv.teams).length) {
+							logger.log(__('Available teams:'));
+							Object.keys(this.xcodeEnv.teams).forEach(function (id) {
+								var team = this.xcodeEnv.teams[id];
+								logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
+							}, this);
+							logger.log();
+						} else {
+							logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+						}
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
 						logger.log();
-					} else {
-						logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
+						process.exit(1);
 					}
-					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('    <ios>'.grey);
-					logger.log('        <team-id>TEAM ID</team-id>'.magenta);
-					logger.log('    </ios>'.grey);
-					logger.log('</ti:app>'.grey);
-					logger.log();
-					process.exit(1);
 				}
 			},
 
@@ -1837,8 +1923,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function determineMinIosVer() {
 				// figure out the min-ios-ver that this app is going to support
 				var defaultMinIosSdk = this.packageJson.minIosVersion;
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '8.0')) {
+					defaultMinIosSdk = '8.0';
+				}
+
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
-				if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
+
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '8.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '8.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '8.0'));
+				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
 				} else if (version.lt(this.minIosVer, defaultMinIosSdk)) {
@@ -1885,12 +1980,24 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
+							// Look for legacy module.id.js first
 							module.libFile = path.join(module.modulePath, module.id + '.js');
 							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-								process.exit(1);
+								// then package.json TODO Verify the main property points at reale file under the module!
+								module.libFile = path.join(module.modulePath, 'package.json');
+								if (!fs.existsSync(module.libFile)) {
+									// then index.js
+									module.libFile = path.join(module.modulePath, 'index.js');
+									if (!fs.existsSync(module.libFile)) {
+										// then index.json
+										module.libFile = path.join(module.modulePath, 'index.json');
+										if (!fs.existsSync(module.libFile)) {
+											this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
+											process.exit(1);
+										}
+									}
+								}
 							}
-
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
@@ -2083,6 +2190,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
+	this.currentBuildManifest.showErrorController          = this.showErrorController
 
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
@@ -2421,6 +2529,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		// check if the showErrorController flag has changed
+		if (this.showErrorController !== manifest.showErrorController) {
+			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
+			this.logger.info('  ' + __('Now: %s', this.showErrorController));
+			return true;
+		}
+
 		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
 		// note: as soon as these tiapp.xml settings are written to an encrypted file instead of the binary, we can remove this whole section
 		var tiappSettings = {
@@ -2505,6 +2621,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.info(__('LaunchScreen.storyboard is not supported with Xcode %s, removing from Xcode project', this.xcodeEnv.version));
 	}
 
+	function removeFromBuildPhase(phase, id) {
+		if (phase) {
+			Object.keys(phase).some(function (phaseId) {
+				var files = phase[phaseId].files;
+				if (Array.isArray(files)) {
+					for (var i = 0; i < files.length; i++) {
+						if (files[i].value === id) {
+							files.splice(i, 1);
+							return true;
+						}
+					}
+				}
+			});
+		}
+	}
+
 	// we need to replace all instances of "Titanium" with the app name
 	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
 		var obj = xobjs.PBXFileReference[id];
@@ -2528,19 +2660,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						delete xobjs.PBXBuildFile[bfid];
 						delete xobjs.PBXBuildFile[bfid + '_comment'];
 
-						if (xobjs.PBXResourcesBuildPhase) {
-							Object.keys(xobjs.PBXResourcesBuildPhase).some(function (bpid) {
-								var files = xobjs.PBXResourcesBuildPhase[bpid].files;
-								if (Array.isArray(files)) {
-									for (var i = 0; i < files.length; i++) {
-										if (files[i].value === bfid) {
-											files.splice(i, 1);
-											return true;
-										}
-									}
-								}
-							});
-						}
+						removeFromBuildPhase(xobjs.PBXResourcesBuildPhase, bfid);
+						removeFromBuildPhase(xobjs.PBXFrameworksBuildPhase, bfid);
+
 						return true;
 					}
 				});
@@ -2710,7 +2832,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
 		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
+			return (keychains[keychain].distribution || []).some(function (d) {
 				if (!d.invalid && d.name === this.certDistributionName) {
 					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
 					return true;
@@ -2721,17 +2843,18 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// inject the team id
 	if (teamId) {
-		pbxProject.attributes || (pbxProject.attributes = {});
-		var ta = pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-		ta[mainTargetUuid] || (ta[mainTargetUuid] = {});
-		ta[mainTargetUuid].DevelopmentTeam = teamId;
+		var attr = pbxProject.attributes || (pbxProject.attributes = {});
+		var targetAttr = attr.TargetAttributes || (attr.TargetAttributes = {});
+		var mainTargetAttr = targetAttr[mainTargetUuid] || (targetAttr[mainTargetUuid] = {});
+
+		mainTargetAttr.DevelopmentTeam = teamId;
 
 		// turn on any capabilities
 		Object.keys(caps).forEach(function (cap) {
-			ta[mainTargetUuid].SystemCapabilities || (ta[mainTargetUuid].SystemCapabilities = {});
 			if (cap === 'app-groups') {
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+				var syscaps = mainTargetAttr.SystemCapabilities || (mainTargetAttr.SystemCapabilities = {});
+				syscaps['com.apple.ApplicationGroups.iOS'] || (syscaps['com.apple.ApplicationGroups.iOS'] = {});
+				syscaps['com.apple.ApplicationGroups.iOS'].enabled = 1;
 			}
 		});
 	}
@@ -2743,8 +2866,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}, this);
 
 	// set the target-specific build settings
+	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		if (legacySwift) {
+			delete bs.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		} else {
+			delete bs.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
 	});
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
@@ -2851,6 +2980,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (this.extensions.length) {
 		this.logger.trace(__n('Adding %%d iOS extension', 'Adding %%d iOS extensions', this.extensions.length === 1 ? 1 : 2, this.extensions.length));
 
+		var swiftRegExp = /\.swift$/;
+
 		this.extensions.forEach(function (ext) {
 			var extObjs = ext.objs,
 				extPBXProject = ext.project;
@@ -2928,7 +3059,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					if (extObjs.PBXGroup[key] === 'Resources') {
 						extResourcesGroup = key.split('_')[0];
 					}
-				}
+				});
 
 				// add the extension frameworks to the frameworks group
 				if (extFrameworksGroup) {
@@ -2942,7 +3073,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
 							}
-						}					
+						});
 					});
 				}
 
@@ -2958,7 +3089,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
 								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
 							}
-						}					
+						});
 					});
 				}
 
@@ -3009,6 +3140,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.PBXFileReference[productUuid + '_comment'] = extObjs.PBXFileReference[productUuid + '_comment'];
 
 				// add the groups and files
+				var hasSwiftFiles = false;
 				extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
 					if (child.comment !== target.name) return;
 
@@ -3030,6 +3162,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							if (extObjs.PBXFileReference[child.value]) {
 								xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
 								xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+								if (!hasSwiftFiles && swiftRegExp.test(xobjs.PBXFileReference[child.value + '_comment'])) {
+									hasSwiftFiles = true;
+								}
 							}
 
 							if (extObjs.PBXVariantGroup && extObjs.PBXVariantGroup[child.value]) {
@@ -3038,6 +3173,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								varGroup.children && varGroup.children.forEach(function (child) {
 									xobjs.PBXFileReference[child.value] = extObjs.PBXFileReference[child.value];
 									xobjs.PBXFileReference[child.value + '_comment'] = extObjs.PBXFileReference[child.value + '_comment'];
+									if (!hasSwiftFiles && swiftRegExp.test(xobjs.PBXFileReference[child.value + '_comment'])) {
+										hasSwiftFiles = true;
+									}
 								});
 							}
 						});
@@ -3114,6 +3252,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 							value: entFileRefUuid,
 							comment: entFile
 						});
+					}
+
+					if (hasSwiftFiles && !extBuildSettings.SWIFT_VERSION) {
+						extBuildSettings.SWIFT_VERSION = '2.2';
 					}
 				}, this);
 
@@ -3208,7 +3350,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
-	if (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) {
+	if (this.hasWatchAppV2orNewer) {
 		// TODO: Make sure the version of Xcode can support this version of watch app
 
 		var once = 0,
@@ -3306,7 +3448,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 
 			if (target === 'device') {
 				return getPP(provisioning.development, uuid);
-			} else if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+			} else if (target === 'dist-appstore' || target === 'dist-adhoc') {
 				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid);
 			}
 		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
@@ -3320,17 +3462,17 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
+		if (!plist.hasOwnProperty('application-identifier')) {
+			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+		}
+		if (pp.apsEnvironment) {
+			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
+		}
 		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
 			plist['beta-reports-active'] = true;
 		}
 		if (!plist.hasOwnProperty('get-task-allow')) {
 			plist['get-task-allow'] = pp.getTaskAllow;
-		}
-		if (pp.apsEnvironment && !plist.hasOwnProperty('aps-environment')) {
-			plist['aps-environment'] = pp.apsEnvironment;
-		}
-		if (!plist.hasOwnProperty('application-identifier')) {
-			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
 		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
@@ -3701,6 +3843,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			'__PROJECT_NAME__':     this.tiapp.name,
 			'__PROJECT_ID__':       this.tiapp.id,
 			'__DEPLOYTYPE__':       this.deployType,
+			'__SHOW_ERROR_CONTROLLER__':       this.showErrorController,
 			'__APP_ID__':           this.tiapp.id,
 			'__APP_ANALYTICS__':    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 			'__APP_PUBLISHER__':    this.tiapp.publisher,
@@ -4148,37 +4291,80 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	var exe = this.xcodeEnv.executables.xcodebuild,
-		args = ['clean'];
+		args = ['clean'],
+		tries = 0,
+		lastErr = null,
+		done = false;
 
 	this.logger.info(__('Cleaning Xcode derived data'));
 	this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.join(' ')).cyan));
 
-	var child = spawn(exe, args, {
-		cwd: this.buildDir,
-		env: {
-			DEVELOPER_DIR: this.xcodeEnv.path,
-			TMPDIR: process.env.TMPDIR,
-			HOME: process.env.HOME,
-			PATH: process.env.PATH
-		}
-	});
+	// If going back and forth between compiling with different iOS SDKs that
+	// are tied to different Xcode versions, then it's possible for the
+	// CoreSimulator service to panic and cause a "INTERNAL ERROR: Uncaught
+	// exception". To fix it, we simply retry up to 3 times. If we detect a
+	// failure, we wait 500ms between tries. Super hacky, but seems to work.
+	async.whilst(
+		function () {
+			return tries++ < 3 && !done;
+		},
 
-	function display(data) {
-		data.toString().split('\n').forEach(function (line) {
-			line = line.trim();
-			line && this.logger.trace(line);
-		}, this);
-	}
+		function (cb) {
+			var child = spawn(exe, args, {
+				cwd: this.buildDir,
+				env: {
+					DEVELOPER_DIR: this.xcodeEnv.path,
+					TMPDIR: process.env.TMPDIR,
+					HOME: process.env.HOME,
+					PATH: process.env.PATH
+				}
+			});
 
-	child.stdout.on('data', display.bind(this));
-	child.stderr.on('data', display.bind(this));
+			var out = '';
+			child.stdout.on('data', function (data) {
+				out += data.toString();
+			});
+			child.stderr.on('data', function (data) {
+				out += data.toString();
+			});
 
-	child.on('close', function (code) {
-		if (!code && !fs.existsSync(this.xcodeAppDir)) {
-			wrench.mkdirSyncRecursive(this.xcodeAppDir);
-		}
-		next(code);
-	}.bind(this));
+			child.on('close', function (code) {
+				if (code === 65) {
+					lastErr = out;
+					done = true;
+					cb();
+				} else if (code) {
+					this.logger.debug(__('Retrying to clean project (code %s)', code));
+					lastErr = out;
+					setTimeout(cb, 500);
+				} else if (out.indexOf('INTERNAL ERROR') !== -1) {
+					this.logger.debug(__('Retrying to clean project'));
+					lastErr = out;
+					setTimeout(cb, 500);
+				} else {
+					done = true;
+					lastErr = null;
+					fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
+					out.split('\n').forEach(function (line) {
+						line = line.trim();
+						line && this.logger.trace(line);
+					}, this);
+					cb();
+				}
+			}.bind(this));
+		}.bind(this),
+
+		function () {
+			if (lastErr) {
+				lastErr.split('\n').forEach(function (line) {
+					line = line.trim();
+					line && this.logger.error(line);
+				}, this);
+				process.exit(1);
+			}
+			next();
+		}.bind(this)
+	);
 };
 
 iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists() {
@@ -4255,10 +4441,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
-	function walk(src, dest, ignore, origSrc) {
+	function walk(src, dest, ignore, origSrc, prefix) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', ''),
+				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -4266,7 +4452,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, null, origSrc || src);
+					return walk(from, to, null, origSrc || src, prefix);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4389,17 +4575,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
-		var filename = path.basename(module.libFile);
-		if (jsFiles[filename]) {
-			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
-			this.logger.error(__('Please rename the file, then rebuild') + '\n');
-			process.exit(1);
-		}
-		jsFiles[filename] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
+		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
+		var dest = path.join(this.xcodeAppDir, path.basename(module.id));
+		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
+		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
+		walk(module.modulePath, dest, /^(apidoc|docs|documentation|example)$/, null, module.id); // TODO Consult some .moduleignore file in the module or something? .npmignore?
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
@@ -5613,6 +5793,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UISLIDER',
 			'#define USE_TI_UITEXTFIELD',
 			'#define USE_TI_UITEXTAREA',
+			'#define USE_TI_UISCROLLABLEVIEW',
+			'#define USE_TI_UIIOSSTEPPER',
+			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
 
@@ -5649,7 +5832,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
-	this.unmarkBuildDirFiles(path.join(this.buildDir, 'ModuleCache'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'DerivedData'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', 'Intermediates'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function (product) {
@@ -5910,7 +6093,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
-		'-derivedDataPath', this.buildDir,
+		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')

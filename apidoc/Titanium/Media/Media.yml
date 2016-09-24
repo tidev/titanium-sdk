@@ -5,7 +5,6 @@ description: |
     The Media module is used to access the device's media-related functionality, such
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
-
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
@@ -65,6 +64,11 @@ methods:
         type: MusicLibraryOptionsType
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
+    description: |
+        In iOS 6, Apple introduced the Info.plist key `NSPhotoLibraryUsageDescription` that is used to display an
+        own description while authorizing gallery permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        for more information. 
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
@@ -107,9 +111,9 @@ methods:
     since:
         android: "3.3.0"
   - name: setOverrideAudioRoute
-    summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode.
+    summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode.
     description: | 
-        By default, when using the <Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD> session mode,
+        By default, when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode,
         the audio output is routed to the speaker in the receiver. This method lets you specify
         that audio should be routed to the built-in speaker.
 
@@ -146,13 +150,48 @@ methods:
         the latitude and longitude will be set to '0'.  This is not an error, but a limitation which 
         Apple has put on the camera API.
 
+        Important: Use <Titanium.Media.hasCameraPermissions> and <Titanium.Media.requestCameraPermissions>
+        to ask for camera permissions. This is especially important when running on iOS 10 and later, since 
+        the application may crash otherwise.
+
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
+  - name: hasMusicLibraryPermissions
+    summary: Returns `true` if the app has camera access.
+    description: |
+        Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
+        iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+  - name: requestMusicLibraryPermissions
+    summary: Request permissions for the native music-library.
+    description: |
+        Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
+        iOS versions. Because of that, the callback will ignore the permission-check and always return 
+        `{success: true}` for devices that run iOS < 9.3.
+
+        Important: On iOS 10, Apple introduced the Info.plist key `NSAppleMusicUsageDescription` that is used to 
+        display an own description while authorizing the music library. This key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        for more information.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant camera access.
+        type: Callback<RequestMusicLibraryAccessResult>
+    platforms: [iphone, ipad]
+    since: "6.0.0"
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
+    description: | 
+        Use <Titanium.Media.hasMusicLibraryPermissions> to check the granted permissions and  
+        <Titanium.Media.requestMusicLibraryPermissions> to request the permissions. This is especially important
+        when running on an iOS 10 device, because the music-library access will crash without having the privacy-key
+        `NSAppleMusicUsageDescription` that is specified in <Titanium.Media.requestMusicLibraryPermissions>.
     platforms: [iphone, ipad]
     parameters:
       - name: query
@@ -213,9 +252,16 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        On iOS, the request view will only show if user has not yet made a decision.
-        If the user has, the callback will return the earlier decision. To change the permission
-        the user needs to change it in device settings.
+        This method requests `Manifest.permission.CAMERA` on Android. If you require other permissions, you can also
+        use <Titanium.Android.requestPermissions>.
+
+        In iOS 6, Apple introduced the Info.plist key `NSCameraUsageDescription` that is used to display an
+        own description while authorizing camera permissions. In iOS 10, this key is mandatory when taking a photo 
+        and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information. When using the camera to take a video, you also need the `NSMicrophoneUsageDescription` key. 
+        In addition, the authorization dialog will only show if user has not made a decision, yet.
+        If the user has, the callback will return the earlier decision. To change the permission the user needs to 
+        change it in the device settings.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -226,7 +272,7 @@ methods:
   - name: requestCameraAccess
     deprecated:
        since: "5.1.0"
-       notes: Please use [requestCameraPermissions]<Titanium.Media.requestCameraPermissions>
+       notes: Please use <Titanium.Media.requestCameraPermissions> instead.
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting
@@ -282,24 +328,62 @@ methods:
         grants or denies permission, the system remembers the choice for future use in the same app. 
         If permission is not granted, or if the user has not yet responded to the permission prompt, 
         any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        for more information.
     platforms: [iphone, ipad]
+    deprecated:
+        since: "5.1.0"
+        notes: Use <Titanium.Media.requestAudioPermissions> instead.
     since: 3.1.3
+    parameters:
+      - name: callback
+        summary: Callback function to execute when the users responds to the authorization alert.
+        type: Callback<MediaAuthorizationResponse>
+
+  - name: hasAudioPermissions
+    summary: Returns `true` if the app has audio permissions.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad]
+    since: "6.0.0"    
+
+  - name: requestAudioPermissions
+    summary: Request the user's permission for audio recording.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user 
+        grants or denies permission, the system remembers the choice for future use in the same app. 
+        If permission is not granted, or if the user has not yet responded to the permission prompt, 
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        for more information.
+    platforms: [iphone, ipad]
+    since: 5.1.0
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
         type: Callback<MediaAuthorizationResponse>
         
 events:
+  - name: cameraready
+    summary: Fires when the camera overlay is ready to take pictures.
+    platforms: [android]
+    since: "6.0.0"
   - name: linechange
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the [routechange](Titanium.Media.routechange) event instead.
+        notes: Titanium no longer fires this event. Use the <Titanium.Media.routechange> event instead.
     summary: Fired when an audio line type change is detected.
     platforms: [iphone, ipad]
   - name: recordinginput
     deprecated:
         since: "3.4.2"
-        notes: Titanium no longer fires this event. Use the [canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
+        notes: Titanium no longer fires this event. Use the <Titanium.Media.canRecord> property to check if an input hardware is available.
     summary: Fired when the availablity of recording input changes.
     properties:
       - name: available
@@ -563,7 +647,7 @@ properties:
         This category is appropriate for simultaneous recording and playback, and also for 
         applications that record and play back but not simultaneously. If you want to ensure 
         that sounds such as Messages alerts do not play while your application is recording, 
-        use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally 
+        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally 
         disallows mixing iPod audio with application audio.
 
         In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
@@ -574,7 +658,7 @@ properties:
   - name: AUDIO_SESSION_MODE_RECORD
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
+        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY_*` constants defined in <Titanium.Media>.
         removed: "6.0.0"
     summary: Session mode for recording audio; it silences playback audio.
     type: Number
@@ -779,7 +863,7 @@ properties:
     osver: {ios: {min: "7.0"}}
     deprecated:
         since: "5.2.0"
-        notes: Use [CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
+        notes: Use <Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN> instead.
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
@@ -986,6 +1070,28 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: QUALITY_640x480
+    summary: Media type constant for medium-quality video recording. 
+    description: |
+        If recording, specifies that you want to use VGA-quality video recording (pixel dimensions 
+        of 640x480).
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+  - name: QUALITY_IFRAME_1280x720
+    summary: Media type constant for medium-quality video recording. 
+    description: If recording, specifies that you want to use 1280x720 iFrame format.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 6.0.0 
+  - name: QUALITY_IFRAME_960x540
+    summary: Media type constant for medium-quality video recording. 
+    description: If recording, specifies that you want to use 960x540 iFrame format.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: 6.0.0 
   - name: UNKNOWN_ERROR
     summary: Constant for unknown media error.
     type: Number
@@ -1246,7 +1352,7 @@ properties:
   - name: audioLineType
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of [currentRoute](Titanium.Media.currentRoute) property defined in <Titanium.Media>.
+        notes: Use <Titanium.Media.currentRoute> instead.
     summary: Returns the line type constant for the current line type.
     type: Number
     platforms: [iphone, ipad]
@@ -1270,7 +1376,8 @@ properties:
   - name: audioSessionMode
     deprecated:
         since: "3.4.2"
-        notes: Deprecated in favor of the Titanium.Media.audioSessionCategory property.
+        notes: Use <Titanium.Media.audioSessionCategory> instead.
+        removed: "6.0.0"
     summary: A constant for the audio session mode to be used.
     description: |
         Set to one of the `AUDIO_SESSION_MODE` constants defined in <Titanium.Media>.
@@ -1341,7 +1448,7 @@ properties:
         Returns the authorization status for the camera.
     deprecated:
         since: "5.2.0"
-        notes: Use cameraAuthorization instead.
+        notes: Use <Titanium.Media.cameraAuthorization> instead.
     type: Number
     constants: Titanium.Media.CAMERA_AUTHORIZATION_*
     platforms: [iphone, ipad]
@@ -1535,10 +1642,10 @@ properties:
     default: false
   - name: mediaTypes 
     summary: | 
-        Array of media type constants to allow. Note: iOS 9.1 only allows to
-        select existing photos from the gallery, capturing new live photos is 
-        not supported by the iOS public API, yet.
-    constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
+        Array of media type constants to allow. Note: If you want to select live photos, iOS only  allows
+        you to select existing live photos from the gallery, capturing new live photos is not supported by 
+        iOS public API, yet.
+    constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_LIVEPHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
     platforms: [android, iphone, ipad]
@@ -1554,6 +1661,7 @@ properties:
     summary: Constant to indicate the video quality during capture. 
     type: Number
     platforms: [android, iphone, ipad]
+    constants: Titanium.Media.QUALITY_*
     since:
         android: 5.4.0  
   - name: whichCamera
@@ -1579,7 +1687,9 @@ properties:
   - name: transform
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
-        Can be used to size and position the camera or photogallery view behind an overlay view. 
+        Can be used to size and position the camera or photogallery view behind an overlay view.
+        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
+        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]
@@ -1669,6 +1779,13 @@ properties:
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad]
+  - name: allowMultiple
+    summary: Specifies if the user should be able to select multiple photos.
+    description: |
+        The allowMultiple property is only available on Android API 18 and above.
+    type: Boolean
+    platforms: [android]
+    since: "6.0.0"
 
 ---
 name: CameraMediaItemType
@@ -1705,7 +1822,7 @@ properties:
     since: "3.1.0"
   - name: livePhoto
     summary: |
-        The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
+        The live photo object, as a <Titanium.UI.iOS.LivePhoto> and 
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto
     since: "5.2.0"
@@ -1798,6 +1915,10 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: ErrorResponse
 ---
 name: RequestCameraAccessResult
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+---
+name: RequestMusicLibraryAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
 ---

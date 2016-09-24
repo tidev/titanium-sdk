@@ -133,8 +133,7 @@ events:
   - name: android:back
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidback](Titanium.UI.Window.androidback) (without a colon).
+        notes: Use <Titanium.UI.Window.androidback> instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -145,8 +144,7 @@ events:
   - name: android:camera
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidcamera](Titanium.UI.Window.androidcamera) (without a colon).
+        notes: Use <Titanium.UI.Window.androidcamera> instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -157,8 +155,7 @@ events:
   - name: android:focus
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidfocus](Titanium.UI.Window.androidfocus) (without a colon).
+        notes: Use <Titanium.UI.Window.androidfocus> instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -169,8 +166,7 @@ events:
   - name: android:search
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidsearch](Titanium.UI.Window.androidsearch) (without a colon).
+        notes: Use <Titanium.UI.Window.androidsearch> instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -181,8 +177,7 @@ events:
   - name: android:voldown
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidvoldown](Titanium.UI.Window.androidvoldown) (without a colon).
+        notes: Use <Titanium.UI.Window.androidvoldown> instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -193,8 +188,7 @@ events:
   - name: android:volup
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [androidvolup](Titanium.UI.Window.androidvolup) (without a colon).
+        notes: Use <Titanium.UI.Window.androidvolup> instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -365,6 +359,7 @@ properties:
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
+        You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
     platforms: [iphone, ipad, mobileweb]
     type: String
 
@@ -471,6 +466,54 @@ properties:
     default: false
     since: 3.2.0
 
+  - name: hidesBarsOnSwipe
+    summary: Set this to true to hide the navigation bar on swipe.
+    description: |
+        When this property is set to true, an upward swipe hides the navigation bar and toolbar. 
+        A downward swipe shows both bars again.  If the toolbar does not have any items, it remains
+        visible even after a swipe.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsOnTap
+    summary: Set this to true to hide the navigation bar on tap.
+    description: |
+        When the value of this property is true, the navigation controller toggles the hiding and 
+        showing of its navigation bar and toolbar in response to an otherwise unhandled tap 
+        in the content area.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsWhenVerticallyCompact
+    summary: Set this to true to hide the navigation bar in a vertically compact environment.
+    description: |
+        When the value of this property is true, the navigation controller hides its navigation bar 
+        and toolbar when it transitions to a vertically compact environment. 
+        Upon returning to a vertically regular environment, the navigation controller automatically shows both bars again. 
+        In addition, unhandled taps in the content area cause the navigation controller to show both bars again.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
+  - name: hidesBarsWhenKeyboardAppears
+    summary: Set this to true to hide the navigation bar when the keyboard appears.
+    description: |
+        When this property is set to true, the appearance of the keyboard causes the 
+        navigation controller to hide its navigation bar and toolbar.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 6.0.0
+    osver: {ios: {min: "8.0"}}
+
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
@@ -561,14 +604,14 @@ properties:
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
-        iOS Notes: For modal windows that cover the previous window, the previous window is 
+        iOS notes: For modal windows that cover the previous window, the previous window is 
         removed from the render stack after the modal window finishes opening. If the 
         modal window is semi-transparent, the underlying window will be visible during the 
         transition animation, but disappear as soon as the animation is completed. (In general 
         all modal windows cover the previous window, except for iPad modal windows using the 
         Page sheet or Form sheet style.)
 
-        Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
+        Android notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
         *and* you wish to use the `opacity` property at any time during the window's lifetime,
         be sure to set an `opacity` value **before** opening the window.  You can later change that
         value -- and you can set it to 1 for full opacity if you wish -- but the important thing
@@ -586,7 +629,17 @@ properties:
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
     type: Number
-
+  
+  - name: onBack
+    summary: |
+        Callback function that overrides the default behavior when the user presses the **Back** 
+        button.
+    description: |
+        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
+        callback if you explicitly want to override the back button behavior.
+    type: Callback<Object>
+    platforms: [android]
+  
   - name: orientationModes
     summary: |
         Array of supported orientation modes, specified using the orientation
@@ -906,7 +959,7 @@ properties:
     summary: Loads a JavaScript file from a local URL.
     deprecated:
         since: 3.5.0
-        removed: 3.6.0
+        removed: 6.0.0
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
         [Alloy Framework](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
@@ -1206,7 +1259,7 @@ description: |
             </Window>
         </Alloy>
 
-    `app/controllers/index.xml`:
+    `app/controllers/index.js`:
 
         var foo = require('foo');
         foo.setData({foobar: 42});
@@ -1308,17 +1361,22 @@ description: |
 
     The example below is a modal window using the Form sheet style:
 
-    ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
+    <img src="images/window/window-modal.png" width="400" />
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var window = Titanium.UI.createWindow();
-        window.open({
-          modal:true,
-          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+        var win = Ti.UI.iOS.createNavigationWindow({
+            window: Ti.UI.createWindow({
+                title: "Modal Window"
+            })
         });
 
+        win.open({
+            modal: true,
+            modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+            modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
+        });
+        
     #### Mobile Web Behavior
 
     On Mobile Web, windows are always modal, blocking input to underlying
@@ -1356,7 +1414,7 @@ description: |
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
-        a.addEventListener('complete', function(){
+        a.addEventListener('complete', function() {
             $.index.animate({
                 transform: Ti.UI.create2DMatrix(),
                 duration: 200

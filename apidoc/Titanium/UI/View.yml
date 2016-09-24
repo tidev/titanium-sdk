@@ -432,6 +432,19 @@ events:
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
+        
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
 
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -477,6 +490,18 @@ events:
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Penciland are 9.1 or later.
+        type: Number
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -520,6 +545,18 @@ events:
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
 
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -559,6 +596,18 @@ events:
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewX
+        summary: |
+            The x value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
+        type: Number
+
+      - name: azimuthUnitVectorInViewY
+        summary: |
+            The y value of the unit vector that points in the direction of the azimuth of the stylus.
+            Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
 
   - name: twofingertap
@@ -708,7 +757,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
+        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
     summary: |
         Finishes a batch update of the View's layout properties and schedules a layout pass of the 
         view tree.
@@ -812,7 +861,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
+        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -864,7 +913,7 @@ methods:
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
-        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
+        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
     parameters:
       - name: params
         summary: Layout properties to be updated.
@@ -1466,6 +1515,40 @@ properties:
     permission: read-only
     since: "2.0.0"
 
+  - name: rotation
+    summary: Clockwise 2D rotation of the view in degrees.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: rotationX
+    summary: Clockwise rotation of the view in degrees (x-axis).
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: rotationY
+    summary: Clockwise rotation of the view in degrees (y-axis).
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+
+  - name: scaleX
+    summary: Scaling of the view in x-axis in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
+    
+  - name: scaleY
+    summary: Scaling of the view in y-axis in pixels.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 5.4.0
 
   - name: size
     summary: |

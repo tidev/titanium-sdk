@@ -229,7 +229,11 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	logger.log(styleHeading(__('iOS Simulators')));
 	if (data.simulators.ios && Object.keys(data.simulators.ios).length) {
-		Object.keys(data.simulators.ios).sort().forEach(function (ver) {
+		function sortVersion(a, b) {
+			return appc.version.eq(a, b) ? 0 : appc.version.lt(a, b) ? -1 : 1;
+		}
+
+		Object.keys(data.simulators.ios).sort(sortVersion).forEach(function (ver) {
 			logger.log(String(ver).grey);
 			logger.log(data.simulators.ios[ver].map(function (sim) {
 				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [

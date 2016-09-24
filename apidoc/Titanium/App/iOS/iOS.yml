@@ -5,6 +5,27 @@ summary: |
     create and manage local notifications and background services.
 description: |
 
+    ### Remote Notifications with Xcode 8+
+    
+    In Xcode 8 and later, you need to add the push capabilities to your application manually, since Xcode does not reference 
+    them from the provisioning profile automatically any more. To do so, you need to create an entitlements file called 
+    `<app-name>.entitlements`, where `<app-name>` should be replaced with the app-name used in your `tiapp.xml`. When using Alloy, 
+    the file needs to be created in `app/platform/iphone/` and in `platform/ios/` when using a classic project. The content of 
+    that file should look like this:
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+        	<key>aps-environment</key>
+        	<string>development</string>
+        </dict>
+        </plist>
+    
+    Please note that you either need to specify **development** for device-builds or **production** for distribution builds on 
+    the App Store. We are working on automating that process, so the developer does not need to do additional steps. 
+    Please follow [TIMOB-23908](https://jira.appcelerator.org/browse/TIMOB-23908) on JIRA for the process of that.
+
     ### Local Notifications
 
     Local notifications are a way for an application that is not running in the foreground to let
@@ -786,6 +807,33 @@ events:
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
+        
+        You can send extra information with a silent push using extra:
+        
+            {
+              aps: {
+                'content-available': 1
+              },
+              extra: {
+                foo: 'bar'
+              }
+            }
+            
+        In the event handler for <code>silentpush</code>, your code may look something like this:
+        
+            {
+              "handlerId": "SilentPush-1415976886.375816",
+              "aps": {
+                "content-available": 1,
+              },
+              "extra": {
+                "foo": "bar"
+              },
+              "bubbles": true,
+              "type": "silentpush",
+              "source": {},
+              "cancelBubble": false
+            }
     properties:
       - name: handlerId
         summary: |
@@ -1097,6 +1145,18 @@ events:
     osver: {ios: {min: "9.0"}}
     since: '5.1.0'
 
+  - name: handleurl
+    summary: Fired when a new URL is handled by the application.
+    description: |
+        Incoming URL's can either be triggered by an external application or
+        links inside your <Titanium.UI.WebView> / <Modules.SafariDialog>.
+    properties:
+      - name: launchOptions
+        summary: The launch options that are related to opening the URL.
+        type: LaunchOptionsType
+    osver: {ios: {min: "8.0"}}
+    since: "6.0.0"
+
 ---
 name: NotificationParams
 summary: |
@@ -1178,7 +1238,22 @@ properties:
     type: Dictionary
     optional: true
     since: "5.4.0"
-    
+
+---
+name: LaunchOptionsType
+summary: |
+    Dictionary object of parameters used to identify an incoming URL that is handled 
+    by the application.
+since: "6.0.0"    
+platforms: [iphone, ipad]
+properties:
+  - name: source
+    summary: The application or service that triggered the handled URL.
+    type: String
+  - name: url
+    summary: The url that was triggered by the application or service.
+    type: String
+        
 ---
 name: UserNotificationSettings
 summary: |

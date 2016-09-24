@@ -74,7 +74,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use keyboardAppearance instead
+        notes: Use <Titanium.UI.TextArea.keyboardAppearance> instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -154,7 +154,7 @@ properties:
         
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -165,7 +165,7 @@ properties:
         
     type: Number
     constants: Titanium.UI.AUTOLINK_*
-    default: <Titanium.UI.iOS.AUTODETECT_NONE> in iOS, undefined in Android
+    default: <Titanium.UI.AUTOLINK_NONE>
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad]
     
@@ -245,7 +245,7 @@ properties:
   - name: handleLinks
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
     description: |
-        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK),
+        When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK),
         this property controls if the system should handle that link automatically. Only valid on iOS 7 and above. 
     type: Boolean
     default: false
@@ -296,6 +296,28 @@ properties:
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
+ 
+  - name: padding
+    summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
+    type: TextAreaPadding
+    platforms: [android, iphone, ipad]
+    since: 6.0.0
+    
+  - name: paddingLeft
+    summary: Left padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextArea.padding> instead.
+    
+  - name: paddingRight
+    summary: Right padding of this text field.
+    type: Number
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.0.0"
+        notes: Use <Titanium.UI.TextArea.padding> instead.
     
   - name: returnKeyType
     summary: |
@@ -400,7 +422,7 @@ events:
   - name: link
     summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
     description: |
-        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.iOS.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
         This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
     properties:
       - name: url
@@ -466,20 +488,20 @@ examples:
         Example using a custom keyboard toolbar:
         
             var send = Ti.UI.createButton({
-                style : Ti.UI.iPhone.SystemButtonStyle.DONE,
+                style : Ti.UI.iOS.SystemButtonStyle.DONE,
                 title : 'Send'
             });
             
             var camera = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.CAMERA
+                systemButton : Ti.UI.iOS.SystemButton.CAMERA
             });
             
             var cancel = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.CANCEL
+                systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
             
             var flexSpace = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
             var textarea = Ti.UI.createTextArea({
@@ -519,3 +541,16 @@ properties:
   - name: length
     summary: Number of characters selected.
     type: Number
+---    
+name: TextAreaPadding
+summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
+since: "6.0.0"
+platforms: [android, iphone, ipad]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+    
+  - name: right
+    type: Number
+    summary: Right padding

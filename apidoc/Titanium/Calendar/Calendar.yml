@@ -52,7 +52,14 @@ methods:
     description: |
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
-        the user has to manually enable the permission in device settings.
+        the user has to manually enable the permission in device settings. This method requests `Manifest.permission.READ_CALENDAR` 
+        and `Manifest.permission.WRITE_CALENDAR` on Android. If yourequire other permissions, you can also use 
+        <Titanium.Android.requestPermissions>.
+
+        In iOS 6, Apple introduced the Info.plist key `NSCalendarsUsageDescription` that is used to display an
+        own description while authorizing calendar permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
+
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant calendar access.
@@ -63,7 +70,7 @@ methods:
   - name: requestEventsAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use [requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
+        notes: Use <Titanium.Calendar.requestCalendarPermissions> instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
@@ -199,7 +206,7 @@ properties:
     platforms: [android, iphone, ipad]
     deprecated:
         since: "5.2.0"
-        notes: Use [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
+        notes: Use <Titanium.Calendar.STATUS_CANCELED> instead.
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
@@ -481,13 +488,174 @@ properties:
     permission: read-only
     platforms: [android]
 
+  - name: ATTENDEE_STATUS_UNKNOWN
+    summary: Attendee status is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_PENDING
+    summary: Attendee status is pending.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_ACCEPTED
+    summary: Attendee status is accepted.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_DECLINED
+    summary: Attendee status is declined.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_TENTATIVE
+    summary: Attendee status is tentative.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_DELEGATED
+    summary: Attendee status is delegated.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_STATUS_IN_PROCESS
+    summary: Attendee status is in process.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_UNKNOWN
+    summary: Attendee role is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_OPTIONAL
+    summary: Attendee role is optional.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_REQUIRED
+    summary: Attendee role is required.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_CHAIR
+    summary: Attendee role is chair.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_ROLE_NON_PARTICIPANT
+    summary: Attendee is not a participant.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_UNKNOWN
+    summary: Attendee type is unknown.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_PERSON
+    summary: Attendee type is person.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_ROOM
+    summary: Attendee type is room.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_RESOURCE
+    summary: Attendee type is resource.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: ATTENDEE_TYPE_GROUP
+    summary: Attendee type is group.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+
+  - name: SOURCE_TYPE_LOCAL
+    summary: A local calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_EXCHANGE
+    summary: A microsoft exchange calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_CALDAV
+    summary: A calDev calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_MOBILEME
+    summary: A mobileMe calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_SUBSCRIBED
+    summary: A subscribed calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_BIRTHDAYS
+    summary: A birthday calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
   - name: eventsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
     deprecated:
         since: "5.2.0"
-        notes: Use calendarAuthorization instead.
+        notes: Use <Titanium.Calendar.calendarAuthorization> instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only

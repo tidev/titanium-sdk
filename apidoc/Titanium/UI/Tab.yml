@@ -191,6 +191,17 @@ properties:
     type: String
     platforms: [iphone,ipad]
 
+  - name: badgeColor
+    summary: |
+        If this item displays a badge, this color will be used for the badge's background. 
+        If set to null, the default background color will be used instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+
   - name: icon
     summary: Icon URL for this tab.
     description: |
@@ -293,7 +304,7 @@ events:
     summary: Fired when the tab loses focus.
     deprecated:
         since: "5.2.0"
-        notes: Use unselected instead.
+        notes: Use <Titanium.UI.Tab.unselected> instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -341,7 +352,7 @@ events:
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
-        notes: Use selected instead.
+        notes: Use <Titanium.UI.Tab.selected> instead.
     properties:
       - name: index
         summary: Index of the current active tab.

@@ -8,8 +8,8 @@ description: |
     labels. 
     
     To provide spacing between items in the toolbar, you can use the special iOS system button types, 
-    [FIXED_SPACE](Titanium.UI.iPhone.SystemButton.FIXED_SPACE) and 
-    [FLEXIBLE_SPACE](Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE).
+    [FIXED_SPACE](Titanium.UI.iOS.SystemButton.FIXED_SPACE) and 
+    [FLEXIBLE_SPACE](Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE).
     
     Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
     for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
@@ -99,19 +99,19 @@ examples:
         
             var send = Titanium.UI.createButton({
                 title: 'Send',
-                style: Titanium.UI.iPhone.SystemButtonStyle.DONE,
+                style: Titanium.UI.iOS.SystemButtonStyle.DONE,
             });
             
             var camera = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iPhone.SystemButton.CAMERA,
+                systemButton: Titanium.UI.iOS.SystemButton.CAMERA,
             });
             
             var cancel = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iPhone.SystemButton.CANCEL
+                systemButton: Titanium.UI.iOS.SystemButton.CANCEL
             });
             
-            flexSpace = Titanium.UI.createButton({
-                systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            var flexSpace = Titanium.UI.createButton({
+                systemButton:Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
             var toolbar = Titanium.UI.iOS.createToolbar({
@@ -134,19 +134,19 @@ examples:
         
             var send = Titanium.UI.createButton({
                 title: 'Send',
-                style: Titanium.UI.iPhone.SystemButtonStyle.DONE,
+                style: Titanium.UI.iOS.SystemButtonStyle.DONE,
             });
             
             var camera = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iPhone.SystemButton.CAMERA,
+                systemButton: Titanium.UI.iOS.SystemButton.CAMERA,
             });
             
             var cancel = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iPhone.SystemButton.CANCEL
+                systemButton: Titanium.UI.iOS.SystemButton.CANCEL
             });
             
             flexSpace = Titanium.UI.createButton({
-                systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+                systemButton:Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
             var toolbar = Titanium.UI.iOS.createToolbar({
@@ -168,11 +168,11 @@ examples:
 
                         <!-- The Items tag sets the Toolbar.items property. -->
                         <Items>
-                            <Button id="send" title="Send" style="Ti.UI.iPhone.SystemButtonStyle.DONE" />
+                            <Button id="send" title="Send" style="DONE" />
                             <FlexSpace/>
-                            <Button id="camera" systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                            <Button id="camera" systemButton="CAMERA" />
                             <FlexSpace/>
-                            <Button id="cancel" systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                            <Button id="cancel" systemButton="CANCEL" />
                         </Items>
 
                         <!-- Place additional views for the Toolbar here. -->
