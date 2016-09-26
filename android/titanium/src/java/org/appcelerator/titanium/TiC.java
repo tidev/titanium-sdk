@@ -1931,6 +1931,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_INTENT = "onIntent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE = "onCreate";
 
 	/**
