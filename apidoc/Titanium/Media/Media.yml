@@ -5,7 +5,6 @@ description: |
     The Media module is used to access the device's media-related functionality, such
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
-
     For examples of using the Media APIs, refer to the
     [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
@@ -160,8 +159,39 @@ methods:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
+  - name: hasMusicLibraryPermissions
+    summary: Returns `true` if the app has camera access.
+    description: |
+        Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
+        iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
+    returns:
+        type: Boolean 
+    platforms: [iphone, ipad]
+    since: "6.0.0"
+  - name: requestMusicLibraryPermissions
+    summary: Request permissions for the native music-library.
+    description: |
+        Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
+        iOS versions. Because of that, the callback will ignore the permission-check and always return 
+        `{success: true}` for devices that run iOS < 9.3.
+
+        Important: On iOS 10, Apple introduced the Info.plist key `NSAppleMusicUsageDescription` that is used to 
+        display an own description while authorizing the music library. This key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        for more information.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant camera access.
+        type: Callback<RequestMusicLibraryAccessResult>
+    platforms: [iphone, ipad]
+    since: "6.0.0"
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
+    description: | 
+        Use <Titanium.Media.hasMusicLibraryPermissions> to check the granted permissions and  
+        <Titanium.Media.requestMusicLibraryPermissions> to request the permissions. This is especially important
+        when running on an iOS 10 device, because the music-library access will crash without having the privacy-key
+        `NSAppleMusicUsageDescription` that is specified in <Titanium.Media.requestMusicLibraryPermissions>.
     platforms: [iphone, ipad]
     parameters:
       - name: query
@@ -1657,7 +1687,9 @@ properties:
   - name: transform
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
-        Can be used to size and position the camera or photogallery view behind an overlay view. 
+        Can be used to size and position the camera or photogallery view behind an overlay view.
+        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
+        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]
@@ -1790,7 +1822,7 @@ properties:
     since: "3.1.0"
   - name: livePhoto
     summary: |
-        The live photo object, as a [LivePhoto](Titanium.UI.iOS.LivePhoto) and 
+        The live photo object, as a <Titanium.UI.iOS.LivePhoto> and 
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto
     since: "5.2.0"
@@ -1883,6 +1915,10 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: ErrorResponse
 ---
 name: RequestCameraAccessResult
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+---
+name: RequestMusicLibraryAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
 ---

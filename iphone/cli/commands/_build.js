@@ -1747,7 +1747,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				var xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
@@ -2621,6 +2621,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.info(__('LaunchScreen.storyboard is not supported with Xcode %s, removing from Xcode project', this.xcodeEnv.version));
 	}
 
+	function removeFromBuildPhase(phase, id) {
+		if (phase) {
+			Object.keys(phase).some(function (phaseId) {
+				var files = phase[phaseId].files;
+				if (Array.isArray(files)) {
+					for (var i = 0; i < files.length; i++) {
+						if (files[i].value === id) {
+							files.splice(i, 1);
+							return true;
+						}
+					}
+				}
+			});
+		}
+	}
+
 	// we need to replace all instances of "Titanium" with the app name
 	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
 		var obj = xobjs.PBXFileReference[id];
@@ -2644,19 +2660,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						delete xobjs.PBXBuildFile[bfid];
 						delete xobjs.PBXBuildFile[bfid + '_comment'];
 
-						if (xobjs.PBXResourcesBuildPhase) {
-							Object.keys(xobjs.PBXResourcesBuildPhase).some(function (bpid) {
-								var files = xobjs.PBXResourcesBuildPhase[bpid].files;
-								if (Array.isArray(files)) {
-									for (var i = 0; i < files.length; i++) {
-										if (files[i].value === bfid) {
-											files.splice(i, 1);
-											return true;
-										}
-									}
-								}
-							});
-						}
+						removeFromBuildPhase(xobjs.PBXResourcesBuildPhase, bfid);
+						removeFromBuildPhase(xobjs.PBXFrameworksBuildPhase, bfid);
+
 						return true;
 					}
 				});
@@ -2837,17 +2843,18 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// inject the team id
 	if (teamId) {
-		pbxProject.attributes || (pbxProject.attributes = {});
-		var ta = pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-		ta[mainTargetUuid] || (ta[mainTargetUuid] = {});
-		ta[mainTargetUuid].DevelopmentTeam = teamId;
+		var attr = pbxProject.attributes || (pbxProject.attributes = {});
+		var targetAttr = attr.TargetAttributes || (attr.TargetAttributes = {});
+		var mainTargetAttr = targetAttr[mainTargetUuid] || (targetAttr[mainTargetUuid] = {});
+
+		mainTargetAttr.DevelopmentTeam = teamId;
 
 		// turn on any capabilities
 		Object.keys(caps).forEach(function (cap) {
-			ta[mainTargetUuid].SystemCapabilities || (ta[mainTargetUuid].SystemCapabilities = {});
 			if (cap === 'app-groups') {
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+				var syscaps = mainTargetAttr.SystemCapabilities || (mainTargetAttr.SystemCapabilities = {});
+				syscaps['com.apple.ApplicationGroups.iOS'] || (syscaps['com.apple.ApplicationGroups.iOS'] = {});
+				syscaps['com.apple.ApplicationGroups.iOS'].enabled = 1;
 			}
 		});
 	}
@@ -3449,7 +3456,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 
 			if (target === 'device') {
 				return getPP(provisioning.development, uuid);
-			} else if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+			} else if (target === 'dist-appstore' || target === 'dist-adhoc') {
 				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid);
 			}
 		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
@@ -3463,17 +3470,17 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
+		if (!plist.hasOwnProperty('application-identifier')) {
+			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+		}
+		if (pp.apsEnvironment) {
+			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
+		}
 		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
 			plist['beta-reports-active'] = true;
 		}
 		if (!plist.hasOwnProperty('get-task-allow')) {
 			plist['get-task-allow'] = pp.getTaskAllow;
-		}
-		if (pp.apsEnvironment && !plist.hasOwnProperty('aps-environment')) {
-			plist['aps-environment'] = pp.apsEnvironment;
-		}
-		if (!plist.hasOwnProperty('application-identifier')) {
-			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
 		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
@@ -5796,6 +5803,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UITEXTAREA',
 			'#define USE_TI_UISCROLLABLEVIEW',
 			'#define USE_TI_UIIOSSTEPPER',
+			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
 

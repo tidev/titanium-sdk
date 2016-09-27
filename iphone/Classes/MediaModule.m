@@ -574,7 +574,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self requestAudioPermissions:args];
 }
 
--(NSNumber*)hasAudioPermissions
+-(NSNumber*)hasAudioPermissions:(id)unused
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
     
@@ -1088,9 +1088,56 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
 }
 
+-(NSNumber*)hasMusicLibraryPermissions:(id)unused
+{
+    // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
+    return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+}
+
+-(void)requestMusicLibraryPermissions:(id)args
+{
+    NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    KrollCallback * callback = args;
+    
+    if ([TiUtils isIOS9_3OrGreater]) {
+        TiThreadPerformOnMainThread(^(){
+            [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
+                BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
+                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                         thisObject:self];
+                [[callback context] enqueue:invocationEvent];
+                RELEASE_TO_NIL(invocationEvent);
+            }];
+        }, NO);
+    } else {
+        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+        return;
+    }
+}
+
 -(NSArray*)queryMusicLibrary:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSDictionary);
+    
+    NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
+    
+    if ([TiUtils isIOS9_3OrGreater] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
+        NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
+    }
+    
+    if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
     
     NSMutableSet* predicates = [NSMutableSet set];
     for (NSString* prop in [MediaModule filterableItemProperties]) {

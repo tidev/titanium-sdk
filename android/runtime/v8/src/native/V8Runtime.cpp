@@ -419,7 +419,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
 	// So as our last act, run IdleNotification until it returns true so we can clean up all
 	// the stuff we just released references for above.
-	while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
+	while (!V8Runtime::v8_isolate->IdleNotificationDeadline(V8Runtime::platform->MonotonicallyIncreasingTime() + 1.0));
 
 	// Typically in a V8 embedded app, we'd clean everything up here. But since
 	// an app may just be closed/backgrounded but still alive, we can't do this
