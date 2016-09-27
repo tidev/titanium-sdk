@@ -654,7 +654,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     //FunctionName();
     //Forward the callback
-    [self application:application didReceiveRemoteNotification:userInfo];
+    if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+        [self application:application didReceiveRemoteNotification:userInfo];
+    }
     
     //This only here for Simulator builds.
     
