@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.net.LocalSocket;
@@ -103,6 +104,11 @@ public final class JSDebugger
 
 		// Tell C++ side to hook up the debug message handler
 		nativeEnable();
+
+		// Immediately break the debugger so we can set up our breakpoints and
+		// options when we connect, before the app starts running.
+		// This allows us to hit breakpoints as early as the first line in app.js
+		nativeDebugBreak();
 	}
 
 	/**
@@ -193,7 +199,7 @@ public final class JSDebugger
 	private class V8MessageHandler implements Runnable
 	{
 		private OutputStream output;
-		private boolean stop;
+		private AtomicBoolean stop = new AtomicBoolean(false);
 
 		// Dummy message used to stop the sentinel loop if it was waiting on v8Messages.take() while stop() got called.
 		private static final String STOP_MESSAGE = "STOP_MESSAGE";
@@ -205,7 +211,7 @@ public final class JSDebugger
 
 		public void stop()
 		{
-			this.stop = true;
+			this.stop.set(true);
 			// put dummy message into queue to unlock on take() below.
 			JSDebugger.this.v8Messages.add(STOP_MESSAGE);
 		}
@@ -214,7 +220,7 @@ public final class JSDebugger
 		public void run()
 		{
 			this.sendHandshake();
-			while (!stop)
+			while (!stop.get())
 			{
 				try
 				{
@@ -229,7 +235,6 @@ public final class JSDebugger
 				catch (Throwable t)
 				{
 					// ignore
-					t.printStackTrace();
 				}
 			}
 
@@ -240,7 +245,6 @@ public final class JSDebugger
 			catch (IOException e)
 			{
 				// ignore
-				e.printStackTrace();
 			}
 		}
 
@@ -254,7 +258,6 @@ public final class JSDebugger
 			catch (IOException e)
 			{
 				// FIXME Stop the DebuggerMessageHandler too!
-				e.printStackTrace();
 			}
 		}
 
@@ -290,16 +293,10 @@ public final class JSDebugger
 		}
 	}
 
-	private enum State
-	{
-		Header, Message
-	}
-
 	private class DebuggerMessageHandler implements Runnable
 	{
 		private BufferedReader input;
-		private Scanner scanner;
-		private boolean stop;
+		private AtomicBoolean stop = new AtomicBoolean(false);
 
 		public DebuggerMessageHandler(Socket socket) throws IOException
 		{
@@ -308,99 +305,94 @@ public final class JSDebugger
 
 		public void stop()
 		{
-			this.stop = true;
-			this.scanner.close();
+			this.stop.set(true);
+			try
+			{
+				this.input.close();
+			}
+			catch (IOException e1)
+			{
+				// ignore
+			}
 		}
 
 		public void run()
 		{
-			scanner = new Scanner(this.input);
-			scanner.useDelimiter(LINE_ENDING);
-
-			List<String> headers = new ArrayList<String>();
-			String line;
-			State state = State.Header;
-			int messageLength = -1;
-			String leftOver = null;
-
 			try
 			{
-				while (!stop && ((line = (leftOver != null) ? leftOver : scanner.nextLine()) != null))
-				{
-					switch (state)
-					{
-					case Header:
-						if (line.length() == 0)
-						{
-							state = State.Message;
-						}
-						else
-						{
-							headers.add(line);
-							if (line.startsWith("Content-Length:"))
-							{
-								String strLen = line.substring(15).trim();
-								messageLength = Integer.parseInt(strLen);
-							}
+				while (!stop.get()) {
+					int length = readHeaders();
+					if (length == -1) {
+						break; // assume we hit EOF or got told to stop
+					}
+					//Log.w(TAG, "Message length: " + length);
 
-							if (leftOver != null)
-							{
-								leftOver = null;
-							}
-						}
-						break;
-
-					case Message:
-						if ((-1 < messageLength) && (messageLength <= line.length()))
-						{
-							String message = line.substring(0, messageLength);
-							if (messageLength < line.length())
-							{
-								leftOver = line.substring(messageLength);
-							}
-
-							state = State.Header;
-							headers.clear();
-
-							JSDebugger.this.sendMessage(message);
-						}
-						else
-						{
-							if (leftOver == null)
-							{
-								leftOver = line;
-							}
-							else
-							{
-								leftOver += line;
-							}
-						}
+					String message = readMessage(length);
+					if (message == null) {
+						// we return null if told to stop, or reading didn't give us the number of characters we expected
 						break;
 					}
+
+					// send along the message to the debugger
+					//Log.w(TAG, "Forwarding Message: " + message);
+					JSDebugger.this.sendMessage(message);
 				}
 			}
-			catch (NoSuchElementException e)
+			catch (IOException e)
 			{
-				e.printStackTrace();
+				//e.printStackTrace();
 
 				// TODO Stop the V8MessageHandler too!
-				// try
-				// {
-				// 	responseHandlerCloseable.close();
-				// }
-				// catch (IOException e1)
-				// {
-				// 	e1.printStackTrace();
-				// }
 			}
 			finally
 			{
-				this.stop = true;
+				this.stop.set(true);
 				JSDebugger.this.sendMessage(DISCONNECT_MESSAGE);
-
-				scanner.close();
+				try
+				{
+					this.input.close();
+				}
+				catch (IOException e1)
+				{
+					// ignore
+				}
 			}
 		}
-	}
 
+		private int readHeaders() throws IOException
+		{
+			int messageLength = -1;
+			String line;
+			while (!stop.get() && ((line = this.input.readLine()) != null))
+			{
+				final int lineLength = line.length();
+				// empty line means end of headers
+				if (lineLength == 0)
+				{
+					return messageLength;
+				}
+				// if it's telling us the message length, record that
+				if (line.startsWith("Content-Length:"))
+				{
+					String strLen = line.substring(15).trim();
+					messageLength = Integer.parseInt(strLen);
+				}
+				// otherwise, ignore the other headers - BUT MAKE SURE TO CONSUME THEM!
+			}
+			return messageLength;
+		}
+
+		private String readMessage(int length) throws IOException
+		{
+			if (stop.get()) {
+				return null;
+			}
+			char[] buf = new char[length];
+			int result = this.input.read(buf, 0, length);
+			if (result != length) {
+				return null;
+			}
+			return new String(buf);
+		}
+	}
 }
