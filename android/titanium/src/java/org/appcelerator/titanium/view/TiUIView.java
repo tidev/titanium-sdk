@@ -776,6 +776,7 @@ public abstract class TiUIView
 			Log.i(TAG, key + " not yet implemented.");
 		} else if (key.equals(TiC.PROPERTY_OPACITY)
 			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)
 			|| key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 			|| key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 			// Update first before querying.
@@ -1121,21 +1122,21 @@ public abstract class TiUIView
 	
 	/**
 	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this. 
-	 * @param bgColor The background color of the view. 
+	 * @param backgroundColor The background color of the view. 
 	 * @param rippleColor The ripple color.
 	 */
-	private void applyTouchFeedback(@NonNull Integer bgColor, @Nullable Integer rippleColor) {
-	    Context appContext = TiApplication.getInstance();
-	    if (rippleColor == null) {
-	        TypedValue resolvedAttr = new TypedValue();
-	        if (appContext.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, resolvedAttr, true)) {
-	            rippleColor = appContext.getResources().getColor(resolvedAttr.resourceId);
-	        } else {
-	            throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
-	        }
-	    }
-	    RippleDrawable rippleDrawable = new RippleDrawable(ColorStateList.valueOf(rippleColor), new ColorDrawable(bgColor), null);
-	    nativeView.setBackground(rippleDrawable);
+	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor) {
+		if (rippleColor == null) {
+			Context context = TiApplication.getInstance();
+			TypedValue attribute = new TypedValue();
+			if (context.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, attribute, true)) {
+				rippleColor = context.getResources().getColor(attribute.resourceId);
+			} else {
+				throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
+			}
+		}
+		RippleDrawable rippleDrawable = new RippleDrawable(ColorStateList.valueOf(rippleColor), new ColorDrawable(backgroundColor), null);
+		nativeView.setBackground(rippleDrawable);
 	}
 
 	public void onFocusChange(final View v, boolean hasFocus)
