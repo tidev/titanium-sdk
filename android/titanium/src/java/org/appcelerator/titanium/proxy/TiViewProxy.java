@@ -561,36 +561,33 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			Log.e(TAG, "Add called with a null child");
 			return;
 		}
-
 		if (children == null) {
 			children = new ArrayList<TiViewProxy>();
 		}
-		
-		if (args.getClass().isArray()) {
-			for (Object view : (Object[]) args) {
-				if (view instanceof TiViewProxy) {
-					add((TiViewProxy) view);
+		if (args instanceof Object[]) {
+			for (Object arg : (Object[]) args) {
+				if (arg instanceof TiViewProxy) {
+					add((TiViewProxy) arg);
 				} else {
-					Log.w(TAG, "add() unsupported argument type: " + view.getClass().getSimpleName());
+					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
 				}
 			}
-		} else {
+		} else if (args instanceof TiViewProxy) {
 			TiViewProxy child = (TiViewProxy) args;
-
 			if (peekView() != null) {
 				if (TiApplication.isUIThread()) {
 					handleAdd(child);
 					return;
 				}
-
 				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_CHILD), child);
-
 			} else {
 				children.add(child);
 				child.parent = new WeakReference<TiViewProxy>(this);
 			}
-			//TODO zOrder	
-		}		
+			//TODO zOrder
+		} else {
+			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
+		}
 	}
 
 	@Kroll.method
