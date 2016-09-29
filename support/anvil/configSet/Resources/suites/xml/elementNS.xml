@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shops>
+   <candystore xmlns:candy="http://candystore.com">
+      <candy:taste>tasty</candy:taste>
+      <candy:texture>creamy</candy:texture>
+      <candy:ingredient candy:amount="one cup">milk</candy:ingredient>
+      <candy:ingredient candy:amount="two cup">cocoa</candy:ingredient>
+      <candy:ingredient candy:amount="three cup">sugar</candy:ingredient>
+   </candystore>
+   <toystore xmlns:toy="http://toystore.com">
+      <toy:type>panda bear</toy:type>
+      <toy:texture>soft</toy:texture>
+      <toy:material toy:content="1 lb">cotton</toy:material>
+      <toy:material toy:content="2 lb">polyester</toy:material>
+      <toy:material toy:content="3 lb">buttons</toy:material>
+   </toystore>
+</shops>
