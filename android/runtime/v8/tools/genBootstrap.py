@@ -30,8 +30,10 @@ genDir = os.path.join(os.path.dirname(thisDir), "generated")
 if not os.path.exists(genDir):
 	os.makedirs(genDir)
 
+androidModuleDir = os.path.abspath(os.path.join(androidDir, "..", "support", "module", "android"))
 jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
+sys.path.append(androidModuleDir)
 import bootstrap
 
 def loadBindings():
@@ -99,3 +101,4 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
