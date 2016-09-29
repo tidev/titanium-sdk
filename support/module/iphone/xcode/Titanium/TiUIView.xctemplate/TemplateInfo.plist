@@ -1,0 +1,8 @@
+{
+	MainTemplateFile = "class.m";
+	CounterpartTemplateFile = "class.h";
+	Description = "A Titanium view class file, with an optional header which includes the \"TiUIView.h\" header.";
+	Platforms = (
+		"com.apple.platform.iphoneos",
+	);
+}

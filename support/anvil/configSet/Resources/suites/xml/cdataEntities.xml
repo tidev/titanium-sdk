@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data><subdata>1 2 3 4 <element>5 <subelement>6</subelement></element> <![CDATA[7 8]]> 9 10 &amp; &lt; &gt;</subdata></data>
