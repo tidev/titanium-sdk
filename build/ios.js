@@ -167,10 +167,6 @@ IOS.prototype.package = function (packager, next) {
 				function (cb) {
 					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', {'__VERSION__': this.sdkVersion}, cb);
 				}.bind(this),
-				// Copy support/osx/* to zipSDKDir
-				function (cb) {
-					fs.copy(path.join(SUPPORT_DIR, 'osx'), packager.zipSDKDir, cb);
-				}.bind(this),
 				// Copy iphone/Resources/modules/<name>/* to this.zipSDKDir/iphone/modules/<name>/images
 				function (cb) {
 					var moduleDirs = fs.readdirSync(path.join(IOS_ROOT, 'Resources', 'modules'));
