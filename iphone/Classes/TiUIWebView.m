@@ -790,6 +790,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+	// Ignore "Frame Load Interrupted" errors. Seen after opening url-schemes that
+	// are already handled by the `Ti.App.iOS.handleurl` event
+	if (error.code == 102 && [error.domain isEqual:@"WebKitErrorDomain"]) return;
+    
 	NSString *offendingUrl = [self url];
 
 	if ([[error domain] isEqual:NSURLErrorDomain])
