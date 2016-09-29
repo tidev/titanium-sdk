@@ -89,7 +89,7 @@ exports.init = function (logger, config, cli) {
 							)
 						);
 					} else {
-						ex = new appc.exception(__('An error occurred running the iOS Simulator (exit code %s)', code));
+						ex = new appc.exception(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
 					}
 				}
 				finished && finished(ex);
