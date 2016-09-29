@@ -725,7 +725,7 @@ methods:
         summary: |
             View to add to this view's hierarchy.
 
-            On the iOS and Windows platforms, you may pass an array of views.
+            You may pass an array of views, e.g. `view.add([subview1, subview2]`.
         type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
