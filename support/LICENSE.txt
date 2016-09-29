@@ -1,5 +1,5 @@
 ======================================
-Appcelerator Titanium Mobile
+Appcelerator Titanium
 Copyright 2008-2016 Appcelerator, Inc.
 ======================================
 
