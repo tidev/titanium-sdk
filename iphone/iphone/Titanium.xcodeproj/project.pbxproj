@@ -261,6 +261,7 @@
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
+		838267951D9DAD6800F99248 /* TiLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 838267941D9DAD6800F99248 /* TiLogServer.m */; };
 		83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */; };
 		83A749EF1BE7EB1D00757383 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83A749EE1BE7EB1D00757383 /* LaunchScreen.storyboard */; };
 		841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -846,6 +847,8 @@
 		823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchSessionModule.h; sourceTree = "<group>"; };
 		823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchSessionModule.m; sourceTree = "<group>"; };
 		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		838267931D9DAD4400F99248 /* TiLogServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLogServer.h; sourceTree = "<group>"; };
+		838267941D9DAD6800F99248 /* TiLogServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLogServer.m; sourceTree = "<group>"; };
 		83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
 		83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
 		83A749EE1BE7EB1D00757383 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -1368,73 +1371,75 @@
 		24CA8A0B111161E10084E2DE /* API */ = {
 			isa = PBXGroup;
 			children = (
-				B473FB65126F8E8900E29C73 /* Utility Macros */,
-				3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */,
-				3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */,
-				24F620601199F28600EEAD3C /* TiErrorController.h */,
-				24F620571199F27700EEAD3C /* TiErrorController.m */,
-				8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */,
-				8484E39F17A8279500C24B02 /* TiRootViewController.h */,
-				8484E3A017A8279500C24B02 /* TiRootViewController.m */,
-				8484E3A517A865F700C24B02 /* TiViewController.h */,
-				8484E3A617A865F700C24B02 /* TiViewController.m */,
-				84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */,
-				84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */,
-				24F620521199F26500EEAD3C /* TiApp.h */,
-				24F620531199F26500EEAD3C /* TiApp.m */,
-				24F5AEB2111F9DE9005C9199 /* TiFile.h */,
-				24F5AEB3111F9DE9005C9199 /* TiFile.m */,
-				24CA8A2C111161FD0084E2DE /* TiUIView.m */,
-				24CA8A2D111161FD0084E2DE /* TiUIView.h */,
-				24CA8A18111161FD0084E2DE /* TiViewProxy.m */,
-				24CA8A19111161FD0084E2DE /* TiViewProxy.h */,
-				24CA8AB8111161FD0084E2DE /* TiModule.m */,
-				24CA8AB9111161FD0084E2DE /* TiModule.h */,
-				24CA8A0E111161FD0084E2DE /* XHRBridge.m */,
-				24CA8A0F111161FD0084E2DE /* XHRBridge.h */,
-				24CA8AB0111161FD0084E2DE /* TiProxy.m */,
-				24CA8AB1111161FD0084E2DE /* TiProxy.h */,
-				24CA8AAB111161FD0084E2DE /* TiTab.h */,
-				24CA8AD0111161FD0084E2DE /* TiEvaluator.h */,
-				24CA8AE0111161FE0084E2DE /* TiBlob.m */,
-				24CA8AE1111161FE0084E2DE /* TiBlob.h */,
-				24CA8AD7111161FD0084E2DE /* TiController.h */,
-				24CA8AC6111161FD0084E2DE /* TiHost.m */,
-				24CA8AC7111161FD0084E2DE /* TiHost.h */,
-				24CA8AE2111161FE0084E2DE /* TiBase.m */,
-				24CA8AE3111161FE0084E2DE /* TiBase.h */,
-				24CA8AE6111161FE0084E2DE /* TiAnimation.m */,
-				24CA8AE7111161FE0084E2DE /* TiAnimation.h */,
-				24CA8AE8111161FE0084E2DE /* TiAction.m */,
-				24CA8AE9111161FE0084E2DE /* TiAction.h */,
-				24CA8B3B111161FE0084E2DE /* Bridge.m */,
 				24CA8B3C111161FE0084E2DE /* Bridge.h */,
+				24CA8B3B111161FE0084E2DE /* Bridge.m */,
 				24CA89A81111615D0084E2DE /* KrollBridge.h */,
 				24CA89A91111615D0084E2DE /* KrollBridge.m */,
-				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
-				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
-				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
-				24F29E2C12209C920099351D /* TiStylesheet.h */,
-				24F29E2D12209C920099351D /* TiStylesheet.m */,
-				24F29E6E1220CE0A0099351D /* TiLocale.h */,
-				24F29E6F1220CE0A0099351D /* TiLocale.m */,
-				DABF3ECD134D210400836137 /* TiBuffer.h */,
-				DABF3ECE134D210400836137 /* TiBuffer.m */,
-				DABF3EDA134D2E4300836137 /* TiStreamProxy.h */,
-				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
-				DAE541E113577BEC00A65123 /* TiDataStream.h */,
-				DAE541E213577BEC00A65123 /* TiDataStream.m */,
-				1DD9388A1609230900091777 /* TiBindingTiValue.h */,
-				1DD9388B1609230900091777 /* TiBindingTiValue.m */,
-				1D0061BF160283820016BBEE /* TiBindingRunLoop.h */,
-				1D0061C0160283820016BBEE /* TiBindingRunLoop.m */,
+				24CA8AE9111161FE0084E2DE /* TiAction.h */,
+				24CA8AE8111161FE0084E2DE /* TiAction.m */,
+				24CA8AE7111161FE0084E2DE /* TiAnimation.h */,
+				24CA8AE6111161FE0084E2DE /* TiAnimation.m */,
+				24F620521199F26500EEAD3C /* TiApp.h */,
+				24F620531199F26500EEAD3C /* TiApp.m */,
+				24CA8AE3111161FE0084E2DE /* TiBase.h */,
+				24CA8AE2111161FE0084E2DE /* TiBase.m */,
 				1D1029A615F9769100372EC0 /* TiBindingEvent.h */,
 				1D1029A715F9769100372EC0 /* TiBindingEvent.m */,
+				1D0061BF160283820016BBEE /* TiBindingRunLoop.h */,
+				1D0061C0160283820016BBEE /* TiBindingRunLoop.m */,
+				1DD9388A1609230900091777 /* TiBindingTiValue.h */,
+				1DD9388B1609230900091777 /* TiBindingTiValue.m */,
+				24CA8AE1111161FE0084E2DE /* TiBlob.h */,
+				24CA8AE0111161FE0084E2DE /* TiBlob.m */,
+				DABF3ECD134D210400836137 /* TiBuffer.h */,
+				DABF3ECE134D210400836137 /* TiBuffer.m */,
+				24CA8AD7111161FD0084E2DE /* TiController.h */,
+				8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */,
+				DAE541E113577BEC00A65123 /* TiDataStream.h */,
+				DAE541E213577BEC00A65123 /* TiDataStream.m */,
+				24F620601199F28600EEAD3C /* TiErrorController.h */,
+				24F620571199F27700EEAD3C /* TiErrorController.m */,
+				24CA8AD0111161FD0084E2DE /* TiEvaluator.h */,
 				5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */,
 				5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */,
+				24F5AEB2111F9DE9005C9199 /* TiFile.h */,
+				24F5AEB3111F9DE9005C9199 /* TiFile.m */,
+				24CA8AC7111161FD0084E2DE /* TiHost.h */,
+				24CA8AC6111161FD0084E2DE /* TiHost.m */,
+				24F29E6E1220CE0A0099351D /* TiLocale.h */,
+				24F29E6F1220CE0A0099351D /* TiLocale.m */,
+				838267931D9DAD4400F99248 /* TiLogServer.h */,
+				838267941D9DAD6800F99248 /* TiLogServer.m */,
+				24CA8AB9111161FD0084E2DE /* TiModule.h */,
+				24CA8AB8111161FD0084E2DE /* TiModule.m */,
+				3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */,
+				3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */,
+				24CA8AB1111161FD0084E2DE /* TiProxy.h */,
+				24CA8AB0111161FD0084E2DE /* TiProxy.m */,
+				8484E39F17A8279500C24B02 /* TiRootViewController.h */,
+				8484E3A017A8279500C24B02 /* TiRootViewController.m */,
+				DABF3EDA134D2E4300836137 /* TiStreamProxy.h */,
+				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
+				24F29E2C12209C920099351D /* TiStylesheet.h */,
+				24F29E2D12209C920099351D /* TiStylesheet.m */,
+				24CA8AAB111161FD0084E2DE /* TiTab.h */,
+				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
+				845DB6731AD574AC00A26E7A /* TiToJS.h */,
+				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
+				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
+				24CA8A2D111161FD0084E2DE /* TiUIView.h */,
+				24CA8A2C111161FD0084E2DE /* TiUIView.m */,
+				8484E3A517A865F700C24B02 /* TiViewController.h */,
+				8484E3A617A865F700C24B02 /* TiViewController.m */,
+				24CA8A19111161FD0084E2DE /* TiViewProxy.h */,
+				24CA8A18111161FD0084E2DE /* TiViewProxy.m */,
 				502A68E916F0428500661EF6 /* TiViewTemplate.h */,
 				502A68EA16F0428500661EF6 /* TiViewTemplate.m */,
-				845DB6731AD574AC00A26E7A /* TiToJS.h */,
+				84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */,
+				84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */,
+				B473FB65126F8E8900E29C73 /* Utility Macros */,
+				24CA8A0F111161FD0084E2DE /* XHRBridge.h */,
+				24CA8A0E111161FD0084E2DE /* XHRBridge.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -2560,6 +2565,7 @@
 				LastUpgradeCheck = 0430;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = WP4952RUHJ;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -2798,6 +2804,7 @@
 				24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
 				84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
 				159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */,
+				838267951D9DAD6800F99248 /* TiLogServer.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
@@ -2949,7 +2956,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = WP4952RUHJ;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2968,7 +2975,10 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = Titanium;
+				PROVISIONING_PROFILE = "45becf60-ff91-46e5-90b9-b74264fce268";
+				PROVISIONING_PROFILE_SPECIFIER = "Chris Barber Dev Testapp3";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2998,6 +3008,7 @@
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

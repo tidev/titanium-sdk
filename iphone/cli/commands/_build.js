@@ -2790,7 +2790,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}

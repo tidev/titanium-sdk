@@ -27,14 +27,6 @@ NSString * const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
-#ifdef __LOG__ID__
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = [paths objectAtIndex:0];
-	NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log",STRING(__LOG__ID__)]];
-	freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding],"w+",stderr);
-	fprintf(stderr,"[INFO] Application started\n");
-#endif
-
 	int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");
     [pool release];
     return retVal;

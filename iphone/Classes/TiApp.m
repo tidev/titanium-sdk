@@ -9,6 +9,7 @@
 #import "TiApp.h"
 #import "Webcolor.h"
 #import "TiBase.h"
+#import "TiLogServer.h"
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
@@ -307,8 +308,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	[TiExceptionHandler defaultExceptionHandler];
+	[TiLogServer startServer];
 	[self initController];
-    [self launchToUrl];
+	[self launchToUrl];
 	[self boot];
 }
 
@@ -370,6 +372,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
 	[TiExceptionHandler defaultExceptionHandler];
+	[TiLogServer startServer];
 
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -864,6 +867,8 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #endif
 	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown:condition];
+
+	[TiLogServer stopServer];
 
 	// THE CODE BELOW IS WRONG.
 	// It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.
