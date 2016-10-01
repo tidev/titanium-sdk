@@ -1041,6 +1041,42 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
+#ifdef USE_TI_MEDIAREQUESTPHOTOGALLERYPERMISSIONS
+-(void)requestPhotoGalleryPermissions:(id)arg
+{
+    if (![TiUtils isIOS8OrGreater]) {
+        return;
+    }
+    ENSURE_SINGLE_ARG(arg, KrollCallback);
+    KrollCallback * callback = arg;
+    
+    TiThreadPerformOnMainThread(^(){
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            BOOL granted = (status == PHAuthorizationStatusAuthorized);
+            NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
+            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                   eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
+                                                                    thisObject:self];
+            [[callback context] enqueue:invocationEvent];
+        }];
+    }, YES);
+}
+#endif
+
+#ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
+-(NSNumber*)hasPhotoGalleryPermissions:(id)unused
+{
+    NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+    
+    // Gallery permissions are required when selecting media from the gallery
+    if (!galleryPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+    }
+    
+    return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
+}
+#endif
+
 /**
  End Camera Support
  **/
