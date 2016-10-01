@@ -18,11 +18,17 @@
 @interface MediaModule : TiModule
 <
 	UINavigationControllerDelegate,
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIImagePickerControllerDelegate,
+#endif
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
 	MPMediaPickerControllerDelegate,
+#endif
 	UIPopoverControllerDelegate,
 	UIPopoverPresentationControllerDelegate,
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIVideoEditorControllerDelegate
+#endif
 > {
 @private
 	// Camera picker

@@ -1118,9 +1118,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
     [self displayModalPicker:musicPicker settings:args];
 }
-#endif
 
-#ifdef USE_TI_MEDIAHIDEMUSICLIBRARY
 -(void)hideMusicLibrary:(id)args
 {
     ENSURE_UI_THREAD(hideMusicLibrary,args);
@@ -1792,7 +1790,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIAOPENMUSICLIBRARY)
 -(void)handleTrimmedVideo:(NSURL*)theURL withDictionary:(NSDictionary*)dictionary
 {
     TiBlob* media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[theURL path]] autorelease];
@@ -1809,9 +1807,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #pragma mark UIPopoverControllerDelegate
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
     if([popoverController contentViewController] == musicPicker) {
         RELEASE_TO_NIL(musicPicker);
     }
+#endif
     
     RELEASE_TO_NIL(popover);
     [self sendPickerCancel];
@@ -1867,10 +1867,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
 {
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
     if([popoverPresentationController presentedViewController] == musicPicker) {
         RELEASE_TO_NIL(musicPicker);
     }
-    
+#endif
     [self sendPickerCancel];
 }
 
