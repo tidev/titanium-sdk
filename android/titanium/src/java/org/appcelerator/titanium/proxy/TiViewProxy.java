@@ -70,7 +70,7 @@ import android.view.ViewAnimationUtils;
 	"softKeyboardOnFocus", "transform", "elevation", "touchTestId",
 	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
 
-	TiC.PROPERTY_TRANSITION_NAME
+	TiC.PROPERTY_TOUCH_FEEDBACK, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, TiC.PROPERTY_TRANSITION_NAME
 })
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
@@ -551,34 +551,43 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	/**
 	 * Adds a child to this view proxy.
-	 * @param child The child view proxy to add.
+	 * @param args The child view proxy/proxies to add.
 	 * @module.api
 	 */
 	@Kroll.method
-	public void add(TiViewProxy child)
+	public void add(Object args)
 	{
-		if (child == null) {
+		if (args == null) {
 			Log.e(TAG, "Add called with a null child");
 			return;
 		}
-
 		if (children == null) {
 			children = new ArrayList<TiViewProxy>();
 		}
-
-		if (peekView() != null) {
-			if (TiApplication.isUIThread()) {
-				handleAdd(child);
-				return;
+		if (args instanceof Object[]) {
+			for (Object arg : (Object[]) args) {
+				if (arg instanceof TiViewProxy) {
+					add((TiViewProxy) arg);
+				} else {
+					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+				}
 			}
-
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_CHILD), child);
-
+		} else if (args instanceof TiViewProxy) {
+			TiViewProxy child = (TiViewProxy) args;
+			if (peekView() != null) {
+				if (TiApplication.isUIThread()) {
+					handleAdd(child);
+					return;
+				}
+				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_CHILD), child);
+			} else {
+				children.add(child);
+				child.parent = new WeakReference<TiViewProxy>(this);
+			}
+			//TODO zOrder
 		} else {
-			children.add(child);
-			child.parent = new WeakReference<TiViewProxy>(this);
+			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
 		}
-		//TODO zOrder
 	}
 
 	@Kroll.method

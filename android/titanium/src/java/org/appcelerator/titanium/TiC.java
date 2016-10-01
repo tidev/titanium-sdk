@@ -879,6 +879,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 
 	/**
@@ -1932,6 +1942,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_INTENT = "onIntent";
 
 	/**
 	 * @module.api
