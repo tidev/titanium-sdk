@@ -1133,12 +1133,15 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
+#ifdef USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS
 -(NSNumber*)hasMusicLibraryPermissions:(id)unused
 {
     // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
     return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
 }
+#endif
 
+#ifdef USE_TI_MEDIAREQUESTMUSICLIBRARYPERMISSIONS
 -(void)requestMusicLibraryPermissions:(id)args
 {
     NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
@@ -1169,6 +1172,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         return;
     }
 }
+#endif
 
 #ifdef USE_TI_MEDIAQUERYMUSICLIBRARY
 -(NSArray*)queryMusicLibrary:(id)arg
