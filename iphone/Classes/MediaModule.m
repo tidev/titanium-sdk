@@ -211,8 +211,8 @@ MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNKNOWN,-10,@"Media.AUDIO_UNKNOWN",@"3
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(audioLineType,-10,@"Media.audioLineType",@"3.4.2",@"3.6.0",@"Media.currentRoute");
 
 //Constants for currentRoute
-#ifdef USE_TI_MEDIAAUDIOSESSION
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
+#ifdef USE_TI_MEDIAAUDIOPLAYER
+MAKE_SYSTEM_STR(text,AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEOUT,AVAudioSessionPortLineOut)
@@ -449,6 +449,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
 }
 
+#ifdef USE_TI_MEDIAAUDIOPLAYER
 -(void)setAudioSessionCategory:(NSString*)mode
 {
     [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -458,6 +459,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     return [[TiMediaAudioSession sharedSession] sessionMode];
 }
+#endif
 
 -(NSArray*)availableCameraMediaTypes
 {
@@ -514,7 +516,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIACANRECORD
+#ifdef USE_TI_MEDIAAUDIORECORDER
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
@@ -555,6 +557,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 }
 
+#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
@@ -569,6 +572,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     return [[TiMediaAudioSession sharedSession] currentRoute];
 }
+#endif
 
 #pragma mark Public Methods
 
@@ -584,10 +588,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self beep:nil];
 }
 
+#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
 }
+#endif
 
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
@@ -1006,8 +1012,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
     [self requestCameraPermissions:arg];
 }
+#endif
 
 //request camera access. for >= IOS7
+#if defined (USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
 -(void)requestCameraPermissions:(id)arg
 {
     if (![TiUtils isIOS7OrGreater]) {
@@ -2211,6 +2219,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
+#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 1 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe
@@ -2231,10 +2240,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
     }
+#endif
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
 {
+#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 0 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
@@ -2247,6 +2258,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [[TiMediaAudioSession sharedSession] stopAudioSession];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
     }
+#endif
 }
 
 @end
