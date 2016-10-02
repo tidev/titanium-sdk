@@ -2069,7 +2069,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
     
     if (resultsBackgroundColor) {
-        [controller.searchResultsTableView setBackgroundColor:[resultsBackgroundColor _color]];
+        // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+        UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+        [controller.searchResultsTableView setBackgroundColor:color];
     }
     
     if (resultsSeparatorColor) {
