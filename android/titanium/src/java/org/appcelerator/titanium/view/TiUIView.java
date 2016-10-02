@@ -942,7 +942,7 @@ public abstract class TiUIView
 			if (getOuterView() != null) {
 				ViewCompat.setRotationY(getOuterView(), TiConvert.toFloat(newValue));
 			}
-		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOUR)) {
+		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
 		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
@@ -1000,8 +1000,8 @@ public abstract class TiUIView
 			}
 		}
 
-		if (d.containsKey(TiC.PROPERTY_HIDDEN_BEHAVIOUR) && !nativeViewNull) {
-			Object hidden = d.get(TiC.PROPERTY_HIDDEN_BEHAVIOUR);
+		if (d.containsKey(TiC.PROPERTY_HIDDEN_BEHAVIOR) && !nativeViewNull) {
+			Object hidden = d.get(TiC.PROPERTY_HIDDEN_BEHAVIOR);
 			if (hidden != null){
 				hiddenBehavior = TiConvert.toInt(hidden, View.INVISIBLE);
 			} else {

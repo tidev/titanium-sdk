@@ -1428,6 +1428,20 @@ properties:
     permission: read-only
     since: "2.0.0"
     
+  - name: HIDDEN_BEHAVIOR_GONE
+    summary: Release free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: HIDDEN_BEHAVIOR_INVISIBLE
+    summary: Keeps free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: INHERIT
     summary: INHERIT behavior for UI layout.
     description: |

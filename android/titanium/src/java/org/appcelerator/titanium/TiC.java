@@ -1447,7 +1447,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_HIDDEN_BEHAVIOUR = "hiddenBehaviour";
+	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
 
 	/**
 	 * @module.api
