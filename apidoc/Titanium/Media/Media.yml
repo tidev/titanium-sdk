@@ -276,7 +276,6 @@ methods:
         type: Boolean 
     platforms: [iphone, ipad]
     since: "6.0.0"    
-    osver: {ios: {min: "8.0"}}    
 
   - name: requestPhotoGalleryPermissions
     summary: Requests for photo gallery permissions.

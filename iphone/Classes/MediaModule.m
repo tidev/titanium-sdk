@@ -37,6 +37,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIPopoverController.h>
 #import <Photos/Photos.h>
+#ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
+#import <AssetsLibrary/AssetsLibrary.h>
+#endif
 #import "TiUIiOSLivePhoto.h"
 
 // by default, we want to make the camera fullscreen and
@@ -1077,11 +1080,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
     
     // Gallery permissions are required when selecting media from the gallery
-    if (!galleryPermission) {
+    if ([TiUtils isIOS10OrGreater] && !galleryPermission) {
         NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
     }
     
-    return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
+    }
+    
+    // iOS < 8
+    return NUMBOOL([ALAssetsLibrary authorizationStatus] == ALAuthorizationStatusAuthorized);
 }
 #endif
 
