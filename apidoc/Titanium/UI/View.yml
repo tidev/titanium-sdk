@@ -1292,6 +1292,17 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+
+  - name: freeSpace
+    summary: Releases the space when hiding an object
+    description: |
+        If setting `freeSpace` to true it will automatically release the space the view occupied.
+        For example: in a vertical layout the views below the object will move up when you hide
+        an object with `freeSpace:true`.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: 6.0.0
     
   - name: height
     summary: View height, in platform-specific units.
