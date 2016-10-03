@@ -215,7 +215,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(audioLineType,-10,@"Media.audioLine
 
 //Constants for currentRoute
 #ifdef USE_TI_MEDIAAUDIOPLAYER
-MAKE_SYSTEM_STR(text,AVAudioSessionPortLineIn)
+MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEOUT,AVAudioSessionPortLineOut)
@@ -560,7 +560,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 }
 
-#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
@@ -591,7 +591,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self beep:nil];
 }
 
-#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
@@ -2227,7 +2227,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
-#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 1 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe
@@ -2253,7 +2253,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
 {
-#if defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 0 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
