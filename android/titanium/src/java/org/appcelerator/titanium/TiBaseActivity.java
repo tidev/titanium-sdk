@@ -860,10 +860,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 			
 		} else {
-			// this activity was launched from an intent
 			// there are no parent activities to return to
 			// override back press to background the activity
-			if (previousActivity == null) {
+			if (previousActivity == null || previousActivity == getTiApp().getRootActivity()) {
 				this.moveTaskToBack(true);
 				return;
  			}
