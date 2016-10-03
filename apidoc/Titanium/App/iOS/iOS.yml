@@ -319,7 +319,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
     summary: The application is authorized to post user notifications.
@@ -329,7 +329,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
     summary: The application is not authorized to post user notifications.
@@ -339,7 +339,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
     summary: The application does not support this notification type.
@@ -349,7 +349,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_SETTING_ENABLED
     summary: The notification setting is turned on.
@@ -359,7 +359,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_SETTING_DISABLED
     summary: The notification setting is turned off.
@@ -369,7 +369,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
     summary: No banner or alert dialog is presented when the notification is received.
@@ -379,7 +379,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
     summary: A alert dialog is presented when the notification is received.
@@ -389,7 +389,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
     summary: A banner is presented when the notification is received.
@@ -399,7 +399,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -669,7 +669,7 @@ properties:
     type: UserNotificationSettings
     permission: read-only
     deprecated:
-        since: "6.0.0"
+        since: "6.1.0"
         notes: Use <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings> instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
@@ -1205,7 +1205,7 @@ properties:
     summary: The notification identifier.
     description: This property is required in iOS 10 and later.
     optional: false
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: alertAction
     summary: |
@@ -1224,14 +1224,14 @@ properties:
     type: String
     optional: true
     osver: {ios: {min: "8.2"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: alertSubtitle
     summary: Alert subtitle to display.
     type: String
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
@@ -1243,7 +1243,7 @@ properties:
     type: Array<UserNotificationAttachment>
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: badge
     summary: Application badge value.
@@ -1293,7 +1293,7 @@ properties:
     type: Dictionary
     optional: true
     osver: {ios: {min: "8.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
     
 ---
 name: UserNotificationAttachment
@@ -1301,7 +1301,7 @@ summary: |
     Provide at least the property `identifier` and `url` property to identify a local  
     image, sound or video. If your media is invalid, the API will throw an error log and
     skip the invalid attachment.
-since: "6.0.0"
+since: "6.1.0"
 platforms: [iphone, ipad]    
 osver: {ios: {min: "10.0"}}
 

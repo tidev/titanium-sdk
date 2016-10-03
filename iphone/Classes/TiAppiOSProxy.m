@@ -467,7 +467,7 @@
         return nil;
     }
     
-    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.0.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
+    DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"6.1.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
     
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
@@ -783,7 +783,7 @@
 {
     ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
 
-    DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"6.0.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
+    DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"6.1.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
     
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
@@ -799,7 +799,7 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_UI_THREAD(cancelLocalNotification,args);
     
-    DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"6.0.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+    DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
     
     if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8

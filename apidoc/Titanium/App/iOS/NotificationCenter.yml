@@ -7,7 +7,7 @@ summary: |
 extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
-since: "6.0.0"
+since: "6.1.0"
 
 methods:
   - name: getPendingNotifications
@@ -18,7 +18,7 @@ methods:
             The function that is being called after the notifications 
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: getDeliveredNotifications
     summary: Fetches the delivered notifications asynchronously.
@@ -29,27 +29,27 @@ methods:
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: removePendingNotifications
     summary: | 
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: removeDeliveredNotifications
     summary: | 
         Removes the specified delivered notifications from the notification-center.
         If no notifications are specified, all delivered notifications will be removed.
     osver: {ios: {min: "10.0"}}
-    since: "6.0.0"
+    since: "6.1.0"
 
   - name: requestUserNotificationSettings
     summary: |
         Notification types and user notification categories the application is registered to use
         (available on iOS 8 and later).
     type: UserNotificationSettings
-    since: "6.0.0"
+    since: "6.1.0"
 
 ---
 name: UserNotificationCallbackResponse
@@ -57,7 +57,7 @@ summary: |
     Response when receiving pending or local notifications
     in <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "6.0.0"
+since: "6.1.0"
 properties:
   - name: notifications
     type: Array<UserNotificationDictionary>
@@ -70,7 +70,7 @@ summary: |
     when receiving pending or local notifications in 
     <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "6.0.0"
+since: "6.1.0"
 properties:
   - name: alertTitle
     summary: Title of the notification.
@@ -144,7 +144,6 @@ summary: |
 platforms: [iphone, ipad]
 
 properties:
-
   - name: types
     summary: Notification types to use.
     description: | 
