@@ -36,17 +36,23 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -769,6 +775,8 @@ public abstract class TiUIView
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
 			Log.i(TAG, key + " not yet implemented.");
 		} else if (key.equals(TiC.PROPERTY_OPACITY)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)
 			|| key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 			|| key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 			// Update first before querying.
@@ -783,7 +791,12 @@ public abstract class TiUIView
 			boolean hasGradient = hasGradient(d);
 			boolean nativeViewNull = (nativeView == null);
 
-			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder || hasGradient;
+			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder || hasGradient;
+
+			// PROPERTY_BACKGROUND_REPEAT is implicitly passed as false though not used in JS. So check the truth value and proceed.
+			if (!requiresCustomBackground) {
+				requiresCustomBackground = requiresCustomBackground && d.optBoolean(TiC.PROPERTY_BACKGROUND_REPEAT, false);
+			}
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -795,10 +808,14 @@ public abstract class TiUIView
 				if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 					if (!nativeViewNull) {
-						nativeView.setBackgroundColor(bgColor);
-						// A bug only on Android 2.3 (TIMOB-14311).
-						if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-							setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
+						if (canApplyTouchFeedback(d)) {
+							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
+						} else {
+							nativeView.setBackgroundColor(bgColor);
+							// A bug only on Android 2.3 (TIMOB-14311).
+							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+								setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
+							}
 						}
 						nativeView.postInvalidate();
 					}
@@ -962,17 +979,21 @@ public abstract class TiUIView
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 
-			// Set the background color on the view directly only
-			// if there is no border. If a border is present we must
-			// use the TiBackgroundDrawable.
-			if (hasBorder(d)) {
-				if (background == null) {
-					applyCustomBackground(false);
-				}
-				background.setBackgroundColor(bgColor);
-
+			
+			if (canApplyTouchFeedback(d)) {
+				applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 			} else {
-				nativeView.setBackgroundColor(bgColor);
+				// Set the background color on the view directly only
+				// if there is no border. If a border is present we must
+				// use the TiBackgroundDrawable.
+				if (hasBorder(d)) {
+					if (background == null) {
+						applyCustomBackground(false);
+					}
+					background.setBackgroundColor(bgColor);
+				} else {
+					nativeView.setBackgroundColor(bgColor);
+				}
 			}
 		}
 
@@ -1089,6 +1110,33 @@ public abstract class TiUIView
 			}
 			nativeView.setBackgroundDrawable(background);
 		}
+	}
+
+	/**
+	 * @param props View's property dictionary
+	 * @return true if touch feedback can be applied. 
+	 */
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
+		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
+	}
+	
+	/**
+	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this. 
+	 * @param backgroundColor The background color of the view. 
+	 * @param rippleColor The ripple color.
+	 */
+	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor) {
+		if (rippleColor == null) {
+			Context context = TiApplication.getInstance();
+			TypedValue attribute = new TypedValue();
+			if (context.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, attribute, true)) {
+				rippleColor = context.getResources().getColor(attribute.resourceId);
+			} else {
+				throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
+			}
+		}
+		RippleDrawable rippleDrawable = new RippleDrawable(ColorStateList.valueOf(rippleColor), new ColorDrawable(backgroundColor), null);
+		nativeView.setBackground(rippleDrawable);
 	}
 
 	public void onFocusChange(final View v, boolean hasFocus)

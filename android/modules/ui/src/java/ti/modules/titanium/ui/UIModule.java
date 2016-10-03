@@ -172,6 +172,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int ATTRIBUTE_UNDERLINES_STYLE = 4;
 	@Kroll.constant public static final int ATTRIBUTE_LINK = 5;
 	@Kroll.constant public static final int ATTRIBUTE_UNDERLINE_COLOR = 6;
+	@Kroll.constant public static final int ATTRIBUTE_SUPERSCRIPT_STYLE = 7;
+	@Kroll.constant public static final int ATTRIBUTE_SUBSCRIPT_STYLE = 8;
 
 	@Kroll.constant public static final int INPUT_TYPE_CLASS_NUMBER = InputType.TYPE_CLASS_NUMBER;
 	@Kroll.constant public static final int INPUT_TYPE_CLASS_TEXT = InputType.TYPE_CLASS_TEXT;

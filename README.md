@@ -2,7 +2,7 @@ Appcelerator Titanium Mobile
 ============================
 | Travis CI  | Jenkins CI |
 |------------|------------|
-| [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile) | [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium_mobile_prs)](https://jenkins.appcelerator.org/job/titanium_mobile_prs/) |
+| [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile) | [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium_mobile_master)](https://jenkins.appcelerator.org/job/titanium_mobile_master/) |
 
 Welcome to the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications

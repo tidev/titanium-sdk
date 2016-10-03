@@ -42,6 +42,7 @@ exports.version  = packageJson.version;
  *
  * @param {Object} [options] - An object containing various settings.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects the all Windows phone information.
+ * @param {Boolean} [options.skipWpTool=false] - When true, skips detection of Windows phone.
  * @param {String} [options.assemblyPath=%WINDIR%\Microsoft.NET\assembly\GAC_MSIL] - Path to .NET global assembly cache.
  * @param {String} [options.powershell] - Path to the <code>powershell</code> executable.
  * @param {String} [options.preferredWindowsPhoneSDK] - The preferred version of the Windows Phone SDK to use by default. Example "8.0".
@@ -61,11 +62,21 @@ function detect(options, callback) {
 		}
 
 		var results = {
-			detectVersion: '3.0',
-			issues: []
-		};
+				detectVersion: '3.0',
+				issues: []
+			},
+			libs = [
+				env,
+				visualstudio,
+				windowsphone,
+				assemblies,
+				winstore
+			];
 
-		async.each([env, visualstudio, windowsphone, assemblies, winstore, wptool], function (lib, next) {
+		if (!options.skipWpTool) {
+			libs.push(wptool);
+		}
+		async.each(libs, function (lib, next) {
 			lib.detect(options, function (err, result) {
 				err || mix(result, results);
 				next(err);

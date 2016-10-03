@@ -311,6 +311,8 @@ MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 MAKE_SYSTEM_PROP(QUALITY_640x480,UIImagePickerControllerQualityType640x480);
+MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720,UIImagePickerControllerQualityTypeIFrame1280x720);
+MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540,UIImagePickerControllerQualityTypeIFrame960x540);
 
 //Constants for MediaTypes in VideoPlayer
 MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_NONE,MPMovieMediaTypeMaskNone);
@@ -572,7 +574,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self requestAudioPermissions:args];
 }
 
--(NSNumber*)hasAudioPermissions
+-(NSNumber*)hasAudioPermissions:(id)unused
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
     
@@ -928,6 +930,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(void)switchCamera:(id)args
 {
     ENSURE_TYPE(args, NSArray);
+    ENSURE_UI_THREAD(switchCamera,args);
     
     // TIMOB-17951
     if ([args objectAtIndex:0] == [NSNull null]) {
@@ -1086,9 +1089,56 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
 }
 
+-(NSNumber*)hasMusicLibraryPermissions:(id)unused
+{
+    // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
+    return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+}
+
+-(void)requestMusicLibraryPermissions:(id)args
+{
+    NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    KrollCallback * callback = args;
+    
+    if ([TiUtils isIOS9_3OrGreater]) {
+        TiThreadPerformOnMainThread(^(){
+            [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
+                BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
+                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                         thisObject:self];
+                [[callback context] enqueue:invocationEvent];
+                RELEASE_TO_NIL(invocationEvent);
+            }];
+        }, NO);
+    } else {
+        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+        return;
+    }
+}
+
 -(NSArray*)queryMusicLibrary:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSDictionary);
+    
+    NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
+    
+    if ([TiUtils isIOS9_3OrGreater] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
+        NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
+    }
+    
+    if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
     
     NSMutableSet* predicates = [NSMutableSet set];
     for (NSString* prop in [MediaModule filterableItemProperties]) {
@@ -1527,17 +1577,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
         
         double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
-        double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
         
         if (videoMaximumDuration != 0.0)
         {
             [picker setVideoMaximumDuration:videoMaximumDuration/1000];
         }
-
-        if (videoQuality != 0.0)
-        {
-            [picker setVideoQuality:videoQuality];
-        }
+        
+        [picker setVideoQuality:[TiUtils intValue:[args objectForKey:@"videoQuality"] def:UIImagePickerControllerQualityTypeMedium]];
     }
 
     // do this afterwards above so we can first check for video support
@@ -1823,9 +1869,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
                 [exportSession exportAsynchronouslyWithCompletionHandler:^{
                     switch (exportSession.status) {
+                        // If the export succeeds, return the URL of the proposed tmp-directory
                         case AVAssetExportSessionStatusCompleted:
-                            [self handleTrimmedVideo:exportSession.outputURL withDictionary:dictionary];
+                            [self handleTrimmedVideo:[NSURL URLWithString:outputURL] withDictionary:dictionary];
                             break;
+                        // If it fails, return the original image URL
                         default:
                             [self handleTrimmedVideo:mediaURL withDictionary:dictionary];
                             break;

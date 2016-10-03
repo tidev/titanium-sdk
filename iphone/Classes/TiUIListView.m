@@ -97,7 +97,14 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
-    [_tableView release];
+
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        _tableView.prefetchDataSource = nil;
+    }
+#endif
+
+        [_tableView release];
     [_templates release];
     [_defaultItemTemplate release];
     [_headerViewProxy setProxyObserver:nil];
@@ -185,6 +192,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _tableView.delegate = self;
         _tableView.dataSource = self;
+        
+#if IS_XCODE_8
+        if ([TiUtils isIOS10OrGreater]) {
+            _tableView.prefetchDataSource = self;
+        }
+#endif
 
         if (TiDimensionIsDip(_rowHeight)) {
             [_tableView setRowHeight:_rowHeight.value];
@@ -1492,6 +1505,65 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return [[self.listViewProxy sectionForIndex:section] footerTitle];
 }
 
+#pragma mark - UITableViewDataSourcePrefetching
+
+#if IS_XCODE_8
+- (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"prefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
+    RELEASE_TO_NIL(cells);
+}
+
+- (void)tableView:(UITableView *)tableView cancelPrefetchingForRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"cancelprefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+    
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
+    RELEASE_TO_NIL(cells);
+}
+#endif
+
+- (NSDictionary*)listItemFromIndexPath:(NSIndexPath*)indexPath
+{
+    NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+    
+    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+    NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+    NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                        section, @"section",
+                                        NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                        NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                        nil];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id itemId = [properties objectForKey:@"itemId"];
+    if (itemId != nil) {
+        [eventObject setObject:itemId forKey:@"itemId"];
+    }
+    
+    return [eventObject autorelease];
+}
+
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1927,6 +1999,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
+    if ([searchBar.text isEqualToString:self.searchString] && [searchController isActive]) {
+        return;
+    }
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
     [[searchController searchResultsTableView] reloadData];
@@ -1981,6 +2056,37 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // as soon as we remove iOS < 9 support
     id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
     [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+    TiColor * resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
+    id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
+    id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
+    
+    ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
+    ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
+    
+    if (resultsBackgroundColor) {
+        // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+        UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+        [controller.searchResultsTableView setBackgroundColor:color];
+    }
+    
+    if (resultsSeparatorColor) {
+        [controller.searchResultsTableView setSeparatorColor:[resultsSeparatorColor _color]];
+    }
+    
+    if (resultsSeparatorInsets) {
+        [controller.searchResultsTableView setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
+    }
+    
+    if (resultsSeparatorStyle) {
+        [controller.searchResultsTableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
+    }
+    
+    return YES;
 }
 
 - (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller

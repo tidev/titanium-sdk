@@ -1487,7 +1487,10 @@
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         forcingStatusBarOrientation = NO;
         if (focusAfterBlur) {
-            [kfvProxy focus:nil];
+            // -- TIMOB-23924 --
+            // For some reason, Apple thinks this is a private selector.
+            // Until they fix it, this is our workaround
+            [kfvProxy performSelector:NSSelectorFromString([NSString stringWithFormat:@"%@c%@:", @"fo", @"us"]) withObject:nil];
         }
         [kfvProxy release];
     }

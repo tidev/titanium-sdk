@@ -54,10 +54,11 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.util.AttributeSet;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener {
 
-	private ListView listView;
+	private ListViewScrollEvent listView;
 	private TiBaseAdapter adapter;
 	private ArrayList<ListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
@@ -98,6 +99,25 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
 	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 3;
+
+	public class ListViewScrollEvent extends ListView {
+	    public ListViewScrollEvent(Context context) {
+	        super(context);
+	    }
+
+	    public ListViewScrollEvent(Context context, AttributeSet attrs) {
+	        super(context,attrs);
+	    }
+
+	    public ListViewScrollEvent(Context context, AttributeSet attrs, int defStyle) {
+	        super(context, attrs, defStyle);
+	    }
+
+	    //we need this protected method for scroll detection
+	    public int getVerticalScrollOffset() {
+	        return computeVerticalScrollOffset();
+	    }
+	}
 
 	class ListViewWrapper extends FrameLayout {
 		private boolean viewFocused = false;
@@ -294,7 +314,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
 		wrapper.setFocusable(false);
 		wrapper.setFocusableInTouchMode(false);
-		listView = new ListView(activity);
+		listView = new ListViewScrollEvent(activity);
 		listView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		wrapper.addView(listView);
 		adapter = new TiBaseAdapter(activity);
@@ -318,6 +338,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			private int _visibleItemCount = 0;
 			private boolean canFireScrollStart = true;
 			private boolean canFireScrollEnd = false;
+			private int mInitialScroll = 0;
+			private int scrollUp = 0;
+			private int newScrollUp = 0;
 
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
@@ -327,6 +350,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					eventName = TiC.EVENT_SCROLLEND;
 					canFireScrollEnd = false;
 					canFireScrollStart = true;
+					newScrollUp = 0;
 				} else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL && canFireScrollStart) {
 					eventName = TiC.EVENT_SCROLLSTART;					
 					canFireScrollEnd = true;
@@ -366,6 +390,23 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			{
 				_firstVisibleItem = firstVisibleItem;
 				_visibleItemCount = visibleItemCount;
+				int scrolledOffset = listView.getVerticalScrollOffset();
+				if (scrolledOffset != mInitialScroll) {
+					if (scrolledOffset > mInitialScroll) {
+						scrollUp = 1;
+					} else {
+						scrollUp = -1;
+					}
+					if (scrollUp != newScrollUp) {
+						KrollDict eventArgs = new KrollDict();
+						eventArgs.put("direction", (scrollUp > 0) ? "up" : "down");
+						eventArgs.put("velocity", 0);
+						eventArgs.put("targetContentOffset", 0);
+						fProxy.fireEvent(TiC.EVENT_SCROLLING, eventArgs, false);
+						newScrollUp = scrollUp;
+					}
+			        mInitialScroll = scrolledOffset;
+			    }
 			}
 		});
 		

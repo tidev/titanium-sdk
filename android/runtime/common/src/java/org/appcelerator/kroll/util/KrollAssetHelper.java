@@ -105,6 +105,22 @@ public class KrollAssetHelper
 		return null;
 	}
 
+	public static boolean assetExists(String path) {
+		if (assetCrypt != null) {
+			String asset = assetCrypt.readAsset(path.replace("Resources/", ""));
+			if (asset != null) {
+				return true;
+			}
+		}
+		if (manager != null) {
+			AssetManager assetManager = manager.get();
+			try {
+				return assetManager != null && assetManager.open(path) != null;
+			} catch (IOException e) {}
+		}
+		return false;
+	}
+
 	public static String getPackageName()
 	{
 		return packageName;
