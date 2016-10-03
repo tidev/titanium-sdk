@@ -230,6 +230,8 @@ DEFINE_EXCEPTIONS
         if (loadEventState) {
             [[self proxy] fireEvent:@"load" withObject:@{@"state": loadEventState}];
         }
+    } else {
+        [super listenerAdded:type count:count];
     }
 }
 #endif
