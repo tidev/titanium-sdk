@@ -32,9 +32,11 @@ public class SwitchProxy extends TiViewProxy
 	public SwitchProxy()
 	{
 		super();
-
-		setProperty(TiC.PROPERTY_VALUE, false);
-		setProperty(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
+        //TIMOB-23964 set default value of switch to false
+//		setProperty(TiC.PROPERTY_VALUE, false);
+//		setProperty(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
+		defaultValues.put(TiC.PROPERTY_VALUE, false);
+		defaultValues.put(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
 	}
 
 	@Override
