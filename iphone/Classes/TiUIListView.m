@@ -2083,7 +2083,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     
     if (resultsSeparatorStyle) {
-        [controller.searchResultsTableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorInsets def:UITableViewCellSeparatorStyleSingleLine]];
+        [controller.searchResultsTableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
     }
     
     return YES;
