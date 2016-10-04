@@ -1,10 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#if defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAMUSICPLAYER)
 #import "TiMediaItem.h"
 #import "MediaModule.h"
 
