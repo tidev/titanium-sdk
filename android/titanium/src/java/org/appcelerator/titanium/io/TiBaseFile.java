@@ -105,7 +105,7 @@ public abstract class TiBaseFile
 	public boolean isReadonly() {
 		return modeRead && !modeWrite;
 	}
-	
+
 	/**
 	 * @return  true if the file is writable, false otherwise.
 	 * @module.api
@@ -187,6 +187,11 @@ public abstract class TiBaseFile
 
 	public boolean createDirectory(boolean recursive) {
 		logNotSupported("createDirectory");
+		return false;
+	}
+
+	public boolean createFile() {
+		logNotSupported("createFile");
 		return false;
 	}
 
@@ -463,7 +468,7 @@ public abstract class TiBaseFile
 	 * @module.api
 	 */
 	public abstract InputStream getInputStream() throws IOException;
-	
+
 	/**
 	 * Implementing subclasses should return an OutputStream for writing to the file.
 	 * @return  the OutputStream of the file.
@@ -471,7 +476,7 @@ public abstract class TiBaseFile
 	 * @module.api
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
-	
+
 	/**
 	 * Implementing subclasses should return the file object.
 	 * @return  the file object.

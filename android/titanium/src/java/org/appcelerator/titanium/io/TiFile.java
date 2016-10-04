@@ -30,7 +30,7 @@ import android.net.Uri;
 import android.os.StatFs;
 
 /**
- * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
+ * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system.
  * This differentiates it from TiResourceFile, which represents a file inside the application's resource bundle.
  */
 public class TiFile extends TiBaseFile
@@ -40,7 +40,7 @@ public class TiFile extends TiBaseFile
 	private final File file;
 	private final String path;
 
-	
+
 	public TiFile(File file, String path, boolean stream)
 	{
 		super(TiBaseFile.TYPE_FILE);
@@ -49,7 +49,7 @@ public class TiFile extends TiBaseFile
 		this.stream = stream;
 	}
 
-	
+
 	/**
 	 * @return true if the file is a plain file, false otherwise.
 	 */
@@ -113,6 +113,17 @@ public class TiFile extends TiBaseFile
 		}
 	}
 
+    @Override
+    public boolean createFile() {
+        try {
+            return file.createNewFile();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            return false;
+        }
+    }
+
 	private boolean deleteTree(File d) {
 		boolean deleted = true;
 
@@ -159,7 +170,7 @@ public class TiFile extends TiBaseFile
 
 		return deleted;
 	}
-	
+
 	/**
 	 * Deletes this file.
 	 * @return true if the file was successfully deleted, false otherwise.
