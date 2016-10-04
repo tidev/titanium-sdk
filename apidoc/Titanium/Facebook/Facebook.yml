@@ -115,8 +115,8 @@ description: |
 extends: Titanium.Module
 since: { android: "0.8", iphone: "0.8", ipad: "0.8", mobileweb: "2.0" }
 platforms: [android, ipad, iphone, mobileweb]
-methods:
 
+methods:
   - name: authorize
     summary: |
         Prompts the user to log in (if not already logged in) and authorize your application.  
@@ -207,7 +207,6 @@ methods:
         type: Callback<FacebookGraphResponsev1>
 
 events:
-
   - name: login
     summary: Fired at session login.
     properties:
@@ -284,9 +283,7 @@ properties:
     description: |
         For a complete list of permissions, see the 
         [official Facebook Permissions Reference](http://developers.facebook.com/docs/reference/api/permissions/)
-    description: |
-        Be sure the permissions you want are set before calling
-        [authorize](Titanium.Facebook.authorize)..
+         Be sure the permissions you want are set before calling [authorize](Titanium.Facebook.authorize).       
     type: Array<String>
 
   - name: uid
@@ -294,7 +291,6 @@ properties:
     type: String
 
 examples:
-
   - title: Authorize
     example: |
         
@@ -559,17 +555,17 @@ examples:
         For more information on Facebook Dialogs, see:
 
         * [Facebook Dialog Reference](http://developers.facebook.com/docs/reference/dialogs/) 
+
 ---
 name: FacebookGraphResponsev1
 summary: |
     Argument passed to the graph API callback, in response to a
     [requestWithGraphPath](Titanium.Facebook.requestWithGraphPath) call.
 properties:
-
   - name: success
     summary: Indicates if the request succeeded.
     type: Boolean
-
+    
   - name: error
     summary: Error message, if request failed.
     type: String
@@ -582,7 +578,6 @@ properties:
     summary: JSON response returned by Facebook.
     type: String
 
-
 ---
 name: FacebookDialogResponsev1
 summary: Argument passed to the dialog callback when a dialog is completed or canceled.
@@ -590,7 +585,6 @@ description: |
     The `success` and `cancelled` properties may not be reliable for dialogs. In the event
     that the user canceled the dialog, the `result` field is `undefined`.
 properties:
-
   - name: success
     summary: Indicates if the request succeeded.
     type: Boolean 
@@ -609,14 +603,12 @@ properties:
         `undefined` if the user canceled the dialog.
     type: String
 
-
 ---
 name: FacebookRESTResponsev1
 summary: |
     Argument passed to the REST API callback when a request completes (successfully
     or unsuccessfully).
 properties:
-
   - name: success
     summary: Indicates if the request succeeded.
     type: Boolean
@@ -632,4 +624,3 @@ properties:
   - name: result
     summary: JSON response returned by Facebook.
     type: String
-
