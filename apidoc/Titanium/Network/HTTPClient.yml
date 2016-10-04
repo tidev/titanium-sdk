@@ -192,6 +192,13 @@ methods:
         summary: Name of the header to retrieve.
         type: String
 
+  - name: getResponseHeaders
+    summary: Returns all response headers available for the request
+    returns:
+        type: Array
+    platforms: [iphone,ipad]
+
+
   - name: open
     summary: Opens the request and prepares the connection.
     parameters:
@@ -310,6 +317,16 @@ properties:
     type: String
     permission: read-only
     platforms: [android]
+    
+  - name: responseHeaders
+    summary: All of the response headers.
+    description: |
+        Contains an array of response headers
+
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+    type: Array
+    permission: read-only
+    platforms: [ios]
     
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
