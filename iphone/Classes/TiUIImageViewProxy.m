@@ -16,12 +16,12 @@
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
 
-@interface TiUIImageViewProxy ()
-@property (nonatomic, copy) NSString* loadEventState;
-@end
-
 @implementation TiUIImageViewProxy
-@synthesize imageURL, loadEventState;
+@synthesize imageURL;
+
+#ifdef TI_USE_KROLL_THREAD
+@synthesize loadEventState;
+#endif
 
 static NSArray* imageKeySequence;
 
@@ -57,26 +57,10 @@ static NSArray* imageKeySequence;
         [self fireEvent:@"load" withObject:event];
 #ifdef TI_USE_KROLL_THREAD
     } else {
-        // Why do we do this?
-        // When running on kroll thread this is being called before the events are added.
-        // So we try to propagate this after the load event is added.
-        // TIMOB-20204
-        RELEASE_TO_NIL(self.loadEventState);
-        [self setLoadEventState:stateString];
-        [self setModelDelegate:self];
+        RELEASE_TO_NIL(loadEventState);
+        loadEventState = [stateString copy];
 #endif
     }
-}
-
--(void)listenerAdded:(NSString*)type count:(int)count {
-    if ([self _hasListeners:@"load"]) {
-        [self setModelDelegate:nil];
-        [self fireEvent:@"load" withObject:@{@"state": [self loadEventState]}];
-    }
-}
-
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy {
-    DoProxyDelegateChangedValuesWithProxy((TiUIImageView*)[self view], key, oldValue, newValue, proxy);
 }
 
 -(void)_configure
@@ -152,7 +136,9 @@ static NSArray* imageKeySequence;
     [self replaceValue:nil forKey:@"image" notification:NO];
     
     RELEASE_TO_NIL(imageURL);
+#ifdef TI_USE_KROLL_THREAD
     RELEASE_TO_NIL(loadEventState);
+#endif
     [super dealloc];
 }
 
