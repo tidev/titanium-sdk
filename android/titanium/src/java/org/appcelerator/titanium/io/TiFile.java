@@ -7,19 +7,7 @@
 
 package org.appcelerator.titanium.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +18,7 @@ import android.net.Uri;
 import android.os.StatFs;
 
 /**
- * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
+ * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system.
  * This differentiates it from TiResourceFile, which represents a file inside the application's resource bundle.
  */
 public class TiFile extends TiBaseFile
@@ -40,7 +28,7 @@ public class TiFile extends TiBaseFile
 	private final File file;
 	private final String path;
 
-	
+
 	public TiFile(File file, String path, boolean stream)
 	{
 		super(TiBaseFile.TYPE_FILE);
@@ -49,7 +37,7 @@ public class TiFile extends TiBaseFile
 		this.stream = stream;
 	}
 
-	
+
 	/**
 	 * @return true if the file is a plain file, false otherwise.
 	 */
@@ -94,6 +82,35 @@ public class TiFile extends TiBaseFile
 	{
 		return file.canWrite();
 	}
+
+    public boolean append(Object data) throws IOException {
+        boolean success = false;
+        FileWriter fileWriter = new FileWriter(file, true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        if (data instanceof String) {
+            bufferedWriter = new BufferedWriter(new FileWriter(file, true));
+            bufferedWriter.write((String) data);
+            success = true;
+        } else if (data instanceof File) {
+            FileInputStream fileInputStream = new FileInputStream((File) data);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+            String line = null;
+            while((line = bufferedReader.readLine()) != null) {
+                bufferedWriter.write(line);
+                bufferedWriter.newLine();
+            }
+            bufferedReader.close();
+            success = true;
+        } else if (data instanceof TiBlob) {
+            //base64 is a binary to text schema
+            String input = ((TiBlob) data).toBase64();
+            bufferedWriter.write(input);
+            success = true;
+        }
+        bufferedWriter.close();
+        fileWriter.close();
+        return success;
+    }
 
 	/**
 	 * Attempts to create a directory named by the trailing filename of this file.
@@ -159,7 +176,7 @@ public class TiFile extends TiBaseFile
 
 		return deleted;
 	}
-	
+
 	/**
 	 * Deletes this file.
 	 * @return true if the file was successfully deleted, false otherwise.
