@@ -123,7 +123,7 @@ methods:
         Sends a message to the apple watch.
     description: |
         Sends a message to the installed watchapp on the apple watch in the foreground. Note: If 
-        you are using a version prior to SDK 5.1.0, you should form your request like this: 
+        you are using SDK 5.1.0 or earlier, you should form your request like this: 
         `Ti.WatchSession.sendMessage(message)`. If you are using SDK 5.1.0 and above, form your 
         request like this: `Ti.WatchSession.sendMessage(params)`.
     parameters: 
