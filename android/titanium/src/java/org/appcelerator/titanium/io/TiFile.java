@@ -113,6 +113,19 @@ public class TiFile extends TiBaseFile
 		}
 	}
 
+	@Override
+	public boolean createFile()
+	{
+		try {
+			if (!file.exists()) {
+				return file.createNewFile();
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Error creating new file: ", e);
+		}
+		return false;
+	}
+
 	private boolean deleteTree(File d) {
 		boolean deleted = true;
 
@@ -159,7 +172,7 @@ public class TiFile extends TiBaseFile
 
 		return deleted;
 	}
-	
+
 	/**
 	 * Deletes this file.
 	 * @return true if the file was successfully deleted, false otherwise.
