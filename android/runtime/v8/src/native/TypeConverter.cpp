@@ -663,20 +663,18 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 
 			for (int i = 0; i < numKeys; i++) {
 				v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
-				bool keyIsNew, valueIsNew;
-				jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(isolate, env, jsObjectPropertyKey, &keyIsNew);
+				bool valueIsNew;
+				jstring javaStringPropertyKey = TypeConverter::jsValueToJavaString(isolate, env, jsObjectPropertyKey);
 				v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
 				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(isolate, env, jsObjectPropertyValue, &valueIsNew);
 
 				jobject result = env->CallObjectMethod(javaHashMap,
 				                                       JNIUtil::hashMapPutMethod,
-				                                       javaObjectPropertyKey,
+				                                       javaStringPropertyKey,
 				                                       javaObjectPropertyValue);
 				env->DeleteLocalRef(result);
+				env->DeleteLocalRef(javaStringPropertyKey);
 
-				if (keyIsNew) {
-					env->DeleteLocalRef(javaObjectPropertyKey);
-				}
 				if (valueIsNew) {
 					env->DeleteLocalRef(javaObjectPropertyValue);
 				}
@@ -715,20 +713,18 @@ jobject TypeConverter::jsObjectToJavaKrollDict(v8::Isolate* isolate, JNIEnv *env
 
 		for (int i = 0; i < numKeys; i++) {
 			v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
-			bool keyIsNew, valueIsNew;
-			jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(isolate, env, jsObjectPropertyKey, &keyIsNew);
+			bool valueIsNew;
+			jstring javaStringPropertyKey = TypeConverter::jsValueToJavaString(isolate, env, jsObjectPropertyKey);
 			v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
 			jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(isolate, env, jsObjectPropertyValue, &valueIsNew);
 
 			jobject result = env->CallObjectMethod(javaKrollDict,
 				                                   JNIUtil::krollDictPutMethod,
-				                                   javaObjectPropertyKey,
+				                                   javaStringPropertyKey,
 				                                   javaObjectPropertyValue);
 			env->DeleteLocalRef(result);
+			env->DeleteLocalRef(javaStringPropertyKey);
 
-			if (keyIsNew) {
-				env->DeleteLocalRef(javaObjectPropertyKey);
-			}
 			if (valueIsNew) {
 				env->DeleteLocalRef(javaObjectPropertyValue);
 			}
