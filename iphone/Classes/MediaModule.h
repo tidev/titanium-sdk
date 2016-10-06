@@ -25,9 +25,9 @@
 	MPMediaPickerControllerDelegate,
 #endif
 	UIPopoverControllerDelegate,
-	UIPopoverPresentationControllerDelegate,
+	UIPopoverPresentationControllerDelegate
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-	UIVideoEditorControllerDelegate
+	,UIVideoEditorControllerDelegate
 #endif
 > {
 @private
