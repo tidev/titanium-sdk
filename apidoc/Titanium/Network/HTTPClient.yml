@@ -312,14 +312,14 @@ properties:
     platforms: [android]
     
   - name: responseHeaders
-    summary: Returns all the response headers returned with the request
+    summary: Returns all the response headers returned with the request.
     description: |
-        Contains a dictionary of responseheaders only after the http call has finished.
+        Contains a dictionary of response headers only after the http call has finished.
 
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
-    type: Array<Object>
+    type: Dictionary
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
