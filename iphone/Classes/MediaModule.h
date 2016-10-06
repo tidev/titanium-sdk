@@ -24,11 +24,11 @@
 #ifdef USE_TI_MEDIAOPENMUSICLIBRARY
 	MPMediaPickerControllerDelegate,
 #endif
-	UIPopoverControllerDelegate,
-	UIPopoverPresentationControllerDelegate,
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-	UIVideoEditorControllerDelegate
+	UIVideoEditorControllerDelegate,
 #endif
+	UIPopoverControllerDelegate,
+	UIPopoverPresentationControllerDelegate
 > {
 @private
 	// Camera picker
