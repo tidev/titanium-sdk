@@ -1,9 +1,4 @@
 /**
- * Set a global background-color (used for iOS)
- */
-Ti.UI.setBackgroundColor("#fff");
-
-/**
  * Create a new `Ti.UI.TabGroup`.
  */
 var tabGroup = Ti.UI.createTabGroup();
