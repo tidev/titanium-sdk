@@ -236,5 +236,10 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 -(id)createApplicationShortcuts:(id)args;
 #endif
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+-(id)createFeedbackGenerator:(id)args;
+#endif
+#endif
 
 @end
