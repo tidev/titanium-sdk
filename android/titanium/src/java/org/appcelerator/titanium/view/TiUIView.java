@@ -152,6 +152,7 @@ public abstract class TiUIView
 
 	//to maintain sync visibility between borderview and view. Default is visible
 	private int visibility = View.VISIBLE;
+	private int hiddenBehavior = View.INVISIBLE;
 
 	protected GestureDetector detector = null;
 
@@ -941,6 +942,8 @@ public abstract class TiUIView
 			if (getOuterView() != null) {
 				ViewCompat.setRotationY(getOuterView(), TiConvert.toFloat(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
+			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
 		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -997,6 +1000,14 @@ public abstract class TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_HIDDEN_BEHAVIOR) && !nativeViewNull) {
+			Object hidden = d.get(TiC.PROPERTY_HIDDEN_BEHAVIOR);
+			if (hidden != null){
+				hiddenBehavior = TiConvert.toInt(hidden, View.INVISIBLE);
+			} else {
+				hiddenBehavior = View.INVISIBLE;
+			}
+		}
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			Object visible = d.get(TiC.PROPERTY_VISIBLE);
 			if (visible != null) {
@@ -1229,6 +1240,9 @@ public abstract class TiUIView
 
 	private void setVisibility(int visibility)
 	{
+		if (visibility == View.INVISIBLE) {
+			visibility = hiddenBehavior;
+		}
 		this.visibility = visibility;
 		if (borderView != null) {
 			borderView.setVisibility(this.visibility);
