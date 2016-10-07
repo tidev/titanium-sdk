@@ -451,11 +451,11 @@ properties:
     default: false
     platforms: [iphone, ipad]
     
-  - name: disableSelection
-    summary: |
-        Determines whether the webview should not be able to select a range of text and show the
-        contextual callout-bubble.
-    description: Set to `true` to disable the text-selection and callout-bubble.
+  - name: disableTextSelection
+    summary: Determines whether the webview should not be able to select a range of text.
+    description: | 
+        Set to `true` to disable the text-selection. Note that disabling the text-selection will
+        also disable the contextual menu.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
