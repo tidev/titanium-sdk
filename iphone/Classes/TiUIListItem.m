@@ -391,6 +391,16 @@
 					}
 				}
 			}
+            
+			id selectedColor = [properties objectForKey:@"selectedColor"];
+			if ([self shouldUpdateValue:selectedColor forKeyPath:@"textLabel.highlightedTextColor"]) {
+				UIColor *color = selectedColor != nil ? [[TiUtils colorValue:selectedColor] _color] : nil;
+				if (color != nil) {
+					[self recordChangeValue:selectedColor forKeyPath:@"textLabel.highlightedTextColor" withBlock:^{
+						[self.textLabel setHighlightedTextColor:color];
+					}];
+				}
+			}
 
 			id fontValue = [properties objectForKey:@"font"];
 			if ([self shouldUpdateValue:fontValue forKeyPath:@"textLabel.font"]) {
