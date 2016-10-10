@@ -38,7 +38,7 @@ const
  * @emits module:env#detected
  * @emits module:env#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 exports.detect = function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {

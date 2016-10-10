@@ -4,7 +4,7 @@
  * @module provisioning
  *
  * @copyright
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -49,6 +49,7 @@ exports.unwatch = unwatch;
  * @param {Object} [options] - An object containing various settings.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects all provisioning profiles.
  * @param {String} [options.profileDir=~/Library/MobileDevice/Provisioning Profiles] - The path to search for provisioning profiles.
+ * @param {Boolean} [options.unmanaged] - When true, excludes managed provisioning profiles.
  * @param {Boolean} [options.validOnly=true] - When true, only returns non-expired, valid provisioning profiles.
  * @param {Boolean} [options.watch=false] - If true, watches the specified provisioning profile directory for updates.
  * @param {Function} [callback(err, results)] - A function to call with the provisioning profile information.
@@ -56,7 +57,7 @@ exports.unwatch = unwatch;
  * @emits module:provisioning#detected
  * @emits module:provisioning#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {
@@ -210,11 +211,14 @@ function detect(options, callback) {
 			files[file] && removeProfile(file);
 			files[file] = dest;
 
-			if (!validOnly || !expired) {
+			var managed = plist.Name.indexOf('iOS Team Provisioning Profile') !== -1;
+
+			if ((!validOnly || !expired) && (!options.unmanaged || !managed)) {
 				results.provisioning[dest].push({
 					file: file,
 					uuid: plist.UUID,
 					name: plist.Name,
+					managed: managed,
 					appPrefix: appPrefix,
 					creationDate: plist.CreationDate,
 					expirationDate: plist.ExpirationDate,
@@ -224,6 +228,8 @@ function detect(options, callback) {
 						: null,
 					devices: plist.ProvisionedDevices || null,
 					team: plist.TeamIdentifier || null,
+					entitlements: entitlements,
+					// TODO: remove all of the entitlements below and just use the `entitlements` property
 					appId: (entitlements['application-identifier'] || '').replace(appPrefix + '.', ''),
 					getTaskAllow: !!entitlements['get-task-allow'],
 					apsEnvironment: entitlements['aps-environment'] || ''
@@ -252,6 +258,7 @@ function detect(options, callback) {
  * @param {String} [options.appId] - The app identifier (com.domain.app) to filter by.
  * @param {Object|Array<Object>} [options.certs] - One or more certificate descriptors to filter by.
  * @param {String|Array<String>} [options.deviceUDIDs] - One or more iOS device UDIDs to filter by.
+ * @param {Boolean} [options.unmanaged] - When true, excludes managed provisioning profiles.
  * @param {Boolean} [options.validOnly=true] - When true, only returns valid profiles.
  * @param {Function} callback(err, results) - A function to call with an array of matching provisioning profiles.
  */
@@ -267,9 +274,9 @@ function find(options, callback) {
 	var deviceUDIDs = (Array.isArray(options.deviceUDIDs) ? options.deviceUDIDs : [ options.deviceUDIDs ]).filter(function (a) { return a; }),
 		certs = (Array.isArray(options.certs) ? options.certs : [ options.certs ]).filter(function (a) { return a; });
 
-	exports.detect({
-		validOnly: options.validOnly === undefined || options.validOnly === true
-	}, function (err, results) {
+	options.validOnly = options.validOnly === undefined || options.validOnly === true;
+
+	exports.detect(options, function (err, results) {
 		if (err) {
 			return callback(err);
 		} else {

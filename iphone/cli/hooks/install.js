@@ -102,6 +102,8 @@ exports.init = function (logger, config, cli) {
 					installCount = 0;
 
 				function quit(force) {
+					running = false;
+					runningCount--;
 					if (force || runningCount <= 0) {
 						if (startLog) {
 							var endLogTxt = __('End application log');
@@ -170,11 +172,8 @@ exports.init = function (logger, config, cli) {
 								}
 							}
 						})
-						.on('app-quit', function () {
-							running = false;
-							runningCount--;
-							quit();
-						})
+						.on('app-quit', quit)
+						.on('disconnect', quit)
 						.on('error', function (err) {
 							err = err.message || err.toString();
 							var details;
@@ -192,16 +191,6 @@ exports.init = function (logger, config, cli) {
 								details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
 							}
 							next(new appc.exception(err, details));
-						})
-						.on('disconnect', function () {
-							if (!running) {
-								disconnected = true;
-								logger.warn(__('The device %s is no longer connected, skipping', device.name.cyan));
-								if (runningCount <= 0) {
-									logger.log();
-									process.exit(0);
-								}
-							}
 						});
 				}, finished);
 

@@ -11,20 +11,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-const
-	appc = require('node-appc'),
-	async = require('async'),
-	EventEmitter = require('events').EventEmitter,
-	magik = require('./utilities').magik,
-	fs = require('fs'),
-	mkdirp = require('mkdirp'),
-	path = require('path'),
-	readPlist = require('./utilities').readPlist,
-	spawn = require('child_process').spawn,
-	Tail = require('always-tail'),
-	util = require('util'),
-	xcode = require('./xcode'),
-	__ = appc.i18n(__dirname).__;
+const appc = require('node-appc');
+const async = require('async');
+const EventEmitter = require('events').EventEmitter;
+const magik = require('./utilities').magik;
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const net = require('net');
+const path = require('path');
+const readPlist = require('./utilities').readPlist;
+const spawn = require('child_process').spawn;
+const Tail = require('always-tail');
+const util = require('util');
+const xcode = require('./xcode');
+const __ = appc.i18n(__dirname).__;
 
 var cache;
 
@@ -92,7 +92,7 @@ function compareSims(a, b) {
  * @emits module:simulator#detected
  * @emits module:simulator#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {
@@ -700,6 +700,7 @@ function findSimulators(options, callback) {
  * @param {Boolean} [options.launchWatchApp=false] - When true, launches the specified app's watch app on an external display and the main app.
  * @param {Boolean} [options.launchWatchAppOnly=false] - When true, launches the specified app's watch app on an external display and not the main app.
  * @param {String} [options.logFilename] - The name of the log file to search for in the iOS Simulator's "Documents" folder. This file is created after the app is started.
+ * @param {Number} [options.logServerPort] - The TCP port to connect to get log messages.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
  * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
@@ -732,6 +733,12 @@ function launch(simHandleOrUDID, options, callback) {
 					? __('You must specify an appPath when launchWatchApp is true.')
 					: __('You must specify an appPath when launchWatchAppOnly is true.')
 				);
+			emitter.emit('error', err);
+			return callback(err);
+		}
+
+		if (options.logServerPort && (typeof options.logServerPort !== 'number' || options.logServerPort < 1 || options.logServerPort > 65535)) {
+			var err = new Error(__('Log server port must be a number between 1 and 65535'));
 			emitter.emit('error', err);
 			return callback(err);
 		}
@@ -994,7 +1001,12 @@ function launch(simHandleOrUDID, options, callback) {
 										return;
 									}
 
-									emitter.emit('log', m[2], handle);
+									// if we have a log server port and we're currently the iOS Simulator,
+									// then ignore all messages in the system.log in favor of the log server
+									if (!options.logServerPort || handle.type === 'watchos') {
+										emitter.emit('log', m[2], handle);
+									}
+
 									if (options.autoExit && m[2].indexOf(autoExitToken) !== -1) {
 										emitter.emit('log-debug', __('Found "%s" token, stopping simulator', autoExitToken));
 										// stopping the simulator will cause the "close" event to fire
@@ -1448,6 +1460,38 @@ function launch(simHandleOrUDID, options, callback) {
 								next();
 							}
 						});
+					},
+
+					function connectToLogServer(next) {
+						if (options.logServerPort) {
+							(function tryConnecting() {
+								emitter.emit('log-debug', __('Trying to connnect to log server port %s', options.logServerPort));
+								var client = net.connect(options.logServerPort, function () {
+									emitter.emit('log-debug', __('Connected to log server port %s', options.logServerPort));
+
+									client.on('close', () => {
+										cleanupAndEmit('app-quit');
+									});
+								});
+								client.on('data', data => {
+									data.toString().split('\n').forEach(function (line) {
+										line = line.trim();
+										line && emitter.emit('log-file', line);
+									});
+								});
+								client.on('error', err => {
+									if (err.code === 'ECONNREFUSED') {
+										client.destroy();
+										emitter.emit('log-debug', __('Trying again'));
+										setTimeout(tryConnecting, 250);
+									} else {
+										emitter.emit('log-error', __('Failed to connect to log server port: %s', err.message || err.toString()));
+									}
+								});
+							}());
+						}
+
+						next();
 					},
 
 					function findTitaniumAppLogFile(next) {

@@ -2300,7 +2300,10 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 					cb();
 				});
 			});
-			server.listen(port, function () {
+			server.listen({
+				host: 'localhost',
+				port: port
+			}, function () {
 				server.close(function () {
 					_t.tiLogServerPort = port;
 					cb();

@@ -4,6 +4,7 @@
 			'target_name': 'node_ios_device',
 			'sources': [
 				'src/device.h',
+				'src/device.cpp',
 				'src/message.h',
 				'src/mobiledevice.h',
 				'src/node-ios-device.cpp',
@@ -20,11 +21,10 @@
 				'/System/Library/PrivateFrameworks'
 			],
 			'include_dirs': [
-				'<!(node -e "require(\'nan\')")',
-				'deps/boost/include'
+				'<!(node -e "require(\'nan\')")'
 			],
 			'cflags': [
-				'-Wl,-whole-archive -lboost_system -Wl,--no-whole-archive'
+				'-Wl,-whole-archive -Wl,--no-whole-archive'
 			],
 			'cflags!': [
 				'-fno-exceptions'
@@ -40,13 +40,13 @@
 			}
 		},
 		{
-			"target_name": "action_after_build",
-			"type": "none",
-			"dependencies": [ "<(module_name)" ],
-			"copies": [
+			'target_name': 'action_after_build',
+			'type': 'none',
+			'dependencies': [ '<(module_name)' ],
+			'copies': [
 				{
-					"files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
-					"destination": "<(module_path)"
+					'files': [ '<(PRODUCT_DIR)/<(module_name).node' ],
+					'destination': '<(module_path)'
 				}
 			]
 		}

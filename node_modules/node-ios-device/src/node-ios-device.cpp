@@ -11,8 +11,8 @@
 #include <uv.h>
 #include <chrono>
 #include <queue>
+#include <sstream>
 #include <thread>
-#include <boost/format.hpp>
 #include "device.h"
 #include "message.h"
 #include "runloop.h"
@@ -47,7 +47,18 @@
 	flushMessageQueue(); \
 	\
 	if (device == NULL) { \
-		return Nan::ThrowError(Exception::Error(Nan::New((boost::format("Device \'%s\' not connected") % *udidValue).str()).ToLocalChecked())); \
+		std::stringstream error; \
+		error << "Device \'" << *udidValue << "\' is not connected"; \
+		return Nan::ThrowError(Exception::Error(Nan::New(error.str()).ToLocalChecked())); \
+	}
+
+#define VALIDATE_PORT(var, idx) \
+	uint32_t var = 0; \
+	if (info.Length() > idx && info[idx]->IsNumber()) { \
+		var = info[idx]->Uint32Value(); \
+		if (var < 1 || var > 65535) { \
+			return Nan::ThrowError(Exception::Error(Nan::New("Port must be a number between 1 and 65535").ToLocalChecked())); \
+		} \
 	}
 
 namespace node_ios_device {
@@ -59,6 +70,8 @@ namespace node_ios_device {
 	extern std::mutex deviceMutex;
 	extern std::timed_mutex initMutex;
 }
+
+using namespace v8;
 
 /**
  * The function signature for libuv's uv_async_cb changed, so this macro wraps
@@ -226,7 +239,9 @@ NAN_METHOD(installApp) {
 
 	// check the file exists
 	if (::access(*appPathValue, F_OK) != 0) {
-		return Nan::ThrowError(Exception::Error(Nan::New((boost::format("The app path \'%s\' does not exist") % *appPathValue).str()).ToLocalChecked()));
+		std::stringstream error;
+		error << "The app path \'" << *appPathValue << "\' does not exist";
+		return Nan::ThrowError(Exception::Error(Nan::New(error.str()).ToLocalChecked()));
 	}
 
 	VALIDATE_FUNCTION_ARG("callback", callback, 2)
@@ -250,13 +265,18 @@ NAN_METHOD(installApp) {
 /**
  * startLogRelay()
  * Connects to the device and fires the callback with each line of output from
- * the device's syslog.
+ * the device's syslog or connected port.
  */
 NAN_METHOD(startLogRelay) {
 	VALIDATE_UDID_AND_GET_DEVICE(0)
+	VALIDATE_PORT(port, 1)
 
 	try {
-		device->startLogRelay();
+		if (port > 0) {
+			device->startLogPortRelay(port);
+		} else {
+			device->startSyslogRelay();
+		}
 	} catch (std::runtime_error& e) {
 		return Nan::ThrowError(Exception::Error(Nan::New(e.what()).ToLocalChecked()));
 	}
@@ -266,11 +286,17 @@ NAN_METHOD(startLogRelay) {
 
 /**
  * stopLogRelay()
- * Stops relaying the device's syslog.
+ * Stops relaying the device's syslog or connected port.
  */
 NAN_METHOD(stopLogRelay) {
 	VALIDATE_UDID_AND_GET_DEVICE(0)
-	device->stopLogRelay();
+	VALIDATE_PORT(port, 1)
+
+	if (port > 0) {
+		device->stopLogPortRelay(port);
+	} else {
+		device->stopSyslogRelay();
+	}
 	info.GetReturnValue().SetUndefined();
 }
 
