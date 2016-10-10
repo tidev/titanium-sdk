@@ -231,7 +231,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    since: "6.1.0"
+    since: "6.0.0"
     platforms: [iphone,ipad]
     
   - name: font
