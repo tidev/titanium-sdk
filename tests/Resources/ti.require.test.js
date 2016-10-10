@@ -196,9 +196,17 @@ describe('requireJS', function () {
 		should(abbrev("foo", "fool", "folding", "flop")).eql({ fl: 'flop', flo: 'flop', flop: 'flop', fol: 'folding', fold: 'folding', foldi: 'folding', foldin: 'folding', folding: 'folding', foo: 'foo', fool: 'fool'});
 	});
 
+	it('loads native module by id', function () {
+		var object = require('facebook');
+		should(object).have.property('apiName');
+		// Of course, the module's apiName is wrong, so we can't test that
+		// should(object.apiName).be.eql('facebook');
+		should(object).have.property('uid');
+	});
+
 	// TODO Add a test for requiring a node module up one level from requiring file!
 
-	it('loads path using legacy fallback if first segment matches native moudle id and wasn\'t found inside module', function () {
+	it('loads path using legacy fallback if first segment matches native module id and wasn\'t found inside module', function () {
 		var object = require('facebook/example');
 		should(object).have.property('name');
 		should(object.name).be.eql('facebook/example.js');
