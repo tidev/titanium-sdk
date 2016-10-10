@@ -2953,6 +2953,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = "";
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2972,10 +2973,7 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = Titanium;
-				PROVISIONING_PROFILE = "45becf60-ff91-46e5-90b9-b74264fce268";
-				PROVISIONING_PROFILE_SPECIFIER = "Chris Barber Dev Testapp3";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -3005,7 +3003,6 @@
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
