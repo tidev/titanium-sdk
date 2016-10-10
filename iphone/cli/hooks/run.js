@@ -55,8 +55,6 @@ exports.init = function (logger, config, cli) {
 				.on('log-file', function (line) {
 					// Titanium app log messages
 					if (!simStarted) {
-						finished && finished();
-						finished = null;
 						simStarted = true;
 						logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 					}
@@ -83,29 +81,29 @@ exports.init = function (logger, config, cli) {
 					// system log error messages
 					logger.error('[' + simHandle.appName + '] ' + msg);
 				})
+				.on('app-started', function (simHandle, watchSimHandle) {
+					finished && finished();
+					finished = null;
+				})
 				.on('app-quit', function (code) {
-					endLog();
-					var ex;
 					if (code) {
 						if (code instanceof ioslib.simulator.SimulatorCrash) {
-							ex = new appc.exception(
-								__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length),
-								code.crashFiles.map(function (f) { return '  ' + f; }).concat(
-									__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length)
-								)
-							);
+							logger.error(__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length));
+							code.crashFiles.forEach(function (f) {
+								logger.error('  ' + f);
+							});
+							logger.error(__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length) + '\n');
 						} else {
-							ex = new appc.exception(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
+							logger.error(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
 						}
 					}
-					finished && finished(ex);
-					finished = null;
+					endLog();
+					process.exit(0);
 				})
 				.on('exit', function () {
 					// no need to stick around, exit
 					endLog();
-					finished && finished();
-					finished = null;
+					process.exit(0);
 				})
 				.on('error', function (err) {
 					endLog();

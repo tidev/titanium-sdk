@@ -4,7 +4,7 @@
  * @module env
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -43,7 +43,7 @@ var cache = null;
  * @emits module:env#detected
  * @emits module:env#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 exports.detect = function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {

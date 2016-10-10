@@ -4,7 +4,7 @@
  * @module certs
  *
  * @copyright
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  * {@link https://github.com/digitalbazaar/forge}
@@ -42,7 +42,7 @@ exports.unwatch = unwatch;
  * @emits module:certs#detected
  * @emits module:certs#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 function detect(options, callback) {
 	return magik(options, callback, function (emitter, options, callback) {

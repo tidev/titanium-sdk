@@ -10,6 +10,7 @@
 #include "mobiledevice.h"
 #include "util.h"
 #include <CoreFoundation/CoreFoundation.h>
+#include <mutex>
 #include <thread>
 
 namespace node_ios_device {
