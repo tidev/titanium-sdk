@@ -880,12 +880,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -1119,6 +1119,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CONTEXT_MENU_ITEMS = "contextMenuItems";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PADDING = "padding";
 
 	/**
@@ -1250,6 +1255,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DIRECTION = "direction";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DISABLE_TEXT_SELECTION = "disableTextSelection";
 
 	/**
 	 * @module.api
@@ -1594,6 +1609,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ID = "id";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_IDENTIFIER = "identifier";
 
 	/**
 	 * @module.api

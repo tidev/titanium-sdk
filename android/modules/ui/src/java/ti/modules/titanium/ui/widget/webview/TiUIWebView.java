@@ -20,6 +20,7 @@ import java.util.Map;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.ViewParent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -73,6 +74,9 @@ import android.webkit.WebView;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
+	private boolean disableTextSelection = false;
+	private boolean disableContextMenu = false;
+
 	private static enum reloadTypes
 	{
 		DEFAULT, DATA, HTML, URL
@@ -94,6 +98,9 @@ import android.webkit.WebView;
 
 		@Override public ActionMode startActionMode(ActionMode.Callback callback)
 		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
 			if (actionModeCallback == null) {
 				actionModeCallback = new CustomActionModeCallback();
 			}
@@ -102,6 +109,9 @@ import android.webkit.WebView;
 
 		@Override public ActionMode startActionMode(ActionMode.Callback callback, int type)
 		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
 			// this startActionMode is fired and not the other one
 			// it depends on Android version you use, I used Android 6 (API 23)
 			ViewParent parent = getParent();
@@ -112,6 +122,23 @@ import android.webkit.WebView;
 				actionModeCallback = new CustomActionModeCallback();
 			}
 			return parent.startActionModeForChild(this, actionModeCallback);
+		}
+
+		public ActionMode nullifiedActionMode() {
+			return new ActionMode() {
+				@Override public void setTitle(CharSequence title) {}
+				@Override public void setTitle(int resId) {}
+				@Override public void setSubtitle(CharSequence subtitle) {}
+				@Override public void setSubtitle(int resId) {}
+				@Override public void setCustomView(View view) {}
+				@Override public void invalidate() {}
+				@Override public void finish() {}
+				@Override public Menu getMenu() { return null; }
+				@Override public CharSequence getTitle() { return null; }
+				@Override public CharSequence getSubtitle() { return null; }
+				@Override public View getCustomView() { return null; }
+				@Override public MenuInflater getMenuInflater() { return null; }
+			};
 		}
 
 		private class CustomActionModeCallback implements ActionMode.Callback
@@ -169,7 +196,6 @@ import android.webkit.WebView;
 
 		@Override public boolean onTouchEvent(MotionEvent ev)
 		{
-
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -196,6 +222,16 @@ import android.webkit.WebView;
 			// Don't return here -- must call super.onTouchEvent()
 
 			boolean superHandled = super.onTouchEvent(ev);
+			super.setLongClickable(!disableTextSelection);
+			if (disableTextSelection) {
+				super.setOnLongClickListener(new OnLongClickListener()
+				{
+					@Override public boolean onLongClick(View v)
+					{
+						return true;
+					}
+				});
+			}
 
 			return (superHandled || handled || swipeHandled);
 		}
@@ -432,6 +468,18 @@ import android.webkit.WebView;
 				nativeView.setOverScrollMode(
 						TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_DISABLE_TEXT_SELECTION)) {
+			disableTextSelection = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_TEXT_SELECTION);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_CONTEXT_MENU_ITEMS)) {
+			// ignore for now
 		}
 	}
 
