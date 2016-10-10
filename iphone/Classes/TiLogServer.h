@@ -8,6 +8,8 @@
 #ifndef TI_LOG_SERVER_H
 #define TI_LOG_SERVER_H
 
+#ifndef DISABLE_TI_LOG_SERVER
+
 #import <Foundation/Foundation.h>
 
 @interface TiLogServer : NSObject {
@@ -16,5 +18,7 @@
 + (void)startServer;
 + (void)stopServer;
 @end
+
+#endif /* DISABLE_TI_LOG_SERVER */
 
 #endif /* TI_LOG_SERVER_H */
