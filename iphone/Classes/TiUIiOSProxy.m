@@ -98,6 +98,12 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+#import "TiUIiOSFeedbackGeneratorProxy.h"
+#endif
+#endif
+
 @implementation TiUIiOSProxy
 
 #define FORGET_AND_RELEASE(x) \
@@ -522,7 +528,7 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
 MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 #endif
 
-#ifdef USE_TI_UISCROLLVIEW
+#if defined(USE_TI_UISCROLLVIEW) || defined(USE_TI_UILISTVIEW)
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_NONE, UIScrollViewKeyboardDismissModeNone);
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeOnDrag);
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
@@ -826,6 +832,15 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
     return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+-(id)createFeedbackGenerator:(id)args
+{
+    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+#endif
+
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE,UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY,UIApplicationShortcutIconTypePlay);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE,UIApplicationShortcutIconTypePause);
@@ -867,5 +882,22 @@ MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL,UIModalTransitionStyleParti
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
+
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_SELECTION, 0);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_IMPACT, 1);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_NOTIFICATION, 2);
+
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS, UINotificationFeedbackTypeSuccess);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING, UINotificationFeedbackTypeWarning);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedbackTypeError);
+
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
+#endif
+#endif
+
 @end
 #endif

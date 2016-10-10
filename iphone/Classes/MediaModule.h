@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,30 +10,44 @@
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
+#ifdef USE_TI_MEDIAMUSICPLAYER
 #import "TiMediaMusicPlayer.h"
+#endif
 #import "TiViewProxy.h"
 
 @interface MediaModule : TiModule
 <
 	UINavigationControllerDelegate,
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIImagePickerControllerDelegate,
+#endif
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
 	MPMediaPickerControllerDelegate,
+#endif
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+	UIVideoEditorControllerDelegate,
+#endif
 	UIPopoverControllerDelegate,
-	UIPopoverPresentationControllerDelegate,
-	UIVideoEditorControllerDelegate
+	UIPopoverPresentationControllerDelegate
 > {
 @private
 	// Camera picker
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIImagePickerController *picker;
+#endif
 	BOOL autoHidePicker;
 	BOOL saveToRoll;
 
 	// Music picker
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
 	MPMediaPickerController* musicPicker;
+#endif
 	
 	// Music players
+#ifdef USE_TI_MEDIAMUSICPLAYER
 	TiMediaMusicPlayer* systemMusicPlayer;
 	TiMediaMusicPlayer* appMusicPlayer;
+#endif
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -43,8 +57,10 @@
 	
 	id popover;
     TiViewProxy* cameraView;
-	
+
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIVideoEditorController *editor;
+#endif
 	KrollCallback *editorSuccessCallback;
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
@@ -64,8 +80,10 @@
 @property(nonatomic,readonly) NSNumber* cameraAuthorizationStatus;
 @property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
+#ifdef USE_TI_MEDIAMUSICPLAYER
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
+#endif
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;

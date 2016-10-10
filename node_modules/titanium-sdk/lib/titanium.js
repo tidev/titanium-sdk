@@ -323,7 +323,7 @@ exports.loadModuleManifest = function (logger, manifestFile) {
 		process.exit(1);
 	}
 
-	fs.readFileSync(manifestFile).toString().split('\n').forEach(function (line) {
+	fs.readFileSync(manifestFile).toString().split(/\r?\n/).forEach(function (line) {
 		match = line.match(re);
 		if (match) {
 			manifest[match[1].trim()] = match[2].trim();

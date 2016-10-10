@@ -1317,6 +1317,21 @@ properties:
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
+  - name: hiddenBahavior
+    summary: Sets the behavior when hiding an object to release or keep the free space
+    description: |
+        If setting `hiddenBahavior` to <Titanium.UI.HIDDEN_BEHAVIOR_GONE> it will automatically release the space the view occupied.
+        For example: in a vertical layout the views below the object will move up when you hide
+        an object with `hiddenBahavior:Titanium.UI.HIDDEN_BEHAVIOR_GONE`.
+
+        * <Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE>. Keeps the space and just hides the object (default).
+        * <Titanium.UI.HIDDEN_BEHAVIOR_GONE>. Releases the space and hides the object.
+    type: Number
+    constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
+    default: Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE
+    platforms: [android]
+    since: 6.1.0
+
   - name: left
     summary: View's left position, in platform-specific units.
     description: |
