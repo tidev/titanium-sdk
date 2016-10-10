@@ -4,26 +4,27 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "TiBase.h"
 #import "TiApp.h"
-#import "TiLogServer.h"
+#ifndef DISABLE_TI_LOG_SERVER
+# import "TiLogServer.h"
+#endif
 
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
 
 #if DEBUG
-
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-
+# include <assert.h>
+# include <stdbool.h>
+# include <sys/types.h>
+# include <unistd.h>
+# include <sys/sysctl.h>
 #endif
 
 #ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
+# import "TiDebugger.h"
 #endif
 
 NSMutableArray* TiCreateNonRetainingArray() 
@@ -50,23 +51,34 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
     return CGPointMake(x, y);
 }
 
+/**
+ * Logs a message from the app's console.log(), Ti.API.info(), and native
+ * NSLog() calls to the log server.
+ */
 void TiLogMessage(NSString* str, ...) {
 	va_list args;
 	va_start(args, str);
 
 	NSString* message = [[[NSString alloc] initWithFormat:str arguments:args] autorelease];
-	[TiLogServer log:message];
 
-	if ([[TiApp app] debugMode]) {
-#ifndef USE_JSCORE_FRAMEWORK
-		TiDebuggerLogMessage(OUT, message);
-#endif
-	} else {
 #pragma push
 #undef NSLog
-		NSLog(@"%@",message);
+	// first output the message to the system log
+	// we want to see the message regardless of which target we're running on
+	NSLog(@"%@", message);
 #pragma pop
+
+#ifndef DISABLE_TI_LOG_SERVER
+	// next we send the message to the log server to be sent or queued up
+	[TiLogServer log:message];
+#endif
+
+#ifndef USE_JSCORE_FRAMEWORK
+	// lastly, if we're debugging the app, write the message to the debugger
+	if ([[TiApp app] debugMode]) {
+		TiDebuggerLogMessage(OUT, message);
 	}
+#endif
 }
 
 NSString * const kTiASCIIEncoding = @"ascii";
