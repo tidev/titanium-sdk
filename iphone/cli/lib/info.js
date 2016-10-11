@@ -204,12 +204,16 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			profiles.sort(function (a, b) {
 				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 			}).forEach(function (profile) {
+				var appId = profile.entitlements['application-identifier'] || '';
+				appId = profile.appPrefix ? appId.replace(new RegExp('^' + profile.appPrefix + '\\.'), '') : appId;
+
 				logger.log('  ' + profile.name.cyan + (profile.expired ? ' ' + styleBad(__('**EXPIRED**')) : ''));
 				logger.log('  ' + rpad('  ' + __('UUID'))       + ' = ' + styleValue(profile.uuid));
 				logger.log('  ' + rpad('  ' + __('App Prefix')) + ' = ' + styleValue(profile.appPrefix));
-				logger.log('  ' + rpad('  ' + __('App Id'))     + ' = ' + styleValue(profile.appId));
+				logger.log('  ' + rpad('  ' + __('App Id'))     + ' = ' + styleValue(appId));
 				logger.log('  ' + rpad('  ' + __('Date Created')) + ' = ' + styleValue(profile.creationDate ? moment(profile.creationDate).format('l LT') : 'unknown'));
 				logger.log('  ' + rpad('  ' + __('Date Expired')) + ' = ' + styleValue(profile.expirationDate ? moment(profile.expirationDate).format('l LT') : 'unknown'));
+				logger.log('  ' + rpad('  ' + __('Managed')) + ' = ' + (profile.managed ? styleBad(__('Yes and is NOT compatible with Titanium')) : styleValue(__('No'))));
 			});
 			logger.log();
 		} else {
