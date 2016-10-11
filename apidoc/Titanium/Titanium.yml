@@ -2,34 +2,34 @@
 name: Titanium
 summary: The top-level Titanium module.
 description: |
-    The Titanium module provides the Titanium Mobile API, allowing developers to access native 
-    features of each target environment. Currently, the Android, iOS and Mobile Web (beta) 
+    The Titanium module provides the Titanium Mobile API, allowing developers to access native
+    features of each target environment. Currently, the Android, iOS and Mobile Web (beta)
     environments are supported.
-    
+
     #### Titanium Namespace
-    
-    The complete Titanium API is accessible from the `Titanium` namespace but, for convenience and 
-    brevity, the alias `Ti` is also provided. As the `Titanium` namespace is functionally-identical 
+
+    The complete Titanium API is accessible from the `Titanium` namespace but, for convenience and
+    brevity, the alias `Ti` is also provided. As the `Titanium` namespace is functionally-identical
     to its `Ti` alias, it is always recommended to use `Ti` in your code.
-    
+
     For example, the following pairs of Titanium calls behave exactly the same.
-    
+
         Titanium.API.info('Hello Titanium!');
         Ti.API.info('Hello Titanium!');
-        
+
         Titanium.Utils.sha256('Hello Titanium!');
         Ti.Utils.sha256('Hello Titanium!');
-        
+
         Titanium.App.Properties.setString('hello_msg','Hello Titanium!');
         Ti.App.Properties.setString('hello_msg','Hello Titanium!');
-        
+
         Titanium.Database.open('mydb');
         Ti.Database.open('mydb');
-    
+
     #### Global APIs
 
-    Titanium includes a number of built-in JavaScript objects that are not part of the Titanium 
-    namespace, including JSON parsing, String formatting, timers, and the CommonJS `require` function. 
+    Titanium includes a number of built-in JavaScript objects that are not part of the Titanium
+    namespace, including JSON parsing, String formatting, timers, and the CommonJS `require` function.
     See [Global APIs](Global) for details.
 
 since: "0.1"
@@ -41,7 +41,7 @@ properties:
     type: String
     summary: User-agent string used by Titanium.
     description: |
-        On Mobile Web, the browser's user agent cannot be overridden. Writing to this property has no 
+        On Mobile Web, the browser's user agent cannot be overridden. Writing to this property has no
         effect and reading the property will always return the browser's user agent.
   - name: version
     type: String
@@ -58,44 +58,6 @@ properties:
     summary: Git hash of the Titanium build.
     permission: read-only
 methods:
-  - name: include
-    summary: Includes JavaScript code from one or more files.
-    deprecated:
-        since: 3.3.0
-        notes: Create a CommonJS module and use the `require()` method to include external JavaScript code.
-    description: |
-        Note that this mechanism is not supported with Alloy projects.
-
-        The `include` method has several interesting quirks:
-
-        -   The included JavaScript is interpreted in the current root execution
-        context -- that is, either `app.js` or in the root context of a window
-        opened with the `url` property. For example, in the following code
-        snippet, the included code in `some_module.js` has access to
-        `globalVar`, but *not* to the local variable, `localVar`:
-
-                var globalVar = {};
-                function loadModule() {
-                    var localVar = "A local value.";
-                    Ti.include('some_module.js');
-                };
-                loadModule();
-        
-
-        -   The included filename is interpreted *local to the current file*. For 
-        example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 
-        `c.js`, this is interpreted as `dir/c.js`.
-
-        -   Calling `include` from an event handler does not work consistently across 
-        platforms.
-
-        -   Calling `include` on a non-existent file causes a runtime error.
-        See also [CommonJS Require](Global.require).
-    parameters:
-      - name: name
-        summary: Filename(s) to include. 
-        type: String
-
   - name: createBuffer
     summary: Creates a new buffer based on the params.
     parameters:
@@ -109,18 +71,18 @@ methods:
     examples:
       - title: Create a buffer with 1K bytes
         example: |
-            
+
                 var buffer = Ti.createBuffer({ length: 1024 });
       - title: Create a buffer with string
         example: |
             Create a buffer with the string "hello world" encoded in UTF-8
-            
+
                 var buffer = Ti.createBuffer({ value: "hello world" });
       - title: Create a buffer with encoded float
         example: |
-            Create a buffer with the encoded value of the double-precision floating point 
+            Create a buffer with the encoded value of the double-precision floating point
             number 1.234567 in Big Endian (network) byte order
-            
+
                 var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
 
 
@@ -150,4 +112,3 @@ properties:
     summary: The byte order of this buffer.
     optional: true
     default: The OS native byte order is used by default. See <Titanium.Codec.getNativeByteOrder>
-
