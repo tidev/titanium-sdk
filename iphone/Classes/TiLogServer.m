@@ -50,11 +50,12 @@ static void forcedNSLog(NSString* str, ...)
 {
 	va_list args;
 	va_start(args, str);
-	NSString* msg = [[[NSString alloc] initWithFormat:str arguments:args] autorelease];
+	NSString* msg = [[NSString alloc] initWithFormat:str arguments:args];
 #pragma push
 #undef NSLog
 	NSLog(@"%@", msg);
 #pragma pop
+	[msg release];
 }
 
 /**
@@ -241,7 +242,7 @@ static int counter = 0;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(TI_LOG_SERVER_PORT);
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	
+
 	// bind the socket to the listening port
 	if (bind(logServerSocket, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
 		forcedNSLog(@"[ERROR] Failed to bind listening socket on port %d", TI_LOG_SERVER_PORT);

@@ -10,8 +10,6 @@
 
 #ifndef DISABLE_TI_LOG_SERVER
 
-#import <Foundation/Foundation.h>
-
 @interface TiLogServer : NSObject {
 }
 + (void)log:(NSString*)message;
