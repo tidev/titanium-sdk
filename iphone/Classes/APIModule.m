@@ -64,7 +64,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
         }
 #endif
         NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
-        fflush(stderr);
     }
 }
 
