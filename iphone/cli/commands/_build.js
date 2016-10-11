@@ -1997,24 +1997,32 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
-							// Look for legacy module.id.js first
-							module.libFile = path.join(module.modulePath, module.id + '.js');
-							if (!fs.existsSync(module.libFile)) {
-								// then package.json TODO Verify the main property points at reale file under the module!
-								module.libFile = path.join(module.modulePath, 'package.json');
-								if (!fs.existsSync(module.libFile)) {
-									// then index.js
-									module.libFile = path.join(module.modulePath, 'index.js');
-									if (!fs.existsSync(module.libFile)) {
-										// then index.json
-										module.libFile = path.join(module.modulePath, 'index.json');
-										if (!fs.existsSync(module.libFile)) {
-											this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
-											process.exit(1);
+							// look for legacy module.id.js first
+							var libFile = path.join(module.modulePath, module.id + '.js');
+							module.libFile = fs.existsSync(libFile) ? libFile : null;
+							if (!module.libFile) {
+								var pkgJsonFile = path.join(module.modulePath, 'package.json');
+								if (fs.existsSync(pkgJsonFile)) {
+									try {
+										var pkgJson = require(pkgJsonFile);
+										if (pkgJson && pkgJson.main && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + (/\.js$/.test(pkgJson.main) ? '' : '.js')))) {
+											module.libFile = libFile;
 										}
+									} catch (e) {
+										// squeltch
 									}
 								}
+
+								if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
+									module.libFile = libFile;
+								}
+
+								if (!module.libFile) {
+									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, or index.js', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									process.exit(1);
+								}
 							}
+
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
