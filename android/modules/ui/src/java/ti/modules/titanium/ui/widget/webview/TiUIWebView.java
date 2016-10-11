@@ -17,6 +17,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewParent;
+import android.view.MotionEvent;
+import android.view.View;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -33,6 +39,7 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.R;
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
 import android.content.Context;
@@ -42,13 +49,10 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
-import android.view.MotionEvent;
-import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-@SuppressWarnings("deprecation")
-public class TiUIWebView extends TiUIView
+@SuppressWarnings("deprecation") public class TiUIWebView extends TiUIView
 {
 
 	private static final String TAG = "TiUIWebView";
@@ -69,24 +73,93 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	private static enum reloadTypes {
+	private static enum reloadTypes
+	{
 		DEFAULT, DATA, HTML, URL
 	}
-	
+
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
-	
+
 	private class TiWebView extends WebView
 	{
 		public TiWebViewClient client;
+		protected ActionMode actionMode = null;
+		protected ActionMode.Callback actionModeCallback = null;
 
 		public TiWebView(Context context)
 		{
 			super(context);
 		}
 
-		@Override
-		public void destroy()
+		@Override public ActionMode startActionMode(ActionMode.Callback callback)
+		{
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return super.startActionMode(actionModeCallback);
+		}
+
+		@Override public ActionMode startActionMode(ActionMode.Callback callback, int type)
+		{
+			// this startActionMode is fired and not the other one
+			// it depends on Android version you use, I used Android 6 (API 23)
+			ViewParent parent = getParent();
+			if (parent == null) {
+				return null;
+			}
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return parent.startActionModeForChild(this, actionModeCallback);
+		}
+
+		private class CustomActionModeCallback implements ActionMode.Callback
+		{
+
+			@Override public boolean onCreateActionMode(ActionMode mode, Menu menu)
+			{
+				mode.getMenuInflater().inflate(R.menu.ti_custom_menu, menu);
+				//				try {
+				//					mode.getMenuInflater().inflate(TiRHelper.getResource("menu.ti_custom_menu"), menu);
+				//				} catch (Exception e) {
+				//					Log.e(TAG, "XML resources could not be found!", Log.DEBUG_MODE);
+				//				}
+				return true;
+			}
+
+			@Override public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+			{
+				return false;
+			}
+
+			@Override public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+			{
+				//Resource ids can't be used in Android libraries, need constant expression
+				int itemId = item.getItemId();
+				if (itemId == R.id.ti_custom_menu_button_1) {
+					//                    instructions when item is clicked...
+				}
+				// if import.titanium.R class is not recognised then use this
+				//                try {
+				//					if (itemId == TiRHelper.getResource("menu.ti_custom_menu")) {
+				//						Log.d(TAG, "" + TiRHelper.getResource("values.ids"));
+				//					}
+				//				} catch (Exception e) {
+				//				}
+
+				this.onDestroyActionMode(mode);
+				return true;
+			}
+
+			@Override public void onDestroyActionMode(ActionMode mode)
+			{
+				clearFocus();
+				actionMode = null;
+			}
+		}
+
+		@Override public void destroy()
 		{
 			if (client != null) {
 				client.getBinding().destroy();
@@ -94,10 +167,9 @@ public class TiUIWebView extends TiUIView
 			super.destroy();
 		}
 
-		@Override
-		public boolean onTouchEvent(MotionEvent ev)
+		@Override public boolean onTouchEvent(MotionEvent ev)
 		{
-			
+
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -122,20 +194,19 @@ public class TiUIWebView extends TiUIView
 			}
 
 			// Don't return here -- must call super.onTouchEvent()
-			
+
 			boolean superHandled = super.onTouchEvent(ev);
-			
+
 			return (superHandled || handled || swipeHandled);
 		}
 
-		@Override
-		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+		@Override protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{
 			super.onLayout(changed, left, top, right, bottom);
 			TiUIHelper.firePostLayoutEvent(proxy);
 		}
 	}
-	
+
 	//TIMOB-16952. Overriding onCheckIsTextEditor crashes HTC Sense devices
 	private class NonHTCWebView extends TiWebView
 	{
@@ -143,13 +214,13 @@ public class TiUIWebView extends TiUIView
 		{
 			super(context);
 		}
-		
-		@Override
-		public boolean onCheckIsTextEditor()
+
+		@Override public boolean onCheckIsTextEditor()
 		{
 			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS), TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
-				
+				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS),
+						TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
+
 				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 					return false;
 				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
@@ -159,13 +230,14 @@ public class TiUIWebView extends TiUIView
 			return super.onCheckIsTextEditor();
 		}
 	}
-	
+
 	private boolean isHTCSenseDevice()
 	{
 		boolean isHTC = false;
-		
-		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager().getSystemAvailableFeatures();
-		if(features == null) { 
+
+		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager()
+				.getSystemAvailableFeatures();
+		if (features == null) {
 			return isHTC;
 		}
 		for (FeatureInfo f : features) {
@@ -173,29 +245,31 @@ public class TiUIWebView extends TiUIView
 			if (fName != null) {
 				isHTC = fName.contains("com.htc.software.Sense");
 				if (isHTC) {
-					Log.i(TAG, "Detected com.htc.software.Sense feature "+fName);
+					Log.i(TAG, "Detected com.htc.software.Sense feature " + fName);
 					break;
 				}
 			}
 		}
-		
+
 		return isHTC;
 	}
-	
 
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-        
+
 		// We can only support debugging in API 19 and higher
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			// Only enable webview debugging, when app is debuggable
-			if (0 != (proxy.getActivity().getApplicationContext().getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)) {
+			if (0 != (proxy.getActivity().getApplicationContext()
+					.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)) {
 				WebView.setWebContentsDebuggingEnabled(true);
 			}
 		}
-		
-		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+
+		TiWebView webView = isHTCSenseDevice() ?
+				new TiWebView(proxy.getActivity()) :
+				new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
@@ -210,7 +284,7 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabasePath(path.getAbsolutePath());
 			settings.setDatabaseEnabled(true);
 		}
-		
+
 		File cacheDir = TiApplication.getInstance().getCacheDir();
 		if (cacheDir != null) {
 			settings.setAppCacheEnabled(true);
@@ -236,7 +310,8 @@ public class TiUIWebView extends TiUIView
 			initializePluginAPI(webView);
 		}
 
-		boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		boolean enableJavascriptInterface = TiConvert
+				.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		chromeClient = new TiWebChromeClient(this);
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
@@ -302,8 +377,7 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
-	@Override
-	public void processProperties(KrollDict d)
+	@Override public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -311,7 +385,7 @@ public class TiUIWebView extends TiUIView
 			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
 			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
 			getWebView().getSettings().setCacheMode(mode);
@@ -324,20 +398,22 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
+		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES
+				.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
-			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML), (HashMap<String, Object>) (d.get(WebViewProxy.OPTIONS_IN_SETHTML)));
+			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML),
+					(HashMap<String, Object>) (d.get(WebViewProxy.OPTIONS_IN_SETHTML)));
 		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
 			Object value = d.get(TiC.PROPERTY_DATA);
 			if (value instanceof TiBlob) {
 				setData((TiBlob) value);
 			}
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
 			WebSettings settings = getWebView().getSettings();
-			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
+			settings.setLightTouchEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
 		}
 
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
@@ -350,16 +426,16 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
-				nativeView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+				nativeView.setOverScrollMode(
+						TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
 	}
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	@Override public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (TiC.PROPERTY_URL.equals(key)) {
 			setUrl(TiConvert.toString(newValue));
@@ -376,12 +452,12 @@ public class TiUIWebView extends TiUIView
 			if (Build.VERSION.SDK_INT >= 9) {
 				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
-		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
+		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) {
 			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
-		} else if(TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
+		} else if (TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
 			if (newValue instanceof HashMap) {
 				setRequestHeaders((HashMap) newValue);
 			}
@@ -392,7 +468,8 @@ public class TiUIWebView extends TiUIView
 		// If TiUIView's propertyChanged ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
 		// in order to see any of it.
-		boolean isBgRelated = (key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
+		boolean isBgRelated = (key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key
+				.startsWith(TiC.PROPERTY_BORDER_PREFIX));
 		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
@@ -454,13 +531,14 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl), "text/html"); // keep app:// etc. intact in case
-																								   	       // html in file contains links
-																						 				   // to JS that use app:// etc.
+					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl),
+							"text/html"); // keep app:// etc. intact in case
+					// html in file contains links
+					// to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
-						+ ". Will let WebView try loading it directly.", ioe);
+							+ ". Will let WebView try loading it directly.", ioe);
 				} finally {
 					if (fis != null) {
 						try {
@@ -481,7 +559,7 @@ public class TiUIWebView extends TiUIView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		isLocalHTML = false;
-		if (extraHeaders.size()>0){
+		if (extraHeaders.size() > 0) {
 			getWebView().loadUrl(finalUrl, extraHeaders);
 		} else {
 			getWebView().loadUrl(finalUrl);
@@ -491,7 +569,7 @@ public class TiUIWebView extends TiUIView
 	public void changeProxyUrl(String url)
 	{
 		getProxy().setProperty("url", url);
-		if(!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
+		if (!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
 			reloadMethod = reloadTypes.URL;
 			reloadData = url;
 		}
@@ -530,30 +608,30 @@ public class TiUIWebView extends TiUIView
 			setHtml(html);
 			return;
 		}
-		
+
 		reloadMethod = reloadTypes.HTML;
 		reloadData = d;
 		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 		String mimeType = "text/html";
 		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
 			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-		} 
+		}
 		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
 			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
 		}
-		
+
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
 	/**
-	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
-	 * must be set to non null in order for the web view history to work correctly 
-	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property
+	 * must be set to non null in order for the web view history to work correctly
+	 * when working with local files (IE:  goBack() and goForward() will not work if
 	 * null is used)
-	 * 
-	 * @param html					HTML data to load into the web view
-	 * @param baseUrl				url to associate with the data being loaded
-	 * @param mimeType				mime type of the data being loaded
+	 *
+	 * @param html     HTML data to load into the web view
+	 * @param baseUrl  url to associate with the data being loaded
+	 * @param mimeType mime type of the data being loaded
 	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
@@ -567,7 +645,8 @@ public class TiUIWebView extends TiUIView
 		}
 		boolean enableJavascriptInjection = true;
 		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+			enableJavascriptInjection = TiConvert
+					.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
@@ -610,14 +689,14 @@ public class TiUIWebView extends TiUIView
 		reloadMethod = reloadTypes.DATA;
 		reloadData = blob;
 		String mimeType = "text/html";
-		
+
 		// iOS parity: for whatever reason, in setData, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
-		
+
 		if (blob.getType() == TiBlob.TYPE_FILE) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
@@ -625,7 +704,7 @@ public class TiUIWebView extends TiUIView
 				return;
 			}
 		}
-		
+
 		if (blob.getMimeType() != null) {
 			mimeType = blob.getMimeType();
 		}
@@ -768,35 +847,39 @@ public class TiUIWebView extends TiUIView
 	public void reload()
 	{
 		switch (reloadMethod) {
-		case DATA:
-			if (reloadData != null && reloadData instanceof TiBlob) {
-				setData((TiBlob) reloadData);
-			} else {
-				Log.d(TAG, "reloadMethod points to data but reloadData is null or of wrong type. Calling default", Log.DEBUG_MODE);
+			case DATA:
+				if (reloadData != null && reloadData instanceof TiBlob) {
+					setData((TiBlob) reloadData);
+				} else {
+					Log.d(TAG, "reloadMethod points to data but reloadData is null or of wrong type. Calling default",
+							Log.DEBUG_MODE);
+					getWebView().reload();
+				}
+				break;
+
+			case HTML:
+				if (reloadData == null || (reloadData instanceof HashMap<?, ?>)) {
+					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
+							(HashMap<String, Object>) reloadData);
+				} else {
+					Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default",
+							Log.DEBUG_MODE);
+					getWebView().reload();
+				}
+				break;
+
+			case URL:
+				if (reloadData != null && reloadData instanceof String) {
+					setUrl((String) reloadData);
+				} else {
+					Log.d(TAG, "reloadMethod points to url but reloadData is null or of wrong type. Calling default",
+							Log.DEBUG_MODE);
+					getWebView().reload();
+				}
+				break;
+
+			default:
 				getWebView().reload();
-			}
-			break;
-			
-		case HTML:
-			if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
-				setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
-			} else {
-				Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default", Log.DEBUG_MODE);
-				getWebView().reload();
-			}
-			break;
-		
-		case URL:
-			if (reloadData != null && reloadData instanceof String) {
-				setUrl((String) reloadData);
-			} else {
-				Log.d(TAG, "reloadMethod points to url but reloadData is null or of wrong type. Calling default", Log.DEBUG_MODE);
-				getWebView().reload();
-			}
-			break;
-			
-		default:
-			getWebView().reload();
 		}
 	}
 
