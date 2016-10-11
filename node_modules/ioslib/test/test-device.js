@@ -41,7 +41,7 @@ function build(app, provisioningProfileUUID, certName, defs, done){
 			'IPHONEOS_DEPLOYMENT_TARGET=6.0',
 			'PROVISIONING_PROFILE=' + provisioningProfileUUID,
 			'DEPLOYMENT_POSTPROCESSING=YES',
-			'CODE_SIGN_IDENTITY="' + certName + '"',
+			// 'CODE_SIGN_IDENTITY="' + certName + '"',
 			'GCC_PREPROCESSOR_DEFINITIONS="' + defs.join(' ') + '"'
 		].join(' ');
 
@@ -131,23 +131,26 @@ describe('device', function () {
 		this.timeout(30000);
 		this.slow(30000);
 
-		ioslib.device.install(null, '/path/to/something/that/does/not/exist', 'foo', function (err) {
-			should(err).be.an.instanceOf(Error);
-			done();
-		}).on('error', function (err) {
-			should(err).be.an.instanceOf(Error);
-		});
+		ioslib.device
+			.install(null, '/path/to/something/that/does/not/exist', 'foo', function (err) {
+				should(err).be.an.instanceOf(Error);
+				done();
+			})
+			.on('error', function (err) {
+				should(err).be.an.instanceOf(Error);
+			});
 	});
 
 	(process.env.TRAVIS || process.env.JENKINS ? it.skip : it)('should be able to install app to device', function (done) {
 		this.timeout(60000);
 		this.slow(60000);
 
-		var appId = 'com.appcelerator.TestApp';
+		var appId = 'com.appcelerator.testapp3';
 
 		// find us a device
 		ioslib.findValidDeviceCertProfileCombos({
-			appId: appId
+			appId: appId,
+			unmanagedProvisioningProfile: true
 		}, function (err, results) {
 			function noop() {}
 
@@ -164,28 +167,14 @@ describe('device', function () {
 				should(appPath).be.a.String;
 				should(fs.existsSync(appPath)).be.ok;
 
-				var started = false,
-					timer = null;
-
-				ioslib.device.install(results[0].deviceUDID, appPath, appId, function (err) {
-					should(err).not.be.ok;
-
-					console.log('Please launch app. You have 10 seconds.');
-
-					timer = setTimeout(function () {
-						done(new Error(started ? "App started, but didn't produce any log output" : 'App was not started'));
-						done = noop;
-					}, 10000);
-				}).on('app-started', function () {
-					started = true;
-				}).on('log', function (msg) {
-					clearTimeout(timer);
-					done();
-					done = noop;
-				}).on('error', function (err) {
-					done(err);
-					done = noop;
-				});
+				ioslib.device
+					.install(results[0].deviceUDID, appPath, appId)
+					.on('installed', function () {
+						done();
+					})
+					.on('error', function (err) {
+						done(err);
+					});
 			});
 		});
 	});

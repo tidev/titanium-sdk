@@ -84,6 +84,8 @@ extern "C" {
 #define AMSVC_SCREENSHOT            "com.apple.screenshotr"
 #define AMSVC_SYSLOG_RELAY          "com.apple.syslog_relay"
 #define AMSVC_SYSTEM_PROFILER       "com.apple.mobile.system_profiler"
+#define AMSVC_FILE_RELAY            "com.apple.mobile.file_relay"
+#define AMSVC_WEB_INSPECTOR         "com.apple.webinspector"
 
 typedef uint32_t afc_error_t;
 typedef uint64_t afc_file_ref;
@@ -488,6 +490,8 @@ mach_error_t AMDShutdownNotificationProxy(
 mach_error_t AMDeviceDeactivate(am_device device);
 mach_error_t AMDeviceActivate(am_device device, CFMutableDictionaryRef);
 /*end*/
+
+int USBMuxConnectByPort(int connectionID, int iPhone_port_network_byte_order, int* outHandle);
 
 #ifdef __cplusplus
 }

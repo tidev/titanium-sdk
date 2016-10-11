@@ -86,7 +86,7 @@ const simulatorDevicePairCompatiblity = {
  * @emits module:xcode#detected
  * @emits module:xcode#error
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 exports.detect = function detect(options, callback) {
 	var hopt = hash(JSON.stringify(options));

@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
+	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
@@ -2057,6 +2058,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// initialization
 		'doAnalytics',
 		'initialize',
+		'determineLogServerPort',
 		'loginfo',
 		'readBuildManifest',
 		'checkIfNeedToRecompile',
@@ -2263,6 +2265,53 @@ iOSBuilder.prototype.initialize = function initialize() {
 			}
 		}
 	}
+};
+
+iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
+	this.tiLogServerPort = 0;
+
+	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+		// we don't allow the log server in production
+		return next();
+	}
+
+	var port = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
+
+	if (this.target === 'device') {
+		// for device builds, we pick a port between 10000 and 60000 based on the
+		// app's id. this is VERY prone to collisions, but if becomes a problem,
+		// then set a <log-server-port> in the <ios> section of the tiapp.xml.
+		this.tiLogServerPort = port;
+		return next();
+	}
+
+	var _t = this;
+
+	// for simulator builds, the port is shared with the local machine, so we
+	// just need to find an open port with a little help from Node
+	async.whilst(
+		function () { return _t.tiLogServerPort === 0; },
+		function (cb) {
+			var server = net.createServer();
+			server.on('error', function () {
+				server.close(function () {
+					// try again
+					port = ~~(Math.random() * 1e4) % 50000 + 1e4;
+					cb();
+				});
+			});
+			server.listen({
+				host: 'localhost',
+				port: port
+			}, function () {
+				server.close(function () {
+					_t.tiLogServerPort = port;
+					cb();
+				});
+			});
+		},
+		next
+	);
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2790,7 +2839,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -2809,6 +2857,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			'DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green,
 			'DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue
 		);
+	}
+
+	if (this.tiLogServerPort === 0) {
+		gccDefs.push('DISABLE_TI_LOG_SERVER=1');
+	} else {
+		gccDefs.push('TI_LOG_SERVER_PORT=' + this.tiLogServerPort);
 	}
 
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
@@ -5290,12 +5344,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				imageSets = {},
 				imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
-			function sha1(value) {
-				var sha = crypto.createHash('sha1');
-				sha.update(value);
-				return sha.digest('hex');
-			};
-
 			Object.keys(imageAssets).forEach(function (file) {
 				var imageName = imageAssets[file].name,
 					imageExt = imageAssets[file].ext,
@@ -6144,6 +6192,10 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
 };
+
+function sha1(value) {
+	return crypto.createHash('sha1').update(value).digest('hex');
+}
 
 // create the builder instance and expose the public api
 (function (iosBuilder) {
