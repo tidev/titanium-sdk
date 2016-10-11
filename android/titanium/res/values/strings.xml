@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Titanium SDK</string>
-    <string name="title_1">MenuItem1</string>
-    <string name="title_2">MenuItem2</string>
 </resources>
