@@ -962,7 +962,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			function prep(a) {
 				return a.filter(function (p) {
-					if (!p.expired) {
+					if (!p.expired && !p.managed) {
 						var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
 						if (re.test(appId)) {
 							var label = p.name;
@@ -1055,11 +1055,17 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				return callback(null, value);
 			}
 			if (value) {
-				var v = _t.provisioningProfileLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				var p = _t.provisioningProfileLookup[value.toLowerCase()];
+				if (!p) {
+					return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 				}
-				return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+				if (p.managed) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is managed and not supported', value)));
+				}
+				if (p.expired) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
+				}
+				return callback(null, p.uuid);
 			}
 			callback(true);
 		}
@@ -1091,8 +1097,8 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'device':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
-					iosInfo.provisioning.development.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.development.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 					_t.conf.options['developer-name'].required = true;
 					_t.conf.options['pp-uuid'].required = true;
@@ -1115,11 +1121,11 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					_t.conf.options['pp-uuid'].required = true;
 
 					// build lookup maps
-					iosInfo.provisioning.distribution.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 					iosInfo.provisioning.adhoc.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 			}
 		},
@@ -1673,7 +1679,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							function getPPbyUUID() {
 								return pps
 									.filter(function (p) {
-										if (!p.expired && p.uuid === ppuuid) {
+										if (!p.expired && !p.managed && p.uuid === ppuuid) {
 											return true;
 										}
 									})
@@ -1699,7 +1705,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								logger.error(__('The provisioning profile "%s" is tied to the application identifier "%s", however the extension\'s identifier is "%s".', ppuuid, pp.appId, ext.targetInfo.id));
 								logger.log();
 
-								var matches = pps.filter(function (p) { return !p.expired && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
+								var matches = pps.filter(function (p) { return !p.expired && !p.managed && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
 								if (matches.length) {
 									logger.log(__('Did you mean?'));
 									var max = 0;
