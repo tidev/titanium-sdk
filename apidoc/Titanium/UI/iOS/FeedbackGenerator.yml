@@ -42,7 +42,7 @@ properties:
     constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_*
     availability: creation
     optional: false
-
+    
 methods:
   - name: prepare
     summary: Used to prepare the haptic sensor for the upcoming interaction with it.
@@ -74,3 +74,4 @@ methods:
             The type of the notification to manage the peculiarity of the haptic feedback. If this
             parameter is not specified, an error will be thrown.
         constants: [Titanium.UI.iOS.FEEDBACK_GENERATOR_NOTIFICATION_TYPE_*]
+    
