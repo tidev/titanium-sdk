@@ -136,6 +136,7 @@ function detect(options, callback) {
  * @param {Object} [options] - An object containing various settings.
  * @param {String} [options.appId] - The app identifier (com.domain.app) to filter provisioning profiles by.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects the all iOS information.
+ * @param {Boolean} [options.unmanagedProvisioningProfile] - When true, selects an unmanaged provisioning profile.
  * @param {Function} [callback(err, info)] - A function to call when the simulator has launched.
  */
 function findValidDeviceCertProfileCombos(options, callback) {
@@ -172,7 +173,8 @@ function findValidDeviceCertProfileCombos(options, callback) {
 			provisioning.find({
 				appId: options.appId,
 				certs: certs,
-				devicesUDIDs: deviceResults.devices.map(function (device) { return device.udid; })
+				devicesUDIDs: deviceResults.devices.map(function (device) { return device.udid; }),
+				unmanaged: options.unmanagedProvisioningProfile
 			}, function (err, profiles) {
 				if (!profiles.length) {
 					return callback(new Error('No provisioning profiles found'));

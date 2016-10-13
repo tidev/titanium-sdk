@@ -311,7 +311,8 @@ Module.prototype.require = function (request, context) {
 Module.prototype.loadCoreModule = function (id, context) {
 	var wrapper = this.wrapperCache[id],
 		parts,
-		externalBinding;
+		externalBinding,
+		externalCommonJsContents;
 	// check if we have a cached copy of the wrapper
 	if (wrapper) {
 		return wrapper;
@@ -330,14 +331,16 @@ Module.prototype.loadCoreModule = function (id, context) {
 
 		// Could be a sub-module (CommonJS) of an external native module.
 		// We allow that since TIMOB-9730.
-		externalCommonJsContents = kroll.getExternalCommonJsModule(id);
-		if (externalCommonJsContents) {
-			// found it
-			// FIXME Re-use loadAsJavaScriptText?
-			var module = new Module(id, this, context);
-			Module.cache[id] = module;
-			module.load(id, externalCommonJsContents);
-			return module.exports;
+		if (kroll.isExternalCommonJsModule(parts[0])) {
+			externalCommonJsContents = kroll.getExternalCommonJsModule(id);
+			if (externalCommonJsContents) {
+				// found it
+				// FIXME Re-use loadAsJavaScriptText?
+				var module = new Module(id, this, context);
+				Module.cache[id] = module;
+				module.load(id, externalCommonJsContents);
+				return module.exports;
+			}
 		}
 	}
 

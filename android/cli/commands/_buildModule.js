@@ -1042,7 +1042,8 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 			fs.writeFileSync(
 				path.join(this.buildGenDir, 'Application.mk'),
 				ejs.render(fs.readFileSync(this.applicationMkTemplateFile).toString(), {
-					MODULE_ID: this.manifest.moduleid
+					MODULE_ID: this.manifest.moduleid,
+					ARCHITECTURES: this.manifest.architectures
 				})
 			);
 

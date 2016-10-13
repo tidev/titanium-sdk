@@ -146,6 +146,12 @@
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Appcelerator;
+				TargetAttributes = {
+					83D658A519A00323009A9C56 = {
+						DevelopmentTeam = WP4952RUHJ;
+						ProvisioningStyle = Manual;
+					};
+				};
 			};
 			buildConfigurationList = 83D658A119A00323009A9C56 /* Build configuration list for PBXProject "TestApp" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -297,10 +303,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = WP4952RUHJ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TestApp/TestApp-Prefix.pch";
 				INFOPLIST_FILE = "TestApp/TestApp-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "45becf60-ff91-46e5-90b9-b74264fce268";
+				PROVISIONING_PROFILE_SPECIFIER = "Chris Barber Dev Testapp3";
 				VALID_ARCHS = "arm64 armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
@@ -311,10 +322,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = WP4952RUHJ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TestApp/TestApp-Prefix.pch";
 				INFOPLIST_FILE = "TestApp/TestApp-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.testapp3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "9e0798fa-4677-4b0b-84fd-ba79afb18d87";
+				PROVISIONING_PROFILE_SPECIFIER = "Chris Barber Testapp3";
 				VALID_ARCHS = "arm64 armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
