@@ -55,9 +55,24 @@ exports.init = function (logger, config, cli) {
 				.on('log-file', function (line) {
 					// Titanium app log messages
 					if (!simStarted) {
+						if (line.indexOf('{') === 0) {
+							try {
+								var headers = JSON.parse(line);
+								if (headers.appId !== builder.tiapp.id) {
+									logger.error(__('Tried to connect to app "%s", but connected to another app with id "%s"', builder.tiapp.id, headers.appId));
+									logger.error(__('It is likely that you have two apps using the same log server port %s', builder.tiLogServerPort));
+									logger.error(__('Either stop all instances of the other app or explicitly set a unique <log-server-port> in the <ios> section of the tiapp.xml') + '\n');
+									process.exit(1);
+								}
+							} catch (e) {
+								// squeltch
+							}
+						}
+
 						simStarted = true;
 						logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 					}
+
 					var m = line.match(logLevelRE);
 					if (m) {
 						lastLogger = m[2].toLowerCase();

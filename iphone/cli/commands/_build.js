@@ -1461,6 +1461,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
 
+		// validate the log server port
+		var logServerPort = this.tiapp.ios['log-server-port'];
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && (typeof logServerPort !== 'number' || logServerPort < 1 || logServerPort > 65535)) {
+			logger.error(__('Invalid <log-server-port> found in the tiapp.xml: %s', logServerPort) + '\n');
+			process.exit(1);
+		}
+
 		series(this, [
 			function validateExtensions(next) {
 				// if there's no extensions, then skip this step
@@ -2354,6 +2361,12 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		} else {
 			this.logger.info(__('Using default keychain'));
 		}
+	}
+
+	if (this.tiLogServerPort) {
+		this.logger.info(__('Logging enabled on port %s', cyan(String(this.tiLogServerPort))));
+	} else {
+		this.logger.info(__('Logging disabled'));
 	}
 
 	if (this.debugHost) {

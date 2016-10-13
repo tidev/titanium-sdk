@@ -1,7 +1,7 @@
 /*
  * install.js: Titanium iOS CLI install hook
  *
- * Copyright (c) 2012-2014, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2016, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -99,11 +99,23 @@ exports.init = function (logger, config, cli) {
 					startLog = false,
 					runningCount = 0,
 					disconnected = false,
-					installCount = 0;
+					installCount = 0,
+					handles = {};
 
-				function quit(force) {
+				function quit(force, udid) {
 					running = false;
 					runningCount--;
+
+					if (udid && handles[udid]) {
+						handles[udid].stop();
+						delete handles[udid];
+					} else if (force) {
+						Object.keys(handles).forEach(function (udid) {
+							handles[udid].stop();
+							delete handles[udid];
+						});
+					}
+
 					if (force || runningCount <= 0) {
 						if (startLog) {
 							var endLogTxt = __('End application log');
@@ -121,7 +133,7 @@ exports.init = function (logger, config, cli) {
 
 					logger.info(__('Installing app on device: %s', device.name.cyan));
 
-					ioslib.device
+					var handle = handles[udid] = ioslib.device
 						.install(udid, builder.xcodeAppDir, {
 							appName: builder.tiapp.name,
 							logPort: builder.tiLogServerPort
@@ -140,15 +152,38 @@ exports.init = function (logger, config, cli) {
 							next();
 						})
 						.on('app-started', function () {
+							running = true;
+							runningCount++;
+						})
+						.on('log', function (msg) {
+							if (!handles[udid].logStarted) {
+								if (msg.indexOf('{') === 0) {
+									try {
+										var headers = JSON.parse(msg);
+										if (headers.appId !== builder.tiapp.id) {
+											logger.error(__('Tried to connect to app "%s", but connected to another app with id "%s"', builder.tiapp.id, headers.appId));
+											logger.error(__('It is likely that you have two apps using the same log server port %s', builder.tiLogServerPort));
+											logger.error(__('Either stop all instances of the other app or explicitly set a unique <log-server-port> in the <ios> section of the tiapp.xml') + '\n');
+											handle.stop();
+
+											running = false;
+											if (--runningCount <= 0) {
+												process.exit(1);
+											}
+										}
+									} catch (e) {
+										// squeltch
+									}
+								}
+								handles[udid].logStarted = true;
+							}
+
 							if (!startLog) {
 								var startLogTxt = __('Start application log');
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
-							running = true;
-							runningCount++;
-						})
-						.on('log', function (msg) {
+
 							var m = msg.match(logLevelRE);
 							if (m) {
 								var line = m[0].trim();
@@ -172,8 +207,8 @@ exports.init = function (logger, config, cli) {
 								}
 							}
 						})
-						.on('app-quit', quit)
-						.on('disconnect', quit)
+						.on('app-quit', function () { quit(false, udid); })
+						.on('disconnect', function () { quit(false, udid); })
 						.on('error', function (err) {
 							err = err.message || err.toString();
 							var details;
