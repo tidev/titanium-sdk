@@ -6,8 +6,8 @@ summary: |
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
-properties:
 
+properties:
   - name: ANIMATION_CURVE_EASE_IN
     deprecated:
         since: "2.1.0"
@@ -699,7 +699,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_DARKEN
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -749,9 +749,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_EXCLUSION
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -788,7 +787,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_MULTIPLY
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -838,9 +837,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SCREEN
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -877,7 +875,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_XOR
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
