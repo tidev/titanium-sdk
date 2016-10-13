@@ -1469,7 +1469,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		// validate the log server port
 		var logServerPort = this.tiapp.ios['log-server-port'];
-		if (!/^dist-(appstore|adhoc)$/.test(this.target) && (typeof logServerPort !== 'number' || logServerPort < 1 || logServerPort > 65535)) {
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1 || logServerPort > 65535)) {
 			logger.error(__('Invalid <log-server-port> found in the tiapp.xml: %s', logServerPort) + '\n');
 			process.exit(1);
 		}
