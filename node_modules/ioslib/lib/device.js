@@ -96,6 +96,8 @@ function install(udid, appPath, options) {
 			return handle.emit('error', new Error(__('App path does not exist: ' + appPath)));
 		}
 
+		handle.stop = function () {}; // for stopping logging
+
 		iosDevice.installApp(udid, appPath, function (err) {
 			if (err) {
 				return handle.emit('error', err);
@@ -104,7 +106,7 @@ function install(udid, appPath, options) {
 			handle.emit('installed');
 
 			if (options.logPort) {
-				iosDevice
+				var logHandle = iosDevice
 					.log(udid, options.logPort)
 					.on('log', function (msg) {
 						handle.emit('log', msg);
@@ -121,6 +123,10 @@ function install(udid, appPath, options) {
 					.on('error', function (err) {
 						handle.emit('log-error', err);
 					});
+
+				handle.stop = function () {
+					logHandle.stop();
+				};
 			}
 		});
 	});

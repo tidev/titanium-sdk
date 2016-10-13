@@ -211,9 +211,10 @@ function log(udid, port) {
 	var handle = new Handle;
 	var running = false;
 	var evtName = (port ? 'LOG_PORT_' + port + '_' : 'SYSLOG_') + udid;
-	emitter.on(evtName, function (msg) {
+	var emitFn = function (msg) {
 		handle.emit('log', msg);
-	});
+	};
+	emitter.on(evtName, emitFn);
 	var timer = null;
 
 	function tryStartLogRelay() {
@@ -257,7 +258,7 @@ function log(udid, port) {
 	handle.stop = function stop() {
 		running = false;
 		clearTimeout(timer);
-		emitter.removeListener(evtName, callback);
+		emitter.removeListener(evtName, emitFn);
 
 		if (!emitter._events[evtName] || emitter._events[evtName].length <= 0) {
 			try {

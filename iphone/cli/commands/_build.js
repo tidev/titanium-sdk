@@ -1467,6 +1467,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
 
+		// validate the log server port
+		var logServerPort = this.tiapp.ios['log-server-port'];
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && (typeof logServerPort !== 'number' || logServerPort < 1 || logServerPort > 65535)) {
+			logger.error(__('Invalid <log-server-port> found in the tiapp.xml: %s', logServerPort) + '\n');
+			process.exit(1);
+		}
+
 		series(this, [
 			function validateExtensions(next) {
 				// if there's no extensions, then skip this step
@@ -2302,6 +2309,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 			server.on('error', function () {
 				server.close(function () {
 					// try again
+					_t.logger.debug(__('Log server port %s is unavailable, selecting a new random port', port));
 					port = ~~(Math.random() * 1e4) % 50000 + 1e4;
 					cb();
 				});
@@ -2311,6 +2319,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 				port: port
 			}, function () {
 				server.close(function () {
+					_t.logger.debug(__('Log server port %s is available', port));
 					_t.tiLogServerPort = port;
 					cb();
 				});
@@ -2360,6 +2369,12 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		} else {
 			this.logger.info(__('Using default keychain'));
 		}
+	}
+
+	if (this.tiLogServerPort) {
+		this.logger.info(__('Logging enabled on port %s', cyan(String(this.tiLogServerPort))));
+	} else {
+		this.logger.info(__('Logging disabled'));
 	}
 
 	if (this.debugHost) {
