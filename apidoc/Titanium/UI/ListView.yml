@@ -1807,4 +1807,3 @@ properties:
   - name: itemId
     summary: The item ID bound to the list item that generated the event.
     type: String
-0
