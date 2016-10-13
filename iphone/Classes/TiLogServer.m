@@ -368,9 +368,8 @@ static int counter = 0;
 		RELEASE_TO_NIL(connections);
 	}
 
-	if (headers != nil) {
-		RELEASE_TO_NIL(headers);
-	}
+	// release the headers buffer
+	RELEASE_TO_NIL(headers);
 
 	// release the dispatch source
 	if (logDispatchSource != nil) {
@@ -385,9 +384,7 @@ static int counter = 0;
 	}
 
 	// release any retained messages in the log queue
-	if (logQueue != nil) {
-		RELEASE_TO_NIL(logQueue);
-	}
+	RELEASE_TO_NIL(logQueue);
 }
 
 @end // end TiLogServer
