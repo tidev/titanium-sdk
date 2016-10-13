@@ -74,4 +74,3 @@ methods:
             The type of the notification to manage the peculiarity of the haptic feedback. If this
             parameter is not specified, an error will be thrown.
         constants: [Titanium.UI.iOS.FEEDBACK_GENERATOR_NOTIFICATION_TYPE_*]
-    
