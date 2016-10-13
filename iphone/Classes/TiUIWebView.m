@@ -775,9 +775,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         }
     }
     
-    // Disable the context menu when selecting text
-    BOOL disableSelection = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
-    if (disableSelection) {
+    // Disable the context menu when selecting a range of text
+    BOOL disableContextMenu = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
+    if (disableContextMenu) {
         [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
     }
     
