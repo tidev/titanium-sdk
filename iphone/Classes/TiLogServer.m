@@ -368,6 +368,10 @@ static int counter = 0;
 		RELEASE_TO_NIL(connections);
 	}
 
+	if (headers != nil) {
+		RELEASE_TO_NIL(headers);
+	}
+
 	// release the dispatch source
 	if (logDispatchSource != nil) {
 		dispatch_source_cancel(logDispatchSource);
