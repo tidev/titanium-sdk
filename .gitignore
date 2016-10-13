@@ -35,3 +35,5 @@ anvil/driver/node_modules/*
 apidoc/node_modules/*
 
 support/ti_mocha_script/testApp
+
+node_modules/*
