@@ -2303,6 +2303,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 			server.on('error', function () {
 				server.close(function () {
 					// try again
+					_t.logger.debug(__('Log server port %s is unavailable, selecting a new random port', port));
 					port = ~~(Math.random() * 1e4) % 50000 + 1e4;
 					cb();
 				});
@@ -2312,6 +2313,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 				port: port
 			}, function () {
 				server.close(function () {
+					_t.logger.debug(__('Log server port %s is available', port));
 					_t.tiLogServerPort = port;
 					cb();
 				});

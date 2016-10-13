@@ -54,6 +54,8 @@ exports.init = function (logger, config, cli) {
 				})
 				.on('log-file', function (line) {
 					// Titanium app log messages
+					var skipLine = false;
+
 					if (!simStarted) {
 						if (line.indexOf('{') === 0) {
 							try {
@@ -67,10 +69,15 @@ exports.init = function (logger, config, cli) {
 							} catch (e) {
 								// squeltch
 							}
+							skipLine = true;
 						}
 
 						simStarted = true;
 						logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
+					}
+
+					if (skipLine) {
+						return;
 					}
 
 					var m = line.match(logLevelRE);

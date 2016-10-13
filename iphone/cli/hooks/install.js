@@ -156,6 +156,8 @@ exports.init = function (logger, config, cli) {
 							runningCount++;
 						})
 						.on('log', function (msg) {
+							var skipLine = false;
+
 							if (!handles[udid].logStarted) {
 								if (msg.indexOf('{') === 0) {
 									try {
@@ -174,6 +176,7 @@ exports.init = function (logger, config, cli) {
 									} catch (e) {
 										// squeltch
 									}
+									skipLine = true;
 								}
 								handles[udid].logStarted = true;
 							}
@@ -182,6 +185,10 @@ exports.init = function (logger, config, cli) {
 								var startLogTxt = __('Start application log');
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
+							}
+
+							if (skipLine) {
+								return;
 							}
 
 							var m = msg.match(logLevelRE);
