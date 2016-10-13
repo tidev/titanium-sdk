@@ -10,10 +10,22 @@
  * infinite loop of death. Use forcedNSLog() instead.
  */
 
+/**
+ * iOS platform hackers: when you manually run this project from Xcode, it may
+ * be handy, but not necessary, to connect to the log server and here's some
+ * Node.js code to help:
+ *
+ *   require('net').connect(10571)
+ *       .on('data', data => process.stdout.write(data.toString()))
+ *	     .on('error', err => console.log('Error:', err))
+ *	     .on('end', () => console.log('Disconnected from server'));
+ */
+
 #ifndef DISABLE_TI_LOG_SERVER
 
 #import "TiLogServer.h"
 #import "TiBase.h"
+#import "TiUtils.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -32,6 +44,12 @@
 # define TI_LOG_SERVER_QUEUE_SIZE 100
 #endif
 
+extern NSString* const TI_APPLICATION_NAME;
+extern NSString* const TI_APPLICATION_ID;
+extern NSString* const TI_APPLICATION_VERSION;
+extern NSString* const TI_APPLICATION_DEPLOYTYPE;
+extern NSString* const TI_APPLICATION_GUID;
+
 /**
  * All log server state is global mainly because there should only be one log
  * server.
@@ -41,6 +59,7 @@ static dispatch_source_t logDispatchSource = nil;
 static int logServerSocket = -1;
 static NSMutableArray* connections = nil;
 static NSMutableArray* logQueue = nil;
+static NSData* headers = nil;
 
 /**
  * Helper function to force logging with NSLog() since we override it. Used only
@@ -223,6 +242,23 @@ static int counter = 0;
 		connections = [[NSMutableArray alloc] init];
 	}
 
+	if (headers == nil) {
+		NSString* version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
+		NSDictionary* map = [[NSDictionary alloc] initWithObjectsAndKeys:
+			TI_APPLICATION_NAME, @"name",
+			TI_APPLICATION_ID, @"appId",
+			TI_APPLICATION_VERSION, @"version",
+			TI_APPLICATION_DEPLOYTYPE, @"deployType",
+			TI_APPLICATION_GUID, @"guid",
+			version, @"tiSDKVersion",
+			@"__GITHASH__", @"githash",
+			nil];
+
+		headers = [[[[TiUtils jsonStringify:map] stringByAppendingString:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding] retain];
+
+		[map release];
+	}
+
 	// create the listening socket
 	logServerSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (logServerSocket == -1) {
@@ -282,6 +318,13 @@ static int counter = 0;
 
 		[connections addObject:conn];
 		forcedNSLog(@"[INFO] Log server connections: %d", [connections count]);
+
+		// send the header
+		dispatch_data_t buffer = dispatch_data_create(headers.bytes,
+													  headers.length,
+													  logDispatchQueue,
+													  DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+		[conn send:&buffer];
 
 		// if log queue exists, flush the whole thing and nuke it
 		if (logQueue != nil) {
