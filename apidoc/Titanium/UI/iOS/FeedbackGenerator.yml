@@ -38,6 +38,7 @@ createable: true
 properties:
   - name: type
     type: Number
+    summary: The type of feedback generator you want to create.
     constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_*
     availability: creation
     optional: false
@@ -68,6 +69,7 @@ methods:
         <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>. The single argument provided is one of the
     parameters:
       - name: notificationType
+        type: Number
         summary: |
             The type of the notification to manage the peculiarity of the haptic feedback. If this
             parameter is not specified, an error will be thrown.
