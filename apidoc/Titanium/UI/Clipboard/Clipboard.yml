@@ -138,6 +138,9 @@ methods:
     parameters:
       - name: items
         type: ClipboardItemsType
+        summary: |
+            An array of key-value items to add to the clipboard. The key must a valid mime-type
+            matching the mime-type of the value.
     since: "5.5.0"
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
