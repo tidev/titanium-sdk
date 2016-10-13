@@ -1124,7 +1124,7 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					iosInfo.provisioning.distribution.forEach(function (p) {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
-					iosInfo.provisioning.adhoc.forEach(function (d) {
+					iosInfo.provisioning.adhoc.forEach(function (p) {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 			}
