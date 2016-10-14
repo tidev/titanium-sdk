@@ -180,6 +180,7 @@ namespace wptool
 					if (command == "launch")
 					{
 						IRemoteApplication app = device.GetApplication(appid);
+						app.TerminateRunningInstances();
 						app.Launch();
 						Console.WriteLine("{");
 						Console.WriteLine("\t\"success\": true");
