@@ -288,7 +288,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.buildDir = path.join(this.projectDir, 'build');
 	this.libsDir = path.join(this.projectDir, 'libs');
 	this.projLibDir = path.join(this.projectDir, 'lib');
-	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.hooksDir = path.join(this.platformDir, 'hooks');
 
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
 	this.buildGenDir = path.join(this.buildDir, 'generated');
