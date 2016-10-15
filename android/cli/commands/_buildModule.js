@@ -269,7 +269,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
-	['assets', 'documentation', 'example', 'platform', 'Resources', 'hooks'].forEach(function (folder) {
+	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {

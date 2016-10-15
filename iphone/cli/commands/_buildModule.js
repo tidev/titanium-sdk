@@ -145,7 +145,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
-	['assets', 'documentation', 'example', 'platform', 'Resources', 'hooks'].forEach(function (folder) {
+	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
