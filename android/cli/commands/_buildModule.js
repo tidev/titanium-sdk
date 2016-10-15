@@ -269,7 +269,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
-	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
+	['assets', 'documentation', 'example', 'platform', 'Resources', 'hooks'].forEach(function (folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
@@ -288,6 +288,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.buildDir = path.join(this.projectDir, 'build');
 	this.libsDir = path.join(this.projectDir, 'libs');
 	this.projLibDir = path.join(this.projectDir, 'lib');
+	this.hooksDir = path.join(this.projectDir, 'hooks');
 
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
 	this.buildGenDir = path.join(this.buildDir, 'generated');
@@ -1384,17 +1385,29 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
-
+		
+				// 6. hooks folder
+				this.dirWalker(this.hooksDir, function (file) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', path.relative(this.hooksDir, file)) });
+				}.bind(this));
+				
+				// 7. libs folder
 				this.dirWalker(this.libsDir, function (file) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
 				}.bind(this));
 
+				// 8. lib folder
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(this.projLibDir, file)) });
 					}.bind(this));
 				}
 
+				// 9. LICENSE file
+				// 10. manifest
+				// 11. compiled jar file
+				// 12. timodule.xml
+				// 13. metadata.json
 				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'LICENSE') });
 				dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolder,'manifest') });
 				dest.append(fs.createReadStream(this.moduleJarFile), { name: path.join(moduleFolder, this.moduleJarName) });

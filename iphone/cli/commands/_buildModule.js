@@ -141,10 +141,11 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.templatesDir = path.join(this.platformPath, 'templates');
+	this.hooksDir = path.join(this.platformPath, 'hooks');
 	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
-	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function (folder) {
+	['assets', 'documentation', 'example', 'platform', 'Resources', 'hooks'].forEach(function (folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
@@ -609,12 +610,20 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 				}
 			}.bind(this));
 		}
+		
+		
+		// 6. hooks folder
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file, name) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', path.relative(this.hooksDir, file)) });
+			}.bind(this));
+		}
 
-		// 6. the merge *.a file
-		// 7. LICENSE file
-		// 8. manifest
-		// 9. module.xcconfig
-		// 10. metadata.json
+		// 7. the merge *.a file
+		// 8. LICENSE file
+		// 9. manifest
+		// 10. module.xcconfig
+		// 11. metadata.json
 		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
 		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders,'LICENSE') });
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders,'manifest') });
