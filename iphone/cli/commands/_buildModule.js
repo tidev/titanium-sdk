@@ -611,7 +611,6 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 		
-		
 		// 6. hooks folder
 		if (fs.existsSync(this.hooksDir)) {
 			this.dirWalker(this.hooksDir, function (file, name) {
