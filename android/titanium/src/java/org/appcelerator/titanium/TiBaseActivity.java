@@ -130,7 +130,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected Activity previousActivity;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected int orientationDegrees;
 	protected TiMenuSupport menuHelper;
@@ -612,7 +611,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return;
 		}
 
-		previousActivity = tiApp.getRootOrCurrentActivity();
 		TiApplication.addToActivityStack(this);
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
@@ -862,9 +860,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		} else {
 			// there are no parent activities to return to
 			// override back press to background the activity
-			if (previousActivity == null || previousActivity == getTiApp().getRootActivity()) {
-				this.moveTaskToBack(true);
-				return;
+			// note: 2 since there should always be TiLaunchActivity and TiActivity
+			if (TiApplication.activityStack.size() <= 2) {
+				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false)) {
+					this.moveTaskToBack(true);
+					return;
+				}
  			}
 
 			// If event is not handled by custom callback allow default behavior.
