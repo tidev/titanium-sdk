@@ -10,6 +10,7 @@ description: |
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
+
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -958,7 +959,6 @@ properties:
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_ARTIST
     summary: Constant for grouping query results by artist.
-    platforms: [iphone, ipad]
     value: 2
     type: Number
     permission: read-only
@@ -988,7 +988,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
-    platforms: [iphone, ipad]
     summary: Constant for grouping query results by podcast title.
     value: 7
     type: Number
