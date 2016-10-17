@@ -49,13 +49,13 @@ bool V8Runtime::initialized = false;
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
-  virtual void* Allocate(size_t length) {
-    void* data = AllocateUninitialized(length);
-    return data == NULL ? data : memset(data, 0, length);
-  }
+  virtual void* Allocate(size_t length) { return calloc(length, 1); }
   virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
   virtual void Free(void* data, size_t) { free(data); }
 };
+
+// Make allocator global so it sticks around?
+ArrayBufferAllocator allocator;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -214,7 +214,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	Isolate* isolate;
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
-		ArrayBufferAllocator allocator;
 		Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = &allocator;
 		isolate = Isolate::New(create_params);
@@ -319,8 +318,8 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 	//}
 
 	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
-	double deadline_in_ms = (V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0;
-	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_ms);
+	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;
+	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
 }
 
 /*
@@ -420,7 +419,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
 	// So as our last act, run IdleNotification until it returns true so we can clean up all
 	// the stuff we just released references for above.
-	while (!V8Runtime::v8_isolate->IdleNotificationDeadline((V8Runtime::platform->MonotonicallyIncreasingTime() * static_cast<double>(1000)) + 100.0));
+	while (!V8Runtime::v8_isolate->IdleNotificationDeadline(V8Runtime::platform->MonotonicallyIncreasingTime() + 1.0));
 
 	// Typically in a V8 embedded app, we'd clean everything up here. But since
 	// an app may just be closed/backgrounded but still alive, we can't do this

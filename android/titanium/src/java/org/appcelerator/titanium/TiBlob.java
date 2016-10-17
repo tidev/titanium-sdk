@@ -151,19 +151,22 @@ public class TiBlob extends KrollProxy
 	{
 	
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		String mimeType = "image/bitmap";
 		byte data[] = new byte[0];
 		if (image.hasAlpha()) {
 			if (image.compress(CompressFormat.PNG, 100, bos)) {
 				data = bos.toByteArray();
+				mimeType = "image/png";
 			}
 		}
 		else {
 			if (image.compress(CompressFormat.JPEG, 100, bos)) {
 				data = bos.toByteArray();
+				mimeType = "image/jpeg";
 			}
 		}
 
-		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
+		TiBlob blob = new TiBlob(TYPE_IMAGE, data, mimeType);
 		blob.image = image;
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();

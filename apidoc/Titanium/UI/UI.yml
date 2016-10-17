@@ -307,6 +307,26 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_SUPERSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in an upper position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: ATTRIBUTE_SUBSCRIPT_STYLE
+    summary: |
+        Use with <Attribute.type> to place the text in a lower position.
+    description: |
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
         Use with <Attribute.type> to specify a color for the stroke text.
@@ -1408,6 +1428,20 @@ properties:
     permission: read-only
     since: "2.0.0"
     
+  - name: HIDDEN_BEHAVIOR_GONE
+    summary: Release free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: HIDDEN_BEHAVIOR_INVISIBLE
+    summary: Keeps free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: INHERIT
     summary: INHERIT behavior for UI layout.
     description: |
@@ -1908,6 +1942,22 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
+    
+  - name: CLIPBOARD_OPTION_LOCAL_ONLY
+    summary: Specifies that the clipboard items should not be available to other devices through Handoff.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "5.5.0"
+        
+  - name: CLIPBOARD_OPTION_EXPIRATION_DATE
+    summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "10.0"}}
+    since: "5.5.0"
     
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     summary: Use a picker with a countdown timer appearance, showing hours and minutes.

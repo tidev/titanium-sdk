@@ -185,10 +185,9 @@
         hostView.backgroundColor = [UIColor clearColor];
 
 #ifdef LAUNCHSCREEN_STORYBOARD
-        UIView *launchScreenContainer = [[UIView alloc] initWithFrame:[rootView bounds]];
-        [launchScreenContainer addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
-        [hostView addSubview:launchScreenContainer];
-        [launchScreenContainer release];
+        storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
+        [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
+        [hostView addSubview:storyboardView];
 #endif
         
         hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -273,8 +272,9 @@
     }
     
 #ifdef LAUNCHSCREEN_STORYBOARD
-    if (hostView) {
-        [[[hostView subviews] objectAtIndex:0] removeFromSuperview];
+    if (storyboardView != nil) {
+        [storyboardView removeFromSuperview];
+        RELEASE_TO_NIL(storyboardView);
     }
 #endif
 }
@@ -1487,7 +1487,10 @@
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         forcingStatusBarOrientation = NO;
         if (focusAfterBlur) {
-            [kfvProxy focus:nil];
+            // -- TIMOB-23924 --
+            // For some reason, Apple thinks this is a private selector.
+            // Until they fix it, this is our workaround
+            [kfvProxy performSelector:NSSelectorFromString([NSString stringWithFormat:@"%@c%@:", @"fo", @"us"]) withObject:nil];
         }
         [kfvProxy release];
     }

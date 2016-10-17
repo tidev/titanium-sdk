@@ -1,0 +1,14 @@
+	<modules>
+		<module>commonjs.index_js</module>
+		<module>commonjs.index_json</module>
+		<module>commonjs.legacy</module>
+		<module>commonjs.legacy.index_js</module>
+		<module>commonjs.legacy.index_json</module>
+		<module>commonjs.legacy.package</module>
+		<module>commonjs.package</module>
+		<module>commonjs.package</module>
+		<module platform="android">ti.map</module>
+		<module platform="ios">ti.map</module>
+		<module platform="android">facebook</module>
+		<module platform="ios">facebook</module>
+	</modules>

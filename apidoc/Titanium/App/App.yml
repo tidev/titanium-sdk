@@ -307,6 +307,10 @@ events:
         See the `applicationDidBecomeActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
         for the exact behavior that triggers this event.
+        
+        Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog> 
+        or <Titanium.UI.WebView>, because Apple does not call the `applicationDidBecomeActive` for
+        URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
     platforms: [iphone, ipad]
     
   - name: keyboardFrameChanged

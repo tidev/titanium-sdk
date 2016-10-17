@@ -607,6 +607,48 @@ properties:
     platforms: [iphone, ipad]
     since: "6.0.0"
 
+  - name: SOURCE_TYPE_LOCAL
+    summary: A local calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_EXCHANGE
+    summary: A microsoft exchange calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_CALDAV
+    summary: A calDev calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_MOBILEME
+    summary: A mobileMe calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_SUBSCRIBED
+    summary: A subscribed calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: SOURCE_TYPE_BIRTHDAYS
+    summary: A birthday calendar source.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
   - name: eventsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |

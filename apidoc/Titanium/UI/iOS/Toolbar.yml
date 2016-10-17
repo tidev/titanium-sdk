@@ -110,7 +110,7 @@ examples:
                 systemButton: Titanium.UI.iOS.SystemButton.CANCEL
             });
             
-            flexSpace = Titanium.UI.createButton({
+            var flexSpace = Titanium.UI.createButton({
                 systemButton:Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             

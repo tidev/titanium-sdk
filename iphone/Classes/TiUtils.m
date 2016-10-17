@@ -606,6 +606,16 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return nil;
 }
 
++ (NSString *)hexColorValue:(UIColor *)color
+{
+    const CGFloat *components = CGColorGetComponents(color.CGColor);
+    
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
+            lroundf(components[0] * 255),
+            lroundf(components[1] * 255),
+            lroundf(components[2] * 255)];
+}
+
 +(TiDimension)dimensionValue:(id)value
 {
 	return TiDimensionFromObject(value);
@@ -1973,28 +1983,28 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     UIImage* resultImage = nil;
     if ([image isKindOfClass:[UIImage class]]) {
         resultImage = image;
-    }
-    else if ([image isKindOfClass:[NSString class]]) {
+    } else if ([image isKindOfClass:[NSString class]]) {
+        if ([image isEqualToString:@""]) {
+            return nil;
+        }
+        
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-        if (resultImage==nil)
+        if (resultImage == nil)
         {
             resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
         }
-        if (resultImage==nil && [image isEqualToString:@"Default.png"])
-        {
+        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
             // special case where we're asking for Default.png and it's in Bundle not path
             resultImage = [UIImage imageNamed:image];
         }
-        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
-        {
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
             resultImage = [UIImageResize resizedImage:[resultImage size] 
                                  interpolationQuality:kCGInterpolationNone 
                                                 image:resultImage 
                                                 hires:NO];
         }
-    }
-    else if ([image isKindOfClass:[TiBlob class]]) {
+    } else if ([image isKindOfClass:[TiBlob class]]) {
         resultImage = [(TiBlob*)image image];
     }
     return resultImage;

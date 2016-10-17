@@ -154,7 +154,7 @@ properties:
         
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -299,7 +299,7 @@ properties:
  
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
-    type: Padding
+    type: TextAreaPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
     
@@ -542,7 +542,7 @@ properties:
     summary: Number of characters selected.
     type: Number
 ---    
-name: Padding
+name: TextAreaPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
 since: "6.0.0"
 platforms: [android, iphone, ipad]

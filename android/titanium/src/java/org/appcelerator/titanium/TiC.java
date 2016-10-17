@@ -486,6 +486,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SCROLLING = "scrolling";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
 
 	/**
@@ -871,6 +876,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
+	
 	/**
 	 * @module.api
 	 */
@@ -1432,6 +1447,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
 
 	/**
@@ -1931,6 +1951,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_INTENT = "onIntent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE = "onCreate";
 
 	/**
@@ -2212,6 +2237,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
 
 	/**
 	 * @module.api

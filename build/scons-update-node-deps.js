@@ -62,7 +62,7 @@ exec('npm -v', function (err, stdout, stderr) {
 
 	console.log('\nRunning npm install');
 
-	exec('npm install --production', function (err, stdout, stderr) {
+	exec('npm install --production --force', function (err, stdout, stderr) {
 		if (err) {
 			console.error(err);
 			process.exit(1);

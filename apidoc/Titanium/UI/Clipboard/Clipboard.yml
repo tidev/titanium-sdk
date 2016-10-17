@@ -127,6 +127,32 @@ methods:
         summary: New item of data.
         type: String
 
+  - name: setItems
+    summary: Adds an array of items to a clipboard, and sets privacy options for all included items.
+    description: |
+        You can pass multiple options to the options object. Note that this API is mime-type based.
+        The key must be a valid mime-type and the value must be the value that matches the given 
+        mime-type. If no valid mime-type is provided a a key, receiving items with 
+        <Titanium.UI.Clipboard.getItems> will crash the app. See the below example for more information 
+        on the usage.
+    parameters:
+      - name: items
+        type: ClipboardItemsType
+        summary: |
+            An array of key-value items to add to the clipboard. The key must a valid mime-type
+            matching the mime-type of the value.
+    since: "5.5.0"
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+
+  - name: getItems
+    summary: Gets the items that have been specified earlier using <Titanium.UI.Clipboard.setItems>.
+    returns:
+        - type: Array<Dictionary>
+    since: "5.5.0"
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+
 examples:
   - title: Copy Text to the Clipboard
     example: |
@@ -142,3 +168,65 @@ examples:
             Ti.UI.Clipboard.setText('hello');
             Ti.API.info('Clipboard.hasText(), should be true: ' + Ti.UI.Clipboard.hasText()); // returns true on Android and 1 on iOS
             Ti.API.info('Clipboard.getText(), should be hello: ' + Ti.UI.Clipboard.getText());
+
+  - title: Set multiple items including privacy options (iOS 10 and later)
+    example: |
+        The items are represented as an array that holds different objects of key-value items. Optionally, 
+        you can set privacy options described in `Ti.UI.CLIPBOARD_OPTION_*`. Note that you can not have the
+        same two keys in one object and the key must match a valid mime-type. If no valid mime-type is specified 
+        
+            var win = Ti.UI.createWindow({
+                backgroundColor : "#fff"
+            }); 
+
+            var btn1 = Ti.UI.createButton({
+                title : "Set clipboard items",
+                top: 40
+            });
+
+            var btn2 = Ti.UI.createButton({
+                title : "Get clipboard items",
+                top: 80
+            });
+             
+            btn1.addEventListener("click", function() {
+            	var localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
+            	var expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
+            	
+                Ti.UI.Clipboard.setItems({
+            	    items: [{
+            	        "text/plain": "John",
+            	    },{
+            	        "text/plain": "Doe"
+            	    }],
+            	    options: {
+            	        localOnly: true,
+            	        expirationDate: new Date(2020, 04, 20)
+            	    }
+            	});
+            });
+
+            btn2.addEventListener("click", function() {
+                alert(Ti.UI.Clipboard.getItems());
+            });
+             
+            win.add(btn1);
+            win.add(btn2);
+            win.open();
+
+---
+name: ClipboardItemsType
+summary: Dictionary describing the items for <Titanium.UI.Clipboard.setItems>. 
+properties:
+  - name: items
+    summary: | 
+        An array of key-value items to add to the clipboard. The key must a valid mime-type
+        matching the mime-type of the value.
+    type: Array<Dictionary>
+
+  - name: options
+    summary: | 
+        The privacy options to apply to all the items on the clipboard. The available options are 
+        described in `Ti.UI.CLIPBOARD_OPTION_*`. Depending on the key, the value can be a Date or
+        Boolean.
+    type: Dictionary

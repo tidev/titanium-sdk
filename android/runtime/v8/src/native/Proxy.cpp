@@ -246,7 +246,12 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 		return;
 	}
 
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+	Local<Object> holder = args.Holder();
+	// If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(baseProxyTemplate.Get(isolate));
+	}
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	Local<String> eventType = args[0]->ToString(isolate);
 	Local<Boolean> hasListeners = args[1]->ToBoolean(isolate);
@@ -277,7 +282,12 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 		return;
 	}
 
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+	Local<Object> holder = args.Holder();
+	// If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(baseProxyTemplate.Get(isolate));
+	}
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	Local<String> eventType = args[0]->ToString(isolate);
 	Local<Value> eventData = args[1];
@@ -331,12 +341,12 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	JNIEnv *env = JNIScope::getEnv();
 	Local<Object> jsProxy = args.This();
 
-	// every instance gets a special "_properties" object for us to use internally for get/setProperty
-	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
-
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
 	Proxy* proxy = new Proxy(NULL);
 	proxy->wrap(isolate, jsProxy);
+
+	// every instance gets a special "_properties" object for us to use internally for get/setProperty
+	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// Now we hook up a java Object from the JVM...
 	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args); // do we already have one that got passed in?

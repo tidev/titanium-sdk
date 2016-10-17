@@ -786,6 +786,33 @@ events:
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
+        
+        You can send extra information with a silent push using extra:
+        
+            {
+              aps: {
+                'content-available': 1
+              },
+              extra: {
+                foo: 'bar'
+              }
+            }
+            
+        In the event handler for <code>silentpush</code>, your code may look something like this:
+        
+            {
+              "handlerId": "SilentPush-1415976886.375816",
+              "aps": {
+                "content-available": 1,
+              },
+              "extra": {
+                "foo": "bar"
+              },
+              "bubbles": true,
+              "type": "silentpush",
+              "source": {},
+              "cancelBubble": false
+            }
     properties:
       - name: handlerId
         summary: |
@@ -1097,6 +1124,18 @@ events:
     osver: {ios: {min: "9.0"}}
     since: '5.1.0'
 
+  - name: handleurl
+    summary: Fired when a new URL is handled by the application.
+    description: |
+        Incoming URL's can either be triggered by an external application or
+        links inside your <Titanium.UI.WebView> / <Modules.SafariDialog>.
+    properties:
+      - name: launchOptions
+        summary: The launch options that are related to opening the URL.
+        type: LaunchOptionsType
+    osver: {ios: {min: "8.0"}}
+    since: "6.0.0"
+
 ---
 name: NotificationParams
 summary: |
@@ -1178,7 +1217,22 @@ properties:
     type: Dictionary
     optional: true
     since: "5.4.0"
-    
+
+---
+name: LaunchOptionsType
+summary: |
+    Dictionary object of parameters used to identify an incoming URL that is handled 
+    by the application.
+since: "6.0.0"    
+platforms: [iphone, ipad]
+properties:
+  - name: source
+    summary: The application or service that triggered the handled URL.
+    type: String
+  - name: url
+    summary: The url that was triggered by the application or service.
+    type: String
+        
 ---
 name: UserNotificationSettings
 summary: |

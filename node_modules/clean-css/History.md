@@ -1,3 +1,8 @@
+[3.4.19 / 2016-07-25](https://github.com/jakubpawlowicz/clean-css/compare/v3.4.18...v3.4.19)
+==================
+
+* Fixed issue [#795](https://github.com/jakubpawlowicz/clean-css/issues/795) - `!important` and override compacting.
+
 [3.4.18 / 2016-06-15](https://github.com/jakubpawlowicz/clean-css/compare/v3.4.17...v3.4.18)
 ==================
 

@@ -638,6 +638,7 @@ properties:
         This was separated from the <Ti.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
     type: Callback<Object>
+    platforms: [android]
   
   - name: orientationModes
     summary: |
@@ -1258,7 +1259,7 @@ description: |
             </Window>
         </Alloy>
 
-    `app/controllers/index.xml`:
+    `app/controllers/index.js`:
 
         var foo = require('foo');
         foo.setData({foobar: 42});
@@ -1360,17 +1361,22 @@ description: |
 
     The example below is a modal window using the Form sheet style:
 
-    ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
+    <img src="images/window/window-modal.png" width="400" />
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var window = Titanium.UI.createWindow();
-        window.open({
-          modal:true,
-          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+        var win = Ti.UI.iOS.createNavigationWindow({
+            window: Ti.UI.createWindow({
+                title: "Modal Window"
+            })
         });
 
+        win.open({
+            modal: true,
+            modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+            modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
+        });
+        
     #### Mobile Web Behavior
 
     On Mobile Web, windows are always modal, blocking input to underlying
@@ -1408,7 +1414,7 @@ description: |
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
-        a.addEventListener('complete', function(){
+        a.addEventListener('complete', function() {
             $.index.animate({
                 transform: Ti.UI.create2DMatrix(),
                 duration: 200

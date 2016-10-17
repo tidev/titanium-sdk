@@ -2116,10 +2116,10 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.config.get('android.mergeCustomAndroidManifest', false) != manifest.mergeCustomAndroidManifest) {
+	if (this.config.get('android.mergeCustomAndroidManifest', true) != manifest.mergeCustomAndroidManifest) {
 		this.logger.info(__('Forcing rebuild: mergeCustomAndroidManifest config has changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.mergeCustomAndroidManifest));
-		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', false)));
+		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', true)));
 		return true;
 	}
 
@@ -2404,7 +2404,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// we use the destination file name minus the path to the assets dir as the id
 						// which will eliminate dupes
-						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix + '/' : '').replace(/\\/g, '/').replace(/^\//, '');
+						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
@@ -3502,7 +3502,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		tiappAndroidManifest = this.tiappAndroidManifest;
 
 	// if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
-	if (!this.config.get('android.mergeCustomAndroidManifest', false) && this.customAndroidManifest) {
+	if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
 		(this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
 			this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
 			fs.writeFileSync(file, xml.toString('xml'));
@@ -4289,7 +4289,7 @@ AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callba
 		fullscreen: this.tiapp.fullscreen,
 		navbarHidden: this.tiapp['navbar-hidden'],
 		skipJSMinification: !!this.cli.argv['skip-js-minify'],
-		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
+		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', true),
 		encryptJS: this.encryptJS,
 		minSDK: this.minSDK,
 		targetSDK: this.targetSDK,

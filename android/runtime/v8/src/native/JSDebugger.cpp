@@ -80,10 +80,8 @@ void JSDebugger::MessageHandler(const v8::Debug::Message& message)
 		return;
 	}
 
-	static JNIEnv *env = NULL;
-	if (!env) {
-		titanium::JNIUtil::javaVm->AttachCurrentThread(&env, NULL);
-	}
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	ASSERT(env != NULL);
 
 	auto json = message.GetJSON();
 	jstring s = TypeConverter::jsStringToJavaString(env, json);
