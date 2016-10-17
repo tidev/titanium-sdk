@@ -1,3 +1,7 @@
+0.4.23 (9/16/2016)
+-------------------
+  * [TIMOB-23879] Terminate running app at launch
+
 0.4.22 (9/14/2016)
 -------------------
   * [TIMOB-23661] Fix typo around preferred SDK
