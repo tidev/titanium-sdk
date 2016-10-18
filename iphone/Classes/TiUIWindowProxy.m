@@ -907,22 +907,10 @@
     }
 }
 
--(void)setHidesBarsWhenVerticallyCompact:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsWhenVerticallyCompact, value);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
-
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsWhenVerticallyCompact:[TiUtils boolValue:value def:NO]];
-    }
-}
-
 -(void)setHidesBarsWhenKeyboardAppears:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnSwipe, value);
+    ENSURE_UI_THREAD(setHidesBarsWhenKeyboardAppears, value);
 
     [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
     
