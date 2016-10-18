@@ -1469,8 +1469,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		// validate the log server port
 		var logServerPort = this.tiapp.ios['log-server-port'];
-		if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1 || logServerPort > 65535)) {
-			logger.error(__('Invalid <log-server-port> found in the tiapp.xml: %s', logServerPort) + '\n');
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1024 || logServerPort > 65535)) {
+			logger.error(__('Invalid <log-server-port> found in the tiapp.xml'));
+			logger.error(__('Port must be a positive integer between 1024 and 65535') + '\n');
 			process.exit(1);
 		}
 
@@ -2288,45 +2289,81 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 		return next();
 	}
 
-	var port = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
+	// if there's not an explicit <log-server-port> in the <ios> section of
+	// the tiapp.xml, then we pick a port between 10000 and 60000 based on
+	// the app's id. this is VERY prone to collisions, but we will show an
+	// error if two different apps have been assigned the same port.
+	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
 
 	if (this.target === 'device') {
-		// for device builds, we pick a port between 10000 and 60000 based on the
-		// app's id. this is VERY prone to collisions, but if becomes a problem,
-		// then set a <log-server-port> in the <ios> section of the tiapp.xml.
-		this.tiLogServerPort = port;
 		return next();
 	}
 
 	var _t = this;
 
+	this.logger.debug(__('Checking if log server port %d is available', this.tiLogServerPort));
+
 	// for simulator builds, the port is shared with the local machine, so we
-	// just need to find an open port with a little help from Node
-	async.whilst(
-		function () { return _t.tiLogServerPort === 0; },
-		function (cb) {
-			var server = net.createServer();
-			server.on('error', function () {
-				server.close(function () {
-					// try again
-					_t.logger.debug(__('Log server port %s is unavailable, selecting a new random port', port));
-					port = ~~(Math.random() * 1e4) % 50000 + 1e4;
-					cb();
-				});
-			});
-			server.listen({
-				host: 'localhost',
-				port: port
-			}, function () {
-				server.close(function () {
-					_t.logger.debug(__('Log server port %s is available', port));
-					_t.tiLogServerPort = port;
-					cb();
-				});
-			});
-		},
-		next
-	);
+	// just need to detect if the port is available with the help of Node
+	var server = net.createServer();
+
+	server.on('error', function () {
+		// we weren't able to bidn to the port :(
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
+
+			var client = null;
+
+			function die() {
+				client && client.destroy();
+				_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
+				_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+				process.exit(1);
+			}
+
+			// connect to the port and see if it's a Titanium app...
+			//  - if the port is bound by a Titanium app with the same appid, then assume
+			//    that when we install new build, the old process will be terminated
+			//  - if the port is bound by another process, such as MySQL on port 3306,
+			//    then we will fail out
+			//  - if the port is bound by another process that expects data before the
+			//    response is returned, then we will just timeout and fail out
+			client = net.connect({
+					host: 'localhost',
+					port: _t.tiLogServerPort,
+					timeout: parseInt(_t.config.get('ios.logServerTestTimeout', 1000)) || null
+				})
+				.on('data', function (data) {
+					client.destroy();
+					try {
+						var headers = JSON.parse(data.toString().split('\n').shift());
+						if (headers.appId !== _t.tiapp.id) {
+							_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
+							_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
+							_t.logger.error(__('-or-'));
+							_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+							process.exit(1);
+						}
+					} catch (e) {
+						die();
+					}
+					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
+					next();
+				})
+				.on('error', die)
+				.on('timeout', die);
+		});
+	});
+
+	server.listen({
+		host: 'localhost',
+		port: _t.tiLogServerPort
+	}, function () {
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is available', _t.tiLogServerPort));
+			next();
+		});
+	});
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -6187,6 +6224,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
 	xcodebuildHook(
