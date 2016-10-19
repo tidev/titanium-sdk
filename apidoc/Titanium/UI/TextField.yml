@@ -308,7 +308,7 @@ properties:
     default: The platform's default hint text color.
 
   - name: inputType
-    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    summary: Input type to accept in the text field. Also influences the Keyboard type to display.
     description: |
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the input type that is accepted. This overrides
