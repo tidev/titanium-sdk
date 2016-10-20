@@ -439,6 +439,7 @@ events:
         summary: New volume level in dB.
         type: Number
     platforms: [iphone, ipad]
+
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
     summary: Audio file format 3GPP2.
@@ -903,7 +904,6 @@ properties:
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
-
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -919,7 +919,6 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
-
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -1067,12 +1066,10 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
-
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
-
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording. 
     description: |
@@ -1122,7 +1119,6 @@ properties:
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
-
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
@@ -1131,7 +1127,6 @@ properties:
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-
   - name: VIDEO_CONTROL_EMBEDDED
     summary: Constant for video controls for an embedded view. 
     description: |
@@ -1510,6 +1505,7 @@ properties:
     permission: read-only
 
 # Pseudo-type for showMusicLibrary argument
+
 ---
 name: MusicLibraryOptionsType
 summary: Simple object for specifying options to [openMusicLibrary](Titanium.Media.openMusicLibrary).

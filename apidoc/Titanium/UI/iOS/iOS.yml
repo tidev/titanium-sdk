@@ -6,8 +6,27 @@ summary: |
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
-properties:
 
+methods:
+  - name: createTransitionAnimation
+    summary: |
+        Creates a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Use the object returned by this method with the Window's
+        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
+
+        Supported on iOS 7 and later.
+    parameters:
+      - name: transition
+        summary: Dictionary specifying the transition animation.
+        type: transitionAnimationParam
+    returns:
+      - type: Titanium.Proxy
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+    
+properties:
   - name: ANIMATION_CURVE_EASE_IN
     deprecated:
         since: "2.1.0"
@@ -749,9 +768,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_EXCLUSION
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -764,7 +782,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_HUE
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -820,7 +838,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_PLUS_LIGHTER
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -838,9 +856,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SCREEN
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -1001,7 +1018,7 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
-
+    
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
@@ -1657,25 +1674,6 @@ properties:
     type: String
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
-                                                                                                              
-methods:
-  - name: createTransitionAnimation
-    summary: |
-        Creates a transition animation when opening or closing windows in a
-        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
-    description: |
-        Use the object returned by this method with the Window's
-        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
-
-        Supported on iOS 7 and later.
-    parameters:
-      - name: transition
-        summary: Dictionary specifying the transition animation.
-        type: transitionAnimationParam
-    returns:
-      - type: Titanium.Proxy
-    since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
 ---
 name: transitionAnimationParam
