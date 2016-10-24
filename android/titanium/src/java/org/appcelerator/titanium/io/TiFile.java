@@ -117,6 +117,9 @@ public class TiFile extends TiBaseFile
 	public boolean createFile()
 	{
 		try {
+			if (!file.getParentFile().exists()) {
+				file.mkdirs();
+			}
 			if (!file.exists()) {
 				return file.createNewFile();
 			}

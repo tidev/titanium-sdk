@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Environment;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -157,7 +159,9 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean createFile()
 	{
-		tbf = new TiFile(new File(Environment.getExternalStorageDirectory() + "/Android/data/" + TiApplication.getInstance().getPackageName() + "/" +tbf.getNativeFile().getName()), path, getExecutable());
+		Context context = TiApplication.getInstance().getApplicationContext();
+		ContextWrapper contextWrapper = new ContextWrapper(context);
+		tbf = new TiFile(new File(contextWrapper.getDir("data", Context.MODE_PRIVATE) + "/" + tbf.getNativeFile().getName()), path, getExecutable());
 		return tbf.createFile();
 	}
 
