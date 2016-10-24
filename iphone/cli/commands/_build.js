@@ -6225,6 +6225,9 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
 		args.push('ONLY_ACTIVE_ARCH=1');
+		// We also need to set the SDK to iphonesimulator so the build setting EFFECTIVE_PLATOFRM_NAME
+		// will be set correctly (used by CocoaPods in Hyperloop enabled projects)
+		args.push('-sdk', this.xcodeTargetOS + this.iosSdkVersion);
 	}
 
 	xcodebuildHook(
