@@ -481,7 +481,6 @@ public class TiUIText extends TiUIView
 		if (!editable) {
 		    tv.setInputType(InputType.TYPE_NULL);
 		    tv.setCursorVisible(false);
-		    tv.setEnabled(false);
 		    if (passwordMask) {
 		        Typeface origTF = tv.getTypeface();
 		        // Sometimes password transformation does not work properly when the input type is set after the
