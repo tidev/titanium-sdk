@@ -289,7 +289,7 @@ Module.prototype.require = function (request, context) {
 
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
+		kroll.log(TAG, "require called with un-prefixed module id: " + request + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
 
 		loaded = this.loadAsFileOrDirectory('/' + request, context);
 		if (loaded) {
