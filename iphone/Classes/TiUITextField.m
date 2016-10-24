@@ -305,6 +305,13 @@
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
 	}
+  
+    if (![TiUtils isIOS10OrGreater]) {
+        NSString *str = ((UITextField *)textWidgetView).text;
+        ((UITextField *)textWidgetView).text = @"";
+        ((UITextField *)textWidgetView).text = str;
+    }
+    
 	return textWidgetView;
 }
 
