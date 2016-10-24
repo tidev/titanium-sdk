@@ -370,7 +370,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[webview goForward];
 }
 
--(BOOL)isLoading
+-(BOOL)loading
 {
 	return [webview isLoading];
 }
