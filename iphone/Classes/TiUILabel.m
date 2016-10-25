@@ -420,6 +420,14 @@
         [self padLabel];
     }
 }
+
+-(void)setMaxLines_:(id)value
+{
+    [[self label] setNumberOfLines:[TiUtils floatValue:value]];
+    [self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
