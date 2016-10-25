@@ -1813,14 +1813,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc' || cli.argv['build-only']) {
+				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
 					return next();
 				}
 
 				// no --device-id or doing a build-only sim build, so pick a device
 
 				if (cli.argv.target === 'device') {
-					if (!cli.argv['device-id']) {
+					if (!cli.argv['build-only'] && !cli.argv['device-id']) {
 						cli.argv['device-id'] = this.iosInfo.devices.length ? this.iosInfo.devices[0].udid : 'itunes';
 					}
 					return next();
