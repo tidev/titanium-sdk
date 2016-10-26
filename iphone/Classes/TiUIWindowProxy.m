@@ -883,6 +883,28 @@
 	
 }
 
+
+-(void)setNavBarHidden:(id)value
+ {
+     ENSURE_UI_THREAD(setNavBarHidden,value);
+     ENSURE_TYPE(value, NSNumber);
+     
+     [self replaceValue:value forKey:@"navBarHidden" notification:NO];
+ 
+     if (controller != nil) {
+         [[controller navigationController] setNavigationBarHidden:[TiUtils boolValue:value] animated:YES];
+     }
+ }
+ 
+-(NSNumber*)navBarHidden
+{
+    if (controller == nil) {
+        return NUMBOOL(NO);
+    } else {
+        return NUMBOOL([[controller navigationController] isNavigationBarHidden]);
+    }
+}
+
 -(void)setHidesBarsOnSwipe:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
