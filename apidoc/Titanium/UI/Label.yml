@@ -157,10 +157,10 @@ properties:
     since: "5.4.0"
         
   - name: maxLines
-    summary: Makes the label at most this many lines tall.
-    platforms: [android]
+    summary: Makes the label at most this many lines tall. 
+    platforms: [android, iphone, ipad]
     type: Number
-    since: "4.1.0"
+    since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
     
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 

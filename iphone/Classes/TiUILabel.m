@@ -420,6 +420,15 @@
         [self padLabel];
     }
 }
+
+-(void)setMaxLines_:(id)value
+{
+	ENSURE_TYPE(value, NSNumber);
+	[[self label] setNumberOfLines:[TiUtils floatValue:value]];
+	[self padLabel];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
