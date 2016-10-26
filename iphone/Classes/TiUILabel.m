@@ -423,8 +423,9 @@
 
 -(void)setMaxLines_:(id)value
 {
-    [[self label] setNumberOfLines:[TiUtils floatValue:value]];
-    [self padLabel];
+	ENSURE_TYPE(value, NSNumber);
+	[[self label] setNumberOfLines:[TiUtils floatValue:value]];
+	[self padLabel];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
