@@ -54,6 +54,7 @@
     BOOL statusBarIsHidden;
     BOOL statusBarVisibilityChanged;
     NSInteger activeAlertControllerCount;
+	CADisplayLink *displayLink;
 }
 
 //Titanium Support

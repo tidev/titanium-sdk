@@ -90,6 +90,7 @@
     RELEASE_TO_NIL(containedWindows);
     RELEASE_TO_NIL(modalWindows);
     RELEASE_TO_NIL(hostView);
+	[displayLink invalidate];
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -438,7 +439,9 @@
 {
     if ( (updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible) ) {
         updatingAccessoryView = YES;
-        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+        [displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleNewKeyboardStatus)];
+        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         if (!keyboardVisible) {
             RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
         }
@@ -476,7 +479,9 @@
     }
     if(!updatingAccessoryView) {
         updatingAccessoryView = YES;
-        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+        [displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleNewKeyboardStatus)];
+        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
     }
 }
 
@@ -700,7 +705,9 @@
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+		[displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+		displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleNewKeyboardStatus)];
+		[displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 	}
 }
 
@@ -740,7 +747,9 @@
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+		[displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+		displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleNewKeyboardStatus)];
+		[displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 	}
 }
 
