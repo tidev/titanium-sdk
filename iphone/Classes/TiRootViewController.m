@@ -90,7 +90,7 @@
     RELEASE_TO_NIL(containedWindows);
     RELEASE_TO_NIL(modalWindows);
     RELEASE_TO_NIL(hostView);
-	[displayLink invalidate];
+    [displayLink invalidate];
     
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
