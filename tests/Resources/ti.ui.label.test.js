@@ -31,7 +31,21 @@ describe('Titanium.UI.Label', function () {
 		should(label).have.readOnlyProperty('apiName').which.is.a.String;
 		should(label.apiName).be.eql('Ti.UI.Label');
 	});
-
+	
+	it('maxLines', function () {
+		var label = Ti.UI.createLabel({
+			text: 'This is a label with propably more than three lines of text. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
+			maxLines: 2
+		});
+		should(label.maxLines).be.a.Number;
+		should(label.getMaxLines).be.a.Function;
+		should(label.maxLines).eql(2);
+		should(label.getMaxLines()).eql(2);
+		label.maxLines = 1;
+		should(label.maxLines).eql(1);
+		should(label.getMaxLines()).eql(1);
+	});
+	
 	it('text', function () {
 		var label = Ti.UI.createLabel({
 			text: 'this is some text'
