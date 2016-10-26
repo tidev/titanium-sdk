@@ -1186,9 +1186,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				return module;
 			}
 
-			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
-			// TODO How can we make this spit this out to Ti.API.log?
-			NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
+			// We'd like to warn users about legacy style require syntax so they can update, but the new syntax is not backwards compatible.
+			// So for now, let's just be quite about it. In future versions of the SDK (7.0?) we should warn (once 5.x is end of life so backwards compat is not necessary)
+			//NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
 			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
 			if (module) {
 				return module;
