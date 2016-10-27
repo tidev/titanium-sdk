@@ -194,7 +194,7 @@ function TiInclude(filename, baseUrl, scopeVars) {
 
 	var source = getUrlSource(filename, sourceUrl),
 		wrappedSource = "with(sandbox) { " + source + "\n }",
-		filePath = sourceUrl.href.replace("app://", ""),
+		filePath = sourceUrl.href.replace("app://", "/"),
 		contextGlobal = ti.global;
 
 	if (contextGlobal) {
@@ -203,7 +203,7 @@ function TiInclude(filename, baseUrl, scopeVars) {
 		return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
 
 	} else {
-		// We're running inside modules. Since we don't create a new context for modules 
+		// We're running inside modules. Since we don't create a new context for modules
 		// due to TIMOB-11752, we use the global V8 Context directly.
 		// Put sandbox on the global scope
 		sandbox = localSandbox;
