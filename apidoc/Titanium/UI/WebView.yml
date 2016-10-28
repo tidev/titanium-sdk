@@ -538,8 +538,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
-
-
+    platforms: [iphone, ipad]
 
   - name: onCreateWindow
     summary: |
