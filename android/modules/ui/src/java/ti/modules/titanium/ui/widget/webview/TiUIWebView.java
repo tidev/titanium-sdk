@@ -17,6 +17,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.support.annotation.StringRes;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewParent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -69,7 +75,10 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	private static enum reloadTypes {
+	private boolean disableContextMenu = false;
+
+	private static enum reloadTypes
+	{
 		DEFAULT, DATA, HTML, URL
 	}
 	
@@ -79,10 +88,137 @@ public class TiUIWebView extends TiUIView
 	private class TiWebView extends WebView
 	{
 		public TiWebViewClient client;
+		protected ActionMode actionMode = null;
+		protected ActionMode.Callback actionModeCallback = null;
 
 		public TiWebView(Context context)
 		{
 			super(context);
+		}
+
+		@Override
+		public ActionMode startActionMode(ActionMode.Callback callback)
+		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return super.startActionMode(actionModeCallback);
+		}
+
+		@Override
+		public ActionMode startActionMode(ActionMode.Callback callback, int type)
+		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
+			// this startActionMode is fired and not the other one
+			// it depends on Android version you use, I used Android 6 (API 23)
+			ViewParent parent = getParent();
+			if (parent == null) {
+				return null;
+			}
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return parent.startActionModeForChild(this, actionModeCallback);
+		}
+		
+		public ActionMode nullifiedActionMode()
+		{
+			return new ActionMode()
+			{
+				@Override public void setTitle(CharSequence title)
+				{
+					
+				}
+				
+				@Override public void setTitle(@StringRes int resId)
+				{
+					
+				}
+				
+				@Override public void setSubtitle(CharSequence subtitle)
+				{
+					
+				}
+				
+				@Override public void setSubtitle(@StringRes int resId)
+				{
+					
+				}
+				
+				@Override public void setCustomView(View view)
+				{
+					
+				}
+				
+				@Override public void invalidate()
+				{
+					
+				}
+				
+				@Override public void finish()
+				{
+					
+				}
+				
+				@Override public Menu getMenu()
+				{
+					return null;
+				}
+				
+				@Override public CharSequence getTitle()
+				{
+					return null;
+				}
+				
+				@Override public CharSequence getSubtitle()
+				{
+					return null;
+				}
+				
+				@Override public View getCustomView()
+				{
+					return null;
+				}
+				
+				@Override public MenuInflater getMenuInflater()
+				{
+					return null;
+				}
+			};
+		}
+
+		private class CustomActionModeCallback implements ActionMode.Callback
+		{
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu)
+			{
+				return true;
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+			{
+				return false;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+			{
+				return true;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode)
+			{
+				clearFocus();
+				actionMode = null;
+			}
 		}
 
 		@Override
@@ -182,11 +318,10 @@ public class TiUIWebView extends TiUIView
 		return isHTC;
 	}
 	
-
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-        
+	 
 		// We can only support debugging in API 19 and higher
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			// Only enable webview debugging, when app is debuggable
@@ -356,6 +491,10 @@ public class TiUIWebView extends TiUIView
 				nativeView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
+
+		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
+		}
 	}
 
 	@Override
@@ -459,8 +598,8 @@ public class TiUIWebView extends TiUIView
 																						 				   // to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
-					Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
-						+ ". Will let WebView try loading it directly.", ioe);
+								Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
+												+ ". Will let WebView try loading it directly.", ioe);
 				} finally {
 					if (fis != null) {
 						try {
@@ -553,7 +692,7 @@ public class TiUIWebView extends TiUIView
 	 * 
 	 * @param html					HTML data to load into the web view
 	 * @param baseUrl				url to associate with the data being loaded
-	 * @param mimeType				mime type of the data being loaded
+	 * @param mimeType			mime type of the data being loaded
 	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
@@ -778,8 +917,8 @@ public class TiUIWebView extends TiUIView
 			break;
 			
 		case HTML:
-			if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
-				setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
+						if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
+										setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
 			} else {
 				Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default", Log.DEBUG_MODE);
 				getWebView().reload();

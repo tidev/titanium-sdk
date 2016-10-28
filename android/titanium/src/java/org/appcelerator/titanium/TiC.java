@@ -1254,6 +1254,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 
 	/**
