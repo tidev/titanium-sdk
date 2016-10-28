@@ -306,7 +306,11 @@
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
 	}
   
-    if (![TiUtils isIOS10OrGreater]) {
+    // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
+    BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && ((UITextField *)textWidgetView).secureTextEntry);
+    
+    if (needsAdjustment)
+    {
         NSString *str = ((UITextField *)textWidgetView).text;
         ((UITextField *)textWidgetView).text = @"";
         ((UITextField *)textWidgetView).text = str;
