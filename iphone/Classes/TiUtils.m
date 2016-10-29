@@ -1367,6 +1367,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		{
 			align = NSTextAlignmentRight;
 		}
+		else if ([alignment isEqualToString:@"justify"])
+		{
+			align = NSTextAlignmentJustified;
+		}
 	}
 	else if ([alignment isKindOfClass:[NSNumber class]])
 	{
