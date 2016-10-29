@@ -62,35 +62,8 @@ methods:
     summary: Includes JavaScript code from one or more files.
     deprecated:
         since: 3.3.0
-        notes: Create a CommonJS module and use the `require()` method to include external JavaScript code.
-    description: |
-        Note that this mechanism is not supported with Alloy projects.
-
-        The `include` method has several interesting quirks:
-
-        -   The included JavaScript is interpreted in the current root execution
-        context -- that is, either `app.js` or in the root context of a window
-        opened with the `url` property. For example, in the following code
-        snippet, the included code in `some_module.js` has access to
-        `globalVar`, but *not* to the local variable, `localVar`:
-
-                var globalVar = {};
-                function loadModule() {
-                    var localVar = "A local value.";
-                    Ti.include('some_module.js');
-                };
-                loadModule();
-        
-
-        -   The included filename is interpreted *local to the current file*. For 
-        example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 
-        `c.js`, this is interpreted as `dir/c.js`.
-
-        -   Calling `include` from an event handler does not work consistently across 
-        platforms.
-
-        -   Calling `include` on a non-existent file causes a runtime error.
-        See also [CommonJS Require](Global.require).
+        removed: 6.0.0
+        notes: Create a CommonJS module and use the [`require()`](http://docs.appcelerator.com/platform/latest/#!/api/Global-method-require) method to include external JavaScript code.
     parameters:
       - name: name
         summary: Filename(s) to include. 
