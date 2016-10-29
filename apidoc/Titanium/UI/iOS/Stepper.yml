@@ -171,7 +171,7 @@ examples:
 
             <Alloy>
                 <Window id="window">
-                    <Stepper id="stepper" onClick="doClick" tintColor="green" steps ="3" />
+                    <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
                 </Window>
             </Alloy>
 
