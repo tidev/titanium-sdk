@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,10 +14,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.os.Environment;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -72,7 +77,6 @@ public class TiFileProxy extends KrollProxy
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
 		}
-		
 		if (resolve) {
 			path = resolveUrl(scheme, path);
 		}
@@ -150,6 +154,15 @@ public class TiFileProxy extends KrollProxy
 			recursive = TiConvert.toBoolean(arg);
 		}
 		return tbf.createDirectory(recursive);
+	}
+
+	@Kroll.method
+	public boolean createFile()
+	{
+		Context context = TiApplication.getInstance().getApplicationContext();
+		ContextWrapper contextWrapper = new ContextWrapper(context);
+		tbf = new TiFile(new File(contextWrapper.getDir("data", Context.MODE_PRIVATE) + "/" + tbf.getNativeFile().getName()), path, getExecutable());
+		return tbf.createFile();
 	}
 
 	@Kroll.method
