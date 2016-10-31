@@ -13,7 +13,7 @@
  */
 
 define(
-	["Ti/_", "Ti/API", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/has", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
+	["Ti/_", "Ti/API", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/has", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale"],
 	function(_, API, analytics, App, Evented, has, lang, ready, style, Buffer, Platform, UI) {
 
 	var global = window,
@@ -42,13 +42,6 @@ define(
 
 			createBuffer: function(args) {
 				return new Buffer(args);
-			},
-
-			include: function(files) {
-				typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
-				files.forEach(function(f) {
-					require("Ti/_/include!" + f);
-				});
 			},
 
 			deferStart: function() {
