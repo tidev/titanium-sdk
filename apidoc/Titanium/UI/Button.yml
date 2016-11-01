@@ -289,13 +289,6 @@ properties:
     type: [String,Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
-    
-  - name: textAllCaps
-    summary: |
-        All text to upper case letters, specified using true or false.
-    type: [boolean]
-    since: "6.1.0"
-    platforms: [android]
 
   - name: tintColor
     summary: Button tint color.
