@@ -1730,9 +1730,11 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             {
                 // turn off touch enablement if image editing is enabled since it will
                 // interfere with editing
-                [view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
+                //TIMOB-23936: Ti.Media.showCamera() with overlay bug on iOS 10
+
+                //[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
             }
-            [TiUtils setView:view positionRect:[picker view].bounds];
+            [TiUtils setView:view positionRect:view.bounds];
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
             [cameraView windowDidOpen];
