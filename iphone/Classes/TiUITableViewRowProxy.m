@@ -178,6 +178,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	[super _initWithProperties:properties];
+    
+	[self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+	[self initializeProperty:@"backgroundRepeat" defaultValue:NUMBOOL(NO)];
+
 	self.modelDelegate = self;
 }
 
