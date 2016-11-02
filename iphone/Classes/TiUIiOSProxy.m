@@ -832,15 +832,6 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
     return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
-#if IS_XCODE_8
-#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
--(id)createFeedbackGenerator:(id)args
-{
-    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-#endif
-
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE,UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY,UIApplicationShortcutIconTypePlay);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE,UIApplicationShortcutIconTypePause);
@@ -885,6 +876,12 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 
 #if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+
+-(id)createFeedbackGenerator:(id)args
+{
+    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_SELECTION, 0);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_IMPACT, 1);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_NOTIFICATION, 2);
