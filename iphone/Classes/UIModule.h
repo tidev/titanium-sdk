@@ -277,6 +277,19 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
 
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_WORD_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_CHAR_WRAPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_CLIPPING;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_TRUNCATING_HEAD;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_TRUNCATING_TAIL;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_LINE_BREAK_BY_TRUNCATING_MIDDLE;
+
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_ALIGNMENT_LEFT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_ALIGNMENT_CENTER;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_ALIGNMENT_RIGHT;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_ALIGNMENT_JUSTIFIED;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE_ALIGNMENT_NATURAL;
+
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 
 
