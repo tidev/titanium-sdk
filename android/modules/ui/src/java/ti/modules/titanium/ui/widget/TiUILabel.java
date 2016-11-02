@@ -40,7 +40,7 @@ import android.widget.TextView;
 public class TiUILabel extends TiUIView
 {
 	private static final String TAG = "TiUILabel";
-	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
+	private static final float DEFAULT_SHADOW_RADIUS = 1f;
 
 	private int defaultColor;
 	private boolean wordWrap = true;
