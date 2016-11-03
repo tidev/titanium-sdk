@@ -139,6 +139,17 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public boolean append(Object data)
+	{
+		try {
+			return ((TiFile) tbf).append(data);
+		} catch (IOException e) {
+			Log.e(TAG, "append failed: ", e);
+		}
+		return false;
+	}
+
+	@Kroll.method
 	public boolean copy (String destination)
 		throws IOException
 	{

@@ -105,7 +105,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.

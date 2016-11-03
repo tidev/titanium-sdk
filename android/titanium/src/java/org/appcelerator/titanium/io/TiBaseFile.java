@@ -130,6 +130,11 @@ public abstract class TiBaseFile
 		return flagSymbolicLink;
 	}
 
+	public boolean append(Object data) throws IOException {
+		logNotSupported("append");
+		return false;
+	}
+
 	public boolean copy(String destination) throws IOException
 	{
 		InputStream is = null;
