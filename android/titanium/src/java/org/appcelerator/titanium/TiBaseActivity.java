@@ -862,7 +862,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			// override back press to background the activity
 			// note: 2 since there should always be TiLaunchActivity and TiActivity
 			if (TiApplication.activityStack.size() <= 2) {
-				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false)) {
+				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
 					this.moveTaskToBack(true);
 					return;
 				}
