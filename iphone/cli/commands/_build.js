@@ -5468,9 +5468,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (!fileChanged) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-				}
-
-				if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
+				} else if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
 					if (this.useAppThinning && info.isImage && !this.forceRebuild) {
 						this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
 						this.forceRebuild = true;
