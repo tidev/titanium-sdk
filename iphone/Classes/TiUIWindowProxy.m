@@ -137,8 +137,11 @@
 	[self replaceValue:nil forKey:@"barImage" notification:NO];
 	[self replaceValue:nil forKey:@"translucent" notification:NO];
 	[self replaceValue:nil forKey:@"titleAttributes" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnSwipe" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnTap" notification:NO];
+    [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
 	[super _configure];
 }
 
