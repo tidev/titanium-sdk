@@ -645,10 +645,10 @@
 {
     id navBarHidden = [self valueForUndefinedKey:@"navBarHidden"];
     id hidesBarsOnSwipe = [self valueForUndefinedKey:@"hidesBarsOnSwipe"];
-    id hidesBarsOnTab = [self valueForUndefinedKey:@"hidesBarsOnTab"];
+    id hidesBarsOnTap = [self valueForUndefinedKey:@"hidesBarsOnTap"];
     id hidesBarsWhenKeyboardAppears = [self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"];
 
-    if (navBarHidden!=nil) {
+    if (navBarHidden) {
         id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
         if ([TiUtils boolValue:navBarHidden]) {
             [self hideNavBar:properties];
@@ -660,8 +660,8 @@
     if (hidesBarsOnSwipe) {
         [self setHidesBarsOnSwipe:hidesBarsOnSwipe];
     }
-    if (hidesBarsOnTab) {
-        [self setHidesBarsOnTap:hidesBarsOnTab];
+    if (hidesBarsOnTap) {
+        [self setHidesBarsOnTap:hidesBarsOnTap];
     }
     if (hidesBarsWhenKeyboardAppears) {
         [self setHidesBarsWhenKeyboardAppears:hidesBarsWhenKeyboardAppears];
