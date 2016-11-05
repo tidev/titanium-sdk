@@ -883,65 +883,6 @@
 	
 }
 
-
--(void)setNavBarHidden:(id)value
- {
-     ENSURE_UI_THREAD(setNavBarHidden,value);
-     ENSURE_TYPE(value, NSNumber);
-     
-     [self replaceValue:value forKey:@"navBarHidden" notification:NO];
- 
-     if (controller != nil) {
-         [[controller navigationController] setNavigationBarHidden:[TiUtils boolValue:value] animated:YES];
-     }
- }
- 
--(NSNumber*)navBarHidden
-{
-    if (controller == nil) {
-        return NUMBOOL(NO);
-    } else {
-        return NUMBOOL([[controller navigationController] isNavigationBarHidden]);
-    }
-}
-
--(void)setHidesBarsOnSwipe:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnSwipe, value);
-
-    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
-
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
-    }
-}
-
--(void)setHidesBarsOnTap:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnTap, value);
-
-    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
-    
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsOnTap:[TiUtils boolValue:value def:NO]];
-    }
-}
-
--(void)setHidesBarsWhenKeyboardAppears:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsWhenKeyboardAppears, value);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
-    
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
-    }
-}
-
-
 #define SETPROP(m,x) \
 {\
   id value = [self valueForKey:m]; \
