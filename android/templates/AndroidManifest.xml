@@ -13,7 +13,7 @@
 		<!-- TI_APPLICATION -->
 
 		<activity android:name=".${config['classname']}Activity"
-			android:label="${config['appname']}" android:theme="@style/Theme.Titanium"
+			android:label="${config['appname']}"
 			android:configChanges="keyboardHidden|orientation">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
