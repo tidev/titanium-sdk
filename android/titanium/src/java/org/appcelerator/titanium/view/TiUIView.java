@@ -1878,7 +1878,7 @@ public abstract class TiUIView
 		});
 	}
 
-	private void disableHWAcceleration()
+	protected void disableHWAcceleration()
 	{
 		if (borderView == null) {
 			return;
