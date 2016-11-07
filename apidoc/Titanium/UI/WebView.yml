@@ -451,14 +451,15 @@ properties:
     default: false
     platforms: [iphone, ipad]
     
-  - name: disableContextMenu
-    summary: |
-        Determines whether or not the webview should not be able to show the contextual callout-bubble.
-    description: Set to `true` to disable the contextual callout-bubble.
-    type: Boolean
-    default: false
-    platforms: [iphone, ipad]
-    since: "6.1.0"
+   - name: disableContextMenu
+     summary: Determines whether or not the webview should not be able to display the context menu.
+     description: | 
+         Set to `true` to disable the context menu. Note that disabling the context menu will
+         also disable the text selection on iOS.
+     type: Boolean
+     default: false
+     platforms: [iphone, ipad, android]
+     since: "6.1.0"
 
   - name: enableJavascriptInterface
     summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
