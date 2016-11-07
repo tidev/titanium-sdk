@@ -958,4 +958,10 @@ public class TiUIWebView extends TiUIView
 	{
 		return chromeClient.interceptOnBackPressed();
 	}
+
+	@Override
+	protected void disableHWAcceleration()
+	{
+		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+	}
 }
