@@ -775,10 +775,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         }
     }
     
-    // Disable user selection and the attached callout
-    BOOL disableSelection = [TiUtils boolValue:[[self proxy] valueForKey:@"disableSelection"] def:NO];
-    if (disableSelection) {
-        [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
+    // Disable the context menu when selecting a range of text
+    BOOL disableContextMenu = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
+    if (disableContextMenu) {
         [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
     }
     
