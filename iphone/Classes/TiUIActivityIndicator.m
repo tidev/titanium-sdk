@@ -287,16 +287,31 @@
                                                                    attribute:NSLayoutAttributeCenterY
                                                                   multiplier:1
                                                                     constant:0]];
-        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView
-                                                                   attribute:NSLayoutAttributeCenterY
-                                                                   relatedBy:NSLayoutRelationEqual
-                                                                      toItem:backgroundView
-                                                                   attribute:NSLayoutAttributeCenterY
-                                                                  multiplier:1
-                                                                    constant:0]];
+        // FIX : TIMOB-20513
+        /*
+         [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView
+         attribute:NSLayoutAttributeCenterY
+         relatedBy:NSLayoutRelationEqual
+         toItem:backgroundView
+         attribute:NSLayoutAttributeCenterY
+         multiplier:1
+         constant:0]];
+         */
+        TiThreadPerformOnMainThread(^{
+            [self updateIndicatorViewFrame];
+        }, NO);
     }
     [super updateConstraints];
 }
+
+- (void)updateIndicatorViewFrame
+{
+    CGRect rect = indicatorView.frame;
+    CGFloat yPos = (backgroundView.frame.size.height - indicatorView.frame.size.height)/2.0;
+    rect.origin.y = yPos > 0 ? yPos: rect.origin.y;
+    indicatorView.frame = rect;
+}
+
 #endif
 - (void)didMoveToWindow
 {
