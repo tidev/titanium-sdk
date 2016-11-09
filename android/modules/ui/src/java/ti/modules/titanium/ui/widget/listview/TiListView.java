@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.view.MotionEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -82,6 +83,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
+	private boolean canScroll = true;
 
 
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
@@ -117,6 +119,16 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	    public int getVerticalScrollOffset() {
 	        return computeVerticalScrollOffset();
 	    }
+		
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev) {
+			if (!canScroll) {
+				if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+					return true;
+				}
+			}
+			return super.dispatchTouchEvent(ev);
+		}
 	}
 
 	class ListViewWrapper extends FrameLayout {
@@ -615,6 +627,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			footerView = inflater.inflate(headerFooterId, null);
 			footerView.findViewById(titleId).setVisibility(View.GONE);
 		}
+		
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_CAN_SCROLL)) {
+			canScroll = TiConvert.toBoolean(d.get(TiC.PROPERTY_CAN_SCROLL), true);
+		}
 
 		//Have to add header and footer before setting adapter
 		listView.addHeaderView(headerView, null, false);
@@ -761,6 +777,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}
+		} else if (key.equals(TiC.PROPERTY_CAN_SCROLL)) {
+			canScroll = TiConvert.toBoolean(newValue, true);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

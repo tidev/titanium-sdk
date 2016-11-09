@@ -680,8 +680,11 @@ properties:
     description: Set to false to disable scrolling.
     type: Boolean
     default: true
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 3.2.0
+        ipad: 3.2.0
+    platforms: [android, iphone, ipad]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
