@@ -288,15 +288,6 @@
                                                                   multiplier:1
                                                                     constant:0]];
         // FIX : TIMOB-20513
-        /*
-         [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorView
-         attribute:NSLayoutAttributeCenterY
-         relatedBy:NSLayoutRelationEqual
-         toItem:backgroundView
-         attribute:NSLayoutAttributeCenterY
-         multiplier:1
-         constant:0]];
-         */
         TiThreadPerformOnMainThread(^{
             [self updateIndicatorViewFrame];
         }, NO);
