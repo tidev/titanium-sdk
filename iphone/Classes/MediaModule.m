@@ -1725,7 +1725,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         {
             ENSURE_TYPE(cameraViewProxy,TiViewProxy);
             cameraView = [cameraViewProxy retain];
-            UIView *view = [cameraView view];
+            TiUIView *view = [cameraView view];
             if (editable)
             {
                 // turn off touch enablement if image editing is enabled since it will
@@ -1734,7 +1734,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
                 //[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
             }
-            [TiUtils setView:view positionRect:view.bounds];
+            CGRect screenSize = [[UIScreen mainScreen] bounds];
+            ApplyConstraintToViewWithBounds([cameraViewProxy layoutProperties],view,screenSize);
+
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
             [cameraView windowDidOpen];
