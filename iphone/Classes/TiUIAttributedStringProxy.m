@@ -81,6 +81,13 @@
             errorMessage = @"ATTRIBUTE_PARAGRAPH_STYLE not yet supported";
             break;
             
+        case AttributeNameLineSpacing:
+            attrName = NSParagraphStyleAttributeName;
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            [paragraphStyle setLineSpacing:[value floatValue]];
+            attrValue = paragraphStyle;
+            break;
+
         case AttributeNameForegroundColor:
             attrName = NSForegroundColorAttributeName;
             attrValue = [[TiUtils colorValue:value] _color];
