@@ -3384,6 +3384,12 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			flags += '.Fullscreen';
 		}
+		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
+			var theme = this.tiappAndroidManifest.application.theme;
+			if (theme.startsWith('@style/')) {
+				flags = theme.replace('@style/', '');
+			}
+		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
 			flags: flags
