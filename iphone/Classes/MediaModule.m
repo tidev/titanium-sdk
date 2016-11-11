@@ -1726,17 +1726,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             ENSURE_TYPE(cameraViewProxy,TiViewProxy);
             cameraView = [cameraViewProxy retain];
             UIView *view = [cameraView view];
-            if (editable)
-            {
-                // turn off touch enablement if image editing is enabled since it will
-                // interfere with editing
-                //TIMOB-23936: Ti.Media.showCamera() with overlay bug on iOS 10
-
-                //[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
-            }
+            
+#ifndef TI_USE_AUTOLAYOUT
+            ApplyConstraintToViewWithBounds([cameraViewProxy layoutProperties], (TiUIView*)view, [[UIScreen mainScreen] bounds]);
+#else
             [TiUtils setView:view positionRect:view.bounds];
+#endif
+            
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
+            [view setAutoresizingMask:UIViewAutoresizingNone];
+            
             [cameraView windowDidOpen];
             [cameraView layoutChildren:NO];
         }
