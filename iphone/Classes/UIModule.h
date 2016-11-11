@@ -233,6 +233,7 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_PARAGRAPH_STYLE;
+@property (nonatomic,readonly) NSNumber* ATTRIBUTE_LINE_SPACING; 
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FOREGROUND_COLOR;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_BACKGROUND_COLOR;
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_LIGATURE;

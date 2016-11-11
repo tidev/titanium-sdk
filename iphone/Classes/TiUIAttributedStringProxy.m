@@ -67,6 +67,7 @@
 	
 	NSString *attrName = nil;
 	NSString *errorMessage = nil;
+    NSMutableParagraphStyle *paragraphStyle = nil;
 	id attrValue = nil;
 	switch ([type integerValue]) {
 			
@@ -79,13 +80,6 @@
         case AttributeNameParagraphStyle:
             attrName = NSParagraphStyleAttributeName;
             errorMessage = @"ATTRIBUTE_PARAGRAPH_STYLE not yet supported";
-            break;
-            
-        case AttributeNameLineSpacing:
-            attrName = NSParagraphStyleAttributeName;
-            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-            [paragraphStyle setLineSpacing:[value floatValue]];
-            attrValue = paragraphStyle;
             break;
 
         case AttributeNameForegroundColor:
@@ -186,9 +180,16 @@
             
         case AttributeNameLineBreak:
             attrName = NSParagraphStyleAttributeName;
-            NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+            paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
             NSNumber * num = [TiUtils numberFromObject:value];
             [paragraphStyle setLineBreakMode:[num unsignedIntegerValue]];
+            attrValue = paragraphStyle;
+            break;
+
+        case AttributeNameLineSpacing:
+            attrName = NSParagraphStyleAttributeName;
+            paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+            [paragraphStyle setLineSpacing:[value floatValue]];
             attrValue = paragraphStyle;
             break;
 	}
