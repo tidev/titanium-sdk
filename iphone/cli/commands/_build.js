@@ -3611,27 +3611,16 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
 			plist['keychain-access-groups'].push(plist['application-identifier']);
 		}
-	} else if (isFacebookModuleEmbedded && this.tiapp.ios['team-id']) {
+	} else if (isFacebookModuleEmbedded) {
 				
 		// No provisioning profile is found (e.g. Simulator), but we need keychain-access
 		// for the Simulator as well. So we check for the <team-id />
-		var applicationIdentifier = this.tiapp.ios['team-id'] + '.' + this.tiapp.id;
+		var applicationIdentifier = '$(AppIdentifierPrefix)' + this.tiapp.id;
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
 		
 		if (!plist['keychain-access-groups'].some(function (id) { return id === applicationIdentifier; })) {
 			plist['keychain-access-groups'].push(applicationIdentifier);
 		}
-	} else if (isFacebookModuleEmbedded && !this.tiapp.ios['team-id']) {
-		// No provisioning profile or <team-id />, Facebook login won't work, so break;
-		this.logger.error(__('Ti.Facebook iOS module detected, but no provisioning profile or Team ID available.'));
-		this.logger.error(__('Please add the following <team-id /> tag to your <ios> section of the tiapp.xml:'));
-		this.logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		this.logger.log('    <ios>'.grey);
-		this.logger.log('        <team-id>TEAM ID</team-id>'.magenta);
-		this.logger.log('    </ios>'.grey);
-		this.logger.log('</ti:app>'.grey);
-
-		process.exit(1);
 	}
 	
 	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'));
