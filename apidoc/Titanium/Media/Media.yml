@@ -1373,6 +1373,7 @@ properties:
   - name: audioLineType
     deprecated:
         since: "3.4.2"
+        removed: "3.6.0"
         notes: Use <Titanium.Media.currentRoute> instead.
     summary: Returns the line type constant for the current line type.
     type: Number

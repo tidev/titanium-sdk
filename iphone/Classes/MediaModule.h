@@ -238,19 +238,6 @@
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_USBAUDIO;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_CARAUDIO;
 
-//Deprecated Properties
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADSET_INOUT;
-@property(nonatomic,readonly) NSNumber* AUDIO_RECEIVER_AND_MIC;
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES_AND_MIC;
-@property(nonatomic,readonly) NSNumber* AUDIO_LINEOUT;
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES;
-@property(nonatomic,readonly) NSNumber* AUDIO_SPEAKER;
-@property(nonatomic,readonly) NSNumber* AUDIO_MICROPHONE;
-@property(nonatomic,readonly) NSNumber* AUDIO_MUTED;
-@property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
-@property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
-@property(nonatomic,readonly) NSNumber* audioLineType;
-
 @end
 
 #endif
