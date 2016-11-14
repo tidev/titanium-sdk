@@ -524,6 +524,18 @@ properties:
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
+  - name: keyboardDisplayRequiresUserAction
+    summary: A Boolean value indicating whether web content can programmatically display the keyboard.
+    description: |
+        When this property is set to true, the user must explicitly tap the elements in the web view 
+        to display the keyboard (or other relevant input view) for that element. When set to false, 
+        a focus event on an element causes the input view to be displayed and associated with 
+        that element automatically.
+    type: Boolean
+    default: undefined but behaves as true
+    since: "6.1.0"
+    platforms: [iphone,ipad]
+
   - name: ignoreSslError
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |

@@ -671,6 +671,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     return ret;
 }
 
+- (void)setKeyboardDisplayRequiresUserAction_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+    
+    [[self webview] setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value def:YES]];
+}
+
 #pragma mark WebView Delegate
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
