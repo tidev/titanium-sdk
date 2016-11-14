@@ -3524,7 +3524,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	hook(xcodeProject, next);
 };
 
-iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest) {
+iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest, isExtension, next) {
 	var caps = this.tiapp.ios.capabilities,
 		parent = path.dirname(dest);
 
@@ -3542,22 +3542,30 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 
 	this.unmarkBuildDirFile(dest);
 
-	// write the entitlements.plist
-	var contents = plist.toString('xml');
-	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
-		if (!this.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
-			this.forceRebuild = true;
+	var name = 'build.ios.write' + (isExtension ? 'Extension' : '') + 'Entitlements';
+	var hook = this.cli.createHook(name, this, function (plist, dest, done) {
+		// write the entitlements.plist
+		var contents = plist.toString('xml');
+
+		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+			if (!this.forceRebuild) {
+				this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
+				this.forceRebuild = true;
+			}
+			this.logger.debug(__('Writing %s', dest.cyan));
+			fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
+			fs.writeFileSync(dest, contents);
+		} else {
+			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
-		this.logger.debug(__('Writing %s', dest.cyan));
-		fs.existsSync(parent) || wrench.mkdirSyncRecursive(parent);
-		fs.writeFileSync(dest, contents);
-	} else {
-		this.logger.trace(__('No change, skipping %s', dest.cyan));
-	}
+
+		done();
+	});
+
+	hook(plist, dest, next);
 };
 
-iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() {
+iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(next) {
 	this.logger.info(__('Creating Entitlements.plist'));
 
 	// allow the project to have its own custom entitlements
@@ -3607,7 +3615,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 		}
 	}
 
-	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'));
+	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'), false, next);
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
@@ -4311,12 +4319,12 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	}
 };
 
-iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
+iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles(next) {
 	if (!this.extensions.length) return;
 
 	this.logger.info(__('Copying iOS extensions'));
 
-	this.extensions.forEach(function (extension) {
+	async.eachSeries(this.extensions, function (extension, next) {
 		var extName = path.basename(extension.projectPath).replace(/\.xcodeproj$/, ''),
 			src = path.dirname(extension.projectPath),
 			dest = path.join(this.buildDir, 'extensions', path.basename(src));
@@ -4401,15 +4409,15 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 		extension.projectPath = path.join(dest, path.basename(extension.projectPath));
 
 		// check if we need to write an entitlements file
-		Object.keys(extension.targetInfo).forEach(function (target) {
+		async.eachSeries(Object.keys(extension.targetInfo), function (target, next) {
 			if (!extension.targetInfo[target].entitlementsFile) {
-				return;
+				return next();
 			}
 
 			var plist = new appc.plist(fs.existsSync(extension.targetInfo[target].entitlementsFile) ? extension.targetInfo[target].entitlementsFile : null);
-			this._embedCapabilitiesAndWriteEntitlementsPlist(plist, extension.targetInfo[target].entitlementsFile);
-		}, this);
-	}, this);
+			this._embedCapabilitiesAndWriteEntitlementsPlist(plist, extension.targetInfo[target].entitlementsFile, true, next);
+		}.bind(this), next);
+	}.bind(this), next);
 };
 
 iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next) {
