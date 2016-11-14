@@ -16,7 +16,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.os.Environment;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -141,12 +140,8 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean append(Object data)
 	{
-		try {
-			return ((TiFile) tbf).append(data);
-		} catch (IOException e) {
-			Log.e(TAG, "append failed: ", e);
-		}
-		return false;
+		Object[] objectArray = {data};
+		return write(objectArray, true);
 	}
 
 	@Kroll.method
@@ -294,23 +289,21 @@ public class TiFileProxy extends KrollProxy
 		return tbf.spaceAvailable();
 	}
 
-	@Kroll.method
-	public boolean write(Object[] args)
+	private boolean write(Object[] args, boolean append)
 	{
 		try {
 
 			if (args != null && args.length > 0) {
-				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {
 					append = ((Boolean)args[1]).booleanValue();
 				}
 
 				if (args[0] instanceof TiBlob) {
-					tbf.write((TiBlob)args[0], append);
+					((TiFile)tbf).write((TiBlob)args[0], append);
 				} else if (args[0] instanceof String) {
-					tbf.write((String)args[0], append);
+					((TiFile)tbf).write((String)args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
-					tbf.write(((TiFileProxy)args[0]).read(), append);
+					((TiFile)tbf).write(((TiFileProxy)args[0]).read(), append);
 				} else {
 					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;
@@ -324,6 +317,12 @@ public class TiFileProxy extends KrollProxy
 			Log.e(TAG, "IOException encountered", e);
 			return false;
 		}
+	}
+
+	@Kroll.method
+	public boolean write(Object[] args)
+	{
+		return write(args, false);
 	}
 
 	@Kroll.method

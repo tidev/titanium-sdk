@@ -7,7 +7,6 @@
 
 package org.appcelerator.titanium.io;
 
-import java.io.FileWriter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -26,7 +25,6 @@ import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiFileProxy;
 
 import android.net.Uri;
 import android.os.StatFs;
@@ -95,71 +93,6 @@ public class TiFile extends TiBaseFile
 	public boolean isWriteable()
 	{
 		return file.canWrite();
-	}
-
-	@Override
-	public boolean append(Object data) throws IOException
-	{
-		if (data instanceof String) {
-			return append((String) data);
-		} else if (data instanceof TiFileProxy) {
-			return append((TiFileProxy) data);
-		} else if (data instanceof TiBlob) {
-			return append((TiBlob) data);
-		}
-		return false;
-	}
-
-	private boolean append(String data) throws IOException
-	{
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = new BufferedWriter(new FileWriter(file, true));
-			bufferedWriter.write(data);
-			return true;
-		} finally {
-			if (bufferedWriter != null) {
-				bufferedWriter.close();
-			}
-		}
-	}
-
-	private boolean append(TiFileProxy data) throws IOException, NullPointerException
-	{
-		FileInputStream inputStream = null;
-		FileOutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(file, true);
-			File appendee = new File(((TiFile) data.getBaseFile()).getFile().getPath());
-			inputStream = new FileInputStream(appendee);
-			byte[] bytes = new byte[(int) appendee.length()];
-			// method nesting doesn't let inputStream.read bytes into outputStream
-			// best to keep on separate line
-			inputStream.read(bytes);
-			outputStream.write(bytes);
-			return true;
-		} finally {
-			if (inputStream != null) {
-				inputStream.close();
-			}
-			if (outputStream != null) {
-				outputStream.close();
-			}
-		}
-	}
-
-	private boolean append(TiBlob data) throws IOException
-	{
-		FileOutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(file, true);
-			outputStream.write((data.getBytes()));
-			return true;
-		} finally {
-			if (outstream != null) {
-				outputStream.close();
-			}
-		}
 	}
 
 	/**
