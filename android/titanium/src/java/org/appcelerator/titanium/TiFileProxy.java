@@ -140,8 +140,7 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean append(Object data)
 	{
-		Object[] objectArray = {data};
-		return write(objectArray, true);
+		return write(new Object[]{data, true});
 	}
 
 	@Kroll.method
@@ -289,13 +288,15 @@ public class TiFileProxy extends KrollProxy
 		return tbf.spaceAvailable();
 	}
 
-	private boolean write(Object[] args, boolean append)
+	@Kroll.method
+	public boolean write(Object[] args)
 	{
 		try {
 
 			if (args != null && args.length > 0) {
+				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {
-					append = ((Boolean)args[1]).booleanValue();
+					append = (Boolean) args[1];
 				}
 
 				if (args[0] instanceof TiBlob) {
@@ -317,12 +318,6 @@ public class TiFileProxy extends KrollProxy
 			Log.e(TAG, "IOException encountered", e);
 			return false;
 		}
-	}
-
-	@Kroll.method
-	public boolean write(Object[] args)
-	{
-		return write(args, false);
 	}
 
 	@Kroll.method
