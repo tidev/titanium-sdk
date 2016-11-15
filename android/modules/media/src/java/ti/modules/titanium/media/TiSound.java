@@ -104,7 +104,7 @@ public class TiSound
 					}
 					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
 					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset()+1, afd.getLength());
 				} catch (IOException e) {
 					Log.e(TAG, "Error setting file descriptor: ", e);
 				} finally {
