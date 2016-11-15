@@ -860,6 +860,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// If no such module exists, bail out!
 	if (moduleClass == nil) {
 		return nil;
+    
+	}
+    
+    // If there is a core module that collides with the given path,
+    // throw an error log
+    NSURL *jsPath = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.js", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path], path]];
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[jsPath absoluteString]]) {
+		NSLog(@"[ERROR] The requested path %@ collides with the native Ti.%@ component.", path, [path capitalizedString]);
+        NSLog(@"[ERROR] Please require the path with require(./%@) instead.", path);
 	}
 
 	// Ok, we have a native module, make sure instantiate and cache it
