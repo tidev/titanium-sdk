@@ -418,25 +418,22 @@ properties:
     
   - name: padding
     summary: Sets the padding of this text field. 
+    descrioption: |
+        This API is currently Android-only and will be updated for a better parity with iOS
+        in the next feature release. For now, use `paddingLeft` and `paddingRight` on iOS.
     type: TextFieldPadding
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     since: 6.0.0
 
   - name: paddingLeft
     summary: Left padding of this text field.
     type: Number
     platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextField.padding> instead.
     
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextField.padding> instead.
             
   - name: passwordMask
     summary: Obscure the input text from the user.
