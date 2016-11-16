@@ -770,7 +770,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
 
-#ifdef USE_TI_MEDIASAVETOGALLERY
+#ifdef USE_TI_MEDIASAVETOPHOTOGALLERY
 -(void)saveToPhotoGallery:(id)arg
 {
     ENSURE_UI_THREAD(saveToPhotoGallery,arg);
@@ -1768,7 +1768,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIASAVETOGALLERY
+#ifdef USE_TI_MEDIASAVETOPHOTOGALLERY
 -(void)saveCompletedForImage:(UIImage*)image error:(NSError*)error contextInfo:(void*)contextInfo
 {
 	NSDictionary* saveCallbacks = (NSDictionary*)contextInfo;
