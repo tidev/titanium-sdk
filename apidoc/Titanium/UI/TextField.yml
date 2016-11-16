@@ -418,7 +418,7 @@ properties:
     
   - name: padding
     summary: Sets the padding of this text field. 
-    descrioption: |
+    description: |
         This API is currently Android-only and will be updated for a better parity with iOS
         in the next feature release. For now, use `paddingLeft` and `paddingRight` on iOS.
     type: TextFieldPadding
