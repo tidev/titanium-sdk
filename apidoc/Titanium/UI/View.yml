@@ -1317,7 +1317,7 @@ properties:
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
-  - name: hiddenBahavior
+  - name: hiddenBehavior
     summary: Sets the behavior when hiding an object to release or keep the free space
     description: |
         If setting `hiddenBahavior` to <Titanium.UI.HIDDEN_BEHAVIOR_GONE> it will automatically release the space the view occupied.
