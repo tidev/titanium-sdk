@@ -1230,12 +1230,22 @@ public abstract class TiUIView
 				}
 				d = null;
 			}
+			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;
 			if (proxy != null) {
 				proxy.setModelListener(null);
 			}
 		}
+		if (children != null) {
+			for (TiUIView child : children) {
+				remove(child);
+			}
+			children.clear();
+		}
+		children = null;
+		proxy = null;
+		layoutParams = null;
 	}
 
 	private void setVisibility(int visibility)
