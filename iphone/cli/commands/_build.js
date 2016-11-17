@@ -4320,7 +4320,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles(next) {
-	if (!this.extensions.length) return;
+	if (!this.extensions.length) return next();
 
 	this.logger.info(__('Copying iOS extensions'));
 
