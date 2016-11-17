@@ -79,19 +79,19 @@ exports.detect = function (types, config, next) {
 					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or distribution certificates.');
 					break;
 				case 'IOS_NO_VALID_DEV_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
 					break;
 				case 'IOS_NO_VALID_DIST_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 				case 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dev-certs__');
 					break;
 				case 'IOS_NO_VALID_ADHOC_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 				case 'IOS_NO_VALID_DISTRIBUTION_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 			}
 		});

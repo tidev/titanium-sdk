@@ -986,13 +986,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
 						logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
-						logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any development provisioning profiles') + '\n');
-					logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 					process.exit(1);
 				}
@@ -1012,13 +1012,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 					if (!valid) {
 						logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
-						logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
-					logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 					process.exit(1);
 				}
