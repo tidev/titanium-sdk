@@ -178,11 +178,25 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait()
 	{
+		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.portrait
 		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape()
+	{
+		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.landscape
+		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+	}
+		
+	@Kroll.getProperty @Kroll.method
+	public boolean getPortrait()
+	{
+		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getLandscape()
 	{
 		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}

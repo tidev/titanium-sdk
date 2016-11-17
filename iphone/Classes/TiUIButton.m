@@ -263,7 +263,7 @@
 {
 	[backgroundImageCache release];
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
-	backgroundImageCache = [TiUtils loadBackgroundImage:value forProxy:[self proxy]];
+	backgroundImageCache = [[TiUtils loadBackgroundImage:value forProxy:[self proxy]] retain];
     self.backgroundImage = value;
 	[self updateBackgroundImage];
 }
@@ -412,25 +412,8 @@
 -(void)setTextAlign_:(id)align
 {
     button = [self button];
-    NSTextAlignment alignment = NSTextAlignmentNatural;
+    NSTextAlignment alignment = [TiUtils textAlignmentValue:align];
     UIControlContentHorizontalAlignment horizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    
-    if ([align isKindOfClass:[NSString class]]) {
-        if ([align isEqualToString:@"left"])
-        {
-            alignment = NSTextAlignmentLeft;
-        }
-        else if ([align isEqualToString:@"right"])
-        {
-            alignment = NSTextAlignmentRight;
-        }
-        else if ([align isEqualToString:@"center"])
-        {
-            alignment = NSTextAlignmentCenter;
-        }
-    } else {
-        alignment = (NSTextAlignment)[TiUtils intValue:align def:(int)NSTextAlignmentNatural];
-    }
     
     UIEdgeInsets inset = [button contentEdgeInsets];
     switch (alignment) {

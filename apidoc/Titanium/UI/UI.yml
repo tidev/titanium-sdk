@@ -1428,6 +1428,20 @@ properties:
     permission: read-only
     since: "2.0.0"
     
+  - name: HIDDEN_BEHAVIOR_GONE
+    summary: Release free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
+  - name: HIDDEN_BEHAVIOR_INVISIBLE
+    summary: Keeps free space when hiding an object.
+    type: Number
+    platforms: [android]
+    since: "6.1.0"
+    permission: read-only
+
   - name: INHERIT
     summary: INHERIT behavior for UI layout.
     description: |
@@ -2128,17 +2142,29 @@ properties:
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
         This constant is a string on Android, and a number on iOS and Mobile Web.
     type: [Number, String]
+    permission: read-only    
+
+  - name: TEXT_ALIGNMENT_JUSTIFY
+    summary: Justify align text.
+    description: |
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and 
+        <Titanium.UI.TextArea.textAlign> properties.
+        
+        This constant is a number and only available on iOS.
+    type: [Number, String]
     permission: read-only
+    platforms: [iphone, ipad]
+    since: "6.1.0"
     
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
         This constant is a string on Android, and a number on iOS and Mobile Web.
@@ -2148,7 +2174,7 @@ properties:
   - name: TEXT_ALIGNMENT_RIGHT
     summary: Right align text.
     description: |
-        Use with the <Titanium.UI.TextField.textAlign> and 
+        Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and 
         <Titanium.UI.TextArea.textAlign> properties.
         
         This constant is a string on Android, and a number on iOS and Mobile Web.

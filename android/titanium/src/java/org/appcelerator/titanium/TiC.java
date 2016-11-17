@@ -577,8 +577,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
-	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
 	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
 	public static final String PROPERTY_RETURN_TRANSITION = "activityReturnTransition";
@@ -1254,6 +1252,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 
 	/**
@@ -1447,6 +1450,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
 
 	/**
@@ -1599,6 +1607,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_IMAGES = "images";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
 	 * @module.api

@@ -451,14 +451,14 @@ properties:
     default: false
     platforms: [iphone, ipad]
     
-  - name: disableSelection
-    summary: |
-        Determines whether the webview should not be able to select a range of text and show the
-        contextual callout-bubble.
-    description: Set to `true` to disable the text-selection and callout-bubble.
+  - name: disableContextMenu
+    summary: Determines whether or not the webview should not be able to display the context menu.
+    description: | 
+        Set to `true` to disable the context menu. Note that disabling the context menu will
+        also disable the text selection on iOS.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     since: "6.1.0"
 
   - name: enableJavascriptInterface
@@ -524,6 +524,18 @@ properties:
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
+  - name: keyboardDisplayRequiresUserAction
+    summary: A Boolean value indicating whether web content can programmatically display the keyboard.
+    description: |
+        When this property is set to true, the user must explicitly tap the elements in the web view 
+        to display the keyboard (or other relevant input view) for that element. When set to false, 
+        a focus event on an element causes the input view to be displayed and associated with 
+        that element automatically.
+    type: Boolean
+    default: undefined but behaves as true
+    since: "6.1.0"
+    platforms: [iphone,ipad]
+
   - name: ignoreSslError
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |
@@ -538,8 +550,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
-
-
+    platforms: [iphone, ipad]
 
   - name: onCreateWindow
     summary: |

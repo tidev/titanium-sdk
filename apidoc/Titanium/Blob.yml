@@ -155,6 +155,22 @@ methods:
         type: Titanium.Blob
         summary: Resized image as a blob.
 
+  - name: imageAsCompressed
+    summary: Creates a new blob by compressing the underlying image to the specified quality.
+    description: |
+        Returns the compressed image as a blob.
+
+        If this blob doesn't represent an image, returns `null`.
+    platforms: [android, iphone, ipad]
+    since: 6.1.0
+    parameters:
+      - name: quality
+        type: Number
+        summary: Quality to compress this image to. From 0.0 (lowest quality) to 1.0 (highest quality).
+    returns:
+        type: Titanium.Blob
+        summary: Compressed image as a blob.
+
   - name: imageAsThumbnail
     summary: Returns a thumbnail version of the underlying image, optionally with a border and rounded corners.
     description: |

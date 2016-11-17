@@ -225,7 +225,40 @@ properties:
         Only applies to the built-in templates.
     type: String
     accessors: false
+    
+  - name: subtitleColor
+    summary: Default text color of the subtitle, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS and if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
+    type: String
+    accessors: false
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+    
+  - name: selectedColor
+    summary: Color to use for the item title when the item is selected, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS.
+        
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    since: "6.0.0"
+    platforms: [iphone,ipad]    
+    
+  - name: selectedSubtitleColor
+    summary: Color to use for the item subtitle when the item is selected, as a color name or hex triplet.
+    description: |
+        This property is only used on iOS and if the ListDataItem `template` property or ListView
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
 
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    since: "6.1.0"
+    platforms: [iphone,ipad]    
+    
   - name: font
     summary: Font to use for the item title.
     description: |
@@ -622,6 +655,3 @@ properties:
         By default the background color of the row action is defined by the style applied. Use this property to 
         override the default background color of the row action.
     optional: true
-
-
-

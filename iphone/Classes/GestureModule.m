@@ -98,10 +98,22 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 -(NSNumber*)isLandscape:(id)args
 {
-	return NUMBOOL([TiUtils isOrientationLandscape]);
+	DEPRECATED_REPLACED(@"Gesture.isLandscape()", @"6.1.0", @"Gesture.landscape");
+	return [self landscape];
 }
 
 -(NSNumber*)isPortrait:(id)args
+{
+	DEPRECATED_REPLACED(@"Gesture.isPortrait()", @"6.1.0", @"Gesture.portrait");
+	return [self portrait];
+}
+
+-(NSNumber*)landscape
+{
+	return NUMBOOL([TiUtils isOrientationLandscape]);
+}
+
+-(NSNumber*)portrait
 {
 	return NUMBOOL([TiUtils isOrientationPortait]);
 }

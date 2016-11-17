@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
+	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
@@ -961,7 +962,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			function prep(a) {
 				return a.filter(function (p) {
-					if (!p.expired) {
+					if (!p.expired && !p.managed) {
 						var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
 						if (re.test(appId)) {
 							var label = p.name;
@@ -985,13 +986,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
 						logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
-						logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any development provisioning profiles') + '\n');
-					logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 					process.exit(1);
 				}
@@ -1011,13 +1012,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 					if (!valid) {
 						logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
-						logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
-					logger.log(__('You will need to login into %s with your Apple Download account, then create, download, and install a profile.',
+					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 					process.exit(1);
 				}
@@ -1054,11 +1055,17 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				return callback(null, value);
 			}
 			if (value) {
-				var v = _t.provisioningProfileLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				var p = _t.provisioningProfileLookup[value.toLowerCase()];
+				if (!p) {
+					return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 				}
-				return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+				if (p.managed) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is managed and not supported', value)));
+				}
+				if (p.expired) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
+				}
+				return callback(null, p.uuid);
 			}
 			callback(true);
 		}
@@ -1090,8 +1097,8 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'device':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
-					iosInfo.provisioning.development.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.development.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 					_t.conf.options['developer-name'].required = true;
 					_t.conf.options['pp-uuid'].required = true;
@@ -1114,11 +1121,11 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					_t.conf.options['pp-uuid'].required = true;
 
 					// build lookup maps
-					iosInfo.provisioning.distribution.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
-					iosInfo.provisioning.adhoc.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.adhoc.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 			}
 		},
@@ -1460,6 +1467,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
 
+		// validate the log server port
+		var logServerPort = this.tiapp.ios['log-server-port'];
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1024 || logServerPort > 65535)) {
+			logger.error(__('Invalid <log-server-port> found in the tiapp.xml'));
+			logger.error(__('Port must be a positive integer between 1024 and 65535') + '\n');
+			process.exit(1);
+		}
+
 		series(this, [
 			function validateExtensions(next) {
 				// if there's no extensions, then skip this step
@@ -1672,7 +1687,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							function getPPbyUUID() {
 								return pps
 									.filter(function (p) {
-										if (!p.expired && p.uuid === ppuuid) {
+										if (!p.expired && !p.managed && p.uuid === ppuuid) {
 											return true;
 										}
 									})
@@ -1698,7 +1713,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								logger.error(__('The provisioning profile "%s" is tied to the application identifier "%s", however the extension\'s identifier is "%s".', ppuuid, pp.appId, ext.targetInfo.id));
 								logger.log();
 
-								var matches = pps.filter(function (p) { return !p.expired && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
+								var matches = pps.filter(function (p) { return !p.expired && !p.managed && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
 								if (matches.length) {
 									logger.log(__('Did you mean?'));
 									var max = 0;
@@ -1798,14 +1813,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc' || cli.argv['build-only']) {
+				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
 					return next();
 				}
 
 				// no --device-id or doing a build-only sim build, so pick a device
 
 				if (cli.argv.target === 'device') {
-					if (!cli.argv['device-id']) {
+					if (!cli.argv['build-only'] && !cli.argv['device-id']) {
 						cli.argv['device-id'] = this.iosInfo.devices.length ? this.iosInfo.devices[0].udid : 'itunes';
 					}
 					return next();
@@ -1982,24 +1997,12 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
-							// Look for legacy module.id.js first
 							module.libFile = path.join(module.modulePath, module.id + '.js');
 							if (!fs.existsSync(module.libFile)) {
-								// then package.json TODO Verify the main property points at reale file under the module!
-								module.libFile = path.join(module.modulePath, 'package.json');
-								if (!fs.existsSync(module.libFile)) {
-									// then index.js
-									module.libFile = path.join(module.modulePath, 'index.js');
-									if (!fs.existsSync(module.libFile)) {
-										// then index.json
-										module.libFile = path.join(module.modulePath, 'index.json');
-										if (!fs.existsSync(module.libFile)) {
-											this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
-											process.exit(1);
-										}
-									}
-								}
+								this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+								process.exit(1);
 							}
+
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
@@ -2057,6 +2060,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		// initialization
 		'doAnalytics',
 		'initialize',
+		'determineLogServerPort',
 		'loginfo',
 		'readBuildManifest',
 		'checkIfNeedToRecompile',
@@ -2265,6 +2269,91 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 };
 
+iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
+	this.tiLogServerPort = 0;
+
+	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+		// we don't allow the log server in production
+		return next();
+	}
+
+	// if there's not an explicit <log-server-port> in the <ios> section of
+	// the tiapp.xml, then we pick a port between 10000 and 60000 based on
+	// the app's id. this is VERY prone to collisions, but we will show an
+	// error if two different apps have been assigned the same port.
+	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
+
+	if (this.target === 'device') {
+		return next();
+	}
+
+	var _t = this;
+
+	this.logger.debug(__('Checking if log server port %d is available', this.tiLogServerPort));
+
+	// for simulator builds, the port is shared with the local machine, so we
+	// just need to detect if the port is available with the help of Node
+	var server = net.createServer();
+
+	server.on('error', function () {
+		// we weren't able to bidn to the port :(
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
+
+			var client = null;
+
+			function die() {
+				client && client.destroy();
+				_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
+				_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+				process.exit(1);
+			}
+
+			// connect to the port and see if it's a Titanium app...
+			//  - if the port is bound by a Titanium app with the same appid, then assume
+			//    that when we install new build, the old process will be terminated
+			//  - if the port is bound by another process, such as MySQL on port 3306,
+			//    then we will fail out
+			//  - if the port is bound by another process that expects data before the
+			//    response is returned, then we will just timeout and fail out
+			client = net.connect({
+					host: 'localhost',
+					port: _t.tiLogServerPort,
+					timeout: parseInt(_t.config.get('ios.logServerTestTimeout', 1000)) || null
+				})
+				.on('data', function (data) {
+					client.destroy();
+					try {
+						var headers = JSON.parse(data.toString().split('\n').shift());
+						if (headers.appId !== _t.tiapp.id) {
+							_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
+							_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
+							_t.logger.error(__('-or-'));
+							_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+							process.exit(1);
+						}
+					} catch (e) {
+						die();
+					}
+					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
+					next();
+				})
+				.on('error', die)
+				.on('timeout', die);
+		});
+	});
+
+	server.listen({
+		host: 'localhost',
+		port: _t.tiLogServerPort
+	}, function () {
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is available', _t.tiLogServerPort));
+			next();
+		});
+	});
+};
+
 iOSBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', cyan(this.platformPath)));
 	this.logger.info(__('Deploy type: %s', cyan(this.deployType)));
@@ -2305,6 +2394,12 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		} else {
 			this.logger.info(__('Using default keychain'));
 		}
+	}
+
+	if (this.tiLogServerPort) {
+		this.logger.info(__('Logging enabled on port %s', cyan(String(this.tiLogServerPort))));
+	} else {
+		this.logger.info(__('Logging disabled'));
 	}
 
 	if (this.debugHost) {
@@ -2790,7 +2885,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
@@ -2809,6 +2903,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			'DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green,
 			'DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue
 		);
+	}
+
+	if (this.tiLogServerPort === 0) {
+		gccDefs.push('DISABLE_TI_LOG_SERVER=1');
+	} else {
+		gccDefs.push('TI_LOG_SERVER_PORT=' + this.tiLogServerPort);
 	}
 
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
@@ -4456,10 +4556,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
-	function walk(src, dest, ignore, origSrc, prefix) {
+	function walk(src, dest, ignore, origSrc) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
+				relPath = from.replace((origSrc || src) + '/', ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -4467,7 +4567,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, null, origSrc || src, prefix);
+					return walk(from, to, null, origSrc || src);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4590,11 +4690,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
-		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
-		var dest = path.join(this.xcodeAppDir, path.basename(module.id));
-		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
-		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
-		walk(module.modulePath, dest, /^(apidoc|docs|documentation|example)$/, null, module.id); // TODO Consult some .moduleignore file in the module or something? .npmignore?
+		var filename = path.basename(module.libFile);
+		if (jsFiles[filename]) {
+			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
+			this.logger.error(__('Please rename the file, then rebuild') + '\n');
+			process.exit(1);
+		}
+		jsFiles[filename] = {
+			src: module.libFile,
+			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
+			srcStat: fs.statSync(module.libFile)
+		};
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
@@ -5290,12 +5396,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				imageSets = {},
 				imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
-			function sha1(value) {
-				var sha = crypto.createHash('sha1');
-				sha.update(value);
-				return sha.digest('hex');
-			};
-
 			Object.keys(imageAssets).forEach(function (file) {
 				var imageName = imageAssets[file].name,
 					imageExt = imageAssets[file].ext,
@@ -5362,9 +5462,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (!fileChanged) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-				}
-
-				if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
+				} else if (this.copyFileSync(info.src, info.dest, { contents: contents || (contents = fs.readFileSync(info.src)), forceCopy: unsymlinkable })) {
 					if (this.useAppThinning && info.isImage && !this.forceRebuild) {
 						this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
 						this.forceRebuild = true;
@@ -6118,6 +6216,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
 	xcodebuildHook(
@@ -6144,6 +6243,10 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
 };
+
+function sha1(value) {
+	return crypto.createHash('sha1').update(value).digest('hex');
+}
 
 // create the builder instance and expose the public api
 (function (iosBuilder) {

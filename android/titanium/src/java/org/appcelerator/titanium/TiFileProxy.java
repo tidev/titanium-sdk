@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,10 +14,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -72,7 +76,6 @@ public class TiFileProxy extends KrollProxy
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
 		}
-		
 		if (resolve) {
 			path = resolveUrl(scheme, path);
 		}
@@ -135,6 +138,12 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public boolean append(Object data)
+	{
+		return write(new Object[]{data, true});
+	}
+
+	@Kroll.method
 	public boolean copy (String destination)
 		throws IOException
 	{
@@ -150,6 +159,15 @@ public class TiFileProxy extends KrollProxy
 			recursive = TiConvert.toBoolean(arg);
 		}
 		return tbf.createDirectory(recursive);
+	}
+
+	@Kroll.method
+	public boolean createFile()
+	{
+		Context context = TiApplication.getInstance().getApplicationContext();
+		ContextWrapper contextWrapper = new ContextWrapper(context);
+		tbf = new TiFile(new File(contextWrapper.getDir("data", Context.MODE_PRIVATE) + "/" + tbf.getNativeFile().getName()), path, getExecutable());
+		return tbf.createFile();
 	}
 
 	@Kroll.method
@@ -278,15 +296,15 @@ public class TiFileProxy extends KrollProxy
 			if (args != null && args.length > 0) {
 				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {
-					append = ((Boolean)args[1]).booleanValue();
+					append = (Boolean) args[1];
 				}
 
 				if (args[0] instanceof TiBlob) {
-					tbf.write((TiBlob)args[0], append);
+					((TiFile)tbf).write((TiBlob)args[0], append);
 				} else if (args[0] instanceof String) {
-					tbf.write((String)args[0], append);
+					((TiFile)tbf).write((String)args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
-					tbf.write(((TiFileProxy)args[0]).read(), append);
+					((TiFile)tbf).write(((TiFileProxy)args[0]).read(), append);
 				} else {
 					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;

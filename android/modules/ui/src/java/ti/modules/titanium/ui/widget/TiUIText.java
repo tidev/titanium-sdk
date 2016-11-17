@@ -481,7 +481,6 @@ public class TiUIText extends TiUIView
 		if (!editable) {
 		    tv.setInputType(InputType.TYPE_NULL);
 		    tv.setCursorVisible(false);
-		    tv.setEnabled(false);
 		    if (passwordMask) {
 		        Typeface origTF = tv.getTypeface();
 		        // Sometimes password transformation does not work properly when the input type is set after the
@@ -497,7 +496,11 @@ public class TiUIText extends TiUIView
 		        if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
 		            tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 		        }
-		    }
+		    } else {
+				if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
+					tv.setTransformationMethod(null);
+				}
+			}
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);

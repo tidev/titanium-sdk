@@ -294,6 +294,14 @@ events:
         type: Titanium.Android.Intent
     since: '3.0.0'
 
+  - name: onIntent
+    summary: Fired when the activity is launched.
+    properties:
+      - name: intent
+        summary: The `Intent` used to launch the Activity.
+        type: Titanium.Android.Intent
+    since: '6.0.0'
+
   - name: pause
     summary: Fired when the activity is paused.
     deprecated:

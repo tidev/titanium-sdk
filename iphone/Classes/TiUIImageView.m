@@ -222,6 +222,20 @@ DEFINE_EXCEPTIONS
     }
 }
 
+#ifdef TI_USE_KROLL_THREAD
+-(void)listenerAdded:(NSString *)type count:(int)count
+{
+    if (count == 1 && [type isEqualToString:@"load"]) {
+        NSString *loadEventState = [(TiUIImageViewProxy*)[self proxy] loadEventState];
+        if (loadEventState) {
+            [[self proxy] fireEvent:@"load" withObject:@{@"state": loadEventState}];
+        }
+    } else {
+        [super listenerAdded:type count:count];
+    }
+}
+#endif
+
 -(void)stopTimerWithEvent:(NSString *)eventName
 {
     if (!stopped) {

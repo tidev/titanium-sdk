@@ -104,6 +104,16 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	return html;
 }
 
+-(id)loading
+{
+	__block BOOL loading;
+	TiThreadPerformOnMainThread(^{
+		loading = [(TiUIWebView*)[self view] loading];
+	}, YES);
+    
+	return NUMBOOL(loading);
+}
+
 -(void)goBack:(id)args
 {
 	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goBack];}, NO);

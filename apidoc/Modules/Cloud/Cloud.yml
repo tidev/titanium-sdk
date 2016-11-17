@@ -110,7 +110,7 @@ description: |
 
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
-since: {android: "2.0",  iphone: "2.0", ipad: "2.0", windows: "8.1"}
+since: {android: "2.0",  iphone: "2.0", ipad: "2.0"}
 
 methods:
   - name: hasStoredSession

@@ -1356,7 +1356,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSTextAlignment)textAlignmentValue:(id)alignment
 {
-	NSTextAlignment align = NSTextAlignmentLeft;
+	NSTextAlignment align = NSTextAlignmentNatural; // Default for iOS 6+
 
 	if ([alignment isKindOfClass:[NSString class]])
 	{
@@ -1371,6 +1371,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		else if ([alignment isEqualToString:@"right"])
 		{
 			align = NSTextAlignmentRight;
+		}
+		else if ([alignment isEqualToString:@"justify"])
+		{
+			align = NSTextAlignmentJustified;
 		}
 	}
 	else if ([alignment isKindOfClass:[NSNumber class]])
@@ -1988,28 +1992,28 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     UIImage* resultImage = nil;
     if ([image isKindOfClass:[UIImage class]]) {
         resultImage = image;
-    }
-    else if ([image isKindOfClass:[NSString class]]) {
+    } else if ([image isKindOfClass:[NSString class]]) {
+        if ([image isEqualToString:@""]) {
+            return nil;
+        }
+        
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-        if (resultImage==nil)
+        if (resultImage == nil)
         {
             resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
         }
-        if (resultImage==nil && [image isEqualToString:@"Default.png"])
-        {
+        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
             // special case where we're asking for Default.png and it's in Bundle not path
             resultImage = [UIImage imageNamed:image];
         }
-        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
-        {
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
             resultImage = [UIImageResize resizedImage:[resultImage size] 
                                  interpolationQuality:kCGInterpolationNone 
                                                 image:resultImage 
                                                 hires:NO];
         }
-    }
-    else if ([image isKindOfClass:[TiBlob class]]) {
+    } else if ([image isKindOfClass:[TiBlob class]]) {
         resultImage = [(TiBlob*)image image];
     }
     return resultImage;

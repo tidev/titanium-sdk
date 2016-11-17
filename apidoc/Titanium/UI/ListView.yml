@@ -206,6 +206,7 @@ excludes:
     events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+
 events:
   - name: indexclick
     summary: Fired when the index bar is clicked by the user.
@@ -661,7 +662,6 @@ events:
            The expected y axis offset when the scrolling action decelerates to a stop. 
         type: Number
 
-
 properties:
   - name: allowsSelection
     summary: Determines whether this item can be selected.
@@ -774,11 +774,8 @@ properties:
     summary: List view footer as a view that will be rendered instead of a label.
     description: |
         In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
-        element (see Examples).
-
+        element (see Examples). On Android, this is a creation only property.
     type: Titanium.UI.View
-    description: |
-        On Android, this is a creation only property.
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -1106,7 +1103,6 @@ properties:
     availability: creation
     
 methods:
-
   - name: scrollToItem
     summary: Scrolls to a specific item.
     description: |

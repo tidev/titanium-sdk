@@ -23,11 +23,11 @@ With Titanium, you use JavaScript to code your application.  Titanium's compiler
 your application code into an efficient native executable for each target mobile platform.
 Titanium writes native code so you don't have to. :)
 
-- Native apps built using web technologies
-- Apps are compiled and run locally (offline available)
-- Full support for HTML5 and CSS3
-- Support for all native platform UI controls
+- Native apps built using JavaScript
+- Apps are compiled and run locally with full offline support
+- Support for native platform UI controls
 - Third-party JavaScript support such as jQuery, Dojo, etc.
+- Support for Web views incorporating HTML5, CSS etc.
 - Support for in-application SQL database
 - Support for Geolocation (compass, geolocation, forward/reverse lookup)
 - Support for Camera (taking Photos, playing and recording Video)

@@ -139,6 +139,9 @@
 	[self replaceValue:nil forKey:@"titleAttributes" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnSwipe" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnTap" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
 	[super _configure];
 }
 
@@ -882,55 +885,6 @@
 	},YES);
 	
 }
-
--(void)setHidesBarsOnSwipe:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnSwipe, value);
-
-    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
-
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
-    }
-}
-
--(void)setHidesBarsOnTap:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnTap, value);
-
-    [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
-    
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsOnTap:[TiUtils boolValue:value def:NO]];
-    }
-}
-
--(void)setHidesBarsWhenVerticallyCompact:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsWhenVerticallyCompact, value);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenVerticallyCompact" notification:NO];
-
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsWhenVerticallyCompact:[TiUtils boolValue:value def:NO]];
-    }
-}
-
--(void)setHidesBarsWhenKeyboardAppears:(id)value
-{
-    ENSURE_TYPE(value, NSNumber);
-    ENSURE_UI_THREAD(setHidesBarsOnSwipe, value);
-
-    [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
-    
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
-    }
-}
-
 
 #define SETPROP(m,x) \
 {\
