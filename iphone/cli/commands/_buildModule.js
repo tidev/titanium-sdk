@@ -152,6 +152,9 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 		}
 	}, this);
 
+	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
+
 	this.licenseDefault = "TODO: place your license here and we'll include it in the module distribution";
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
 	if (!fs.existsSync(this.licenseFile)) {
@@ -592,7 +595,25 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 4. Resources folder
+		// 4. hooks folder
+		var hookFiles = {};
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file) {
+				var relFile = path.relative(this.hooksDir, file);
+				hookFiles[relFile] = 1;
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+			}.bind(this));
+		}
+		if (fs.existsSync(this.sharedHooksDir)) {
+			this.dirWalker(this.sharedHooksDir, function (file) {
+				var relFile = path.relative(this.sharedHooksDir, file);
+				if (!hookFiles[relFile]) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+				}
+			}.bind(this));
+		}
+
+		// 5. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function (file, name) {
 				if (name !== 'README.md') {
@@ -601,7 +622,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 5. assets folder, not including js files
+		// 6. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function (file) {
 				if (path.extname(file) != '.js') {
@@ -610,11 +631,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 6. the merge *.a file
-		// 7. LICENSE file
-		// 8. manifest
-		// 9. module.xcconfig
-		// 10. metadata.json
+		// 7. the merge *.a file
+		// 8. LICENSE file
+		// 9. manifest
+		// 10. module.xcconfig
+		// 11. metadata.json
 		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
 		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders,'LICENSE') });
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders,'manifest') });
