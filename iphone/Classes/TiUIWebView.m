@@ -787,6 +787,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     BOOL disableContextMenu = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
     if (disableContextMenu) {
         [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
+        [webView stringByEvaluatingJavaScriptFromString:@"window.getSelection().removeAllRanges();"];
     }
     
     [webView setNeedsDisplay];
