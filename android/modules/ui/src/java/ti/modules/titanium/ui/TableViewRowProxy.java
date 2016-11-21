@@ -107,17 +107,34 @@ public class TableViewRowProxy extends TiViewProxy
 		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
-	public void add(TiViewProxy control)
-	{
-		if (controls == null) {
-			controls = new ArrayList<TiViewProxy>();
+	@Override
+	public void add(Object args) {
+		if (args == null) {
+			Log.e(TAG, "Add called with a null child");
+			return;
 		}
-		controls.add(control);
-		control.setParent(this);
-		if (tableViewItem != null) {
-			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
-			// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-			message.sendToTarget();
+		if (args instanceof Object[]) {
+			for (Object arg : (Object[]) args) {
+				if (arg instanceof TiViewProxy) {
+					add((TiViewProxy) arg);
+				} else {
+					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+				}
+			}
+		} else if (args instanceof TiViewProxy) {
+			if (controls == null) {
+				controls = new ArrayList<TiViewProxy>();
+			}
+			TiViewProxy view = (TiViewProxy) args;
+			controls.add(view);
+			view.setParent(this);
+			if (tableViewItem != null) {
+				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
+				// Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+				message.sendToTarget();
+			}
+		} else {
+			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
 		}
 	}
 
