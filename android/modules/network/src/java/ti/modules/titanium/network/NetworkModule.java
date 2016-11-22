@@ -139,14 +139,6 @@ public class NetworkModule extends KrollModule {
 	}
 
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
-	{
-		super.handleCreationArgs(createdInModule, args);
-
-		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/" + TiApplication.getInstance().getTiBuildVersion());
-	}
-
-	@Override
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
 		super.eventListenerAdded(event, count, proxy);
