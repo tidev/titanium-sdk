@@ -486,8 +486,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			boolean hasChildView = ((TableViewRowProxy) item.proxy).hasControls();
 			if (hasChildView) {
 				content.setMinimumHeight(0);
-			} else {
-				content.setMinimumHeight(MIN_HEIGHT);
+			} else {				
+				content.setMinimumHeight(TiConvert.toTiDimension(MIN_HEIGHT, TiDimension.TYPE_HEIGHT).getAsPixels(this));
 			}
 
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
