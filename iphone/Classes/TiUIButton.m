@@ -263,8 +263,8 @@
 {
 	[backgroundImageCache release];
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
-    backgroundImageCache = [[self loadImage:value] retain];
-    self.backgroundImage = value;
+	backgroundImageCache = [[self loadImage:value] retain];
+	self.backgroundImage = value;
 	[self updateBackgroundImage];
 }
 
