@@ -1,3 +1,7 @@
+0.4.24 (11/22/2016)
+-------------------
+  * [TIMOB-24157] Install certificate in new window
+
 0.4.23 (9/16/2016)
 -------------------
   * [TIMOB-23879] Terminate running app at launch
