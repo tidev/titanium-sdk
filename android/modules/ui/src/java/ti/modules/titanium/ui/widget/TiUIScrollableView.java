@@ -91,6 +91,21 @@ public class TiUIScrollableView extends TiUIView
 
 				return false;
 			}
+
+			@Override
+			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+				TiCompositeLayout.LayoutParams layoutParams = (TiCompositeLayout.LayoutParams) mContainer.getLayoutParams();
+				
+				if (layoutParams.sizeOrFillHeightEnabled && !layoutParams.autoFillsHeight) {
+					int index = getCurrentItem();
+					if (index < mViews.size()) {
+						TiUIView view = mViews.get(index).getOrCreateView();
+						int height = view.getLayoutParams().optionHeight.getAsPixels(this);
+						heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+					}
+				}
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}
 		});
 
 		pager.setAdapter(adapter);
