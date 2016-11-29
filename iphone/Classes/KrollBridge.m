@@ -862,6 +862,15 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return nil;
 	}
 
+	// If there is a JS file that collides with the given path,
+	// warn the user of the collision, but prefer the native/core module
+	NSURL *jsPath = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.js", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path], path]];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:[jsPath absoluteString]]) {
+		NSLog(@"[WARN] The requested path '%@' has a collison betweeb a native Ti%@um API/module and a JS file.", path, @"tani");
+		NSLog(@"[WARN] The native Ti%@um API/module will be loaded in preference.", @"tani");
+		NSLog(@"[WARN] If you intended to address the JS file, please require the path using a prefixed string such as require('./%@') or require('/%@') instead.", path, path);
+	}
+
 	// Ok, we have a native module, make sure instantiate and cache it
 	TiModule *module = [modules objectForKey:moduleID];
 	if (module == nil) {
