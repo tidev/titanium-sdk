@@ -1151,7 +1151,7 @@ public class TiHTTPClient
 							contentLength += 6 + boundary.length();
 						} else {
 							if (data instanceof String) {
-								contentLength += ((String) data).length();
+								contentLength += ((String) data).getBytes().length;
 							} else if (data instanceof FileEntity) {
 								contentLength += ((FileEntity) data).getContentLength();
 							} else if (form != null) {
