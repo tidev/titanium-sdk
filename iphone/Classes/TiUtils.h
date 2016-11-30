@@ -676,6 +676,8 @@ typedef enum
 
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
 
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap withTopCap:(TiDimension)topCap;
+
 /**
  Convenience method to extract a useful error message from NSError, or nil if none exist.
  @param error The NSError
