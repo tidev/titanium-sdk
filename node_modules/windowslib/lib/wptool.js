@@ -139,10 +139,9 @@ function wptoolEnumerate(wpsdk, options, next) {
 			return next(err);
 		}
 
-		// Just move on if we have no results for a given version?
 		if (!phoneResults.windowsphone[wpsdk]) {
-			var ex = new Error(__('Did not find support for WP SDK %s. Cannot enumerate devices.', wpsdk));
-			return next(ex);
+			// Just move on if we have no results for a given version
+			return next(null, {devices:[],emulators:[]});
 		}
 
 		// device discovery is slower, do it in parallel with emulator discovery/listing
@@ -227,10 +226,9 @@ function nativeEnumerate(wpsdk, options, next) {
 			return next(err, null);
 		}
 
-		// Just move on if we have no results for a given version?
 		if (!phoneResults.windowsphone[wpsdk]) {
-			var ex = new Error(__('Did not find support for WP SDK %s. Cannot enumerate devices.', wpsdk));
-			return next(ex, null);
+			// Just move on if we have no results for a given version
+			return next(null, {devices:[],emulators:[]});
 		}
 
 		if (!phoneResults.windowsphone[wpsdk].deployCmd) {
