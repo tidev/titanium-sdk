@@ -81,9 +81,11 @@ public class TiUINativePicker extends TiUIPicker
 		        fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
 		    }
 		    if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-		        final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
-		        tv.setTextColor(color);
-		    }
+				final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
+				tv.setTextColor(color);
+			} else {
+				tv.setTextColor(Color.WHITE);
+			}
 		}
 	}
 	
