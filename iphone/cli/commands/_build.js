@@ -1997,12 +1997,24 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
+							// Look for legacy module.id.js first
 							module.libFile = path.join(module.modulePath, module.id + '.js');
 							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-								process.exit(1);
+								// then package.json TODO Verify the main property points at reale file under the module!
+								module.libFile = path.join(module.modulePath, 'package.json');
+								if (!fs.existsSync(module.libFile)) {
+									// then index.js
+									module.libFile = path.join(module.modulePath, 'index.js');
+									if (!fs.existsSync(module.libFile)) {
+										// then index.json
+										module.libFile = path.join(module.modulePath, 'index.json');
+										if (!fs.existsSync(module.libFile)) {
+											this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
+											process.exit(1);
+										}
+									}
+								}
 							}
-
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
@@ -4564,10 +4576,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
-	function walk(src, dest, ignore, origSrc) {
+	function walk(src, dest, ignore, origSrc, prefix) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', ''),
+				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -4575,7 +4587,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, null, origSrc || src);
+					return walk(from, to, null, origSrc || src, prefix);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4698,17 +4710,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
-		var filename = path.basename(module.libFile);
-		if (jsFiles[filename]) {
-			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
-			this.logger.error(__('Please rename the file, then rebuild') + '\n');
-			process.exit(1);
-		}
-		jsFiles[filename] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
+		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
+		var dest = path.join(this.xcodeAppDir, path.basename(module.id));
+		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
+		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
+		walk(module.modulePath, dest, /^(apidoc|docs|documentation|example)$/, null, module.id); // TODO Consult some .moduleignore file in the module or something? .npmignore?
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
