@@ -2000,25 +2000,44 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							// look for legacy module.id.js first
 							var libFile = path.join(module.modulePath, module.id + '.js');
 							module.libFile = fs.existsSync(libFile) ? libFile : null;
+							// If no legacy file, look for package.json...
 							if (!module.libFile) {
 								var pkgJsonFile = path.join(module.modulePath, 'package.json');
 								if (fs.existsSync(pkgJsonFile)) {
 									try {
 										var pkgJson = require(pkgJsonFile);
-										if (pkgJson && pkgJson.main && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + (/\.js$/.test(pkgJson.main) ? '' : '.js')))) {
-											module.libFile = libFile;
+										// look for 'main' property
+										if (pkgJson && pkgJson.main) {
+											// look for main file as-is
+											if (fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main))) {
+												module.libFile = libFile;
+											}
+											// look with .js extension
+											if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.js'))) {
+												module.libFile = libFile;
+											}
+											// look with .json extension
+											if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.json'))) {
+												module.libFile = libFile;
+											}
 										}
 									} catch (e) {
 										// squeltch
 									}
 								}
 
+								// look for index.js in root directory of module
 								if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
 									module.libFile = libFile;
 								}
 
+								// look for index.json in root directory of module
+								if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.json'))) {
+									module.libFile = libFile;
+								}
+
 								if (!module.libFile) {
-									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, or index.js', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
 									process.exit(1);
 								}
 							}
