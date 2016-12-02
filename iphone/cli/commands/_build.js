@@ -3569,6 +3569,15 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 
 	this.unmarkBuildDirFile(dest);
 
+	var rel = path.relative(this.buildDir, dest);
+	if (['ios', 'iphone'].some(function (dir) {
+		if (fs.existsSync(path.join(this.projectDir, 'platform', dir, rel))) {
+			return true;
+		}
+	}, this)) {
+		return next();
+	}
+
 	var name = 'build.ios.write' + (isExtension ? 'Extension' : '') + 'Entitlements';
 	var hook = this.cli.createHook(name, this, function (plist, dest, done) {
 		// write the entitlements.plist
