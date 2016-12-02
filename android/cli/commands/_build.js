@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -1472,10 +1472,49 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				if (module.platform.indexOf('commonjs') != -1) {
 					module.native = false;
 
-					module.libFile = path.join(module.modulePath, module.id + '.js');
-					if (!fs.existsSync(module.libFile)) {
-						this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-						process.exit(1);
+					// look for legacy module.id.js first
+					var libFile = path.join(module.modulePath, module.id + '.js');
+					module.libFile = fs.existsSync(libFile) ? libFile : null;
+					// If no legacy file, look for package.json...
+					if (!module.libFile) {
+						var pkgJsonFile = path.join(module.modulePath, 'package.json');
+						if (fs.existsSync(pkgJsonFile)) {
+							try {
+								var pkgJson = require(pkgJsonFile);
+								// look for 'main' property
+								if (pkgJson && pkgJson.main) {
+									// look for main file as-is
+									if (fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main))) {
+										module.libFile = libFile;
+									}
+									// look with .js extension
+									if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.js'))) {
+										module.libFile = libFile;
+									}
+									// look with .json extension
+									if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.json'))) {
+										module.libFile = libFile;
+									}
+								}
+							} catch (e) {
+								// squeltch
+							}
+						}
+
+						// look for index.js in root directory of module
+						if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
+							module.libFile = libFile;
+						}
+
+						// look for index.json in root directory of module
+						if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.json'))) {
+							module.libFile = libFile;
+						}
+
+						if (!module.libFile) {
+							this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+							process.exit(1);
+						}
 					}
 
 					this.commonJsModules.push(module);
@@ -2392,7 +2431,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// we use the destination file name minus the path to the assets dir as the id
 						// which will eliminate dupes
-						var id = to.replace(opts.origDest, '').replace(/\\/g, '/').replace(/^\//, '');
+						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
@@ -2468,10 +2507,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	this.commonJsModules.forEach(function (module) {
 		// copy the main module
 		tasks.push(function (cb) {
-			_t.logger.debug(__('Copying %s', module.libFile.cyan));
+			_t.logger.debug(__('Copying %s', module.modulePath.cyan));
 			copyDir.call(this, {
-				src: module.libFile,
-				dest: this.buildBinAssetsResourcesDir,
+				src: module.modulePath,
+				// Copy under subfolder named after module.id
+				dest: path.join(this.buildBinAssetsResourcesDir, path.basename(module.id)),
+				// Don't copy files under apidoc, docs, documentation, example or assets (assets is handled below)
+				ignoreRootDirs: ['apidoc', 'documentation', 'docs', 'example', 'assets'],
+				// Make note that files are copied relative to the module.id folder at dest
+				// so that we don't see clashes between module1/index.js and module2/index.js
+				prefix: module.id,
 				onJsConflict: function (src, dest, id) {
 					this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
 					this.logger.error(__('Please rename the file, then rebuild') + '\n');
@@ -2725,7 +2770,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 			if (fs.existsSync(file)) {
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
-				} else if (/\.js$/.test(filename)) {
+				} else if (/\.js(on)?$/.test(filename)) {
 					index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', '')] = 1;
 				}
 			}

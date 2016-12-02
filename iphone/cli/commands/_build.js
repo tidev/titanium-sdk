@@ -1997,10 +1997,49 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
-							module.libFile = path.join(module.modulePath, module.id + '.js');
-							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-								process.exit(1);
+							// look for legacy module.id.js first
+							var libFile = path.join(module.modulePath, module.id + '.js');
+							module.libFile = fs.existsSync(libFile) ? libFile : null;
+							// If no legacy file, look for package.json...
+							if (!module.libFile) {
+								var pkgJsonFile = path.join(module.modulePath, 'package.json');
+								if (fs.existsSync(pkgJsonFile)) {
+									try {
+										var pkgJson = require(pkgJsonFile);
+										// look for 'main' property
+										if (pkgJson && pkgJson.main) {
+											// look for main file as-is
+											if (fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main))) {
+												module.libFile = libFile;
+											}
+											// look with .js extension
+											if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.js'))) {
+												module.libFile = libFile;
+											}
+											// look with .json extension
+											if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.json'))) {
+												module.libFile = libFile;
+											}
+										}
+									} catch (e) {
+										// squeltch
+									}
+								}
+
+								// look for index.js in root directory of module
+								if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
+									module.libFile = libFile;
+								}
+
+								// look for index.json in root directory of module
+								if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.json'))) {
+									module.libFile = libFile;
+								}
+
+								if (!module.libFile) {
+									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									process.exit(1);
+								}
 							}
 
 							this.commonJsModules.push(module);
@@ -4564,10 +4603,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
-	function walk(src, dest, ignore, origSrc) {
+	function walk(src, dest, ignore, origSrc, prefix) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', ''),
+				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -4575,7 +4614,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, null, origSrc || src);
+					return walk(from, to, null, origSrc || src, prefix);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4698,17 +4737,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
-		var filename = path.basename(module.libFile);
-		if (jsFiles[filename]) {
-			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
-			this.logger.error(__('Please rename the file, then rebuild') + '\n');
-			process.exit(1);
-		}
-		jsFiles[filename] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
+		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
+		var dest = path.join(this.xcodeAppDir, path.basename(module.id));
+		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
+		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
+		walk(module.modulePath, dest, /^(apidoc|docs|documentation|example)$/, null, module.id); // TODO Consult some .moduleignore file in the module or something? .npmignore?
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
