@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +41,7 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
-	private static int DEFAULT_TEXT_COLOR = 0;
+	private static int defaultTextColor = 0;
 	
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
@@ -83,12 +82,12 @@ public class TiUINativePicker extends TiUIPicker
 			}
 			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
 				final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
-				if (DEFAULT_TEXT_COLOR != color) {
-					DEFAULT_TEXT_COLOR = tv.getCurrentTextColor();
+				if (defaultTextColor != color) {
+					defaultTextColor = tv.getCurrentTextColor();
 				}
 				tv.setTextColor(color);
 			} else {
-				tv.setTextColor(DEFAULT_TEXT_COLOR);
+				tv.setTextColor(defaultTextColor);
 			}
 		}
 	}
