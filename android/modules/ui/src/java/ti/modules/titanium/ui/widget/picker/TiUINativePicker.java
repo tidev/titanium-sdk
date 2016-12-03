@@ -42,6 +42,7 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
+	private static int DEFAULT_TEXT_COLOR = 0;
 	
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
@@ -74,17 +75,20 @@ public class TiUINativePicker extends TiUIPicker
 		}
 		
 		private void styleTextView(int position, TextView tv) {
-		    TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
-		    if (fontProperties != null) {
-		        TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
-		        fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
-		        fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
-		    }
-		    if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
+			TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
+			if (fontProperties != null) {
+				TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+				fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+				fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
+			}
+			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
 				final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
+				if (DEFAULT_TEXT_COLOR != color) {
+					DEFAULT_TEXT_COLOR = tv.getCurrentTextColor();
+				}
 				tv.setTextColor(color);
 			} else {
-				tv.setTextColor(Color.WHITE);
+				tv.setTextColor(DEFAULT_TEXT_COLOR);
 			}
 		}
 	}
