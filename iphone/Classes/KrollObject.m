@@ -1336,47 +1336,69 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		return;
 	}
 
-	TiValueRef exception=NULL;
+	TiValueRef exception = NULL;
 
-	TiObjectRef jsEventHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
+	TiValueRef jsEventValue = TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
 
-	jsEventHash = TiValueToObject(jsContext, jsEventHash, &exception);
-	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
+	// Grab event JSObject. Default to NULL if it isn't an object
+	TiObjectRef jsEventHash = NULL;
+	if (TiValueGetType(jsContext, jsEventValue) == kTITypeObject)
+	{
+		jsEventHash = TiValueToObject(jsContext, jsEventValue, &exception);
+	}
+
+	// Value wasn't an object (undefined, likely) - or conversion to JSObjectRef failed
+	if (jsEventHash == NULL)
 	{
 		jsEventHash = TiObjectMake(jsContext, NULL, &exception);
 		TiObjectSetProperty(jsContext, propsObject, kTiStringEventKey, jsEventHash,
 				kTiPropertyAttributeDontEnum , &exception);
 	}
 
-	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
-	TiObjectRef jsCallbackArray = (TiObjectRef)TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+	// Grab the event callback we're adding
 	TiObjectRef callbackFunction = nil;
 	if ([eventCallbackOrWrapper isKindOfClass:[KrollCallback class]]) {
 		callbackFunction = [(KrollCallback *)eventCallbackOrWrapper function];
 	} else if ([eventCallbackOrWrapper isKindOfClass:[KrollWrapper class]]) {
 		callbackFunction = [(KrollWrapper *)eventCallbackOrWrapper jsobject];
 	}
-	jsCallbackArray = TiValueToObject(jsContext, jsCallbackArray, &exception);
 
-	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))
+	// Grab the array of callbacks for our event type from global event hash
+	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
+	TiValueRef jsCallbackArrayValue = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+
+	// Default to NULL array object, if value doesn't exist or isn't an object
+	TiObjectRef jsCallbackArray = NULL;
+	if (TiValueGetType(jsContext, jsCallbackArray) == kTITypeObject)
 	{
+		jsCallbackArray = TiValueToObject(jsContext, jsCallbackArrayValue, &exception);
+	}
+
+	// No callback array existed for this event type, or it wasn't an object
+	if (jsCallbackArray == NULL)
+	{
+		// Make a new array, add the first callback function to it
 		jsCallbackArray = TiObjectMakeArray(jsContext, 1, (TiValueRef*)&callbackFunction, &exception);
+		// Store the array under the event name in our global event hash
 		TiObjectSetProperty(jsContext, jsEventHash, jsEventTypeString, jsCallbackArray,
-				kTiPropertyAttributeDontEnum , &exception);
+				kTiPropertyAttributeDontEnum, &exception);
 	}
 	else
 	{
+		// An array of callbacks already exists for this event type
+		// Add the callback to it, unless it's already in the array
 		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, &exception);
 		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, &exception);
 
 		for (uint i = 0; i < arrayLength; ++i)
 		{
-                TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
-                if (valueRef == callbackFunction) {
-                    TiStringRelease(jsEventTypeString);
-                    return;
-            }
-        }
+			TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
+			if (valueRef == callbackFunction)
+			{
+				TiStringRelease(jsEventTypeString);
+				return;
+			}
+		}
 
 		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
 	}
