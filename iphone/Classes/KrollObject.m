@@ -1336,12 +1336,19 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		return;
 	}
 
-	TiValueRef exception=NULL;
+	TiValueRef exception = NULL;
 
-	TiObjectRef jsEventHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
+	TiValueRef jsEventValue = TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
 
-	jsEventHash = TiValueToObject(jsContext, jsEventHash, &exception);
-	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
+	// Grab event JSObject. Default to NULL if it isn't an object
+	TiObjectRef jsEventHash = NULL;
+	if (TiValueGetType(jsContext, jsEventValue) == kTITypeObject)
+	{
+		jsEventHash = TiValueToObject(jsContext, jsEventValue, &exception);
+	}
+
+	// Value wasn't an object (undefined, likely) - or conversion to JSObjectRef failed
+	if (jsEventHash == NULL)
 	{
 		jsEventHash = TiObjectMake(jsContext, NULL, &exception);
 		TiObjectSetProperty(jsContext, propsObject, kTiStringEventKey, jsEventHash,
