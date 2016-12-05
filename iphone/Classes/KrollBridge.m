@@ -817,7 +817,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return module;
 	}
 
-    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
 
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
@@ -904,7 +904,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		// nope, return nil so we can try to fall back to resource in user's app
 		return nil;
 	}
-    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	// This is an asset inside the native module. Load it like a "normal" common js file
 	return [self loadJavascriptText:contents fromFile:filepath withContext:kroll];
 }
@@ -920,7 +920,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	if (data != nil) {
 		[self setCurrentURL:[NSURL URLWithString:[path stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
-		return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	}
 	return nil;
 }
@@ -1302,8 +1302,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
-		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
 #ifdef TI_USE_KROLL_THREAD
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];

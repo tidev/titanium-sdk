@@ -950,6 +950,7 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteContact:person];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
 	return saveRequest;
 }
 
@@ -957,6 +958,7 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
 	return saveRequest;
 }
 
@@ -964,6 +966,7 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addMember:person toGroup:group];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
 	return saveRequest;
 }
 
@@ -971,6 +974,7 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest removeMember:person fromGroup:group];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
 	return saveRequest;
 }
 
