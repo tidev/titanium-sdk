@@ -434,7 +434,7 @@
         hintText = @"";
     }
     
-    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}] autorelease]];
 }
 
 -(void)setAttributedHintText_:(id)value

@@ -76,11 +76,11 @@
         UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:[TiUtils intValue:[item valueForKey:@"UIApplicationShortcutItemIconType"]]];
         NSDictionary *userInfo = [item valueForKey:@"UIApplicationShortcutItemUserInfo"];
         
-        UIApplicationShortcutItem *shortcut = [[UIApplicationShortcutItem alloc] initWithType:type
+        UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:type
                                                                                localizedTitle:title
                                                                             localizedSubtitle:subtitle
                                                                                          icon:icon
-                                                                                     userInfo:userInfo];
+                                                                                     userInfo:userInfo] autorelease];
         
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:shortcut]];
     }

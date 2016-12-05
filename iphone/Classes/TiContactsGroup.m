@@ -283,6 +283,7 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
+		//Ignore static analylzer warning here
 		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
@@ -321,6 +322,7 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
+		//Ignore static analyzer warning here
 		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
@@ -342,6 +344,7 @@
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteGroup: [[group mutableCopy] autorelease]];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
 	return saveRequest;
 }
 
@@ -349,6 +352,7 @@
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];
+	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
 	return saveRequest;
 }
 

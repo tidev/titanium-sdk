@@ -249,7 +249,6 @@
     // Pass 1.0 to force exact pixel size.
     [self stepper];
     CGRect bounds = [stepper bounds];
-    CGSize imageSize = [image size];
     
     if (full != YES) {
         bounds.size.height = bounds.size.height/2;
