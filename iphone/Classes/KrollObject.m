@@ -1365,7 +1365,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	// Grab the array of callbacks for our event type from global event hash
 	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
-	TiOValueRef jsCallbackArrayValue = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+	TiValueRef jsCallbackArrayValue = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
 
 	// Default to NULL array object, if value doesn't exist or isn't an object
 	TiObjectRef jsCallbackArray = NULL;
