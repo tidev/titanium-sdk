@@ -946,6 +946,7 @@ static NSDictionary* iOS9propertyKeys;
 }
 
 //For iOS9 deleting contact
+#ifndef __clang_analyzer__
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
@@ -977,7 +978,7 @@ static NSDictionary* iOS9propertyKeys;
 	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
 	return saveRequest;
 }
-
+#endif
 - (void)checkAndNotifyObserver {
 	if ([self observer] && [[self observer] respondsToSelector:@selector(didUpdatePerson:)]) {
 		[[self observer] didUpdatePerson:self];

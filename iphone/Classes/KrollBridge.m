@@ -1099,11 +1099,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		path = @"/";
 	}
 	// 1. let PARTS = path split(START)
-	NSArray* parts = [path componentsSeparatedByString:@"/"];
+	NSArray *parts = [path componentsSeparatedByString:@"/"];
 	// 2. let I = count of PARTS - 1
 	NSInteger i = [parts count] - 1;
 	// 3. let DIRS = []
-	NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
+	NSMutableArray *dirs = [NSMutableArray arrayWithCapacity:0];
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
@@ -1111,7 +1111,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		NSString* dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
+		NSString *dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
 		// c. DIRS = DIRS + DIR
 		[dirs addObject:dir];
 		// d. let I = I - 1

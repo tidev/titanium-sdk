@@ -26,8 +26,8 @@
 
 -(void)dealloc
 {
-    [[[self previewContext] preview] forgetSelf];
-    [[[self previewContext] sourceView] forgetSelf];
+    [[_previewContext preview] forgetSelf];
+    [[_previewContext sourceView] forgetSelf];
 	
     RELEASE_TO_NIL(_listViewEvent);
     RELEASE_TO_NIL(_previewContext);
