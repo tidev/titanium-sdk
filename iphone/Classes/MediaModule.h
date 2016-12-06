@@ -118,6 +118,10 @@
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_AUTO;
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_ON;
 
+@property(nonatomic,readonly) NSNumber* FOCUS_MODE_AUTO;
+@property(nonatomic,readonly) NSNumber* FOCUS_MODE_FIXED;
+@property(nonatomic,readonly) NSNumber* FOCUS_MODE_CONTINUOUS_AUTO;
+
 @property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_AUTHORIZED;
 @property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_DENIED;
 @property(nonatomic,readonly) NSNumber* CAMERA_AUTHORIZATION_RESTRICTED;

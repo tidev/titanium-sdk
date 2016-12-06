@@ -904,6 +904,24 @@ properties:
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
+  - name: FOCUS_MODE_AUTO
+    summary: Focus mode constant for auto focus mode of camera 
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    platforms: [android, iphone, ipad]
+  - name: FOCUS_MODE_CONTINUOUS_AUTO
+    summary: Focus mode constant for continuous auto focus mode of camera 
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+  - name: FOCUS_MODE_FIXED
+    summary: Focus mode constant for fixed/locked focus mode of camera
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    platforms: [android, iphone, ipad]
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -1749,6 +1767,13 @@ properties:
     default: true
     since: "3.4.0"
     platforms: [ipad]
+  - name: focusMode
+    summary: Constant to indicate focus mode of camera.
+    constants: Titanium.Media.FOCUS_MODE_*
+    type: Number
+    default: Depends on camera
+    platforms: [android, iphone, ipad]
+    since: "6.1.0"
 
 # Photo Gallery options pseudo-type. Much like the camera one.
 ---

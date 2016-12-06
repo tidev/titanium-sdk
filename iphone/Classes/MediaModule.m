@@ -237,6 +237,10 @@ MAKE_SYSTEM_PROP(CAMERA_REAR,UIImagePickerControllerCameraDeviceRear);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_OFF,UIImagePickerControllerCameraFlashModeOff);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_AUTO,UIImagePickerControllerCameraFlashModeAuto);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_ON,UIImagePickerControllerCameraFlashModeOn);
+
+MAKE_SYSTEM_PROP(FOCUS_MODE_AUTO,AVCaptureFocusModeAutoFocus);
+MAKE_SYSTEM_PROP(FOCUS_MODE_CONTINUOUS_AUTO,AVCaptureFocusModeContinuousAutoFocus);
+MAKE_SYSTEM_PROP(FOCUS_MODE_FIXED,AVCaptureFocusModeLocked);
 #endif
 
 //Constants for mediaTypes in openMusicLibrary
@@ -1613,6 +1617,26 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         [self commonPickerSetup:args];
         
+        id focusMode = [args objectForKey:@"focusMode"];
+        if (focusMode)
+        {
+            AVCaptureFocusMode focus = [TiUtils intValue:focusMode];
+            NSArray *devices = [AVCaptureDevice devices];
+            for (AVCaptureDevice *device in devices)
+            {
+                if ([device hasMediaType:AVMediaTypeVideo])
+                {
+                    if (([device isFocusModeSupported:focus]))
+                    {
+                        if ([device lockForConfiguration:nil])
+                        {
+                            device.focusMode = focus;
+                        }
+                        [device unlockForConfiguration];
+                    }
+                }
+            }
+        }
         NSNumber * imageEditingObject = [args objectForKey:@"allowEditing"];
         saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
         
