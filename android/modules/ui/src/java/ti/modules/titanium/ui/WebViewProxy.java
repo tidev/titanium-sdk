@@ -344,6 +344,18 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
+	public void setDisableContextMenu(boolean disableContextMenu)
+	{
+		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getDisableContextMenu()
+	{
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+	}
+
+	@Kroll.method @Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
 		switch (pluginState) {
