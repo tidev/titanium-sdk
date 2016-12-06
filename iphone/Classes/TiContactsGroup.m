@@ -284,7 +284,9 @@
 						location:CODELOCATION];
 		};
 		//Ignore static analylzer warning here
+#ifndef __clang_analyzer__
 		RELEASE_TO_NIL(saveRequest)
+#endif
 		return;
 	}
 
@@ -323,7 +325,9 @@
 						location:CODELOCATION];
 		};
 		//Ignore static analyzer warning here
+#ifndef __clang_analyzer__
 		RELEASE_TO_NIL(saveRequest)
+#endif
 		return;
 	}
 
@@ -340,6 +344,7 @@
 }
 
 //For iOS9 deleting contact
+#ifndef __clang_analyzer__
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
@@ -355,6 +360,6 @@
 	//Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
 	return saveRequest;
 }
-
+#endif
 @end
 #endif
