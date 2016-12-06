@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
@@ -157,7 +159,7 @@ public abstract class TiUIView
 	protected GestureDetector detector = null;
 
 	private AtomicBoolean bLayoutPending = new AtomicBoolean();
-
+	private AtomicBoolean bTransformPending = new AtomicBoolean();
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -352,7 +354,7 @@ public abstract class TiUIView
 	public void animate()
 	{
 		View outerView = getOuterView();
-		if (outerView == null) {
+		if (outerView == null || bTransformPending.get()) {
 			return;
 		}
 
@@ -517,9 +519,23 @@ public abstract class TiUIView
 	protected void startTransformAfterLayout(final View v)
 	{
 		final TiViewProxy p = this.proxy;
+		bTransformPending.set(true);
 		OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
 			public void onGlobalLayout()
 			{
+				animBuilder.setCallback(new KrollFunction() {
+					public Object call(KrollObject krollObject, HashMap args) {
+						return null;
+					}
+					public Object call(KrollObject krollObject, Object[] args) {
+						return null;
+					}
+					public void callAsync(KrollObject krollObject, HashMap args) {}
+					public void callAsync(KrollObject krollObject, Object[] args) {
+						bTransformPending.set(false);
+						proxy.handlePendingAnimation(true);
+					}
+				});
 				animBuilder.start(p, v);
 				try {
 					if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
