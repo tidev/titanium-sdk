@@ -41,7 +41,8 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
-	private static int defaultTextColor = 0;
+	private static int defaultTextColor;
+	private static boolean setDefaultTextColor = false;
 	
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
@@ -80,11 +81,12 @@ public class TiUINativePicker extends TiUIPicker
 				fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
 				fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
 			}
+			if (!setDefaultTextColor) {
+				defaultTextColor = tv.getCurrentTextColor();
+				setDefaultTextColor = true;
+			}
 			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
-				if (defaultTextColor != color) {
-					defaultTextColor = tv.getCurrentTextColor();
-				}
+				final int color = TiConvert.toColor((String) rowProxy.getProperty(TiC.PROPERTY_COLOR));
 				tv.setTextColor(color);
 			} else {
 				tv.setTextColor(defaultTextColor);
