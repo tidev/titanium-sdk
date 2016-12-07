@@ -323,6 +323,18 @@ public class ActivityProxy extends KrollProxy
 	{
 		super.release();
 		wrappedActivity = null;
+		if (savedDecorViewProxy != null) {
+			savedDecorViewProxy.release();
+			savedDecorViewProxy = null;
+		}
+		if (intentProxy != null) {
+			intentProxy.release();
+			intentProxy = null;
+		}
+		if (actionBarProxy != null) {
+			actionBarProxy.release();
+			actionBarProxy = null;
+		}
 	}
 
 	@Override
