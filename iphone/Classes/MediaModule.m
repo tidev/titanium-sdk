@@ -597,7 +597,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 
 #ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
--(NSNumber*)hasAudioPermissions:(id)unused
+-(id)hasAudioPermissions:(id)unused
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
     
@@ -605,7 +605,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
     }
     
-    [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
+    return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized);
 }
 #endif
 
@@ -614,23 +614,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;
-    if ([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)]) {
-        TiThreadPerformOnMainThread(^(){
-            [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted){
-                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
-                                                                         thisObject:self];
-                [[callback context] enqueue:invocationEvent];
-				RELEASE_TO_NIL(invocationEvent);
-            }];
-        }, NO);
-    } else {
-        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-        return;
-    }
+    TiThreadPerformOnMainThread(^(){
+        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted){
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                     thisObject:self];
+            [[callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+        }];
+    }, NO);
+    
 }
 #endif
 
