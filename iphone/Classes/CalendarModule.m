@@ -92,7 +92,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(void)dealloc
 {
-    RELEASE_TO_NIL(store);
+	RELEASE_TO_NIL(store);
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 	
