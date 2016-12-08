@@ -46,6 +46,9 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onPageFinished(view, url);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return;
+		}
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
@@ -76,23 +79,29 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageStarted(WebView view, String url, Bitmap favicon)
 	{
 		super.onPageStarted(view, url, favicon);
-
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return;
+		}
 		KrollDict data = new KrollDict();
 		data.put("url", url);
-		webView.getProxy().fireEvent("beforeload", data);
+		proxy.fireEvent("beforeload", data);
 	}
 
 	@Override
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
 	{
 		super.onReceivedError(view, errorCode, description, failingUrl);
-
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return;
+		}
 		KrollDict data = new KrollDict();
 		data.put("url", failingUrl);
 		data.put("errorCode", errorCode);
 		data.putCodeAndMessage(errorCode, description);
 		data.put("message", description);
-		webView.getProxy().fireEvent("error", data);
+		proxy.fireEvent("error", data);
 
 	}
 
@@ -100,15 +109,18 @@ public class TiWebViewClient extends WebViewClient
 	public boolean shouldOverrideUrlLoading(final WebView view, String url)
 	{
 		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
-
-		if (webView.getProxy().hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
-		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return super.shouldOverrideUrlLoading(view, url);
+		}
+		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
+		    String [] blacklistedSites = TiConvert.toStringArray((Object[])proxy.getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
 		    for(String site : blacklistedSites) {
 		        if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
 		            KrollDict data = new KrollDict();
 		            data.put("url", url);
 		            data.put("message", "Webview did not load blacklisted url.");
-		            webView.getProxy().fireEvent(TiC.PROPERTY_ON_STOP_BLACKISTED_URL, data);
+		            proxy.fireEvent(TiC.PROPERTY_ON_STOP_BLACKISTED_URL, data);
 		            return true;
 		        }
 		    }
@@ -116,17 +128,17 @@ public class TiWebViewClient extends WebViewClient
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
-			webView.getProxy().setPropertyAndFire(TiC.PROPERTY_URL, url);
+			proxy.setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
-			webView.getProxy().getActivity().startActivity(dialer);
+			proxy.getActivity().startActivity(dialer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
 			Log.i(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
-			webView.getProxy().getActivity().startActivity(mailer);
+			proxy.getActivity().startActivity(mailer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
 			Log.i(TAG, "Launching app for " + url, Log.DEBUG_MODE);
@@ -136,7 +148,7 @@ public class TiWebViewClient extends WebViewClient
 			geo:0,0?q=business+near+city
 			*/
 			Intent geoviewer = Intent.createChooser(new Intent(Intent.ACTION_VIEW, Uri.parse(url)), "Choose Viewer");
-			webView.getProxy().getActivity().startActivity(geoviewer);
+			proxy.getActivity().startActivity(geoviewer);
 			return true;
 		} else {
 			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -150,13 +162,13 @@ public class TiWebViewClient extends WebViewClient
 
 	private boolean shouldHandleMimeType(String mimeType, String url)
 	{
-		if (mimeType.startsWith("video/")) {
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy != null && mimeType.startsWith("video/")) {
 			Intent intent = new Intent();
 			intent.setClass(webView.getProxy().getActivity(), TiVideoActivity.class);
 			intent.putExtra("contentURL", url);
 			intent.putExtra("play", true);
-			webView.getProxy().getActivity().startActivity(intent);
-			
+			proxy.getActivity().startActivity(intent);
 			return true;
 		}
 		return false;
@@ -183,18 +195,21 @@ public class TiWebViewClient extends WebViewClient
 	{
 		/*
 		 * in theory this should be checked to make sure it's not null but if there is some failure 
-		 * in the association then usage of webViewProxy should trigger a NPE to make sure the issue 
+		 * in the association then usage of proxy should trigger a NPE to make sure the issue 
 		 * is not ignored
 		 */
-		KrollProxy webViewProxy = this.webView.getProxy();
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return;
+		}
 		
 		KrollDict data = new KrollDict();
 		data.put(TiC.ERROR_PROPERTY_CODE, error.getPrimaryError());
-		webView.getProxy().fireSyncEvent(TiC.EVENT_SSL_ERROR, data);
+		proxy.fireSyncEvent(TiC.EVENT_SSL_ERROR, data);
 
 		boolean ignoreSslError = false;
 		try {
-			ignoreSslError = webViewProxy.getProperties().optBoolean(TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR, false);
+			ignoreSslError = proxy.getProperties().optBoolean(TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR, false);
 
 		} catch(IllegalArgumentException e) {
 			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring"); 
@@ -214,9 +229,13 @@ public class TiWebViewClient extends WebViewClient
 	public void onLoadResource(WebView view, String url)
 	{
 		super.onLoadResource(view, url);
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy == null) {
+			return;
+		}
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_URL, url);
-		webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
+		proxy.fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
 	}
 
 }
