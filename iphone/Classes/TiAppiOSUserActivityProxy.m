@@ -36,7 +36,7 @@
     if (_supported) {
         [self clean];
     }
-	RELEASE_TO_NIL(_userActivity);
+    RELEASE_TO_NIL(_userActivity);
     [super dealloc];
 }
 

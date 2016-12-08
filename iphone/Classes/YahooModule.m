@@ -187,7 +187,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 #else
 	NSString *theurl = [NSString stringWithFormat:@"%@&q=%@",apiEndpoint,[self encode:apiQuery]];
 #endif
-	//ignore static analyzer warning here
+	// Ignore static analyzer warning here. We haven't been supporting this for a long time. To be considered for deprecation in next release.
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
 	[req setMethod:@"GET"];
