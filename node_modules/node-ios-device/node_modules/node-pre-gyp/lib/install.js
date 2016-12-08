@@ -95,11 +95,9 @@ function place_binary(from,to,opts,callback) {
         req.on('response', function(res) {
             if (res.statusCode !== 200) {
                 badDownload = true;
-                if (res.statusCode == 404) {
-                    return callback(new Error('Pre-built binary not available for your system, looked for ' + from));
-                } else {
-                    return callback(new Error(res.statusCode + ' status code downloading tarball ' + from));
-                }
+                var err = new Error(res.statusCode + ' status code downloading tarball ' + from);
+                err.statusCode = res.statusCode;
+                return callback(err);
             }
             // start unzipping and untaring
             req.pipe(gunzip).pipe(extracter);
@@ -117,7 +115,7 @@ function print_fallback_error(err,opts,package_json) {
     var full_message = "Pre-built binaries not found for " + package_json.name + "@" + package_json.version;
     full_message += " and " + opts.runtime + "@" + (opts.target || process.versions.node) + " (" + opts.node_abi + " ABI)";
     full_message += fallback_message;
-    log.error("Tried to download: " + opts.hosted_tarball);
+    log.error("Tried to download(" + err.statusCode + "): " + opts.hosted_tarball);
     log.error(full_message);
     log.http(err.message);
 }

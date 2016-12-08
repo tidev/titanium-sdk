@@ -1,5 +1,9 @@
 # node-pre-gyp changelog
 
+## 0.6.31
+
+ - Updated various deps
+
 ## 0.6.30
 
  - Update to npmlog@4.x and semver@5.3.x
