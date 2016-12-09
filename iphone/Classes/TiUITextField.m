@@ -473,7 +473,7 @@
 -(void)setBorderStyle_:(id)value
 {
 	TiThreadPerformOnMainThread(^{
-        [(TiTextField*)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
+		[(TiTextField*)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
 	}, NO);
 }
 
