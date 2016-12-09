@@ -48,6 +48,10 @@ public class TableViewRowProxy extends TiViewProxy
 	public TableViewRowProxy()
 	{
 		super();
+
+		// TIMOB-24058: Prevent setOnClickListener() from being set allowing
+		// backgroundSelectedColor and backgroundSelectedImage to function
+		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, false);
 	}
 
 	@Override
