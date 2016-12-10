@@ -1370,17 +1370,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)dispatchCallback:(NSArray*)args
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSString *type = [args objectAtIndex:0];
 	id object = [args objectAtIndex:1];
 	id listener = [args objectAtIndex:2];
-	// we have to give our modal picker view time to 
-	// dismiss with animation or if you do anything in a callback that 
-	// attempt to also touch a modal controller, you'll get into deep doodoo
-	// wait for the picker to dismiss with animation
-	[NSThread sleepForTimeInterval:0.5];
-	[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
-	[pool release];
+
+	TiThreadPerformOnMainThread(^{
+		[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+	}, YES);
 }
 
 -(void)sendPickerError:(int)code
@@ -2059,6 +2055,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             if (saveToRoll) {
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
+            RELEASE_TO_NIL(resultImage);
         }
         
         if(isLivePhoto) {
