@@ -961,7 +961,7 @@ methods:
         type: String
         optional: false
     since: 6.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
 
 properties:
   - name: accessibilityHidden

@@ -398,7 +398,9 @@ static NSArray* touchEventsArray;
             if (parentChild) {
                 return parentChild;
             }
-        } else if ([[child valueForKey:@"id"] isEqualToString:arg]) {
+        }
+        
+        if ([[child valueForKey:@"id"] isEqualToString:arg]) {
             return child;
         }
     }
