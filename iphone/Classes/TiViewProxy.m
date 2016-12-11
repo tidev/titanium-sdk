@@ -388,6 +388,24 @@ static NSArray* touchEventsArray;
     }, NO);
 }
 
+-(id)getViewById:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSString);
+    
+    for (TiViewProxy *child in [self children]) {
+        if ([[child children] count] > 0) {
+            TiViewProxy *parentChild = [child getViewById:arg];
+            if (parentChild) {
+                return parentChild;
+            }
+        } else if ([[child valueForKey:@"id"] isEqualToString:arg]) {
+            return child;
+        }
+    }
+    
+    return nil;
+}
+
 -(void)animate:(id)arg
 {
 	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
