@@ -747,19 +747,19 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (children != null) {
 			for (TiViewProxy child : children) {
-		        if (child.children != null && child.children.size() > 0) {
-		            TiViewProxy parentChild = child.getViewById(TiConvert.toString(arg));
-		            if (parentChild != null) {
-		                return parentChild;
-		            }
-		        }
-				
+				if (child.children != null && child.children.size() > 0) {
+					TiViewProxy parentChild = child.getViewById(TiConvert.toString(arg));
+					if (parentChild != null) {
+						return parentChild;
+					}
+				}
+
 				if (child.getProperty(TiC.PROPERTY_ID) != null && child.getProperty(TiC.PROPERTY_ID).equals(TiConvert.toString(arg))) {
-		            return child;
-		        }
-		    }
+					return child;
+				}
+			}
 		}
-		
+
 		return null;
 	}
 	
