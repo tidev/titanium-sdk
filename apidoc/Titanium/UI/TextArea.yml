@@ -541,8 +541,8 @@ properties:
 
   - name: top
     type: Number
-    summary: Top padding (iOS only)
+    summary: Top padding
 
   - name: bottom
     type: Number
-    summary: Bottom padding (iOS only)
+    summary: Bottom padding
