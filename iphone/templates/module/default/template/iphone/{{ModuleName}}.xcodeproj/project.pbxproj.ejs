@@ -48,7 +48,7 @@
 		24DE9E1011C5FE74003F90F6 /* <%- moduleIdAsIdentifier %>ModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "<%- moduleIdAsIdentifier %>ModuleAssets.m"; path = "Classes/<%- moduleIdAsIdentifier %>ModuleAssets.m"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* <%- moduleIdAsIdentifier %>_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "<%- moduleIdAsIdentifier %>_Prefix.pch"; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D2AAC07E0554694100DB518D /* lib<%- moduleIdAsIdentifier %>.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "lib<%- moduleIdAsIdentifier %>.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2AAC07E0554694100DB518D /* lib<%- moduleId %>.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "lib<%- moduleId %>.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,7 +66,7 @@
 		034768DFFF38A50411DB9C8B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D2AAC07E0554694100DB518D /* lib<%- moduleIdAsIdentifier %>.a */,
+				D2AAC07E0554694100DB518D /* lib<%- moduleId %>.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,7 +140,7 @@
 			);
 			name = "<%- moduleName %>";
 			productName = "<%- moduleName %>";
-			productReference = D2AAC07E0554694100DB518D /* lib<%- moduleIdAsIdentifier %>.a */;
+			productReference = D2AAC07E0554694100DB518D /* lib<%- moduleId %>.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -239,7 +239,7 @@
 					"-DTI_POST_1_2",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "<%- moduleIdAsIdentifier %>";
+				PRODUCT_NAME = "<%- moduleId %>";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -274,7 +274,7 @@
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "<%- moduleIdAsIdentifier %>";
+				PRODUCT_NAME = "<%- moduleId %>";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -311,7 +311,7 @@
 					"-DTI_POST_1_2",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "<%- moduleIdAsIdentifier %>";
+				PRODUCT_NAME = "<%- moduleId %>";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -346,7 +346,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "<%- moduleIdAsIdentifier %>";
+				PRODUCT_NAME = "<%- moduleId %>";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";

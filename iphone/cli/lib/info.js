@@ -79,19 +79,19 @@ exports.detect = function (types, config, next) {
 					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or distribution certificates.');
 					break;
 				case 'IOS_NO_VALID_DEV_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
 					break;
 				case 'IOS_NO_VALID_DIST_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 				case 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dev-certs__');
 					break;
 				case 'IOS_NO_VALID_ADHOC_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 				case 'IOS_NO_VALID_DISTRIBUTION_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to login into %s with your Apple Download account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
 					break;
 			}
 		});
@@ -204,12 +204,16 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			profiles.sort(function (a, b) {
 				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 			}).forEach(function (profile) {
+				var appId = profile.entitlements['application-identifier'] || '';
+				appId = profile.appPrefix ? appId.replace(new RegExp('^' + profile.appPrefix + '\\.'), '') : appId;
+
 				logger.log('  ' + profile.name.cyan + (profile.expired ? ' ' + styleBad(__('**EXPIRED**')) : ''));
 				logger.log('  ' + rpad('  ' + __('UUID'))       + ' = ' + styleValue(profile.uuid));
 				logger.log('  ' + rpad('  ' + __('App Prefix')) + ' = ' + styleValue(profile.appPrefix));
-				logger.log('  ' + rpad('  ' + __('App Id'))     + ' = ' + styleValue(profile.appId));
+				logger.log('  ' + rpad('  ' + __('App Id'))     + ' = ' + styleValue(appId));
 				logger.log('  ' + rpad('  ' + __('Date Created')) + ' = ' + styleValue(profile.creationDate ? moment(profile.creationDate).format('l LT') : 'unknown'));
 				logger.log('  ' + rpad('  ' + __('Date Expired')) + ' = ' + styleValue(profile.expirationDate ? moment(profile.expirationDate).format('l LT') : 'unknown'));
+				logger.log('  ' + rpad('  ' + __('Managed')) + ' = ' + (profile.managed ? styleBad(__('Yes and is NOT compatible with Titanium')) : styleValue(__('No'))));
 			});
 			logger.log();
 		} else {
@@ -229,7 +233,11 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	logger.log(styleHeading(__('iOS Simulators')));
 	if (data.simulators.ios && Object.keys(data.simulators.ios).length) {
-		Object.keys(data.simulators.ios).sort().forEach(function (ver) {
+		function sortVersion(a, b) {
+			return appc.version.eq(a, b) ? 0 : appc.version.lt(a, b) ? -1 : 1;
+		}
+
+		Object.keys(data.simulators.ios).sort(sortVersion).forEach(function (ver) {
 			logger.log(String(ver).grey);
 			logger.log(data.simulators.ios[ver].map(function (sim) {
 				return '  ' + sim.name.cyan + (sim.name !== sim.deviceName ? ' (' + sim.deviceName + ')' : '') + (' (' + sim.family + ')').grey + '\n' + [

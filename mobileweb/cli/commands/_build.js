@@ -114,7 +114,7 @@ MobileWebBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.deployType = cli.argv['deploy-type'];
 	this.buildType = cli.argv['build-type'] || '';
 
-	this.logger.warn(__('MobileWeb platform has been deprecated and will be removed in 7.0.0.'));
+	this.logger.warn(__('MobileWeb platform has been deprecated in 5.4.0 and will be removed in 7.0.0.'));
 
 	switch (this.deployType) {
 		case 'production':

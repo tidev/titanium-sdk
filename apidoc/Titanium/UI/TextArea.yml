@@ -154,7 +154,7 @@ properties:
         
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            textArea.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -300,25 +300,9 @@ properties:
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: TextAreaPadding
-    platforms: [android, iphone, ipad]
+    platforms: [android]
     since: 6.0.0
-    
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextArea.padding> instead.
-    
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextArea.padding> instead.
-    
+ 
   - name: returnKeyType
     summary: |
         Specifies the text to display on the keyboard `Return` key when this text area is focused.
@@ -545,7 +529,7 @@ properties:
 name: TextAreaPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
 since: "6.0.0"
-platforms: [android, iphone, ipad]
+platforms: [android]
 properties:
   - name: left
     type: Number

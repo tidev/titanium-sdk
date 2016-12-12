@@ -221,14 +221,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	@Override
-	public void add(TiViewProxy child)
-	{
-		this.add((Object)child);
-	}
-
-	// We need a special add() method above and beyond the TiViewProxy add() because
-	// because we can also accept array of PickerRowProxys
-	@Kroll.method
 	public void add(Object child)
 	{
 		if (!isPlainPicker()) {

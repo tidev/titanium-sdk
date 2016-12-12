@@ -20,6 +20,12 @@
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
 
+#if IS_XCODE_8
+#ifdef USE_TI_APPIOSSEARCHQUERY
+#import "TiAppiOSSearchQueryProxy.h"
+#endif
+#endif
+
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CoreLocation/CLCircularRegion.h>
 
@@ -104,6 +110,12 @@
         }
     }
 
+    if ((count == 1) && [type isEqual:@"handleurl"]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didHandleURL:)
+                                                     name:kTiApplicationLaunchedFromURL
+                                                   object:nil];
+    }
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -183,6 +195,13 @@
     [self fireEvent:@"shortcutitemclick" withObject:event];
 }
 
+-(void)didHandleURL:(NSNotification*)info
+{
+    [self fireEvent:@"handleurl" withObject:@{
+        @"launchOptions": [info userInfo]
+    }];
+}
+
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
 -(id)createSearchableIndex:(id)unused
 {
@@ -190,8 +209,7 @@
         return nil;
     }
     
-    TiAppiOSSearchableIndexProxy *proxy = [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];
-    return proxy;
+    return [[[TiAppiOSSearchableIndexProxy alloc]init] autorelease];;
 }
 #endif
 
@@ -218,10 +236,9 @@
     TiAppiOSSearchableItemAttributeSetProxy *attributeSet = nil;
     ENSURE_ARG_FOR_KEY(attributeSet, args, @"attributeSet", TiAppiOSSearchableItemAttributeSetProxy);
     
-    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc]
-                                           initWithUniqueIdentifier:uniqueIdentifier
-                                           withDomainIdentifier:domainIdentifier
-                                           withAttributeSet:attributeSet.attributes] autorelease];
+    TiAppiOSSearchableItemProxy *proxy = [[[TiAppiOSSearchableItemProxy alloc] initWithUniqueIdentifier:uniqueIdentifier
+                                                                                   withDomainIdentifier:domainIdentifier
+                                                                                       withAttributeSet:attributeSet.attributes] autorelease];
     return proxy;
 }
 #endif
@@ -248,6 +265,27 @@
 
     return proxy;
 }
+#endif
+
+#if IS_XCODE_8
+#ifdef USE_TI_APPIOSSEARCHQUERY
+-(id)createSearchQuery:(id)args
+{
+    if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"[ERROR] Search-Queries are only available in iOS 10 and later.");
+        return nil;
+    }
+    if (![NSThread isMainThread]) {
+        __block id result;
+        TiThreadPerformOnMainThread(^{result = [[self createSearchQuery:args] retain];}, YES);
+        return [result autorelease];
+    }
+    
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+        
+    return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext] andArguments:args] autorelease];
+}
+#endif
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY

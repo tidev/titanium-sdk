@@ -99,6 +99,7 @@ MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_END, NSLineBreakByTruncatingTail);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,NSTextAlignmentLeft);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,NSTextAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,NSTextAlignmentRight);
+MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_JUSTIFY,NSTextAlignmentJustified);
 
 MAKE_SYSTEM_PROP(RETURNKEY_DEFAULT,UIReturnKeyDefault);
 MAKE_SYSTEM_PROP(RETURNKEY_GO,UIReturnKeyGo);
@@ -621,6 +622,29 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 -(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
 {
     return NUMINTEGER(NSLineBreakByTruncatingMiddle);
+}
+#endif
+
+#ifdef USE_TI_UICLIPBOARD
+-(NSString*)CLIPBOARD_OPTION_LOCAL_ONLY
+{
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return UIPasteboardOptionLocalOnly;
+#endif
+    } else {
+        return @"";
+    }
+}
+-(NSString*)CLIPBOARD_OPTION_EXPIRATION_DATE
+{
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+        return UIPasteboardOptionExpirationDate;
+#endif
+    } else {
+        return @"";
+    }
 }
 #endif
 

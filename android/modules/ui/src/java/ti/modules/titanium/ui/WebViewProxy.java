@@ -32,11 +32,13 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
+	TiC.PROPERTY_REQUEST_HEADERS,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
-	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
+	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
+	TiC.PROPERTY_HTML
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
@@ -56,6 +58,8 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
+	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
+	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -161,6 +165,15 @@ public class WebViewProxy extends ViewProxy
 					result.setResult(getWebView().getUserAgentString());
 					return true;
 				}
+				case MSG_SET_HEADERS: {
+					getWebView().setRequestHeaders((HashMap)msg.obj);
+					return true;
+				}
+				case MSG_GET_HEADERS: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					result.setResult(getWebView().getRequestHeaders());
+					return true;
+				}
 				case MSG_CAN_GO_BACK: {
 					AsyncResult result = (AsyncResult) msg.obj;
 					result.setResult(getWebView().canGoBack());
@@ -237,6 +250,37 @@ public class WebViewProxy extends ViewProxy
 		return "";
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setRequestHeaders(HashMap params)
+	{
+		if (params != null) {
+			TiUIWebView currWebView = getWebView();
+			if (currWebView != null) {
+				if (TiApplication.isUIThread()) {
+					currWebView.setRequestHeaders(params);
+				} else {
+					Message message = getMainHandler().obtainMessage(MSG_SET_HEADERS);
+					message.obj = params;
+					message.sendToTarget();
+				}
+			}
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public HashMap getRequestHeaders()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			if (TiApplication.isUIThread()) {
+				return currWebView.getRequestHeaders();
+			} else {
+				return (HashMap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_HEADERS));
+			}
+		}
+		return new HashMap<String, String>();
+	}
+
 	@Kroll.method
 	public boolean canGoBack()
 	{
@@ -297,6 +341,18 @@ public class WebViewProxy extends ViewProxy
 		}
 
 		return pluginState;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setDisableContextMenu(boolean disableContextMenu)
+	{
+		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getDisableContextMenu()
+	{
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
 	}
 
 	@Kroll.method @Kroll.setProperty

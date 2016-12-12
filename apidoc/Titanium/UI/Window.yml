@@ -477,6 +477,7 @@ properties:
     default: false
     since: 6.0.0
     osver: {ios: {min: "8.0"}}
+    availability: creation
 
   - name: hidesBarsOnTap
     summary: Set this to true to hide the navigation bar on tap.
@@ -489,19 +490,7 @@ properties:
     default: false
     since: 6.0.0
     osver: {ios: {min: "8.0"}}
-
-  - name: hidesBarsWhenVerticallyCompact
-    summary: Set this to true to hide the navigation bar in a vertically compact environment.
-    description: |
-        When the value of this property is true, the navigation controller hides its navigation bar 
-        and toolbar when it transitions to a vertically compact environment. 
-        Upon returning to a vertically regular environment, the navigation controller automatically shows both bars again. 
-        In addition, unhandled taps in the content area cause the navigation controller to show both bars again.
-    platforms: [iphone, ipad]
-    type: Boolean
-    default: false
-    since: 6.0.0
-    osver: {ios: {min: "8.0"}}
+    availability: creation
 
   - name: hidesBarsWhenKeyboardAppears
     summary: Set this to true to hide the navigation bar when the keyboard appears.
@@ -513,6 +502,7 @@ properties:
     default: false
     since: 6.0.0
     osver: {ios: {min: "8.0"}}
+    availability: creation
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -567,25 +557,26 @@ properties:
 
 
   - name: navBarHidden
-    summary: Hides the nav bar (`true`) or shows the nav bar (`false`).
+    summary: Hides the navigation bar (`true`) or shows the navigation bar (`false`).
     description: |
-        Must be specified at creation time or in the `options` dictionary passed to the 
-        [Window.open](Titanium.UI.Window.open) method.
+        #### iOS Platform Notes
+        
+        Since Titanium SDK 6.0.0, you can use this property to hide and show the property as well.
+        
+        Using this property, the navigation bar will be hidden or shown animated by default. Please note that 
+        this property will only take effect if the window is used inside a <Titanium.UI.iOS.NavigationWindow>
+        and will be ignored otherwise. If you want to hide or show the navigation without an animation, use t
+        he methods <Titanium.UI.Window.showNavBar> and <Titanium.UI.Window.hideNavBar> with the second parameter 
+        to specify the animation:
+            
+            // "myWindow" is a Ti.UI.Window inside a Ti.UI.iOS.NavigationWindow
+            myWindow.hideNavBar(true, {animated: false});
 
         #### Android Platform Notes
 
         Since Release 3.3.0, due to changes to support the appcompat library, this property has no
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
         [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
-
-        Prior to Release 3.2.0, setting this property forces the creation of a heavyweight window. See "Android
-        Heavyweight and Lightweight Windows" in the main description of this class for more
-        information. Setting this property to true disables the Action Bar since it is part of the navigation title bar.
-
-        #### iOS Platform Notes
-
-        Since Release  3.1.3, this is no longer a valid parameter passed to the [Window.open](Titanium.UI.Window.open) method.
-        Modal windows on iOS no longer have a navigation controller and hence **do not** have a nav bar.
 
     platforms: [android, iphone, ipad, mobileweb]
     default: false
@@ -638,6 +629,7 @@ properties:
         This was separated from the <Ti.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
     type: Callback<Object>
+    platforms: [android]
   
   - name: orientationModes
     summary: |
@@ -1258,7 +1250,7 @@ description: |
             </Window>
         </Alloy>
 
-    `app/controllers/index.xml`:
+    `app/controllers/index.js`:
 
         var foo = require('foo');
         foo.setData({foobar: 42});
@@ -1360,17 +1352,22 @@ description: |
 
     The example below is a modal window using the Form sheet style:
 
-    ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
+    <img src="images/window/window-modal.png" width="400" />
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var window = Titanium.UI.createWindow();
-        window.open({
-          modal:true,
-          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+        var win = Ti.UI.iOS.createNavigationWindow({
+            window: Ti.UI.createWindow({
+                title: "Modal Window"
+            })
         });
 
+        win.open({
+            modal: true,
+            modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+            modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
+        });
+        
     #### Mobile Web Behavior
 
     On Mobile Web, windows are always modal, blocking input to underlying
@@ -1408,7 +1405,7 @@ description: |
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
-        a.addEventListener('complete', function(){
+        a.addEventListener('complete', function() {
             $.index.animate({
                 transform: Ti.UI.create2DMatrix(),
                 duration: 200

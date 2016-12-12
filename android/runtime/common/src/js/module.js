@@ -260,7 +260,7 @@ Module.prototype.require = function (request, context) {
 		}
 	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory(request, context);
+		loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
 		if (loaded) {
 			return loaded;
 		}
@@ -287,11 +287,13 @@ Module.prototype.require = function (request, context) {
 			return loaded;
 		}
 
-		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
-		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		// We'd like to warn users about legacy style require syntax so they can update, but the new syntax is not backwards compatible.
+		// So for now, let's just be quite about it. In future versions of the SDK (7.0?) we should warn (once 5.x is end of life so backwards compat is not necessary)
+		//kroll.log(TAG, "require called with un-prefixed module id: " + request + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
+
+		loaded = this.loadAsFileOrDirectory(path.normalize('/' + request), context);
 		if (loaded) {
 			return loaded;
 		}
@@ -311,7 +313,8 @@ Module.prototype.require = function (request, context) {
 Module.prototype.loadCoreModule = function (id, context) {
 	var wrapper = this.wrapperCache[id],
 		parts,
-		externalBinding;
+		externalBinding,
+		externalCommonJsContents;
 	// check if we have a cached copy of the wrapper
 	if (wrapper) {
 		return wrapper;
@@ -330,14 +333,16 @@ Module.prototype.loadCoreModule = function (id, context) {
 
 		// Could be a sub-module (CommonJS) of an external native module.
 		// We allow that since TIMOB-9730.
-		externalCommonJsContents = kroll.getExternalCommonJsModule(id);
-		if (externalCommonJsContents) {
-			// found it
-			// FIXME Re-use loadAsJavaScriptText?
-			var module = new Module(id, this, context);
-			Module.cache[id] = module;
-			module.load(id, externalCommonJsContents);
-			return module.exports;
+		if (kroll.isExternalCommonJsModule(parts[0])) {
+			externalCommonJsContents = kroll.getExternalCommonJsModule(id);
+			if (externalCommonJsContents) {
+				// found it
+				// FIXME Re-use loadAsJavaScriptText?
+				var module = new Module(id, this, context);
+				Module.cache[id] = module;
+				module.load(id, externalCommonJsContents);
+				return module.exports;
+			}
 		}
 	}
 

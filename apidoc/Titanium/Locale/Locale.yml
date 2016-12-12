@@ -59,6 +59,23 @@ methods:
             [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
             reference.
         type: String
+
+  - name: setLanguage
+    summary: Sets the current language of the application.
+    description: |
+        This property holds a value such as `en` or `fr`. See the 
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
+        
+        On Android you can also specify combination of a ISO 2-letter language and country codes. For example, 
+        `en-US` or `en-GB`. See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        sections of wikipedia for reference.
+
+    platforms: [iphone, ipad, android]
+    parameters: 
+      - name: language
+        summary: The specified ISO 639-1 code.
+        type: String
         
   - name: getLocaleCurrencySymbol
     summary: Returns the currency symbol for the specified locale.

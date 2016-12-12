@@ -272,7 +272,7 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
-
+        
   - name: stopLoading
     summary: Stops loading a currently loading page.
     description: |
@@ -442,7 +442,6 @@ properties:
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
-
   - name: disableBounce
     summary: |
         Determines whether the view will bounce when scrolling to the edge of the scrollable region.
@@ -451,6 +450,16 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+    
+  - name: disableContextMenu
+    summary: Determines whether or not the webview should not be able to display the context menu.
+    description: | 
+        Set to `true` to disable the context menu. Note that disabling the context menu will
+        also disable the text selection on iOS.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, android]
+    since: "6.1.0"
 
   - name: enableJavascriptInterface
     summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
@@ -515,6 +524,18 @@ properties:
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
+  - name: keyboardDisplayRequiresUserAction
+    summary: A Boolean value indicating whether web content can programmatically display the keyboard.
+    description: |
+        When this property is set to true, the user must explicitly tap the elements in the web view 
+        to display the keyboard (or other relevant input view) for that element. When set to false, 
+        a focus event on an element causes the input view to be displayed and associated with 
+        that element automatically.
+    type: Boolean
+    default: undefined but behaves as true
+    since: "6.1.0"
+    platforms: [iphone,ipad]
+
   - name: ignoreSslError
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |
@@ -529,8 +550,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
-
-
+    platforms: [iphone, ipad]
 
   - name: onCreateWindow
     summary: |
@@ -710,6 +730,19 @@ properties:
     platforms: [android]
     since: "3.2.0"
     default: true
+    
+  - name: requestHeaders
+    summary: Sets extra request headers for this web view to use on subsequent URL requests.
+    description: |
+        Setting this property allows you to set custom headers to the URL requests.
+        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`
+        
+        On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
+        inside `createWebView()` or put it inside the window `open` event.
+    type: Dictionary
+    platforms: [android,iphone,ipad]
+    since: "6.1.0"
+
 
 examples:
   - title: Basic Web View to External URL 

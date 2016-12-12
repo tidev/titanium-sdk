@@ -370,7 +370,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[webview goForward];
 }
 
--(BOOL)isLoading
+-(BOOL)loading
 {
 	return [webview isLoading];
 }
@@ -671,10 +671,42 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     return ret;
 }
 
+- (void)setKeyboardDisplayRequiresUserAction_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+    
+    [[self webview] setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value def:YES]];
+}
+
 #pragma mark WebView Delegate
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+	BOOL allHeadersIncluded = NO;
+	int requiredHeaders = (int)[newHeaders count];
+    
+	for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
+		for (NSString* newHeader in [newHeaders allKeys]) {
+			if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
+				requiredHeaders--;
+			}
+		}
+	}
+    
+	// If there are custom headers and not all of them are included, add them
+	if (newHeaders != nil && requiredHeaders > 0) {
+		NSMutableURLRequest* newRequest = [request mutableCopy];
+		for (NSString* newHeader in [newHeaders allKeys]) {
+			[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+		}
+		[self loadURLRequest:newRequest];
+		[newRequest release];
+        
+		return NO;
+	}
+
 	NSURL * newUrl = [request URL];
 
 	if ([self.proxy _hasListeners:@"beforeload"])
@@ -750,6 +782,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
             lastValidLoad = [urlAbs retain];
         }
     }
+    
+    // Disable the context menu when selecting a range of text
+    BOOL disableContextMenu = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
+    if (disableContextMenu) {
+        [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
+        [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
+        [webView stringByEvaluatingJavaScriptFromString:@"window.getSelection().removeAllRanges();"];
+    }
+    
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
     TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
@@ -758,6 +799,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+	// Ignore "Frame Load Interrupted" errors. Seen after opening url-schemes that
+	// are already handled by the `Ti.App.iOS.handleurl` event
+	if (error.code == 102 && [error.domain isEqual:@"WebKitErrorDomain"]) return;
+    
 	NSString *offendingUrl = [self url];
 
 	if ([[error domain] isEqual:NSURLErrorDomain])

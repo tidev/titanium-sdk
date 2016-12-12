@@ -6,7 +6,66 @@ summary: |
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
+
+methods:
+  - name: createTransitionAnimation
+    summary: |
+        Creates a transition animation when opening or closing windows in a
+        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    description: |
+        Use the object returned by this method with the Window's
+        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
+
+        Supported on iOS 7 and later.
+    parameters:
+      - name: transition
+        summary: Dictionary specifying the transition animation.
+        type: transitionAnimationParam
+    returns:
+      - type: Titanium.Proxy
+    since: "3.2.0"
+    osver: {ios: {min: "7.0"}}
+
+  - name: createLivePhotoBadge
+    summary: |
+        Creates a live photo badge to be used together with the 
+        <Titanium.UI.iOS.LivePhotoView> API.
+    description: |
+        Supported on iOS 9.1 and later.
+    parameters:
+      - name: type
+        summary: Constant defining the live photo badge behavior.
+        type: Number
+        constants: [Titanium.UI.iOS.LIVEPHOTO_BADGE_OPTIONS_*]
+    returns:
+      - type: Titanium.Blob
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    
 properties:
+  - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+    summary: |
+        Include treatments so this image can be shown directly over the content 
+        of the Live Photo.
+    description: |
+        Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
+        the badge behavior.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+    
+  - name: LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+    summary: | 
+        To indicate that the Live Photo aspect is turned off and it will 
+        be treated as a still (e.g. for sharing).
+    description: |
+        Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
+        the badge behavior.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
 
   - name: ANIMATION_CURVE_EASE_IN
     deprecated:
@@ -749,9 +808,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_EXCLUSION
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -764,7 +822,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_HUE
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -820,7 +878,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-
+    
   - name: BLEND_MODE_PLUS_LIGHTER
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -838,9 +896,8 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SCREEN
-    summary: image mode constant
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
@@ -1001,7 +1058,7 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
-
+    
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
@@ -1063,6 +1120,75 @@ properties:
     type: Boolean
     since: "5.1.0"
     osver: {ios: {min: "9.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_TYPE_SELECTION
+    summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_TYPE_IMPACT
+    summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
+    summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
+    summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
+    summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
+    summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
+    summary: |
+        The light impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
+    summary: |
+        The medium impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
+    summary: |
+        The heavy impact style used as the `style` argument when creating a <Titanium.UI.iOS.FeedbackGenerator> with the
+        type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    type: Number
+    since: "6.0.0"
+    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
@@ -1588,25 +1714,6 @@ properties:
     type: String
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
-                                                                                                              
-methods:
-  - name: createTransitionAnimation
-    summary: |
-        Creates a transition animation when opening or closing windows in a
-        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
-    description: |
-        Use the object returned by this method with the Window's
-        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
-
-        Supported on iOS 7 and later.
-    parameters:
-      - name: transition
-        summary: Dictionary specifying the transition animation.
-        type: transitionAnimationParam
-    returns:
-      - type: Titanium.Proxy
-    since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
 ---
 name: transitionAnimationParam
@@ -1688,4 +1795,3 @@ properties:
   - name: transitionTo
     summary: Animation to show the new window.
     type: Titanium.UI.Animation
-

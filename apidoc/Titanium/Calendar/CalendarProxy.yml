@@ -113,3 +113,25 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [android]
+
+  - name: sourceTitle
+    summary: Displays the source title.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+
+  - name: sourceType
+    summary: Displays the source type.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    constants: Titanium.Calendar.SOURCE_TYPE_*
+    platforms: [iphone, ipad]
+
+  - name: sourceIdentifier
+    summary: Displays the source identifier.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+    platforms: [iphone, ipad]

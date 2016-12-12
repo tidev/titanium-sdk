@@ -1,9 +1,4 @@
 /**
- * Set a global background-color (used for iOS)
- */
-Ti.UI.setBackgroundColor("#fff");
-
-/**
  * Create a new `Ti.UI.TabGroup`.
  */
 var tabGroup = Ti.UI.createTabGroup();
@@ -34,6 +29,7 @@ function createTab(title, message, icon) {
 
     var label = Ti.UI.createLabel({
         text: message,
+        color: "#333",
         font: {
             fontSize: 20
         }

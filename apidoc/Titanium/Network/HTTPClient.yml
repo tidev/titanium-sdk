@@ -311,6 +311,16 @@ properties:
     permission: read-only
     platforms: [android]
     
+  - name: responseHeaders
+    summary: Returns all the response headers returned with the request.
+    description: |
+        Contains a dictionary of response headers only after the http call has finished.
+
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+    type: Dictionary
+    permission: read-only
+    platforms: [iphone, ipad]
+    
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
     description: Set to `false` to disable automatic URL-encoding.

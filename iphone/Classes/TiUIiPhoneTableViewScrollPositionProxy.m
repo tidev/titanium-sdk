@@ -17,10 +17,10 @@
 }
 
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,  UITableViewScrollPositionNone,@"UI.iPhone.ListViewScrollPosition.NONE",@"5.4.0",@"UI.iOS.ListViewScrollPosition.NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(TOP,   UITableViewScrollPositionTop,@"UI.iPhone.ListViewScrollPosition.TOP",@"5.4.0",@"UI.iOS.ListViewScrollPosition.TOP");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(MIDDLE,UITableViewScrollPositionMiddle,@"UI.iPhone.ListViewScrollPosition.MIDDLE",@"5.4.0",@"UI.iOS.ListViewScrollPosition.MIDDLE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BOTTOM,UITableViewScrollPositionBottom,@"UI.iPhone.ListViewScrollPosition.BOTTOM",@"5.4.0",@"UI.iOS.ListViewScrollPosition.BOTTOM");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,  UITableViewScrollPositionNone,@"UI.iPhone.TableViewScrollPosition.NONE",@"5.4.0",@"UI.iOS.TableViewScrollPosition.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(TOP,   UITableViewScrollPositionTop,@"UI.iPhone.TableViewScrollPosition.TOP",@"5.4.0",@"UI.iOS.TableViewScrollPosition.TOP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(MIDDLE,UITableViewScrollPositionMiddle,@"UI.iPhone.TableViewScrollPosition.MIDDLE",@"5.4.0",@"UI.iOS.TableViewScrollPosition.MIDDLE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BOTTOM,UITableViewScrollPositionBottom,@"UI.iPhone.TableViewScrollPosition.BOTTOM",@"5.4.0",@"UI.iOS.TableViewScrollPosition.BOTTOM");
 
 
 @end
