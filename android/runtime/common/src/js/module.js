@@ -260,7 +260,7 @@ Module.prototype.require = function (request, context) {
 		}
 	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory(request, context);
+		loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
 		if (loaded) {
 			return loaded;
 		}
@@ -293,7 +293,7 @@ Module.prototype.require = function (request, context) {
 		// So for now, let's just be quite about it. In future versions of the SDK (7.0?) we should warn (once 5.x is end of life so backwards compat is not necessary)
 		//kroll.log(TAG, "require called with un-prefixed module id: " + request + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
 
-		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		loaded = this.loadAsFileOrDirectory(path.normalize('/' + request), context);
 		if (loaded) {
 			return loaded;
 		}
