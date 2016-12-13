@@ -417,6 +417,12 @@
 	[(TiTextField*)[self textWidgetView] setDisabledBackground:[self loadImage:image]];
 }
 
+- (void)setBackgroundColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	[(TiTextField*)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+}
+
 -(void)setHintText_:(id)value
 {
     [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
