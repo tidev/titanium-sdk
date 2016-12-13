@@ -822,19 +822,28 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 iOSBuilder.prototype.configOptionDeviceFamily = function configOptionDeviceFamily(order) {
 	return {
 		abbr: 'F',
-		default: 'universal',
-		desc: __('the device family to build for'),
+		default: '__universal__',
+		desc: __('the device family to build for') + ' [' + Object.keys(this.deviceFamilies).filter(function (f) { return f !== 'watch'; }).join(', ') + ']',
 		order: order,
-		values: Object.keys(this.deviceFamilies).filter(s => s !== 'watch'),
 		validate: function (value, callback) {
-			var deploymentTargets = this.cli.tiapp['deployment-targets'];
-			if (deploymentTargets) {
-				if (deploymentTargets.ipad && (!deploymentTargets.iphone || this.cli.argv.$originalPlatform === 'ipad')) {
-					value = 'ipad';
-				} else if (deploymentTargets.iphone) {
-					value = 'iphone';
+			if (value !== '__universal__' && (value === 'watch' || this.deviceFamilies[value])) {
+				return callback(new Error(__('Invalid device family "%s"', value)));
+			}
+
+			if (value === '__universal__') {
+				value = 'universal';
+				var deploymentTargets = this.cli.tiapp['deployment-targets'];
+				if (deploymentTargets) {
+					if (deploymentTargets.ipad) {
+						if (!deploymentTargets.iphone || this.cli.argv.$originalPlatform === 'ipad') {
+							value = 'ipad';
+						}
+					} else if (deploymentTargets.iphone) {
+						value = 'iphone';
+					}
 				}
 			}
+
 			callback(null, value);
 		}.bind(this)
 	};
