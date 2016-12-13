@@ -69,7 +69,9 @@ exports.config = function config(logger, config, cli) {
 						platform: {
 							abbr: 'p',
 							callback: function (platform) {
-								cli.argv.$originalPlatform = platform;
+								if (!cli.argv.$originalPlatform) {
+									cli.argv.$originalPlatform = platform;
+								}
 								platform = ti.resolvePlatform(platform);
 
 								var p = platformConf[platform];
