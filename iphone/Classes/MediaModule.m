@@ -550,7 +550,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
 #else
     NSLog(@"[ERROR] You cannot check the camera authorization status without using the Ti.Media.showCamera() API due to API-dependencies.");
-    return NUMUINT(-1);
+    return NUMINT(-1);
 #endif
 }
 
