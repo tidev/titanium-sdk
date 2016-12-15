@@ -276,6 +276,7 @@
 		CNSaveRequest *saveRequest = [person getSaveRequestForAddToGroup:group];
 		if (saveRequest == nil) {
 			DebugLog(@"[ERROR] Unable to add");
+
 			return;
 		}
 		if (![ourContactStore executeSaveRequest:saveRequest error:&error]) {
@@ -283,7 +284,7 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
+
 		return;
 	}
 
@@ -320,8 +321,8 @@
 			[self throwException:[NSString stringWithFormat:@"Unable to add member to group: %@",[TiUtils messageFromError:error]]
 					   subreason:nil
 						location:CODELOCATION];
-		};
-		RELEASE_TO_NIL(saveRequest)
+		}
+
 		return;
 	}
 
@@ -340,14 +341,14 @@
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest deleteGroup: [[group mutableCopy] autorelease]];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }

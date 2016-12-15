@@ -948,28 +948,28 @@ static NSDictionary* iOS9propertyKeys;
 //For iOS9 deleting contact
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest deleteContact:person];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest addMember:person toGroup:group];
 	return saveRequest;
 }
 
 -(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group
 {
-	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
+	CNSaveRequest *saveRequest = [[[CNSaveRequest alloc] init] autorelease];
 	[saveRequest removeMember:person fromGroup:group];
 	return saveRequest;
 }

@@ -14,7 +14,7 @@
 #import <AVFoundation/AVAudioPlayer.h>
 #endif
 
-@interface TiMediaSoundProxy : TiProxy<AVAudioPlayerDelegate> 
+@interface TiMediaSoundProxy : TiProxy<AVAudioPlayerDelegate>
 {
 @private
 	NSURL *url;

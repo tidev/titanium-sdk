@@ -33,9 +33,12 @@
 
 -(void)dealloc
 {
-    if(_supported){
+    if (_supported) {
         [self clean];
     }
+    
+    RELEASE_TO_NIL(_userActivity);
+    
     [super dealloc];
 }
 

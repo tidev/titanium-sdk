@@ -14,6 +14,12 @@
     return @"Ti.UI.iOS.LivePhoto";
 }
 
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_livePhoto);
+    [super dealloc];
+}
+
 -(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto
 {
     if(self = [self init]) {

@@ -83,6 +83,7 @@
                                                                                      userInfo:userInfo];
         
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:shortcut]];
+        RELEASE_TO_NIL(shortcut);
     }
     
     return shortcutsToReturn;
