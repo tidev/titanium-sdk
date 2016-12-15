@@ -1346,6 +1346,11 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 		}
 	}
 
+	if (cli.argv.$originalPlatform === 'ipad') {
+		logger.warn(__('--platform ipad has been deprecated and will be removed in Titanium SDK 7.0.0'));
+		logger.warn(__('See %s for more details', 'https://jira.appcelerator.org/browse/TIMOB-24228'));
+	}
+
 	// init the extensions
 	tiapp.ios.extensions.forEach(function (ext) {
 		if (!ext.projectPath) {
