@@ -905,10 +905,12 @@ function launch(simHandleOrUDID, options, callback) {
 								return next();
 							}
 
-							simctl.waitUntilBooted({ simctl: handle.simctl, udid: handle.udid, timeout: 30000 }, function (err, booted) {
+							simctl.waitUntilBooted({ simctl: handle.simctl, udid: handle.udid, timeout: 30000 }, function (err, _booted) {
 								if (err && err.code !== 666) {
 									return next(err);
 								}
+
+								booted = _booted;
 
 								if (err || !booted) {
 									emitter.emit('log-debug', __('%s Simulator is running, but not in a booted state, stopping simulator', handle.name));
