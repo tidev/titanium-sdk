@@ -94,7 +94,7 @@ public class SoundProxy extends KrollProxy
 		Log.i(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)), Log.DEBUG_MODE);
 	}
 
-	@Kroll.getProperty
+	@Kroll.method @Kroll.getProperty
 	public String getUrl() {
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
