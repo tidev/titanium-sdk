@@ -99,7 +99,7 @@ public class SoundProxy extends KrollProxy
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	@Kroll.setProperty
+	@Kroll.method @Kroll.setProperty
 	public void setUrl(Object url) {
 		String path = parseURL(url);
 		if (path != null) {
