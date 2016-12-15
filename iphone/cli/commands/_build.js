@@ -822,30 +822,9 @@ iOSBuilder.prototype.configOptionDistributionName = function configOptionDistrib
 iOSBuilder.prototype.configOptionDeviceFamily = function configOptionDeviceFamily(order) {
 	return {
 		abbr: 'F',
-		default: '__universal__',
-		desc: __('the device family to build for') + ' [' + Object.keys(this.deviceFamilies).filter(function (f) { return f !== 'watch'; }).join(', ') + ']',
+		desc: __('the device family to build for'),
 		order: order,
-		validate: function (value, callback) {
-			if (value !== '__universal__' && (value === 'watch' || this.deviceFamilies[value])) {
-				return callback(new Error(__('Invalid device family "%s"', value)));
-			}
-
-			if (value === '__universal__') {
-				value = 'universal';
-				var deploymentTargets = this.cli.tiapp['deployment-targets'];
-				if (deploymentTargets) {
-					if (deploymentTargets.ipad) {
-						if (!deploymentTargets.iphone || this.cli.argv.$originalPlatform === 'ipad') {
-							value = 'ipad';
-						}
-					} else if (deploymentTargets.iphone) {
-						value = 'iphone';
-					}
-				}
-			}
-
-			callback(null, value);
-		}.bind(this)
+		values: Object.keys(this.deviceFamilies).filter(function (f) { return f !== 'watch'; })
 	};
 };
 
@@ -1346,11 +1325,25 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 		process.exit(1);
 	}
 
+	// process min ios version
 	this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
 	if (this.hasWatchAppV2orNewer && appc.version.lt(this.minIosVersion, '9.0')) {
 		this.minIosVersion = '9.0';
 	} else if (tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(this.minIosVersion, '8.0')) {
 		this.minIosVersion = '8.0';
+	}
+
+	// process device family
+	var deploymentTargets = tiapp['deployment-targets'];
+	this.deviceFamily = cli.argv['device-family'];
+	if (!this.deviceFamily && deploymentTargets) {
+		if (deploymentTargets.ipad && (!deploymentTargets.iphone || cli.argv.$originalPlatform === 'ipad')) {
+			this.deviceFamily = 'ipad';
+		} else if (deploymentTargets.iphone && !deploymentTargets.ipad) {
+			this.deviceFamily = 'iphone';
+		} else {
+			this.deviceFamily = 'universal';
+		}
 	}
 
 	// init the extensions
@@ -1644,7 +1637,6 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.target = cli.argv.target;
 		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 		this.buildType = cli.argv['build-type'] || '';
-		this.deviceFamily = cli.argv['device-family'];
 
 		// add the ios specific default icon to the list of icons
 		this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
