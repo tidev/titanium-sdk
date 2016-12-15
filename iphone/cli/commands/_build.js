@@ -2185,6 +2185,11 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		},
 
 		function (next) {
+			if (!this.buildOnly && (this.target === 'dist-appstore' || this.target === 'dist-adhoc')) {
+				var delta = appc.time.prettyDiff(this.cli.startTime, Date.now());
+				this.logger.info(__('Finished building the application in %s', delta.cyan));
+			}
+
 			cli.emit('build.finalize', this, next);
 		}
 	], finished);
@@ -2290,7 +2295,11 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
-	this.xcodeAppDir            = path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	if (this.target === 'dist-appstore') {
+		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
+	} else {
+		this.xcodeAppDir        = path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	}
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
@@ -3002,6 +3011,32 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				}
 			}, this);
 		}, this);
+	}
+
+	// add the post-compile build phase for dist-appstore builds
+	if (this.target === 'dist-appstore') {
+		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
+		var buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
+		var name = 'Copy Resources to Archive';
+
+		xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+			value: buildPhaseUuid,
+			comment: '"' + name + '"'
+		});
+
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] = {
+			isa: 'PBXShellScriptBuildPhase',
+			buildActionMask: 2147483647,
+			files: [],
+			inputPaths: [],
+			name: '"' + name + '"',
+			outputPaths: [],
+			runOnlyForDeploymentPostprocessing: 0,
+			shellPath: '/bin/sh',
+			shellScript: '"mv -f \\"$PROJECT_DIR/ArchiveStaging\\"/* \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			showEnvVarsInLog: 0
+		};
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	}
 
 	// inject the team id
@@ -6167,6 +6202,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 					'Libtool',
 					'LinkStoryboards',
 					'PBXCp',
+					'PhaseScriptExecution',
 					'ProcessInfoPlistFile',
 					'ProcessPCH',
 					'ProcessPCH\\+\\+',
@@ -6276,7 +6312,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		});
 
 	var args = [
-		'build',
+		this.target === 'dist-appstore' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
