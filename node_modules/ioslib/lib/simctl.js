@@ -423,7 +423,7 @@ function unpair(params, callback) {
 					return callback(err);
 				}
 
-				if (info.iosSimToWatchSimToPair[pair.phone.udid][pair.watch.udid]) {
+				if (info.iosSimToWatchSimToPair[pair.phone.udid] && info.iosSimToWatchSimToPair[pair.phone.udid][pair.watch.udid]) {
 					log('Unpair failed');
 					err = new Error('Unable to unpair');
 					err.code = 666;
@@ -588,7 +588,7 @@ function trySimctl(params, args, callback) {
 				err.code = code;
 
 				// check for pair error
-				if (code === 161) {
+				if (code === 161 || (code === 37 && err.message.indexOf('This pair is already active') !== -1)) {
 					done = true;
 					return cb(err);
 				}
