@@ -330,7 +330,7 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[WARN] could not find image: %@",image);
 		return nil;
 	}
-    return [TiUtils loadCappedBackgroundImage:image forProxy:[self proxy] withLeftCap:leftCap withTopCap:topCap];
+    return [TiUtils loadCappedBackgroundImage:image forProxy:[self proxy] withLeftCap:leftCap topCap:topCap];
 }
 
 -(id)transformMatrix

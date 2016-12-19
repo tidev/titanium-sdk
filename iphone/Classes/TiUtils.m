@@ -1982,7 +1982,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return responseHeader;
 }
 
-+(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap withTopCap:(TiDimension)topCap
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap
 {
     UIImage* resultImage = nil;
     if ([image isKindOfClass:[UIImage class]]) {
