@@ -46,6 +46,8 @@ exports.init = function (logger, config, cli) {
 				case 'dist-appstore':
 					logger.info(__('Preparing xcarchive'));
 
+					var name = builder.tiapp.name;
+
 					var stagingArchiveDir = path.join(builder.buildDir, 'staging.xcarchive');
 					if (!fs.existsSync(stagingArchiveDir)) {
 						return finished(new Error(__('Staging archive directory does not exist')));
@@ -80,8 +82,31 @@ exports.init = function (logger, config, cli) {
 						}
 					});
 
-					var name = builder.tiapp.name;
-					var now = new Date;
+					var destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
+					if (!fs.existsSync(destInfoPlist)) {
+						var origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
+						var newPlist = new appc.plist();
+						var appBundle = 'Applications/' + name + '.app';
+						var now = new Date;
+
+						appc.util.mix(newPlist, {
+							ApplicationProperties: {
+								ApplicationPath: appBundle,
+								CFBundleIdentifier: origPlist.CFBundleIdentifier || builder.tiapp.id,
+								CFBundleShortVersionString: origPlist.CFBundleShortVersionString || '1.0',
+								CFBundleVersion: origPlist.CFBundleVersion || '1.0',
+								SigningIdentity: 'iPhone Distribution: ' + builder.certDistributionName,
+								IconPaths: [
+									appBundle + '/' + builder.tiapp.icon
+								]
+							},
+							ArchiveVersion: newPlist.type('integer', 2),
+							CreationDate: now,
+							Name: name,
+							SchemeName: name
+						}).save(destInfoPlist);
+					}
+
 					var month = now.getMonth() + 1;
 					var day = now.getDate();
 					var hours = now.getHours();
