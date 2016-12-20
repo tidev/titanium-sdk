@@ -82,12 +82,12 @@ exports.init = function (logger, config, cli) {
 						}
 					});
 
+					var now = new Date;
 					var destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
 					if (!fs.existsSync(destInfoPlist)) {
 						var origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
 						var newPlist = new appc.plist();
 						var appBundle = 'Applications/' + name + '.app';
-						var now = new Date;
 
 						appc.util.mix(newPlist, {
 							ApplicationProperties: {
