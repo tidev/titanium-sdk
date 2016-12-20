@@ -49,7 +49,7 @@ function downloadURL(url, callback) {
 		if (req.statusCode >= 400) {
 			// something went wrong, abort
 			console.log();
-			console.error('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || '');
+			console.error('Request failed with HTTP status code %s %s', req.statusCode, req.statusMessage);
 			return callback(err);
 		} else if (req.headers['content-length']) {
 			// we know how big the file is, display the progress bar
