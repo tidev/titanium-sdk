@@ -1052,9 +1052,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             BOOL granted = (status == PHAuthorizationStatusAuthorized);
             NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
-            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+            KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
-                                                                    thisObject:self];
+                                                                    thisObject:self] autorelease];
             [[callback context] enqueue:invocationEvent];
         }];
     }, YES);

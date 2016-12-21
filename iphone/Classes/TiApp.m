@@ -1179,8 +1179,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
     NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
     NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
-    
-    return [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
+    return [NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo];
 }
 
 - (NSString*)userAgent

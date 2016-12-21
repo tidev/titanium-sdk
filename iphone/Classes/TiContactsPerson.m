@@ -185,7 +185,7 @@ static NSDictionary* iOS9propertyKeys;
 			@"url",CNContactUrlAddressesKey,
 			@"relatedNames",CNContactRelationsKey,
 			@"alternateBirthday",CNContactNonGregorianBirthdayKey,
-			//image keys?
+			// Image keys?
 			nil];
 	}
 	return iOS9propertyKeys;
@@ -385,15 +385,15 @@ static NSDictionary* iOS9propertyKeys;
 		NSString *key = [[TiContactsPerson iOS9multiValueLabels] valueForKey:genericProperty.label];
 		if (key == nil) {
 			if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPhoneNumber class]]) {
-				//For case where phone number is added via phone dialog. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				// For case where phone number is added via phone dialog. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
 				key = @"phone";
 			}
 			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[NSString class]]) {
-				//For case where email is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				// For case where email is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
 				key = @"email";
 			}
 			else if (genericProperty.label == nil && [genericProperty.value isKindOfClass:[CNPostalAddress class]]) {
-				//For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
+				// For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
 				key = @"address";
 			}
 			else {
@@ -484,7 +484,7 @@ static NSDictionary* iOS9propertyKeys;
 	return NUMINT(recordId);
 }
 
-//only for iOS9
+// Only for iOS9
 -(NSString*)identifier
 {
     if ([TiUtils isIOS9OrGreater]) {
@@ -503,7 +503,7 @@ static NSDictionary* iOS9propertyKeys;
 	}
 	
 	if ([TiUtils isIOS9OrGreater]) {
-		//composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
+		// Composite name is the concatenated value of Prefix, Suffix, Organization, First name, Last name
 		NSMutableString* compositeName = [[NSMutableString alloc] init];
 		if ([person.namePrefix length]) {
 			[compositeName appendFormat:@"%@ ", person.namePrefix];
@@ -522,7 +522,7 @@ static NSDictionary* iOS9propertyKeys;
 		}
         
 		if ([compositeName length]) {
-			//remove last space
+			// Remove last space
 			NSRange range;
 			range.length = 1;
 			range.location = [compositeName length] - 1;
@@ -635,7 +635,7 @@ static NSDictionary* iOS9propertyKeys;
 	id property = nil;
 
 	if ([TiUtils isIOS9OrGreater]) {
-		//birthday property managed seperately
+		// Birthday property managed seperately
 		if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
 			NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
 			return [TiUtils UTCDateForDate:date];
@@ -654,7 +654,7 @@ static NSDictionary* iOS9propertyKeys;
 				}
 			}
 			if ([property isKindOfClass:[NSDateComponents class]]) {
-				//alternateBirthday
+				// AlternateBirthday
 				if ([key isEqualToString:@"alternateBirthday"]) {
 					NSDateComponents *dateComps = (NSDateComponents*)property;
 					result = [NSDictionary dictionaryWithObjectsAndKeys: dateComps.calendar.calendarIdentifier,@"calendarIdentifier",NUMLONG(dateComps.era),@"era",NUMLONG(dateComps.year),@"year",NUMLONG(dateComps.month),@"month",NUMLONG(dateComps.day),@"day",NUMBOOL(dateComps.isLeapMonth),@"isLeapMonth", nil];
@@ -664,7 +664,7 @@ static NSDictionary* iOS9propertyKeys;
 					result = [TiUtils UTCDateForDate:date];
 				}
 			}
-			//multivalue properties
+			// M<ultivalue properties
 			if ([property isKindOfClass:[NSArray class]]) {
 				result = [self dictionaryFromiOS9MultiValueArray:property];
 			}
@@ -722,14 +722,14 @@ static NSDictionary* iOS9propertyKeys;
 	id property = nil;
 	if ([TiUtils isIOS9OrGreater]) {
 		NSArray *allKeys = [[TiContactsPerson iOS9propertyKeys] allKeysForObject:key];
-		//key is undefined
+		// Key is undefined
 		if ([allKeys count] != 1) {
 			[super setValue:value forUndefinedKey:key];
 			return;
 		}
 		property = [allKeys objectAtIndex:0];
 
-		//For single string properties
+		// For single string properties
 		if ([value isKindOfClass:[NSString class]]) {
 			[person setValue:value forKey:property];
 		}
@@ -881,10 +881,10 @@ static NSDictionary* iOS9propertyKeys;
 			for (NSString *key in keys) {
 				NSArray *objects = [value objectForKey:key];
 				for (NSDictionary *dict in objects) {
-					//url automatically set
+					// URL automatically set
 					CNSocialProfile *sp = [[[CNSocialProfile alloc] initWithUrlString:nil username:[dict objectForKey:@"username"] userIdentifier:nil service:[dict objectForKey:@"service"]] autorelease];
 					NSString *label = [[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0];
-					NSString *firstChar = [label substringToIndex:1]; //small hack here to capitalize first letter for socialProfile
+					NSString *firstChar = [label substringToIndex:1]; // Small hack here to capitalize first letter for socialProfile
 					NSString *newLabel = [[firstChar uppercaseString] stringByAppendingString:[label substringFromIndex:1]];
 					CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:newLabel value:sp];
 					[newObjects addObject:labeledValue];
@@ -912,7 +912,7 @@ static NSDictionary* iOS9propertyKeys;
 						location:CODELOCATION];
 		}
 	}
-    //alternate birthdays have to be done seperately as it uses NSDict for setting ABRecord instead of MultiValueRef
+    // Alternate birthdays have to be done seperately as it uses NSDict for setting ABRecord instead of MultiValueRef
     else if ([TiUtils isIOS8OrGreater] && [key isEqualToString:@"alternateBirthday"]) {
         ENSURE_TYPE(value, NSDictionary);
             CFErrorRef error;
@@ -945,11 +945,14 @@ static NSDictionary* iOS9propertyKeys;
 	}
 }
 
-//For iOS9 deleting contact
+// For iOS9 deleting contact
+#ifndef __clang_analyzer__
 -(CNSaveRequest*)getSaveRequestForDeletion
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteContact:person];
+	// Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
+	// It will be released in ContactsModule.m line 315 in (void)save
 	return saveRequest;
 }
 
@@ -957,6 +960,8 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
+	// Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
+	// It will be released in ContactsModule.m line 315 in (void)save
 	return saveRequest;
 }
 
@@ -964,6 +969,8 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addMember:person toGroup:group];
+	// Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
+	// It will be released in ContactsGroup.m line 288 in (void)add
 	return saveRequest;
 }
 
@@ -971,9 +978,11 @@ static NSDictionary* iOS9propertyKeys;
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest removeMember:person fromGroup:group];
+	// Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/pull/7464/files
+	// It will be released in ContactsGroup.m line 330 in (void)remove
 	return saveRequest;
 }
-
+#endif
 - (void)checkAndNotifyObserver {
 	if ([self observer] && [[self observer] respondsToSelector:@selector(didUpdatePerson:)]) {
 		[[self observer] didUpdatePerson:self];

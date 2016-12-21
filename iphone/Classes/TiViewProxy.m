@@ -1494,7 +1494,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	pthread_rwlock_destroy(&childrenLock);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.
-	
+	RELEASE_TO_NIL(barButtonItem);
 	[super dealloc];
 }
 
