@@ -7,14 +7,11 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -49,6 +46,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -60,7 +58,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -97,7 +97,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
-
+	private boolean sustainMode = false;
 
 	public static class PermissionContextData {
 		private final Integer requestCode;
@@ -688,7 +688,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
-		// set the current activity back to what it was originally
+		// set the current activity back to what it was originally 
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
@@ -1752,5 +1752,24 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean hasSustainMode()
+	{
+		PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			return manager.isSustainedPerformanceModeSupported();
+		}
+		return false;
+	}
+	
+	public void setSustainMode(boolean sustainMode)
+	{
+		if (hasSustainMode() && this.sustainMode != sustainMode) {
+			getWindow().setSustainedPerformanceMode(sustainMode);
+			this.sustainMode = sustainMode;
+		} else {
+			Log.w(TAG, "sustainedPerformanceMode is not supported on this device");
+		}
 	}
 }
