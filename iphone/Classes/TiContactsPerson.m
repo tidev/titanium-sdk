@@ -664,7 +664,7 @@ static NSDictionary* iOS9propertyKeys;
 					result = [TiUtils UTCDateForDate:date];
 				}
 			}
-			// M<ultivalue properties
+			// Multi-value properties
 			if ([property isKindOfClass:[NSArray class]]) {
 				result = [self dictionaryFromiOS9MultiValueArray:property];
 			}
