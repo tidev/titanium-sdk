@@ -326,32 +326,17 @@ MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_NONE,MPMovieMediaTypeMaskNone);
 MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_VIDEO,MPMovieMediaTypeMaskVideo);
 MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_AUDIO,MPMovieMediaTypeMaskAudio);
 
-//Constants for VideoPlayer complete event
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ENDED,MPMovieFinishReasonPlaybackEnded);
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ERROR,MPMovieFinishReasonPlaybackError);
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
-
 //Constants for VideoPlayer mediaControlStyle
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
-
--(NSNumber*)VIDEO_CONTROL_HIDDEN
-{
-    return [self VIDEO_CONTROL_NONE];
-}
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_KEY,AVVideoScalingModeKey);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_FIT,AVVideoScalingModeFit);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE,AVVideoScalingModeResize);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT,AVVideoScalingModeResizeAspect);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL,AVVideoScalingModeResizeAspectFill);
 
 //Constants for VideoPlayer scalingMode
-MAKE_SYSTEM_PROP(VIDEO_SCALING_NONE,MPMovieScalingModeNone);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FIT,MPMovieScalingModeAspectFit);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FILL,MPMovieScalingModeAspectFill);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_MODE_FILL,MPMovieScalingModeFill);
-
-//Constants for VideoPlayer sourceType
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_UNKNOWN,MPMovieSourceTypeUnknown);
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_FILE,MPMovieSourceTypeFile);
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_STREAMING,MPMovieSourceTypeStreaming);
+MAKE_SYSTEM_STR(VIDEO_SCALING_MODE_RESIZE,AVLayerVideoGravityResize);
+MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT,AVLayerVideoGravityResizeAspect);
+MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL,AVLayerVideoGravityResizeAspectFill);
 
 //Constants for VideoPlayer playbackState
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED,MPMoviePlaybackStateStopped);
@@ -370,10 +355,6 @@ MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_STALLED,MPMovieLoadStateStalled);
 //Constants for VideoPlayer repeateMode
 MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_NONE,MPMovieRepeatModeNone);
 MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE,MPMovieRepeatModeOne);
-
-//Other Constants
-MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME,MPMovieTimeOptionNearestKeyFrame);
-MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 
 #ifdef USE_TI_MEDIAMUSICPLAYER
@@ -444,6 +425,25 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             break;
     }
     
+}
+
+-(NSNumber*)audioSessionMode
+{
+    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
+    NSString* category = [self audioSessionCategory];
+    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
+        return [self AUDIO_SESSION_MODE_AMBIENT];
+    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
+        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
+    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
+        return [self AUDIO_SESSION_MODE_PLAYBACK];
+    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
+        return [self AUDIO_SESSION_MODE_RECORD];
+    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
+        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
+    } else {
+        return NUMINT(-1);
+    }
 }
 
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
