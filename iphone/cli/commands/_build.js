@@ -3615,6 +3615,21 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	hook(xcodeProject, next);
 };
 
+iOSBuilder.prototype.mergePlist = function mergePlist(src, dest) {
+	return (function merge(src, dest) {
+		Object.keys(src).forEach(function (prop) {
+			if (!/^\+/.test(prop)) {
+				if (Object.prototype.toString.call(src[prop]) === '[object Object]') {
+					dest.hasOwnProperty(prop) || (dest[prop] = {});
+					merge(src[prop], dest[prop]);
+				} else {
+					dest[prop] = src[prop];
+				}
+			}
+		});
+	})(src, dest);
+}
+
 iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest, isExtension, next) {
 	var caps = this.tiapp.ios.capabilities,
 		parent = path.dirname(dest);
@@ -3692,6 +3707,11 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 	if (fs.existsSync(entitlementsFile)) {
 		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan));
 		plist = new appc.plist(entitlementsFile);
+	}
+
+	// tiapp.xml entitlements
+	if (this.tiapp.ios.entitlements) {
+		this.mergePlist(this.tiapp.ios.entitlements, plist);
 	}
 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
@@ -3855,24 +3875,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		delete plist.UILaunchStoryboardName;
 	}
 
-	function merge(src, dest) {
-		Object.keys(src).forEach(function (prop) {
-			if (!/^\+/.test(prop)) {
-				if (Object.prototype.toString.call(src[prop]) === '[object Object]') {
-					dest.hasOwnProperty(prop) || (dest[prop] = {});
-					merge(src[prop], dest[prop]);
-				} else {
-					dest[prop] = src[prop];
-				}
-			}
-		});
-	}
-
 	// if the user has a Info.plist in their project directory, consider that a custom override
 	if (fs.existsSync(customInfoPlistFile)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 		var custom = new appc.plist().parse(fs.readFileSync(customInfoPlistFile).toString());
-		merge(custom, plist);
+		this.mergePlist(custom, plist);
 	}
 
 	// tiapp.xml settings override the default and custom Info.plist
@@ -3948,7 +3955,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	}
 
 	// custom Info.plist from the tiapp.xml overrides everything
-	ios && ios.plist && merge(ios.plist, plist);
+	ios && ios.plist && this.mergePlist(ios.plist, plist);
 
 	// override the CFBundleIdentifier to the app id
 	plist.CFBundleIdentifier = this.tiapp.id;
