@@ -6,6 +6,21 @@ since: "0.9"
 excludes: { methods:[removeAllChildren] }
 
 methods:
+  - name: getSustainedPerformanceMode
+    summary: returns sustainedPerformanceMode property
+    returns:
+        type: Boolean
+    since: "6.1.0"
+    platforms: [android]
+
+  - name: setSustainedPerformanceMode
+    summary: sets sustainedPerformanceMode property
+    parameters:
+      - name: mode
+        summary: true to enable sustained performance mode
+        type: Boolean
+    since: "6.1.0"
+    platforms: [android]
 
   - name: addSharedElement
     summary: Adds a common UI element to participate in window transition animation. 
@@ -799,6 +814,14 @@ properties:
                  Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
+
+  - name: sustainedPerformanceMode
+    summary: Maintain a sustainable level of performance
+    description: |
+        Performance can fluctuate dramatically for long-running apps, because the system throttles system-on-chip engines as device components reach their temperature limits. This fluctuation presents a moving target for app developers creating high-performance, long-running apps. Setting this feature to true will set sustained performance mode for the corresponding window. If property is undefined then it defaults to false. IMPORTANT NOTE: feature is only available on supported devices and awaiting for further API development by Google. See [Android docs](https://developer.android.com/about/versions/nougat/android-7.0.html#sustained_performance_api) for further info.
+    type: Boolean
+    since: "6.1.0"
+    platforms: [android]
 
   - name: swipeToClose
     summary: Boolean value indicating if the user should be able to close a window using a swipe gesture.
