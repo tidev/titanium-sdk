@@ -704,4 +704,10 @@ typedef enum
  */
 + (BOOL)livePhotoSupported;
 
+/**
+ Converts a color into an image.
+ @return The generated image.
+ */
++ (UIImage*)imageWithColor:(UIColor*)color;
+
 @end
