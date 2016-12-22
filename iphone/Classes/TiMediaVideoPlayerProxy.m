@@ -385,6 +385,16 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
+-(NSNumber*)showsControls
+{
+    return NUMBOOL([movie showsPlaybackControls]);
+}
+
+-(void)setShowsControls:(NSNumber*)value
+{
+    [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+}
+
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
     DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"6.1.0", @"6.1.0")
