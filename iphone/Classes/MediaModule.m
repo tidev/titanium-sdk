@@ -192,11 +192,19 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP,kAudioFile3GPType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
-#if defined(USE_TI_MEDIAHASCAMERAPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS)
+#ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_AUTHORIZED
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_AUTHORIZED, AVAuthorizationStatusAuthorized);
+#endif
+#ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_DENIED
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_DENIED, AVAuthorizationStatusDenied);
+#endif
+#ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_RESTRICTED
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_RESTRICTED, AVAuthorizationStatusRestricted);
+#endif
+#ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_NOT_DETERMINED
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CAMERA_AUTHORIZATION_NOT_DETERMINED, AVAuthorizationStatusNotDetermined, @"Media.CAMERA_AUTHORIZATION_NOT_DETERMINED", @"5.2.0", @"Media.CAMERA_AUTHORIZATION_UNKNOWN");
+#endif
+#ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_UNKNOWN
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_UNKNOWN, AVAuthorizationStatusNotDetermined);
 #endif
 
@@ -224,13 +232,12 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAYBACK, AVAudioSessionCategoryPlayback)
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_RECORD, AVAudioSessionCategoryRecord);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPlayAndRecord);
 
-
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
 #endif
 
 //Constants for Camera
-#ifdef USE_TI_MEDIASHOWCAMERA
+#if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
 MAKE_SYSTEM_PROP(CAMERA_FRONT,UIImagePickerControllerCameraDeviceFront);
 MAKE_SYSTEM_PROP(CAMERA_REAR,UIImagePickerControllerCameraDeviceRear);
 
@@ -543,7 +550,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
 #else
     NSLog(@"[ERROR] You cannot check the camera authorization status without using the Ti.Media.showCamera() API due to API-dependencies.");
-    return NUMUINT(-1);
+    return NUMINT(-1);
 #endif
 }
 
@@ -1045,9 +1052,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             BOOL granted = (status == PHAuthorizationStatusAuthorized);
             NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
-            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+            KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
-                                                                    thisObject:self];
+                                                                    thisObject:self] autorelease];
             [[callback context] enqueue:invocationEvent];
         }];
     }, YES);
@@ -1370,17 +1377,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)dispatchCallback:(NSArray*)args
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSString *type = [args objectAtIndex:0];
 	id object = [args objectAtIndex:1];
 	id listener = [args objectAtIndex:2];
-	// we have to give our modal picker view time to 
-	// dismiss with animation or if you do anything in a callback that 
-	// attempt to also touch a modal controller, you'll get into deep doodoo
-	// wait for the picker to dismiss with animation
-	[NSThread sleepForTimeInterval:0.5];
-	[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
-	[pool release];
+
+	TiThreadPerformOnMainThread(^{
+		[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+	}, YES);
 }
 
 -(void)sendPickerError:(int)code
@@ -2050,7 +2053,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
+                resultImage = [TiUtils adjustRotation:editedImage ?: originalImage];
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];

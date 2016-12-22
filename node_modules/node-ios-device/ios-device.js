@@ -186,12 +186,17 @@ function installApp(udid, appPath, callback) {
 
 		activeCalls++;
 		binding.resume();
-		binding.installApp(udid, appPath, function (err) {
-			callback(err);
-			if (--activeCalls === 0) {
-				binding.suspend();
-			}
-		});
+
+		try {
+			binding.installApp(udid, appPath, function (err) {
+				callback(err);
+				if (--activeCalls === 0) {
+					binding.suspend();
+				}
+			});
+		} catch (e) {
+			return callback(e);
+ 		}
 	});
 }
 
