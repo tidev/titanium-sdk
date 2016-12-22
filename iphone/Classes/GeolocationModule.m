@@ -535,7 +535,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,3);
 	KrollCallback *callback = [args objectAtIndex:2];
 	ENSURE_TYPE(callback,KrollCallback);
-#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+#ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
 	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
 	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
@@ -548,7 +548,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,2);
 	KrollCallback *callback = [args objectAtIndex:1];
 	ENSURE_TYPE(callback,KrollCallback);
-#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+#ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
 	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
 #endif

@@ -23,4 +23,10 @@
     return self;
 }
 
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_livePhoto);
+    [super dealloc];
+}
+
 @end

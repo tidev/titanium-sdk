@@ -1498,21 +1498,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
-			activityProxy.release();
-			activityProxy = null;
 		}
-		if (view != null) {
-			view.releaseViews();
-			view.release();
-			view = null;
-		}
-		if (window != null) {
-			window.releaseViews();
-			window.removeAllChildren();
-			window.release();
-			window = null;
-		}
-		layout = null;
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
@@ -1566,11 +1552,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//LW windows
 		if (window == null && view != null) {
 			view.releaseViews();
+			view.release();
 			view = null;
 		}
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
+			window.releaseViews();
+			window.removeAllChildren();
+			window.release();
 			window = null;
 		}
 
