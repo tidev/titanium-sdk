@@ -7,6 +7,7 @@
 package ti.modules.titanium.network;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -291,7 +292,21 @@ public class TiHTTPClient
 		responseData = TiBlob.blobFromFile(tiFile, contentType);
 		return tiFile;
 	}
-	
+
+	private void createFileFromBlob(TiBlob blob, File file) throws FileNotFoundException, IOException {
+		BufferedInputStream bufferedInput = new BufferedInputStream(blob.getInputStream());
+		BufferedOutputStream bufferedOutput = new BufferedOutputStream(new FileOutputStream(file));
+
+		byte[] buffer = new byte[1024 * 1024 * 8]; // 8MB buffer
+		int available  = -1;
+		while((available = bufferedInput.read(buffer)) > 0) {
+			bufferedOutput.write(buffer, 0, available);
+		}
+
+		bufferedOutput.flush();
+		bufferedOutput.close();
+		bufferedInput.close();
+	}
 	
 	private void handleEntityData(byte[] data, int size, long totalSize, long contentLength) throws IOException
 	{
@@ -859,13 +874,13 @@ public class TiHTTPClient
 				}
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				FileOutputStream fos = new FileOutputStream(tmpFile);
 				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					FileOutputStream fos = new FileOutputStream(tmpFile);
 					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
+					fos.close();
 				} else {
-					fos.write(blob.getBytes());
+					createFileFromBlob(blob, tmpFile);
 				}
-				fos.close();
 
 				tmpFiles.add(tmpFile);
 
@@ -978,9 +993,7 @@ public class TiHTTPClient
 				}
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				FileOutputStream fos = new FileOutputStream(tmpFile);
-				fos.write(blob.getBytes());
-				fos.close();
+				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
 				return new FileEntity(tmpFile, mimeType);
