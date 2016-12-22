@@ -395,6 +395,20 @@ NSArray* moviePlayerKeys = nil;
     [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
 }
 
+-(void)setOverlayView:(id)proxy
+{
+    if (movie != nil) {
+        ENSURE_TYPE(proxy,TiViewProxy);
+        [movie view];
+        for (UIView *view_ in [movie.contentOverlayView subviews])
+        {
+            [view_ removeFromSuperview];
+        }
+        [movie.contentOverlayView addSubview:[proxy view]];
+    }
+    [loadProperties setValue:proxy forKey:@"overlayView"];
+}
+
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
     DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"6.1.0", @"6.1.0")
