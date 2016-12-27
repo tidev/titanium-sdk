@@ -2712,10 +2712,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				fileListing = path.join(this.buildDir, 'titanium_prep_listing.txt'),
-				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir , '--file-listing', fileListing];
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt);
 
-			fs.writeFileSync(fileListing, jsFilesToEncrypt.join('\n'));
+			if (process.platform == 'win32') {
+				var fileListing = path.join(this.buildDir, 'titanium_prep_listing.txt');
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir , '--file-listing', fileListing];
+				fs.writeFileSync(fileListing, jsFilesToEncrypt.join('\n'));
+			}
 
 			var opts = {
 					env: appc.util.mix({}, process.env, {
