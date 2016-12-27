@@ -2712,8 +2712,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
-				opts = {
+				fileListing = path.join(this.buildDir, 'titanium_prep_listing.txt'),
+				args = [ this.tiapp.guid, this.appid, this.buildAssetsDir , '--file-listing', fileListing];
+
+			fs.writeFileSync(fileListing, jsFilesToEncrypt.join('\n'));
+
+			var opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
 						'JAVA_HOME': this.jdkInfo.home
