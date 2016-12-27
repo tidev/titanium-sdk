@@ -191,19 +191,24 @@ NSArray* moviePlayerKeys = nil;
 
 #pragma mark Public APIs
 
+-(void)setOverlayView:(id)proxy
+{
+    if (movie != nil && [movie view] != nil) {
+        ENSURE_TYPE(proxy,TiViewProxy);
+        for (UIView *view_ in [movie.contentOverlayView subviews])
+        {
+            [view_ removeFromSuperview];
+        }
+        [movie.contentOverlayView addSubview:[proxy view]];
+    }
+    else {
+        [loadProperties setValue:proxy forKey:@"overlayView"];
+    }
+}
+
 -(void)setBackgroundView:(id)proxy
 {
-	if (movie != nil) {
-		UIView *background = [movie view];
-		for (UIView *view_ in [background subviews])
-		{
-			[view_ removeFromSuperview];
-		}
-		[background addSubview:[proxy view]];
-	}
-	else {
-		[loadProperties setValue:proxy forKey:@"backgroundView"];
-	}
+    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.backgroundView", @"6.1.0", @"6.1.0", @"Media.VideoPlayer.overlayView");
 }
 
 -(NSNumber*)playing
@@ -395,19 +400,6 @@ NSArray* moviePlayerKeys = nil;
     [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
 }
 
--(void)setOverlayView:(id)proxy
-{
-    if (movie != nil) {
-        ENSURE_TYPE(proxy,TiViewProxy);
-        [movie view];
-        for (UIView *view_ in [movie.contentOverlayView subviews])
-        {
-            [view_ removeFromSuperview];
-        }
-        [movie.contentOverlayView addSubview:[proxy view]];
-    }
-    [loadProperties setValue:proxy forKey:@"overlayView"];
-}
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
@@ -531,7 +523,7 @@ NSArray* moviePlayerKeys = nil;
     UIImage *image = [UIImage imageWithCGImage:cgIm];
     CFRelease(cgIm);
     
-    if (nil != error) {
+    if (cgIm == NULL) {
         DebugLog(@"[ERROR] Error making screenshot: Actual screenshot time: %f, requested screenshot time: %f", CMTimeGetSeconds(actualTime),
               CMTimeGetSeconds([[movie player] currentTime]));
         return nil;
@@ -555,42 +547,13 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)fullscreen
 {
-	if (movie != nil) {
-        CGRect movieBounds = [movie videoBounds];
-        CGRect deviceBounds = [[UIScreen mainScreen] bounds];
-
-        return NUMBOOL(movieBounds.size.width == deviceBounds.size.width && movieBounds.size.height == deviceBounds.size.height);
-	}
-	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"fullscreen",NUMBOOL(NO));
-	}
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.fullscreen", @"6.1.0", @"6.1.0");
+    return NUMINT(-1);
 }
 
 -(void)setFullscreen:(id)value
 {
-    if (movie != nil && loaded) {
-        BOOL isFullscreen = [TiUtils boolValue:value];
-        sizeSet = YES;
-        TiThreadPerformOnMainThread(^{
-        
-            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:[movie player]];
-            [layer setBounds:[UIScreen mainScreen].bounds];
-        
-        }, NO);
-    }
-    
-    if ([value isEqual:[loadProperties valueForKey:@"fullscreen"]])
-    {
-        //This is to stop mutating loadProperties while configurePlayer.
-        return;
-    }
-    
-    // Movie players are picky.  You can't set the fullscreen value until
-    // the movie's size has been determined, so we always have to cache the value - just in case
-    // it's set before then.
-    if (!loaded || movie == nil) {
-        [loadProperties setValue:value forKey:@"fullscreen"];
-    }
+    DEPRECATED_REMOVED(@"Media.VideoPlayer.fullscreen", @"6.1.0", @"6.1.0");
 }
 
 -(NSNumber*)loadState
