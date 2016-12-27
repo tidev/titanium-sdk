@@ -439,7 +439,7 @@ NSArray* moviePlayerKeys = nil;
             ourTime /= 1000.0f; // convert from milliseconds to seconds
             
             // Handle both setting this value on running videos and on creation
-            if([[movie player] status] == AVPlayerItemStatusReadyToPlay) {
+            if([[movie player] status] == AVPlayerStatusReadyToPlay) {
                 [[movie player] seekToTime: CMTimeMake(ourTime, 1)];
             } else {
                 // Set the time in the "load" event

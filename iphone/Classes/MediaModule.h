@@ -201,10 +201,6 @@
 @property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_RESIZE_ASPECT;
 @property(nonatomic,readonly) NSString* VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
 
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_VIDEO;
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_AUDIO;
-
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_UNKNOWN;
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_FILE;
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_STREAMING;
@@ -220,9 +216,6 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYABLE;
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_STALLED;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_ONE;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
 @property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_EXACT;
