@@ -214,8 +214,7 @@
 
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_UNKNOWN;
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYABLE;
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_STALLED;
+@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_FAILED;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
 @property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_EXACT;

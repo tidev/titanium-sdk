@@ -107,7 +107,7 @@ NSArray* moviePlayerKeys = nil;
     [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     
     // For load / loadstate / preload
-    [[movie player] addObserver:self forKeyPath:@"status" options:0 context:nil];
+    [[movie player] addObserver:self forKeyPath:@"player.status" options:0 context:nil];
 
     // naturalSize
     [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
@@ -556,10 +556,18 @@ NSArray* moviePlayerKeys = nil;
     DEPRECATED_REMOVED(@"Media.VideoPlayer.fullscreen", @"6.1.0", @"6.1.0");
 }
 
+-(NSNumber*)moviePlayerStatus
+{
+    if ([movie player] != nil) {
+        return NUMINT([[movie player] status]);
+    }
+    return NUMINT(AVPlayerStatusUnknown);
+}
+
 -(NSNumber*)loadState
 {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"6.1.0", @"Media.VideoPlayer.playbackState");
-    return [self playbackState];
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"6.1.0", @"Media.VideoPlayer.moviePlayerStatus");
+    return [self moviePlayerStatus];
 }
 
 -(NSString*)mediaTypes
@@ -769,7 +777,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	if ([[movie player] status] == AVPlayerItemStatusReadyToPlay) {
+	if ([[movie player] status] == AVPlayerStatusReadyToPlay) {
 		if ([self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			loaded = YES;
@@ -800,7 +808,7 @@ NSArray* moviePlayerKeys = nil;
     
 	if ([self _hasListeners:@"loadstate"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self moviePlayerStatus] forKey:@"loadState"];
 		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
@@ -857,7 +865,7 @@ NSArray* moviePlayerKeys = nil;
     if ([keyPath isEqualToString:@"url"]) {
     	[self handleNowPlayingNotification:nil];
     }
-    if ([keyPath isEqualToString:@"status"]) {
+    if ([keyPath isEqualToString:@"player.status"]) {
         [self handleLoadStateChangeNotification:nil];
     }
     if ([keyPath isEqualToString:@"videoBounds"]) {
