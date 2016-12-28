@@ -107,7 +107,7 @@ NSArray* moviePlayerKeys = nil;
     [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     
     // For load / loadstate / preload
-    [[movie player] addObserver:self forKeyPath:@"player.status" options:0 context:nil];
+    [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
 
     // naturalSize
     [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
@@ -335,6 +335,7 @@ NSArray* moviePlayerKeys = nil;
 	if (movie != nil) {
         AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL:url];
         [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
+        [self configureNotifications]; // playeritem related notification need to update
 	} else {
 		[self ensurePlayer];
 	}
@@ -808,7 +809,7 @@ NSArray* moviePlayerKeys = nil;
     
 	if ([self _hasListeners:@"loadstate"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self moviePlayerStatus] forKey:@"loadState"];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
 		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
