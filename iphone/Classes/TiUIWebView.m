@@ -41,6 +41,7 @@ static NSString * const kContentTextEncoding = @"kContentTextEncoding";
 static NSString * const kContentMimeType = @"kContentMimeType";
 static NSString * const kContentInjection = @"kContentInjection";
 
+static unsigned long localId = 0;
 
 NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
@@ -294,6 +295,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[NSURLProtocol setProperty:textEncodingName forKey:kContentTextEncoding inRequest:request];
 	[NSURLProtocol setProperty:mimeType forKey:kContentMimeType inRequest:request];
+    
+    [request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
 	
 	[self loadURLRequest:request];
 	if (scalingOverride==NO) {
