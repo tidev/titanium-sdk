@@ -296,7 +296,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[NSURLProtocol setProperty:textEncodingName forKey:kContentTextEncoding inRequest:request];
 	[NSURLProtocol setProperty:mimeType forKey:kContentMimeType inRequest:request];
     
-    [request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
+	[request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
 	
 	[self loadURLRequest:request];
 	if (scalingOverride==NO) {
