@@ -1023,6 +1023,10 @@ public class TiUIHelper
 
 	public static void requestSoftInputChange(KrollProxy proxy, View view) 
 	{
+		if (proxy == null) {
+			return;
+		}
+		
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 		
 		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
