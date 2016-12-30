@@ -1,6 +1,7 @@
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
-
+//COMMENT TO SHOW CHANGE\
+//more changes
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup({id:'tabGroup1'});
 
