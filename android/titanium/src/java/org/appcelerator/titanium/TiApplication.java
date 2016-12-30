@@ -647,11 +647,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
-	public boolean runOnMainThread()
-	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
-	}
-
+    public boolean runOnMainThread()
+    {
+        return false;
+    }
+    
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;

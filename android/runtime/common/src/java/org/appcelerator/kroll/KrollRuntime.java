@@ -80,26 +80,20 @@ public abstract class KrollRuntime implements Handler.Callback
 		private static final String TAG = "KrollRuntimeThread";
 
 		private KrollRuntime runtime = null;
-		private boolean runOnMain;
 
-		public KrollRuntimeThread(KrollRuntime runtime, int stackSize, boolean onMainThread)
+		public KrollRuntimeThread(KrollRuntime runtime, int stackSize)
 		{
 			super(null, null, TAG, stackSize);
 			this.runtime = runtime;
-			this.runOnMain = onMainThread;
 		}
 
 		public void run()
 		{
 			Looper looper;
-			if (runOnMain) {
-				looper = Looper.getMainLooper();
-			} else {
-				Looper.prepare();
-				synchronized (this) {
-					looper = Looper.myLooper();
-					notifyAll();
-				}
+			Looper.prepare();
+			synchronized (this) {
+				looper = Looper.myLooper();
+				notifyAll();
 			}
 
 			// initialize the runtime instance
@@ -113,40 +107,24 @@ public abstract class KrollRuntime implements Handler.Callback
 			// initialize the runtime
 			runtime.doInit();
 
-			if (!runOnMain) {
-				// start handling messages for this thread
-				Looper.loop();
-			}
+			// start handling messages for this thread
+			Looper.loop();
 		}
 	}
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		KrollAssetHelper.init(context);
 		// Initialized the runtime if it isn't already initialized
 		if (runtimeState != State.INITIALIZED) {
-			boolean onMainThread = runtime.runOnMainThread(context);
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-			runtime.thread = new KrollRuntimeThread(runtime, stackSize, onMainThread);
+			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
 			runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
 
 			instance = runtime; // make sure this is set before the runtime thread is started
-			if (onMainThread) {
-				runtime.thread.run();
-			} else {
-				runtime.thread.start();
-			}
+			runtime.thread.start();
 		}
-	}
-
-	private boolean runOnMainThread(Context context) {
-		if (context instanceof KrollApplication) {
-			KrollApplication ka = (KrollApplication) context;
-			ka.loadAppProperties();
-			return ka.runOnMainThread();
-		}
-		return KrollApplication.DEFAULT_RUN_ON_MAIN_THREAD;
+		KrollAssetHelper.init(context);
 	}
 
 	public static KrollRuntime getInstance()
