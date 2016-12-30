@@ -272,6 +272,17 @@ public class ScrollableViewProxy extends TiViewProxy
 			fireEvent(TiC.EVENT_SCROLL, options);
 		}
 	}
+	
+	public void fireTouchMove(float x, float y)
+	{
+		if (hasListeners(TiC.EVENT_TOUCH_MOVE)) {
+			KrollDict options = new KrollDict();
+			options.put("view", this);
+			options.put("x", x);
+			options.put("y", y);
+			fireEvent(TiC.EVENT_TOUCH_MOVE, options);
+		}
+	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setScrollingEnabled(Object enabled)
