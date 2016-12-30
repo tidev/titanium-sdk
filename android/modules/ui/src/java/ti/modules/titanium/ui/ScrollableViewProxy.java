@@ -96,6 +96,8 @@ public class ScrollableViewProxy extends TiViewProxy
 				handled = true;
 				break;
 			case MSG_SET_CURRENT:
+				// This flag will be reset to true when event finishes
+				getView().setFiresScrollAndDragEvents(false);
 				getView().setCurrentPage(msg.obj);
 				handled = true;
 				break;

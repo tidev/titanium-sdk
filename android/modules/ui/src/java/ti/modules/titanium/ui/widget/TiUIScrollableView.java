@@ -53,6 +53,9 @@ public class TiUIScrollableView extends TiUIView
 	private int mCurIndex = 0;
 	private boolean mEnabled = true;
 
+	private boolean fireScrollingEvents = true;
+	private boolean fireDraggingEvents = true;
+	
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
 		super(proxy);
@@ -137,7 +140,13 @@ public class TiUIScrollableView extends TiUIView
 							// been created and is setting currentPage
 							// to something other than 0. In that case we
 							// don't want a `scrollend` to fire.
-							((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+
+							// Avoid firing events on .setCurrentPage()
+							if(fireScrollingEvents == false) {
+								fireScrollingEvents = true;
+							} else {
+								((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+							}
 						}
 
 						if (shouldShowPager()) {
@@ -151,8 +160,13 @@ public class TiUIScrollableView extends TiUIView
 					// `idle` and this handler is called.
 					isValidScroll = false;
 				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
-					((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
-
+					
+					// Avoid firing events on .setCurrentPage()
+					if(fireDraggingEvents == false) {
+						fireDraggingEvents = true;
+					} else {
+						((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
+					}
 					// Note that we just fired a `dragend` so the `onPageSelected`
 					// handler below doesn't fire a `scrollend`.  Read below comment.
 					justFiredDragEnd = true;
@@ -319,12 +333,19 @@ public class TiUIScrollableView extends TiUIView
 		
 		super.processProperties(d);
 	}
+	
+	public void setFiresScrollAndDragEvents(boolean flag) {
+		fireScrollingEvents = flag;
+		fireDraggingEvents = flag;
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
 		if (TiC.PROPERTY_CURRENT_PAGE.equals(key)) {
+			fireScrollingEvents = false;
+			fireDraggingEvents = false;
 			setCurrentPage(TiConvert.toInt(newValue));
 		} else if (TiC.PROPERTY_SHOW_PAGING_CONTROL.equals(key)) {
 			boolean show = TiConvert.toBoolean(newValue);
