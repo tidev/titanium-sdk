@@ -18,6 +18,10 @@
 @private
     TiUIView * touchHandler;
     UIView * touchedContentView;
+
+	BOOL pending;
+	CGPoint pendingContentOffset;
+	BOOL pendingAnimated;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
 @end
