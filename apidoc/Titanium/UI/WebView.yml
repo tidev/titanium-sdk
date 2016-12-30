@@ -694,7 +694,8 @@ properties:
     summary: The User-Agent header used by the web view when requesting content.
     type: String
     default: System default user-agent value.
-    platforms: [android]
+    platforms: [android,iphone,ipad]
+    since: {iphone: "6.1.0", ipad: "6.1.0", android: "0.8"}
 
   - name: willHandleTouches
     summary: Explicitly specifies if this web view handles touches.

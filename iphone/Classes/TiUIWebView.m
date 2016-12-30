@@ -492,6 +492,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 
+- (void)setUserAgent_:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args, NSString);
+    NSString *userAgent = [TiUtils stringValue:args];
+    
+    if (!userAgent) {
+        userAgent = [[TiApp app] systemUserAgent];
+    }
+    
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:userAgent, @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
+    [[self proxy] replaceValue:userAgent forKey:@"userAgent" notification:NO];
+}
+
 - (void)setUrl_:(id)args
 {
 	ignoreNextRequest = YES;
