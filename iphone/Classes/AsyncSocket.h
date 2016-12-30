@@ -180,6 +180,7 @@ typedef enum AsyncSocketError AsyncSocketError;
 	NSArray *theRunLoopModes;
 	
 	NSTimer *theConnectTimer;
+  NSTimer *theAcceptTimer;
 
 	NSMutableArray *theReadQueue;
 	AsyncReadPacket *theCurrentRead;
@@ -269,6 +270,7 @@ typedef enum AsyncSocketError AsyncSocketError;
 **/
 - (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept error:(NSError **)errPtr;
 
+- (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept withTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr;
 /**
  * This method is used to create a new async socket from an accepted socket, and fires the onSocket:didAcceptNewSocket: delegate callback.
  * Returns the new async socket, or nil if the accept failed.
