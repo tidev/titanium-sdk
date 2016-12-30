@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -76,6 +77,7 @@ public class TiBlob extends KrollProxy
 	private String mimetype;
 	private Bitmap image;
 	private int width, height;
+	private Boolean couldBeAnImage = true;
 
 	// This handles the memory cache of images.
 	private TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -497,13 +499,41 @@ public class TiBlob extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public int getWidth()
 	{
+		ensureImageReady();
 		return width;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getHeight()
 	{
+		ensureImageReady();
 		return height;
+	}
+
+	private Boolean isImageMimeType()
+	{
+		return mimetype == "image/bitmap";
+	}
+
+	private void ensureImageReady()
+	{
+		if (!isImageMimeType() && couldBeAnImage)
+		{
+			byte[] bytes = getBytes();
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+			if (options.outWidth != -1 && options.outHeight != -1)
+			{
+				this.width = options.outWidth;
+				this.height = options.outHeight;
+				this.mimetype = "image/bitmap";
+			}
+			else
+			{
+				couldBeAnImage = false;
+			}
+		}
 	}
 
 	@Kroll.method
