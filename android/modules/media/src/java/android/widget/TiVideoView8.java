@@ -431,6 +431,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			View anchorView = this.getParent() instanceof View ? (View) this.getParent() : this;
 			mMediaController.setAnchorView(anchorView);
 			mMediaController.setEnabled(isInPlaybackState());
+			mMediaController.show();
 		}
 	}
 
