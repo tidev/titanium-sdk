@@ -156,6 +156,11 @@ examples:
 methods:
 
   - name: cancelAllThumbnailImageRequests
+    deprecated:
+        platforms: [iphone, ipad]
+        since: '6.1.0'
+        notes: In ios this is not supported now. There is no replacement for same.
+        removed: '6.1.0'
     summary: Cancels all pending asynchronous thumbnail requests.
     description: |
         Asynchronous thumbnail requests initiated with 
@@ -536,6 +541,9 @@ properties:
     default: true
     
   - name: backgroundView
+    deprecated:
+        since: "6.1.0"
+        notes: Use <Titanium.Media.VideoPlayer.overlayView> instead.
     summary: Sets the background view for customization which is always displayed behind movie content.
     description: |
         To create a background behind the movie content on iOS, you can specify a 
@@ -601,6 +609,11 @@ properties:
     type: Number
 
   - name: fullscreen
+    deprecated:
+        platforms: [iphone, ipad]
+        since: '6.1.0'
+        notes: In ios this property is no longer supported. There is no replacement for same.
+        removed: '6.1.0'
     summary: |
         Determines if the movie is presented in the entire screen (obscuring all other application content). 
     description: |
@@ -625,6 +638,10 @@ properties:
     type: Number
 
   - name: loadState
+    deprecated:
+        platforms: [iphone, ipad]
+        since: "6.1.0"
+        notes: In ios use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
@@ -636,6 +653,10 @@ properties:
     permission: write-only
 
   - name: mediaControlStyle
+    deprecated:
+        platforms: [iphone, ipad]
+        since: "6.1.0"
+        notes: In ios use <Titanium.Media.VideoPlayer.scalingMode> instead.
     summary: The style of the playback controls.
     description: |
         Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and 
@@ -674,6 +695,12 @@ properties:
         ios:
             max: "3.1"
 
+  - name: moviePlayerStatus
+    summary: Returns the status of the movie player.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+  
   - name: naturalSize
     summary: Returns the natural size of the movie.
     description: |
@@ -684,6 +711,37 @@ properties:
         fired when the natural size is known.
     platforms: [iphone, ipad]
     type: MovieSize
+
+  - name: overlayView
+    summary: Use the overlay view to add additional custom views between the video content and the controls.
+    description: |
+        Note that the overlay view must be sized explicitly: percentage sizes do not work properly.
+
+        The following code sample creates a video player with a background image:
+
+            var videoPlayer = Ti.Media.createVideoPlayer({
+                height : 300,
+                width : 300,
+                overlayView : Ti.UI.createView({
+                    backgroundImage: 'videoPlayerBG.png
+                    width : 300,
+                    height : 300
+                }),
+                borderRadius : 20,
+                borderWidth : 2,
+                borderColor : 'blue',
+            });
+    platforms: [iphone, ipad]
+    type: Titanium.UI.View
+
+  - name: pictureInPictureEnabled
+    summary: Whether or not the receiver allows Picture in Picture playback
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: true
+    osver:
+        ios:
+            max: "9.0"
 
   - name: playableDuration
     summary: |
@@ -709,6 +767,11 @@ properties:
     permission: read-only
 
   - name: repeatMode
+    deprecated:
+        platforms: [iphone, ipad]
+        since: '6.1.0'
+        notes: In ios this property is no longer supported.
+        removed: '6.1.0'
     summary: Determines how the movie player repeats when reaching the end of playback. 
     platforms: [iphone, ipad, mobileweb]
     type: Number
@@ -724,7 +787,21 @@ properties:
     constants: Titanium.Media.VIDEO_SCALING_*
     default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
 
+  - name: showsControls
+    summary: Whether or not the receiver shows playback controls. Default is YES.
+    description: |
+        Clients can set this property to NO when they don't want to have any playback controls on top of 
+        the visual content (e.g. for a game splash screen). This property should not be used to temporarily
+         change the visibility of the playback controls since it will create or destroy UI elements.    
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: true
+
   - name: sourceType
+    deprecated:
+        since: '6.1.0'
+        notes: This property is no longer supported.
+        removed: '6.1.0'
     summary: The playback type of the movie. 
     description: |
         Specifying a playback type before playing the movie can result in faster load times.
