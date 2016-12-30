@@ -126,6 +126,7 @@ public abstract class TiUIView
 	protected TiBackgroundDrawable background;
 
 	protected KrollDict additionalEventData;
+	protected TiViewProxy additionalEventDataProcessingProxy;
 
 	// Since Android doesn't have a property to check to indicate
 	// the current animated x/y scale (from a scale animation), we track it here
@@ -157,6 +158,7 @@ public abstract class TiUIView
 	private int hiddenBehavior = View.INVISIBLE;
 
 	protected GestureDetector detector = null;
+	
 
 	private AtomicBoolean bLayoutPending = new AtomicBoolean();
 	private AtomicBoolean bTransformPending = new AtomicBoolean();
@@ -264,6 +266,10 @@ public abstract class TiUIView
 
 	public KrollDict getAdditionalEventData() {
 		return additionalEventData;
+	}
+	
+	public void setAdditionalEventDataProcessingProxy(TiViewProxy proxy) {
+		additionalEventDataProcessingProxy = proxy;
 	}
 
 	/**
@@ -1951,7 +1957,11 @@ public abstract class TiUIView
 			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {
 			data.putAll(additionalEventData);
+			if (additionalEventDataProcessingProxy != null) {
+				additionalEventDataProcessingProxy.processAdditionalEventData(this);
+			}
 		}
+		
 		return proxy.fireEvent(eventName, data, bubbles);
 	}
 

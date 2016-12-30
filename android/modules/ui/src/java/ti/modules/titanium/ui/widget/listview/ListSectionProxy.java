@@ -708,12 +708,16 @@ public class ListSectionProxy extends ViewProxy{
 	public void generateChildContentViews(DataItem item, TiUIView parentContent, TiBaseListViewItem rootItem, boolean root) {
 
 		ArrayList<DataItem> childrenItem = item.getChildren();
+		TiViewProxy parentProxy = root ? this: parentContent.getProxy();
 		for (int i = 0; i < childrenItem.size(); i++) {
 			DataItem child = childrenItem.get(i);
 			TiViewProxy proxy = child.getViewProxy();
 			TiUIView view = proxy.createView(proxy.getActivity());
 			view.registerForTouch();
 			proxy.setView(view);
+			//Add child proxy to parent proxy if not added already
+			parentProxy.addIfNotExists(proxy);
+			
 			generateChildContentViews(child, view, rootItem, false);
 			//Bind view to root.
 			
@@ -734,6 +738,7 @@ public class ListSectionProxy extends ViewProxy{
 		if (existingData == null) {
 			existingData = new KrollDict();
 			view.setAdditionalEventData(existingData);
+			view.setAdditionalEventDataProcessingProxy(this);
 		}
 
 		//itemIndex = realItemIndex + header (if exists). We want the real item index.
@@ -982,6 +987,11 @@ public class ListSectionProxy extends ViewProxy{
 	public void releaseViews()
 	{
 		listView = null;
+	}
+	
+	@Override
+	public void processAdditionalEventData(TiUIView view) {
+		TiListView.updateProxiesForTheListItem(view);
 	}
 
 	@Override

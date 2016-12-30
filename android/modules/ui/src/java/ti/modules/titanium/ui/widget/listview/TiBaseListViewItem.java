@@ -59,4 +59,10 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(h, hMode));
 	}
 	
+	public void updateProxies() {
+		for (ViewItem item:viewsMap.values()) {
+			item.view.getProxy().setView(item.view);
+		}
+	}
+	
 }

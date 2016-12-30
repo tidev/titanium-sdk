@@ -1047,4 +1047,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		return sections.toArray(new ListSectionProxy[sections.size()]);
 	}
 	
+	public static void updateProxiesForTheListItem(TiUIView view) {
+		View nativeView = view.getNativeView();
+		ViewParent parent=nativeView.getParent();
+		//Find the root 
+		while ( !(parent instanceof TiBaseListViewItem) && parent.getParent() !=null) {
+			parent = parent.getParent();
+		}
+		TiBaseListViewItem item = (TiBaseListViewItem)parent;
+		item.updateProxies();
+	}
 }
