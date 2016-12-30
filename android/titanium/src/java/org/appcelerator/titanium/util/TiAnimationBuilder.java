@@ -649,6 +649,20 @@ public class TiAnimationBuilder
 			addAnimator(animators, dummyAnimator);
 		}
 
+		// Because of https://github.com/JakeWharton/NineOldAndroids/issues/54
+		// we add a dummy animator if all of these conditions are met:
+		// 1. There is only one animator so far.
+		// 2. That animator is for the alpha property.
+		// 3. The view has a non-null background.
+		// 4. Pre-Honeycomb (e.g., Gingerbread) is running.
+		if (PRE_HONEYCOMB && animators.size() == 1 && toOpacity != null && view.getBackground() != null) {
+			float currentScaleX = ViewHelper.getScaleX(view);
+			ValueAnimator dummyAnimator = ObjectAnimator.ofFloat(view, "scaleX", currentScaleX + 0.001f);
+			dummyAnimator.setRepeatCount(1);
+			dummyAnimator.setRepeatMode(ValueAnimator.REVERSE);
+			addAnimator(animators, dummyAnimator);
+		}
+
 		AnimatorSet as = new AnimatorSet();
 		as.playTogether(animators);
 
