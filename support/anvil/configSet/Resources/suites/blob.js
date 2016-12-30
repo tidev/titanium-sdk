@@ -16,7 +16,8 @@ module.exports = new function() {
 	this.name = "blob";
 	this.tests = [
 		{name: "testBlob"},
-		{name: "invalidSource"}
+		{name: "invalidSource"},
+		{name: "blobMethods"}
 	]
 
 	this.testBlob = function(testRun) {
@@ -44,6 +45,31 @@ module.exports = new function() {
 				win.open();
 			}).shouldNotThrowException();
 		}
+
+		finish(testRun);
+	}
+
+	//TIMOB-10079
+	this.blobMethods = function(testRun) {
+		var image1 = Ti.UI.createImageView({
+			image : '/flower.jpg'
+		});
+		var imageBlob = image1.toBlob();
+		var cropped = imageBlob.imageAsCropped({
+			x : 100,
+			y : 100,
+			width : 100,
+			height : 200
+		});
+		var reSized = imageBlob.imageAsResized(200,200);
+		var thumb = imageBlob.imageAsThumbnail(50,1,0 );
+		var aplpha = reSized.imageWithAlpha( ) ;
+		var roundCorner = reSized.imageWithRoundedCorner(25,1);
+		var transparent = reSized.imageWithTransparentBorder(10);
+		valueOf(testRun, cropped.height).shouldBe(200);
+		valueOf(testRun, cropped.width).shouldBe(100);
+		valueOf(testRun, reSized.height).shouldBe(200);
+		valueOf(testRun, reSized.width).shouldBe(200);
 
 		finish(testRun);
 	}
