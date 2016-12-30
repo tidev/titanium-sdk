@@ -25,7 +25,7 @@ module.exports = new function() {
 		{name: "clearCookieUnaffectedCheck", timeout: 30000},
 		{name: "setCookieClearCookieWithMultipleHTTPClients", timeout: 30000},
 		{name: "callbackTestForGETMethod", timeout: 30000},
-		{name: "callbackTestForPOSTMethod", timeout: 30000}
+		{name: "callbackTestForPOSTMethod", timeout: 100000}//increase timout value
 	]
 
 	this.apiTest = function(testRun) {
