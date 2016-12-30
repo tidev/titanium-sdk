@@ -314,12 +314,11 @@ public class TiCompositeLayout extends ViewGroup
 
                     if ((horizontalRowWidth + childWidth) > w) {
                         horizontalRowWidth = childWidth;
-                        maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
-
                     } else {
                         horizontalRowWidth += childWidth;
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
+                        w -= horizontalRowWidth;
                     }
 
                 } else {
@@ -700,14 +699,9 @@ public class TiCompositeLayout extends ViewGroup
         }
         horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-        int right;
         // If it's fill width with horizontal wrap, just take up remaining
         // space.
-        if (enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
-            right = measuredWidth;
-        } else {
-            right = left + measuredWidth;
-        }
+        int right = left + measuredWidth;
 
         if (enableHorizontalWrap
                 && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
