@@ -188,7 +188,7 @@ class Compiler(object):
 					sys.exit(1)
 
 			else:
-				sys.stderr.write("[ERROR] unrecognized error encountered: " % se)
+				sys.stderr.write("[ERROR] unrecognized error encountered: %s" % se)
 				sys.exit(1)
 
 		os.unlink(fullpath)
