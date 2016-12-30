@@ -84,6 +84,8 @@ public class TiUIText extends TiUIView
 	private boolean disableChangeEvent = false;
 
 	protected EditText tv;
+	
+	private KrollDict keyboard;
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
@@ -379,6 +381,25 @@ public class TiUIText extends TiUIView
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
 			fireEvent(TiC.EVENT_CHANGE, data);
 		}
+		
+		// capitalize if necessary
+		String text = s.toString();
+
+		if (keyboard!=null && !TextUtils.isEmpty(text)) {
+			if (keyboard.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
+				switch (TiConvert.toInt(keyboard.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
+					case TEXT_AUTOCAPITALIZATION_ALL:
+						if(!TextUtils.equals(text, text.toUpperCase()))
+						{
+							int cursorPosition = tv.getSelectionEnd();
+							text=text.toUpperCase();
+							tv.setText(text);
+							tv.setSelection(cursorPosition);
+						}
+						break;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -472,6 +493,9 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
+		// Initialize keyboard
+		keyboard = d;
+		
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = 0;
 		}
