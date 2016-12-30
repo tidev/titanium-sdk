@@ -419,7 +419,7 @@ FILENOOP(setHidden:(id)x);
 
 -(id)getParent:(id)args
 {
-	return [path stringByDeletingLastPathComponent];
+	return [[[TiFilesystemFileProxy alloc] initWithFile:[path stringByDeletingLastPathComponent]] autorelease];
 }
 
 -(id)name
