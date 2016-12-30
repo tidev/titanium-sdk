@@ -2346,13 +2346,6 @@ class Builder(object):
 
 			dex_built = False
 			if len(self.support_deltas) > 0 or generated_classes_built or self.deploy_type == "production":
-				# the dx.bat that ships with android in windows doesn't allow command line
-				# overriding of the java heap space, so we call the jar directly
-				if platform.system() == 'Windows':
-					dex_args = [self.java, '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
-				else:
-					dex_args = [dx, '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
-
 				# Look for New Relic module
 				newrelic_module = None
 				for module in self.modules:
@@ -2360,15 +2353,27 @@ class Builder(object):
 						newrelic_module = module
 						break
 
-				# If New Relic is present, add its Java agent to the dex arguments.
-				if newrelic_module:
-					info("Adding New Relic support.")
+				# the dx.bat that ships with android in windows doesn't allow command line
+				# overriding of the java heap space, so we call the jar directly
+				if platform.system() == 'Windows':
+					# If New Relic is present, add its Java agent to the dex arguments.
+					if newrelic_module:
+						info("Adding New Relic support.")
+						dex_args = [self.java, '-javaagent:%s' % os.path.join(newrelic_module.path, 'class.rewriter.jar'), '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
+					else:
+						dex_args = [self.java, '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
+				else:
+					# If New Relic is present, add its Java agent to the dex arguments.
+					if newrelic_module:
+						info("Adding New Relic support.")
 
-					# Copy the dexer java agent jar to a tempfile. Eliminates white space from
-					# the module path which causes problems with the dex -Jjavaagent argument.
-					temp_jar = tempfile.NamedTemporaryFile(suffix='.jar', delete=True)
-					shutil.copyfile(os.path.join(newrelic_module.path, 'class.rewriter.jar'), temp_jar.name)
-					dex_args += ['-Jjavaagent:' + os.path.join(temp_jar.name)]
+						# Copy the dexer java agent jar to a tempfile. Eliminates white space from
+						# the module path which causes problems with the dex -Jjavaagent argument.
+						temp_jar = tempfile.NamedTemporaryFile(suffix='.jar', delete=True)
+						shutil.copyfile(os.path.join(newrelic_module.path, 'class.rewriter.jar'), temp_jar.name)
+						dex_args = [dx, '-Jjavaagent:' + os.path.join(temp_jar.name), '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
+					else:
+						dex_args = [dx, '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
 
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
