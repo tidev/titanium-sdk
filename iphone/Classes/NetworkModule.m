@@ -15,6 +15,11 @@
 #import "TiNetworkSocketProxy.h"
 #import "TiUtils.h"
 
+#define CURRENT_USER_NOTIFICATION_SETTINGS_TYPES \
+[TiUtils isIOS8OrGreater] ? \
+	[[[UIApplication sharedApplication] currentUserNotificationSettings] types] : \
+	[[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
 @implementation NetworkModule
@@ -225,7 +230,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     if (![TiUtils isIOS8OrGreater]) {
         __block UIRemoteNotificationType types;
         TiThreadPerformOnMainThread(^{
-            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+            types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         return NUMBOOL(types != UIRemoteNotificationTypeNone);
     }
@@ -243,7 +248,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     NSMutableArray *result = [NSMutableArray array];
     if ([TiUtils isIOS8OrGreater]) {
         TiThreadPerformOnMainThread(^{
-            types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+			types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         if ((types & UIUserNotificationTypeBadge)!=0)
         {
@@ -259,7 +264,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
         }
     } else {
         TiThreadPerformOnMainThread(^{
-            types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+		    types = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         }, YES);
         if ((types & UIRemoteNotificationTypeBadge)!=0)
         {
@@ -308,7 +313,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
         }
 	}
 	else {
-        UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
+		
+        UIRemoteNotificationType ourNotifications = CURRENT_USER_NOTIFICATION_SETTINGS_TYPES;
         
         NSArray *typesRequested;
         ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
@@ -526,5 +532,6 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 }
 @end
 
+#undef CURRENT_USER_NOTIFICATION_SETTINGS_TYPES
 
 #endif
