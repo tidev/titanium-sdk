@@ -524,6 +524,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		// TODO: Deprecate old event
 		fireEvent("playbackState", data);
 	}
+	
+	public void firePlayingState(boolean state) {
+		KrollDict data = new KrollDict();
+		data.put(TiC.EVENT_PROPERTY_PLAYING_STATE, state);
+		fireEvent(TiC.EVENT_PLAYING_STATE, data);
+	}
 
 	public void fireLoadState(int state)
 	{
@@ -583,6 +589,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackStarted()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
+		firePlayingState(isVideoPlaying());
 	}
 
 	public void onPlaying()
@@ -593,18 +600,21 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackPaused()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PAUSED);
+		firePlayingState(isVideoPlaying());
 	}
 
 	public void onPlaybackStopped()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_STOPPED);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
+		firePlayingState(isVideoPlaying());
 	}
 
 	public void onPlaybackComplete()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_STOPPED);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ENDED);
+		firePlayingState(isVideoPlaying());
 	}
 
 	public void onPlaybackError(int what)
@@ -625,6 +635,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		fireEvent(TiC.EVENT_ERROR, data);
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);
+	}
+	
+	private boolean isVideoPlaying() {
+		
+		return getVideoView().isPlaying();
 	}
 
 	public void onSeekingForward()
