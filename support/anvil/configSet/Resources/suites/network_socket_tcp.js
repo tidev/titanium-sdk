@@ -92,8 +92,10 @@ module.exports = new function() {
 		var readPassed = false;
 		var writePassed = false;
 		var sourceBuffer = Ti.createBuffer({
-			data:"ALL WORK AND NO PLAY MAKES JACK A DULL BOY ALL WORK AND NO PLAY MAKES JACK A DULL BOY ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
-		});
+			value:"ALL WORK AND NO PLAY MAKES JACK A DULL BOY ALL WORK AND NO PLAY MAKES JACK A DULL BOY ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+                                           
+                                           // To create a buffer with  string, 'createBuffer()' must use attribute "value" instead of "data".
+        });
 		var readBuffer = Ti.createBuffer({
 			length:sourceBuffer.length
 		});
