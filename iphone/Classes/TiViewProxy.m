@@ -781,7 +781,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)setHidden:(BOOL)newHidden withArgs:(id)args
 {
-	if(hidden == newHidden)
+	if([self view].hidden == newHidden)
 	{
 		return;
 	}
@@ -1901,7 +1901,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	if(dirtyflags)
 	{//If we have any need for changes, let's enroll ourselves.
-		[self willEnqueue];
+        [self willEnqueue];
+        [self relayout];
+		[self layoutChildren:NO];
 	}
 
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
