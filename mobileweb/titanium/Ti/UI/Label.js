@@ -109,6 +109,13 @@ define(['Ti/_/declare', 'Ti/_/UI/FontWidget', 'Ti/_/dom', 'Ti/_/css', 'Ti/_/styl
 					return value;
 				}
 			},
+			rtl: {
+				set: function(value) {
+					setStyle(this._textContainerDomNode, "direction", !!value ? 'rtl' : 'ltr');
+					return value;
+				},
+				value: true
+			},
 			shadowColor: {
 				post: '_setTextShadow'
 			},
