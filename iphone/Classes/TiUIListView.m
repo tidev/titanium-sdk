@@ -1031,9 +1031,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         NSString* identifier = [TiUtils stringValue:@"identifier" properties:prop];
         int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
         TiColor* color = [TiUtils colorValue:@"color" properties:prop];
-
-        // TODO - Proposed code
-        //UIImage* image = [TiUtils imageValue:@"image" properties:prop]
+        id image = [prop objectForKey:@"image"];
 
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
             NSString* eventName = @"editaction";
@@ -1066,12 +1064,21 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[self tableView] setEditing:NO];
 
         }];
+
         if (color) {
             theAction.backgroundColor = [color color];
         }
 
-        // TODO - It has to change
-        theAction.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"modules/ui/images/closeButton.png"]];
+        if (image) {
+            NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)self.proxy];
+            UIImage *nativeImage = [[ImageLoader sharedLoader] loadImmediateImage:url];
+
+            if (color) {
+                nativeImage = [self generateImage:nativeImage withBackgroundColor:[color color]];
+            }
+
+            theAction.backgroundColor = [UIColor colorWithPatternImage:nativeImage];
+        }
 
         if (!returnArray) {
             returnArray = [NSMutableArray arrayWithObject:theAction];
@@ -2143,6 +2150,24 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 
 #pragma mark - Internal Methods
+
+- (UIImage *)generateImage:(UIImage *)image withBackgroundColor:(UIColor *)bgColor
+{
+    CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+    UIGraphicsBeginImageContextWithOptions(imageRect.size, false, [UIScreen mainScreen].scale);
+
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(context);
+
+    [bgColor setFill];
+    CGContextFillRect(context, imageRect);
+    [image drawInRect:imageRect];
+
+    UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return result;
+}
 
 -(BOOL)isLazyLoadingEnabled
 {
