@@ -124,9 +124,11 @@ public class TiTableView extends FrameLayout
 							keep = false;
 							}
 						}
-					}
-					if (keep) {
-						index.add(i);
+						if (keep) {
+							displayHeader(items, i - 1);
+							index.add(i);
+						}
+	
 					}
 				}
 			} else {
@@ -140,7 +142,17 @@ public class TiTableView extends FrameLayout
 				proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 			}
 		}
-
+		
+		private void displayHeader(ArrayList<Item> items, int i)
+		{
+			if (i >= 0) {
+				Item header = items.get(i);
+				if (header.proxy.hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
+					index.add(i);
+				}
+			}
+		}
+		
 		public int getCount() {
 			//return viewModel.getViewModel().length();
 			return index.size();
