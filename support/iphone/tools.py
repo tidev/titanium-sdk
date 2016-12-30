@@ -183,7 +183,7 @@ def install_logo(tiapp, applogo, project_dir, template_dir, dest):
 	install_default(applogo, project_dir, template_dir, dest)
 
 def install_defaults(project_dir, template_dir, dest):
-	for graphic in os.listdir(os.path.join(template_dir, 'resources')):
+	for graphic in os.listdir(os.path.join(template_dir, 'Resources')):
 		install_default(graphic, project_dir, template_dir, dest)
 
 def fix_xcode_script(content,script_name,script_contents):
