@@ -156,29 +156,29 @@ public class TiUILabel extends TiUIView
 	 */
 	private void adjustTextFontSize(View v){	
 		if (minimumFontSize != null){
-			Log.d(TAG, "adjustTextFontSize listener call", Log.DEBUG_MODE);
 			TextView tv = (TextView) v;
-			if (tv != null){
-			    if (autoshrinkSetFontSize != null){
-			    	if(tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)){
-			    		if(propertySetFontSize != null ){
-			    			tv.setTextSize(TiUIHelper.getSizeUnits(propertySetFontSize), TiUIHelper.getSize(propertySetFontSize));
-			    		}else{
-			    			tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
-			    		}
-			    	}
-			    }
+
+			if (tv != null) {
+				if (autoshrinkSetFontSize != null) {
+					if (tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)) {
+						if (propertySetFontSize != null ) {
+							tv.setTextSize(TiUIHelper.getSizeUnits(propertySetFontSize), TiUIHelper.getSize(propertySetFontSize));
+						} else {
+							tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
+						}
+					}
+				}
 			    
 			    TextPaint textPaint = tv.getPaint();
-			    if (textPaint != null){
-				    float stringWidth = textPaint.measureText((tv.getText()).toString());
-				    int textViewWidth = tv.getWidth();
-				    if (textViewWidth < stringWidth && stringWidth != 0) {
-				    	float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
-				    	autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize) ? String.valueOf(fontSize) : minimumFontSize;
-				    	tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
-				    }
-			    }
+				if (textPaint != null) {
+					float stringWidth = textPaint.measureText((tv.getText()).toString());
+					int textViewWidth = tv.getWidth();
+					if (textViewWidth < stringWidth && stringWidth != 0) {
+						float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
+						autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize) ? String.valueOf(fontSize) : minimumFontSize;
+						tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
+					}
+				}
 			}
 		}
 	}
@@ -366,7 +366,7 @@ public class TiUILabel extends TiUIView
 			tv.setEllipsize(TruncateAt.END);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			if(((HashMap) newValue).containsKey("fontSize")) {
+			if (((HashMap) newValue).containsKey("fontSize")) {
 				propertySetFontSize = TiConvert.toString(((HashMap) newValue), "fontSize");
 			}
 			TiUIHelper.styleText(tv, (HashMap) newValue);
