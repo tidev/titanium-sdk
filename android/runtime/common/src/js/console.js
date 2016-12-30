@@ -4,45 +4,53 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
- 
+
 function join(args) {
 	// Handle null / undefined args up front since we can't slice them
 	if (typeof args === "undefined") {
 		return "undefined";
-	}
-	else if (args === null) {
+	} else if (args === null) {
 		return "null";
 	}
-	
-	return [].concat(Array.prototype.slice.call(args)).map(function (arg) {
+
+	return [].concat(Array.prototype.slice.call(args)).map(function(arg) {
 		if (typeof arg === "undefined") {
 			return "undefined";
 		}
-		
-		return (arg === null) ? 
-			"null" : 
-			( (typeof arg === "object") ? 
-				( arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg) ) :
-				arg );
+
+		return (arg === null) ?
+			"null" : ((typeof arg === "object") ? (arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg)) : arg);
 	}).join(' ');
 }
 
+var timeStamps = {};
+
 exports.log = function() {
- 	Titanium.API.info(join(arguments));
- }
- 
- exports.info = function() {
- 	Titanium.API.info(join(arguments));
- }
- 
- exports.warn = function() {
- 	Titanium.API.warn(join(arguments));
- }
- 
- exports.error = function() {
- 	Titanium.API.error(join(arguments));
- }
- 
- exports.debug = function() {
- 	Titanium.API.debug(join(arguments));
- }
+	Titanium.API.info(join(arguments));
+};
+
+exports.info = function() {
+	Titanium.API.info(join(arguments));
+};
+
+exports.warn = function() {
+	Titanium.API.warn(join(arguments));
+};
+
+exports.error = function() {
+	Titanium.API.error(join(arguments));
+};
+
+exports.debug = function() {
+	Titanium.API.debug(join(arguments));
+};
+
+exports.time = function(name) {
+	timeStamps[name] = new Date();
+	Titanium.API.info(name + ": timer started");
+};
+
+exports.timeEnd = function(name) {
+	var endTime = new Date() - timeStamps[name];
+	Titanium.API.info(name + ": " + timeStamps[name] + "ms");
+};
