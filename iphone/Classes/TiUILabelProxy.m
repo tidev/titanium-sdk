@@ -25,6 +25,26 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     [super _initWithProperties:properties];
 }
 
+-(id)heightFromWidth:(id)args
+{
+	CGFloat suggestedWidth = [TiUtils floatValue:[args objectAtIndex:0]];
+	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
+	id fontValue = [self valueForKey:@"font"];
+	UIFont *font = nil;
+	if (fontValue!=nil)
+	{
+		font = [[TiUtils fontValue:[self valueForKey:@"font"]] font];
+	}
+	else
+	{
+		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
+	}
+	CGSize maxSize = CGSizeMake(suggestedWidth, 10000);
+	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize];
+
+	return [NSNumber numberWithFloat:size.height];
+}
+
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
 {
 	int width = ceil(suggestedWidth);
