@@ -2764,6 +2764,12 @@ return result;	\
     [self setSearchString:nil];
     RELEASE_TO_NIL(searchResultIndexes);
 }
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller willUnloadSearchResultsTableView:(UITableView *)searchTableView
+{
+	[tableview reloadData];
+}
+
 @end
 
 #endif
