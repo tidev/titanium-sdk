@@ -252,6 +252,9 @@
             } else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
                 path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
             }
+            else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
+                path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            }
         }
         
         if ([fm isDeletableFileAtPath:path]) {
@@ -500,7 +503,7 @@ DEFINE_EXCEPTIONS
             NSLog(@"[CACHE DEBUG] Loading locally from path %@", path);
 #endif
 			BOOL scaleUp = NO;
-			if (([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound) || ([TiUtils isRetinaHDDisplay] && [path rangeOfString:@"@3x"].location!=NSNotFound))
+			if (([TiUtils isRetinaHDDisplay] && [path rangeOfString:@"@3x"].location!=NSNotFound) || ([TiUtils isRetinaDisplay] && [path rangeOfString:@"@2x"].location!=NSNotFound))
 			{
 				scaleUp = YES;
 			}
