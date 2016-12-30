@@ -26,7 +26,7 @@ module.exports = new function() {
 		{name: "includeFromUrlWindow", timeout: 10000}
 	]
 
-	var testval = false;
+	//var testval = false;  "Ti.include" inside the function doesn't have access to global variable.If the variable "testval" declared as a local variable test works.
 
 	this.relativeDown = function(testRun) {
 		testval = false;
