@@ -638,6 +638,14 @@ doReposition = YES;\
             }
         };
         
+        /*
+         * NOTE : Beginning from iOS 8. Animations are additive by default.
+         * This is the apple recommended way of stopping animation.
+         */
+        if ([view_ animating] && [TiUtils isIOS8OrGreater]) {
+            view_.center = [view_.layer.presentationLayer position];
+            [view_.layer removeAllAnimations];
+        }
         [UIView animateWithDuration:animationDuration
                               delay:([delay doubleValue] / 1000)
                             options:options
@@ -653,7 +661,16 @@ doReposition = YES;\
 			perform = [delegate animationShouldTransition:self];
 		}
 		if (perform)
-		{
+        {
+            /*
+             * NOTE : Beginning from iOS 8. Animations are additive by default.
+             * This is the apple recommended way of stopping animation.
+             */
+            if ([view_ animating] && [TiUtils isIOS8OrGreater]) {
+                view_.center = [view_.layer.presentationLayer position];
+                [view_.layer removeAllAnimations];
+            }
+
             // NOTE: This results in a behavior change from previous versions, where interaction
             // with animations was allowed. In particular, with the new block system, animations can
             // be concurrent or interrupted, as opposed to being synchronous.
