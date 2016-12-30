@@ -12,6 +12,13 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
+
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -23,6 +30,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
+import ti.modules.titanium.network.NonValidatingTrustManager;
 
 @Kroll.proxy(creatableInModule=SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
@@ -30,6 +38,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private static final String TAG = "TCPProxy";
 
 	//private boolean initialized = false;
+	private SSLContext sslContext = null;
 	private Socket clientSocket = null;
 	private ServerSocket serverSocket = null;
 	private boolean accepting = false;
@@ -61,6 +70,33 @@ public class TCPProxy extends KrollProxy implements TiStream
 			throw new Exception("Unable to call connect on socket in <" + state + "> state");
 		}
 	}
+
+	@Kroll.method
+	public void startTLS() throws Exception
+	{
+		if (sslContext == null) {
+			sslContext = SSLContext.getInstance("TLS");
+			TrustManager managers[] = new TrustManager[] { new NonValidatingTrustManager() };
+			sslContext.init(null, managers, new SecureRandom());
+		}
+		
+		SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+		SSLSocket sslSocket = (SSLSocket) socketFactory.createSocket(clientSocket, getProperties().getString("host"), getProperties().getInt("port"), true);
+		sslSocket.setSoTimeout(getProperties().optInt("timeout", 20000));
+
+		SSLSession session = sslSocket.getSession();
+		if (session.isValid()) {
+			clientSocket = sslSocket;
+			inputStream = sslSocket.getInputStream();
+			Object callback = getProperty("secured");
+			if (callback instanceof KrollFunction) {
+				((KrollFunction) callback).callAsync(getKrollObject(), buildSecuredCallbackArgs());
+			}
+		} else {
+			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Securing failed", 0));
+		}
+	}
+
 
 	@Kroll.method
 	public void listen() throws Exception
@@ -146,6 +182,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public void setListenQueueSize(int listenQueueSize)
 	{
 		setSocketProperty("listenQueueSize", listenQueueSize);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setSecured(KrollFunction secured)
+	{
+		setSocketProperty("secured", secured);
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -289,6 +331,14 @@ public class TCPProxy extends KrollProxy implements TiStream
 		return callbackArgs;
 	}
 
+	private KrollDict buildSecuredCallbackArgs()
+	{
+		KrollDict callbackArgs = new KrollDict();
+		callbackArgs.put("socket", this);
+	
+		return callbackArgs;
+	}
+	
 	private KrollDict buildErrorCallbackArgs(String error, int errorCode)
 	{
 		KrollDict callbackArgs = new KrollDict();
