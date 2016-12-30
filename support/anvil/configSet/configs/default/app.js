@@ -32,6 +32,7 @@ var suites = [
 	{name: "network_socket_tcp"},
 	{name: "platform"},
 	{name: "properties"},
+	{name: "runtime"},
 	{name: "stream"},
 	// {name: "string"}, breaks Anvil
 	{name: "titanium"},
