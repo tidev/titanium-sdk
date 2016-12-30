@@ -1172,7 +1172,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			if (TiApplication.isUIThread()) {
 				modelListener.processProperties(properties);
 			} else {
-				getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
+				Message msg = getMainHandler().obtainMessage(MSG_MODEL_PROCESS_PROPERTIES);
+				getMainHandler().sendMessageAtFrontOfQueue(msg);
 			}
 		}
 	}
