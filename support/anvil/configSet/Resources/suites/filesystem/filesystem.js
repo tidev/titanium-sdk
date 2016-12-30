@@ -39,7 +39,7 @@ module.exports = new function() {
 		{name: "existsMethod"},
 		{name: "soundIsNotFound"},
 		{name: "File_Writable"},
-		{name: "httpClientFileTransfers", timeout:30000},
+		{name: "httpClientFileTransfers", timeout:60000},
 		{name: "applicationCacheDirectory"},
 		{name: "multiLingualFilename"},
 		{name: "isFileMethod"},
@@ -611,7 +611,7 @@ module.exports = new function() {
 
 	//TIMOB-6932
 	this.File_Writable = function(testRun) {
-		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "app.js");
+		file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "stream_test_in.txt");
 		valueOf(testRun, file.writable).shouldBeTrue();
 
 		finish(testRun);
@@ -632,7 +632,6 @@ module.exports = new function() {
 		downloadafile("p4", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
 		downloadafile("p5", "g.jpg", "http://www.gonzoville.com/wp-content/uploads/2011/12/0.jpeg");
 		function downloadafile(foldername, filename, fileurl) {
-			var file = Ti.Filesystem.pathFromComponents(Ti.Filesystem.applicationDataDirectory, "projects", foldername, filename);
 			var c = Titanium.Network.createHTTPClient({
 				timeout : 10000,
 				onload : function(e) {
@@ -674,7 +673,7 @@ module.exports = new function() {
 
 	//TIMOB-12414
 	this.isFileMethod = function(testRun) {
-		var file = Titanium.Filesystem.getFile('app.js');
+		var file = Titanium.Filesystem.getFile('stream_test_in.txt');
 		valueOf(testRun, file.isFile( )).shouldBeTrue();
 		
 		finish(testRun);
@@ -692,9 +691,6 @@ module.exports = new function() {
 	//TIMOB-6080
 	this.jssErrorDialog = function(testRun) {
 		valueOf(testRun, function() {
-			var stream1 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-			var stream2 = Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-			var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
 			resourceFileStream.close();
 		}).shouldThrowException();
 
