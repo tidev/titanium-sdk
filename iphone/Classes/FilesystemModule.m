@@ -173,9 +173,11 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(id)getFile:(id)args
 {
-	NSString* newpath = [self pathFromComponents:args];
-    
-	if ([newpath hasPrefix:[self resourcesDirectory]] &&
+	NSString* newpath = [self pathFromComponents:args];  
+	
+	NSURL* url = [NSURL URLWithString:[self resourcesDirectory]];
+	
+	if ([newpath hasPrefix:[url path]] &&
 		([newpath hasSuffix:@".html"]||
 		 [newpath hasSuffix:@".js"]||
 		 [newpath hasSuffix:@".css"]))
