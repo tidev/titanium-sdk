@@ -291,6 +291,7 @@ public class TiDrawableReference
 	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
 	 * This method should be called from a background thread when needRetry is set to true because it may block
 	 * the thread if it needs to retry several times.
+	 * If bitmap's size exceeds GL allowance of 2048x2048 (this may happen when taking a photo), scale it with respect to ratio.
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
 	 * @module.api
@@ -414,7 +415,7 @@ public class TiDrawableReference
 				}
 				try {
 					oomOccurred = false;
-					b = BitmapFactory.decodeStream(is, null, opts);
+					b = BitmapFactory.decodeStream(is, null, opts);					
 				} catch (OutOfMemoryError e) {
 					oomOccurred = true;
 					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
@@ -432,6 +433,24 @@ public class TiDrawableReference
 			}
 		}
 
+		//check to see if bitmap's size is greater than GL limit of 2048x2048
+		//If it is, we need to re-scale it with respect to ratio.
+		int maxSize = 2048;
+		int height = 0;
+		int width = 0;
+		int bHeight = b.getHeight();
+		int bWidth = b.getWidth();
+		if (bHeight > maxSize || bWidth > maxSize) {
+			if (bWidth > bHeight) { 
+				height =  (bHeight * maxSize) / bWidth;
+				width = maxSize;
+			} else {
+				height = maxSize;
+				width =  (bWidth  * maxSize) / bHeight;
+			}
+			return getBitmap(width, height, b);
+		} 
+		
 		return b;
 	}
 
@@ -464,7 +483,7 @@ public class TiDrawableReference
 	{
 		Drawable drawable = getResourceDrawable();
 		if (drawable == null) {
-			Bitmap b = getBitmap(parent, destWidthDimension, destHeightDimension);
+			Bitmap b = getBitmap(parent, destWidthDimension, destHeightDimension, null);
 			if (b != null) {
 				drawable = new BitmapDrawable(b);
 			}
@@ -479,7 +498,7 @@ public class TiDrawableReference
 	{
 		Drawable drawable = getResourceDrawable();
 		if (drawable == null) {
-			Bitmap b = getBitmap(destWidth, destHeight);
+			Bitmap b = getBitmap(destWidth, destHeight, null);
 			if (b != null) {
 				drawable = new BitmapDrawable(b);
 			}
@@ -522,13 +541,14 @@ public class TiDrawableReference
 	 * Gets the bitmap, scaled to a specific width & height.
 	 * @param destWidth Width in pixels of resulting scaled bitmap
 	 * @param destHeight Height in pixels of resulting scaled bitmap
+	 * @param bitmap The bitmap to scale
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
-	public Bitmap getBitmap(int destWidth, int destHeight)
+	public Bitmap getBitmap(int destWidth, int destHeight, Bitmap bitmap)
 	{
 		return getBitmap(null,
 			TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
-			TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
+			TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT), bitmap);
 	}
 	/**
 	 * Gets the bitmap, scaled to a specific width, with the height matching the
@@ -548,7 +568,7 @@ public class TiDrawableReference
 		}
 		double aspectRatio = (double)srcWidth/(double)srcHeight;
 		destHeight = (int) ((double)destWidth / aspectRatio);
-		return getBitmap(destWidth, destHeight);
+		return getBitmap(destWidth, destHeight, null);
 	}
 
 	private Bounds calcDestSize(int srcWidth, int srcHeight, TiDimension destWidthDimension,
@@ -638,15 +658,21 @@ public class TiDrawableReference
 	 * @param destHeightDimension (null-ok) TiDimension specifying the desired height.  If .isUnitAuto()
 	 * then the height will be the source height.  If destHeightDimension is null, then resulting height will
 	 * be at same ratio to the resulting width as the original height:width.
+	 * @param loadedBitmap (null-ok) The bitmap to scale.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
-	public Bitmap getBitmap(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
+	public Bitmap getBitmap(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension, Bitmap loadedBitmap)
 	{
-		int srcWidth, srcHeight, destWidth, destHeight;
+		int srcWidth = 0, srcHeight = 0, destWidth = 0,  destHeight = 0;
 
-		Bounds bounds = peekBounds();
-		srcWidth = bounds.width;
-		srcHeight = bounds.height;
+		if (loadedBitmap == null) {
+			Bounds bounds = peekBounds();
+			srcWidth = bounds.width;
+			srcHeight = bounds.height;
+		} else {
+			srcWidth = loadedBitmap.getWidth();
+			srcHeight = loadedBitmap.getHeight();
+		}
 
 		if (srcWidth <= 0 || srcHeight <= 0) {
 			Log.w(TAG, "Bitmap bounds could not be determined. If bitmap is loaded, it won't be scaled.");
@@ -704,7 +730,12 @@ public class TiDrawableReference
 			Bitmap bTemp = null;
 			try {
 				oomOccurred = false;
-				bTemp = BitmapFactory.decodeStream(is, null, opts);
+				if (loadedBitmap == null) {
+					bTemp = BitmapFactory.decodeStream(is, null, opts);
+				} else {
+					bTemp = loadedBitmap;
+				}
+
 				if (bTemp == null) {
 					Log.w(TAG, "Decoded bitmap is null");
 					return null;
