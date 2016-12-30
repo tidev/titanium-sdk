@@ -392,7 +392,7 @@ public class TiTableView extends FrameLayout
 				return rowClicked(tvItem, position, true);
 			}
 		});
-		addView(listView);
+		addView(listView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 	}
 
 	public void removeHeaderView(TiViewProxy viewProxy)
