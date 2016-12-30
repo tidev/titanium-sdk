@@ -8,8 +8,10 @@
 
 var win = Ti.UI.currentWindow;
 
+var osname = Ti.Platform.osname;
+
 var data = [];
-var lastRow = 10;
+var lastRow = 20;
 for (var c=0;c<lastRow;c++)
 {
 	data[c] = {title:"Row "+(c+1)};
@@ -21,8 +23,10 @@ var tableView = Ti.UI.createTableView({
 
 win.add(tableView);
 
-var navActInd = Titanium.UI.createActivityIndicator();
-win.setRightNavButton(navActInd);
+if(osname == 'iphone' || osname == 'ipad') {
+	var navActInd = Titanium.UI.createActivityIndicator();
+	win.setRightNavButton(navActInd);
+}
 
 var updating = false;
 var loadingRow = Ti.UI.createTableViewRow({title:"Loading..."});
@@ -30,7 +34,9 @@ var loadingRow = Ti.UI.createTableViewRow({title:"Loading..."});
 function beginUpdate()
 {
 	updating = true;
-	navActInd.show();
+	if(osname == 'iphone' || osname == 'ipad') {
+		navActInd.show();
+	}
 
 	tableView.appendRow(loadingRow);
 
@@ -53,32 +59,47 @@ function endUpdate()
 
 	// just scroll down a bit to the new rows to bring them into view
 	tableView.scrollToIndex(lastRow-9,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.BOTTOM});
-
-	navActInd.hide();
+	if(osname == 'iphone' || osname == 'ipad') {
+		navActInd.hide();
+	}
 }
 
 var lastDistance = 0; // calculate location to determine direction
 
 tableView.addEventListener('scroll',function(e)
 {
-	var offset = e.contentOffset.y;
-	var height = e.size.height;
-	var total = offset + height;
-	var theEnd = e.contentSize.height;
-	var distance = theEnd - total;
-
-	// going down is the only time we dynamically load,
-	// going up we can safely ignore -- note here that
-	// the values will be negative so we do the opposite
-	if (distance < lastDistance)
-	{
-		// adjust the % of rows scrolled before we decide to start fetching
-		var nearEnd = theEnd * .75;
-
-		if (!updating && (total >= nearEnd))
+	if(osname == 'iphone' || osname == 'ipad') {
+		var offset = e.contentOffset.y;
+		var height = e.size.height;
+		var total = offset + height;
+		var theEnd = e.contentSize.height;
+		var distance = theEnd - total;
+	
+		// going down is the only time we dynamically load,
+		// going up we can safely ignore -- note here that
+		// the values will be negative so we do the opposite
+		if (distance < lastDistance)
 		{
-			beginUpdate();
+			// adjust the % of rows scrolled before we decide to start fetching
+			var nearEnd = theEnd * .75;
+	
+			if (!updating && (total >= nearEnd))
+			{
+				beginUpdate();
+			}
 		}
-	}
-	lastDistance = distance;
+		lastDistance = distance;
+	} else {
+		var total = e.totalItemCount;
+		var visible = e.visibleItemCount;
+		if(!updating && total > visible) {
+			var nextFirst = total - visible;
+			if(e.firstVisibleItem == nextFirst) {
+				total = e.totalItemCount;
+				visible = e.visibleItemCount;
+				nextFirst = total - visible;
+				beginUpdate();
+			};
+		};
+	};
 });
