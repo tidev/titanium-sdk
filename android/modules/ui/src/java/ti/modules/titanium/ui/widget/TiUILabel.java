@@ -161,8 +161,10 @@ public class TiUILabel extends TiUIView
 			if (tv != null) {
 				if (autoshrinkSetFontSize != null) {
 					if (tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)) {
-						if (propertySetFontSize != null ) {
-							tv.setTextSize(TiUIHelper.getSizeUnits(propertySetFontSize), TiUIHelper.getSize(propertySetFontSize));
+						String[] fontProperties = TiUIHelper.getFontProperties(proxy.getProperties());
+
+						if (fontProperties.length > TiUIHelper.FONT_SIZE_POSITION && fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+							tv.setTextSize(TiUIHelper.getSizeUnits(fontProperties[TiUIHelper.FONT_SIZE_POSITION]), TiUIHelper.getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
 						} else {
 							tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
 						}
@@ -171,11 +173,11 @@ public class TiUILabel extends TiUIView
 			    
 			    TextPaint textPaint = tv.getPaint();
 				if (textPaint != null) {
-					float stringWidth = textPaint.measureText((tv.getText()).toString());
+					float stringWidth = textPaint.measureText(tv.getText().toString());
 					int textViewWidth = tv.getWidth();
-					if (textViewWidth < stringWidth && stringWidth != 0) {
+					if (textViewWidth < stringWidth && stringWidth > 0) {
 						float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
-						autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize) ? String.valueOf(fontSize) : minimumFontSize;
+						autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize, 0) ? String.valueOf(fontSize) : minimumFontSize;
 						tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
 					}
 				}
