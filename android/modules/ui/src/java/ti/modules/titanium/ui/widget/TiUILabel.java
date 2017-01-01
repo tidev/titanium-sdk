@@ -52,7 +52,6 @@ public class TiUILabel extends TiUIView
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
 	private String minimumFontSize = null;
-	private String propertySetFontSize = null;
 	private String autoshrinkSetFontSize = null;
 
 	public TiUILabel(final TiViewProxy proxy)
@@ -257,9 +256,6 @@ public class TiUILabel extends TiUIView
 			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			if ((d.getKrollDict(TiC.PROPERTY_FONT)).containsKey("fontSize")) {
-				propertySetFontSize = TiConvert.toString(d.getKrollDict(TiC.PROPERTY_FONT), "fontSize");
-			}
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
@@ -368,9 +364,6 @@ public class TiUILabel extends TiUIView
 			tv.setEllipsize(TruncateAt.END);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			if (((HashMap) newValue).containsKey("fontSize")) {
-				propertySetFontSize = TiConvert.toString(((HashMap) newValue), "fontSize");
-			}
 			TiUIHelper.styleText(tv, (HashMap) newValue);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
