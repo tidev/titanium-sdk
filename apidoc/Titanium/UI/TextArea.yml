@@ -301,24 +301,8 @@ properties:
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: TextAreaPadding
     platforms: [android, iphone, ipad]
-    since: 6.0.0
-    
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextArea.padding> instead.
-    
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextArea.padding> instead.
-    
+    since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
+        
   - name: returnKeyType
     summary: |
         Specifies the text to display on the keyboard `Return` key when this text area is focused.
@@ -544,7 +528,7 @@ properties:
 ---    
 name: TextAreaPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
-since: "6.0.0"
+since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 platforms: [android, iphone, ipad]
 properties:
   - name: left
@@ -554,3 +538,11 @@ properties:
   - name: right
     type: Number
     summary: Right padding
+
+  - name: top
+    type: Number
+    summary: Top padding
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding

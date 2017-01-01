@@ -417,6 +417,12 @@
 	[(TiTextField*)[self textWidgetView] setDisabledBackground:[self loadImage:image]];
 }
 
+- (void)setBackgroundColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	[(TiTextField*)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+}
+
 -(void)setHintText_:(id)value
 {
     [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
@@ -433,8 +439,9 @@
     if (!hintText) {
         hintText = @"";
     }
-    
-    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
+    NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}];
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:placeHolder];
+    RELEASE_TO_NIL(placeHolder);
 }
 
 -(void)setAttributedHintText_:(id)value

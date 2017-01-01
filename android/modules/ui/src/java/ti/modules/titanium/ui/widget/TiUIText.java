@@ -223,21 +223,29 @@ public class TiUIText extends TiUIView
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = 0;
-		int paddingRight = 0;
+		int paddingLeft = tv.getPaddingLeft();
+		int paddingRight = tv.getPaddingRight();
+		int paddingTop = tv.getPaddingTop();
+		int paddingBottom = tv.getPaddingBottom();
 		
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
 			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
-		} else {
-			paddingLeft = tv.getPaddingLeft();
 		}
+
 		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
 			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
-		} else {
-			paddingRight = tv.getPaddingRight();
 		}
+
+		if (d.containsKey(TiC.PROPERTY_TOP)) {
+			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
+		}
+
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 		
-		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
 		if (field) {
 			tv.setGravity(Gravity.CENTER_VERTICAL);
 		}
