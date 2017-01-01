@@ -1720,8 +1720,8 @@ properties:
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
         Can be used to size and position the camera or photogallery view behind an overlay view.
-        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
-        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
+        iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple 
+        that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]
