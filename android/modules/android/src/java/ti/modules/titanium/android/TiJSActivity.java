@@ -37,6 +37,18 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
+ 	protected void onResume()
+ 	{
+ 		super.onResume();
+ 		
+ 		// launched alloy activity from intent
+ 		// finish to prevent redundant activity
+ 		if (this.alloyIntent) {
+ 			this.finish();
+ 		}
+ 	}
+
+	@Override
 	public String getUrl()
 	{
 		if (url == null) {

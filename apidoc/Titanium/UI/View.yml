@@ -725,7 +725,7 @@ methods:
         summary: |
             View to add to this view's hierarchy.
 
-            On the iOS and Windows platforms, you may pass an array of views.
+            You may pass an array of views, e.g. `view.add([subview1, subview2]`.
         type: [Titanium.UI.View, Array<Titanium.UI.View>]
         
   - name: animate
@@ -1317,6 +1317,21 @@ properties:
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
+  - name: hiddenBehavior
+    summary: Sets the behavior when hiding an object to release or keep the free space
+    description: |
+        If setting `hiddenBehavior` to <Titanium.UI.HIDDEN_BEHAVIOR_GONE> it will automatically release the space the view occupied.
+        For example: in a vertical layout the views below the object will move up when you hide
+        an object with `hiddenBehavior:Titanium.UI.HIDDEN_BEHAVIOR_GONE`.
+
+        * <Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE>. Keeps the space and just hides the object (default).
+        * <Titanium.UI.HIDDEN_BEHAVIOR_GONE>. Releases the space and hides the object.
+    type: Number
+    constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
+    default: Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE
+    platforms: [android]
+    since: 6.1.0
+
   - name: left
     summary: View's left position, in platform-specific units.
     description: |
@@ -1601,7 +1616,26 @@ properties:
     description: If false, will forward the events to peers.
     type: Boolean
     default: true
-    
+
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        This is an opt-in feature available from Android Lollipop. 
+        Touch feedback is applied only if the backgroundColor is a solid color.
+    type: Boolean
+    default: false
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "6.1.0"
+
+  - name: touchFeedbackColor
+    summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true. 
+    type: String
+    default: Theme provided color. 
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "6.1.0"
+
   - name: transform
     summary: Transformation matrix to apply to the view.
     description: Android and Mobile Web only support 2DMatrix transforms.

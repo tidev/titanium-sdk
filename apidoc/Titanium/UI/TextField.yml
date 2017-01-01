@@ -200,7 +200,7 @@ properties:
     description: |     
         Multiple autolink values can be combined with a bitwise OR. For example:
             
-            textField.autoLink = AUTOLINK_MAP_ADDRESSES|AUTOLINK_PHONE_NUMBERS;
+            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants listed above.
@@ -316,7 +316,7 @@ properties:
     since: "6.1.0"
 
   - name: inputType
-    summary: Input type to accept in thetext field. Also influences the Keyboard type to display.
+    summary: Input type to accept in the text field. Also influences the Keyboard type to display.
     description: |
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the input type that is accepted. This overrides
@@ -435,16 +435,16 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextField.padding> instead.
+        since: 6.1.0
+        notes: Use <Titanium.UI.TextField.padding> for parity instead.
     
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
     platforms: [iphone, ipad]
     deprecated:
-        since: "6.0.0"
-        notes: Use <Titanium.UI.TextField.padding> instead.
+        since: 6.1.0
+        notes: Use <Titanium.UI.TextField.padding> for parity instead.
             
   - name: passwordMask
     summary: Obscure the input text from the user.
@@ -733,3 +733,11 @@ properties:
   - name: right
     type: Number
     summary: Right padding
+    
+  - name: top
+    type: Number
+    summary: Top padding (Android only, since 6.1.0)
+    
+  - name: bottom
+    type: Number
+    summary: Bottom padding (Android only, since 6.1.0)

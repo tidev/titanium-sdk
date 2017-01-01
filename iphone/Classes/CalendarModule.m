@@ -92,9 +92,10 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(void)dealloc
 {
+	RELEASE_TO_NIL(store);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
-    [store release];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+	
 }
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
@@ -260,10 +261,10 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
 
 -(NSNumber*) hasCalendarPermissions:(id)unused
 {
-    NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarUsageDescription"];
+    NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
     
     if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
-        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
     }
     
     return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);

@@ -22,7 +22,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         }
     }
 
-    override func awake(withContext context: AnyObject?) {
+    override func awake(withContext context: Any?) {
         super.awake(withContext: context)
 
         // Configure interface objects here.
@@ -39,7 +39,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     }
 
     @available(watchOS 2.2, *)
-    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: NSError?) {
+    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         // This will be called when the activation of a session finishes.
     }
 

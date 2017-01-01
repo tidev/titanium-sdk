@@ -1,11 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
-
+#ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <QuartzCore/QuartzCore.h>
@@ -496,12 +495,6 @@ NSArray* moviePlayerKeys = nil;
             [movie requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
         }, NO);
     }
-}
-
--(TiBlob*)thumbnailImageAtTime:(id)args
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.thumbnailImageAtTime",@"3.4.2",@"3.6.0",@"Media.VideoPlayer.requestThumbnailImagesAtTimes")
-    return nil;
 }
 
 -(void)setBackgroundColor:(id)color

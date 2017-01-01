@@ -858,6 +858,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 			
 		} else {
+			// there are no parent activities to return to
+			// override back press to background the activity
+			// note: 2 since there should always be TiLaunchActivity and TiActivity
+			if (TiApplication.activityStack.size() <= 2) {
+				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
+					this.moveTaskToBack(true);
+					return;
+				}
+ 			}
+
 			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
 		}
@@ -1516,6 +1526,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (orientationListener != null) {
 			orientationListener.disable();
+			orientationListener = null;
 		}
 
 		super.onDestroy();
@@ -1541,11 +1552,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//LW windows
 		if (window == null && view != null) {
 			view.releaseViews();
+			view.release();
 			view = null;
 		}
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
+			window.releaseViews();
+			window.removeAllChildren();
+			window.release();
 			window = null;
 		}
 

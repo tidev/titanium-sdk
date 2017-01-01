@@ -719,7 +719,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, mobileweb, android]
     properties:
       - name: index
         summary: Row index.
@@ -1210,7 +1210,7 @@ properties:
     
   - name: data
     summary: Rows of the table view.
-    type: [ Dictionary, Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection> ]
+    type: [Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection>]
     
   - name: editable
     summary: |
@@ -1469,8 +1469,8 @@ properties:
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
     type: Number
-    constants: Titanium.UI.iPhone.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
+    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     since: 2.1.0
     platforms: [iphone, ipad]
 
@@ -1626,10 +1626,10 @@ properties:
   - name: style
     summary: |
         Style of the table view, specified using one of the constants from 
-        <Titanium.UI.iPhone.TableViewStyle>.
+        <Titanium.UI.iOS.TableViewStyle>.
     description: Style should always be set before setting the `data` on table view. 
     type: Number
-    constants: Titanium.UI.iPhone.TableViewStyle.*
+    constants: Titanium.UI.iOS.TableViewStyle.*
     platforms: [iphone, ipad]
 
 examples:
@@ -1804,16 +1804,16 @@ properties:
   - name: animationStyle
     summary: Type of animation to use for row insertions and deletions.
     type: Number
-    constants: Titanium.UI.iPhone.RowAnimationStyle.*
+    constants: Titanium.UI.iOS.RowAnimationStyle.*
     default: |
         If `animated` is `true` but no `animationStyle` is specified, the style defaults to 
-        [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
+        [FADE](Titanium.UI.iOS.RowAnimationStyle.FADE).
         
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iPhone.TableViewScrollPosition.*
-    default: <Titanium.UI.iPhone.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.iOS.TableViewScrollPosition.*
+    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry

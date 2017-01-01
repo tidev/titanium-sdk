@@ -330,6 +330,14 @@ typedef enum
  */
 +(TiColor*)colorValue:(id)value;
 
+
+/**
+ Converts a native color value into the string-color.
+ @param value The input value of a UIColor type.
+ @return The string-representation of the value.
+ */
++(NSString*)hexColorValue:(UIColor *)color;
+
 /**
  Converts input value into the dimention type.
  @param value The input value that could be converted to a color.
@@ -695,5 +703,11 @@ typedef enum
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)livePhotoSupported;
+
+/**
+ Converts a color into an image.
+ @return The generated image.
+ */
++ (UIImage*)imageWithColor:(UIColor*)color;
 
 @end

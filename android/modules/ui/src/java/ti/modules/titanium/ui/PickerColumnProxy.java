@@ -99,12 +99,12 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	@Override
-	public void add(TiViewProxy o)
+	public void add(Object args)
 	{
 		if (TiApplication.isUIThread()) {
-			handleAddRow(o);
+			handleAddRow((TiViewProxy) args);
 		} else {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), o);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), args);
 		}
 	}
 

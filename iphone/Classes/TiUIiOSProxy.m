@@ -98,6 +98,12 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+#import "TiUIiOSFeedbackGeneratorProxy.h"
+#endif
+#endif
+
 @implementation TiUIiOSProxy
 
 #define FORGET_AND_RELEASE(x) \
@@ -202,46 +208,6 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
-    RELEASE_TO_NIL(_animationStyleProxy);
-#endif
-#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
-    RELEASE_TO_NIL(_RowAnimationStyle);
-#endif
-#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
-    RELEASE_TO_NIL(_AlertDialogStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
-    RELEASE_TO_NIL(_TableViewCellSelectionStyle);
-    RELEASE_TO_NIL(_ListViewCellSelectionStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
-    RELEASE_TO_NIL(_TableViewScrollPosition);
-    RELEASE_TO_NIL(_ListViewScrollPosition);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-    RELEASE_TO_NIL(_TableViewStyle);
-    RELEASE_TO_NIL(_ListViewStyle);
-#endif
-#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
-    RELEASE_TO_NIL(_ProgressBarStyle);
-#endif
-#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
-    RELEASE_TO_NIL(_ScrollIndicatorStyle);
-#endif
-#ifdef USE_TI_UIIOSSTATUSBAR
-    RELEASE_TO_NIL(_StatusBar);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTON
-    RELEASE_TO_NIL(_SystemButton);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-    RELEASE_TO_NIL(_SystemButtonStyle);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMICON
-    RELEASE_TO_NIL(_SystemIcon);
-#endif
-
     [super dealloc];
 }
 
@@ -369,7 +335,7 @@ RELEASE_TO_NIL(x); \
 }
 #endif
 
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
+#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
 -(TiUIiOSProgressBarStyleProxy*)ProgressBarStyle
 {
     if (_ProgressBarStyle == nil) {
@@ -464,47 +430,49 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-- (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
+- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleExtraLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber* )BLUR_EFFECT_STYLE_LIGHT
+- (id)BLUR_EFFECT_STYLE_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleLight);
     }
-    return nil;
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_DARK
+- (id)BLUR_EFFECT_STYLE_DARK
 {
     if ([TiUtils isIOS8OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleDark);
     }
-    return nil;
+    return [NSNull null];
 }
 
-#if IS_XCODE_8
-- (NSNumber*) BLUR_EFFECT_STYLE_REGULAR
+- (id)BLUR_EFFECT_STYLE_REGULAR
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleRegular);
     }
-    return nil;
+#endif
+    return [NSNull null];
 }
 
-- (NSNumber*) BLUR_EFFECT_STYLE_PROMINENT
+- (id)BLUR_EFFECT_STYLE_PROMINENT
 {
+#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleProminent);
     }
-    return nil;
-}
 #endif
+    return [NSNull null];
+}
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -520,7 +488,7 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
 MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 #endif
 
-#ifdef USE_TI_UISCROLLVIEW
+#if defined(USE_TI_UISCROLLVIEW) || defined(USE_TI_UILISTVIEW)
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_NONE, UIScrollViewKeyboardDismissModeNone);
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeOnDrag);
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
@@ -676,7 +644,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
         return nil;
     }
     
-    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
+    TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
     
     return image;
 }
@@ -795,22 +763,6 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);
 MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
 
--(NSString*)COLOR_SCROLLVIEW_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_SCROLLVIEW_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND;
-}
--(NSString*)COLOR_VIEW_FLIPSIDE_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND;
-}
--(NSString*)COLOR_UNDER_PAGE_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_UNDER_PAGE_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_UNDER_PAGE_BACKGROUND;
-}
-
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED,UIWebViewNavigationTypeLinkClicked);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED,UIWebViewNavigationTypeFormSubmitted);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD,UIWebViewNavigationTypeBackForward);
@@ -865,5 +817,28 @@ MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL,UIModalTransitionStyleParti
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
+
+#if IS_XCODE_8
+#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+
+-(id)createFeedbackGenerator:(id)args
+{
+    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_SELECTION, 0);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_IMPACT, 1);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_NOTIFICATION, 2);
+
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS, UINotificationFeedbackTypeSuccess);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING, UINotificationFeedbackTypeWarning);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedbackTypeError);
+
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
+MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
+#endif
+#endif
+
 @end
 #endif

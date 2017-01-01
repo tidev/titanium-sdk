@@ -223,21 +223,29 @@ public class TiUIText extends TiUIView
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = 0;
-		int paddingRight = 0;
+		int paddingLeft = tv.getPaddingLeft();
+		int paddingRight = tv.getPaddingRight();
+		int paddingTop = tv.getPaddingTop();
+		int paddingBottom = tv.getPaddingBottom();
 		
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
 			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
-		} else {
-			paddingLeft = tv.getPaddingLeft();
 		}
+
 		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
 			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
-		} else {
-			paddingRight = tv.getPaddingRight();
 		}
+
+		if (d.containsKey(TiC.PROPERTY_TOP)) {
+			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
+		}
+
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 		
-		tv.setPadding(paddingLeft, tv.getPaddingTop(), paddingRight, tv.getPaddingBottom());
 		if (field) {
 			tv.setGravity(Gravity.CENTER_VERTICAL);
 		}
@@ -481,7 +489,6 @@ public class TiUIText extends TiUIView
 		if (!editable) {
 		    tv.setInputType(InputType.TYPE_NULL);
 		    tv.setCursorVisible(false);
-		    tv.setEnabled(false);
 		    if (passwordMask) {
 		        Typeface origTF = tv.getTypeface();
 		        // Sometimes password transformation does not work properly when the input type is set after the
@@ -497,7 +504,11 @@ public class TiUIText extends TiUIView
 		        if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
 		            tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 		        }
-		    }
+		    } else {
+				if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
+					tv.setTransformationMethod(null);
+				}
+			}
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);

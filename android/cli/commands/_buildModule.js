@@ -277,6 +277,9 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 		}
 	}, this);
 
+	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
+
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
 	if (!fs.existsSync(this.licenseFile)) {
@@ -290,6 +293,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.projLibDir = path.join(this.projectDir, 'lib');
 
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
+	this.buildClassesGenDir = path.join(this.buildClassesDir, 'org', 'appcelerator', 'titanium', 'gen');
 	this.buildGenDir = path.join(this.buildDir, 'generated');
 
 	this.buildGenJsDir = path.join(this.buildGenDir, 'js');
@@ -514,7 +518,7 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 
 */
 AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
-	this.logger.log(__('Producing [ModuleName]Bootstrap files using %s', this.buildGenJsonFile));
+	this.logger.info(__('Producing [ModuleName]Bootstrap files using %s', this.buildGenJsonFile));
 
 	var bindingJson = JSON.parse(fs.readFileSync(this.buildGenJsonFile)),
 		moduleClassName = Object.keys(bindingJson.modules)[0];
@@ -729,7 +733,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					return s.toLowerCase();
 				});
 
-				if (!(moduleNamespace in namespaces)) {
+				if (namespaces.indexOf(moduleNamespace) == -1) {
 					namespaces.unshift(moduleNamespace.split('.').join('::'));
 				}
 
@@ -820,7 +824,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		return next();
 	}
 
-	this.logger.log(__('Generating v8 bindings'));
+	this.logger.info(__('Generating v8 bindings'));
 
 	var dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
 	Array.prototype.push.apply(this.metaData,dependsMap.required);
@@ -1028,10 +1032,9 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 	replaces the tokens therein with correct values
 */
 AndroidModuleBuilder.prototype.ndkBuild = function (next) {
-	this.logger.log(__('Running the stock Android NDK ndk-build'));
+	this.logger.info(__('Running the Android NDK ndk-build'));
 
 	var tasks = [
-
 		function (cb) {
 			fs.writeFileSync(
 				path.join(this.buildGenJniDir, 'Android.mk'),
@@ -1043,7 +1046,8 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 			fs.writeFileSync(
 				path.join(this.buildGenDir, 'Application.mk'),
 				ejs.render(fs.readFileSync(this.applicationMkTemplateFile).toString(), {
-					MODULE_ID: this.manifest.moduleid
+					MODULE_ID: this.manifest.moduleid,
+					ARCHITECTURES: this.manifest.architectures
 				})
 			);
 
@@ -1051,54 +1055,48 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 		},
 
 		function (cb) {
-			this.logger.info('Starting directory: ' + process.cwd());
-			try {
-				process.chdir(this.buildGenDir);
-				this.logger.info('New directory: ' + process.cwd());
+			var args = [
+				'TI_MOBILE_SDK='+this.titaniumSdkPath,
+				'NDK_PROJECT_PATH='+this.buildGenDir,
+				'NDK_APPLICATION_MK='+path.join(this.buildGenDir, 'Application.mk'),
+				'PYTHON=python',
+				'V=0'
+			];
 
-				appc.subprocess.run(
-					this.androidInfo.ndk.executables.ndkbuild,
-					[
-						'TI_MOBILE_SDK='+this.titaniumSdkPath,
-						'NDK_PROJECT_PATH='+this.buildGenDir,
-						'NDK_APPLICATION_MK='+path.join(this.buildGenDir, 'Application.mk'),
-						'PYTHON=python',
-						'V=0'
-					],
-					function (code, out, err) {
-						if (code) {
-							this.logger.error(__('Failed to run ndk-build'));
-							this.logger.error();
-							err.trim().split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
+			this.logger.debug(__('Running: %s', (this.androidInfo.ndk.executables.ndkbuild + ' ' + args.join(' ')).cyan));
+
+			appc.subprocess.run(
+				this.androidInfo.ndk.executables.ndkbuild,
+				args,
+				{ cwd: this.buildGenDir },
+				function (code, out, err) {
+					if (code) {
+						this.logger.error(__('Failed to run ndk-build'));
+						this.logger.error();
+						err.trim().split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
+
+					this.dirWalker(this.buildGenLibsDir, function (file) {
+						if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 && file.indexOf('libc++_shared.so') == -1) {
+
+							var relativeName = path.relative(this.buildGenLibsDir, file),
+								targetDir = path.join(this.libsDir, path.dirname(relativeName));
+
+							fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
+
+							fs.writeFileSync(
+								path.join(targetDir, path.basename(file)),
+								fs.readFileSync(file)
+							);
 						}
 
-						this.dirWalker(this.buildGenLibsDir, function (file) {
-							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 && file.indexOf('libc++_shared.so') == -1) {
+					}.bind(this));
 
-								var relativeName = path.relative(this.buildGenLibsDir, file),
-									targetDir = path.join(this.libsDir, path.dirname(relativeName));
-
-								fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
-
-								fs.writeFileSync(
-									path.join(targetDir, path.basename(file)),
-									fs.readFileSync(file)
-								);
-							}
-
-						}.bind(this));
-
-						cb();
-					}.bind(this)
-				);
-			}
-			catch (err) {
-  				this.logger.info('chdir: ' + err);
-				this.logger.log();
-				process.exit(1);
-			}
+					cb();
+				}.bind(this)
+			);
 		}
 	];
 
@@ -1110,7 +1108,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 		return next();
 	}
 
-	this.logger.log(__('Running the stock Android NDK ndk-build on local ndk build...'));
+	this.logger.info(__('Running the stock Android NDK ndk-build on local ndk build...'));
 
 	var localJniGenDir = path.join(this.buildGenJniLocalDir, 'jni'),
 		localJniGenLibs = path.join(this.buildGenJniLocalDir, 'libs');
@@ -1131,53 +1129,46 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 	}.bind(this));
 
 	// Start NDK build process
-	this.logger.info('Starting directory: ' + process.cwd());
-	try {
-		process.chdir(this.buildGenJniLocalDir);
-		this.logger.info('New directory: ' + process.cwd());
+	var args = [
+		'TI_MOBILE_SDK='+this.titaniumSdkPath,
+		'NDK_PROJECT_PATH='+this.buildGenJniLocalDir,
+		'NDK_APPLICATION_MK='+path.join(this.buildGenJniLocalDir, 'Application.mk'),
+		'V=0'
+	];
 
-		appc.subprocess.run(
-			this.androidInfo.ndk.executables.ndkbuild,
-			[
-				'TI_MOBILE_SDK='+this.titaniumSdkPath,
-				'NDK_PROJECT_PATH='+this.buildGenJniLocalDir,
-				'NDK_APPLICATION_MK='+path.join(this.buildGenJniLocalDir, 'Application.mk'),
-				'V=0'
-			],
-			function (code, out, err) {
-				if (code) {
-					this.logger.error(__('Failed to run ndk-build'));
-					this.logger.error();
-					err.trim().split('\n').forEach(this.logger.error);
-					this.logger.log();
-					process.exit(1);
+	this.logger.debug(__('Running: %s', (this.androidInfo.ndk.executables.ndkbuild + ' ' + args.join(' ')).cyan));
+
+	appc.subprocess.run(
+		this.androidInfo.ndk.executables.ndkbuild,
+		args,
+		{ cwd: this.buildGenJniLocalDir },
+		function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to run ndk-build'));
+				this.logger.error();
+				err.trim().split('\n').forEach(this.logger.error);
+				this.logger.log();
+				process.exit(1);
+			}
+
+			this.dirWalker(localJniGenLibs, function (file) {
+				if (path.extname(file) == '.so') {
+					var relativeName = path.relative(localJniGenLibs, file),
+						targetDir = path.join(this.libsDir, path.dirname(relativeName));
+
+					fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
+
+					fs.writeFileSync(
+						path.join(targetDir, path.basename(file)),
+						fs.readFileSync(file)
+					);
+
 				}
+			}.bind(this));
 
-				this.dirWalker(localJniGenLibs, function (file) {
-					if (path.extname(file) == '.so') {
-						var relativeName = path.relative(localJniGenLibs, file),
-							targetDir = path.join(this.libsDir, path.dirname(relativeName));
-
-						fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
-
-						fs.writeFileSync(
-							path.join(targetDir, path.basename(file)),
-							fs.readFileSync(file)
-						);
-
-					}
-				}.bind(this));
-
-				next();
-
-			}.bind(this)
-		);
-	}
-	catch (err) {
-		this.logger.info('chdir: ' + err);
-		this.logger.log();
-		process.exit(1);
-	}
+			next();
+		}.bind(this)
+	);
 };
 
 AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
@@ -1224,13 +1215,19 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 			'@' + javaSourcesFile
 		],
 		{},
-		next
+		function () {
+			// remove gen, prevent duplicate entry error
+			if (fs.existsSync(this.buildClassesGenDir)) {
+				wrench.rmdirSyncRecursive(this.buildClassesGenDir);
+			}
+			next();
+		}.bind(this)
 	);
 
 };
 
 AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
-	this.logger.log(__('Verifying build architectures'));
+	this.logger.info(__('Verifying build architectures'));
 
 	var buildArchs = fs.readdirSync(this.libsDir),
 		manifestArchs = this.manifest['architectures'].split(' '),
@@ -1250,13 +1247,12 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 };
 
 AndroidModuleBuilder.prototype.packageZip = function (next) {
-	this.logger.log(__('Packaging the module'));
+	this.logger.info(__('Packaging the module'));
 
 	fs.existsSync(this.distDir) || wrench.rmdirSyncRecursive(this.distDir);
 	wrench.mkdirSyncRecursive(this.distDir);
 
 	var tasks = [
-
 		function (cb) {
 			// Generate documentation
 			if (fs.existsSync(this.documentationDir)) {
@@ -1326,7 +1322,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				zipStream,
 				origConsoleError = console.error,
 				id = this.manifest.moduleid.toLowerCase(),
-				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join('');
+				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join(''),
 				moduleZipPath = path.join(this.distDir, zipName),
 				moduleFolder = path.join('modules', 'android', this.manifest.moduleid, this.manifest.version);
 
@@ -1383,7 +1379,25 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
-				// 4. Resources folder
+				// 4. hooks folder
+				var hookFiles = {};
+				if (fs.existsSync(this.hooksDir)) {
+					this.dirWalker(this.hooksDir, function (file) {
+						var relFile = path.relative(this.hooksDir, file);
+						hookFiles[relFile] = 1;
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', relFile) });
+					}.bind(this));
+				}
+				if (fs.existsSync(this.sharedHooksDir)) {
+					this.dirWalker(this.sharedHooksDir, function (file) {
+						var relFile = path.relative(this.sharedHooksDir, file);
+						if (!hookFiles[relFile]) {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', relFile) });
+						}
+					}.bind(this));
+				}
+
+				// 5. Resources folder
 				if (fs.existsSync(this.resourcesDir)) {
 					this.dirWalker(this.resourcesDir, function (file, name) {
 						if (name !== 'README.md') {
@@ -1392,7 +1406,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
-				// 5. assets folder, not including js files
+				// 6. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
 					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });

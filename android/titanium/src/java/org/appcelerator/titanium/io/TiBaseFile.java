@@ -190,6 +190,11 @@ public abstract class TiBaseFile
 		return false;
 	}
 
+	public boolean createFile() {
+		logNotSupported("createFile");
+		return false;
+	}
+
 	public boolean createShortcut() {
 		logNotSupported("createShortcut");
 		return false;

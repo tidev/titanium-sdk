@@ -98,6 +98,9 @@ public class TiUIActivityIndicator extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
+		if (d.containsKey(TiC.PROPERTY_INDICATOR_COLOR)) {
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR), android.graphics.PorterDuff.Mode.SRC_IN);
+		}
 
 		view.invalidate();
 	}
@@ -117,6 +120,8 @@ public class TiUIActivityIndicator extends TiUIView
 			label.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			label.setTextColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor((String) newValue), android.graphics.PorterDuff.Mode.SRC_IN);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

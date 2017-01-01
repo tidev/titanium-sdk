@@ -1,15 +1,15 @@
 #!/bin/sh
 
 targets=(
-	0.10.46 # 11
-	0.12.15 # 14
+	0.10.47 # 11
+	0.12.16 # 14
 	1.0.4   # 42
 	1.8.4   # 43
 	2.5.0   # 44
 	3.3.1   # 45
-	4.4.6   # 46
+	4.5.0   # 46
 	5.12.0  # 47
-	6.2.2   # 48
+	6.5.0   # 48
 )
 cwd=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 node_pre_gyp="$(dirname "$cwd")/node_modules/node-pre-gyp/bin/node-pre-gyp"

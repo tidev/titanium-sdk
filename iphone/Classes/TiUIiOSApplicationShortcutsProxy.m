@@ -8,7 +8,9 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #import "TiUtils.h"
+#ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
+#endif
 #import <ContactsUI/ContactsUI.h>
 #import <CommonCrypto/CommonDigest.h>
 
@@ -74,11 +76,11 @@
         UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:[TiUtils intValue:[item valueForKey:@"UIApplicationShortcutItemIconType"]]];
         NSDictionary *userInfo = [item valueForKey:@"UIApplicationShortcutItemUserInfo"];
         
-        UIApplicationShortcutItem *shortcut = [[UIApplicationShortcutItem alloc] initWithType:type
+        UIApplicationShortcutItem *shortcut = [[[UIApplicationShortcutItem alloc] initWithType:type
                                                                                localizedTitle:title
                                                                             localizedSubtitle:subtitle
                                                                                          icon:icon
-                                                                                     userInfo:userInfo];
+                                                                                     userInfo:userInfo] autorelease];
         
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:shortcut]];
     }

@@ -25,7 +25,7 @@
 		<item name="windowNoTitle">true</item>
 	</style>
 
-	<style name="Theme.AppCompat.Translucent">
+	<style name="Theme.AppCompat.Translucent" parent="@style/<%- flags %>">
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowIsTranslucent">true</item>

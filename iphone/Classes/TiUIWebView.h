@@ -41,7 +41,7 @@
 -(void)stopLoading;
 -(void)goBack;
 -(void)goForward;
--(BOOL)isLoading;
+-(BOOL)loading;
 -(BOOL)canGoBack;
 -(BOOL)canGoForward;
 -(void)reload;

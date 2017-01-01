@@ -4,7 +4,7 @@
 * @module cli/_buildModule
 *
 * @copyright
-* Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+* Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
 *
 * @license
 * Licensed under the terms of the Apache Public License
@@ -100,7 +100,7 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiXcconfig',
 		'compileJS',
 		'buildModule',
-		'createUniBinary',
+		'createUniversalBinary',
 		'verifyBuildArch',
 		'packageModule',
 		'runModule',
@@ -151,6 +151,9 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 			this[dirName] = path.join(this.projectDir, '..', folder);
 		}
 	}, this);
+
+	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
 
 	this.licenseDefault = "TODO: place your license here and we'll include it in the module distribution";
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
@@ -370,51 +373,58 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 };
 
 iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
-	var opts = { cwd: this.projectDir };
+	var opts = {
+		cwd: this.projectDir,
+		env: {}
+	};
+	Object.keys(process.env).forEach(function (key) {
+		opts.env[key] = process.env[key];
+	});
+	opts.env.DEVELOPER_DIR = this.xcodeEnv.path;
+
 	var xcodebuildHook = this.cli.createHook('build.module.ios.xcodebuild', this, function (exe, args, opts, type, done) {
-			var p = spawn(exe, args, opts),
-				out = [],
-				err = [],
-				stopOutputting = false;
+		this.logger.debug(__('Running: %s', ('DEVELOPER_DIR=' + opts.env.DEVELOPER_DIR + ' ' + exe + ' ' + args.join(' ')).cyan));
+		var p = spawn(exe, args, opts),
+			out = [],
+			err = [],
+			stopOutputting = false;
 
-			p.stdout.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					if (line.length) {
-						out.push(line);
-						if (line.indexOf('Failed to minify') != -1) {
-							stopOutputting = true;
-						}
-						if (!stopOutputting) {
-							this.logger.trace('[' + type + '] ' + line);
-						}
+		p.stdout.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				if (line.length) {
+					out.push(line);
+					if (line.indexOf('Failed to minify') != -1) {
+						stopOutputting = true;
 					}
-				}, this);
-			}.bind(this));
-
-			p.stderr.on('data', function (data) {
-				data.toString().split('\n').forEach(function (line) {
-					if (line.length) {
-						err.push(line);
+					if (!stopOutputting) {
+						this.logger.trace('[' + type + '] ' + line);
 					}
-				}, this);
-			}.bind(this));
-
-			p.on('close', function (code, signal) {
-				if (code) {
-					// just print the entire error buffer
-					err.forEach(function (line) {
-						this.logger.error('[' + type + '] ' + line);
-					}, this);
-					this.logger.log();
-					process.exit(1);
 				}
+			}, this);
+		}.bind(this));
 
-				// end of the line
-				done(code);
-			}.bind(this));
-		});
+		p.stderr.on('data', function (data) {
+			data.toString().split('\n').forEach(function (line) {
+				if (line.length) {
+					err.push(line);
+				}
+			}, this);
+		}.bind(this));
 
-	process.env.DEVELOPER_DIR = this.xcodeEnv.path;
+		p.on('close', function (code, signal) {
+			if (code) {
+				// just print the entire error buffer
+				err.forEach(function (line) {
+					this.logger.error('[' + type + '] ' + line);
+				}, this);
+				this.logger.log();
+				process.exit(1);
+			}
+
+			// end of the line
+			done(code);
+		}.bind(this));
+	}.bind(this));
 
 	var count = 0;
 	function done() {
@@ -436,32 +446,60 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	], opts, 'xcode-sim', done);
 };
 
-iOSModuleBuilder.prototype.createUniBinary = function createUniBinary(next) {
-	// Create a universal build by merging the all builds to a single binary
-	var binaryFiles = [],
-		outputFile = path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a'),
-		lipoArgs = [
-			'-create',
-			'-output',
-			outputFile
-		];
-
-	this.dirWalker(this.universalBinaryDir, function (file) {
-		if (path.extname(file) === '.a'
-			&& file.indexOf( this.moduleName + '.build') === -1
-			&& file.indexOf('Release-') > -1
-		) {
-			binaryFiles.push(file);
+iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
+	var findLib = function (dest) {
+		var lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleId + '.a');
+		if (!fs.existsSync(lib)) {
+			// unfortunately the initial module project template incorrectly
+			// used the camel-cased module id
+			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
+			if (!fs.existsSync(lib)) {
+				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+			}
 		}
-	}.bind(this));
+		return lib;
+	}.bind(this);
 
-	appc.subprocess.run(this.xcodeEnv.executables.lipo, binaryFiles.concat(lipoArgs), function (code, out, err) {
+	// Create a universal build by merging the all builds to a single binary
+	var args = [];
+
+	var lib = findLib('iphoneos');
+	if (lib instanceof Error) {
+		return next(lib);
+	}
+	args.push(lib);
+
+	lib = findLib('iphonesimulator');
+	if (lib instanceof Error) {
+		return next(lib);
+	}
+	args.push(lib);
+
+	args.push(
+		'-create',
+		'-output',
+		path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a')
+	);
+
+	this.logger.info(__('Creating universal library'));
+	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+
+	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Failed to generate universal binary (code %s):', code));
+			this.logger.error(err.trim() + '\n');
+			process.exit(1);
+		}
+
 		next();
-	});
+	}.bind(this));
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	var args = [ '-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a') ];
+
+	this.logger.info(__('Verifying universal library'));
+	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
 		if (code) {
@@ -557,7 +595,25 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 4. Resources folder
+		// 4. hooks folder
+		var hookFiles = {};
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file) {
+				var relFile = path.relative(this.hooksDir, file);
+				hookFiles[relFile] = 1;
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+			}.bind(this));
+		}
+		if (fs.existsSync(this.sharedHooksDir)) {
+			this.dirWalker(this.sharedHooksDir, function (file) {
+				var relFile = path.relative(this.sharedHooksDir, file);
+				if (!hookFiles[relFile]) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+				}
+			}.bind(this));
+		}
+
+		// 5. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function (file, name) {
 				if (name !== 'README.md') {
@@ -566,7 +622,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 5. assets folder, not including js files
+		// 6. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function (file) {
 				if (path.extname(file) != '.js') {
@@ -575,11 +631,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 6. the merge *.a file
-		// 7. LICENSE file
-		// 8. manifest
-		// 9. module.xcconfig
-		// 10. metadata.json
+		// 7. the merge *.a file
+		// 8. LICENSE file
+		// 9. manifest
+		// 10. module.xcconfig
+		// 11. metadata.json
 		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
 		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders,'LICENSE') });
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders,'manifest') });
@@ -589,8 +645,9 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
 		dest.finalize();
 	} catch (ex) {
-		console.error = origConsoleError;
 		throw ex;
+	} finally {
+		console.error = origConsoleError;
 	}
 };
 
@@ -599,58 +656,31 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 		return next();
 	}
 
-	var tmpName,
-		tmpDir = temp.path('ti-ios-module-build-'),
-		tmpProjectDir;
+	var tmpDir = temp.path('ti-ios-module-build-'),
+		tmpProjectDir = path.join(tmpDir, this.moduleName),
+		logger = this.logger;
 
-	function checkLine(line, logger) {
-		var re = new RegExp(
-			'(?:\u001b\\[\\d+m)?\\[?(' +
-			logger.getLevels().join('|') +
-			')\\]?\s*(?:\u001b\\[\\d+m)?(.*)', 'i'
-		);
-
-		if (line) {
-			var m = line.match(re);
-			if (m) {
-				logger[m[1].toLowerCase()](m[2].trim());
-			} else {
-				logger.debug(line);
+	function log(data) {
+		data.toString().split('\n').forEach(function (line) {
+			if (line = line.trim()) {
+				logger.trace(line);
 			}
-		}
+		});
 	}
 
-	function runTiCommand(cmd, args, logger, callback) {
-		// when calling a Windows batch file, we need to escape ampersands in the command
-		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
-			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
-			cmd = 'cmd.exe';
-		}
+	function runTiCommand(args, callback) {
+		logger.debug(__('Running: %s', ('titanium ' + args.join(' ')).cyan));
+		var child = spawn('titanium', args);
 
-		var child = spawn(cmd, args);
-
-		child.stdout.on('data', function (data) {
-			data.toString().split('\n').forEach(function (line) {
-				checkLine(line, logger);
-			});
-
-		});
-
-		child.stderr.on('data', function (data) {
-			data.toString().split('\n').forEach(function (line) {
-				checkLine(line, logger);
-			});
-		});
+		child.stdout.on('data', log);
+		child.stderr.on('data', log);
 
 		child.on('close', function (code) {
 			if (code) {
 				logger.error(__('Failed to run ti %s', args[0]));
-				logger.error();
-				err.trim().split('\n').forEach(this.logger.error);
 				logger.log();
 				process.exit(1);
 			}
-
 			callback();
 		});
 	}
@@ -663,7 +693,6 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 			runTiCommand(
-				'ti',
 				[
 					'create',
 					'--id', this.moduleId,
@@ -672,15 +701,16 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 					'-u', 'localhost',
 					'-d', tmpDir,
 					'-p', 'ios',
-					'--force'
+					'--force',
+					'--no-prompt',
+					'--no-progress-bars',
+					'--no-colors'
 				],
-				this.logger,
 				cb
 			);
 		},
 
 		function (cb) {
-			tmpProjectDir = path.join(tmpDir, this.moduleName);
 			this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
 
 			// 3. patch tiapp.xml with module id
@@ -709,13 +739,14 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
 			runTiCommand(
-				'ti',
 				[
 					'build',
 					'-p', 'ios',
-					'-d', tmpProjectDir
+					'-d', tmpProjectDir,
+					'--no-prompt',
+					'--no-colors',
+					'--no-progress-bars'
 				],
-				this.logger,
 				cb
 			);
 		}

@@ -222,7 +222,6 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			watchkitAppId = this.tiapp.id + '.watchkitapp',
 			watchkitExtId = watchkitAppId + '.watchkitextension';
 
-
 		this.cli.argv.force && fs.existsSync(dest) && wrench.rmdirSyncRecursive(dest);
 		fs.existsSync(dest) || wrench.mkdirSyncRecursive(dest);
 
@@ -234,6 +233,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 				doc = dom.documentElement,
 				useSpaces,
 				iosNode,
+				teamIdNode,
 				extensionsNode,
 				extensionNode,
 				child;
@@ -260,6 +260,25 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			if (!iosNode) {
 				iosNode = dom.createElement('ios');
 				doc.appendChild(iosNode);
+			}
+
+			// find or create the <team-id> node
+			for (child = iosNode.firstChild; child; child = child.nextSibling) {
+				if (child.nodeType === 1 && child.tagName === 'team-id') {
+					teamIdNode = child;
+					break;
+				}
+			}
+			if (!teamIdNode) {
+				teamIdNode = dom.createElement('team-id');
+				teamIdNode.appendChild(dom.createTextNode(''));
+				var first = iosNode.firstChild;
+				if (first) {
+					iosNode.insertBefore(whitespace(2), first);
+					iosNode.insertBefore(teamIdNode, first);
+				} else {
+					iosNode.appendChild(teamIdNode);
+				}
 			}
 
 			// find or create the <extensions> node

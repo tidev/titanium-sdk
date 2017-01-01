@@ -22,7 +22,8 @@ import android.os.Message;
 	TiC.PROPERTY_MESSAGEID,
 	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_STYLE
+	TiC.PROPERTY_STYLE,
+	TiC.PROPERTY_INDICATOR_COLOR
 })
 @Kroll.dynamicApis(methods = {
 	"hide", "show"

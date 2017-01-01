@@ -26,6 +26,9 @@
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
+#ifndef DISABLE_TI_LOG_SERVER
+# import "TiLogServer.h"
+#endif
 
 TiApp* sharedApp;
 
@@ -307,8 +310,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	[TiExceptionHandler defaultExceptionHandler];
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer startServer];
+#endif
 	[self initController];
-    [self launchToUrl];
+	[self launchToUrl];
 	[self boot];
 }
 
@@ -370,6 +376,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
 	[TiExceptionHandler defaultExceptionHandler];
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer startServer];
+#endif
 
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -426,16 +435,31 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return YES;
 }
 
+// Handle URL-schemes / iOS >= 9
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options
+{
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
+	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+    
+	[launchOptions setObject:[options objectForKey:UIApplicationOpenURLOptionsSourceApplicationKey] ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
+	return YES;
+}
+
+// Handle URL-schemes / iOS < 9
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-	if(sourceApplication == nil) {
-		[launchOptions setObject:[NSNull null] forKey:@"source"];
-	} else {
-		[launchOptions setObject:sourceApplication forKey:@"source"];
-	}
+
+	[launchOptions setObject:sourceApplication ?: [NSNull null] forKey:@"source"];
+    
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    
 	return YES;
 }
 
@@ -639,7 +663,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     //FunctionName();
     //Forward the callback
-    [self application:application didReceiveRemoteNotification:userInfo];
+    if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+        [self application:application didReceiveRemoteNotification:userInfo];
+    }
     
     //This only here for Simulator builds.
     
@@ -847,6 +873,10 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #endif
 	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown:condition];
+
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer stopServer];
+#endif
 
 	// THE CODE BELOW IS WRONG.
 	// It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.
@@ -1149,8 +1179,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
     NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
     NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
-    
-    return [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
+    return [NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo];
 }
 
 - (NSString*)userAgent

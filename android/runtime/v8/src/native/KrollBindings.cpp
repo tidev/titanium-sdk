@@ -317,6 +317,12 @@ void KrollBindings::getExternalCommonJsModule(const FunctionCallbackInfo<Value>&
 		subPath = nameKey.substr(slashPos + 1);
 	}
 
+	bool exists = (externalCommonJsModules.count(moduleRoot) > 0);
+	if (!exists) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
+
 	JNIEnv *env = JNIScope::getEnv();
 	jobject sourceProvider = externalCommonJsModules[moduleRoot];
 	jmethodID sourceRetrievalMethod = commonJsSourceRetrievalMethods[moduleRoot];

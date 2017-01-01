@@ -161,6 +161,7 @@ properties:
     type: Titanium.UI.View
     platforms: [android]
     accessors: false
+    availability: creation
     
   - name: buttonNames
     summary: Name of each button to create.

@@ -486,6 +486,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SCROLLING = "scrolling";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
 
 	/**
@@ -572,8 +577,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
-	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
 	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
 	public static final String PROPERTY_RETURN_TRANSITION = "activityReturnTransition";
@@ -874,6 +877,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 
 	/**
@@ -1015,6 +1028,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CAN_SCROLL = "canScroll";
 
 	/**
 	 * @module.api
@@ -1239,6 +1257,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 
 	/**
@@ -1432,6 +1455,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
 
 	/**
@@ -1589,6 +1617,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_IMAGES = "images";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
 	 * @module.api
@@ -1936,6 +1969,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_INTENT = "onIntent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE = "onCreate";
 
 	/**
@@ -2217,6 +2255,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
 
 	/**
 	 * @module.api

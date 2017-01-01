@@ -1,20 +1,19 @@
 ---
 name: Titanium.UI.iOS.Stepper
 summary: |
-    A widget used to increment and decrement a value
+    A widget used to increment and decrement a value.
 description: |
-    <table id="IOS Stepper">
+    <table id="iOS Stepper">
       <tr>
-        <td><img src="images/Stepper/Stepper.png" height="50" /></td>
-        <td><img src="images/Stepper/Stepper_customImages.png" height="51" /></td>
+        <td><img src="images/stepper/stepper.png" height="25" /></td>
+        <td><img src="images/stepper/stepper_custom.png" height="25" /></td>
       </tr>
-      <tr><th colspan="2">iOS</th></tr>
     </table>
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.
-    Use the <Titanium.UI.createStepper> method or a **`<Stepper>`** Alloy element to create a stepper
-    (see [Examples](#!/api/Titanium.UI.iOS.Stepper-examples)) .
+    Use the <Titanium.UI.iOS.createStepper> method or a **`<Stepper>`** Alloy element to create a stepper
+    (see the "Examples" section details).
 
     * When assigning a custom image to the `backgroundImage` property, the image must be
     partially or wholly transparent for the background color or background gradient to be visible.
@@ -62,21 +61,21 @@ properties:
 
   - name: minimum
     summary: |
-        The minimum value the stepper will be set to, the value must be smaller than the maximumValue.
+        The minimum value the stepper will be set to, the value must be smaller than the maximum value.
         If you attempt to set a value equal to or greater than maximum, the system will default the 
         value to 0.
     type: Number
 
   - name: maximum
     summary: |
-        The maximum value the stepper will be set to, the value must be greater than the minimum.
+        The maximum value the stepper will be set to, the value must be greater than the minimum value.
         If you attempt to set a value equal to or lower than minimum, the system will default the 
         value to 100.
     type: Number
 
   - name: steps
     summary: |
-        The value the stepper will increment and decrement by, default value for this property is 1.When setting
+        The value the stepper will increment and decrement by, default value for this property is 1. When setting
         a new value, it must be greater than 1.
     type: Number
 
@@ -134,7 +133,7 @@ events:
     summary: Fired every time the stepper value changes.
     properties:
       - name: value
-        summary: Current value of the stepper.
+        summary: The current value of the stepper.
         type: Number
       - name: minimum
         summary: The minimum value of the stepper.
@@ -144,21 +143,20 @@ events:
         type: Number
 
 examples:
-  - title: Simple stepper Example
+  - title: Simple Stepper Example
     example: |
             var win = Ti.UI.createWindow({
                 backgroundColor: '#fff'
             });
 
             var stepper = Ti.UI.iOS.createStepper({
-                top: 20,
-                tintColor:"green",
-                steps:3,
-                maximum:30,
-                minimum:0
+                tintColor: "green",
+                steps: 3,
+                maximum: 30,
+                minimum: 0
             });
 
-            stepper.addEventListener("change",function(e){
+            stepper.addEventListener("change", function(e) {
                 Ti.API.info(e.value);
             });
 
@@ -172,16 +170,15 @@ examples:
         stepper.xml:
 
             <Alloy>
-                <Window class="container">
-                    <Stepper id="stepper" onClick="doClick" 
-                         top="30" tintColor="green" steps ="3" />
+                <Window id="window">
+                    <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
                 </Window>
             </Alloy>
 
         stepper.js:
 
             function doClick(e) {
-                alert($.stepper.value);
+                alert(e.value);
             }
 
-            $.index.open();
+            $.window.open();

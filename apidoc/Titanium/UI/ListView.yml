@@ -206,6 +206,7 @@ excludes:
     events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
     properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+
 events:
   - name: indexclick
     summary: Fired when the index bar is clicked by the user.
@@ -443,6 +444,36 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
+  - name: prefetch
+    summary: |
+        Fired when new list items are prefetched. The items are ordered ascending by geometric distance 
+        from the list view. Note that this event is only available on iOS 10 and later.
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
+
+  - name: cancelprefetch
+    summary: |
+        Fired when list items that previously were considered as candidates for pre-fetching were not 
+        actually used. Note that this event is only available on iOS 10 and later
+    since: 6.1.0
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    description: |
+        Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control fired the event. 
+    properties:
+      - name: prefetchedItems
+        summary: An array of prefetched items.
+        type: Array<ListItemEventType>
+
   - name: pullend
     summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
     platforms: [iphone, ipad]
@@ -608,12 +639,15 @@ events:
     summary: Fires when the list view is scrolling. Calling the `scrollTo` methods will not fire this event
     description: |
         This event will fire while the list view is scrolling and the user releases the finger.
-        No event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
+        On iOS no event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi). 
-        When `direction` is `down`, `velocity` is negative and viceversa. 
+        When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
 
-    platforms: [iphone, ipad]
-    since: 5.4.0
+    platforms: [android, iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 5.4.0
+        ipad: 5.4.0
     properties:
       - name: direction
         summary: Direction of the scroll either 'up', or 'down'.
@@ -627,7 +661,6 @@ events:
         summary: |
            The expected y axis offset when the scrolling action decelerates to a stop. 
         type: Number
-
 
 properties:
   - name: allowsSelection
@@ -647,8 +680,11 @@ properties:
     description: Set to false to disable scrolling.
     type: Boolean
     default: true
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 3.2.0
+        ipad: 3.2.0
+    platforms: [android, iphone, ipad]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
@@ -741,11 +777,8 @@ properties:
     summary: List view footer as a view that will be rendered instead of a label.
     description: |
         In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
-        element (see Examples).
-
+        element (see Examples). On Android, this is a creation only property.
     type: Titanium.UI.View
-    description: |
-        On Android, this is a creation only property.
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -1024,9 +1057,55 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad]
+
+  - name: resultsBackgroundColor
+    summary: The background color of the search results (iOS-only).
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        Note: A transparent background-color is not officially supported by Apple to
+        prevent that the list of results overlaps with the list view below it.  
+    type: String
+    default: undefined (behaves as white) 
+    since: 6.1.0
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: resultsSeparatorColor
+    summary: | 
+        Separator line color between rows inside search results, 
+        as a color name or hex triplet (iOS-only).
+    description: |
+        To make the line invisible, set this property to `transparent`, or the same value as the 
+        [backgroundColor](Titanium.UI.ListView.backgroundColor) property. 
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: undefined (behaves as gray) 
+    since: 6.1.0
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: resultsSeparatorStyle
+    summary: The separator style of the search results (iOS-only).
+    type: Number
+    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
+    since: 6.1.0
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: resultsSeparatorInsets
+    summary: | 
+        The insets for search results separators (applies to all cells & iOS-only). 
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        This property sets the default inset for all cells in the table. 
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` 
+        specifying the inset from the right edge. 
+    type: Dictionary
+    since: 6.1.0
+    platforms: [iphone, ipad]
+    availability: creation
     
 methods:
-
   - name: scrollToItem
     summary: Scrolls to a specific item.
     description: |
@@ -1707,3 +1786,25 @@ properties:
   - name: bottom
     summary: Value specifying the bottom insets for the enclosing scroll view of the list view.
     type: Number
+
+---
+name: ListItemEventType
+summary: The arguments for the <Titanium.UI.ListView.prefetch> and <Titanium.UI.ListView.cancelprefetch> events.
+since: 6.1.0
+platforms: [iphone, ipad]
+properties:
+  - name: section
+    summary: List section if the item is contained in a list section.
+    type: Titanium.UI.ListSection
+
+  - name: sectionIndex
+    summary: Section index.
+    type: Number
+
+  - name: itemIndex
+    summary: Item index.
+    type: Number
+
+  - name: itemId
+    summary: The item ID bound to the list item that generated the event.
+    type: String

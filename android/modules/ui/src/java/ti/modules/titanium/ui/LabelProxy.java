@@ -46,6 +46,8 @@ public class LabelProxy extends TiViewProxy
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
 		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, UIModule.TEXT_ELLIPSIZE_TRUNCATE_END);
+		defaultValues.put(TiC.PROPERTY_WORD_WRAP, true);
+		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
 	@Override

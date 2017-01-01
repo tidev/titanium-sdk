@@ -305,6 +305,17 @@
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
 	}
+  
+	// TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
+	BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && ((UITextField *)textWidgetView).secureTextEntry);
+
+	if (needsAdjustment)
+	{
+		NSString *str = ((UITextField *)textWidgetView).text;
+		((UITextField *)textWidgetView).text = @"";
+		((UITextField *)textWidgetView).text = str;
+	}
+
 	return textWidgetView;
 }
 
@@ -330,8 +341,26 @@
     }
 }
 
+-(void)setPadding_:(id)args
+{
+    id _paddingLeft = [args objectForKey:@"left"];
+    id _paddingRight = [args objectForKey:@"right"];
+    
+    TiTextField* tv = (TiTextField*)[self textWidgetView];
+    
+    if (_paddingLeft) {
+        tv.paddingLeft = [TiUtils floatValue:_paddingLeft];
+    }
+    
+    if (_paddingRight) {
+        tv.paddingRight = [TiUtils floatValue:_paddingRight];
+    }
+}
+
 -(void)setPaddingLeft_:(id)value
 {
+    DEPRECATED_REPLACED(@"UI.TextField.paddingLeft", @"6.1.0", @"UI.TextField.padding.left");
+
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     tv.paddingLeft = [TiUtils floatValue:value];
 }
@@ -344,6 +373,8 @@
 
 -(void)setPaddingRight_:(id)value
 {
+    DEPRECATED_REPLACED(@"UI.TextField.paddingRight", @"6.1.0", @"UI.TextField.padding.right");
+    
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     tv.paddingRight = [TiUtils floatValue:value];
 }
@@ -386,6 +417,12 @@
 	[(TiTextField*)[self textWidgetView] setDisabledBackground:[self loadImage:image]];
 }
 
+- (void)setBackgroundColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	[(TiTextField*)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+}
+
 -(void)setHintText_:(id)value
 {
     [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
@@ -402,8 +439,9 @@
     if (!hintText) {
         hintText = @"";
     }
-    
-    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:[[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}]];
+    NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}];
+    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:placeHolder];
+    RELEASE_TO_NIL(placeHolder);
 }
 
 -(void)setAttributedHintText_:(id)value

@@ -111,6 +111,22 @@ methods:
         summary: Intent to launch when the user clicks on the notification.
         type: Titanium.Android.PendingIntent
 
+  - name: setProgress
+    summary: Set the progress this notification represents.
+    since: "6.1.0"
+    parameters:
+      - name: max
+        summary: Defines the maximum value the progress can take.
+        type: Number
+
+      - name: progress
+        summary: Defines the progress value, between 0 and max. 
+        type: Number
+
+      - name: indeterminate
+        summary: Allows to enable the indeterminate mode.
+        type: Boolean
+
 properties:
 
   - name: audioStreamType

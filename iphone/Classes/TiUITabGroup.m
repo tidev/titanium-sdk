@@ -349,7 +349,6 @@ DEFINE_EXCEPTIONS
 		else
 		{
 			[self updateMoreBar:(UINavigationController *)viewController];
-			viewController = nil;
 		}
 
 	}
@@ -386,10 +385,17 @@ DEFINE_EXCEPTIONS
 
 -(void)setTabsTintColor_:(id)value
 {
-    TiColor* color = [TiUtils colorValue:value];
-    UITabBar* tabBar = [controller tabBar];
-    tabBar.tintColor = [color color];
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    [[controller tabBar] setTintColor:[[TiUtils colorValue:value] color]];
 }
+
+#if IS_XCODE_8
+-(void)setUnselectedItemTintColor_:(id)value
+{
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
+}
+#endif
 
 -(void)setTabsBackgroundImage_:(id)value
 {

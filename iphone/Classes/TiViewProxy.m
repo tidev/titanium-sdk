@@ -221,16 +221,19 @@ static NSArray* touchEventsArray;
 #else
         [self rememberProxy:childView];
 #endif
+		// Lock the assignment of the position to prevent race-conditions
 		pthread_rwlock_wrlock(&childrenLock);
 		if(position < 0 || position > [children count]) {
 			position = (int)[children count];
 		}
 		[children insertObject:childView atIndex:position];
-		//Turn on clipping because I have children
+		pthread_rwlock_unlock(&childrenLock);
+        
+		[childView setParent:self];
+
+		// Turn on clipping because I have children
 		[[self view] updateClipping];
 
-		pthread_rwlock_unlock(&childrenLock);
-		[childView setParent:self];
 		[self contentsWillChange];
 		if(parentVisible && !hidden)
 		{
@@ -1491,7 +1494,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	pthread_rwlock_destroy(&childrenLock);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.
-	
+	RELEASE_TO_NIL(barButtonItem);
 	[super dealloc];
 }
 

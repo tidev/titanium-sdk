@@ -53,44 +53,6 @@
     return @"Ti";
 }
 
--(void)include:(NSArray*)jsfiles
-{
-	id<TiEvaluator> context = [self executionContext];
-	NSURL * oldUrl = [context currentURL];
-	NSURL * rootURL = (oldUrl != nil)?oldUrl:[self _baseURL];
-
-	for (id file in jsfiles)
-	{
-		// only allow includes that are local to our execution context url
-		// for security, refuse to load non-compiled in Javascript code
-		NSURL *url = [TiUtils toURL:file relativeToURL:rootURL];
-		DebugLog(@"[DEBUG] Include url: %@",[url absoluteString]);
-		[context setCurrentURL:url];
-		[context evalFile:[url absoluteString]];
-	}
-
-	[context setCurrentURL:oldUrl];
-}
-
-#ifdef DEBUG
-// an internal include that works with absolute URLs (debug mode only)
--(void)includeAbsolute:(NSArray*)jsfiles
-{
-	for (id file in jsfiles)
-	{
-		DebugLog(@"[DEBUG] Absolute url: %@", file);
-
-		NSURL *url = nil;
-		if (![file hasPrefix:@"file:"]) {
-			url = [NSURL URLWithString:file];
-		} else {
-			url = [[NSURL fileURLWithPath:file] standardizedURL];
-		}
-		[[self executionContext] evalFile:[url absoluteString]];
-	}
-}
-#endif
-
 -(TiBuffer*)createBuffer:(id)arg
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
@@ -101,24 +63,24 @@
     NSString* type;
     CFByteOrder byteOrder;
     BOOL hasByteOrder;
-    
+
     ENSURE_INT_OR_NIL_FOR_KEY(length, arg, @"length", hasLength);
     ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"value", NSObject);
     ENSURE_ARG_OR_NIL_FOR_KEY(type, arg, @"type", NSString);
     ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
-    
+
     TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
     if (hasLength) {
         [buffer setLength:[NSNumber numberWithInt:length]];
     }
-    
+
     // NOTE: We use the length of the buffer as a hint when encoding strings.  In this case, if [string length] > length,
     // we only encode up to 'length' of the string.
     if ([data isKindOfClass:[NSString class]]) {
         NSUInteger encodeLength = (hasLength) ? length : [data length];
 
         NSString* charset = (type != nil) ? type : kTiUTF8Encoding;
-        
+
         // Just put the string data directly into the buffer, if we can.
         if (!hasLength){
             NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
@@ -133,8 +95,8 @@
                 }
                 case BAD_ENCODING: {
                     [self throwException:[NSString stringWithFormat:@"Invalid string encoding type '%@'",charset]
-                               subreason:nil 
-                                location:CODELOCATION];   
+                               subreason:nil
+                                location:CODELOCATION];
                     break;
                 }
             }
@@ -146,12 +108,12 @@
                        subreason:nil
                         location:CODELOCATION];
         }
-        
+
         if (!hasLength) {
             length = [TiUtils dataSize:[TiUtils constantToType:type]];
             [buffer setLength:NUMINT(length)];
         }
-        
+
         byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
         [buffer setByteOrder:NUMLONG(byteOrder)];
         switch ([TiUtils encodeNumber:data toBuffer:buffer offset:0 type:type endianness:byteOrder]) {
@@ -187,7 +149,7 @@
                    subreason:nil
                     location:CODELOCATION];
     }
-    
+
     return buffer;
 }
 

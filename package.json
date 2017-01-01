@@ -34,11 +34,11 @@
     "fields": "0.1.24",
 	"glob": "7.0.5",
     "humanize": "0.0.9",
-    "ioslib": "0.13.0",
+    "ioslib": "1.1.2",
     "lodash.defaultsdeep": "4.5.1",
     "markdown": "0.5.0",
     "moment": "2.14.1",
-    "node-appc": "0.2.36",
+    "node-appc": "0.2.39",
     "node-uuid": "1.4.7",
     "pngjs": "3.0.0",
     "request": "2.74.0",
@@ -47,7 +47,7 @@
     "temp": "0.8.3",
     "uglify-js": "2.7.0",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.18",
+    "windowslib": "0.4.25",
     "wrench": "1.5.9",
     "xcode": "0.8.9",
     "xmldom": "0.1.22"
@@ -70,7 +70,7 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": ">=4.0 <=5.x"
+    "node": "4.x || 6.x"
   },
   "engines": {
     "node": ">=4.0"
