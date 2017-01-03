@@ -783,10 +783,10 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     CGContextConcatCTM(context, transform);
     
     CGContextDrawImage(UIGraphicsGetCurrentContext(), CGRectMake(0, 0, width, height), imgRef);
-    UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    return [imageCopy autorelease];
+    return [[result retain] autorelease];
 }
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
