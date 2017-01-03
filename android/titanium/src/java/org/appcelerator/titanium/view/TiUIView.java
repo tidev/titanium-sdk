@@ -1592,7 +1592,7 @@ public abstract class TiUIView
 			@Override
 			public boolean onDoubleTap(MotionEvent e)
 			{
-				if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
+				if (proxy != null && (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK))) {
 					boolean handledTap = fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					boolean handledClick = fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
 					return handledTap || handledClick;
@@ -1604,7 +1604,7 @@ public abstract class TiUIView
 			public boolean onSingleTapConfirmed(MotionEvent e)
 			{
 				Log.d(TAG, "TAP, TAP, TAP on " + proxy, Log.DEBUG_MODE);
-				if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 					return fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click. A single tap is a quick tap only, whereas clicks can be held
@@ -1623,7 +1623,7 @@ public abstract class TiUIView
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 			{
 				Log.d(TAG, "SWIPE on " + proxy, Log.DEBUG_MODE);
-				if (proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
 					KrollDict data = dictFromEvent(e2);
 					if (Math.abs(velocityX) > Math.abs(velocityY)) {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
@@ -1640,7 +1640,7 @@ public abstract class TiUIView
 			{
 				Log.d(TAG, "LONGPRESS on " + proxy, Log.DEBUG_MODE);
 
-				if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 					fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 				}
 			}
@@ -1657,7 +1657,7 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 					scaleDetector.onTouchEvent(event);
 					if (scaleDetector.isInProgress()) {
 						pointersDown = 0;
@@ -1686,7 +1686,7 @@ public abstract class TiUIView
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					// Don't fire twofingertap if there is no listener
-					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
 						float x = event.getX();
 						float y = event.getY();
 						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
@@ -1700,7 +1700,7 @@ public abstract class TiUIView
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
-					if (proxy.hierarchyHasListener(motionEvent)) {
+					if (proxy != null && proxy.hierarchyHasListener(motionEvent)) {
 						fireEvent(motionEvent, dictFromEvent(event));
 					}
 				}
@@ -1801,7 +1801,7 @@ public abstract class TiUIView
 					switch (keyCode) {
 						case KeyEvent.KEYCODE_ENTER:
 						case KeyEvent.KEYCODE_DPAD_CENTER:
-							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
+							if (proxy != null && proxy.hasListeners(TiC.EVENT_CLICK)) {
 								fireEvent(TiC.EVENT_CLICK, null);
 								return true;
 							}
