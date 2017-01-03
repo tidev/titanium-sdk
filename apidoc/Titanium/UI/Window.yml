@@ -803,11 +803,15 @@ properties:
   - name: sustainedPerformanceMode
     summary: Maintain a sustainable level of performance.
     description: |
-        Performance can fluctuate dramatically for long-running apps, because the system throttles system-on-chip engines as device components reach their temperature limits. This fluctuation presents a moving target for app developers creating high-performance, long-running apps.
+        Performance can fluctuate dramatically for long-running apps, because the system throttles
+        system-on-chip engines as device components reach their temperature limits. This fluctuation
+        presents a moving target for app developers creating high-performance, long-running apps.
         
-        Setting this feature to true will set sustained performance mode for the corresponding window. If property is undefined then it defaults to false.
+        Setting this feature to true will set sustained performance mode for the corresponding window.
+        If property is undefined then it defaults to false.
         
-        Note: feature is only available on supported devices and functionality is experimental and subject to change in future releases. See [Android docs](https://developer.android.com/about/versions/nougat/android-7.0.html#sustained_performance_api) and [Google VR docs](https://developers.google.com/vr/android/ndk/jni/reference/com/google/vr/ndk/base/AndroidCompat.html#setSustainedPerformanceMode(Activity, boolean)) for further info.
+        Note: feature is only available on supported devices and functionality is experimental and
+        subject to change in future releases. See [Android docs](https://developer.android.com/about/versions/nougat/android-7.0.html#sustained_performance_api) and [Google VR docs](https://developers.google.com/vr/android/ndk/jni/reference/com/google/vr/ndk/base/AndroidCompat.html#setSustainedPerformanceMode(Activity, boolean)) for further info.
     type: Boolean
     since: "6.1.0"
     platforms: [android]

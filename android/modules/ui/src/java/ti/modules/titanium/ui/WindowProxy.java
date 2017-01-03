@@ -168,7 +168,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	    }
 	    
 	    if (options.containsKey(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE)) {
-	        setPropertyAndFire(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, options.getBoolean(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE));
+	        setSustainedPerformanceMode((Boolean) options.get(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE));
 	    }
 	}
 
@@ -393,7 +393,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	
 	@Kroll.setProperty @Kroll.method
 	public void setSustainedPerformanceMode(boolean mode) {
-		setPropertyAndFire(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
+		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
+		windowActivity.get().setSustainModeOn(mode);
 	}
 	
 	@Kroll.getProperty @Kroll.method

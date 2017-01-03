@@ -7,13 +7,13 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.content.Context;
+import android.os.PowerManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -95,6 +95,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
+	private boolean sustainModeOn = false;
 
 
 	public static class PermissionContextData {
@@ -677,7 +678,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
-		// set the current activity back to what it was originally
+		// set the current activity back to what it was originally 
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
@@ -1732,5 +1733,21 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean hasSustainMode()
+	{
+		PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		return manager.isSustainedPerformanceModeSupported();
+	}
+	
+	public void setSustainModeOn(boolean sustainModeOn)
+	{
+		if (!hasSustainMode()) {
+			Log.w(TAG, "sustainedPerformanceMode is not supported on this device");
+		} else if (this.sustainModeOn != sustainModeOn) {
+			getWindow().setSustainedPerformanceMode(sustainModeOn);
+			this.sustainModeOn = sustainModeOn;
+		}
 	}
 }
