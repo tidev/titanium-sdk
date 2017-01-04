@@ -815,6 +815,7 @@ properties:
     type: Boolean
     since: "6.1.0"
     platforms: [android]
+    osver: {android: {min: "7.0"}}
 
   - name: swipeToClose
     summary: Boolean value indicating if the user should be able to close a window using a swipe gesture.
