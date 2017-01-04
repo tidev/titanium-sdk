@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class TiSocketFactory extends SSLSocketFactory {
 		}
 				
 		sslContext = SSLContext.getInstance(tlsVersion);
-		sslContext.init(keyManagers, trustManagers, null);
+		sslContext.init(keyManagers, trustManagers, new SecureRandom());
 		
 	}
 	
