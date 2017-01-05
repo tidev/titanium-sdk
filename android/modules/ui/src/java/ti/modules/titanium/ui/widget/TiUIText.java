@@ -81,8 +81,6 @@ public class TiUIText extends TiUIView
 	private boolean disableChangeEvent = false;
 
 	protected EditText tv;
-	
-	private boolean autoCapAll;
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
@@ -378,18 +376,6 @@ public class TiUIText extends TiUIView
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
 			fireEvent(TiC.EVENT_CHANGE, data);
 		}
-		
-		// capitalize if necessary
-		if (autoCapAll && !TextUtils.isEmpty(newText)) {
-
-			if (!TextUtils.equals(newText, newText.toUpperCase())) {
-				int cursorPosition = tv.getSelectionEnd();
-				newText = newText.toUpperCase();
-				tv.setText(newText);
-				tv.setSelection(cursorPosition);
-			}
-
-		}
 	}
 
 	@Override
@@ -526,15 +512,13 @@ public class TiUIText extends TiUIView
 
 		} else {
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
-				autoCapAll = false;
 				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 					case TEXT_AUTOCAPITALIZATION_NONE:
 						autoCapValue = 0;
 						break;
 					case TEXT_AUTOCAPITALIZATION_ALL:
-						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-							| InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-						autoCapAll = true;    // autoCapAll flag ON only when TEXT_AUTOCAPITALIZATION_ALL observed
+						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
+						tv.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
 						break;
 					case TEXT_AUTOCAPITALIZATION_SENTENCES:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -546,6 +530,9 @@ public class TiUIText extends TiUIView
 					default:
 						Log.w(TAG, "Unknown AutoCapitalization Value [" + d.getString(TiC.PROPERTY_AUTOCAPITALIZATION) + "]");
 						break;
+				}
+				if ((autoCapValue & InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) {
+					tv.setFilters(new InputFilter[] {});
 				}
 			}
 
