@@ -230,27 +230,29 @@ static NSArray* touchEventsArray;
 		pthread_rwlock_unlock(&childrenLock);
         
 		[childView setParent:self];
-
-		// Turn on clipping because I have children
-		[[self view] updateClipping];
-
-		[self contentsWillChange];
-		if(parentVisible && !hidden)
-		{
-			[childView parentWillShow];
-		}
+        
+        if (windowOpened)
+        {
+            // Turn on clipping because I have children
+            [[self view] updateClipping];
+            [self contentsWillChange];
+            if(parentVisible && !hidden)
+            {
+                [childView parentWillShow];
+            }
 		
 #ifndef TI_USE_AUTOLAYOUT
-		//If layout is non absolute push this into the layout queue
-		//else just layout the child with current bounds
-		if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
-			[self contentsWillChange];
-		}
-		else
+            //If layout is non absolute push this into the layout queue
+            //else just layout the child with current bounds
+            if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
+                [self contentsWillChange];
+            }
+            else
 #endif
-        {
-			[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
-		}
+            {
+                [self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
+            }
+        }
 #ifdef TI_USE_KROLL_THREAD
 	}
 	else
