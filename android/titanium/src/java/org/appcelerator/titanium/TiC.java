@@ -1424,12 +1424,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
-	
+		
 	/**
 	 * @module.api
 	 */
@@ -1887,8 +1882,19 @@ public class TiC
 	 */
 	public static final String PROPERTY_MIN = "min";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_AGE = "minAge";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 
 	/**
@@ -1896,6 +1902,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
+	
 	/**
 	 * @module.api
 	 */
