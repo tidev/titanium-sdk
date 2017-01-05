@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
+import android.text.*;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -25,11 +26,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
 import android.text.TextUtils.TruncateAt;
-import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.LinkMovementMethod;
@@ -85,7 +82,7 @@ public class TiUIText extends TiUIView
 
 	protected EditText tv;
 	
-	private KrollDict keyboard;
+	private boolean autoCapAll;
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
@@ -383,22 +380,15 @@ public class TiUIText extends TiUIView
 		}
 		
 		// capitalize if necessary
-		String text = s.toString();
+		if (autoCapAll && !TextUtils.isEmpty(newText)) {
 
-		if (keyboard!=null && !TextUtils.isEmpty(text)) {
-			if (keyboard.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
-				switch (TiConvert.toInt(keyboard.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
-					case TEXT_AUTOCAPITALIZATION_ALL:
-						if(!TextUtils.equals(text, text.toUpperCase()))
-						{
-							int cursorPosition = tv.getSelectionEnd();
-							text=text.toUpperCase();
-							tv.setText(text);
-							tv.setSelection(cursorPosition);
-						}
-						break;
-				}
+			if (!TextUtils.equals(newText, newText.toUpperCase())) {
+				int cursorPosition = tv.getSelectionEnd();
+				newText = newText.toUpperCase();
+				tv.setText(newText);
+				tv.setSelection(cursorPosition);
 			}
+
 		}
 	}
 
@@ -493,9 +483,6 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
-		// Initialize keyboard
-		keyboard = d;
-		
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = 0;
 		}
@@ -539,7 +526,7 @@ public class TiUIText extends TiUIView
 
 		} else {
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
-
+				autoCapAll = false;
 				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 					case TEXT_AUTOCAPITALIZATION_NONE:
 						autoCapValue = 0;
@@ -547,6 +534,7 @@ public class TiUIText extends TiUIView
 					case TEXT_AUTOCAPITALIZATION_ALL:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 							| InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+						autoCapAll = true;    // autoCapAll flag ON only when TEXT_AUTOCAPITALIZATION_ALL observed
 						break;
 					case TEXT_AUTOCAPITALIZATION_SENTENCES:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
