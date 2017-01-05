@@ -171,7 +171,6 @@ properties:
         <Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END> which is the default behavior as well.
     type: Number
     since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
-
     platforms: [android, iphone, ipad]
     
   - name: shadowColor
