@@ -1432,6 +1432,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 #endif
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
 	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
+	[self initializeProperty:@"touchEnabled" defaultValue:NUMBOOL(YES)];
 
 	if (properties!=nil)
 	{
