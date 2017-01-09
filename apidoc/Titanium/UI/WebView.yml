@@ -393,7 +393,7 @@ events:
     summary: Fired when a blacklisted Url is stopped
     description: |
         This event is fired when a blacklisted Url is stopped
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "5.4.0"
     properties:
       - name: url
@@ -428,7 +428,7 @@ properties:
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
     since: "5.4.0"
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: data

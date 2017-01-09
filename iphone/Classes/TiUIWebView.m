@@ -100,6 +100,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(reloadData);
 	RELEASE_TO_NIL(reloadDataProperties);
 	RELEASE_TO_NIL(lastValidLoad);
+    RELEASE_TO_NIL(blacklistedURLs);
 	[super dealloc];
 }
 
@@ -518,6 +519,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
+-(void)setBlacklistedURLs_:(id)args
+{
+    ENSURE_TYPE(args, NSArray);
+    if (blacklistedURLs) {
+        RELEASE_TO_NIL(blacklistedURLs);
+    }
+    blacklistedURLs = [[NSArray alloc] initWithArray:args];
+}
+
 -(void)setHandlePlatformUrl_:(id)arg
 {
     [[self proxy] replaceValue:arg forKey:@"handlePlatformUrl" notification:NO];
@@ -712,6 +722,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 
 	NSURL * newUrl = [request URL];
+    
+    if (blacklistedURLs && blacklistedURLs.count > 0) {
+        NSString *urlAbsStr = [newUrl absoluteString];
+        
+        for (NSString *blackListedUrl in blacklistedURLs) {
+            if([urlAbsStr rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location !=NSNotFound) {
+                if([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
+                    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsStr,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
+                    [self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
+                }
+                return NO;
+            }
+        }
+    }
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
