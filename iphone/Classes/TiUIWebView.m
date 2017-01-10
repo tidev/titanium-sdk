@@ -100,7 +100,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(reloadData);
 	RELEASE_TO_NIL(reloadDataProperties);
 	RELEASE_TO_NIL(lastValidLoad);
-    RELEASE_TO_NIL(blacklistedURLs);
+	RELEASE_TO_NIL(blacklistedURLs);
 	[super dealloc];
 }
 
