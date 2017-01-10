@@ -33,21 +33,45 @@ public class TitaniumBlob extends TiBaseFile
 	}
 
 	protected void init() {
-		String [] projection = {
+		String[] projection = {
 			MediaStore.Images.ImageColumns.DISPLAY_NAME,
 			MediaStore.Images.ImageColumns.DATA
 		};
 		Cursor c = null;
-		try {
-			c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
 
-			if (c.moveToNext()) {
-				name = c.getString(0);
-				path = c.getString(1);
-			}
-		} finally {
-			if (c != null) {
+		if (url.startsWith("content://com.android.providers.media.documents")) {
+			try {
+				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), null, null, null, null);
+				c.moveToFirst();
+				String id = c.getString(0);
+				id = id.substring(id.lastIndexOf(":") + 1);
 				c.close();
+
+				c = TiApplication.getInstance().getContentResolver().query(
+					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+					projection, MediaStore.Images.Media._ID + " = ? ", new String[]{id}, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		} else {
+			try {
+				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
 			}
 		}
 	}
