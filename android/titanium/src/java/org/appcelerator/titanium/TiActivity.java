@@ -13,6 +13,7 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 
 public class TiActivity extends TiBaseActivity
 {
+	Intent intent = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +40,16 @@ public class TiActivity extends TiBaseActivity
 
 			// merge root intent extras
 			if (rootIntent != null) {
-				Intent intent = getIntent();
+				if (intent == null) {
+					intent = getIntent();
+				}
 				if (intent.getComponent().getClassName().equals(TiActivity.class.getName())) {
-					intent.putExtras(rootIntent);
-					setIntent(intent);
+					Intent newIntent = new Intent(intent);
+					newIntent.putExtras(rootIntent);
+					setIntent(newIntent);
 
 					// fire 'newintent'
-					IntentProxy intentProxy = new IntentProxy(intent);
+					IntentProxy intentProxy = new IntentProxy(newIntent);
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_INTENT, intentProxy);
 					rootActivity.getActivityProxy().fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
@@ -63,7 +67,15 @@ public class TiActivity extends TiBaseActivity
 	{
 		super.onPause();
 
-		if (getTiApp().isRestartPending()) {
+		TiApplication tiApp = getTiApp();
+		TiRootActivity rootActivity = tiApp.getRootActivity();
+		if (rootActivity != null) {
+			Intent rootIntent = rootActivity.getIntent();
+			if (rootIntent != null) {
+				rootIntent.replaceExtras((Bundle) null);
+			}
+		}
+		if (tiApp.isRestartPending()) {
 			return;
 		}
 	}
