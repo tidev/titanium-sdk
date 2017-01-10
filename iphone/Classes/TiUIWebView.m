@@ -908,6 +908,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
 }
 
+- (void)stopSpinner
+{
+    if (spinner != nil) {
+        [UIView beginAnimations:@"webspiny" context:nil];
+        [UIView setAnimationDuration:0.3];
+        [spinner removeFromSuperview];
+        [UIView commitAnimations];
+        [spinner autorelease];
+        spinner = nil;
+    }
+}
+
 @end
 
 @implementation LocalProtocolHandler
@@ -972,18 +984,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)stopLoading
 {
 	// NO-OP
-}
-
-- (void)stopSpinner
-{
-    if (spinner != nil) {
-        [UIView beginAnimations:@"webspiny" context:nil];
-        [UIView setAnimationDuration:0.3];
-        [spinner removeFromSuperview];
-        [UIView commitAnimations];
-        [spinner autorelease];
-        spinner = nil;
-    }
 }
 
 @end
