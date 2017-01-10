@@ -724,12 +724,12 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	NSURL * newUrl = [request URL];
     
     if (blacklistedURLs && blacklistedURLs.count > 0) {
-        NSString *urlAbsStr = [newUrl absoluteString];
+        NSString *urlAbsoluteString = [newUrl absoluteString];
         
         for (NSString *blackListedUrl in blacklistedURLs) {
-            if([urlAbsStr rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location !=NSNotFound) {
-                if([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
-                    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsStr,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
+            if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
+                if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
+                    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
                     [self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
                 }
                 return NO;
