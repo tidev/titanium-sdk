@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
+import android.text.*;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -25,11 +26,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
 import android.text.TextUtils.TruncateAt;
-import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.LinkMovementMethod;
@@ -515,14 +512,13 @@ public class TiUIText extends TiUIView
 
 		} else {
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
-
 				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 					case TEXT_AUTOCAPITALIZATION_NONE:
 						autoCapValue = 0;
 						break;
 					case TEXT_AUTOCAPITALIZATION_ALL:
-						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-							| InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
+						tv.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
 						break;
 					case TEXT_AUTOCAPITALIZATION_SENTENCES:
 						autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -534,6 +530,9 @@ public class TiUIText extends TiUIView
 					default:
 						Log.w(TAG, "Unknown AutoCapitalization Value [" + d.getString(TiC.PROPERTY_AUTOCAPITALIZATION) + "]");
 						break;
+				}
+				if ((autoCapValue & InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) {
+					tv.setFilters(new InputFilter[] {});
 				}
 			}
 
