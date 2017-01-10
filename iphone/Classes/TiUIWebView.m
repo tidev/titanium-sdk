@@ -522,10 +522,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(void)setBlacklistedURLs_:(id)args
 {
     ENSURE_TYPE(args, NSArray);
+    
     if (blacklistedURLs) {
         RELEASE_TO_NIL(blacklistedURLs);
     }
-    blacklistedURLs = [[NSArray alloc] initWithArray:args];
+    
+    for (id blacklistedURL in args) {
+        ENSURE_TYPE(blacklistedURL, NSString);
+    }
+    
+    blacklistedURLs = [args copy];
 }
 
 -(void)setHandlePlatformUrl_:(id)arg
@@ -732,6 +738,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
                     NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
                     [self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
                 }
+		
+                [self stopSpinner];        
                 return NO;
             }
         }
@@ -785,15 +793,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
-{
-    if (spinner!=nil) {
-        [UIView beginAnimations:@"webspiny" context:nil];
-        [UIView setAnimationDuration:0.3];
-        [spinner removeFromSuperview];
-        [UIView commitAnimations];
-        [spinner autorelease];
-        spinner = nil;
-    }
+{    
+    [self stopSpinner];
+
     [url release];
     url = [[[webview request] URL] retain];
     NSString* urlAbs = [url absoluteString];
@@ -970,6 +972,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)stopLoading
 {
 	// NO-OP
+}
+
+- (void)stopSpinner
+{
+    if (spinner != nil) {
+        [UIView beginAnimations:@"webspiny" context:nil];
+        [UIView setAnimationDuration:0.3];
+        [spinner removeFromSuperview];
+        [UIView commitAnimations];
+        [spinner autorelease];
+        spinner = nil;
+    }
 }
 
 @end
