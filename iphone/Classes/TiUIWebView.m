@@ -734,18 +734,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         
 		for (NSString *blackListedUrl in blacklistedURLs) {
 			if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
-				NSDictionary *eventDict = @{
-					@"url": urlAbsoluteString,
-					@"message": @"Webview did not load blacklisted url."
-				};
-
-				if ([[self proxy] _hasListeners:@"onStopBlacklistedUrl"]) {
-					DEPRECATED_REPLACED(@"UI.WebView.Event.onStopBlacklistedUrl", @"6.1.0", @"UI.WebView.Event.blacklisturl");
-					[[self proxy] fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
-				}
-
 				if ([[self proxy] _hasListeners:@"blacklisturl"]) {
-					[[self proxy] fireEvent:@"blacklisturl" withObject:eventDict];
+					[[self proxy] fireEvent:@"blacklisturl" withObject:@{
+						@"url": urlAbsoluteString,
+						@"message": @"Webview did not load blacklisted url."
+					}];
 				}
 
 				[self stopSpinner];
