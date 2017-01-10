@@ -279,11 +279,6 @@ examples:
             win.open();
   - title: Button with Nine-patch Background Image
     example: |
-        To prepare, copy the images 
-        [custom-slider-right.9.png](https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/custom-slider-right.9.png) 
-        and [custom-slider-left.9.png](https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/custom-slider-left.9.png) 
-        into the project `/images/` directory/.
-        
         Create a button with a nine-patch image background, that swaps with another image when 
         selected, and generates a message in the console when clicked.
         

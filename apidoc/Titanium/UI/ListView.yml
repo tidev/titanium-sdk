@@ -1503,7 +1503,7 @@ examples:
             tableHeader.add(border);
 
             var imageArrow = Ti.UI.createImageView({
-                image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
+                image:'arrow.png',
                 left:20, bottom:10,
                 width:23, height:60
             });
