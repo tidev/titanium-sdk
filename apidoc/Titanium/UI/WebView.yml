@@ -393,8 +393,8 @@ events:
     summary: Fired when a blacklisted Url is stopped
     description: |
         This event is fired when a blacklisted Url is stopped
-    platforms: [android]
-    since: "5.4.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
     properties:
       - name: url
         summary: URL of the web document that is stopped.
@@ -427,8 +427,8 @@ properties:
         the blacklist. Note, this only applies in the links clicked inside the webview. The first website
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
-    since: "5.4.0"
-    platforms: [android]
+    since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: data
