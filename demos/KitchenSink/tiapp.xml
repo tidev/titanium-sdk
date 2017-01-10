@@ -26,9 +26,7 @@
     <property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
     <!-- get yours at http://code.google.com/android/maps-api-signup.html -->
     <property name="ti.android.google.map.api.key.production">GET_ME_FROM_GOOGLE</property>
-    <plugins>
-        <plugin version="0.1">ti.log</plugin>
-    </plugins>
+    <ios></ios>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest>
             <supports-screens android:anyDensity="false"/>
