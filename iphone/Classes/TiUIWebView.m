@@ -729,21 +729,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	NSURL * newUrl = [request URL];
     
-    if (blacklistedURLs && blacklistedURLs.count > 0) {
-        NSString *urlAbsoluteString = [newUrl absoluteString];
+	if (blacklistedURLs && blacklistedURLs.count > 0) {
+		NSString *urlAbsoluteString = [newUrl absoluteString];
         
-        for (NSString *blackListedUrl in blacklistedURLs) {
-            if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
-                if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
-                    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
-                    [self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
-                }
+		for (NSString *blackListedUrl in blacklistedURLs) {
+			if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
+				if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
+					NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
+					[self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
+				}
 		
-                [self stopSpinner];        
-                return NO;
-            }
-        }
-    }
+				[self stopSpinner];        
+				return NO;
+			}
+		}
+	}
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
