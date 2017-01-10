@@ -734,12 +734,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         
 		for (NSString *blackListedUrl in blacklistedURLs) {
 			if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
-				if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
-					NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
-					[self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
+				NSDictionary *eventDict = @{
+					@"url": urlAbsoluteString,
+					@"message": @"Webview did not load blacklisted url."
+				};
+
+				if ([[self proxy] _hasListeners:@"onStopBlacklistedUrl"]) {
+					DEPRECATED_REPLACED(@"UI.WebView.Event.onStopBlacklistedUrl", @"6.1.0", @"UI.WebView.Event.blacklisturl");
+					[[self proxy] fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
 				}
-		
-				[self stopSpinner];        
+
+				if ([[self proxy] _hasListeners:@"blacklisturl"]) {
+					[[self proxy] fireEvent:@"blacklisturl" withObject:eventDict];
+				}
+
+				[self stopSpinner];
 				return NO;
 			}
 		}
@@ -908,6 +917,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
 }
 
+- (void)stopSpinner
+{
+    if (spinner != nil) {
+        [UIView beginAnimations:@"webspiny" context:nil];
+        [UIView setAnimationDuration:0.3];
+        [spinner removeFromSuperview];
+        [UIView commitAnimations];
+        [spinner autorelease];
+        spinner = nil;
+    }
+}
+
 @end
 
 @implementation LocalProtocolHandler
@@ -972,18 +993,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)stopLoading
 {
 	// NO-OP
-}
-
-- (void)stopSpinner
-{
-    if (spinner != nil) {
-        [UIView beginAnimations:@"webspiny" context:nil];
-        [UIView setAnimationDuration:0.3];
-        [spinner removeFromSuperview];
-        [UIView commitAnimations];
-        [spinner autorelease];
-        spinner = nil;
-    }
 }
 
 @end
