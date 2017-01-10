@@ -398,7 +398,7 @@ events:
         summary: The URL of the web document that is stopped.
     deprecated:
         since: "6.1.0"
-        notes: Use the  cross-platform `blacklist` event instead.
+        notes: Use the  cross-platform `blacklisturl` event instead.
         
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
