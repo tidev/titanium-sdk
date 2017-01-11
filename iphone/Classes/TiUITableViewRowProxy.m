@@ -800,7 +800,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         if ([self viewAttached] && rowContainerView != nil) {
             CGFloat curHeight = rowContainerView.bounds.size.height;
             CGSize newSize = [callbackCell computeCellSize];
-            if (newSize.height != curHeight) {
+            
+            //TIMOB-19241
+            UITableViewCellSeparatorStyle separatorStyle = [[[[callbackCell proxy] table] tableView] separatorStyle];
+            CGFloat heightDifference = fabs(newSize.height - curHeight);
+            
+            if (((separatorStyle != UITableViewCellSeparatorStyleNone) && (heightDifference >= 1.0)) || ((separatorStyle == UITableViewCellSeparatorStyleNone) && (heightDifference > 0.0))) {
                 DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.",curHeight,newSize.height);
                 [self triggerRowUpdate];
             } else {
