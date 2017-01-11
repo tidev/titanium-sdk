@@ -4,38 +4,49 @@
  * @module utilities
  *
  * @copyright
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 
-const
-    appc = require('node-appc'),
-	bplist = require('bplist-parser'),
-    crypto = require('crypto'),
-    EventEmitter = require('events').EventEmitter,
-    fs = require('fs'),
-    __ = appc.i18n(__dirname).__;
+'use strict';
 
+const appc = require('node-appc');
+const bplist = require('bplist-parser');
+const crypto = require('crypto');
+const EventEmitter = require('events').EventEmitter;
+const fs = require('fs');
+const __ = appc.i18n(__dirname).__;
+const util = require('util');
+
+exports.Handle = Handle;
 exports.magik = magik;
 exports.hash = hash;
 exports.readPlist = readPlist;
 
 /**
- * Creates an event emitter, validates that the platform is OS X,
+ * Exposes both an event emitter API and a `stop()` method for canceling long
+ * running functions such as `trackDevices()` and `log()`.
+ */
+function Handle() {}
+util.inherits(Handle, EventEmitter);
+
+/**
+ * Creates an event emitting handle, validates that the platform is OS X,
  * normalizes the 'options' and 'callback' arguments, and passes all
  * these goodies to the 'body' function. It's magik!
  *
  * @param {Object} [options] - An object containing various settings.
  * @param {Function} [callback(err, ...)] - A function to call with the task is complete. This is guaranteed to be called asynchronously.
+ * @param {Function} [body] - A function to call with the
  *
- * @returns {EventEmitter}
+ * @returns {Handle}
  */
 function magik(options, callback, body) {
-    var emitter = new EventEmitter;
-    emitter.on('error', function () {});
+    var handle = new Handle;
+    handle.on('error', function () {});
 
     process.nextTick(function () {
         if (typeof options === 'function') {
@@ -48,14 +59,14 @@ function magik(options, callback, body) {
 
         if (process.platform !== 'darwin') {
             var err = new Error(__('Unsupported platform "%s"', process.platform));
-            emitter.emit('error', err);
+            handle.emit('error', err);
             return callback(err);
         }
 
-        body(emitter, options, callback);
+        body && body(handle, options, callback);
     });
 
-    return emitter;
+    return handle;
 };
 
 /**
