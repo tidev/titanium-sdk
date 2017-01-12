@@ -800,12 +800,17 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         if ([self viewAttached] && rowContainerView != nil) {
             CGFloat curHeight = rowContainerView.bounds.size.height;
             CGSize newSize = [callbackCell computeCellSize];
-            if (newSize.height != curHeight) {
+            
+            // TIMOB-19241: Fix the keyboard from losing focus after 1 character
+            UITableViewCellSeparatorStyle separatorStyle = [[table tableView] separatorStyle];
+            CGFloat heightDifference = fabs(newSize.height - curHeight);
+            
+            if (((separatorStyle != UITableViewCellSeparatorStyleNone) && (heightDifference >= 1.0)) || ((separatorStyle == UITableViewCellSeparatorStyleNone) && (heightDifference > 0.0))) {
                 DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.",curHeight,newSize.height);
                 [self triggerRowUpdate];
             } else {
                 DeveloperLog(@"Height does not change. Just laying out children. Height %.1f",curHeight);
-                //TIMOB-13121. Ensure touchdelegate is set if we are not going to reconstruct the row.
+                // TIMOB-13121: Ensure touchdelegate is set if we are not going to reconstruct the row.
                 if ([rowContainerView superview] != nil) {
                     UIView* contentView = [rowContainerView superview];
                     [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
