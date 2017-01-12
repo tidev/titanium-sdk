@@ -46,6 +46,7 @@
 -(BOOL)canGoBack;
 -(BOOL)canGoForward;
 -(void)reload;
+-(UIWebView*)webview;
 
 -(void)setHtml_:(NSString*)content withObject:(id)property;
 -(void)setAllowsLinkPreview_:(id)value;

@@ -540,6 +540,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     willHandleUrl = [TiUtils boolValue:arg];
 }
 
+-(void)setUserAgent_:(id)args
+{
+    ENSURE_TYPE(args, NSString);
+    NSDictionary *dict = @{@"UserAgent":args};
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
+}
+
 - (void)ensureLocalProtocolHandler
 {
 	static dispatch_once_t onceToken;
