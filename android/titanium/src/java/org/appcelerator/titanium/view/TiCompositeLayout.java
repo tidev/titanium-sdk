@@ -318,7 +318,7 @@ public class TiCompositeLayout extends ViewGroup
                     } else {
                         horizontalRowWidth += childWidth;
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
-                        w -= horizontalRowWidth;
+                        // w -= horizontalRowWidth;
                     }
 
                 } else {
