@@ -374,7 +374,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier
 {
-    BOOL allowsCustomKeyboard = [TiUtils boolValue:[[TiApp tiAppProperties] objectForKey:@"allow-external-keyboards"] def:YES];
+    BOOL allowsCustomKeyboard = [TiUtils boolValue:[[TiApp tiAppProperties] objectForKey:@"allow-custom-keyboards"] def:YES];
     
     if ([extensionPointIdentifier isEqualToString:UIApplicationKeyboardExtensionPointIdentifier] && !allowsCustomKeyboard) {
         return NO;

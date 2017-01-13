@@ -1,1 +1,1 @@
-{"ti.ui.defaultunit":"dp", "run-on-main-thread":true, "ti.deploytype":"development", "allow-external-keyboards": true}
+{"ti.ui.defaultunit":"dp", "run-on-main-thread":true, "ti.deploytype":"development", "allow-custom-keyboards": true}
