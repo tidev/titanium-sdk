@@ -540,11 +540,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     willHandleUrl = [TiUtils boolValue:arg];
 }
 
--(void)setUserAgent_:(id)args
+-(void)setUserAgent_:(id)value
 {
-    ENSURE_TYPE(args, NSString);
-    NSDictionary *dict = @{@"UserAgent":args};
-    [[NSUserDefaults standardUserDefaults] registerDefaults:dict];
+    ENSURE_TYPE(value, NSString);
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent":value}];
+    [self.proxy replaceValue:value forKey:@"userAgent" notification:NO];
 }
 
 - (void)ensureLocalProtocolHandler
