@@ -310,9 +310,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	[TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-	[TiLogServer startServer];
-#endif
+
 	[self initController];
 	[self launchToUrl];
 	[self boot];
@@ -376,9 +374,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
 	[TiExceptionHandler defaultExceptionHandler];
-#ifndef DISABLE_TI_LOG_SERVER
-	[TiLogServer startServer];
-#endif
 
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
