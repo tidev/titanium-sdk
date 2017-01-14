@@ -9,6 +9,9 @@
 #import "TiProxy.h"
 #import "TiModule.h"
 #import "SBJSON.h"
+#ifndef DISABLE_TI_LOG_SERVER
+# import "TiLogServer.h"
+#endif
 
 #ifdef DEBUG
 #define DEBUG_EVENTS 0
@@ -68,6 +71,10 @@ extern NSString * const TI_APPLICATION_ID;
 {
 	if (self = [super init])
 	{
+#ifndef DISABLE_TI_LOG_SERVER
+        [TiLogServer startServer];
+#endif
+        
 		modules = [[NSMutableDictionary alloc] init];
 		contexts = TiCreateNonRetainingDictionary();
 		 
