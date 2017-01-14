@@ -72,9 +72,9 @@ extern NSString * const TI_APPLICATION_ID;
 	if (self = [super init])
 	{
 #ifndef DISABLE_TI_LOG_SERVER
-        [TiLogServer startServer];
+		[TiLogServer startServer];
 #endif
-        
+
 		modules = [[NSMutableDictionary alloc] init];
 		contexts = TiCreateNonRetainingDictionary();
 		 
