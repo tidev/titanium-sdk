@@ -141,6 +141,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.templatesDir = path.join(this.platformPath, 'templates');
+	this.hooksDir = path.join(this.platformPath, 'hooks');
 	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
@@ -628,6 +629,13 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 				if (path.extname(file) != '.js') {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)) });
 				}
+			}.bind(this));
+		}
+		
+		// 6. hooks folder
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file, name) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', path.relative(this.hooksDir, file)) });
 			}.bind(this));
 		}
 
