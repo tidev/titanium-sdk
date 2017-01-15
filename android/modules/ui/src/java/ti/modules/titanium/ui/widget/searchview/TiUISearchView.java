@@ -25,6 +25,8 @@ import android.widget.EditText;
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
 
+	private boolean changeEventEnabled = false;
+
 	public static final String TAG = "SearchView";
 
 	protected OnSearchChangeListener searchChangeListener;
@@ -47,19 +49,21 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 
 		// Check if the hint text is specified when the view is created.
 		if (props.containsKey(TiC.PROPERTY_HINT_TEXT)) {
-			searchView.setQueryHint(props.getString(TiC.PROPERTY_HINT_TEXT));			
-		} 
+			searchView.setQueryHint(props.getString(TiC.PROPERTY_HINT_TEXT));
+		}
+		changeEventEnabled = false;
 		if (props.containsKey(TiC.PROPERTY_VALUE)) {
-			searchView.setQuery(props.getString(TiC.PROPERTY_VALUE), false);			
-		} 
+			searchView.setQuery(props.getString(TiC.PROPERTY_VALUE), false);
+		}
+		changeEventEnabled = true;
 		if (props.containsKey(TiC.PROPERTY_ICONIFIED)) {
 			searchView.setIconified(props.getBoolean(TiC.PROPERTY_ICONIFIED));
-		} 
+		}
 		if (props.containsKey(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
 			searchView.setIconifiedByDefault(props.getBoolean(TiC.PROPERTY_ICONIFIED_BY_DEFAULT));
 		}
 		if (props.containsKey(TiC.PROPERTY_SUBMIT_ENABLED)) {
-			searchView.setSubmitButtonEnabled((props.getBoolean(TiC.PROPERTY_SUBMIT_ENABLED)));			
+			searchView.setSubmitButtonEnabled((props.getBoolean(TiC.PROPERTY_SUBMIT_ENABLED)));
 		}
 		if (props.containsKey(TiC.PROPERTY_COLOR)) {
 			try {
@@ -90,13 +94,13 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
-			searchView.setQuery((String) newValue, false);			
+			searchView.setQuery((String) newValue, false);
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED)) {
 			searchView.setIconified(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
 			searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue));
 		} else if  (key.equals(TiC.PROPERTY_SUBMIT_ENABLED)) {
-			searchView.setSubmitButtonEnabled(TiConvert.toBoolean(newValue));			
+			searchView.setSubmitButtonEnabled(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -114,7 +118,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (searchChangeListener != null) {
 			searchChangeListener.filterBy(query);
 		}
-		fireEvent(TiC.EVENT_CHANGE, null);
+		if (changeEventEnabled)
+			fireEvent(TiC.EVENT_CHANGE, null);
 		return false;
 	}
 
