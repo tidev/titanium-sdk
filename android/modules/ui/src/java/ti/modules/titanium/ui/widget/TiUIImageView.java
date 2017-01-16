@@ -816,6 +816,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
+		if (d.containsKey(TiC.PROPERTY_ASPECT_FILL)) {
+			view.setAspectFill(TiConvert.toBoolean(d, TiC.PROPERTY_ASPECT_FILL, false));
+		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
