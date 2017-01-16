@@ -43,6 +43,8 @@ static NSString * const kContentInjection = @"kContentInjection";
 
 static unsigned long localId = 0;
 
+static NSString *defaultUserAgent;
+
 NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
 	if (encoding == NSUTF8StringEncoding) {
@@ -177,6 +179,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[spinner sizeToFit];
 			[spinner startAnimating];
 		}
+        if (defaultUserAgent == nil) {
+            defaultUserAgent = [webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        }
 	}
 	return webview;
 }
@@ -542,7 +547,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)setUserAgent_:(id)value
 {
-    ENSURE_TYPE(value, NSString);
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    if (value == nil || [value isEqualToString:@""]) {
+        value = defaultUserAgent;
+    }
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent":value}];
     [self.proxy replaceValue:value forKey:@"userAgent" notification:NO];
 }
