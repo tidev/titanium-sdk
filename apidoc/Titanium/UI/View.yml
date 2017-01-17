@@ -345,6 +345,72 @@ events:
       - name: velocity
         summary: The velocity of the pinch in scale factor per second.
         type: Number
+        
+      - name: time
+        summary: |
+            The event time of the current event being processed.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: timeDelta
+        summary: |
+            The time difference in milliseconds between the previous accepted scaling event and the current scaling event.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: currentSpan
+        summary: |
+            The average distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: currentSpanX
+        summary: |
+            The average X distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: currentSpanY
+        summary: |
+            The average Y distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: previousSpan
+        summary: |
+            The previous average distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: previousSpanX
+        summary: |
+            The previous average X distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: previousSpanY
+        summary: |
+            The previous average Y distance between each of the pointers forming the gesture in progress through the focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: focusX
+        summary: |
+            The X coordinate of the current gesture's focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: focusY
+        summary: |
+            The Y coordinate of the current gesture's focal point.
+            Note: This property is only available for Android
+        type: Number
+        
+      - name: isInProgress
+        summary: |
+            true if a scale gesture is in progress.
+            Note: This property is only available for Android
+        type: Number
     
   - name: postlayout
     summary: Fired when a layout cycle is finished.
