@@ -1579,6 +1579,20 @@ properties:
     platforms: [android]
     since: 5.4.0
 
+  - name: pivotX
+    summary: The x location of the point around which the view is rotated and scaled.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 6.2.0
+    
+  - name: pivotY
+    summary: The y location of the point around which the view is rotated and scaled.
+    description: Translation values are applied to the static post layout value.
+    type: Number
+    platforms: [android]
+    since: 6.2.0
+
   - name: size
     summary: |
         The size of the view in system units. 
