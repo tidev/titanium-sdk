@@ -946,6 +946,14 @@ public abstract class TiUIView
 			if (getOuterView() != null) {
 				ViewCompat.setScaleY(getOuterView(), TiConvert.toFloat(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_PIVOT_X)) {
+			if (getOuterView() != null) {
+				ViewCompat.setPivotX(getOuterView(), TiConvert.toFloat(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_PIVOT_Y)) {
+			if (getOuterView() != null) {
+				ViewCompat.setPivotY(getOuterView(), TiConvert.toFloat(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_ROTATION)) {
 			if (getOuterView() != null) {
 				ViewCompat.setRotation(getOuterView(), TiConvert.toFloat(newValue));
@@ -1082,6 +1090,14 @@ public abstract class TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_SCALE_Y) && !nativeViewNull){
 			ViewCompat.setScaleY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_SCALE_Y));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_PIVOT_X) && !nativeViewNull){
+			ViewCompat.setPivotX(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_PIVOT_X));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_PIVOT_Y) && !nativeViewNull){
+			ViewCompat.setPivotY(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_PIVOT_Y));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_X) && !nativeViewNull){
