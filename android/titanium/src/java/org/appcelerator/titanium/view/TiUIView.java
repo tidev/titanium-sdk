@@ -1581,7 +1581,7 @@ public abstract class TiUIView
 						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_Y, sgd.getPreviousSpanY());
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
 						data.put(TiC.EVENT_PROPERTY_TIME_DELTA, sgd.getTimeDelta());
-						data.put(TiC.EVENT_PROPERTY_IS_IN_PROGRESS, sgd.isInProgress());
+						data.put(TiC.EVENT_PROPERTY_IN_PROGRESS, sgd.isInProgress());
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 
