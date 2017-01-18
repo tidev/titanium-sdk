@@ -86,7 +86,7 @@
 		block(nil);
 		return;
 	}
-    
+
     if ([self.listView isSearchActive]) {
         block(nil);
         TiThreadPerformOnMainThread(^{
@@ -94,7 +94,7 @@
         }, [NSThread isMainThread]);
         return;
     }
-    
+
 	BOOL triggerMainThread;
 	pthread_mutex_lock(&_operationQueueMutex);
 	triggerMainThread = [_operationQueue count] == 0;
@@ -126,7 +126,7 @@
 	if ([NSThread isMainThread]) {
 		return block();
 	}
-	
+
 	__block id result = nil;
 	TiThreadPerformOnMainThread(^{
 		result = [block() retain];
@@ -218,7 +218,7 @@
 			[templates setObject:template forKey:key];
 		}
 	}];
-    
+
 	TiThreadPerformOnMainThread(^{
 		[self.listView setDictTemplates_:templates];
 	}, [NSThread isMainThread]);
@@ -498,7 +498,39 @@
         [self.listView setContentInsets_:arg1 withObject:arg2];
     }, [NSThread isMainThread]);
 }
+- (NSMutableArray *)getSelectedRows:(id)args
+{
+    NSMutableArray *result=[[NSMutableArray alloc]init];
+    NSArray *selectedRows = [self.listView.tableView indexPathsForSelectedRows];
 
+    if(selectedRows!=nil){
+        TiThreadPerformOnMainThread(^{
+        
+            for (NSIndexPath* indexPath in [self.listView.tableView indexPathsForSelectedRows]){
+                NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
+                TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
+                NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+                NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                    section, @"section",
+                                                    NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                    NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                    nil];
+                id propertiesValue = [item objectForKey:@"properties"];
+                NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+                id itemId = [properties objectForKey:@"itemId"];
+                if (itemId != nil) {
+                    [eventObject setObject:itemId forKey:@"itemId"];
+                }
+                [result addObject:eventObject];
+            }
+
+        }, [NSThread isMainThread]);
+
+    }
+
+    return result;
+
+}
 #pragma mark - Marker Support
 
 -(NSIndexPath*)indexPathFromDictionary:(NSDictionary*) args
@@ -525,7 +557,7 @@
             canAddMarker = ![visibleRows containsObject:marker];
         }
     }, [NSThread isMainThread]);
-    
+
     return canAddMarker;
 }
 
@@ -579,7 +611,7 @@
             return;
         }
         if ([_markerArray containsObject:indexPath]){
-            
+
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 NUMINTEGER(indexPath.section), @"sectionIndex",
                                                 NUMINTEGER(indexPath.row), @"itemIndex",
