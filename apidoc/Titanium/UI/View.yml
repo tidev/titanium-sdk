@@ -1033,7 +1033,7 @@ properties:
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
     description: |
-        Used on iOS only. For Android, use <Titanium.UI.Animation.anchorPoint>. 
+        Used on iOS only. For Android, use pivotX and pivotY. 
         
         Anchor point is specified as a fraction of the view's size.  For example, `{0, 0}` is at 
         the view's top-left corner, `{0.5, 0.5}` at its center and `{1, 1}` at its bottom-right 
