@@ -711,11 +711,11 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad]
 
-  - name: AllowsMultipleSelectionDuringEditing
+  - name: allowsMultipleSelectionDuringEditing
     summary: Determines whether more than one row can be selected while editing the table.
     type: Boolean
-    default: false
-    since: "6.1.0"
+    default:  undefined (behaves as false).
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -893,6 +893,12 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
     since: 3.2.0
+
+    - name: selectedRows
+      summary: returns the selected rows when allowsMultipleSelectionDuringEditing is set to true.
+      description:  Returns an array of selected <Titanium.UI.ListItem> cells.
+      platforms: [iphone, ipad]
+      since: 6.2.0
 
   - name: caseInsensitiveSearch
     summary: Determines if the search performed is case insensitive.
@@ -1280,14 +1286,6 @@ methods:
         type: ListViewMarkerProps
     platforms: [iphone, ipad, android]
     since: 4.1.0
-
-    - name: getSelectedRows
-      summary: returns the selected rows when AllowsMultipleSelectionDuringEditing is set to true.
-      description: |
-          returns an array of selected [ListItems].
-      platforms: [iphone, ipad]
-      since: 6.1.0
-
 
 
 examples:
