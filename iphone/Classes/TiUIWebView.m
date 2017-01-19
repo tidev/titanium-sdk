@@ -703,6 +703,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    if (navigationType != UIWebViewNavigationTypeOther) {
+        RELEASE_TO_NIL(lastValidLoad);
+    }
+    
 	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
 	BOOL allHeadersIncluded = NO;
 	int requiredHeaders = (int)[newHeaders count];
@@ -749,10 +753,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	{
 		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
-
-	if (navigationType != UIWebViewNavigationTypeOther) {
-		RELEASE_TO_NIL(lastValidLoad);
 	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
