@@ -291,6 +291,8 @@ public class TiCompositeLayout extends ViewGroup
 
         int maxWidth = 0;
         int maxHeight = 0;
+        
+        int rowRemainWidth = w;
 
         // Used for horizontal layout only
         int horizontalRowWidth = 0;
@@ -299,7 +301,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode);
+                constrainChild(child, w, wMode, h, hMode, rowRemainWidth);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -314,11 +316,13 @@ public class TiCompositeLayout extends ViewGroup
 
                     if ((horizontalRowWidth + childWidth) > w) {
                         horizontalRowWidth = childWidth;
+                        maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
+                        rowRemainWidth = w;
                     } else {
                         horizontalRowWidth += childWidth;
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
-                        w -= horizontalRowWidth;
+                        rowRemainWidth -= childWidth;
                     }
 
                 } else {
@@ -362,7 +366,7 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode)
+    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int rowRemainWidth)
     {
         boolean hasFixedHeightParent = false;
         boolean hasFixedWidthParent = false;
@@ -396,10 +400,20 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        int widthPadding = getViewWidthPadding(child, width);
-        int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
-                widthPadding,
-                childDimension);
+        int widthPadding;
+        int widthSpec;
+        
+        if (p.autoFillsWidth) {
+            widthPadding = getViewWidthPadding(child, rowRemainWidth);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(rowRemainWidth, wMode),
+                                                      widthPadding,
+                                                      childDimension);
+        } else {
+            widthPadding = getViewWidthPadding(child, width);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
+                                                      widthPadding,
+                                                      childDimension);
+        }
         // If autoFillsHeight is false, and optionHeight is null, then we use
         // size behavior.
         childDimension = LayoutParams.WRAP_CONTENT;
