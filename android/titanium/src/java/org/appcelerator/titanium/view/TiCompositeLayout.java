@@ -316,6 +316,7 @@ public class TiCompositeLayout extends ViewGroup
 
                     if ((horizontalRowWidth + childWidth) > w) {
                         horizontalRowWidth = childWidth;
+                        maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
                         targetWidth = w;
                     } else {
