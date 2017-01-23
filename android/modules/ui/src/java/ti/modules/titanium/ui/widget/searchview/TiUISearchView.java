@@ -28,6 +28,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 	public static final String TAG = "SearchView";
 
 	protected OnSearchChangeListener searchChangeListener;
+	// timob-24322 query text change event is called at initialisation
+	private boolean isInit = false;
 
 	public TiUISearchView(TiViewProxy proxy) {
 		super(proxy);
@@ -72,6 +74,7 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 				Log.e(TAG, "Could not find SearchView EditText");
 			}
 		}
+		isInit = true;
 	}
 
 	@Override
@@ -114,7 +117,9 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (searchChangeListener != null) {
 			searchChangeListener.filterBy(query);
 		}
-		fireEvent(TiC.EVENT_CHANGE, null);
+		if (isInit) {
+			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 		return false;
 	}
 
