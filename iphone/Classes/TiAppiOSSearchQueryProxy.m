@@ -8,7 +8,6 @@
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
-#import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
 @implementation TiAppiOSSearchQueryProxy
@@ -75,7 +74,6 @@
                 }, NO);
             }
         }];
-
     }
     
     return query;
