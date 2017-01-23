@@ -603,8 +603,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #ifdef USE_TI_MEDIAREQUESTAUTHORIZATION
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
-    [self requestAudioPermissions:args];
+    DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestRecorderPermission");
+    [self requestRecorderPermission:args];
 }
 #endif
 
@@ -623,6 +623,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
 -(void)requestAudioPermissions:(id)args
+{
+    DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestRecorderPermission");
+    [self requestRecorderPermission:args];
+}
+#endif
+
+#ifdef USE_TI_MEDIAREQUESTRECORDPERMISSIONS
+-(void)requestRecorderPermission:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;
