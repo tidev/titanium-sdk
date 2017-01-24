@@ -7,7 +7,7 @@
 	<url>not specified</url>
 	<description></description>
 	<copyright>not specified</copyright>
-	<icon>appicon.png</icon>
+	<icon>DefaultIcon.png</icon>
 	<fullscreen>false</fullscreen>
 	<navbar-hidden>false</navbar-hidden>
 	<analytics>true</analytics>
