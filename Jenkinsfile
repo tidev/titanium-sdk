@@ -22,7 +22,7 @@ def unitTests(os) {
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				dir('titanium-mobile-mocha-suite/scripts') {
 					sh 'npm install .'
-					sh "node test.js -b ../${zipName} -p ${os}"
+					sh "node test.js -b ../../${zipName} -p ${os}"
 					junit 'junit.*.xml'
 				}
 			}
