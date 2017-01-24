@@ -12,6 +12,7 @@ def unitTests(os) {
 			// TODO Customize labels by os we're testing
 			node('node-4 && android-emulator && npm && git && android-sdk && osx') {
 				// Unarchive the osx build of the SDK (as a zip)
+				sh 'rm -rf osx.zip'
 				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
 				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
 				dir('titanium-mobile-mocha-suite') {
@@ -97,9 +98,6 @@ timestamps {
 
 		// Now allocate a node for uploading artifacts to s3 and in Jenkins
 		node('osx || linux') {
-			// unarchive zips
-			unarchive mapping: ['dist/': '.']
-
 			stage('Deploy') {
 				// Push to S3 if not PR
 				if (!isPR) {
@@ -111,6 +109,8 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 
+					// unarchive zips
+					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
