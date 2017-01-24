@@ -7,12 +7,12 @@ def basename = ''
 def vtag = ''
 def isPR = false
 
-def unitTests(os, zipfile) {
+def unitTests(os) {
 	return {
 			// TODO Customize labels by os we're testing
 			node('node-4 && android-emulator && npm && git && android-sdk && osx') {
 				// Unarchive the osx build of the SDK (as a zip)
-				unarchive mapping: ["${zipfile}": 'osx.zip']
+				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as above
 					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
@@ -89,8 +89,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', "${basename}-osx.zip"),
-				'iOS unit tests': unitTests('ios', "${basename}-osx.zip")
+				'android unit tests': unitTests('android'),
+				'iOS unit tests': unitTests('ios')
 			)
 		}
 
