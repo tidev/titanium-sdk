@@ -22,11 +22,12 @@ node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && 
 
 			def basename = ''
 			def vtag = ''
+			def isPR = env.BRANCH_NAME.startsWith('PR-')
 			timeout(45) {
 				ansiColor('xterm') {
 					stage('Build') {
 						// Skip the Windows SDK portion on PR builds?
-						if (!env.BRANCH_NAME.startsWith('PR-')) {
+						if (!isPR) {
 							// Grab Windows SDK piece
 							def windowsBranch = env.BRANCH_NAME.replaceAll(/_/, ".")
 							step ([$class: 'CopyArtifact',
@@ -49,7 +50,13 @@ node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && 
 						dir('build') {
 							sh 'npm install .'
 							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-							sh "node scons.js package --version-tag ${vtag} --all"
+							if (isPR) {
+								// For PR builds, just package android and iOS for osx
+								sh "node scons.js package android ios --version-tag ${vtag}"
+							} else {
+								// For non-PR builds, do all platforms for all OSes
+								sh "node scons.js package --version-tag ${vtag} --all"
+							}
 						}
 						// Stash the zip for later, so we can parallelize the tests
 						//stash includes: "${basename}-*.zip", name: 'zip'
@@ -78,7 +85,7 @@ node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && 
 
 			stage('Deploy') {
 				// Push to S3 if not PR
-				if (!env.BRANCH_NAME.startsWith('PR-')) {
+				if (!isPR) {
 					def indexJson = []
 					try {
 						sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
