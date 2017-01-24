@@ -337,6 +337,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		}
 		ColorDrawable drawable = (tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) ? TiConvert.toColorDrawable((String) tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)) : TiConvert.toColorDrawable((String) tabProxy.getTabGroup().getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR));
 		actionBar.setStackedBackgroundDrawable(drawable);
+		actionBar.setBackgroundDrawable(drawable);
 	}
 
 	@Override
