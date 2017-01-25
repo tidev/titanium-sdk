@@ -219,7 +219,13 @@ public class TiUIText extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
 		}
-		
+		if (d.containsKey(TiC.PROPERTY_LINE_SPACING)) {
+			Object value = d.get(TiC.PROPERTY_LINE_SPACING);
+			if (value instanceof HashMap) {
+				HashMap dict = (HashMap) value;
+				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -318,6 +324,11 @@ public class TiUIText extends TiUIView
 			setAttributedStringText((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap)newValue);
+		} else if (key.equals(TiC.PROPERTY_LINE_SPACING)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

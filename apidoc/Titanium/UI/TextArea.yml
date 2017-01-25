@@ -286,7 +286,13 @@ properties:
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad]
-    
+
+  - name: lineSpacing
+    summary: Line spacing of the [value](Titanium.UI.TextArea.value), as a dictionary with the properties `add` and `multiply`.
+    platforms: [android]
+    type: Dictionary
+    since: "6.2.0"
+
   - name: maxLength
     summary: Maximum length of text field input. 
     description: Any attempt to input text beyond this length (including pasting a string 
