@@ -285,14 +285,13 @@ public class TiCompositeLayout extends ViewGroup
         int wSuggested = getSuggestedMinimumWidth();
         int hSuggested = getSuggestedMinimumHeight();
         int w = Math.max(wFromSpec, wSuggested);
+        int wRemain = w;
         int wMode = MeasureSpec.getMode(widthMeasureSpec);
         int h = Math.max(hFromSpec, hSuggested);
         int hMode = MeasureSpec.getMode(heightMeasureSpec);
 
         int maxWidth = 0;
         int maxHeight = 0;
-        
-        int rowRemainWidth = w;
 
         // Used for horizontal layout only
         int horizontalRowWidth = 0;
@@ -301,7 +300,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode, rowRemainWidth);
+                constrainChild(child, w, wMode, h, hMode, wRemain);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -318,11 +317,11 @@ public class TiCompositeLayout extends ViewGroup
                         horizontalRowWidth = childWidth;
                         maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
-                        rowRemainWidth = w;
+                        wRemain = w;
                     } else {
                         horizontalRowWidth += childWidth;
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
-                        rowRemainWidth -= childWidth;
+                        wRemain -= childWidth;
                     }
 
                 } else {
@@ -366,7 +365,7 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int rowRemainWidth)
+    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int remainWidth)
     {
         boolean hasFixedHeightParent = false;
         boolean hasFixedWidthParent = false;
@@ -404,15 +403,15 @@ public class TiCompositeLayout extends ViewGroup
         int widthSpec;
         
         if (p.autoFillsWidth) {
-            widthPadding = getViewWidthPadding(child, rowRemainWidth);
-            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(rowRemainWidth, wMode),
-                                                      widthPadding,
-                                                      childDimension);
+            widthPadding = getViewWidthPadding(child, remainWidth);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(remainWidth, wMode),
+                widthPadding,
+                childDimension);
         } else {
             widthPadding = getViewWidthPadding(child, width);
             widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
-                                                      widthPadding,
-                                                      childDimension);
+                widthPadding,
+                childDimension);
         }
         // If autoFillsHeight is false, and optionHeight is null, then we use
         // size behavior.
