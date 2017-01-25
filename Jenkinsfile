@@ -97,96 +97,96 @@ timestamps {
 		}
 
 		// Now allocate a node for uploading artifacts to s3 and in Jenkins
-		node('osx || linux') {
-			stage('Deploy') {
-				// Push to S3 if not PR
-				if (!isPR) {
-					def indexJson = []
-					try {
-						sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
-						indexJson = new groovy.json.JsonSlurperClassic().parseText(readFile('index.json'))
-					} catch (err) {
-						// ignore? Not able to grab the index.json, so assume it means it's a new branch
-					}
-
-					// unarchive zips
-					unarchive mapping: ['dist/': '.']
-					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-					def oses = ['osx', 'linux', 'win32']
-					for (int i = 0; i < oses.size(); i++) {
-						def os = oses[i]
-						def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]
-						def filesize = Long.valueOf(sh(returnStdout: true, script: "wc -c < ${basename}-${os}.zip").trim())
-						step([
-							$class: 'S3BucketPublisher',
-							consoleLogLevel: 'INFO',
-							entries: [[
-								bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-								gzipFiles: false,
-								selectedRegion: 'us-east-1',
-								sourceFile: "${basename}-${os}.zip",
-								uploadFromSlave: true,
-								userMetadata: [[key: 'sha1', value: sha1]]
-							]],
-							profileName: 'builds.appcelerator.com',
-							pluginFailureResultConstraint: 'FAILURE',
-							userMetadata: [
-								[key: 'build_type', value: 'mobile'],
-								[key: 'git_branch', value: env.BRANCH_NAME],
-								[key: 'git_revision', value: gitCommit],
-								[key: 'build_url', value: env.BUILD_URL]]
-						])
-
-						// Add the entry to index json!
-						indexJson << [
-							'filename': "mobilesdk-${vtag}-${os}.zip",
-							'git_branch': env.BRANCH_NAME,
-							'git_revision': gitCommit,
-							'build_url': env.BUILD_URL,
-							'build_type': 'mobile',
-							'sha1': sha1,
-							'size': filesize
-						]
-					}
-
-					// Update the index.json on S3
-					echo "updating mobile/${env.BRANCH_NAME}/index.json..."
-					writeFile file: "index.json", text: new groovy.json.JsonBuilder(indexJson).toPrettyString()
-					step([
-						$class: 'S3BucketPublisher',
-						consoleLogLevel: 'INFO',
-						entries: [[
-							bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-							gzipFiles: false,
-							selectedRegion: 'us-east-1',
-							sourceFile: 'index.json',
-							uploadFromSlave: true,
-							userMetadata: []
-						]],
-						profileName: 'builds.appcelerator.com',
-						pluginFailureResultConstraint: 'FAILURE',
-						userMetadata: []])
-
-					// Upload the parity report
-					unstash 'parity'
-					sh "mv dist/parity.html ${basename}-parity.html"
-					step([
-						$class: 'S3BucketPublisher',
-						consoleLogLevel: 'INFO',
-						entries: [[
-							bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-							gzipFiles: false,
-							selectedRegion: 'us-east-1',
-							sourceFile: "${basename}-parity.html",
-							uploadFromSlave: true,
-							userMetadata: []
-						]],
-						profileName: 'builds.appcelerator.com',
-						pluginFailureResultConstraint: 'FAILURE',
-						userMetadata: []])
-				}
-			}
-		}
+		// node('osx || linux') {
+		// 	stage('Deploy') {
+		// 		// Push to S3 if not PR
+		// 		if (!isPR) {
+		// 			def indexJson = []
+		// 			try {
+		// 				sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
+		// 				indexJson = new groovy.json.JsonSlurperClassic().parseText(readFile('index.json'))
+		// 			} catch (err) {
+		// 				// ignore? Not able to grab the index.json, so assume it means it's a new branch
+		// 			}
+    //
+		// 			// unarchive zips
+		// 			unarchive mapping: ['dist/': '.']
+		// 			// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
+		// 			def oses = ['osx', 'linux', 'win32']
+		// 			for (int i = 0; i < oses.size(); i++) {
+		// 				def os = oses[i]
+		// 				def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]
+		// 				def filesize = Long.valueOf(sh(returnStdout: true, script: "wc -c < ${basename}-${os}.zip").trim())
+		// 				step([
+		// 					$class: 'S3BucketPublisher',
+		// 					consoleLogLevel: 'INFO',
+		// 					entries: [[
+		// 						bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+		// 						gzipFiles: false,
+		// 						selectedRegion: 'us-east-1',
+		// 						sourceFile: "${basename}-${os}.zip",
+		// 						uploadFromSlave: true,
+		// 						userMetadata: [[key: 'sha1', value: sha1]]
+		// 					]],
+		// 					profileName: 'builds.appcelerator.com',
+		// 					pluginFailureResultConstraint: 'FAILURE',
+		// 					userMetadata: [
+		// 						[key: 'build_type', value: 'mobile'],
+		// 						[key: 'git_branch', value: env.BRANCH_NAME],
+		// 						[key: 'git_revision', value: gitCommit],
+		// 						[key: 'build_url', value: env.BUILD_URL]]
+		// 				])
+    //
+		// 				// Add the entry to index json!
+		// 				indexJson << [
+		// 					'filename': "mobilesdk-${vtag}-${os}.zip",
+		// 					'git_branch': env.BRANCH_NAME,
+		// 					'git_revision': gitCommit,
+		// 					'build_url': env.BUILD_URL,
+		// 					'build_type': 'mobile',
+		// 					'sha1': sha1,
+		// 					'size': filesize
+		// 				]
+		// 			}
+    //
+		// 			// Update the index.json on S3
+		// 			echo "updating mobile/${env.BRANCH_NAME}/index.json..."
+		// 			writeFile file: "index.json", text: new groovy.json.JsonBuilder(indexJson).toPrettyString()
+		// 			step([
+		// 				$class: 'S3BucketPublisher',
+		// 				consoleLogLevel: 'INFO',
+		// 				entries: [[
+		// 					bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+		// 					gzipFiles: false,
+		// 					selectedRegion: 'us-east-1',
+		// 					sourceFile: 'index.json',
+		// 					uploadFromSlave: true,
+		// 					userMetadata: []
+		// 				]],
+		// 				profileName: 'builds.appcelerator.com',
+		// 				pluginFailureResultConstraint: 'FAILURE',
+		// 				userMetadata: []])
+    //
+		// 			// Upload the parity report
+		// 			unstash 'parity'
+		// 			sh "mv dist/parity.html ${basename}-parity.html"
+		// 			step([
+		// 				$class: 'S3BucketPublisher',
+		// 				consoleLogLevel: 'INFO',
+		// 				entries: [[
+		// 					bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+		// 					gzipFiles: false,
+		// 					selectedRegion: 'us-east-1',
+		// 					sourceFile: "${basename}-parity.html",
+		// 					uploadFromSlave: true,
+		// 					userMetadata: []
+		// 				]],
+		// 				profileName: 'builds.appcelerator.com',
+		// 				pluginFailureResultConstraint: 'FAILURE',
+		// 				userMetadata: []])
+		// 		}
+		// 	}
+		// }
 	}
 	catch (err) {
 		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
