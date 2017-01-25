@@ -540,12 +540,14 @@ properties:
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |
         If set to `true`, the web page loads despite having an invalid SSL certificate.
-
         If set to `false`, a web page with an invalid SSL certificate does not load.
+        
+        iOS Note: As soon as you set this property to `true`, iOS will cache the response
+        for the lifetime of the current web view.
     type: Boolean
     default: undefined but behaves as false
-    since: "3.0.0"
-    platforms: [android]
+    since: {android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2"}
+    platforms: [android, iphone, ipad]
 
   - name: loading
     summary: Indicates if the webview is loading content.

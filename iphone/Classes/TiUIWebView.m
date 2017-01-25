@@ -101,6 +101,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(reloadDataProperties);
 	RELEASE_TO_NIL(lastValidLoad);
 	RELEASE_TO_NIL(blacklistedURLs);
+	RELEASE_TO_NIL(insecureConnection);
 	[super dealloc];
 }
 
@@ -155,6 +156,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[self addSubview:webview];
 
 		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
+		ignoreSslError = [TiUtils boolValue:[[self proxy] valueForKey:@"ignoreSslError"] def:NO];
+		isAuthenticated = NO;
 		
 		// only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
 		if (![[self class] isLocalURL:url] && !hideLoadIndicator)
@@ -387,6 +390,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(BOOL)canGoForward
 {
 	return [webview canGoForward];
+}
+
+-(void)setIgnoreSslError_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    
+    ignoreSslError = [TiUtils boolValue:value def:NO];
+    isAuthenticated = NO;
+    [[self proxy] replaceValue:value forKey:@"ignoreSslError" notification:NO];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -707,24 +719,25 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	BOOL allHeadersIncluded = NO;
 	int requiredHeaders = (int)[newHeaders count];
     
-	for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
-		for (NSString* newHeader in [newHeaders allKeys]) {
-			if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
-				requiredHeaders--;
+	if (newHeaders) {
+		for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
+			for (NSString* newHeader in [newHeaders allKeys]) {
+				if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
+					requiredHeaders--;
+				}
 			}
 		}
-	}
-    
-	// If there are custom headers and not all of them are included, add them
-	if (newHeaders != nil && requiredHeaders > 0) {
-		NSMutableURLRequest* newRequest = [request mutableCopy];
-		for (NSString* newHeader in [newHeaders allKeys]) {
-			[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+
+		if (requiredHeaders > 0) {
+			NSMutableURLRequest* newRequest = [request mutableCopy];
+			for (NSString* newHeader in [newHeaders allKeys]) {
+				[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+			}
+			[self loadURLRequest:newRequest];
+			[newRequest release];
+
+			return NO;
 		}
-		[self loadURLRequest:newRequest];
-		[newRequest release];
-        
-		return NO;
 	}
 
 	NSURL * newUrl = [request URL];
@@ -754,6 +767,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	if (navigationType != UIWebViewNavigationTypeOther) {
 		RELEASE_TO_NIL(lastValidLoad);
 	}
+    
+	// Handle invalid SSL certificate
+	if (ignoreSslError && !isAuthenticated) {
+		RELEASE_TO_NIL(insecureConnection);
+		isAuthenticated = NO;
+		insecureConnection = [[[NSURLConnection alloc] initWithRequest:request delegate:self] retain];
+		[insecureConnection start];
+
+		return NO;
+	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
@@ -775,7 +798,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		}
 		return YES;
 	}
-	
+
 	UIApplication * uiApp = [UIApplication sharedApplication];
 	
 	if ([uiApp canOpenURL:newUrl] && !willHandleUrl)
@@ -875,6 +898,33 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[event setObject:offendingUrl forKey:@"url"];
 		[self.proxy fireEvent:@"error" withObject:event errorCode:returnErrorCode message:message];
 	}
+}
+
+#pragma mark NSURLConnection Delegates (used for the "ignoreSslError" property)
+
+- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+{
+    if ([challenge previousFailureCount] == 0) {
+        isAuthenticated = YES;
+        
+        [[challenge sender] useCredential:[NSURLCredential credentialForTrust:[[challenge protectionSpace] serverTrust]]
+               forAuthenticationChallenge:challenge];
+    } else {
+        [[challenge sender] cancelAuthenticationChallenge:challenge];
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
+{
+    isAuthenticated = YES;
+
+    [webview loadRequest:[NSURLRequest requestWithURL:url]];
+    [insecureConnection cancel];
+}
+
+- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
+{
+    return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
 }
 
 #pragma mark TiEvaluator
