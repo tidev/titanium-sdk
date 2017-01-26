@@ -503,6 +503,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)setUrl_:(id)args
 {
 	ignoreNextRequest = YES;
+	isAuthenticated = NO;
 	[self setReloadData:args];
 	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setUrl_:);
@@ -512,7 +513,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	ENSURE_SINGLE_ARG(args,NSString);
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
-
+	
+	if (insecureConnection) {
+		[insecureConnection cancel];
+	}
+	
 	[self stopLoading];
 	
 	if ([[self class] isLocalURL:url]) {
@@ -728,7 +733,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	if (ignoreSslError && !isAuthenticated) {
 		RELEASE_TO_NIL(insecureConnection);
 		isAuthenticated = NO;
-		insecureConnection = [[[NSURLConnection alloc] initWithRequest:request delegate:self] retain];
+		insecureConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 		[insecureConnection start];
 
 		return NO;
