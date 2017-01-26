@@ -9,32 +9,32 @@ def isPR = false
 
 def unitTests(os) {
 	return {
-			// TODO Customize labels by os we're testing
-			node('node-4 && android-emulator && npm && git && android-sdk && osx') {
-				try {
-					// Unarchive the osx build of the SDK (as a zip)
-					sh 'rm -rf osx.zip'
-					unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
-					def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-					dir('titanium-mobile-mocha-suite') {
-						// TODO Do a shallow clone, using same credentials as above
-						git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
-					}
-					unstash 'override-tests'
-					sh 'cp -R tests/ titanium-mobile-mocha-suite'
-					dir('titanium-mobile-mocha-suite/scripts') {
-						sh 'npm install .'
-						sh "node test.js -b ../../${zipName} -p ${os}"
-						junit 'junit.*.xml'
-					}
-				catch (e) {
-					// if any exception occurs, mark the build as failed
-					currentBuild.result = 'FAILURE'
-					throw e
-				} finally {
-					step([$class: 'WsCleanup', notFailBuild: true])
+		// TODO Customize labels by os we're testing
+		node('node-4 && android-emulator && npm && git && android-sdk && osx') {
+			try {
+				// Unarchive the osx build of the SDK (as a zip)
+				sh 'rm -rf osx.zip'
+				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
+				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+				dir('titanium-mobile-mocha-suite') {
+					// TODO Do a shallow clone, using same credentials as above
+					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
 				}
+				unstash 'override-tests'
+				sh 'cp -R tests/ titanium-mobile-mocha-suite'
+				dir('titanium-mobile-mocha-suite/scripts') {
+					sh 'npm install .'
+					sh "node test.js -b ../../${zipName} -p ${os}"
+					junit 'junit.*.xml'
+				}
+			} catch (e) {
+				// if any exception occurs, mark the build as failed
+				currentBuild.result = 'FAILURE'
+				throw e
+			} finally {
+				step([$class: 'WsCleanup', notFailBuild: true])
 			}
+		}
 	}
 }
 
