@@ -8,12 +8,9 @@
 #import <Foundation/Foundation.h>
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
-if (![NSThread isMainThread]) { \
+	if (![NSThread isMainThread]) { \
 	SEL callback = _cmd;\
-	_Pragma("clang diagnostic push") \
-	_Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
-	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO); \
-	_Pragma("clang diagnostic pop") \
+	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO);\
 	return; \
 } \
 
