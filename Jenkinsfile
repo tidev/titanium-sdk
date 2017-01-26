@@ -67,7 +67,7 @@ timestamps {
 					}
 					step([$class: 'CopyArtifact',
 						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
-						selector: [$class: 'StatusBuildSelector', stable: false]
+						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
 				// }
