@@ -81,7 +81,7 @@ public class TiRootActivity extends TiLaunchActivity
 				rootActivity.setIntent(intent);
 			}
 			if (tiApp.intentFilterNewTask() &&
-				intent.getAction().equals(Intent.ACTION_VIEW) &&
+				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
 				intent.getDataString() != null &&
 				(intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
 
