@@ -53,9 +53,8 @@ timestamps {
 				// Skip the Windows SDK portion on PR builds?
 				if (!isPR) {
 					// Grab Windows SDK piece
-					def windowsBranch = env.BRANCH_NAME.replaceAll(/_/, ".")
 					step ([$class: 'CopyArtifact',
-						projectName: "titanium_mobile_windows_${windowsBranch}",
+						projectName: "appcelerator/titanium_mobile_windows/${env.BRANCH_NAME}",
 						filter: 'dist/windows/']);
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
 				}
