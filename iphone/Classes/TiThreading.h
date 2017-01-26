@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
-	if (![NSThread isMainThread]) { \
+if (![NSThread isMainThread]) { \
 	SEL callback = _cmd;\
 	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO);\
 	return; \
