@@ -57,7 +57,9 @@
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSAttributedString *value = [label attributedText];
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
+    
+    //[TIMOB-23391] iOS: View is not getting horizontally wrapped properly
+	CGSize maxSize = CGSizeMake(480, 10000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
 	if ((suggestedWidth > 0) && [[label text] hasSuffix:@" "]) {
