@@ -10,10 +10,12 @@
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
 	SEL callback = _cmd;\
-	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO);\
+	_Pragma("clang diagnostic push") \
+	_Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
+	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO); \
+	_Pragma("clang diagnostic pop") \
 	return; \
 } \
-
 
 #define ENSURE_UI_THREAD_0_ARGS		ENSURE_UI_THREAD_1_ARG(nil)
 
@@ -25,7 +27,7 @@ if (![NSThread isMainThread]) { \
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
 	TiThreadPerformOnMainThread(^{[self x:y];},NO); \
-return; \
+	return; \
 } \
 
 #define ENSURE_IOS_API(version, message) \
