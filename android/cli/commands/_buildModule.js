@@ -16,7 +16,7 @@ var AdmZip = require('adm-zip'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('../lib/base-builder'),
 	crypto = require('crypto'),
 	ejs = require('ejs'),
 	fs = require('fs'),
@@ -200,6 +200,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'ndkLocalBuild',
 		'compileAllFinal',
 		'verifyBuildArch',
+		'processResources',
 		'packageZip',
 		'runModule',
 
@@ -253,6 +254,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.classPaths = {};
 	this.classPaths[this.androidTargetSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
+	this.extraPackages = {};
 
 	['lib', 'modules', ''].forEach(function (folder) {
 		var jarDir = path.join(this.platformPath, folder);
@@ -295,6 +297,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
 	this.buildClassesGenDir = path.join(this.buildClassesDir, 'org', 'appcelerator', 'titanium', 'gen');
 	this.buildGenDir = path.join(this.buildDir, 'generated');
+	this.buildIntermediatesDir = path.join(this.buildDir, 'intermediates');
 
 	this.buildGenJsDir = path.join(this.buildGenDir, 'js');
 	this.buildGenJniDir = path.join(this.buildGenDir, 'jni');
@@ -1246,6 +1249,101 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 	next();
 };
 
+AndroidModuleBuilder.prototype.processResources = function (next) {
+	this.logger.info(__('Processing Android module resources'));
+
+	var tasks = [
+		function mergeResources(cb) {
+			this.logger.info(__('Merging module and AAR resources'));
+			var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
+			var moduleResPath = path.join(this.platformDir, 'android/res');
+
+			if (fs.existsSync(mergedResPath)) {
+				wrench.rmdirSyncRecursive(mergedResPath);
+				wrench.mkdirSyncRecursive(mergedResPath);
+			}
+
+			appc.async.series(this, [
+				function copyAarResources(callback) {
+					this.logger.trace(__('Processing Android Archive resources'));
+					var explodedArrPath = path.join(this.buildIntermediatesDir, 'exploded-aar');
+					if (!fs.existsSync(explodedArrPath)) {
+						this.logger.trace(__('No exploded Android Archives found, skipping!'));
+						return callback();
+					}
+
+					var aars = fs.readdirSync(explodedArrPath);
+					aars.forEach(function(aarName) {
+						this.logger.trace(__('Processing resources for %s', aarName));
+						var aarResPath = path.join(explodedArrPath, aarName, 'res');
+						this.logger.trace(__('Traversing %s', aarResPath));
+						this.dirWalker(aarResPath, function (file) {
+							var relativeResourcePathAndFilename = path.relative(aarResPath, file);
+							var destinationPathAndFilename = path.join(mergedResPath, relativeResourcePathAndFilename);
+							if (path.extname(file) === '.xml') {
+								this.writeXmlFile(file, destinationPathAndFilename);
+							} else {
+								appc.fs.copyFileSync(file, destinationPathAndFilename);
+							}
+						}.bind(this));
+					}.bind(this));
+					callback();
+				},
+				function copyModuleResources(callback) {
+					this.logger.trace(__('Processing native module resources'));
+					if (!fs.existsSync(moduleResPath)) {
+						this.logger.trace(__('No native module resources found, skipping!'));
+						return callback();
+					}
+					this.dirWalker(moduleResPath, function (file) {
+						var relativeResourcePathAndFilename = path.relative(moduleResPath, file);
+						var destinationPathAndFilename = path.join(mergedResPath, relativeResourcePathAndFilename);
+
+						if (path.extname(file) === '.xml') {
+							this.writeXmlFile(file, destinationPathAndFilename);
+						} else {
+							appc.fs.copyFileSync(file, destinationPathAndFilename);
+						}
+					}.bind(this));
+					callback();
+				}
+			], cb);
+		},
+
+		function copyModuleAssets(cb) {
+			this.logger.info(__('Copying module assets'));
+			var mergedAssetsPath = path.join(this.buildIntermediatesDir, 'assets');
+			if (fs.existsSync(mergedAssetsPath)) {
+				wrench.rmdirSyncRecursive(mergedAssetsPath);
+				wrench.mkdirSyncRecursive(mergedAssetsPath);
+			}
+			wrench.copyDirSyncRecursive(this.assetsDir, mergedAssetsPath);
+			cb();
+		},
+
+		function generateRespackageinfo(cb) {
+			this.logger.info(__('Generating respackageinfo'));
+			var respackageinfoPathAndFilename = path.join(this.buildIntermediatesDir, 'res/respackageinfo');
+			if (fs.existsSync(respackageinfoPathAndFilename)) {
+				fs.unlinkSync(respackageinfoPathAndFilename);
+			}
+
+			if (this.manifest.respackage) {
+				this.extraPackages[this.manifest.respackage] = 1;
+			}
+			var extraPackageIdentifiers = Object.keys(this.extraPackages);
+			if (extraPackageIdentifiers.length === 0) {
+				return cb();
+			}
+			var respackageinfoContent = extraPackageIdentifiers.join('\n');
+			fs.writeFileSync(respackageinfoPathAndFilename, respackageinfoContent);
+			cb();
+		}
+	];
+
+	appc.async.series(this, tasks, next);
+};
+
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
@@ -1372,10 +1470,18 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'example', path.relative(this.exampleDir, file)) });
 				}.bind(this));
 
-				// 3. platform folder
+				// 3.1 platform folder
 				if (fs.existsSync(this.platformDir)) {
 					this.dirWalker(this.platformDir, function (file) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform', path.relative(this.platformDir, file)) });
+					}.bind(this));
+				}
+
+				// 3.2 merged platform resources
+				var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
+				if (fs.existsSync(mergedResPath)) {
+					this.dirWalker(mergedResPath, function (file) {
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform/android/res', path.relative(mergedResPath, file)) });
 					}.bind(this));
 				}
 
@@ -1407,9 +1513,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				// 6. assets folder, not including js files
-				this.dirWalker(this.assetsDir, function (file) {
+				var mergedAssetsPath = path.join(this.buildIntermediatesDir, 'assets');
+				this.dirWalker(mergedAssetsPath, function (file) {
 					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(mergedAssetsPath, file)) });
 					}
 				}.bind(this));
 
@@ -1419,7 +1526,16 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(this.projLibDir, file)) });
+						if (path.extname(file) === '.jar') {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(this.projLibDir, file)) });
+						}
+					}.bind(this));
+				}
+
+				var intermediateLibPath = path.join(this.buildIntermediatesDir, 'lib');
+				if (fs.existsSync(intermediateLibPath)) {
+					this.dirWalker(intermediateLibPath, function (file) {
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(intermediateLibPath, file)) });
 					}.bind(this));
 				}
 
@@ -1429,6 +1545,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				dest.append(fs.createReadStream(this.timoduleXmlFile), { name: path.join(moduleFolder,'timodule.xml') });
 				if (fs.existsSync(this.metaDataFile)) {
 					dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolder,'metadata.json') });
+				}
+				var respackageinfoPathAndFilename = path.join(this.buildIntermediatesDir, 'res/respackageinfo');
+				if (fs.existsSync(respackageinfoPathAndFilename)) {
+					dest.append(fs.createReadStream(respackageinfoPathAndFilename), { name: path.join(moduleFolder, 'respackageinfo')});
 				}
 
 				this.logger.info(__('Writing module zip: %s', moduleZipPath));

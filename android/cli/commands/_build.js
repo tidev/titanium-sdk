@@ -22,7 +22,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -3174,94 +3174,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	}
 
 	next();
-};
-
-AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
-	var filename = path.basename(dest),
-		destExists = fs.existsSync(dest),
-		destDir = path.dirname(dest),
-		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-		destDoc,
-		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-		root = dom.documentElement,
-		nodes = {},
-		_t = this,
-		byName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				if (nodes[n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[n] = node;
-			}
-		},
-		byTagAndName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				nodes[node.tagName] || (nodes[node.tagName] = {});
-				if (nodes[node.tagName][n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[node.tagName][n] = node;
-			}
-		};
-
-	if (destExists) {
-		// we're merging
-		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement;
-		xml.forEachAttr(destDoc, function (attr) {
-			root.setAttribute(attr.name, attr.value);
-		});
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	} else {
-		// copy the file, but make sure there are no dupes
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	}
-
-	xml.forEachAttr(srcDoc, function (attr) {
-		root.setAttribute(attr.name, attr.value);
-	});
-
-	switch (filename) {
-		case 'arrays.xml':
-		case 'attrs.xml':
-		case 'bools.xml':
-		case 'colors.xml':
-		case 'dimens.xml':
-		case 'ids.xml':
-		case 'integers.xml':
-		case 'strings.xml':
-			destDoc && xml.forEachElement(destDoc, byName);
-			xml.forEachElement(srcDoc, byName);
-			Object.keys(nodes).forEach(function (name) {
-				root.appendChild(dom.createTextNode('\n\t'));
-				if (filename == 'strings.xml') {
-					nodes[name].setAttribute('formatted', 'false');
-				}
-				root.appendChild(nodes[name]);
-			});
-			break;
-
-		case 'styles.xml':
-			destDoc && xml.forEachElement(destDoc, byTagAndName);
-			xml.forEachElement(srcDoc, byTagAndName);
-			Object.keys(nodes).forEach(function (tag) {
-				Object.keys(nodes[tag]).forEach(function (name) {
-					root.appendChild(dom.createTextNode('\n\t'));
-					root.appendChild(nodes[tag][name]);
-				});
-			});
-			break;
-	}
-
-	root.appendChild(dom.createTextNode('\n'));
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-	destExists && fs.unlinkSync(dest);
-	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
