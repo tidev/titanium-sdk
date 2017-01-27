@@ -64,7 +64,7 @@ timestamps {
 			stage('Build') {
 				// TODO Add back timeout for build portion?
 				// Skip the Windows SDK portion on PR builds?
-				// if (!isPR) {
+				if (!isPR) {
 					// Grab Windows SDK piece
 					def windowsBranch = env.BRANCH_NAME
 					if (isPR) {
@@ -75,7 +75,7 @@ timestamps {
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-				// }
+				}
 
 				// Normal build, pull out the version
 				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
@@ -92,13 +92,13 @@ timestamps {
 					sh 'npm install .'
 					sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
 					ansiColor('xterm') {
-						// if (isPR) {
-						// 	// For PR builds, just package android and iOS for osx
-						// 	sh "node scons.js package android ios --version-tag ${vtag}"
-						// } else {
+						if (isPR) {
+							// For PR builds, just package android and iOS for osx
+							sh "node scons.js package android ios --version-tag ${vtag}"
+						} else {
 							// For non-PR builds, do all platforms for all OSes
 							sh "node scons.js package --version-tag ${vtag} --all"
-						// }
+						}
 					}
 				}
 				archiveArtifacts artifacts: "${basename}-*.zip"
@@ -117,9 +117,9 @@ timestamps {
 
 		stage('Deploy') {
 			// Push to S3 if not PR
-			// if (!isPR) {
+			if (!isPR) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
-				node('osx || linux') {
+				node('(osx || linux) && !axway-internal') {
 					try {
 						def indexJson = []
 						try {
@@ -214,7 +214,7 @@ timestamps {
 						step([$class: 'WsCleanup', notFailBuild: true])
 					}
 				}
-			// }
+			}
 		}
 	}
 	catch (err) {
