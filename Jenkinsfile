@@ -7,10 +7,16 @@ def basename = ''
 def vtag = ''
 def isPR = false
 
+@NonCPS
+def jsonParse(def json) {
+	new groovy.json.JsonSlurperClassic().parseText(json)
+}
+
 def unitTests(os) {
 	return {
-			// TODO Customize labels by os we're testing
-			node('node-4 && android-emulator && npm && git && android-sdk && osx') {
+		// TODO Customize labels by os we're testing
+		node('node-4 && android-emulator && npm && git && android-sdk && osx') {
+			try {
 				// Unarchive the osx build of the SDK (as a zip)
 				sh 'rm -rf osx.zip'
 				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
@@ -26,7 +32,14 @@ def unitTests(os) {
 					sh "node test.js -b ../../${zipName} -p ${os}"
 					junit 'junit.*.xml'
 				}
+			} catch (e) {
+				// if any exception occurs, mark the build as failed
+				currentBuild.result = 'FAILURE'
+				throw e
+			} finally {
+				step([$class: 'WsCleanup', notFailBuild: true])
 			}
+		}
 	}
 }
 
@@ -53,9 +66,14 @@ timestamps {
 				// Skip the Windows SDK portion on PR builds?
 				if (!isPR) {
 					// Grab Windows SDK piece
-					step ([$class: 'CopyArtifact',
-						projectName: "appcelerator/titanium_mobile_windows/${env.BRANCH_NAME}",
-						filter: 'dist/windows/']);
+					def windowsBranch = env.BRANCH_NAME
+					if (isPR) {
+						windowsBranch = 'master'
+					}
+					step([$class: 'CopyArtifact',
+						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
+						selector: [$class: 'StatusBuildSelector', stable: false],
+						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
 				}
 
@@ -73,12 +91,14 @@ timestamps {
 				dir('build') {
 					sh 'npm install .'
 					sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-					if (isPR) {
-						// For PR builds, just package android and iOS for osx
-						sh "node scons.js package android ios --version-tag ${vtag}"
-					} else {
-						// For non-PR builds, do all platforms for all OSes
-						sh "node scons.js package --version-tag ${vtag} --all"
+					ansiColor('xterm') {
+						if (isPR) {
+							// For PR builds, just package android and iOS for osx
+							sh "node scons.js package android ios --version-tag ${vtag}"
+						} else {
+							// For non-PR builds, do all platforms for all OSes
+							sh "node scons.js package --version-tag ${vtag} --all"
+						}
 					}
 				}
 				archiveArtifacts artifacts: "${basename}-*.zip"
@@ -95,97 +115,107 @@ timestamps {
 			)
 		}
 
-		// Now allocate a node for uploading artifacts to s3 and in Jenkins
-		// node('osx || linux') {
-		// 	stage('Deploy') {
-		// 		// Push to S3 if not PR
-		// 		if (!isPR) {
-		// 			def indexJson = []
-		// 			try {
-		// 				sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
-		// 				indexJson = new groovy.json.JsonSlurperClassic().parseText(readFile('index.json'))
-		// 			} catch (err) {
-		// 				// ignore? Not able to grab the index.json, so assume it means it's a new branch
-		// 			}
-    //
-		// 			// unarchive zips
-		// 			unarchive mapping: ['dist/': '.']
-		// 			// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-		// 			def oses = ['osx', 'linux', 'win32']
-		// 			for (int i = 0; i < oses.size(); i++) {
-		// 				def os = oses[i]
-		// 				def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]
-		// 				def filesize = Long.valueOf(sh(returnStdout: true, script: "wc -c < ${basename}-${os}.zip").trim())
-		// 				step([
-		// 					$class: 'S3BucketPublisher',
-		// 					consoleLogLevel: 'INFO',
-		// 					entries: [[
-		// 						bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-		// 						gzipFiles: false,
-		// 						selectedRegion: 'us-east-1',
-		// 						sourceFile: "${basename}-${os}.zip",
-		// 						uploadFromSlave: true,
-		// 						userMetadata: [[key: 'sha1', value: sha1]]
-		// 					]],
-		// 					profileName: 'builds.appcelerator.com',
-		// 					pluginFailureResultConstraint: 'FAILURE',
-		// 					userMetadata: [
-		// 						[key: 'build_type', value: 'mobile'],
-		// 						[key: 'git_branch', value: env.BRANCH_NAME],
-		// 						[key: 'git_revision', value: gitCommit],
-		// 						[key: 'build_url', value: env.BUILD_URL]]
-		// 				])
-    //
-		// 				// Add the entry to index json!
-		// 				indexJson << [
-		// 					'filename': "mobilesdk-${vtag}-${os}.zip",
-		// 					'git_branch': env.BRANCH_NAME,
-		// 					'git_revision': gitCommit,
-		// 					'build_url': env.BUILD_URL,
-		// 					'build_type': 'mobile',
-		// 					'sha1': sha1,
-		// 					'size': filesize
-		// 				]
-		// 			}
-    //
-		// 			// Update the index.json on S3
-		// 			echo "updating mobile/${env.BRANCH_NAME}/index.json..."
-		// 			writeFile file: "index.json", text: new groovy.json.JsonBuilder(indexJson).toPrettyString()
-		// 			step([
-		// 				$class: 'S3BucketPublisher',
-		// 				consoleLogLevel: 'INFO',
-		// 				entries: [[
-		// 					bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-		// 					gzipFiles: false,
-		// 					selectedRegion: 'us-east-1',
-		// 					sourceFile: 'index.json',
-		// 					uploadFromSlave: true,
-		// 					userMetadata: []
-		// 				]],
-		// 				profileName: 'builds.appcelerator.com',
-		// 				pluginFailureResultConstraint: 'FAILURE',
-		// 				userMetadata: []])
-    //
-		// 			// Upload the parity report
-		// 			unstash 'parity'
-		// 			sh "mv dist/parity.html ${basename}-parity.html"
-		// 			step([
-		// 				$class: 'S3BucketPublisher',
-		// 				consoleLogLevel: 'INFO',
-		// 				entries: [[
-		// 					bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
-		// 					gzipFiles: false,
-		// 					selectedRegion: 'us-east-1',
-		// 					sourceFile: "${basename}-parity.html",
-		// 					uploadFromSlave: true,
-		// 					userMetadata: []
-		// 				]],
-		// 				profileName: 'builds.appcelerator.com',
-		// 				pluginFailureResultConstraint: 'FAILURE',
-		// 				userMetadata: []])
-		// 		}
-		// 	}
-		// }
+		stage('Deploy') {
+			// Push to S3 if not PR
+			if (!isPR) {
+				// Now allocate a node for uploading artifacts to s3 and in Jenkins
+				node('(osx || linux) && !axway-internal') {
+					try {
+						def indexJson = []
+						try {
+							sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
+						} catch (err) {
+							// ignore? Not able to grab the index.json, so assume it means it's a new branch
+						}
+						if (fileExists('index.json')) {
+							indexJson = jsonParse(readFile('index.json'))
+						}
+
+						// unarchive zips
+						unarchive mapping: ['dist/': '.']
+						// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
+						def oses = ['osx', 'linux', 'win32']
+						for (int i = 0; i < oses.size(); i++) {
+							def os = oses[i]
+							def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]
+							def filesize = Long.valueOf(sh(returnStdout: true, script: "wc -c < ${basename}-${os}.zip").trim())
+							step([
+								$class: 'S3BucketPublisher',
+								consoleLogLevel: 'INFO',
+								entries: [[
+									bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+									gzipFiles: false,
+									selectedRegion: 'us-east-1',
+									sourceFile: "${basename}-${os}.zip",
+									uploadFromSlave: true,
+									userMetadata: [[key: 'sha1', value: sha1]]
+								]],
+								profileName: 'builds.appcelerator.com',
+								pluginFailureResultConstraint: 'FAILURE',
+								userMetadata: [
+									[key: 'build_type', value: 'mobile'],
+									[key: 'git_branch', value: env.BRANCH_NAME],
+									[key: 'git_revision', value: gitCommit],
+									[key: 'build_url', value: env.BUILD_URL]]
+							])
+
+							// Add the entry to index json!
+							indexJson << [
+								'filename': "mobilesdk-${vtag}-${os}.zip",
+								'git_branch': env.BRANCH_NAME,
+								'git_revision': gitCommit,
+								'build_url': env.BUILD_URL,
+								'build_type': 'mobile',
+								'sha1': sha1,
+								'size': filesize
+							]
+						}
+
+						// Update the index.json on S3
+						echo "updating mobile/${env.BRANCH_NAME}/index.json..."
+						writeFile file: "index.json", text: new groovy.json.JsonBuilder(indexJson).toPrettyString()
+						step([
+							$class: 'S3BucketPublisher',
+							consoleLogLevel: 'INFO',
+							entries: [[
+								bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+								gzipFiles: false,
+								selectedRegion: 'us-east-1',
+								sourceFile: 'index.json',
+								uploadFromSlave: true,
+								userMetadata: []
+							]],
+							profileName: 'builds.appcelerator.com',
+							pluginFailureResultConstraint: 'FAILURE',
+							userMetadata: []])
+
+						// Upload the parity report
+						unstash 'parity'
+						sh "mv dist/parity.html ${basename}-parity.html"
+						step([
+							$class: 'S3BucketPublisher',
+							consoleLogLevel: 'INFO',
+							entries: [[
+								bucket: "builds.appcelerator.com/mobile/${env.BRANCH_NAME}",
+								gzipFiles: false,
+								selectedRegion: 'us-east-1',
+								sourceFile: "${basename}-parity.html",
+								uploadFromSlave: true,
+								userMetadata: []
+							]],
+							profileName: 'builds.appcelerator.com',
+							pluginFailureResultConstraint: 'FAILURE',
+							userMetadata: []])
+					} catch (e) {
+						// if any exception occurs, mark the build as failed
+						currentBuild.result = 'FAILURE'
+						throw e
+					} finally {
+						step([$class: 'WsCleanup', notFailBuild: true])
+					}
+				}
+			}
+		}
 	}
 	catch (err) {
 		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
