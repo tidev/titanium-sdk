@@ -7,6 +7,11 @@ def basename = ''
 def vtag = ''
 def isPR = false
 
+@NonCPS
+def jsonParse(def json) {
+	new groovy.json.JsonSlurperClassic().parseText(json)
+}
+
 def unitTests(os) {
 	return {
 		// TODO Customize labels by os we're testing
@@ -86,13 +91,15 @@ timestamps {
 				dir('build') {
 					sh 'npm install .'
 					sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-					// if (isPR) {
-					// 	// For PR builds, just package android and iOS for osx
-					// 	sh "node scons.js package android ios --version-tag ${vtag}"
-					// } else {
-						// For non-PR builds, do all platforms for all OSes
-						sh "node scons.js package --version-tag ${vtag} --all"
-					// }
+					ansiColor('xterm') {
+						// if (isPR) {
+						// 	// For PR builds, just package android and iOS for osx
+						// 	sh "node scons.js package android ios --version-tag ${vtag}"
+						// } else {
+							// For non-PR builds, do all platforms for all OSes
+							sh "node scons.js package --version-tag ${vtag} --all"
+						// }
+					}
 				}
 				archiveArtifacts artifacts: "${basename}-*.zip"
 				stash includes: 'dist/parity.html', name: 'parity'
@@ -121,7 +128,7 @@ timestamps {
 							// ignore? Not able to grab the index.json, so assume it means it's a new branch
 						}
 						if (fileExists('index.json')) {
-							indexJson = new groovy.json.JsonSlurperClassic().parseText(readFile('index.json'))
+							indexJson = jsonParse(readFile('index.json'))
 						}
 
 						// unarchive zips
