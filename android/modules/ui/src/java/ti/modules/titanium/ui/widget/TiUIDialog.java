@@ -37,6 +37,8 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected TiUIView view;
 	private DialogWrapper dialogWrapper;
+	
+	private Boolean autoClose = true;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -46,7 +48,9 @@ public class TiUIDialog extends TiUIView
 		}
 		public void onClick(DialogInterface dialog, int which) {
 			handleEvent(result);
-			hide(null);
+			if (autoClose) {
+				hide(null);
+			}
 		}
 	}
 
@@ -106,6 +110,9 @@ public class TiUIDialog extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
 			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
 		}
+		if (d.containsKey(TiC.PROPERTY_AUTO_CLOSE)) {
+			autoClose = d.getBoolean(TiC.PROPERTY_AUTO_CLOSE);
+		}
 
 		if (buttonText != null) {
 			processButtons(buttonText);
@@ -118,7 +125,9 @@ public class TiUIDialog extends TiUIView
 		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				handleEvent(which);
-				hide(null);
+				if (autoClose) {
+					hide(null);
+				}
 			}
 		});
 	}
@@ -259,6 +268,8 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && dialog != null) {
 		    dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_AUTO_CLOSE)) {
+		    autoClose = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -279,7 +290,9 @@ public class TiUIDialog extends TiUIView
 					int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 					Log.d(TAG, "onCancelListener called. Sending index: " + cancelIndex, Log.DEBUG_MODE);
 					handleEvent(cancelIndex);
-					hide(null);
+					if (autoClose) {
+						hide(null);
+					}
 				}
 			});
 			dialog = getBuilder().create();

@@ -28,7 +28,8 @@ import android.app.Activity;
 		TiC.PROPERTY_TITLEID,
 		TiC.PROPERTY_OK,
 		TiC.PROPERTY_OKID,
-		TiC.PROPERTY_PERSISTENT
+		TiC.PROPERTY_PERSISTENT,
+		TiC.PROPERTY_AUTO_CLOSE
 	}
 )
 public class AlertDialogProxy extends TiViewProxy
@@ -36,6 +37,7 @@ public class AlertDialogProxy extends TiViewProxy
 	public AlertDialogProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_AUTO_CLOSE, true);
 	}
 
 	@Override
