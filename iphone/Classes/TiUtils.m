@@ -786,7 +786,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    return [imageCopy autorelease];
+    return imageCopy;
 }
 
 +(NSURL*)checkFor2XImage:(NSURL*)url

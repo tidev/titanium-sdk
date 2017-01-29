@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
+import android.graphics.drawable.ColorDrawable;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -334,6 +335,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			pendingDisableTabs = true;
 			checkAndDisableTabsIfRequired();
 		}
+		ColorDrawable drawable = (tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) ? TiConvert.toColorDrawable((String) tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)) : TiConvert.toColorDrawable((String) tabProxy.getTabGroup().getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR));
+		actionBar.setStackedBackgroundDrawable(drawable);
+		actionBar.setBackgroundDrawable(drawable);
 	}
 
 	@Override

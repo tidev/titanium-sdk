@@ -1656,7 +1656,7 @@ examples:
                 </Window>
             </Alloy>
 
-  - title: Alloy example of `<PullView>` element
+  - title: Alloy example of <PullView> element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 
