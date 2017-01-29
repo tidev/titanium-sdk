@@ -499,6 +499,38 @@
     }, [NSThread isMainThread]);
 }
 
+-(NSMutableArray *)getSelectedRows:(id)unused
+{
+    NSLog(@"gettingSelectedROWS");
+    ENSURE_ARG_COUNT(unused, 0);
+    NSMutableArray *result=[[NSMutableArray alloc]init];
+    NSArray *selectedRows = [self.listView.tableView indexPathsForSelectedRows];
+    if(selectedRows!=nil)
+    {
+        TiThreadPerformOnMainThread(^{
+            for (NSIndexPath* indexPath in [self.listView.tableView indexPathsForSelectedRows])
+            {
+                NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
+                TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
+                NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+                NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                    section, @"section",
+                                                    NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                    NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                    nil];
+                id propertiesValue = [item objectForKey:@"properties"];
+                NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+                id itemId = [properties objectForKey:@"itemId"];
+                if (itemId != nil) {
+                    [eventObject setObject:itemId forKey:@"itemId"];
+                }
+                [result addObject:eventObject];
+            }
+        }, [NSThread isMainThread]);
+    }
+    return result;
+}
+
 #pragma mark - Marker Support
 
 -(NSIndexPath*)indexPathFromDictionary:(NSDictionary*) args
