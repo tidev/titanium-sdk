@@ -6033,6 +6033,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UIIOSSTEPPER',
 			'#define USE_TI_UIIOSBLURVIEW',
 			'#define USE_TI_UIIOSLIVEPHOTOVIEW',
+			'#define USE_TI_UIIOSTABBEDBAR',
 			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
