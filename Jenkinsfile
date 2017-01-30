@@ -17,20 +17,22 @@ def unitTests(os) {
 		// TODO Customize labels by os we're testing
 		node('node-4 && android-emulator && npm && git && android-sdk && osx') {
 			try {
-				// Unarchive the osx build of the SDK (as a zip)
-				sh 'rm -rf osx.zip'
-				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
-				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-				dir('titanium-mobile-mocha-suite') {
-					// TODO Do a shallow clone, using same credentials as above
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
-				}
-				unstash 'override-tests'
-				sh 'cp -R tests/ titanium-mobile-mocha-suite'
-				dir('titanium-mobile-mocha-suite/scripts') {
-					sh 'npm install .'
-					sh "node test.js -b ../../${zipName} -p ${os}"
-					junit 'junit.*.xml'
+				timeout(time: 1, unit: 'HOURS') {
+					// Unarchive the osx build of the SDK (as a zip)
+					sh 'rm -rf osx.zip'
+					unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip']
+					def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+					dir('titanium-mobile-mocha-suite') {
+						// TODO Do a shallow clone, using same credentials as above
+						git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
+					}
+					unstash 'override-tests'
+					sh 'cp -R tests/ titanium-mobile-mocha-suite'
+					dir('titanium-mobile-mocha-suite/scripts') {
+						sh 'npm install .'
+						sh "node test.js -b ../../${zipName} -p ${os}"
+						junit 'junit.*.xml'
+					}
 				}
 			} catch (e) {
 				// if any exception occurs, mark the build as failed
@@ -62,50 +64,51 @@ timestamps {
 			}
 
 			stage('Build') {
-				// TODO Add back timeout for build portion?
-				// Skip the Windows SDK portion on PR builds?
-				if (!isPR) {
-					// Grab Windows SDK piece
-					def windowsBranch = env.BRANCH_NAME
-					if (isPR) {
-						windowsBranch = 'master'
-					}
-					step([$class: 'CopyArtifact',
-						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
-						selector: [$class: 'StatusBuildSelector', stable: false],
-						filter: 'dist/windows/'])
-					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-				}
-
-				// Normal build, pull out the version
-				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-				echo "VERSION:         ${version}"
-				// Create a timestamp
-				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-				echo "TIMESTAMP:       ${timestamp}"
-				vtag = "${version}.v${timestamp}"
-				echo "VTAG:            ${vtag}"
-				basename = "dist/mobilesdk-${vtag}"
-				echo "BASENAME:        ${basename}"
-				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-				dir('build') {
-					sh 'npm install .'
-					sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-					ansiColor('xterm') {
+				timeout(20) {
+					// Skip the Windows SDK portion on PR builds?
+					if (!isPR) {
+						// Grab Windows SDK piece
+						def windowsBranch = env.BRANCH_NAME
 						if (isPR) {
-							// For PR builds, just package android and iOS for osx
-							sh "node scons.js package android ios --version-tag ${vtag}"
-						} else {
-							// For non-PR builds, do all platforms for all OSes
-							sh "node scons.js package --version-tag ${vtag} --all"
+							windowsBranch = 'master'
+						}
+						step([$class: 'CopyArtifact',
+							projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
+							selector: [$class: 'StatusBuildSelector', stable: false],
+							filter: 'dist/windows/'])
+						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+					}
+
+					// Normal build, pull out the version
+					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+					echo "VERSION:         ${version}"
+					// Create a timestamp
+					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+					echo "TIMESTAMP:       ${timestamp}"
+					vtag = "${version}.v${timestamp}"
+					echo "VTAG:            ${vtag}"
+					basename = "dist/mobilesdk-${vtag}"
+					echo "BASENAME:        ${basename}"
+					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+					dir('build') {
+						sh 'npm install .'
+						sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+						ansiColor('xterm') {
+							if (isPR) {
+								// For PR builds, just package android and iOS for osx
+								sh "node scons.js package android ios --version-tag ${vtag}"
+							} else {
+								// For non-PR builds, do all platforms for all OSes
+								sh "node scons.js package --version-tag ${vtag} --all"
+							}
 						}
 					}
-				}
-				archiveArtifacts artifacts: "${basename}-*.zip"
-				stash includes: 'dist/parity.html', name: 'parity'
-				stash includes: 'tests/', name: 'override-tests'
-			}
-		} // end Node for build
+					archiveArtifacts artifacts: "${basename}-*.zip"
+					stash includes: 'dist/parity.html', name: 'parity'
+					stash includes: 'tests/', name: 'override-tests'
+				} // end timeout
+			} // end 'Build' stage
+		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
