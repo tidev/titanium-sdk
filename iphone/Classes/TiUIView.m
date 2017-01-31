@@ -330,7 +330,7 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[WARN] could not find image: %@",image);
 		return nil;
 	}
-	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
+    return [TiUtils loadCappedBackgroundImage:image forProxy:[self proxy] withLeftCap:leftCap withTopCap:topCap];
 }
 
 -(id)transformMatrix
