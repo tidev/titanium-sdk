@@ -123,7 +123,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
 #endif
@@ -376,7 +376,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME,MPMovieTimeOptionNearestKeyF
 MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 -(TiMediaMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {
