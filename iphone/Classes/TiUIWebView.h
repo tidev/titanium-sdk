@@ -9,21 +9,23 @@
 #import "TiUIView.h"
 
 
-@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
+@interface TiUIWebView : TiUIView<UIWebViewDelegate, NSURLConnectionDelegate> {
 @private
-	UIWebView *webview;
-	UIActivityIndicatorView *spinner;
-	NSURL *url;
-	NSMutableDictionary *listeners;
-	NSString *pageToken;
-	BOOL scalingOverride;
-	NSString *basicCredentials;
+    UIWebView *webview;
+    UIActivityIndicatorView *spinner;
+    NSURL *url;
+    NSMutableDictionary *listeners;
+    NSURLConnection *insecureConnection;
+    NSString *pageToken;
+    BOOL scalingOverride;
+    NSString *basicCredentials;
 	
-	//TODO: make more elegant
-	BOOL ignoreNextRequest;
-	id reloadData;
+    BOOL ignoreNextRequest;
+    BOOL ignoreSslError;
+    BOOL isAuthenticated;
+    id reloadData;
     id reloadDataProperties;
-	SEL reloadMethod;
+    SEL reloadMethod;
     
     BOOL willHandleTouches;
     BOOL willHandleUrl;
