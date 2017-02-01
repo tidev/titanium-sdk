@@ -2049,6 +2049,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                     CGContextRef context = UIGraphicsGetCurrentContext();
                     CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
                     CGContextFillRect(context, CGRectMake(0.0, 0.0, ourRect.size.width, ourRect.size.height));
+                    
                     // translated rectangle for drawing sub image
                     CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
                     
