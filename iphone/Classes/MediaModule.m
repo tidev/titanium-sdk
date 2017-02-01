@@ -2047,8 +2047,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
                     UIGraphicsBeginImageContext(ourRect.size);
                     CGContextRef context = UIGraphicsGetCurrentContext();
-                    
-                    // translated rectangle for drawing sub image 
+                    CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
+                    CGContextFillRect(context, CGRectMake(0.0, 0.0, ourRect.size.width, ourRect.size.height));
+                    // translated rectangle for drawing sub image
                     CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
                     
                     // clip to the bounds of the image context
