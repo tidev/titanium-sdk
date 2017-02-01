@@ -1280,8 +1280,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				jarArgs = [
 					'cf',
 					this.moduleJarFile,
-					'-C', this.buildClassesDir, '.',
-					'-C', path.join(this.assetsDir, '..'), 'assets'
+					'-C', this.buildClassesDir, '.'
 				],
 				createJarHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
 					this.logger.info(__('Generate module JAR: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -1303,7 +1302,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					jarArgs.push(assetsParentDir);
 					jarArgs.push(path.relative(assetsParentDir, file));
 				}
-
 			}.bind(this));
 
 			createJarHook(
