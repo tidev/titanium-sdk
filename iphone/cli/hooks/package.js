@@ -197,7 +197,7 @@ exports.init = function (logger, config, cli) {
 						});
 					}
 					if (pp && pp.team && pp.team.length) {
-						exportsOptions.team = pp.team[0];
+						exportsOptions.teamId = pp.team[0];
 					}
 
 					fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
