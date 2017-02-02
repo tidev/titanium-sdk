@@ -180,6 +180,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[spinner sizeToFit];
 			[spinner startAnimating];
 		}
+
+		if ([[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"] == nil) {
+			NSString *defaultUserAgent = [webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+			[[NSUserDefaults standardUserDefaults] setObject:defaultUserAgent forKey:@"DefaultUserAgent"];
+		}
 	}
 	return webview;
 }
@@ -555,6 +560,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     [[self proxy] replaceValue:arg forKey:@"handlePlatformUrl" notification:NO];
     willHandleUrl = [TiUtils boolValue:arg];
+}
+
+-(void)setUserAgent_:(id)value
+{
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    
+    if (value == nil || [value isEqualToString:@""]) {
+        value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"];
+    }
+
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent": value}];
+    [[self proxy] replaceValue:value forKey:@"userAgent" notification:NO];
 }
 
 - (void)ensureLocalProtocolHandler

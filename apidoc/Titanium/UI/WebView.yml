@@ -694,9 +694,13 @@ properties:
 
   - name: userAgent
     summary: The User-Agent header used by the web view when requesting content.
+    description: |
+        On the iOS platform, this is not per-webview. Once you have set this property for a webview 
+        it will not change for same. But while creating new webview it can be changed to new user agent.
     type: String
     default: System default user-agent value.
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 
   - name: willHandleTouches
     summary: Explicitly specifies if this web view handles touches.
