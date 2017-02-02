@@ -1983,6 +1983,38 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return responseHeader;
 }
 
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:image];
+    } else if ([image isKindOfClass:[NSString class]]) {
+        if ([image isEqualToString:@""]) {
+            return nil;
+        }
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL withLeftCap:leftCap topCap:topCap];
+        if (resultImage == nil)
+        {
+            UIImage *downloadedImgage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:downloadedImgage];
+        }
+        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[UIImage imageNamed:image]];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
+            resultImage = [UIImageResize resizedImage:[resultImage size]
+                                 interpolationQuality:kCGInterpolationNone
+                                                image:resultImage
+                                                hires:NO];
+        }
+    } else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[(TiBlob*)image image]];
+    }
+    return resultImage;
+}
+
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
 {
     UIImage* resultImage = nil;
