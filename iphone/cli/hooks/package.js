@@ -174,7 +174,7 @@ exports.init = function (logger, config, cli) {
 					// make sure the output directory is good to go
 					fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
 					var exportPath = path.join(outputDir, builder.tiapp.name + '.ipa');
-					fs.existsSync(exportPath) && fs.unlinkSync(exportPath);
+					fs.existsSync(exportPath) && wrench.rmdirSyncRecursive(exportPath);
 
 					// write the export options plist file
 					var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
