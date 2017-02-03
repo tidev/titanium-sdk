@@ -496,6 +496,7 @@ public class TiTableView extends FrameLayout
 			if (rp.hierarchyHasListener(eventName)) {
 				rp.fireEvent(eventName, event);
 				longClickFired = true;
+				return true;
 			}
 		}
 		if (longClick && !longClickFired) {
