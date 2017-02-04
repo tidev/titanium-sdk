@@ -1724,7 +1724,10 @@ public abstract class TiUIView
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 			touchable.setSoundEffectsEnabled(enabled);
 			touchable.setEnabled(enabled);
+		} else {
+			touchable.setSoundEffectsEnabled(false);
 		}
+		
 		registerTouchEvents(touchable);
 
 		// Previously, we used the single tap handling above to fire our click event. It doesn't
