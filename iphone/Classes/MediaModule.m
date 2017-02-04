@@ -181,7 +181,7 @@ typedef void (^PermissionBlock)(BOOL granted)
                                                                          MPMediaItemPropertyUserGrouping, @"userGrouping",
                                                                          MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
 #ifdef __IPHONE_10_0
-                                                                         MPMediaItemPropertyDateAdded, @"t",
+                                                                         MPMediaItemPropertyDateAdded, @"dateAdded",
 #endif
 #ifdef __IPHONE_10_3
                                                                          MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
