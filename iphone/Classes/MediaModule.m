@@ -151,7 +151,6 @@ typedef void (^PermissionBlock)(BOOL granted)
                                                                                    MPMediaItemPropertyAlbumArtistPersistentID, @"albumArtistPersistentID",
                                                                                    MPMediaItemPropertyGenrePersistentID, @"genrePersistentID",
                                                                                    MPMediaItemPropertyComposerPersistentID, @"composerPersistentID",
-                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation",
                                                                                    MPMediaItemPropertyIsCloudItem, @"isCloudItem",
                                                                                    MPMediaItemPropertyHasProtectedAsset, @"hasProtectedAsset",
                                                                                    MPMediaItemPropertyPodcastTitle, @"podcastTitle",

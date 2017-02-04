@@ -68,7 +68,7 @@ properties:
   - name: beatsPerMinute
     summary: |
         The number of musical beats per minute for the media item, corresponding 
-        to the "BPM” field in the Info tab in the "Get Info" dialog in iTunes.
+        to the "BPM" field in the Info tab in the "Get Info" dialog in iTunes.
     type: Number
     permission: read-only
     since: "6.1.0"
