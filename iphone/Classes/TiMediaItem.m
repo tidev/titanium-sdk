@@ -39,16 +39,16 @@
 
 #pragma mark Properties
 
--(TiBlob*)artwork
+-(TiBlob *)artwork
 {
-	MPMediaItemArtwork* artwork = [item valueForProperty:MPMediaItemPropertyArtwork];
+	MPMediaItemArtwork *artwork = [item valueForProperty:MPMediaItemPropertyArtwork];
 	if (artwork != nil) {
 		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[artwork imageWithSize:[artwork imageCropRect].size]] autorelease];
 	}
 	return nil;
 }
 
-// This is a sleazy way of getting properties so that I don't have to write 15 functions.
+// Handle all properties automatically
 -(id)valueForUndefinedKey:(NSString *)key
 {
 	id propertyName = [[MediaModule itemProperties] objectForKey:key];

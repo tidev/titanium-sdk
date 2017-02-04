@@ -137,14 +137,25 @@ typedef void (^PermissionBlock)(BOOL granted)
 +(NSDictionary*)filterableItemProperties
 {
     if (TI_filterableItemProperties == nil) {
-        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType", // Filterable
-                                                                                   MPMediaItemPropertyTitle, @"title", // Filterable
-                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle", // Filterable
-                                                                                   MPMediaItemPropertyArtist, @"artist", // Filterable
-                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist", //Filterable
-                                                                                   MPMediaItemPropertyGenre, @"genre", // Filterable
-                                                                                   MPMediaItemPropertyComposer, @"composer", // Filterable
-                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation", // Filterable
+        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType",
+                                                                                   MPMediaItemPropertyTitle, @"title",
+                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle",
+                                                                                   MPMediaItemPropertyArtist, @"artist",
+                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist",
+                                                                                   MPMediaItemPropertyGenre, @"genre",
+                                                                                   MPMediaItemPropertyComposer, @"composer",
+                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation",
+                                                                                   MPMediaItemPropertyPlayCount, @"playCount",
+                                                                                   MPMediaItemPropertyPersistentID, @"persistentID",
+                                                                                   MPMediaItemPropertyAlbumPersistentID, @"albumPersistentID",
+                                                                                   MPMediaItemPropertyAlbumArtistPersistentID, @"albumArtistPersistentID",
+                                                                                   MPMediaItemPropertyGenrePersistentID, @"genrePersistentID",
+                                                                                   MPMediaItemPropertyComposerPersistentID, @"composerPersistentID",
+                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation",
+                                                                                   MPMediaItemPropertyIsCloudItem, @"isCloudItem",
+                                                                                   MPMediaItemPropertyHasProtectedAsset, @"hasProtectedAsset",
+                                                                                   MPMediaItemPropertyPodcastTitle, @"podcastTitle",
+                                                                                   MPMediaItemPropertyPodcastPersistentID, @"podcastPersistentID",
                                                                                    nil];
     }
     return TI_filterableItemProperties;
@@ -159,11 +170,23 @@ typedef void (^PermissionBlock)(BOOL granted)
                                                                          MPMediaItemPropertyDiscNumber, @"discNumber",
                                                                          MPMediaItemPropertyDiscCount, @"discCount",
                                                                          MPMediaItemPropertyLyrics, @"lyrics",
-                                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
-                                                                         MPMediaItemPropertyPlayCount, @"playCount",
                                                                          MPMediaItemPropertySkipCount, @"skipCount",
                                                                          MPMediaItemPropertyRating, @"rating",
-                                                                         nil	];		
+                                                                         MPMediaItemPropertyAssetURL, @"assetURL",
+                                                                         MPMediaItemPropertyIsExplicit, @"isExplicit",
+                                                                         MPMediaItemPropertyReleaseDate, @"releaseDate",
+                                                                         MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
+                                                                         MPMediaItemPropertyComments, @"comments",
+                                                                         MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
+                                                                         MPMediaItemPropertyUserGrouping, @"userGrouping",
+                                                                         MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+#ifdef __IPHONE_10_0
+                                                                         MPMediaItemPropertyDateAdded, @"t",
+#endif
+#ifdef __IPHONE_10_3
+                                                                         MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
+#endif
+                                                                         nil	];
 	}
 	return TI_itemProperties;
 }
@@ -1119,8 +1142,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     // iPod not available on simulator
 #if TARGET_IPHONE_SIMULATOR
     [self sendPickerError:MediaModuleErrorNoMusicPlayer];
-    return;
-#endif
+#else
     
     if (args != nil)
     {
@@ -1166,6 +1188,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [musicPicker setDelegate:self];
     
     [self displayModalPicker:musicPicker settings:args];
+#endif
 }
 
 -(void)hideMusicLibrary:(id)args
