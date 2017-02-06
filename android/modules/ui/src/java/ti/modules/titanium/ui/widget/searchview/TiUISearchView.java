@@ -25,7 +25,7 @@ import android.widget.EditText;
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 	private SearchView searchView;
 
-	private boolean changeEventEnabled = false;
+	private boolean changeEventEnabled = true;
 
 	public static final String TAG = "SearchView";
 
@@ -51,11 +51,11 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (props.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint(props.getString(TiC.PROPERTY_HINT_TEXT));
 		}
-		changeEventEnabled = false;
 		if (props.containsKey(TiC.PROPERTY_VALUE)) {
+			changeEventEnabled = false;
 			searchView.setQuery(props.getString(TiC.PROPERTY_VALUE), false);
+			changeEventEnabled = true;
 		}
-		changeEventEnabled = true;
 		if (props.containsKey(TiC.PROPERTY_ICONIFIED)) {
 			searchView.setIconified(props.getBoolean(TiC.PROPERTY_ICONIFIED));
 		}
@@ -118,8 +118,9 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (searchChangeListener != null) {
 			searchChangeListener.filterBy(query);
 		}
-		if (changeEventEnabled)
+		if (changeEventEnabled) {
 			fireEvent(TiC.EVENT_CHANGE, null);
+		}
 		return false;
 	}
 
