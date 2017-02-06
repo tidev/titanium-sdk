@@ -49,8 +49,16 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 	// If we don't deal with a resource set just try to copy it over
 	if (srcDoc.tagName !== 'resources') {
 		this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
-		fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-		destExists && fs.unlinkSync(dest);
+		if (destExists) {
+			this.logger.warn(__('Overwriting %s => %s', srcOrDoc.cyan, dest.cyan));
+			this.logger.warn(__('Please check for possible duplicate resources.'));
+			fs.unlinkSync(dest);
+		} else {
+			if (!fs.existsSync(destDir)) {
+				wrench.mkdirSyncRecursive(destDir);
+			}
+			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
+		}
 		fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + srcDoc.toString());
 		return;
 	}
