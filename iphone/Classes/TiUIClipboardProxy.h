@@ -9,6 +9,7 @@
 #import "TiProxy.h"
 @interface TiUIClipboardProxy : TiProxy {
 @private
+    UIPasteboard *_pasteboard;
 }
 
 #pragma mark internal
