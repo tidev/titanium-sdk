@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import android.content.Intent;
 import android.os.Bundle;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 
 public class TiActivity extends TiBaseActivity
@@ -49,10 +50,13 @@ public class TiActivity extends TiBaseActivity
 					setIntent(newIntent);
 
 					// fire 'newintent'
-					IntentProxy intentProxy = new IntentProxy(newIntent);
-					KrollDict data = new KrollDict();
-					data.put(TiC.PROPERTY_INTENT, intentProxy);
-					rootActivity.getActivityProxy().fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+					ActivityProxy activityProxy = rootActivity.getActivityProxy();
+					if (activityProxy != null) {
+						IntentProxy intentProxy = new IntentProxy(newIntent);
+						KrollDict data = new KrollDict();
+						data.put(TiC.PROPERTY_INTENT, intentProxy);
+						activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+					}
 				}
 			}
 		}
