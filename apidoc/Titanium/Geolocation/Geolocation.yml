@@ -1008,13 +1008,13 @@ properties:
 
   - name: longitude
     summary: Longitude of the geocoded address.
-    type: String
+    type: Number
     since: { mobileweb: "3.1.1" }
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: latitude
     summary: Latitude of the geocoded address.
-    type: String
+    type: Number
     since: { mobileweb: "3.1.1" }
     platforms: [android, iphone, ipad, mobileweb]
 
@@ -1251,15 +1251,10 @@ properties:
     type: String
     platforms: [android]
 
-  - name: postalCode
-    summary: Postal code. On iOS, use `zipcode`.
-    type: String
-    platforms: [android]
-
   - name: zipcode
-    summary: Postal code. On Android, use `postalCode`.
+    summary: Postal code. 
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: country
     summary: Country name.
@@ -1267,23 +1262,18 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: countryCode
-    summary: Country code. On iOS, use `country_code`.
-    type: String
-    platforms: [android]
-
-  - name: country_code
-    summary: Country code. Same as `country_code`.
+    summary: Country code.
     type: String
     platforms: [android, iphone, ipad]
 
   - name: longitude
     summary: Longitude of the geocoded point.
-    type: String
+    type: Number
     platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded point.
-    type: String
+    type: Number
     platforms: [android, iphone, ipad]
 
   - name: displayAddress
