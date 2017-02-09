@@ -151,7 +151,18 @@ methods:
         - type: Array<Dictionary>
     since: "5.5.0"
     osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]  
+
+  - name: setName
+    summary: Creates new named pasteboard.
+    description: This method will create new clipboard with given name. See the example to use this.
+    parameters:
+      - name: name
+        summary: name of clipboard.
+        type: String
+    since: "6.1.0"
     platforms: [iphone, ipad]
+
 
 examples:
   - title: Copy Text to the Clipboard
@@ -213,6 +224,20 @@ examples:
             win.add(btn1);
             win.add(btn2);
             win.open();
+
+  - title: Use of named clipboard in iOS
+    example: |
+            var clipboard1 = Ti.UI.createClipboard({
+                name : "test"
+            });
+            clipboard1.setText('hello');
+
+            var clipboard2 = Ti.UI.createButton({
+                title : "test"
+            });
+            Ti.API.info('Both clipboard should return hello');
+            Ti.API.info('clipboard1.getText() ' + clipboard1.getText());
+            Ti.API.info('clipboard2.getText() ' + clipboard2.getText());
 
 ---
 name: ClipboardItemsType

@@ -70,12 +70,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     return @"Ti.UI.Clipboard";
 }
 
--(void) dealloc
-{
-    RELEASE_TO_NIL(_pasteboard);
-    [super dealloc];
-}
-
 -(UIPasteboard *)pasteboard {
     if (_pasteboard)
     {
@@ -86,7 +80,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 -(void)setName:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg,NSString);
+    ENSURE_STRING(arg);
     _pasteboard = [UIPasteboard pasteboardWithName:arg create:true];
 }
 
