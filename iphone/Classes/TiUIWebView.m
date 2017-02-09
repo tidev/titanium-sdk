@@ -737,6 +737,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+	if (navigationType != UIWebViewNavigationTypeOther) {
+ 		RELEASE_TO_NIL(lastValidLoad);
+	}
+    
 	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
 	BOOL allHeadersIncluded = NO;
 	int requiredHeaders = (int)[newHeaders count];
