@@ -10,7 +10,7 @@
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 #import "TiMediaMusicPlayer.h"
 #endif
 #import "TiViewProxy.h"
@@ -44,7 +44,7 @@
 #endif
 	
 	// Music players
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 	TiMediaMusicPlayer* systemMusicPlayer;
 	TiMediaMusicPlayer* appMusicPlayer;
 #endif
