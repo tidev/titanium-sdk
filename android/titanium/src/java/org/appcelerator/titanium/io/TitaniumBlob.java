@@ -120,4 +120,8 @@ public class TitaniumBlob extends TiBaseFile
 	public File getNativeFile() {
 		return new File(path);
 	}
+
+	public String getNativePath() {
+		return path;
+	}
 }
