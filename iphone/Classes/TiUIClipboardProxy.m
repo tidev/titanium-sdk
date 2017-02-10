@@ -64,6 +64,16 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 
 @implementation TiUIClipboardProxy
+-(id) init
+{
+    if (self = [super init])
+    {
+        shouldCreatePasteboard = true;
+        persistent = false;
+        isNamedPasteBoard = false;
+    };
+    return self;
+}
 
 -(NSString*)apiName
 {
@@ -71,7 +81,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 
 -(UIPasteboard *)pasteboard {
-    if (_pasteboard)
+    if (isNamedPasteBoard)
     {
         return _pasteboard;
     }
@@ -81,7 +91,48 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 -(void)setName:(id)arg
 {
     ENSURE_STRING(arg);
-    _pasteboard = [UIPasteboard pasteboardWithName:arg create:true];
+    pasteboardName = arg;
+    _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
+    if (![TiUtils isIOS10OrGreater])
+    {
+        [_pasteboard setPersistent:persistent];
+    }
+    isNamedPasteBoard = true;
+}
+
+-(void)setCreate:(id)arg
+{
+    BOOL value = [TiUtils boolValue:arg def:true];
+    shouldCreatePasteboard = value;
+    if (pasteboardName && !shouldCreatePasteboard)
+    {
+        [self remove];
+        _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
+        if (![TiUtils isIOS10OrGreater])
+        {
+            [_pasteboard setPersistent:persistent];
+        }
+        isNamedPasteBoard = true;
+    }
+}
+-(NSNumber *)persistent
+{
+    return NUMBOOL([self pasteboard].persistent);
+}
+-(void)setPersistent:(id)arg
+{
+    if (![TiUtils isIOS10OrGreater])
+    {
+        BOOL value = [TiUtils boolValue:arg def:false];
+        persistent = value;
+        [[self pasteboard] setPersistent:value];
+    }
+}
+
+-(void)remove
+{
+    [UIPasteboard removePasteboardWithName:[self pasteboard].name];
+    _pasteboard = nil;
 }
 
 -(void)clearData:(id)arg

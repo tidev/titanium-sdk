@@ -10,6 +10,10 @@
 @interface TiUIClipboardProxy : TiProxy {
 @private
     UIPasteboard *_pasteboard;
+    NSString *pasteboardName;
+    BOOL shouldCreatePasteboard;
+    BOOL persistent;
+    BOOL isNamedPasteBoard;
 }
 
 #pragma mark internal

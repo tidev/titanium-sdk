@@ -153,16 +153,16 @@ methods:
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]  
 
-  - name: setName
-    summary: Creates new named pasteboard.
-    description: This method will create new clipboard with given name. See the example to use this.
+  - name: name
+    summary: Create a new named clipboard.
+    description: Create a new clipboard with a given name. See the example on how to use this.
     parameters:
       - name: name
         summary: name of clipboard.
         type: String
     since: "6.1.0"
     platforms: [iphone, ipad]
-
+    availability: creation
 
 examples:
   - title: Copy Text to the Clipboard
