@@ -196,11 +196,24 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)loadURLRequest:(NSMutableURLRequest*)request
 {
+    
 	if (basicCredentials!=nil)
 	{
 		[request setValue:basicCredentials forHTTPHeaderField:@"Authorization"];
 	}
-	[[self webview] loadRequest:request];
+
+    NSDictionary *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+    if(requestHeaders!=nil)
+    {
+        // set the new headers
+        for(NSString *key in [requestHeaders allKeys]){
+            NSString *value = [requestHeaders objectForKey:key];
+            //NSLog(@"[INFO] loadURLRequest header key %@ value %@", key, value);
+            [request setValue:value forHTTPHeaderField:key];
+        }
+    }
+    
+    [[self webview] loadRequest:request];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -737,35 +750,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-	if (navigationType != UIWebViewNavigationTypeOther) {
- 		RELEASE_TO_NIL(lastValidLoad);
-	}
-    
-	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-	BOOL allHeadersIncluded = NO;
-	int requiredHeaders = (int)[newHeaders count];
-    
-	if (newHeaders) {
-		for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
-			for (NSString* newHeader in [newHeaders allKeys]) {
-				if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
-					requiredHeaders--;
-				}
-			}
-		}
-
-		if (requiredHeaders > 0) {
-			NSMutableURLRequest* newRequest = [request mutableCopy];
-			for (NSString* newHeader in [newHeaders allKeys]) {
-				[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
-			}
-			[self loadURLRequest:newRequest];
-			[newRequest release];
-
-			return NO;
-		}
-	}
-
 	NSURL * newUrl = [request URL];
     
 	if (blacklistedURLs && blacklistedURLs.count > 0) {
