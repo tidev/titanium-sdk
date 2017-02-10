@@ -220,6 +220,9 @@ public class TiUIText extends TiUIView
 			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_NO_FULLSCREEN) && (Boolean) d.get(TiC.PROPERTY_NO_FULLSCREEN)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)

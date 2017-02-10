@@ -416,6 +416,13 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     
+  - name: noFullScreen
+    summary: |
+        If set to true then the text field will be not go into full screen mode when focused.
+    type: Boolean
+    platforms: [android]
+    since: 6.1.0
+    
   - name: padding
     summary: Sets the padding of this text field. 
     type: TextFieldPadding
