@@ -43,7 +43,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	// every time we add a row. No sense checking it each time.
 	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
-	private static final int LEFT_MARGIN = 5;
+	private static final int LEFT_MARGIN = 22;
 	private static final int RIGHT_MARGIN = 27;
 	private static final int MIN_HEIGHT = 48;
 
