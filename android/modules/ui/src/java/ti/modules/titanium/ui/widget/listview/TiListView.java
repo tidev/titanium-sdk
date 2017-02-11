@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.view.MotionEvent;
+import android.util.DisplayMetrics;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -29,6 +30,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
@@ -427,9 +429,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
 			titleId = TiRHelper.getResource("id.titanium_ui_list_header_or_footer_title");
 			listContentId = TiRHelper.getResource("id.titanium_ui_list_item_content");
-			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
-			hasChild = TiRHelper.getResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getResource("drawable.disclosure_64");
+			isCheck = getImageRessource("btn_check_buttonless_on");
+			hasChild = getImageRessource("btn_more");
+			disclosure = getImageRessource("disclosure");
 			accessory = TiRHelper.getResource("id.titanium_ui_list_item_accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
@@ -437,6 +439,36 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		
 		this.wrapper = wrapper;
 		setNativeView(wrapper);
+	}
+	
+	private int getImageRessource(String img){
+		//
+		String resName = "drawable."+img+"_48"; // default medium
+		int density = TiPlatformHelper.applicationLogicalDensity;
+
+		switch (density) {
+			case DisplayMetrics.DENSITY_HIGH : resName = "drawable."+img+"_72"; break;
+			case DisplayMetrics.DENSITY_MEDIUM : resName = "drawable."+img+"_48"; break;
+			case DisplayMetrics.DENSITY_LOW :resName = "drawable."+img+"_36"; break;
+		}
+
+		if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
+			resName = "drawable."+img+"_96";
+		}
+
+		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
+			resName = "drawable."+img+"_144";
+		}
+
+		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXXHIGH) {
+			resName = "drawable."+img+"_192";
+		}
+		try {
+			return TiRHelper.getResource(resName);
+		} catch (ResourceNotFoundException e) {
+			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
+			return 0;
+		}
 	}
 	
 	public String getSearchText() {

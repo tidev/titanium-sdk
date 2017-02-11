@@ -12,6 +12,7 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.ImageViewProxy;
@@ -42,7 +43,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		labelProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
 		labelProxy.setActivity(activity);
 		//Generate properties
-		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "2dp");
+		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "5dp");
 		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "55%");
 		defaultLabelProperties.put(TiC.PROPERTY_TEXT, "label");
 		//bind the proxy and default propertiess
@@ -82,6 +83,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		}
 
 		KrollDict properties = data.getKrollDict(TiC.PROPERTY_PROPERTIES);
+		properties.put(TiC.PROPERTY_HEIGHT, 45);
 		KrollDict clone_properties = new KrollDict((HashMap)properties);
 		if (clone_properties.containsKey(TiC.PROPERTY_TITLE)) {
 			KrollDict text = new KrollDict();
