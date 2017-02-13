@@ -63,50 +63,56 @@ timestamps {
 				isPR = env.BRANCH_NAME.startsWith('PR-')
 			}
 
-			stage('Build') {
-				timeout(20) {
-					// Skip the Windows SDK portion on PR builds?
-					if (!isPR) {
-						// Grab Windows SDK piece
-						def windowsBranch = env.BRANCH_NAME
-						if (isPR) {
-							windowsBranch = 'master'
-						}
-						step([$class: 'CopyArtifact',
-							projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
-							selector: [$class: 'StatusBuildSelector', stable: false],
-							filter: 'dist/windows/'])
-						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+			// Skip the Windows SDK portion if a PR, we don't need it
+			if (!isPR) {
+				stage('Windows') {
+					// Grab Windows SDK from merge target banch, if unset assume master
+					def windowsBranch = env.CHANGE_TARGET
+					if (!windowsBranch) {
+						windowsBranch = 'master'
 					}
+					step([$class: 'CopyArtifact',
+						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
+						selector: [$class: 'StatusBuildSelector', stable: false],
+						filter: 'dist/windows/'])
+					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+				} // stage
+			}
 
-					// Normal build, pull out the version
-					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-					echo "VERSION:         ${version}"
-					// Create a timestamp
-					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-					echo "TIMESTAMP:       ${timestamp}"
-					vtag = "${version}.v${timestamp}"
-					echo "VTAG:            ${vtag}"
-					basename = "dist/mobilesdk-${vtag}"
-					echo "BASENAME:        ${basename}"
-					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-					dir('build') {
+			stage('Build') {
+				// Normal build, pull out the version
+				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+				echo "VERSION:         ${version}"
+				// Create a timestamp
+				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+				echo "TIMESTAMP:       ${timestamp}"
+				vtag = "${version}.v${timestamp}"
+				echo "VTAG:            ${vtag}"
+				basename = "dist/mobilesdk-${vtag}"
+				echo "BASENAME:        ${basename}"
+				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+				dir('build') {
+					timeout(5) {
 						sh 'npm install .'
+					}
+					timeout(15) {
 						sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-						ansiColor('xterm') {
-							if (isPR) {
-								// For PR builds, just package android and iOS for osx
-								sh "node scons.js package android ios --version-tag ${vtag}"
-							} else {
-								// For non-PR builds, do all platforms for all OSes
+					}
+					ansiColor('xterm') {
+						if (isPR) {
+							// For PR builds, just package android and iOS for osx
+							sh "node scons.js package android ios --version-tag ${vtag}"
+						} else {
+							// For non-PR builds, do all platforms for all OSes
+							timeout(15) {
 								sh "node scons.js package --version-tag ${vtag} --all"
 							}
 						}
 					}
-					archiveArtifacts artifacts: "${basename}-*.zip"
-					stash includes: 'dist/parity.html', name: 'parity'
-					stash includes: 'tests/', name: 'override-tests'
-				} // end timeout
+				}
+				archiveArtifacts artifacts: "${basename}-*.zip"
+				stash includes: 'dist/parity.html', name: 'parity'
+				stash includes: 'tests/', name: 'override-tests'
 			} // end 'Build' stage
 		} // end node for checkout/build
 
@@ -223,9 +229,6 @@ timestamps {
 	catch (err) {
 		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
 		currentBuild.result = 'FAILURE'
-
-		office365ConnectorSend(message: 'Build failed', status: currentBuild.result, webhookUrl: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/1e4f6c138db84aeca1b55a0340750b55/72931ee3-e99d-4daf-84d2-1427168af2d9')
-
 		mail body: "project build error is here: ${env.BUILD_URL}",
 			from: 'hudson@appcelerator.com',
 			replyTo: 'no-reply@appcelerator.com',
