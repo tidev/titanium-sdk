@@ -19,14 +19,6 @@ else
     BRANCH="master"
 fi
 
-
-echo '*********** Remove and re-download Windows ***********'
-rm -rf windows
-curl http://studio-jenkins.appcelerator.org/job/titanium_mobile_windows_${BRANCH//_/.}/lastSuccessfulBuild/artifact/dist/windows/*zip*/windows.zip > windows.zip
-unzip -q windows.zip
-rm windows.zip
-echo '*****************************************'
-
 echo '*********** Building ***********'
 date
 export JAVA_HOME=/usr/lib/jvm/java-6-sun
