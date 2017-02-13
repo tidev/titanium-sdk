@@ -2588,6 +2588,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
+			return true;
+		}
+
 		if (fs.existsSync(this.xcodeProjectConfigFile)) {
 			// we have a previous build, see if the app id changed
 			var conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
@@ -6083,6 +6088,16 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'Info.plist'));
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'PkgInfo'));
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'embedded.mobileprovision'));
+
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'export_options.plist'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, this.tiapp.name + '.xcarchive'));
+
+	try {
+		var releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
+		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
+			this.unmarkBuildDirFiles(releaseDir);
+		}
+	} catch (e) {}
 
 	this.logger.info(__('Removing files'));
 
