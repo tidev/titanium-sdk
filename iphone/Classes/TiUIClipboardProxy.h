@@ -14,6 +14,7 @@
     BOOL shouldCreatePasteboard;
     BOOL persistent;
     BOOL isNamedPasteBoard;
+    BOOL isUnique;
 }
 
 #pragma mark internal

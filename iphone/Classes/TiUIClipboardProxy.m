@@ -64,6 +64,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 
 @implementation TiUIClipboardProxy
+
 -(id) init
 {
     if (self = [super init])
@@ -71,6 +72,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         shouldCreatePasteboard = true;
         persistent = false;
         isNamedPasteBoard = false;
+        isUnique = false;
     };
     return self;
 }
@@ -90,21 +92,29 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 -(void)setName:(id)arg
 {
-    ENSURE_STRING(arg);
-    pasteboardName = arg;
-    _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
-    if (![TiUtils isIOS10OrGreater])
+    if (!isUnique)
     {
-        [_pasteboard setPersistent:persistent];
+        ENSURE_STRING(arg);
+        pasteboardName = arg;
+        _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
+        if (![TiUtils isIOS10OrGreater])
+        {
+            [_pasteboard setPersistent:persistent];
+        }
+        isNamedPasteBoard = true;
     }
-    isNamedPasteBoard = true;
+}
+
+-(NSString *)name
+{
+    return [[self pasteboard] name];
 }
 
 -(void)setCreate:(id)arg
 {
     BOOL value = [TiUtils boolValue:arg def:true];
     shouldCreatePasteboard = value;
-    if (pasteboardName && !shouldCreatePasteboard)
+    if (!isUnique && pasteboardName && !shouldCreatePasteboard)
     {
         [self remove];
         _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
@@ -115,10 +125,27 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         isNamedPasteBoard = true;
     }
 }
+
+-(void)setUnique:(id)arg
+{
+    BOOL value = [TiUtils boolValue:arg def:false];
+    isUnique = value;
+    if (isUnique)
+    {
+        _pasteboard = [UIPasteboard pasteboardWithUniqueName];
+        if (![TiUtils isIOS10OrGreater])
+        {
+            [_pasteboard setPersistent:persistent];
+        }
+        isNamedPasteBoard = true;
+    }
+}
+
 -(NSNumber *)persistent
 {
     return NUMBOOL([self pasteboard].persistent);
 }
+
 -(void)setPersistent:(id)arg
 {
     if (![TiUtils isIOS10OrGreater])

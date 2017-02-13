@@ -169,6 +169,17 @@ methods:
     platforms: [iphone, ipad]
     availability: creation
 
+  - name: unique
+    summary: Create a new clipboard identified by a unique system-generated name.
+    description: Create a new clipboard identified by a unique system-generated name. See the example on how to use this.
+    parameters:
+      - name: unique
+        summary: value of unique.
+        type: Boolean
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+    availability: creation
+
   - name: persistent
     summary: A Boolean value that indicates whether the clipboard is persistent.
     description: When a clipboard is persistent, it continues to exist past app terminations and across system reboots. Clipboard that are not persistent only last until the owning (creating) app quits.
@@ -258,16 +269,29 @@ examples:
             var clipboard1 = Ti.UI.createClipboard({
                 name : "test",
                 persistent : true,
-                create : false
+                create : true
             });
             clipboard1.setText('hello');
 
-            var clipboard2 = Ti.UI.createButton({
-                title : "test"
+            var clipboard2 = Ti.UI.createClipboard({
+                name : "test"
             });
+
+            Ti.API.info('clipboard name is: ' + clipboard1.name);
             Ti.API.info('Both clipboard should return hello');
             Ti.API.info('clipboard1.getText() ' + clipboard1.getText());
             Ti.API.info('clipboard2.getText() ' + clipboard2.getText());
+
+  - title: Use of unique named clipboard in iOS
+    example: |
+            var clipboard = Ti.UI.createClipboard({
+                persistent : true,
+                unique : true
+            });
+            clipboard.setText('hello');
+
+            Ti.API.info('clipboard name is: ' + clipboard.name);
+            Ti.API.info('clipboard.getText() ' + clipboard.getText());
 
 ---
 name: ClipboardItemsType
