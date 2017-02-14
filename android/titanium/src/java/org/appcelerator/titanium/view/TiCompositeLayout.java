@@ -231,7 +231,7 @@ public class TiCompositeLayout extends ViewGroup
 
     private static int getAsPercentageValue(double percentage, int value)
     {
-        return (int) Math.round((percentage / 100.0) * value);
+        return (int) Math.floor((percentage / 100.0) * value);
     }
 
     protected int getViewWidthPadding(View child, int parentWidth)
