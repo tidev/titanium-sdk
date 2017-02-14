@@ -949,12 +949,11 @@ public class MediaModule extends KrollModule
 						if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18) {
 							ClipData clipdata = data.getClipData();
 							if (clipdata != null) {
-
 								int count = clipdata.getItemCount();
 								KrollDict[] selectedPhotos = new KrollDict[count];
 								for (int i=0; i<count; i++) {
 									ClipData.Item item = clipdata.getItemAt(i);
-									selectedPhotos[i] = createDictForImage(item.getUri().toString(), "image/jpeg");
+									selectedPhotos[i] = createDictForImage(item.getUri().toString());
 								}
 
 								if (fSuccessCallback != null) {
@@ -965,9 +964,8 @@ public class MediaModule extends KrollModule
 								}
 
 							} else if (path != null) {
-
 							    KrollDict[] selectedPhotos = new KrollDict[1];
-							    selectedPhotos[0] = createDictForImage(path, "image/jpeg");
+							    selectedPhotos[0] = createDictForImage(path);
 							    if (fSuccessCallback != null) {
 							        KrollDict d = new KrollDict();
 							        d.putCodeAndMessage(NO_ERROR, null);
@@ -990,7 +988,7 @@ public class MediaModule extends KrollModule
 								return;
 							}
 							if (fSuccessCallback != null) {
-								fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path, "image/jpeg"));
+								fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path));
 							}
 
 						} catch (OutOfMemoryError e) {
@@ -1017,7 +1015,7 @@ public class MediaModule extends KrollModule
 			});
 	}
 
-	protected static KrollDict createDictForImage(String path, String mimeType) {
+	protected static KrollDict createDictForImage(String path) {
 		String[] parts = { path };
 		TiBlob imageData;
 		// Workaround for TIMOB-19910. Image is in the Google Photos cloud and not on device.
@@ -1031,14 +1029,14 @@ public class MediaModule extends KrollModule
 		        parcelFileDescriptor.close();
 		        imageData = TiBlob.blobFromImage(image);
 		    } catch (FileNotFoundException e) {
-		        imageData = createImageData(parts, mimeType);
+		        imageData = createImageData(parts, null);
 		    } catch (IOException e) {
-		        imageData = createImageData(parts, mimeType);
+		        imageData = createImageData(parts, null);
 		    }
 		} else {
-		    imageData = createImageData(parts, mimeType);
+		    imageData = createImageData(parts, null);
 		}
-		return createDictForImage(imageData, mimeType);
+		return createDictForImage(imageData, null);
 	}
 
 	public static TiBlob createImageData(String[] parts, String mimeType){

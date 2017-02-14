@@ -158,8 +158,7 @@ public class TiBlob extends KrollProxy
 				data = bos.toByteArray();
 				mimeType = "image/png";
 			}
-		}
-		else {
+		} else {
 			if (image.compress(CompressFormat.JPEG, 100, bos)) {
 				data = bos.toByteArray();
 				mimeType = "image/jpeg";
@@ -239,7 +238,6 @@ public class TiBlob extends KrollProxy
 				is.mark(64);
 				byte[] bytes = new byte[64];
 				int length = is.read(bytes);
-				is.reset();
 				if (length == -1) {
 					return null;
 				}
@@ -259,7 +257,7 @@ public class TiBlob extends KrollProxy
 					}
 				}
 			} catch (Exception e) {
-				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
+				Log.e(TAG, e.getMessage(), e);
 			}
 		}
 		return mt;
