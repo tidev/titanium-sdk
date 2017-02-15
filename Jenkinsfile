@@ -120,7 +120,8 @@ timestamps {
 		stage('Test') {
 			parallel(
 				'android unit tests': unitTests('android'),
-				'iOS unit tests': unitTests('ios')
+				'iOS unit tests': unitTests('ios'),
+				failFast: true
 			)
 		}
 
