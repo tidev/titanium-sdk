@@ -1192,7 +1192,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
+	public static final String PROPERTY_COUNTRY_CODE = "country_code";
 
 	/**
 	 * @module.api
