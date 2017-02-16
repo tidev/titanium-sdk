@@ -43,7 +43,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		labelProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
 		labelProxy.setActivity(activity);
 		//Generate properties
-		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "5dp");
+		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "6dp");
 		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "55%");
 		defaultLabelProperties.put(TiC.PROPERTY_TEXT, "label");
 		//bind the proxy and default propertiess
