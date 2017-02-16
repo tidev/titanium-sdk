@@ -30,7 +30,7 @@
         android:focusableInTouchMode="false"
         android:maxHeight="17dp"
         android:maxWidth="17dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="6dp"
         android:scaleType="centerInside" />
 
 </FrameLayout>
