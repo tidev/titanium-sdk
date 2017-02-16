@@ -355,9 +355,9 @@ public class MediaModule extends KrollModule
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;
@@ -367,8 +367,8 @@ public class MediaModule extends KrollModule
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
 	    }
-	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-	    if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+	    Context context = TiApplication.getInstance().getApplicationContext();
+	    if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
 	    }
 	    return false;
@@ -378,8 +378,8 @@ public class MediaModule extends KrollModule
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
 	    }
-	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+	    Context context = TiApplication.getInstance().getApplicationContext();
+	    if (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
 	    }
 	    return false;
