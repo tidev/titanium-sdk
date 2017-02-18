@@ -43,6 +43,10 @@ methods:
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
 
+      - name: animation
+        summary: Animation properties.
+        type: ScrollViewAnimationProperties
+        optional: true
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -516,3 +520,14 @@ properties:
     summary: Determines whether the scroll view's zooming is animated.
     type: Boolean
         
+---
+name: ScrollViewAnimationProperties
+summary: |
+    A simple object for specifying the animation properties when scrolling the view.
+platforms: [iphone, ipad, android]
+since: '6.2.0'
+properties:
+  - name: animated
+    summary: When set to `true` it will scroll smoothly to the destination.
+    type: Boolean
+    default: false
