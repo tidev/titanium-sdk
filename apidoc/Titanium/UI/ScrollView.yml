@@ -529,7 +529,8 @@ since: '6.1.0'
 properties:
   - name: animated
     summary: When set to `true` it will scroll smoothly to the destination.
-    description: When set to `true` it will scroll smoothly to the destination. 
+    description: |
+        When set to `true` it will scroll smoothly to the destination. 
         On iOS the default value is `true`.
     type: Boolean
     default: false
