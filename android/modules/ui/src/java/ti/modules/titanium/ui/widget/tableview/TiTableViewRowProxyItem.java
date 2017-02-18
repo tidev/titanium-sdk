@@ -464,7 +464,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			measureChild(leftImage, widthMeasureSpec, heightMeasureSpec);
 			leftImageWidth = leftImage.getMeasuredWidth();
 			leftImageHeight = leftImage.getMeasuredHeight();
-			imageHMargin += new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getIntValue();
+			imageHMargin += new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
 		}
 
 		int rightImageWidth = 0;
@@ -473,14 +473,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			measureChild(rightImage, widthMeasureSpec, heightMeasureSpec);
 			rightImageWidth = rightImage.getMeasuredWidth();
 			rightImageHeight = rightImage.getMeasuredHeight();
-			Log.i("R__BEFORE", imageHMargin+ "");
-			imageHMargin += new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getIntValue();
-			Log.i("R__AFTER", imageHMargin+ "");
+			imageHMargin += new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 		}
 
 		int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
-		Log.i("R__AFTER",  w + " " + leftImageWidth + " " + rightImageWidth + " " + imageHMargin);
-		Log.i("R__AFTER", "" +adjustedWidth);
 		// int adjustedWidth = w;
 
 		if (content != null) {
@@ -546,7 +542,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (leftImage != null && leftImage.getVisibility() != GONE) {
 			int w = leftImage.getMeasuredWidth();
 			int h = leftImage.getMeasuredHeight();
-			int leftMargin = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getIntValue();
+			int leftMargin = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
 
 			contentLeft += w + leftMargin;
 			int offset = (height - h) / 2;
@@ -556,16 +552,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (rightImage != null && rightImage.getVisibility() != GONE) {
 			int w = rightImage.getMeasuredWidth();
 			int h = rightImage.getMeasuredHeight();
-			int rightMargin = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getIntValue();
-
+			int rightMargin = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 			contentRight -= w + rightMargin;
 			int offset = (height - h) / 2;
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
 		}
 
 //		if (hasControls) {
-//			contentLeft = left + new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getIntValue();
-//			contentRight = right - new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getIntValue();
+//			contentLeft = left + new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
+//			contentRight = right - new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 //		}
 
 		if (content != null) {
