@@ -15,11 +15,14 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import java.util.HashMap;
+import org.appcelerator.kroll.common.Log;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
@@ -59,15 +62,29 @@ public class ScrollViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void scrollTo(int x, int y) {
-		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO, x, y), getActivity());
-
-
-			//TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO, x, y), getActivity());
-			//sendBlockingUiMessage(MSG_SCROLL_TO, getActivity(), x, y);
+	public void scrollTo(Object obj, @Kroll.argument(optional=true) int paramY) {
+		int x = 0;
+		int y = 0;
+		boolean animated = false;
+		if (obj instanceof Integer) {
+			// legacy
+			x = TiConvert.toInt(obj, 0);
+			y = TiConvert.toInt(paramY, 0);
 		} else {
-			handleScrollTo(x,y);
+			// hashmap
+			HashMap args = (HashMap) obj;
+			x = TiConvert.toInt(args.get("x"), 0);
+			y = TiConvert.toInt(args.get("y"), 0);
+			animated = TiConvert.toBoolean(args.get("animated"), false);
+		}
+		if (!TiApplication.isUIThread()) {
+			HashMap msgArgs = new HashMap();
+			msgArgs.put("x", x);
+			msgArgs.put("y", y);
+			msgArgs.put("animated", animated);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO), msgArgs);
+		} else {
+			handleScrollTo(x, y, animated);
 		}
 	}
 
@@ -87,9 +104,6 @@ public class ScrollViewProxy extends TiViewProxy
 	public void scrollToBottom() {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM), getActivity());
-
-			//TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM), getActivity());
-			//sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getActivity());
 		} else {
 			handleScrollToBottom();
 		}
@@ -98,8 +112,9 @@ public class ScrollViewProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
-			handleScrollTo(msg.arg1, msg.arg2);
 			AsyncResult result = (AsyncResult) msg.obj;
+			HashMap args = (HashMap)result.getArg();
+			handleScrollTo(TiConvert.toInt(args.get("x"),0), TiConvert.toInt(args.get("y"),0), TiConvert.toBoolean(args.get("animated"),false));
 			result.setResult(null); // signal scrolled
 			return true;
 		} else if (msg.what == MSG_SCROLL_TO_BOTTOM) {
@@ -111,8 +126,8 @@ public class ScrollViewProxy extends TiViewProxy
 		return super.handleMessage(msg);
 	}
 
-	public void handleScrollTo(int x, int y) {
-		getScrollView().scrollTo(x, y);
+	public void handleScrollTo(int x, int y, boolean smoothScroll) {
+		getScrollView().scrollTo(x, y, smoothScroll);
 	}
 
 	public void handleScrollToBottom() {
