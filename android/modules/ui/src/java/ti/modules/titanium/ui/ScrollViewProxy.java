@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import java.util.HashMap;
-import org.appcelerator.kroll.common.Log;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
@@ -114,7 +113,7 @@ public class ScrollViewProxy extends TiViewProxy
 		if (msg.what == MSG_SCROLL_TO) {
 			AsyncResult result = (AsyncResult) msg.obj;
 			HashMap args = (HashMap)result.getArg();
-			handleScrollTo(TiConvert.toInt(args.get("x"),0), TiConvert.toInt(args.get("y"),0), TiConvert.toBoolean(args.get("animated"),false));
+			handleScrollTo(TiConvert.toInt(args.get("x"), 0), TiConvert.toInt(args.get("y"), 0), TiConvert.toBoolean(args.get("animated"), false));
 			result.setResult(null); // signal scrolled
 			return true;
 		} else if (msg.what == MSG_SCROLL_TO_BOTTOM) {
