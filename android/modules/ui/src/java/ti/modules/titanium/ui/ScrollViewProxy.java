@@ -61,21 +61,12 @@ public class ScrollViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void scrollTo(Object obj, @Kroll.argument(optional=true) int paramY) {
-		int x = 0;
-		int y = 0;
+	public void scrollTo(int x, int y, @Kroll.argument(optional=true) HashMap args) {
 		boolean animated = false;
-		if (obj instanceof Integer) {
-			// legacy
-			x = TiConvert.toInt(obj, 0);
-			y = TiConvert.toInt(paramY, 0);
-		} else {
-			// hashmap
-			HashMap args = (HashMap) obj;
-			x = TiConvert.toInt(args.get("x"), 0);
-			y = TiConvert.toInt(args.get("y"), 0);
+		if (args != null) {
 			animated = TiConvert.toBoolean(args.get("animated"), false);
 		}
+		
 		if (!TiApplication.isUIThread()) {
 			HashMap msgArgs = new HashMap();
 			msgArgs.put("x", x);
