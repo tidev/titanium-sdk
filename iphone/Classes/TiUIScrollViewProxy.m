@@ -338,9 +338,7 @@ static NSArray* scrollViewKeySequence;
 #endif
 -(void)scrollTo:(id)args
 {
-	TiPoint * offset = [[TiPoint alloc] initWithPoint:CGPointMake(
-			[TiUtils floatValue:[args objectAtIndex:0]],
-			[TiUtils floatValue:[args objectAtIndex:1]])];
+    TiPoint * offset = [[TiPoint alloc] initWithPoint:CGPointMake([TiUtils floatValue:[args objectAtIndex:0]], [TiUtils floatValue:[args objectAtIndex:1]])];
 
     if ([args count] == 3) {
         id options = [args objectAtIndex:2];
@@ -350,8 +348,8 @@ static NSArray* scrollViewKeySequence;
     } else {
         [self setContentOffset:offset withObject:Nil];
     }
-    
-	[offset release];
+
+    [offset release];
 }
 
 -(void)scrollToBottom:(id)args
