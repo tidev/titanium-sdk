@@ -44,7 +44,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties.
+        summary: Animation properties (since SDK 6.1.0).
         type: ScrollViewAnimationProperties
         optional: true
         
@@ -525,7 +525,7 @@ name: ScrollViewAnimationProperties
 summary: |
     A simple object for specifying the animation properties when scrolling the view.
 platforms: [iphone, ipad, android]
-since: '6.1.0'
+since: 6.1.0
 properties:
   - name: animated
     summary: When set to `true` it will scroll smoothly to the destination.
