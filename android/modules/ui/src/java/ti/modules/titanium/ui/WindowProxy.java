@@ -153,6 +153,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	        topActivity.startActivity(intent);
 	        topActivity.overridePendingTransition(0, 0);
 	    } else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			logDeprecatedPropertiesWarning();
 	        topActivity.startActivity(intent);
 	        int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 	        int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
@@ -180,6 +181,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			if (!animated) {
 				activity.overridePendingTransition(0, 0);
 			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+				logDeprecatedPropertiesWarning();
 				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 				activity.overridePendingTransition(enterAnimation, exitAnimation);
@@ -594,4 +596,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		return "Ti.UI.Window";
 	}
+
+	private void logDeprecatedPropertiesWarning() {
+		Log.w("Deprecated properties", "These properties are deprecated as of SDK 6.1.0: " + TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION + " and " + TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
+	}
 }
+
+
+
