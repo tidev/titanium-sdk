@@ -729,9 +729,14 @@ public class TiCompositeLayout extends ViewGroup
             // the width of the screen
             right = Math.min(right, layoutRight);
         }
-
-        hpos[0] = left;
-        hpos[1] = right;
+        
+        if (optionRight != null) {
+            hpos[0] = layoutRight - left;
+            hpos[1] = layoutRight - horiztonalLayoutPreviousRight;
+        } else {
+            hpos[0] = left;
+            hpos[1] = right;
+        }
         horizontalLayoutCurrentLeft = right;
 
         if (enableHorizontalWrap) {
