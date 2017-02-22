@@ -186,7 +186,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 				activity.overridePendingTransition(enterAnimation, exitAnimation);
 			}
-
 			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
 			TiApplication.removeFromActivityStack(activity);
 			windowActivity = null;
