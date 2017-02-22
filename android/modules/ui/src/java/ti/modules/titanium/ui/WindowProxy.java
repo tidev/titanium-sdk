@@ -135,36 +135,36 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-	    Activity topActivity = TiApplication.getAppCurrentActivity();
-	    // Don't open if app is closing or closed
-	    if (topActivity == null || topActivity.isFinishing()) {
-	        return;
-	    }
-	    Intent intent = new Intent(topActivity, TiActivity.class);
-	    fillIntent(topActivity, intent);
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		// Don't open if app is closing or closed
+		if (topActivity == null || topActivity.isFinishing()) {
+			return;
+		}
+		Intent intent = new Intent(topActivity, TiActivity.class);
+		fillIntent(topActivity, intent);
 
-	    int windowId = TiActivityWindows.addWindow(this);
-	    intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-	    intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+		int windowId = TiActivityWindows.addWindow(this);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-	    boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-	    if (!animated) {
-	        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-	        topActivity.startActivity(intent);
-	        topActivity.overridePendingTransition(0, 0);
-	    } else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+		if (!animated) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			topActivity.startActivity(intent);
+			topActivity.overridePendingTransition(0, 0);
+		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 			logDeprecatedPropertiesWarning();
-	        topActivity.startActivity(intent);
-	        int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
-	        int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
-	        topActivity.overridePendingTransition(enterAnimation, exitAnimation);
-	    } else {
-	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-	            topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
-	        } else {
-	            topActivity.startActivity(intent);
-	        }
-	    }
+			topActivity.startActivity(intent);
+			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+		} else {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+			} else {
+				topActivity.startActivity(intent);
+			}
+		}
 	}
 
 	@Override
