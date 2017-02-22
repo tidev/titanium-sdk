@@ -674,12 +674,18 @@ public class TiC
 
 	/**
 	 * @module.api
+	 * @deprecated as of Android 6.0 this property will be replaced by PROPERTY_ENTER_TRANSITION
+	 * and will be removed in android 7.0
 	 */
+	@Deprecated
 	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
 
 	/**
 	 * @module.api
+	 * @deprecated as of Android 6.0 this property will be replaced by PROPERTY_EXIT_TRANSITION
+	 * and will be removed in android 7.0
 	 */
+	@Deprecated
 	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
 	/**
