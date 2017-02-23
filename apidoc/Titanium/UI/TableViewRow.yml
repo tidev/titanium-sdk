@@ -245,6 +245,8 @@ properties:
   - name: color
     summary: Default text color of the row when not selected, as a color name or hex triplet.
     description: |
+        Default text color is black if background color is closer to white otherwise default text color is white.
+        
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
