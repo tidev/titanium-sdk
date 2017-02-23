@@ -153,7 +153,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent);
 			topActivity.overridePendingTransition(0, 0);
 		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-			logDeprecatedPropertiesWarning();
+			Log.w("Deprecated properties", "These properties are deprecated as of SDK 6.1.0: " + TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION + " and " + TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
 			topActivity.startActivity(intent);
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
@@ -174,15 +174,15 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
 		if (activity != null && !activity.isFinishing()) {
 			if (super.hasActivityTransitions()) {
-			    activity.finishAfterTransition();
+				activity.finishAfterTransition();
 			} else {
-			    activity.finish();
+				activity.finish();
 			}
 			if (!animated) {
 				activity.overridePendingTransition(0, 0);
 			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-				logDeprecatedPropertiesWarning();
-				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+				Log.w("Deprecated properties", "These properties are deprecated as of SDK 6.1.0: " + TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION + " and " + TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
+				int enterAnimation = TiConvert.toInt(optionse.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 				activity.overridePendingTransition(enterAnimation, exitAnimation);
 			}
@@ -228,7 +228,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		
 		// Handle activity transitions
 		if (LOLLIPOP_OR_GREATER) {
-		    applyActivityTransitions(win, properties);
+			applyActivityTransitions(win, properties);
 		}
 
 		// Handle the width and height of the window.
@@ -487,41 +487,41 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	 * @param props The property dictionary. 
 	 */
 	private void applyActivityTransitions(Window win, KrollDict props) {
-	    if (LOLLIPOP_OR_GREATER) {
-	        // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
-	        // And setting a null transition makes the view unaccounted from transition. 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
-	            win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
-	        } 
+		if (LOLLIPOP_OR_GREATER) {
+			// Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
+			// And setting a null transition makes the view unaccounted from transition.
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
+				win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
-	            win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
+				win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
-	            win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
+				win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
-	            win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
+				win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
-	            win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) {
+				win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
-	            win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
+				win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
-	            win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
-	        }
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) {
+				win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
+			}
 
-	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
-	            win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
-	        }
-	    } 
+			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
+				win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
+			}
+		}
 	}
 
 	/**
@@ -537,52 +537,52 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Transition t = null;
 			final int transitionType = props.getInt(key);
 			switch (transitionType) {
-    			case TiUIView.TRANSITION_EXPLODE:
-    				t = new Explode();
-    				break;
-    
-    			case TiUIView.TRANSITION_FADE_IN:
-    				t = new Fade(Fade.IN);
-    				break;
-    				
-    			case TiUIView.TRANSITION_FADE_OUT:
-    				t = new Fade(Fade.OUT);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_TOP:
-    				t = new Slide(Gravity.TOP);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_RIGHT:
-    				t = new Slide(Gravity.RIGHT);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_BOTTOM:
-    				t = new Slide(Gravity.BOTTOM);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_LEFT:
-    				t = new Slide(Gravity.LEFT);
-    				break;
-    
-    			case TiUIView.TRANSITION_CHANGE_BOUNDS:
-    				t = new ChangeBounds();
-    				break;
-    				
-    			case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
-    				t = new ChangeClipBounds();
-    				break;
-    				
-    			case TiUIView.TRANSITION_CHANGE_TRANSFORM:
-    				t = new ChangeTransform();
-    				break;
-    
-    			case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
-    				t = new ChangeImageTransform();
-    				break;
-    
-    			default:
-    				break;
+				case TiUIView.TRANSITION_EXPLODE:
+					t = new Explode();
+					break;
+
+				case TiUIView.TRANSITION_FADE_IN:
+					t = new Fade(Fade.IN);
+					break;
+
+				case TiUIView.TRANSITION_FADE_OUT:
+					t = new Fade(Fade.OUT);
+					break;
+
+				case TiUIView.TRANSITION_SLIDE_TOP:
+					t = new Slide(Gravity.TOP);
+					break;
+
+				case TiUIView.TRANSITION_SLIDE_RIGHT:
+					t = new Slide(Gravity.RIGHT);
+					break;
+
+				case TiUIView.TRANSITION_SLIDE_BOTTOM:
+					t = new Slide(Gravity.BOTTOM);
+					break;
+
+				case TiUIView.TRANSITION_SLIDE_LEFT:
+					t = new Slide(Gravity.LEFT);
+					break;
+
+				case TiUIView.TRANSITION_CHANGE_BOUNDS:
+					t = new ChangeBounds();
+					break;
+
+				case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
+					t = new ChangeClipBounds();
+					break;
+
+				case TiUIView.TRANSITION_CHANGE_TRANSFORM:
+					t = new ChangeTransform();
+					break;
+
+				case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
+					t = new ChangeImageTransform();
+					break;
+
+				default:
+					break;
 			}
 			return t;
 		} else {
@@ -594,10 +594,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public String getApiName()
 	{
 		return "Ti.UI.Window";
-	}
-
-	private void logDeprecatedPropertiesWarning() {
-		Log.w("Deprecated properties", "These properties are deprecated as of SDK 6.1.0: " + TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION + " and " + TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION);
 	}
 }
 
