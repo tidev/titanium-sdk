@@ -674,14 +674,14 @@ public class TiC
 
 	/**
 	 * @module.api
-	 * @deprecated as of SDK 6.1.0 this property will be replaced by PROPERTY_ENTER_TRANSITION
+	 * @deprecated as of SDK 6.1.0 this property will be replaced by PROPERTY_ENTER_TRANSITION inside Ti.UI.Window
 	 */
 	@Deprecated
 	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
 
 	/**
 	 * @module.api
-	 * @deprecated as of SDK 6.1.0 this property will be replaced by PROPERTY_EXIT_TRANSITION
+	 * @deprecated as of SDK 6.1.0 this property will be replaced by PROPERTY_EXIT_TRANSITION inside Ti.UI.Window
 	 */
 	@Deprecated
 	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
