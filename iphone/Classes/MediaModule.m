@@ -2065,7 +2065,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = [TiUtils adjustRotation:editedImage ?: originalImage];
+                @autoreleasepool {
+                    resultImage = [[TiUtils adjustRotation:editedImage ?: originalImage] retain];
+                }
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
@@ -2074,6 +2076,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             if (saveToRoll) {
                 UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
             }
+            
+            RELEASE_TO_NIL(resultImage);
         }
         
         if(isLivePhoto) {

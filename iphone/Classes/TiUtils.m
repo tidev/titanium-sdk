@@ -768,7 +768,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
             [NSException raise:NSInternalInconsistencyException format:@"Invalid image orientation"];
     }
     
-    UIGraphicsBeginImageContext(bounds.size);
+    UIGraphicsBeginImageContextWithOptions(bounds.size, NO, image.scale);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
     
@@ -782,11 +782,11 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     
     CGContextConcatCTM(context, transform);
     
-    CGContextDrawImage(UIGraphicsGetCurrentContext(), CGRectMake(0, 0, width, height), imgRef);
-    UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imgRef);
+    UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    return imageCopy;
+    return result;
 }
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
