@@ -182,7 +182,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				activity.overridePendingTransition(0, 0);
 			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 				logDeprecatedProperties();
-				int enterAnimation = TiConvert.toInt(optionse.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 				activity.overridePendingTransition(enterAnimation, exitAnimation);
 			}
