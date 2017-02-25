@@ -116,6 +116,9 @@ public:
 
 	static void dispose(v8::Isolate* isolate);
 
+	static void writableKeys_getter(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<Value>& args);
+	static void writableKeys_setter(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& args);
+
 private:
 	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& args);

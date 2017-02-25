@@ -196,7 +196,11 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
 	instanceTemplate->SetAccessor(
 		NEW_SYMBOL(isolate, "${name}"),
+		<#if Proxy.isWritableKeysProperty(getter)>
+		${className}::getter_${name},
+		<#else>
 		titanium::Proxy::getProperty,
+		</#if>
 		titanium::Proxy::onPropertyChanged);
 	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, NEW_SYMBOL(isolate, "${name}"));
 	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, NEW_SYMBOL(isolate, "${name}"));
@@ -271,6 +275,10 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 	jobject javaProxy = proxy->getJavaObject();
 	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
 		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
+
+	<#if property.writableKeys>
+	<@Proxy.setKeyAccessors className=className propertyName=name resultVar=resultVar/>
+	</#if>
 
 	args.GetReturnValue().Set(${resultVar});
 

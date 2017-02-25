@@ -527,6 +527,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				dynamicProperty.put("getDefaultProviders", defaultProviders);
 				dynamicProperty.put("getMethodArgs", args);
 				dynamicProperty.put("getReturnType", element.getReturnType().toString());
+				dynamicProperty.put("writableKeys", params.get("writableKeys"));
 			} else {
 				dynamicProperty.put("set", true);
 				dynamicProperty.put("setMethodName", methodName);
