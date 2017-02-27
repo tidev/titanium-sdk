@@ -719,7 +719,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		if (hasProperty(TiC.PROPERTY_URL)) {
 			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			String path = new TitaniumBlob(url).getNativePath();
+			String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
 			Uri uri = Uri.parse(path);
 
 			cancelAllThumbnailImageRequests();
