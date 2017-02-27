@@ -698,8 +698,9 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 	return image;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
-+(UIImage *)adjustRotation:(UIImage *) image {
-    
+
++(UIImage *)adjustRotation:(UIImage *) image
+{
     CGImageRef imgRef = image.CGImage;
     CGFloat width = CGImageGetWidth(imgRef);
     CGFloat height = CGImageGetHeight(imgRef);
@@ -1982,6 +1983,38 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return responseHeader;
 }
 
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:image];
+    } else if ([image isKindOfClass:[NSString class]]) {
+        if ([image isEqualToString:@""]) {
+            return nil;
+        }
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL withLeftCap:leftCap topCap:topCap];
+        if (resultImage == nil)
+        {
+            UIImage *downloadedImgage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:downloadedImgage];
+        }
+        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[UIImage imageNamed:image]];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
+            resultImage = [UIImageResize resizedImage:[resultImage size]
+                                 interpolationQuality:kCGInterpolationNone
+                                                image:resultImage
+                                                hires:NO];
+        }
+    } else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[(TiBlob*)image image]];
+    }
+    return resultImage;
+}
+
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
 {
     UIImage* resultImage = nil;
@@ -2115,6 +2148,22 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     } else {
         return NO;
     }
+}
+
+// Credits: http://stackoverflow.com/a/14525049/5537752
++ (UIImage*)imageWithColor:(UIColor*)color
+{
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 @end

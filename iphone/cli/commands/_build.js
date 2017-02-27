@@ -1346,6 +1346,11 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 		}
 	}
 
+	if (cli.argv.$originalPlatform === 'ipad') {
+		logger.warn(__('--platform ipad has been deprecated and will be removed in Titanium SDK 7.0.0'));
+		logger.warn(__('See %s for more details', 'https://jira.appcelerator.org/browse/TIMOB-24228'));
+	}
+
 	// init the extensions
 	tiapp.ios.extensions.forEach(function (ext) {
 		if (!ext.projectPath) {
@@ -2295,7 +2300,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
-	if (this.target === 'dist-appstore') {
+	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
 	} else {
 		this.xcodeAppDir        = path.join(this.iosBuildDir, this.tiapp.name + '.app');
@@ -2580,6 +2585,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: target changed since last build'));
 			this.logger.info('  ' + __('Was: %s', cyan(manifest.target)));
 			this.logger.info('  ' + __('Now: %s', cyan(this.target)));
+			return true;
+		}
+
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
 
@@ -3014,7 +3024,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// add the post-compile build phase for dist-appstore builds
-	if (this.target === 'dist-appstore') {
+	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
 		var buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
 		var name = 'Copy Resources to Archive';
@@ -3033,7 +3043,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"mv -f \\"$PROJECT_DIR/ArchiveStaging\\"/* \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/* \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -3610,6 +3620,21 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	hook(xcodeProject, next);
 };
 
+iOSBuilder.prototype.mergePlist = function mergePlist(src, dest) {
+	return (function merge(src, dest) {
+		Object.keys(src).forEach(function (prop) {
+			if (!/^\+/.test(prop)) {
+				if (Object.prototype.toString.call(src[prop]) === '[object Object]') {
+					dest.hasOwnProperty(prop) || (dest[prop] = {});
+					merge(src[prop], dest[prop]);
+				} else {
+					dest[prop] = src[prop];
+				}
+			}
+		});
+	})(src, dest);
+}
+
 iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _embedCapabilitiesAndWriteEntitlementsPlist(plist, dest, isExtension, next) {
 	var caps = this.tiapp.ios.capabilities,
 		parent = path.dirname(dest);
@@ -3687,6 +3712,11 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 	if (fs.existsSync(entitlementsFile)) {
 		this.logger.info(__('Found custom entitlements: %s', entitlementsFile.cyan));
 		plist = new appc.plist(entitlementsFile);
+	}
+
+	// tiapp.xml entitlements
+	if (this.tiapp.ios.entitlements) {
+		this.mergePlist(this.tiapp.ios.entitlements, plist);
 	}
 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
@@ -3850,24 +3880,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		delete plist.UILaunchStoryboardName;
 	}
 
-	function merge(src, dest) {
-		Object.keys(src).forEach(function (prop) {
-			if (!/^\+/.test(prop)) {
-				if (Object.prototype.toString.call(src[prop]) === '[object Object]') {
-					dest.hasOwnProperty(prop) || (dest[prop] = {});
-					merge(src[prop], dest[prop]);
-				} else {
-					dest[prop] = src[prop];
-				}
-			}
-		});
-	}
-
 	// if the user has a Info.plist in their project directory, consider that a custom override
 	if (fs.existsSync(customInfoPlistFile)) {
 		this.logger.info(__('Copying custom Info.plist from project directory'));
 		var custom = new appc.plist().parse(fs.readFileSync(customInfoPlistFile).toString());
-		merge(custom, plist);
+		this.mergePlist(custom, plist);
 	}
 
 	// tiapp.xml settings override the default and custom Info.plist
@@ -3943,7 +3960,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	}
 
 	// custom Info.plist from the tiapp.xml overrides everything
-	ios && ios.plist && merge(ios.plist, plist);
+	ios && ios.plist && this.mergePlist(ios.plist, plist);
 
 	// override the CFBundleIdentifier to the app id
 	plist.CFBundleIdentifier = this.tiapp.id;
@@ -6072,6 +6089,16 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'PkgInfo'));
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'embedded.mobileprovision'));
 
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'export_options.plist'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, this.tiapp.name + '.xcarchive'));
+
+	try {
+		var releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
+		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
+			this.unmarkBuildDirFiles(releaseDir);
+		}
+	} catch (e) {}
+
 	this.logger.info(__('Removing files'));
 
 	var hook = this.cli.createHook('build.ios.removeFiles', this, function (done) {
@@ -6312,7 +6339,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		});
 
 	var args = [
-		this.target === 'dist-appstore' ? 'archive' : 'build',
+		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),

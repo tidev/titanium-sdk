@@ -33,8 +33,10 @@ import android.text.TextUtils.TruncateAt;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -49,6 +51,8 @@ public class TiUILabel extends TiUIView
 	private float shadowX = 0f;
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
+	private String minimumFontSize = null;
+	private String autoshrinkSetFontSize = null;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -74,7 +78,9 @@ public class TiUILabel extends TiUIView
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
-
+				
+				adjustTextFontSize(this);
+				
 				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
@@ -141,6 +147,42 @@ public class TiUILabel extends TiUIView
 		setNativeView(tv);
 
 	}
+	
+	/**
+	 * Method used to decrease the fontsize of the text to fit the width
+	 * fontsize should be >= than the property minimumFontSize
+	 * @param v
+	 */
+	private void adjustTextFontSize(View v){	
+		if (minimumFontSize != null){
+			TextView tv = (TextView) v;
+
+			if (tv != null) {
+				if (autoshrinkSetFontSize != null) {
+					if (tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)) {
+						String[] fontProperties = TiUIHelper.getFontProperties(proxy.getProperties());
+
+						if (fontProperties.length > TiUIHelper.FONT_SIZE_POSITION && fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+							tv.setTextSize(TiUIHelper.getSizeUnits(fontProperties[TiUIHelper.FONT_SIZE_POSITION]), TiUIHelper.getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
+						} else {
+							tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
+						}
+					}
+				}
+			    
+			    TextPaint textPaint = tv.getPaint();
+				if (textPaint != null) {
+					float stringWidth = textPaint.measureText(tv.getText().toString());
+					int textViewWidth = tv.getWidth();
+					if (textViewWidth < stringWidth && stringWidth > 0) {
+						float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
+						autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize, 0) ? String.valueOf(fontSize) : minimumFontSize;
+						tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
+					}
+				}
+			}
+		}
+	}
 
 	@Override
 	public void processProperties(KrollDict d)
@@ -181,6 +223,13 @@ public class TiUILabel extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+ 		}
+ 		
+		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
+			//it enables font scaling to fit and forces the label content to be limited to a single line.
+			minimumFontSize =  TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE);
+			tv.setSingleLine(true);
+			tv.setEllipsize(TruncateAt.END);
 		}
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
 			tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
@@ -308,6 +357,11 @@ public class TiUILabel extends TiUIView
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
+			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
+			minimumFontSize = TiConvert.toString(newValue);
+			tv.setSingleLine(true);
+			tv.setEllipsize(TruncateAt.END);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);

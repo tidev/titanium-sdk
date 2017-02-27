@@ -84,7 +84,7 @@
     }
     
     UIViewController *controller = [[[TiApp app] controller] topPresentedController];
-    [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+    [controller registerForPreviewingWithDelegate:[[[TiPreviewingDelegate alloc] initWithPreviewContext:self] autorelease]
                                        sourceView:nativeSourceView];
 }
 

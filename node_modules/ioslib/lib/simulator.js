@@ -896,43 +896,85 @@ function launch(simHandleOrUDID, options, callback) {
 
 				async.series([
 					function checkIfRunningAndBooted(next) {
+						emitter.emit('log-debug', __('Checking if simulator %s is already running', handle.simulator));
+
 						isRunning(handle.simulator, function (err, pid, udid) {
 							if (err) {
+								emitter.emit('log-debug', __('Failed to check if simulator is running: %s', err.message || err.toString()));
 								return next(err);
 							}
 
 							if (!pid) {
+								emitter.emit('log-debug', __('Simulator is not running'));
 								return next();
 							}
 
-							simctl.waitUntilBooted({ simctl: handle.simctl, udid: handle.udid, timeout: 30000 }, function (err, _booted) {
-								if (err && err.code !== 666) {
+							emitter.emit('log-debug', __('Simulator is running (pid %s)', pid));
+
+							// check the udid
+							if (udid !== handle.udid) {
+								emitter.emit('log-debug', __('%s Simulator is running, but not the udid we want, stopping simulator', handle.name));
+								stop(handle, next);
+								return;
+							}
+
+							simctl.getSim({
+								simctl: handle.simctl,
+								udid: handle.udid
+							}, function (err, sim) {
+								if (err) {
 									return next(err);
 								}
 
-								booted = _booted;
+								if (!sim) {
+									// this should never happen
+									return next(new Error(__('Unable to find simulator %s', handle.udid)));
+								}
 
-								if (err || !booted) {
-									emitter.emit('log-debug', __('%s Simulator is running, but not in a booted state, stopping simulator', handle.name));
+								if (sim.availability !== '(available)') {
+									// this should never happen
+									return next(new Error(__('Simulator is not available')));
+								}
+
+								if (/^shutdown/i.test(sim.state)) {
+									// the udid that is supposed to be running isn't, kill the simulator
+									emitter.emit('log-debug', __('%s Simulator is running, but udid %s is shut down, stopping simulator', handle.name, handle.udid));
 									stop(handle, next);
 									return;
 								}
 
-								emitter.emit('log-debug', __('%s Simulator already running with the correct udid', handle.name));
+								simctl.waitUntilBooted({ simctl: handle.simctl, udid: handle.udid, timeout: 30000 }, function (err, _booted) {
+									if (err && err.code !== 666) {
+										emitter.emit('log-debug', __('Error while waiting for simulator to boot: %s', err.message || err.toString()));
+										return next(err);
+									}
 
-								// because we didn't start the simulator, we have no child process to
-								// listen for when it exits, so we need to monitor it ourselves
-								setTimeout(function check() {
-									appc.subprocess.run('ps', ['-p', pid], function (code, out, err) {
-										if (code) {
-											simExited();
-										} else {
-											setTimeout(check, 1000);
-										}
-									});
-								}, 1000);
+									booted = _booted;
 
-								next();
+									emitter.emit('log-debug', booted ? __('Simulator is booted!') : __('Simulator is NOT booted!'));
+
+									if (err || !booted) {
+										emitter.emit('log-debug', __('%s Simulator is running, but not in a booted state, stopping simulator', handle.name));
+										stop(handle, next);
+										return;
+									}
+
+									emitter.emit('log-debug', __('%s Simulator already running with the correct udid', handle.name));
+
+									// because we didn't start the simulator, we have no child process to
+									// listen for when it exits, so we need to monitor it ourselves
+									setTimeout(function check() {
+										appc.subprocess.run('ps', ['-p', pid], function (code, out, err) {
+											if (code) {
+												simExited();
+											} else {
+												setTimeout(check, 1000);
+											}
+										});
+									}, 1000);
+
+									next();
+								});
 							});
 						});
 					},

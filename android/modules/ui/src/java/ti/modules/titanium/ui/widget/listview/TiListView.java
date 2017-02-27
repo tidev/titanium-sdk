@@ -212,7 +212,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	
 	public class TiBaseAdapter extends BaseAdapter {
 		
+		Activity context;
+
 		public TiBaseAdapter(Activity activity) {
+			context = activity;
 		}
 
 		@Override

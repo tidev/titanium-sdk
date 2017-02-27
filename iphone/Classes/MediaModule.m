@@ -123,7 +123,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
 #endif
@@ -376,7 +376,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME,MPMovieTimeOptionNearestKeyF
 MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 
-#ifdef USE_TI_MEDIAMUSICPLAYER
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 -(TiMediaMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {
@@ -458,24 +458,31 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
+#if defined(USE_TI_MEDIAAVAILABLECAMERAMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
 -(NSArray*)availableCameraMediaTypes
 {
     NSArray* mediaSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeCamera];
     return mediaSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : mediaSourceTypes;
 }
+#endif
 
+#if defined(USE_TI_MEDIAAVAILABLEPHOTOMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
 -(NSArray*)availablePhotoMediaTypes
 {
     NSArray* photoSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypePhotoLibrary];
     return photoSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : photoSourceTypes;
 }
+#endif
 
+#if defined(USE_TI_MEDIAAVAILABLEPHOTOGALLERYMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
 -(NSArray*)availablePhotoGalleryMediaTypes
 {
     NSArray* albumSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeSavedPhotosAlbum];
     return albumSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : albumSourceTypes;
 }
+#endif
 
+#if defined(USE_TI_MEDIAAVAILABLECAMERAS)
 -(NSArray*)availableCameras
 {
     NSMutableArray* types = [NSMutableArray arrayWithCapacity:2];
@@ -489,8 +496,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     return types;
 }
+#endif
 
-#ifdef USE_TI_MEDIASHOWCAMERA
+#ifdef USE_TI_MEDIACAMERAFLASHMODE
 -(id)cameraFlashMode
 {
     if (picker!=nil)
@@ -513,7 +521,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIAAUDIORECORDER
+#ifdef USE_TI_MEDIACANRECORD
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
@@ -530,41 +538,34 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 /**
  Check if camera is authorized, only available for >= iOS 7
  **/
+#if defined(USE_TI_MEDIACAMERAAUTHORIZATION) || defined(USE_TI_MEDIACAMERAAUTHORIZATIONSTATUS)
 -(NSNumber*)cameraAuthorizationStatus
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return nil;
-    }
-    
     DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
     return [self cameraAuthorization];
 }
 
 -(NSNumber*)cameraAuthorization
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return nil;
-    }
-    
-#ifdef USE_TI_MEDIASHOWCAMERA
     return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
-#else
-    NSLog(@"[ERROR] You cannot check the camera authorization status without using the Ti.Media.showCamera() API due to API-dependencies.");
-    return NUMINT(-1);
-#endif
 }
+#endif
 
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#ifdef USE_TI_MEDIAVOLUME
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
 }
+#endif
 
+#ifdef USE_TI_MEDIAAUDIOPLAYING
 -(NSNumber*)audioPlaying
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] isAudioPlaying]);
 }
+#endif
 
+#ifdef USE_TI_MEDIACURRENTROUTE
 -(NSDictionary*)currentRoute
 {
     return [[TiMediaAudioSession sharedSession] currentRoute];
@@ -573,17 +574,21 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #pragma mark Public Methods
 
+#ifdef USE_TI_MEDIABEEP
 -(void)beep:(id)unused
 {
     ENSURE_UI_THREAD(beep,unused);
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 }
+#endif
 
+#ifdef USE_TI_MEDIAVIBRATE
 -(void)vibrate:(id)args
 {
     //No pattern support on iOS
     [self beep:nil];
 }
+#endif
 
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
@@ -926,7 +931,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIASHOWCAMERA
+#ifdef USE_TI_MEDIATAKEPICTURE
 -(void)takePicture:(id)args
 {
     // must have a picker, doh
@@ -937,7 +942,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     ENSURE_UI_THREAD(takePicture,args);
     [picker takePicture];
 }
+#endif
 
+#ifdef USE_TI_MEDIASTARTVIDEOCAPTURE
 -(void)startVideoCapture:(id)args
 {
     // Return nothing
@@ -949,7 +956,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     [picker startVideoCapture];
 }
+#endif
 
+#ifdef USE_TI_MEDIASTOPVIDEOCAPTURE
 -(void)stopVideoCapture:(id)args
 {
     ENSURE_UI_THREAD(stopVideoCapture,args);
@@ -961,7 +970,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIASHOWCAMERA
+#ifdef USE_TI_MEDIASWITCHCAMERA
 -(void)switchCamera:(id)args
 {
     ENSURE_TYPE(args, NSArray);
@@ -996,21 +1005,16 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIAREQUESTCAMERAACCESS
+#if defined (USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
 -(void)requestCameraAccess:(id)arg
 {
     DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
     [self requestCameraPermissions:arg];
 }
-#endif
 
 //request camera access. for >= IOS7
-#if defined (USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
 -(void)requestCameraPermissions:(id)arg
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     ENSURE_SINGLE_ARG(arg, KrollCallback);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){
@@ -1052,9 +1056,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             BOOL granted = (status == PHAuthorizationStatusAuthorized);
             NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
-            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+            KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
-                                                                    thisObject:self];
+                                                                    thisObject:self] autorelease];
             [[callback context] enqueue:invocationEvent];
         }];
     }, YES);
@@ -1268,7 +1272,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 /**
  Video Editing Support (undocumented)
  **/
-#ifdef USE_TI_MEDIASTARTVIDEOEDITING
+#if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
 -(void)startVideoEditing:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
@@ -1365,8 +1369,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #ifdef USE_TI_MEDIAOPENMUSICLIBRARY
 	RELEASE_TO_NIL(musicPicker);
 #endif
-#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 	RELEASE_TO_NIL(picker);
+#endif
+#if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
     RELEASE_TO_NIL(editor);
 #endif
     RELEASE_TO_NIL(pickerSuccessCallback);
@@ -1377,17 +1383,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)dispatchCallback:(NSArray*)args
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	NSString *type = [args objectAtIndex:0];
-	id object = [args objectAtIndex:1];
-	id listener = [args objectAtIndex:2];
-	// we have to give our modal picker view time to 
-	// dismiss with animation or if you do anything in a callback that 
-	// attempt to also touch a modal controller, you'll get into deep doodoo
-	// wait for the picker to dismiss with animation
-	[NSThread sleepForTimeInterval:0.5];
-	[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
-	[pool release];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSString *type = [args objectAtIndex:0];
+    id object = [args objectAtIndex:1];
+    id listener = [args objectAtIndex:2];
+    // we have to give our modal picker view time to
+    // dismiss with animation or if you do anything in a callback that
+    // attempt to also touch a modal controller, you'll get into deep doodoo
+    // wait for the picker to dismiss with animation
+    [NSThread sleepForTimeInterval:0.5];
+    [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+    [pool release];
 }
 
 -(void)sendPickerError:(int)code
@@ -1837,7 +1843,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIAOPENMUSICLIBRARY)
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 -(void)handleTrimmedVideo:(NSURL*)theURL withDictionary:(NSDictionary*)dictionary
 {
     TiBlob* media = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:[theURL path]] autorelease];
@@ -1850,6 +1856,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
     [self sendPickerSuccess:eventDict];
 }
+#endif
 
 #pragma mark UIPopoverControllerDelegate
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -1924,6 +1931,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #pragma mark UIImagePickerControllerDelegate
 
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)imagePickerController:(UIImagePickerController *)picker_ didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
 {
     if (autoHidePicker) {
@@ -2057,7 +2065,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
+                resultImage = [TiUtils adjustRotation:editedImage ?: originalImage];
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
@@ -2132,7 +2140,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #pragma mark UIVideoEditorControllerDelegate
 
-#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+#ifdef USE_TI_MEDIASTARTVIDEOEDITING
 - (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
 {
 	id listener = [[editorSuccessCallback retain] autorelease];

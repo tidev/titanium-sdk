@@ -1369,7 +1369,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	// Default to NULL array object, if value doesn't exist or isn't an object
 	TiObjectRef jsCallbackArray = NULL;
-	if (TiValueGetType(jsContext, jsCallbackArray) == kTITypeObject)
+	if (TiValueGetType(jsContext, jsCallbackArrayValue) == kTITypeObject)
 	{
 		jsCallbackArray = TiValueToObject(jsContext, jsCallbackArrayValue, &exception);
 	}

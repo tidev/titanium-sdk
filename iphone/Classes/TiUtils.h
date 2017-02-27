@@ -676,6 +676,8 @@ typedef enum
 
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
 
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap;
+
 /**
  Convenience method to extract a useful error message from NSError, or nil if none exist.
  @param error The NSError
@@ -703,5 +705,11 @@ typedef enum
  @return _YES_ if the device supported force touch.
  */
 + (BOOL)livePhotoSupported;
+
+/**
+ Converts a color into an image.
+ @return The generated image.
+ */
++ (UIImage*)imageWithColor:(UIColor*)color;
 
 @end

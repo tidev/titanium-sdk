@@ -179,6 +179,14 @@
 	[[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
+-(void)setPadding_:(id)args
+{
+    ENSURE_TYPE(args, NSDictionary);
+    [(UITextView *)[self textWidgetView] setTextContainerInset:[TiUtils contentInsets:args]];
+    
+    [[self proxy] replaceValue:args forKey:@"padding" notification:NO];
+}
+
 #pragma mark Public Method
 
 -(BOOL)hasText

@@ -850,14 +850,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 		}
-		
 		// Override default Android behavior for "back" press
 		// if the top window has a callback to handle the event.
 		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-			
-		} else {
+		}
+		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
 			// there are no parent activities to return to
 			// override back press to background the activity
 			// note: 2 since there should always be TiLaunchActivity and TiActivity
@@ -1498,21 +1497,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
-			activityProxy.release();
-			activityProxy = null;
 		}
-		if (view != null) {
-			view.releaseViews();
-			view.release();
-			view = null;
-		}
-		if (window != null) {
-			window.releaseViews();
-			window.removeAllChildren();
-			window.release();
-			window = null;
-		}
-		layout = null;
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
@@ -1566,11 +1551,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//LW windows
 		if (window == null && view != null) {
 			view.releaseViews();
+			view.release();
 			view = null;
 		}
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
+			window.releaseViews();
+			window.removeAllChildren();
+			window.release();
 			window = null;
 		}
 
