@@ -344,6 +344,8 @@ public class TiLocation implements Handler.Callback
 		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 		address.put(TiC.PROPERTY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 
+		Log.w(TAG, "postalCode has been removed please use zipcode instead!");//TIMOB-23496 TiAPI: Converge on same Object properties/types for GeocodedAddress
+		
 		return address;
 	}
 }
