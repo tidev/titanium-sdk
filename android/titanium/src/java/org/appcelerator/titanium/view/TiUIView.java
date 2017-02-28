@@ -935,9 +935,9 @@ public abstract class TiUIView
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
-		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
-		    }
+			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setScaleX(getOuterView(), TiConvert.toFloat(newValue));
@@ -961,7 +961,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
-		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -1097,8 +1097,8 @@ public abstract class TiUIView
 		}
 
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull
-		        && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
-		    ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
+				&& d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
 
@@ -1719,15 +1719,16 @@ public abstract class TiUIView
 		if (touchable == null) {
 			return;
 		}
-
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			if (!enabled) {
-				touchable.setEnabled(false);
-			}
+				touchable.setEnabled(enabled);
+		}
+		//Checking and setting touch sound for view
+		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
+			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 		registerTouchEvents(touchable);
-
 		// Previously, we used the single tap handling above to fire our click event. It doesn't
 		// work: a single tap is not the same as a click. A click can be held for a while before
 		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
@@ -1740,7 +1741,6 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 
 	}
-
 
 	public void registerForKeyPress()
 	{
