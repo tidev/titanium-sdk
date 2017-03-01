@@ -2095,8 +2095,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }
-	
+    
     [self sendPickerSuccess:dictionary];
+    
+#ifndef TI_USE_KROLL_THREAD
+    //TIMOB-24389 : iOS: Appcelerator Titanium App Crashes after some usage time
+    KrollContext *krollContext = [self.pageContext krollContext];
+    [krollContext forceGarbageCollectNow];
+#endif
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_
