@@ -1394,6 +1394,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [NSThread sleepForTimeInterval:0.5];
     [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
     [pool release];
+    
+#ifndef TI_USE_KROLL_THREAD
+    //TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
+    KrollContext *krollContext = [self.pageContext krollContext];
+    [krollContext forceGarbageCollectNow];
+#endif
 }
 
 -(void)sendPickerError:(int)code
@@ -1441,9 +1447,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
 #else
 		[self dispatchCallback:@[@"success",event,listener]];
-        	//TIMOB-24389 : As memory flushing was taking more time, so memory was growing continuously causing crash of app.
-        	KrollContext *krollContext = [self.pageContext krollContext];
-        	[krollContext forceGarbageCollectNow];
 #endif
 	}
 }
