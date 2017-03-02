@@ -1441,6 +1441,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
 #else
 		[self dispatchCallback:@[@"success",event,listener]];
+        //TIMOB-24389 : Heap was not getting release early. This will cause to free memory than usual time.
+        KrollContext *krollContext = [self.pageContext krollContext];
+        [krollContext forceGarbageCollectNow];
 #endif
 	}
 }
@@ -2097,12 +2100,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     
     [self sendPickerSuccess:dictionary];
-    
-#ifndef TI_USE_KROLL_THREAD
-    //TIMOB-24389 : iOS: Appcelerator Titanium App Crashes after some usage time
-    KrollContext *krollContext = [self.pageContext krollContext];
-    [krollContext forceGarbageCollectNow];
-#endif
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_
