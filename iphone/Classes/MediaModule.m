@@ -1441,7 +1441,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
 #else
 		[self dispatchCallback:@[@"success",event,listener]];
-        	//TIMOB-24389 : Heap was not getting release early. This will cause to free memory than usual time.
+        	//TIMOB-24389 : As memory flushing was taking more time, so memory was growing continuously causing crash of app.
         	KrollContext *krollContext = [self.pageContext krollContext];
         	[krollContext forceGarbageCollectNow];
 #endif
