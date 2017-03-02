@@ -182,6 +182,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
 	public void setImageBitmap(Bitmap bitmap) {
+		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setImageBitmap(bitmap);
 	}
 
