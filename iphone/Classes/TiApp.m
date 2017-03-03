@@ -39,6 +39,8 @@ extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
 extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
+NSMutableDictionary *nsURLUploadTaskResponses;
+
 NSString * TITANIUM_VERSION;
 
 extern void UIColorFlushCache();
@@ -54,7 +56,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @interface TiApp()
 - (void)checkBackgroundServices;
 - (void)appBoot;
-@property (atomic) NSMutableDictionary *nsurlUploadTaskResponses;
 @end
 
 @implementation TiApp
@@ -800,13 +801,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    if(!self.nsurlUploadTaskResponses){
-        self.nsurlUploadTaskResponses = [[NSMutableDictionary alloc] init];
+    if(!nsURLUploadTaskResponses){
+        nsURLUploadTaskResponses = [[NSMutableDictionary alloc] init];
     }
-    NSMutableData *responseData =  [self.nsurlUploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
+    NSMutableData *responseData =  [nsURLUploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
     if (!responseData) {
         responseData = [NSMutableData dataWithData:data];
-        [self.nsurlUploadTaskResponses setValue:responseData forKey:(NSString*)@(dataTask.taskIdentifier)];
+        [nsURLUploadTaskResponses setValue:responseData forKey:(NSString*)@(dataTask.taskIdentifier)];
         
     } else {
         [responseData appendData:data];
@@ -832,13 +833,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                                     nil];
         [dict addEntriesFromDictionary:errorinfo];
     } else {
-        NSMutableData *responseData = [self.nsurlUploadTaskResponses objectForKey:@(task.taskIdentifier)];
+        NSMutableData *responseData = [nsURLUploadTaskResponses objectForKey:@(task.taskIdentifier)];
         NSString *responseText = nil;
         if (responseData) {
             //we only send responseText as this is the responsesData dictionary only gets filled with data from uploads
             responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             
-            [self.nsurlUploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
+            [nsURLUploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
         }
         
         NSDictionary * success = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
