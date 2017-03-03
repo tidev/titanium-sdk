@@ -158,6 +158,21 @@ methods:
     since: "6.1.0"
     platforms: [iphone, ipad]
 
+  - name: persistent
+    summary: A Boolean value that indicates whether the clipboard is persistent.
+    description: |
+        When a clipboard is persistent, it continues to exist past app terminations and across system 
+        reboots. Clipboard that are not persistent only last until the owning (creating) app quits.
+    parameters:
+      - name: persistent
+        summary: value of persistent.
+        type: Boolean
+        default: false in case of named clipboard otherwise true.
+    since: "6.1.0"
+    osver: {ios: {max: "9.x.x"}}
+    platforms: [iphone, ipad]
+    
+properties:
   - name: name
     summary: Create a new named clipboard.
     description: Create a new clipboard with a given name. See the example on how to use this.
@@ -171,7 +186,8 @@ methods:
 
   - name: unique
     summary: Create a new clipboard identified by a unique system-generated name.
-    description: Create a new clipboard identified by a unique system-generated name. See the example on how to use this.
+    description: Create a new clipboard identified by a unique system-generated name. See the example 
+    on how to use this.
     parameters:
       - name: unique
         summary: value of unique.
@@ -180,21 +196,12 @@ methods:
     platforms: [iphone, ipad]
     availability: creation
 
-  - name: persistent
-    summary: A Boolean value that indicates whether the clipboard is persistent.
-    description: When a clipboard is persistent, it continues to exist past app terminations and across system reboots. Clipboard that are not persistent only last until the owning (creating) app quits.
-    parameters:
-      - name: persistent
-        summary: value of persistent.
-        type: Boolean
-        default: false in case of named clipboard otherwise true.
-    since: "6.1.0"
-    osver: {ios: {max: "9.x.x"}}
-    platforms: [iphone, ipad]
-
-  - name: create
-    summary: Returns a clipboard identified by name, optionally creating it if it doesn,t exist.
-    description: If create is false, it will return the existing named clipboard but will not create new one. If create is true, it will return the existing clipboard (if exists) otherwise will create new clipboard with given name.
+  - name: allowCreation
+    summary: Create a clipboard identified by name if it doesn,t exist.
+    description: |
+        If create is false, it will return the existing named clipboard but will not create new one.
+        If create is true, it will return the existing clipboard (if exists) otherwise will create new 
+        clipboard with given name.
     parameters:
       - name: create
         summary: value of create.
@@ -269,7 +276,7 @@ examples:
             var clipboard1 = Ti.UI.createClipboard({
                 name : "test",
                 persistent : true,
-                create : true
+                allowCreation : true
             });
             clipboard1.setText('hello');
 

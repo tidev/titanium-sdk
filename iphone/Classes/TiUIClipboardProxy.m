@@ -110,7 +110,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     return [[self pasteboard] name];
 }
 
--(void)setCreate:(id)arg
+-(void)setAllowCreation:(id)arg
 {
     BOOL value = [TiUtils boolValue:arg def:true];
     shouldCreatePasteboard = value;
