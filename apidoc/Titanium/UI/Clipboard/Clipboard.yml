@@ -151,27 +151,13 @@ methods:
         - type: Array<Dictionary>
     since: "5.5.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]  
+    platforms: [iphone, ipad]
 
   - name: remove
     summary: Removes the clipboard.
     since: "6.1.0"
     platforms: [iphone, ipad]
 
-  - name: persistent
-    summary: A Boolean value that indicates whether the clipboard is persistent.
-    description: |
-        When a clipboard is persistent, it continues to exist past app terminations and across system 
-        reboots. Clipboard that are not persistent only last until the owning (creating) app quits.
-    parameters:
-      - name: persistent
-        summary: value of persistent.
-        type: Boolean
-        default: false in case of named clipboard otherwise true.
-    since: "6.1.0"
-    osver: {ios: {max: "9.x.x"}}
-    platforms: [iphone, ipad]
-    
 properties:
   - name: name
     summary: Create a new named clipboard.
@@ -209,6 +195,20 @@ properties:
     since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
+
+  - name: persistent
+    summary: A Boolean value that indicates whether the clipboard is persistent.
+    description: |
+        When a clipboard is persistent, it continues to exist past app terminations and across system 
+        reboots. Clipboard that are not persistent only last until the owning (creating) app quits.
+    parameters:
+      - name: persistent
+        summary: value of persistent.
+        type: Boolean
+        default: false in case of named clipboard otherwise true.
+    since: "6.1.0"
+    osver: {ios: {max: "9.x.x"}}
+    platforms: [iphone, ipad]
 
 examples:
   - title: Copy Text to the Clipboard
