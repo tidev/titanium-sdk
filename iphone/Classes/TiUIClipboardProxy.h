@@ -12,7 +12,6 @@
     UIPasteboard *_pasteboard;
     NSString *pasteboardName;
     BOOL shouldCreatePasteboard;
-    BOOL persistent;
     BOOL isNamedPasteBoard;
     BOOL isUnique;
 }

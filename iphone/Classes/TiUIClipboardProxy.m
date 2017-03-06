@@ -70,7 +70,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     if (self = [super init])
     {
         shouldCreatePasteboard = true;
-        persistent = false;
         isNamedPasteBoard = false;
         isUnique = false;
     };
@@ -97,10 +96,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         ENSURE_STRING(arg);
         pasteboardName = arg;
         _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
-        if (![TiUtils isIOS10OrGreater])
-        {
-            [_pasteboard setPersistent:persistent];
-        }
         isNamedPasteBoard = true;
     }
 }
@@ -118,10 +113,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     {
         [self remove];
         _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
-        if (![TiUtils isIOS10OrGreater])
-        {
-            [_pasteboard setPersistent:persistent];
-        }
         isNamedPasteBoard = true;
     }
 }
@@ -133,26 +124,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
     if (isUnique)
     {
         _pasteboard = [UIPasteboard pasteboardWithUniqueName];
-        if (![TiUtils isIOS10OrGreater])
-        {
-            [_pasteboard setPersistent:persistent];
-        }
         isNamedPasteBoard = true;
-    }
-}
-
--(NSNumber *)persistent
-{
-    return NUMBOOL([self pasteboard].persistent);
-}
-
--(void)setPersistent:(id)arg
-{
-    if (![TiUtils isIOS10OrGreater])
-    {
-        BOOL value = [TiUtils boolValue:arg def:false];
-        persistent = value;
-        [[self pasteboard] setPersistent:value];
     }
 }
 
