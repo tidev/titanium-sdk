@@ -25,8 +25,48 @@ methods:
       - type: Titanium.Proxy
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
+
+  - name: createLivePhotoBadge
+    summary: |
+        Creates a live photo badge to be used together with the 
+        <Titanium.UI.iOS.LivePhotoView> API.
+    description: |
+        Supported on iOS 9.1 and later.
+    parameters:
+      - name: type
+        summary: Constant defining the live photo badge behavior.
+        type: Number
+        constants: [Titanium.UI.iOS.LIVEPHOTO_BADGE_OPTIONS_*]
+    returns:
+      - type: Titanium.Blob
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
     
 properties:
+  - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+    summary: |
+        Include treatments so this image can be shown directly over the content 
+        of the Live Photo.
+    description: |
+        Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
+        the badge behavior.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+    
+  - name: LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+    summary: | 
+        To indicate that the Live Photo aspect is turned off and it will 
+        be treated as a still (e.g. for sharing).
+    description: |
+        Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
+        the badge behavior.
+    type: Number
+    since: "5.2.0"
+    osver: {ios: {min: "9.1"}}
+    permission: read-only
+
   - name: ANIMATION_CURVE_EASE_IN
     deprecated:
         since: "2.1.0"

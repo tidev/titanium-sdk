@@ -8,7 +8,6 @@
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
-#import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
 
 @implementation TiAppiOSSearchQueryProxy
@@ -24,10 +23,9 @@
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context andArguments:(NSDictionary*)args
 {
-    if (self == [super _initWithPageContext:context]) {
-        ENSURE_TYPE([args objectForKey:@"queryString"], NSString);
-        ENSURE_TYPE([args objectForKey:@"attributes"], NSArray);
-        
+    ENSURE_TYPE([args objectForKey:@"queryString"], NSString);
+    ENSURE_TYPE([args objectForKey:@"attributes"], NSArray);
+    if (self = [super _initWithPageContext:context]) {
         queryString = [[args objectForKey:@"queryString"] retain];
         attributes = [[args objectForKey:@"attributes"] retain];    
     }
@@ -75,7 +73,6 @@
                 }, NO);
             }
         }];
-
     }
     
     return query;

@@ -109,8 +109,8 @@ public class TiJSIntervalService extends TiJSService
 						runner.stop();
 					}
 				}
+				runners.clear();
 			}
-			runners.clear();
 		} catch(Throwable t) {
 			Log.w(TAG, "Thrown while clearing interval service runners: " + t.getMessage(), t);
 		}

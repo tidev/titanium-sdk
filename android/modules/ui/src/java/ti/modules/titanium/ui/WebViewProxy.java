@@ -75,6 +75,7 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
+		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
 	}
 
 	@Override
@@ -341,6 +342,18 @@ public class WebViewProxy extends ViewProxy
 		}
 
 		return pluginState;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setDisableContextMenu(boolean disableContextMenu)
+	{
+		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getDisableContextMenu()
+	{
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
 	}
 
 	@Kroll.method @Kroll.setProperty

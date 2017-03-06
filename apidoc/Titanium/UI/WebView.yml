@@ -390,14 +390,23 @@ events:
         type: Number
 
   - name: onStopBlacklistedUrl
-    summary: Fired when a blacklisted Url is stopped
-    description: |
-        This event is fired when a blacklisted Url is stopped
+    summary: Fired when a blacklisted URL is stopped.
     platforms: [android]
-    since: "5.4.0"
+    since: 5.4.0
     properties:
       - name: url
-        summary: URL of the web document that is stopped.
+        summary: The URL of the web document that is stopped.
+    deprecated:
+        since: "6.1.0"
+        notes: Use the  cross-platform `blacklisturl` event instead.
+        
+  - name: blacklisturl
+    summary: Fired when a blacklisted URL is stopped.
+    platforms: [android, iphone, ipad]
+    since: {android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0"}
+    properties:
+      - name: url
+        summary: The URL of the web document that is stopped.
         
 properties:
 
@@ -427,8 +436,8 @@ properties:
         the blacklist. Note, this only applies in the links clicked inside the webview. The first website
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
-    since: "5.4.0"
-    platforms: [android]
+    since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
+    platforms: [android, iphone, ipad]
     availability: creation
 
   - name: data
@@ -540,12 +549,14 @@ properties:
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |
         If set to `true`, the web page loads despite having an invalid SSL certificate.
-
         If set to `false`, a web page with an invalid SSL certificate does not load.
+        
+        iOS Note: As soon as you set this property to `true`, iOS will cache the response
+        for the lifetime of the current web view.
     type: Boolean
     default: undefined but behaves as false
-    since: "3.0.0"
-    platforms: [android]
+    since: {android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2"}
+    platforms: [android, iphone, ipad]
 
   - name: loading
     summary: Indicates if the webview is loading content.
@@ -692,9 +703,13 @@ properties:
 
   - name: userAgent
     summary: The User-Agent header used by the web view when requesting content.
+    description: |
+        On the iOS platform, this is not per-webview. Once you have set this property for a webview 
+        it will not change for same. But while creating new webview it can be changed to new user agent.
     type: String
     default: System default user-agent value.
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: {android: "2.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 
   - name: willHandleTouches
     summary: Explicitly specifies if this web view handles touches.

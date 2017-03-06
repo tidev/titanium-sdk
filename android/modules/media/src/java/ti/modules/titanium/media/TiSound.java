@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.media.AudioManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
@@ -89,6 +90,7 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
+			mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			boolean isAsset = URLUtil.isAssetUrl(url);
 			if (isAsset || url.startsWith("android.resource")) {
@@ -102,11 +104,18 @@ public class TiSound
 						Uri uri = Uri.parse(url);
 						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
 					}
-					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
-					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 				} catch (IOException e) {
-					Log.e(TAG, "Error setting file descriptor: ", e);
+					// timob-24082: setDataSource throws exception on a few but not all 4.4 devices
+					if (Build.VERSION.SDK_INT == 19) {
+						try {
+							mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset()+1, afd.getLength());
+						} catch (IOException e2) {
+							Log.e(TAG, "Error setting file descriptor: ", e2);
+						}
+					} else {
+						Log.e(TAG, "Error setting file descriptor: ", e);
+					}
 				} finally {
 					if (afd != null) {
 						afd.close();

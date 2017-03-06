@@ -154,20 +154,15 @@ if __name__ == "__main__":
 		print "Project directory not found: %s" % path
 		sys.exit(1)
 
-	tiapp_xml_path = os.path.join(path,'tiapp.xml')
-	if not os.path.exists(tiapp_xml_path):
-		print "Project directory doesn't look like a valid Titanium project: %s" % path
-		sys.exit(1)	
-
 	resources_dir = os.path.join(path,'Resources')
 
 	if not os.path.exists(resources_dir):
 		print "Project directory doesn't look like a valid Titanium project: %s" % path
 		sys.exit(1)	
 
+	# Static values are ok in here, it is only used for the internal test-project
 	platform = sys.argv[2]
-	tiapp = TiAppXML(tiapp_xml_path)
-	app_name = tiapp.properties['name']
+	app_name = 'Titanium'
 	mode = 'simulator'
 	outdir = None
 	

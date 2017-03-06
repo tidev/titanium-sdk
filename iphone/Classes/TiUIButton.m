@@ -167,9 +167,7 @@
 {
 	if (button==nil)
 	{
-        BOOL hasImage = [self.proxy valueForKey:@"backgroundImage"]!=nil;
-		
-        UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+		UIButtonType defaultType = [self hasImageProperties] ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
@@ -188,6 +186,11 @@
 	}
 #endif
 	return button;
+}
+
+- (BOOL)hasImageProperties
+{
+    return [self.proxy valueForKey:@"backgroundImage"] || [self.proxy valueForKey:@"backgroundSelectedImage"] || [self.proxy valueForKey:@"backgroundSelectedColor"];
 }
 
 - (id)accessibilityElement
@@ -263,9 +266,14 @@
 {
 	[backgroundImageCache release];
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
-	backgroundImageCache = [[TiUtils loadBackgroundImage:value forProxy:[self proxy]] retain];
-    self.backgroundImage = value;
+	backgroundImageCache = [[self loadImage:value] retain];
+	self.backgroundImage = value;
 	[self updateBackgroundImage];
+}
+
+-(void)setBackgroundSelectedColor_:(id)value
+{
+    [[self button] setBackgroundImage:[TiUtils imageWithColor:[[TiUtils colorValue:value] _color]] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundSelectedImage_:(id)value

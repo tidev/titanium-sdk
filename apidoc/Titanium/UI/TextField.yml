@@ -725,3 +725,11 @@ properties:
   - name: right
     type: Number
     summary: Right padding
+    
+  - name: top
+    type: Number
+    summary: Top padding (Android only, since 6.1.0)
+    
+  - name: bottom
+    type: Number
+    summary: Bottom padding (Android only, since 6.1.0)

@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,6 +41,8 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
+	private static int defaultTextColor;
+	private static boolean setDefaultTextColor = false;
 	
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
@@ -74,16 +75,22 @@ public class TiUINativePicker extends TiUIPicker
 		}
 		
 		private void styleTextView(int position, TextView tv) {
-		    TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
-		    if (fontProperties != null) {
-		        TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
-		        fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
-		        fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
-		    }
-		    if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-		        final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
-		        tv.setTextColor(color);
-		    }
+			TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
+			if (fontProperties != null) {
+				TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+				fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+				fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
+			}
+			if (!setDefaultTextColor) {
+				defaultTextColor = tv.getCurrentTextColor();
+				setDefaultTextColor = true;
+			}
+			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
+				final int color = TiConvert.toColor((String) rowProxy.getProperty(TiC.PROPERTY_COLOR));
+				tv.setTextColor(color);
+			} else {
+				tv.setTextColor(defaultTextColor);
+			}
 		}
 	}
 	

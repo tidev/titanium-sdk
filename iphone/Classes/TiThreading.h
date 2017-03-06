@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ if (![NSThread isMainThread]) { \
 	return; \
 } \
 
-
 #define ENSURE_UI_THREAD_0_ARGS		ENSURE_UI_THREAD_1_ARG(nil)
 
 //TODO: Is there any time where @selector(x:) is not _sel (IE, the called method for 1 arg?
@@ -25,7 +24,7 @@ if (![NSThread isMainThread]) { \
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
 	TiThreadPerformOnMainThread(^{[self x:y];},NO); \
-return; \
+	return; \
 } \
 
 #define ENSURE_IOS_API(version, message) \

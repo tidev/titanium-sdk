@@ -21,7 +21,6 @@ import android.support.annotation.StringRes;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.ViewParent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -88,8 +87,6 @@ public class TiUIWebView extends TiUIView
 	private class TiWebView extends WebView
 	{
 		public TiWebViewClient client;
-		protected ActionMode actionMode = null;
-		protected ActionMode.Callback actionModeCallback = null;
 
 		public TiWebView(Context context)
 		{
@@ -102,28 +99,25 @@ public class TiUIWebView extends TiUIView
 			if (disableContextMenu) {
 				return nullifiedActionMode();
 			}
-			if (actionModeCallback == null) {
-				actionModeCallback = new CustomActionModeCallback();
-			}
-			return super.startActionMode(actionModeCallback);
+			
+			return super.startActionMode(callback);
 		}
-
+		
+		/**
+		 * API 23 or higher is required for this startActionMode to be invoked otherwise other startActionMode is invoked.
+		 */
 		@Override
 		public ActionMode startActionMode(ActionMode.Callback callback, int type)
 		{
 			if (disableContextMenu) {
 				return nullifiedActionMode();
 			}
-			// this startActionMode is fired and not the other one
-			// it depends on Android version you use, I used Android 6 (API 23)
 			ViewParent parent = getParent();
 			if (parent == null) {
 				return null;
 			}
-			if (actionModeCallback == null) {
-				actionModeCallback = new CustomActionModeCallback();
-			}
-			return parent.startActionModeForChild(this, actionModeCallback);
+			
+			return parent.startActionModeForChild(this, callback, type);
 		}
 		
 		public ActionMode nullifiedActionMode()
@@ -190,35 +184,6 @@ public class TiUIWebView extends TiUIView
 					return null;
 				}
 			};
-		}
-
-		private class CustomActionModeCallback implements ActionMode.Callback
-		{
-
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu)
-			{
-				return true;
-			}
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, Menu menu)
-			{
-				return false;
-			}
-
-			@Override
-			public boolean onActionItemClicked(ActionMode mode, MenuItem item)
-			{
-				return true;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode)
-			{
-				clearFocus();
-				actionMode = null;
-			}
 		}
 
 		@Override
@@ -524,6 +489,8 @@ public class TiUIWebView extends TiUIView
 			if (newValue instanceof HashMap) {
 				setRequestHeaders((HashMap) newValue);
 			}
+		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
+			disableContextMenu = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
