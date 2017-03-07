@@ -574,7 +574,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #pragma mark Public Methods
 
-#ifdef USE_TI_MEDIABEEP
+#if defined(USE_TI_MEDIABEEP) || defined(USE_TI_MEDIAVIBRATE)
 -(void)beep:(id)unused
 {
     ENSURE_UI_THREAD(beep,unused);
