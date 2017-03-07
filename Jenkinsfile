@@ -64,8 +64,8 @@ timestamps {
 			}
 
 			// Skip the Windows SDK portion if a PR, we don't need it
-			if (!isPR) {
-				stage('Windows') {
+			stage('Windows') {
+				if (!isPR) {
 					// Grab Windows SDK from merge target banch, if unset assume master
 					def windowsBranch = env.CHANGE_TARGET
 					if (!windowsBranch) {
@@ -76,8 +76,8 @@ timestamps {
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-				} // stage
-			}
+				} // !isPR
+			} // stage
 
 			stage('Build') {
 				// Normal build, pull out the version
