@@ -2746,6 +2746,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
 
 	/**
