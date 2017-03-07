@@ -1719,9 +1719,10 @@ public abstract class TiUIView
 		if (touchable == null) {
 			return;
 		}
+
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-				touchable.setEnabled(enabled);
+			touchable.setEnabled(enabled);
 		}
 		//Checking and setting touch sound for view
 		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
@@ -1729,6 +1730,7 @@ public abstract class TiUIView
 			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 		registerTouchEvents(touchable);
+
 		// Previously, we used the single tap handling above to fire our click event. It doesn't
 		// work: a single tap is not the same as a click. A click can be held for a while before
 		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
