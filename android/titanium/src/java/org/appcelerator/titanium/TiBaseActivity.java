@@ -863,13 +863,17 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			if (windowStack.size() <= 1) {
 				if (topWindow != null) {
 					if (TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
-						Log.d(TAG, "onBackPressed: exit", Log.DEBUG_MODE);
-						TiApplication.terminateActivityStack();
+						Log.d(TAG, "onBackPressed: exit");
+						if (Build.VERSION.SDK_INT >= 16) {
+							finishAffinity();
+						} else {
+							TiApplication.terminateActivityStack();
+						}
 					} else {
-						Log.d(TAG, "onBackPressed: suspend to background", Log.DEBUG_MODE);
+						Log.d(TAG, "onBackPressed: suspend to background");
 						this.moveTaskToBack(true);
-						return;
 					}
+					return;
 				}
  			}
 
