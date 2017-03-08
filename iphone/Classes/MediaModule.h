@@ -10,9 +10,7 @@
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
-#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 #import "TiMediaMusicPlayer.h"
-#endif
 #import "TiViewProxy.h"
 
 @interface MediaModule : TiModule
@@ -44,10 +42,8 @@
 #endif
 	
 	// Music players
-#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined (USE_TI_MEDIAAPPMUSICPLAYER)
 	TiMediaMusicPlayer* systemMusicPlayer;
 	TiMediaMusicPlayer* appMusicPlayer;
-#endif
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -80,10 +76,9 @@
 @property(nonatomic,readonly) NSNumber* cameraAuthorizationStatus;
 @property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
-#ifdef USE_TI_MEDIAMUSICPLAYER
+
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
-#endif
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
