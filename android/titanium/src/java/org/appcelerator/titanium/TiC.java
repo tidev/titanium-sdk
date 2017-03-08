@@ -1955,6 +1955,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NO_FULLSCREEN = "noFullScreen";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NOTE = "note";
 
 	/**
