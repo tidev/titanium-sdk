@@ -39,8 +39,6 @@ extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
 extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
-NSMutableDictionary *uploadTaskResponses;
-
 NSString * TITANIUM_VERSION;
 
 extern void UIColorFlushCache();
