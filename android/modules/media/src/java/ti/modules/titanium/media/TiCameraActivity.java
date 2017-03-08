@@ -56,6 +56,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 {
 	private static final String TAG = "TiCameraActivity";
 	private static Camera camera;
+	private static boolean takingPicture = false;
+	private static boolean surfaceHolder = false;
 	private static Size optimalPreviewSize;
 	private static Size optimalVideoSize;
 	private static List<Size> supportedPreviewSizes;
@@ -209,6 +211,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				openCamera();
 			}
 			camera.setPreviewDisplay(previewHolder);
+			surfaceHolder = true;
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
 			cancelCallback = null;
@@ -227,7 +230,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			camera.release();
 			camera = null;
 		}
-		
+		surfaceHolder = false;
+
 		releaseMediaRecorder();
 	}
 
@@ -692,36 +696,46 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	static public void takePicture()
 	{
-	    try {
-	        String focusMode = camera.getParameters().getFocusMode();
-	        if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF)
-	                || focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
-	                .equals(Parameters.FOCUS_MODE_INFINITY))) {
-	            AutoFocusCallback focusCallback = new AutoFocusCallback()
-	            {
-	                public void onAutoFocus(boolean success, Camera camera)
-	                {
-	                    camera.takePicture(shutterCallback, null, jpegCallback);
-	                    if (!success) {
-	                        Log.w(TAG, "Unable to focus.");
-	                    }
-	                    // This is a Hotfix for TIMOB-20260
-	                    // "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera) 
-	                    // We need to move to android.hardware.camera2 APIs as soon as we can.
-	                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-	                        camera.cancelAutoFocus();
-	                    }
-	                }
-	            };
-	            camera.autoFocus(focusCallback);
-	        } else {
-	            camera.takePicture(shutterCallback, null, jpegCallback);
-	        }
-	    } catch (Exception e) {
-	        if (camera != null) {
-	            camera.release();
-	        }
-	    }
+		if (!takingPicture) {
+			takingPicture = true;
+			try {
+				String focusMode = camera.getParameters().getFocusMode();
+				if (!(focusMode.equals(Parameters.FOCUS_MODE_EDOF)
+						|| focusMode.equals(Parameters.FOCUS_MODE_FIXED) || focusMode
+						.equals(Parameters.FOCUS_MODE_INFINITY)) && surfaceHolder) {
+					AutoFocusCallback focusCallback = new AutoFocusCallback()
+					{
+						public void onAutoFocus(boolean success, Camera camera)
+						{
+							try {
+								camera.takePicture(shutterCallback, null, jpegCallback);
+							} catch (Exception e) {
+								Log.w(TAG, "could not take picture: " + e.toString());
+								takingPicture = false;
+							}
+							if (!success) {
+								Log.w(TAG, "Unable to focus.");
+							}
+							// This is a Hotfix for TIMOB-20260
+							// "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera) 
+							// We need to move to android.hardware.camera2 APIs as soon as we can.
+							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+								camera.cancelAutoFocus();
+							}
+						}
+					};
+					camera.autoFocus(focusCallback);
+				} else {
+					camera.takePicture(shutterCallback, null, jpegCallback);
+				}
+			} catch (Exception e) {
+				Log.w(TAG, "could not take picture: " + e.toString());
+				if (camera != null) {
+					camera.release();
+				}
+				takingPicture = false;
+			}
+		}
 	}
 
 	public boolean isPreviewRunning()
@@ -786,6 +800,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			} else {
 				camera.startPreview();
 			}
+			takingPicture = false;
 		}
 	};
 
