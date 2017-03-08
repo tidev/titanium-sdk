@@ -18,13 +18,11 @@ def unitTests(os) {
 		node('node-4 && android-emulator && npm && git && android-sdk && osx') {
 			timeout(time: 1, unit: 'HOURS') {
 				// Unarchive the osx build of the SDK (as a zip)
-				sh 'rm -f osx.zip' // delete osx.zip file if it already exists
+				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
 				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
 				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
 				// if our test suite already exists, delete it...
-				if (fileExists('titanium-mobile-mocha-suite')) {
-					sh 'rm -rf titanium-mobile-mocha-suite'
-				}
+				sh 'rm -rf titanium-mobile-mocha-suite'
 				// clone the tests suite fresh
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as above
