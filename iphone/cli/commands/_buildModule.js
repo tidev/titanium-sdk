@@ -347,14 +347,16 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		// 3. write encrypted data to template
 		function (cb) {
 			var data = ejs.render(fs.readFileSync(this.assetsTemplateFile).toString(), renderData),
-				moduleAssetsFile = path.join(this.projectDir, 'Classes', this.moduleIdAsIdentifier+'ModuleAssets.m');
+				moduleAssetsDir = path.join(this.projectDir, 'Classes'),
+				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier+'ModuleAssets.m');
 
 			this.logger.debug(__('Writing module assets file: %s', moduleAssetsFile.cyan));
+			fs.existsSync(moduleAssetsDir) || wrench.mkdirSyncRecursive(moduleAssetsDir);
 			fs.writeFileSync(moduleAssetsFile, data);
 			cb();
 		},
 
-		// 4. genereate exports
+		// 4. generate exports
 		function (cb) {
 			this.jsFilesToEncrypt.forEach(function(file) {
 				var r = jsanalyze.analyzeJsFile(file, { minify: true });
