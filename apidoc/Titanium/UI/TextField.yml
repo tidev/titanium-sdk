@@ -263,10 +263,20 @@ properties:
     type: Boolean
     default: false
     
-    
   - name: font
     summary: Font to use for text.
     type: Font
+    
+  - name: fullscreen
+    summary: |
+        Leave some space above the keyboard in landscape mode or not.
+    description: |
+        Switch between a fullscreen keyboard in landscape mode (default) or a non-fullscreen keyboard which
+        will leave some space to display UI elements.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: {android: "6.1.0"}
     
   - name: hintText
     summary: Hint text to display when the field is empty.

@@ -220,6 +220,11 @@ public class TiUIText extends TiUIView
 			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_FULLSCREEN)) {
+			if (!TiConvert.toBoolean(d.get(TiC.PROPERTY_FULLSCREEN),true)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+			}
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -318,6 +323,10 @@ public class TiUIText extends TiUIView
 			setAttributedStringText((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap)newValue);
+		} else if (key.equals(TiC.PROPERTY_FULLSCREEN)) {
+			if (!TiConvert.toBoolean(newValue,true)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
