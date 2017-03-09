@@ -1177,7 +1177,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 };
 
 AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
-	this.logger.log(__('Compiling all java source files genereated'));
+	this.logger.log(__('Compiling all java source files generated'));
 
 	var javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
 		javaFiles = [],
@@ -1196,7 +1196,13 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 		}.bind(this));
 	});
 
-	this.dirWalker(this.projectDir, function (file) {
+	this.dirWalker(this.javaSrcDir, function (file) {
+		if (path.extname(file) === '.java') {
+			javaFiles.push(file);
+		}
+	}.bind(this));
+
+	this.dirWalker(this.buildGenDir, function (file) {
 		if (path.extname(file) === '.java') {
 			javaFiles.push(file);
 		}
