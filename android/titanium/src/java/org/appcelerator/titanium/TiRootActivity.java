@@ -76,8 +76,25 @@ public class TiRootActivity extends TiLaunchActivity
 		Intent intent = getIntent();
 		TiRootActivity rootActivity = tiApp.getRootActivity();
 
-		if (intent != null && rootActivity != null) {
-			rootActivity.setIntent(intent);
+		if (intent != null) {
+			if (rootActivity != null) {
+				rootActivity.setIntent(intent);
+			}
+			if (tiApp.intentFilterNewTask() &&
+				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
+				intent.getDataString() != null &&
+				(intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
+
+				if (rootActivity == null) {
+					intent.setAction(Intent.ACTION_MAIN);
+				}
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+				finish();
+				
+				super.onCreate(savedInstanceState);
+				return;
+			}
 		}
 
 		if (willFinishFalseRootActivity(savedInstanceState)) {

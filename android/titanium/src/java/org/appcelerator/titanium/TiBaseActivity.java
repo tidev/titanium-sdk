@@ -857,12 +857,22 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 		}
 		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
-			// there are no parent activities to return to
-			// override back press to background the activity
-			// note: 2 since there should always be TiLaunchActivity and TiActivity
-			if (TiApplication.activityStack.size() <= 2) {
-				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
-					this.moveTaskToBack(true);
+			// no windows to return to
+			// check Ti.UI.Window.exitOnClose and either
+			// exit the application or send to background
+			if (windowStack.size() <= 1) {
+				if (topWindow != null) {
+					if (TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
+						Log.d(TAG, "onBackPressed: exit");
+						if (Build.VERSION.SDK_INT >= 16) {
+							finishAffinity();
+						} else {
+							TiApplication.terminateActivityStack();
+						}
+					} else {
+						Log.d(TAG, "onBackPressed: suspend to background");
+						this.moveTaskToBack(true);
+					}
 					return;
 				}
  			}
