@@ -162,6 +162,16 @@ properties:
     platforms: [android]
     accessors: false
     availability: creation
+
+  - name: autoClose
+    summary: Keep the dialog open after the user clicks a button.
+    description: |
+        If `autoClose` is `false` the dialog won't close after the user makes an action.
+        You have to call `hide()` yourself to close the dialog.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: 6.2.0
     
   - name: buttonNames
     summary: Name of each button to create.

@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
 import android.view.ViewParent;
+import android.view.View;
 import android.widget.ListView;
 
 public class TiUIDialog extends TiUIView
@@ -37,6 +38,8 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected TiUIView view;
 	private DialogWrapper dialogWrapper;
+	
+	private Boolean autoClose = true;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -46,7 +49,9 @@ public class TiUIDialog extends TiUIView
 		}
 		public void onClick(DialogInterface dialog, int which) {
 			handleEvent(result);
-			hide(null);
+			if (autoClose) {
+				hide(null);
+			}
 		}
 	}
 
@@ -106,6 +111,9 @@ public class TiUIDialog extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
 			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
 		}
+		if (d.containsKey(TiC.PROPERTY_AUTO_CLOSE)) {
+			autoClose = d.getBoolean(TiC.PROPERTY_AUTO_CLOSE);
+		}
 
 		if (buttonText != null) {
 			processButtons(buttonText);
@@ -118,7 +126,9 @@ public class TiUIDialog extends TiUIView
 		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				handleEvent(which);
-				hide(null);
+				if (autoClose) {
+					hide(null);
+				}
 			}
 		});
 	}
@@ -132,11 +142,13 @@ public class TiUIDialog extends TiUIView
 			@Override
 			public void onCancel(DialogInterface dialog)
 			{
-				dialog = null;
-				if (view != null)
-				{
-					view.getProxy().releaseViews();
-					view = null;
+				if (autoClose) {
+					dialog = null;
+					if (view != null)
+					{
+						view.getProxy().releaseViews();
+						view = null;
+					}
 				}
 			}
 		});
@@ -259,6 +271,11 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && dialog != null) {
 		    dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_AUTO_CLOSE)) {
+		    autoClose = TiConvert.toBoolean(newValue);
+			if (!autoClose) {
+				dialog.setCanceledOnTouchOutside(false);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -279,11 +296,17 @@ public class TiUIDialog extends TiUIView
 					int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 					Log.d(TAG, "onCancelListener called. Sending index: " + cancelIndex, Log.DEBUG_MODE);
 					handleEvent(cancelIndex);
-					hide(null);
+					if (autoClose) {
+						hide(null);
+					}
 				}
 			});
 			dialog = getBuilder().create();
-			dialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
+			Boolean cancelOutside = proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true);
+			if (autoClose == false) {
+				cancelOutside = false;
+			}
+			dialog.setCanceledOnTouchOutside(cancelOutside);
 			// Initially apply accessibility properties here, the first time
 			// the dialog actually becomes available. After this, propertyChanged
 			// can also be used.
@@ -311,6 +334,29 @@ public class TiUIDialog extends TiUIView
 					//add dialog to its activity so we can clean it up later to prevent memory leak.
 					((TiBaseActivity) dialogActivity).addDialog(dialogWrapper);
 					dialog.show();
+
+					if (!autoClose) {
+						// overwrite click events when autoClose is false - still fire events
+						dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								handleEvent(0 | BUTTON_MASK);
+							}
+						});
+						dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
+								handleEvent(2 | BUTTON_MASK);
+							}
+						});
+						dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								handleEvent(1 | BUTTON_MASK);
+							}
+						});
+					}
 				}
 			} else {
 				dialog = null;
