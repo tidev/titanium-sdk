@@ -4751,9 +4751,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						// if we are using app thinning, then don't copy the image, instead mark the
 						// image to be injected into the asset catalog. Also, exclude images that are
 						// managed by their bundles. 
-						} else if (useAppThinning &&  !relPath.match(bundleFileRegExp)) {
+						} else if (useAppThinning && !relPath.match(bundleFileRegExp)) {
 							imageAssets[relPath] = info;
-
 						} else {
 							resourcesToCopy[relPath] = info;
 						}
