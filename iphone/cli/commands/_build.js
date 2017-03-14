@@ -4678,7 +4678,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'),
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
 		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
-		bundleFileRegExp = /.+\.bundle\/.+($|\n)/,
+		bundleFileRegExp = /.+\.bundle\/.+/,
 
 		resourcesToCopy = {},
 		jsFiles = {},
