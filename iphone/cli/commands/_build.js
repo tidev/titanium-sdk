@@ -4678,6 +4678,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'),
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
 		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
+		bundleFileRegExp = /.+\.bundle\/.+($|\n)/,
 
 		resourcesToCopy = {},
 		jsFiles = {},
@@ -4748,8 +4749,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							launchLogos[relPath] = info;
 
 						// if we are using app thinning, then don't copy the image, instead mark the
-						// image to be injected into the asset catalog
-						} else if (useAppThinning) {
+						// image to be injected into the asset catalog. Also, exclude images that are
+						// managed by their bundles. 
+						} else if (useAppThinning &&  !relPath.match(bundleFileRegExp)) {
 							imageAssets[relPath] = info;
 
 						} else {
