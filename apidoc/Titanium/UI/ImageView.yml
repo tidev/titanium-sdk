@@ -223,14 +223,12 @@ properties:
         
         Related properties/methods to look at: `start`, `stop`, `pause`, `reverse`, `resume` and `repeatCount` 
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
-
-    
+   
   - name: paused
     summary: Indicates whether the animation is paused.
     type: Boolean
     default: false
     permission: read-only
-
 
   - name: preventDefaultImage
     summary: |
@@ -244,6 +242,16 @@ properties:
     summary: Number of times to repeat the image animation.
     type: Number
     default: 0 (infinite)
+       
+  - name: requestHeaders
+    summary: Sets extra request headers for this image view.
+    description: |
+        Setting this property allows you to set custom headers to the remote image 
+        URL requests, for example to authenticate your image request. The parameter 
+        will be key-value pairs: `{'Custom-Field1': 'value1', 'Custom-Field2': 'value2'}`.        
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: "6.1.0"
     
   - name: reverse
     summary: Run the animation in reverse.
