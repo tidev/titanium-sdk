@@ -169,7 +169,7 @@ static NSArray* imageKeySequence;
 
 		// we're on the non-UI thread, we need to block to load
 
-		image = [[ImageLoader sharedLoader] loadRemote:url_];
+		image = [[ImageLoader sharedLoader] loadRemote:url_ withRequestHeaders:[self valueForKey:@"requestHeaders"]];
 		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
 	}
 	return nil;
@@ -199,11 +199,19 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 -(void)startImageLoad:(NSURL *)url;
 {
 	[self cancelPendingImageLoads]; //Just in case we have a crusty old urlRequest.
-	NSDictionary* info = nil;
-	NSNumber* hires = [self valueForKey:@"hires"];
-	if (hires) {
-		info = [NSDictionary dictionaryWithObject:hires forKey:@"hires"];
-	}
+	NSMutableDictionary* info = [NSMutableDictionary dictionary];
+    
+    NSNumber* hires = [self valueForKey:@"hires"];
+    NSArray* requestHeaders = [self valueForKey:@"requestHeaders"];
+    
+    if (hires) {
+        [info setObject:hires forKey:@"hires"];
+    }
+    
+    if (requestHeaders) {
+        [info setObject:requestHeaders forKey:@"requestHeaders"];
+    }
+    
 	urlRequest = [[[ImageLoader sharedLoader] loadImage:url delegate:self userInfo:info] retain];
 }
 

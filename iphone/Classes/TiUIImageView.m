@@ -384,7 +384,7 @@ DEFINE_EXCEPTIONS
 	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
 	if (theimage==nil)
 	{
-		theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
+		theimage = [[ImageLoader sharedLoader] loadRemote:theurl withRequestHeaders:[[self proxy] valueForKey:@"requestHeaders"]];
 	}
 	if (theimage==nil)
 	{

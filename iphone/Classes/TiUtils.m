@@ -2029,7 +2029,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
         if (resultImage == nil)
         {
-            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL withRequestHeaders:[proxy valueForKey:@"requestHeaders"]];
         }
         if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
             // special case where we're asking for Default.png and it's in Bundle not path
