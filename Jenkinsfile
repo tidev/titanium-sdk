@@ -2,21 +2,26 @@
 
 currentBuild.result = 'SUCCESS'
 
+// Variables which we assign and share between nodes
+// Don't modify these yourself
 def gitCommit = ''
 def basename = ''
 def vtag = ''
 def isPR = false
+
+// Variables we can change
+def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 @NonCPS
 def jsonParse(def json) {
 	new groovy.json.JsonSlurperClassic().parseText(json)
 }
 
-def unitTests(os) {
+def unitTests(os, nodeVersion) {
 	return {
 		// TODO Customize labels by os we're testing
-		node('node-4 && android-emulator && npm && git && android-sdk && osx') {
-			timeout(time: 1, unit: 'HOURS') {
+		node('android-emulator && git && android-sdk && osx') {
+			timeout(20) {
 				// Unarchive the osx build of the SDK (as a zip)
 				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
 				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
@@ -24,8 +29,9 @@ def unitTests(os) {
 				// if our test suite already exists, delete it...
 				sh 'rm -rf titanium-mobile-mocha-suite'
 				// clone the tests suite fresh
+				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
-					// TODO Do a shallow clone, using same credentials as above
+					// TODO Do a shallow clone, using same credentials as from scm object
 					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
 				}
 				// copy over any overridden unit tests into this workspace
@@ -33,9 +39,17 @@ def unitTests(os) {
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				// Now run the unit test suite
 				dir('titanium-mobile-mocha-suite/scripts') {
-					sh 'npm install .'
-					// TODO Use retry here to try multiple times?
-					sh "node test.js -b ../../${zipName} -p ${os}"
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						sh 'npm install .'
+						// TODO Use retry here to try multiple times?
+						sh "node test.js -b ../../${zipName} -p ${os}"
+					}
+					// Kill the emulators!
+					if ('android'.equals(os)) {
+						sh 'killall -9 emulator || echo ""'
+						sh 'killall -9 emulator64-arm || echo ""'
+						sh 'killall -9 emulator64-x86 || echo ""'
+					}
 					junit 'junit.*.xml'
 				}
 			} // timeout
@@ -46,7 +60,7 @@ def unitTests(os) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('node-4 && npm && git && android-sdk && android-ndk && ant && gperf && osx') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
 				// checkout scm
 				// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
@@ -90,23 +104,25 @@ timestamps {
 				echo "BASENAME:        ${basename}"
 				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 				dir('build') {
-					timeout(5) {
-						sh 'npm install .'
-					}
-					timeout(15) {
-						sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-					}
-					ansiColor('xterm') {
-						if (isPR) {
-							// For PR builds, just package android and iOS for osx
-							sh "node scons.js package android ios --version-tag ${vtag}"
-						} else {
-							// For non-PR builds, do all platforms for all OSes
-							timeout(15) {
-								sh "node scons.js package --version-tag ${vtag} --all"
-							}
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						timeout(5) {
+							sh 'npm install .'
 						}
-					} // ansiColor
+						timeout(15) {
+							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+						}
+						ansiColor('xterm') {
+							if (isPR) {
+								// For PR builds, just package android and iOS for osx
+								sh "node scons.js package android ios --version-tag ${vtag}"
+							} else {
+								// For non-PR builds, do all platforms for all OSes
+								timeout(15) {
+									sh "node scons.js package --version-tag ${vtag} --all"
+								}
+							}
+						} // ansiColor
+					} // nodeJs
 				}
 				archiveArtifacts artifacts: "${basename}-*.zip"
 				stash includes: 'dist/parity.html', name: 'parity'
@@ -117,14 +133,15 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android'),
-				'iOS unit tests': unitTests('ios'),
+				'android unit tests': unitTests('android', nodeVersion),
+				'iOS unit tests': unitTests('ios', nodeVersion),
 				failFast: true
 			)
 		}
 
 		stage('Deploy') {
 			// Push to S3 if not PR
+			// FIXME on oddball PRs on barnches of original repo, we shouldn't do this
 			if (!isPR) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
 				node('(osx || linux) && !axway-internal && curl') {
@@ -138,6 +155,7 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 					if (fileExists('index.json')) {
+						// FIXME The index.json we received may actually be an Access Denied xml file. If so we should catch here and assume empty JSON?
 						indexJson = jsonParse(readFile('index.json'))
 					}
 
