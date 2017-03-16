@@ -1004,28 +1004,47 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 						'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 					process.exit(1);
 				}
-			} else if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
-				if (iosInfo.provisioning.distribution.length || iosInfo.provisioning.adhoc.length) {
+
+			} else if (cli.argv.target === 'dist-appstore') {
+				if (iosInfo.provisioning.distribution.length) {
 					pp = prep(iosInfo.provisioning.distribution);
-					var valid = pp.length;
 					if (pp.length) {
-						provisioningProfiles[__('Available Distribution UUIDs:')] = pp;
-					}
-
-					pp = prep(iosInfo.provisioning.adhoc);
-					valid += pp.length;
-					if (pp.length) {
-						provisioningProfiles[__('Available Adhoc UUIDs:')] = pp;
-					}
-
-					if (!valid) {
-						logger.error(__('Unable to find any non-expired distribution or adhoc provisioning profiles that match the app id "%s".', appId) + '\n');
+						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
+					} else {
+						logger.error(__('Unable to find any non-expired app store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
-					logger.error(__('Unable to find any distribution or adhoc provisioning profiles'));
+					logger.error(__('Unable to find any app store distribution provisioning profiles'));
+					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
+						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+					process.exit(1);
+				}
+
+			} else if (cli.argv.target === 'dist-adhoc') {
+				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
+					pp = prep(iosInfo.provisioning.adhoc);
+					var valid = pp.length;
+					if (pp.length) {
+						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
+					}
+
+					pp = prep(iosInfo.provisioning.enterprise);
+					valid += pp.length;
+					if (pp.length) {
+						provisioningProfiles[__('Available Enterprise Ad Hoc UUIDs:')] = pp;
+					}
+
+					if (!valid) {
+						logger.error(__('Unable to find any non-expired ad hoc or enterprise ad hoc provisioning profiles that match the app id "%s".', appId) + '\n');
+						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
+							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+						process.exit(1);
+					}
+				} else {
+					logger.error(__('Unable to find any ad hoc or enterprise ad hoc provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 					process.exit(1);
