@@ -76,7 +76,7 @@ exports.detect = function (types, config, next) {
 					issue.message += '\n' + __('Download and install the certificate from %s', '__http://appcelerator.com/ios-wwdr__');
 					break;
 				case 'IOS_NO_KEYCHAINS_FOUND':
-					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or app store distribution certificates.');
+					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or App Store distribution certificates.');
 					break;
 				case 'IOS_NO_VALID_DEV_CERTS_FOUND':
 					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
