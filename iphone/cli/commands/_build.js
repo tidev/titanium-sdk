@@ -1011,13 +1011,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					if (pp.length) {
 						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
 					} else {
-						logger.error(__('Unable to find any non-expired app store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
+						logger.error(__('Unable to find any non-expired App Store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
-					logger.error(__('Unable to find any app store distribution provisioning profiles'));
+					logger.error(__('Unable to find any App Store distribution provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 					process.exit(1);
@@ -1038,13 +1038,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					}
 
 					if (!valid) {
-						logger.error(__('Unable to find any non-expired ad hoc or enterprise ad hoc provisioning profiles that match the app id "%s".', appId) + '\n');
+						logger.error(__('Unable to find any non-expired Ad Hoc or Enterprise Ad Hoc provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
-					logger.error(__('Unable to find any ad hoc or enterprise ad hoc provisioning profiles'));
+					logger.error(__('Unable to find any Ad Hoc or Enterprise Ad Hoc provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
 					process.exit(1);
