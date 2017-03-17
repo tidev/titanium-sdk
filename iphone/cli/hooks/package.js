@@ -159,16 +159,17 @@ exports.init = function (logger, config, cli) {
 					exportsOptions.method = 'ad-hoc';
 
 					var pp = null;
-					builder.iosInfo.provisioning.distribution.some(function (p) {
+					builder.iosInfo.provisioning.adhoc.some(function (p) {
 						if (p.uuid === builder.provisioningProfileUUID) {
 							pp = p;
 							return true;
 						}
 					});
 					if (!pp) {
-						builder.iosInfo.provisioning.adhoc.some(function (p) {
+						builder.iosInfo.provisioning.enterprise.some(function (p) {
 							if (p.uuid === builder.provisioningProfileUUID) {
 								pp = p;
+								exportsOptions.method = 'enterprise';
 								return true;
 							}
 						});
