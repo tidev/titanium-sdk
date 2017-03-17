@@ -1136,8 +1136,19 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					// TODO: assert there is at least one distribution or adhoc provisioning profile
 
 					_t.conf.options['output-dir'].required = true;
+					_t.conf.options['deploy-type'].values = ['production'];
+					_t.conf.options['device-id'].required = false;
+					_t.conf.options['distribution-name'].required = true;
+					_t.conf.options['pp-uuid'].required = true;
 
-					// purposely fall through!
+					iosInfo.provisioning.adhoc.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+					iosInfo.provisioning.enterprise.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+
+					break;
 
 				case 'dist-appstore':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
@@ -1149,9 +1160,6 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 
 					// build lookup maps
 					iosInfo.provisioning.distribution.forEach(function (p) {
-						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
-					});
-					iosInfo.provisioning.adhoc.forEach(function (p) {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 			}
