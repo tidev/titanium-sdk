@@ -166,7 +166,7 @@ properties:
 
   - name: persistentID
     summary: The key for the persistent identifier for the media item.
-    type: Number
+    type: String
     permission: read-only
     since: "6.1.0"
 
