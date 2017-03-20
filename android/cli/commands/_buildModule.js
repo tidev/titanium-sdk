@@ -733,7 +733,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					return s.toLowerCase();
 				});
 
-				if (!(moduleNamespace in namespaces)) {
+				if (namespaces.indexOf(moduleNamespace) == -1) {
 					namespaces.unshift(moduleNamespace.split('.').join('::'));
 				}
 
