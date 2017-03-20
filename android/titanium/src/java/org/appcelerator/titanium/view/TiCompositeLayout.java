@@ -646,9 +646,10 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
-        TiUIHelper.firePostLayoutEvent(viewProxy);
-
+        if (changed) {
+            TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+            TiUIHelper.firePostLayoutEvent(viewProxy);
+        }
     }
 
     // option0 is left/top, option1 is right/bottom
