@@ -206,7 +206,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
 }
 
-+(BOOL)isIOSVersionOrGreater
++(BOOL)isIOS1OrGreater
 {
 #if IS_XCODE_8
     return [[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending;
@@ -215,7 +215,7 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 #endif
 }
 
-+(BOOL)isIOSVersion:(NSString *)version
++(BOOL)isIOSVersionOrGreater:(NSString *)version
 {
 #if IS_XCODE_8
     return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
