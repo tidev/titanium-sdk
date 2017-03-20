@@ -152,7 +152,7 @@ typedef void (^PermissionBlock)(BOOL granted)
                                                                                    MPMediaItemPropertyGenrePersistentID, @"genrePersistentID",
                                                                                    MPMediaItemPropertyComposerPersistentID, @"composerPersistentID",
                                                                                    MPMediaItemPropertyIsCloudItem, @"isCloudItem",
-                                                                                   MPMediaItemPropertyHasProtectedAsset, @"hasProtectedAsset",
+                                       [TiUtils isIOSVersionOrGreater:@"9.2"] ? MPMediaItemPropertyHasProtectedAsset : NO, @"hasProtectedAsset",
                                                                                    MPMediaItemPropertyPodcastTitle, @"podcastTitle",
                                                                                    MPMediaItemPropertyPodcastPersistentID, @"podcastPersistentID",
                                                                                    nil];

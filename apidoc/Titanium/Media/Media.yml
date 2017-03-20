@@ -1617,7 +1617,7 @@ properties:
         The value should be a Boolean.
     type: [MediaQueryInfoType, Boolean]
   - name: playCount
-    summary: The  to filter on. Value should be a Number.
+    summary: The play count to filter on. Value should be a Number.
     description: Available in Titanium SDK 6.1.0 and later.
     type: [MediaQueryInfoType, Number]
   - name: persistentID
