@@ -154,7 +154,7 @@ public class ListViewProxy extends TiViewProxy {
 		if (listView != null) {
 			return ((TiListView) listView).getSectionCount();
 		}
-		return 0;
+		return preloadSections.size();
 	}
 
 	@Kroll.method

@@ -231,7 +231,7 @@ public class TiCompositeLayout extends ViewGroup
 
     private static int getAsPercentageValue(double percentage, int value)
     {
-        return (int) Math.round((percentage / 100.0) * value);
+        return (int) Math.floor((percentage / 100.0) * value);
     }
 
     protected int getViewWidthPadding(View child, int parentWidth)
@@ -646,9 +646,10 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
-        TiUIHelper.firePostLayoutEvent(viewProxy);
-
+        if (changed) {
+            TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+            TiUIHelper.firePostLayoutEvent(viewProxy);
+        }
     }
 
     // option0 is left/top, option1 is right/bottom
@@ -729,9 +730,14 @@ public class TiCompositeLayout extends ViewGroup
             // the width of the screen
             right = Math.min(right, layoutRight);
         }
-
-        hpos[0] = left;
-        hpos[1] = right;
+        
+        if (optionRight != null) {
+            hpos[0] = layoutRight - left;
+            hpos[1] = layoutRight - horiztonalLayoutPreviousRight;
+        } else {
+            hpos[0] = left;
+            hpos[1] = right;
+        }
         horizontalLayoutCurrentLeft = right;
 
         if (enableHorizontalWrap) {

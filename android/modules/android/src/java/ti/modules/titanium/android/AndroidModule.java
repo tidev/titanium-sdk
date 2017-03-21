@@ -351,8 +351,8 @@ public class AndroidModule extends KrollModule
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;

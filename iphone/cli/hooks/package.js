@@ -112,31 +112,6 @@ exports.init = function (logger, config, cli) {
 						}
 					});
 
-					var now = new Date;
-					var destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
-					if (!fs.existsSync(destInfoPlist)) {
-						var origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
-						var newPlist = new appc.plist();
-						var appBundle = 'Applications/' + name + '.app';
-
-						appc.util.mix(newPlist, {
-							ApplicationProperties: {
-								ApplicationPath: appBundle,
-								CFBundleIdentifier: origPlist.CFBundleIdentifier || builder.tiapp.id,
-								CFBundleShortVersionString: origPlist.CFBundleShortVersionString || '1.0',
-								CFBundleVersion: origPlist.CFBundleVersion || '1.0',
-								SigningIdentity: 'iPhone Distribution: ' + builder.certDistributionName,
-								IconPaths: [
-									appBundle + '/' + builder.tiapp.icon
-								]
-							},
-							ArchiveVersion: newPlist.type('integer', 2),
-							CreationDate: now,
-							Name: name,
-							SchemeName: name
-						}).save(destInfoPlist);
-					}
-
 					var month = now.getMonth() + 1;
 					var day = now.getDate();
 					var hours = now.getHours();
@@ -150,7 +125,9 @@ exports.init = function (logger, config, cli) {
 
 					// move the finished archive directory into the correct location
 					fs.existsSync(archivesDir) || wrench.mkdirSyncRecursive(archivesDir);
-					fs.renameSync(stagingArchiveDir, dest);
+					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
+						logger: logger.debug
+					});
 
 					// open xcode + organizer after packaging
 					logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
@@ -173,8 +150,8 @@ exports.init = function (logger, config, cli) {
 
 					// make sure the output directory is good to go
 					fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
-					var exportPath = path.join(outputDir, builder.tiapp.name + '.ipa');
-					fs.existsSync(exportPath) && wrench.rmdirSyncRecursive(exportPath);
+					var ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+					fs.existsSync(ipaFile) && fs.unlinkSync(ipaFile);
 
 					// write the export options plist file
 					var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
@@ -182,16 +159,17 @@ exports.init = function (logger, config, cli) {
 					exportsOptions.method = 'ad-hoc';
 
 					var pp = null;
-					builder.iosInfo.provisioning.distribution.some(function (p) {
+					builder.iosInfo.provisioning.adhoc.some(function (p) {
 						if (p.uuid === builder.provisioningProfileUUID) {
 							pp = p;
 							return true;
 						}
 					});
 					if (!pp) {
-						builder.iosInfo.provisioning.adhoc.some(function (p) {
+						builder.iosInfo.provisioning.enterprise.some(function (p) {
 							if (p.uuid === builder.provisioningProfileUUID) {
 								pp = p;
+								exportsOptions.method = 'enterprise';
 								return true;
 							}
 						});
@@ -207,7 +185,7 @@ exports.init = function (logger, config, cli) {
 						builder.xcodeEnv.executables.xcodebuild,
 						'-exportArchive',
 						'-archivePath', '"' + stagingArchiveDir + '"',
-						'-exportPath', '"' + exportPath + '"',
+						'-exportPath', '"' + outputDir + '"',
 						'-exportOptionsPlist', '"' + exportsOptionsPlistFile + '"'
 					].join(' ');
 
@@ -215,11 +193,40 @@ exports.init = function (logger, config, cli) {
 					logger.debug(__('Running: %s', cmd.cyan));
 					exec(cmd, function (err, stdout, stderr) {
 						if (err) {
+							var output = stderr.trim();
+							output.split('\n').forEach(logger.trace);
 							logger.error(__('Failed to export archive to ipa'));
-							stderr.trim().split('\n').forEach(logger.error);
+
+							var pp = null;
+							var ppType = null;
+
+							function findPP(type) {
+								builder.iosInfo.provisioning[type].some(function (p) {
+									if (p.uuid === builder.provisioningProfileUUID) {
+										pp = p;
+										ppType = type;
+									}
+								});
+							}
+
+							findPP('distribution');
+							if (!pp) {
+								findPP('adhoc');
+							}
+
+							if (pp) {
+								if (ppType === 'distribution') {
+									logger.error(__('The selected provisioning profile "%s (%s)" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.', pp.name, pp.uuid));
+								} else {
+									logger.error(__('The selected provisioning profile "%s (%s)" is most likely not a valid Ad Hoc provisioning profile.', pp.name, pp.uuid));
+								}
+							} else {
+								logger.error(__('The selected provisioning profile doesn\'t appear to be a Ad Hoc provisioning profile or match the signing identity.'));
+							}
+							logger.error(__('Please ensure you are using a valid Ad Hoc provisioning that is linked to the signing identity, then try again.'));
 						} else {
 							logger.info(__('Packaging complete'));
-							logger.info(__('Package location: %s', exportPath.cyan));
+							logger.info(__('Package location: %s', ipaFile.cyan));
 						}
 						finished();
 					});

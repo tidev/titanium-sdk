@@ -96,7 +96,7 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery.
+        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
 
     platforms: [iphone, ipad, android]
     parameters:

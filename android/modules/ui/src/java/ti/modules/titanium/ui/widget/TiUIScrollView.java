@@ -617,7 +617,7 @@ public class TiUIScrollView extends TiUIView
 
 	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
-		View view = getNativeView();
+		final View view = getNativeView();
 		if (smoothScroll) {
 			if (view instanceof TiHorizontalScrollView) {
 				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
@@ -627,9 +627,9 @@ public class TiUIScrollView extends TiUIView
 				scrollView.smoothScrollTo(x, y);
 			}
 		} else {
-			view.scrollTo(x, y);
+			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
 		}
-		getNativeView().computeScroll();
+		view.computeScroll();
 	}
 
 	public void scrollToBottom()
