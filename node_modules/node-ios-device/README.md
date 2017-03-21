@@ -13,6 +13,7 @@ node-ios-device is currently compatible with the following versions:
    * 4.x (module API v46)
    * 5.x (module API v47)
    * 6.x (module API v48)
+   * 7.x (module API v51)
  * io.js
    * 1.0.x (module API v42)
    * \^1.1.0 (module API v43)
@@ -23,6 +24,9 @@ Only Mac OS X (darwin) is supported. You should make this module an optional
 dependency of your application and it will only be downloaded on OS X.
 
 > Note: node-ios-device@2.0.0 will only support Node.js 4 and newer.
+
+> Note: Xcode 8.3 beta 4 is not able to build the Node.js 0.12 binding. I have no idea why or if
+> it's a bug in beta 4.
 
 ## Installation
 
@@ -297,4 +301,4 @@ This project contains `mobiledevice.h` from
 [https://bitbucket.org/tristero/mobiledeviceaccess](https://bitbucket.org/tristero/mobiledeviceaccess)
 and is available under public domain.
 
-#### (C) Copyright 2012-2016, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.
+#### (C) Copyright 2012-2017, [Appcelerator](http://www.appcelerator.com/) Inc. All Rights Reserved.

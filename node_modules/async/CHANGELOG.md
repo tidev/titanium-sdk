@@ -1,3 +1,25 @@
+#v2.1.5
+- Fix `auto` bug when function names collided with Array.prototype (#1358)
+- Improve some error messages (#1349)
+- Avoid stack overflow case in queue
+- Fixed an issue in `some`, `every` and `find` where processing would continue after the result was determined.
+- Cleanup implementations of `some`, `every` and `find` 
+
+# v2.1.3
+- Make bundle size smaller
+- Create optimized hotpath for `filter` in array case.
+
+# v2.1.2
+- Fixed a stackoverflow bug with `detect`, `some`, `every` on large inputs (#1293).
+
+# v2.1.0
+
+- `retry` and `retryable` now support an optional `errorFilter` function that determines if the `task` should retry on the error (#1256, #1261)
+- Optimized array iteration in `race`, `cargo`, `queue`, and `priorityQueue` (#1253)
+- Added alias documentation to doc site (#1251, #1254)
+- Added [BootStrap scrollspy](http://getbootstrap.com/javascript/#scrollspy) to docs to highlight in the sidebar the current method being viewed  (#1289, #1300)
+- Various minor doc fixes (#1263, #1264, #1271, #1278, #1280, #1282, #1302)
+
 # v2.0.1
 
 - Significantly optimized all iteration based collection methods such as `each`, `map`, `filter`, etc (#1245, #1246, #1247).
