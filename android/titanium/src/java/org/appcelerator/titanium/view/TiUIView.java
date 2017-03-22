@@ -1631,7 +1631,9 @@ public abstract class TiUIView
 					} else {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
 					}
-					return fireEvent(TiC.EVENT_SWIPE, data);
+					// we don't want to consume the event by returning here as the framework may still 
+					// need the event to process scrolling etc - TIMOB-17539
+					fireEvent(TiC.EVENT_SWIPE, data);
 				}
 				return false;
 			}
