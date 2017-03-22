@@ -346,6 +346,7 @@ extern NSString * const TI_APPLICATION_GUID;
     } else {
         [self forgetSelf];
     }
+    RELEASE_TO_NIL(httpRequest);
 }
 
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
@@ -365,6 +366,7 @@ extern NSString * const TI_APPLICATION_GUID;
     } else {
         [self forgetSelf];
     }
+    RELEASE_TO_NIL(httpRequest);
 }
 
 
