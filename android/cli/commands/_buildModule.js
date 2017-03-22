@@ -1554,43 +1554,42 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			cb();
 		},
 
-		function (cb) {
-			// Create jar
-			var assetFiles = [],
-				assetsParentDir = path.join(this.assetsDir, '..'),
-				jarArgs = [
-					'cf',
-					this.moduleJarFile,
-					'-C', this.buildClassesDir, '.'
-				],
-				createJarHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
-					this.logger.info(__('Generate module JAR: %s', (exe + ' "' + args.join('" "') + '"').cyan));
-					appc.subprocess.run(exe, args, opts, function (code, out, err) {
-						if (code) {
-							this.logger.error(__('Failed to create JAR'));
-							this.logger.error();
-							err.trim().split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
-						done();
-					}.bind(this));
-				});
+		/**
+		 * Generates the module jar file.
+		 *
+		 * To be able to filter what's being added to the jar we create the archive
+		 * manually instead of using jar command line.
+		 *
+		 * Currently we only filter R.class files, those will be regenerated in the
+		 * final App build.
+		 *
+		 * @param {Function} cb Function to call once the .jar file was generated
+		 */
+		function generateModuleJar(cb) {
+			var moduleJarStream = fs.createWriteStream(this.moduleJarFile);
+			var moduleJarArchive = archiver('zip', {
+			    store: true
+			});
+			moduleJarStream.on('close', cb);
+			moduleJarArchive.on('error', cb);
+			moduleJarArchive.pipe(moduleJarStream);
 
+			var excludeRegex = /.*\/R\.class$|.*\/R\$(.*)\.class$/i;
+
+			var assetsParentDir = path.join(this.assetsDir, '..');
 			this.dirWalker(this.assetsDir, function (file) {
 				if (path.extname(file) != '.js' && path.basename(file) != 'README') {
-					jarArgs.push('-C');
-					jarArgs.push(assetsParentDir);
-					jarArgs.push(path.relative(assetsParentDir, file));
+					moduleJarArchive.append(fs.createReadStream(file), {name: path.relative(assetsParentDir, file)});
 				}
 			}.bind(this));
 
-			createJarHook(
-				'jar',
-				jarArgs,
-				{},
-				cb
-			);
+			this.dirWalker(this.buildClassesDir, function (file) {
+				if (!excludeRegex.test(file)) {
+					moduleJarArchive.append(fs.createReadStream(file), {name: path.relative(this.buildClassesDir, file)});
+				}
+			}.bind(this));
+
+			moduleJarArchive.finalize();
 		},
 
 		function (cb) {
