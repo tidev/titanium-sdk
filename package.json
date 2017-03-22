@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "3",
