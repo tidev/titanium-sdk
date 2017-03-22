@@ -71,8 +71,6 @@ function AndroidBuilder() {
 
 	this.validABIs = ['armeabi-v7a', 'x86'];
 
-	this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
-
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
 		'wav', 'mp2', 'mp3', 'ogg', 'aac',
@@ -2441,13 +2439,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (_t.xmlMergeRegExp.test(filename)) {
-							_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-								_t.writeXmlFile(from, to);
-								cb();
-							})(from, to, next);
-							break;
-						}
+						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+							_t.writeXmlFile(from, to);
+							cb();
+						})(from, to, next);
+						break;
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
@@ -3050,7 +3046,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				delete _t.lastBuildFiles[to];
 				if (fs.statSync(from).isDirectory()) {
 					copy(from, to);
-				} else if (_t.xmlMergeRegExp.test(filename)) {
+				} else if (path.extname(filename) === '.xml') {
 					_t.writeXmlFile(from, to);
 				} else {
 					afs.copyFileSync(from, to, { logger: _t.logger.debug });

@@ -28,15 +28,6 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 		root = dom.documentElement,
 		nodes = {},
 		_t = this,
-		byName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				if (nodes[n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[n] = node;
-			}
-		},
 		byTagAndName = function (node) {
 			var n = xml.getAttr(node, 'name');
 			if (n) {
@@ -48,7 +39,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 			}
 		};
 
-	// If we don't deal with a resource set just try to copy it over
+	// If we don't deal with a resource set just try to copy over the whole file
 	if (srcDoc.tagName !== 'resources') {
 		this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
 		if (destExists) {
@@ -85,37 +76,14 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 		root.setAttribute(attr.name, attr.value);
 	});
 
-	switch (filename) {
-		case 'arrays.xml':
-		case 'attrs.xml':
-		case 'bools.xml':
-		case 'colors.xml':
-		case 'dimens.xml':
-		case 'ids.xml':
-		case 'integers.xml':
-		case 'strings.xml':
-			destDoc && xml.forEachElement(destDoc, byName);
-			xml.forEachElement(srcDoc, byName);
-			Object.keys(nodes).forEach(function (name) {
-				root.appendChild(dom.createTextNode('\n\t'));
-				if (filename == 'strings.xml') {
-					nodes[name].setAttribute('formatted', 'false');
-				}
-				root.appendChild(nodes[name]);
-			});
-			break;
-
-		default:
-			destDoc && xml.forEachElement(destDoc, byTagAndName);
-			xml.forEachElement(srcDoc, byTagAndName);
-			Object.keys(nodes).forEach(function (tag) {
-				Object.keys(nodes[tag]).forEach(function (name) {
-					root.appendChild(dom.createTextNode('\n\t'));
-					root.appendChild(nodes[tag][name]);
-				});
-			});
-			break;
-	}
+	destDoc && xml.forEachElement(destDoc, byTagAndName);
+	xml.forEachElement(srcDoc, byTagAndName);
+	Object.keys(nodes).forEach(function (tag) {
+		Object.keys(nodes[tag]).forEach(function (name) {
+			root.appendChild(dom.createTextNode('\n\t'));
+			root.appendChild(nodes[tag][name]);
+		});
+	});
 
 	root.appendChild(dom.createTextNode('\n'));
 	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
