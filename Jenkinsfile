@@ -84,7 +84,7 @@ timestamps {
 						windowsBranch = 'master'
 					}
 					step([$class: 'CopyArtifact',
-						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
@@ -141,7 +141,7 @@ timestamps {
 
 		stage('Deploy') {
 			// Push to S3 if not PR
-			// FIXME on oddball PRs on barnches of original repo, we shouldn't do this
+			// FIXME on oddball PRs on branches of original repo, we shouldn't do this
 			if (!isPR) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
 				node('(osx || linux) && !axway-internal && curl') {
