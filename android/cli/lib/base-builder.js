@@ -12,6 +12,8 @@ var xml = appc.xml;
 
 function AndroidBaseBuilder() {
 	Builder.apply(this, arguments);
+
+	this.androidLibraries = [];
 }
 
 util.inherits(AndroidBaseBuilder, Builder);
