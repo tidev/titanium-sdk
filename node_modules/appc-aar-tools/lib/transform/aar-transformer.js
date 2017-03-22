@@ -32,6 +32,8 @@ class AarTransformer {
         trace: noop
       };
     }
+    this.started = false;
+    this.result = new TransformationResult();
   }
 
   /**
@@ -41,10 +43,13 @@ class AarTransformer {
    * @param {Function} callback Callback function
    */
   transform(options, callback) {
-    this.reset();
+    if (this.started === true) {
+      throw new Error('You can only start a transform once per Transformer instance. Please create a new one if you want to run anoter transform.');
+    }
 
     this.logger.debug('AAR transform options: %s', JSON.stringify(options, null, 2));
 
+    this.started = true;
     async.series([
       async.apply(this.validateAndApplyOptions.bind(this), options),
       (next) => {
@@ -67,18 +72,6 @@ class AarTransformer {
     ], (err) => {
       callback(err, this.result);
     });
-  }
-
-  /**
-   * Resets this transformer for a new transform task.
-   */
-  reset() {
-    this.result = new TransformationResult();
-    this.aarPathAndFilename = null;
-    this.outputPath = null;
-    this.assetsDestinationPath = null;
-    this.libraryDestinationPath = null;
-    this.sharedLibraryDestinationPath = null;
   }
 
   /**
@@ -116,7 +109,13 @@ class AarTransformer {
   extractAndroidArchive(next) {
     this.logger.debug('Extracting: %s => %s', this.aarPathAndFilename, this.outputPath);
     fs.emptyDirSync(this.outputPath);
-    extract(this.aarPathAndFilename, {dir: this.outputPath}, next);
+    extract(this.aarPathAndFilename, {dir: this.outputPath}, (err) => {
+      if (err) {
+        next(err);
+      }
+      this.result.explodedPath = this.outputPath;
+      next();
+    });
   }
 
   /**
@@ -163,7 +162,7 @@ class AarTransformer {
         this.result.addJar(file);
 
         if (this.libraryDestinationPath === null) {
-          return next();
+          return;
         }
         var dest = path.join(this.libraryDestinationPath, path.relative(libraryPath, file));
         fs.ensureDirSync(path.dirname(dest));
@@ -200,9 +199,6 @@ class AarTransformer {
    * @param {Function} next Callback function
    */
   copySharedLibraries(next) {
-    if (this.sharedLibraryDestinationPath === null) {
-      return next();
-    }
     var jniPath = path.join(this.outputPath, 'jni');
     if (!fs.existsSync(jniPath)) {
       return next();
@@ -211,6 +207,13 @@ class AarTransformer {
     find(jniPath)
       .on('file', (file, stat) => {
         if (path.extname(file) !== '.so') {
+          return;
+        }
+
+        this.logger.trace('Native library found: %s', file);
+        this.result.addNativeLibrary(file);
+
+        if (this.sharedLibraryDestinationPath === null) {
           return;
         }
         var dest = path.join(this.sharedLibraryDestinationPath, path.relative(jniPath, file));
