@@ -3698,10 +3698,12 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	}
 
 	// add permissions
-	Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
-	Object.keys(permissions).forEach(function (perm) {
-		finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
-	});
+	if (!this.tiapp['override-permissions']) {
+		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
+		Object.keys(permissions).forEach(function (perm) {
+			finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
+		});
+	}
 
 	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
 	fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);
