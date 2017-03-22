@@ -47,7 +47,6 @@ public class TiActivity extends TiBaseActivity
 				if (intent.getComponent().getClassName().equals(TiActivity.class.getName())) {
 					Intent newIntent = new Intent(intent);
 					newIntent.putExtras(rootIntent);
-					newIntent.setData(rootIntent.getData());
 					setIntent(newIntent);
 
 					// fire 'newintent'

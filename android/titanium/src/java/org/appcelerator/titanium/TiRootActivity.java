@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -18,8 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Window;
-
-import java.util.Set;
 
 public class TiRootActivity extends TiLaunchActivity
 	implements TiActivitySupport
@@ -84,23 +81,17 @@ public class TiRootActivity extends TiLaunchActivity
 				rootActivity.setIntent(intent);
 			} else {
 
-				// TIMOB-24497: launching as CATEGORY_HOME or CATEGORY_DEFAULT prevents intent data from
-				// being passed to our resumed activity. Re-launch using CATEGORY_LAUNCHER.
-				Set<String> categories = intent.getCategories();
-				if (categories == null || !categories.contains(Intent.CATEGORY_LAUNCHER)) {
+				// TIMOB-24497: launching as CATEGORY_HOME prevents intent data being passed to our
+				// resumed activity. Re-launch using CATEGORY_LAUNCHER.
+				if (intent.getCategories() != null && intent.getCategories().contains(Intent.CATEGORY_HOME)) {
 					finish();
 
-					if (categories != null) {
-						for (String category : categories) {
-							intent.removeCategory(category);
-						}
-					}
+					intent.removeCategory(Intent.CATEGORY_HOME);
 					intent.addCategory(Intent.CATEGORY_LAUNCHER);
 					startActivity(intent);
 
 					restartActivity(100, 0);
 
-					KrollRuntime.incrementActivityRefCount();
 					activityOnCreate(savedInstanceState);
 					return;
 				}
@@ -119,7 +110,6 @@ public class TiRootActivity extends TiLaunchActivity
 				startActivity(intent);
 				finish();
 				
-				KrollRuntime.incrementActivityRefCount();
 				activityOnCreate(savedInstanceState);
 				return;
 			}
