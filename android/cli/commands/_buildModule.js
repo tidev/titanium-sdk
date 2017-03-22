@@ -27,6 +27,8 @@ var AdmZip = require('adm-zip'),
 	util = require('util'),
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn,
+	SymbolLoader = require('appc-aar-tools').SymbolLoader,
+	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 
 	__ = appc.i18n(__dirname).__,
 	version = appc.version;
@@ -189,6 +191,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
 		'generateRuntimeBindings',
@@ -201,7 +204,6 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'ndkLocalBuild',
 		'compileAllFinal',
 		'verifyBuildArch',
-		'processResources',
 		'packageZip',
 		'runModule',
 
@@ -255,7 +257,6 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.classPaths = {};
 	this.classPaths[this.androidTargetSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
-	this.extraPackages = {};
 
 	['lib', 'modules', ''].forEach(function (folder) {
 		var jarDir = path.join(this.platformPath, folder);
@@ -306,6 +307,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.buildGenJniLocalDir = path.join(this.buildGenDir, 'jni-local');
 	this.buildGenJavaDir = path.join(this.buildGenDir, 'java');
 	this.buildGenJsonDir = path.join(this.buildGenDir, 'json');
+	this.buildGenRDir = path.join(this.buildGenDir, 'r');
 
 	this.buildGenAssetJavaFile = path.join(this.buildGenJavaDir, this.moduleIdSubDir, 'AssetCryptImpl.java');
 
@@ -351,6 +353,265 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('Example Dir: %s', this.exampleDir.cyan));
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
 	this.logger.info(__('Resources Dir: %s', this.resourcesDir.cyan));
+};
+
+/**
+ * Processes resources for this module.
+ *
+ * This step will generate R classes for this module, our core modules and any
+ * bundled AAR files.
+ *
+ * @param {Function} next Function to call once the resource processing is complete
+ */
+AndroidModuleBuilder.prototype.processResources = function processResources(next) {
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
+	var extraPackages = [];
+	var merge = function (src, dest) {
+		fs.readdirSync(src).forEach(function (filename) {
+			var from = path.join(src, filename),
+				to = path.join(dest, filename);
+			if (fs.existsSync(from)) {
+				if (fs.statSync(from).isDirectory()) {
+					merge(from, to);
+				} else if (path.extname(filename) === '.xml') {
+					this.writeXmlFile(from, to);
+				} else {
+					appc.fs.copyFileSync(from, to, { logger: this.logger.debug });
+				}
+			}
+		}, this);
+	}.bind(this);
+
+	this.logger.info(__('Processing Android module resources and assets'));
+	var tasks = [
+		/**
+		 * Merges all resources from custom module, its bundled AAR files and our core
+		 * modules.
+		 *
+		 * @param {Function} cb Function to call once all resources were merged
+		 */
+		function mergeResources(cb) {
+			this.logger.info(__('Merging resources'));
+
+			if (fs.existsSync(mergedResPath)) {
+				wrench.rmdirSyncRecursive(mergedResPath);
+				wrench.mkdirSyncRecursive(mergedResPath);
+			}
+
+			appc.async.series(this, [
+				/**
+				 * Merges the resources from core modules into the build intermediates folder.
+				 *
+				 * Prior to supporting Android Archives we would manually extract .aar files
+				 * and zip up their resources as a .res.zip and save their package name to a
+				 * .respackage file to recreate the R class from that. Until we add support
+				 * for Android Archives in core modules we need to do this special step to
+				 * handle their resources.
+				 *
+				 * @param {Function} callback Function to call once the resources merging is complete
+				 */
+				function mergeCoreModuleResource(callback) {
+					var resArchives = [];
+					var modulesPath = path.join(this.platformPath, 'modules');
+					var explodedModuleResPath = path.join(this.buildIntermediatesDir, 'res/timodules');
+					fs.readdirSync(modulesPath).forEach(function (file) {
+						if (path.extname(file) !== '.jar') {
+							return;
+						}
+						var resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
+						var respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
+						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
+							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
+							resArchives.push(resArchivePathAndFilename);
+						}
+					}, this);
+
+					if (resArchives.length === 0) {
+						return callback();
+					}
+
+					if (!fs.existsSync(explodedModuleResPath)) {
+						wrench.mkdirSyncRecursive(explodedModuleResPath);
+					}
+					async.eachSeries(resArchives, function(resArchivePathAndFilename, done) {
+						this.logger.trace(__('Processing module resources: %s', resArchivePathAndFilename.cyan));
+						var explodedPath = path.join(explodedModuleResPath, path.basename(resArchivePathAndFilename, '.res.zip'));
+						var coreModuleResPath = path.join(explodedPath, 'res');
+						// The core modules should hardly ever change, so a simple check for the
+						// already exploded archive dir will suffice for subsequent builds.
+						if (fs.existsSync(explodedPath)) {
+							merge(coreModuleResPath, mergedResPath);
+							return done();
+						}
+
+						this.logger.info(__('Extracting module resources: %s', resArchivePathAndFilename.cyan));
+						appc.zip.unzip(resArchivePathAndFilename, explodedPath, {}, function (err) {
+							if (err) {
+								this.logger.error(__('Failed to extract module resource zip: %s', resArchivePathAndFilename.cyan) + '\n');
+								return done(err);
+							}
+
+							merge(coreModuleResPath, mergedResPath);
+							done();
+						}.bind(this));
+					}.bind(this), callback);
+				},
+
+				/**
+				 * Merge all resource from Android Archives that are bundled with the module
+				 * we are about to build.
+				 *
+				 * @param {Function} callback Function to call once the resource merging is complete
+				 */
+				function mergeAarResources(callback) {
+					this.logger.trace(__('Processing Android Library resources'));
+
+					if (this.androidLibraries.length === 0) {
+						this.logger.trace(__('No exploded Android Archives found, skipping!'));
+						return callback();
+					}
+
+					this.androidLibraries.forEach(function(libraryInfo) {
+						this.logger.trace(__('Processing resources for package: %s', libraryInfo.packageName));
+						var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
+						merge(libraryResPath, mergedResPath);
+					}, this);
+					callback();
+				},
+
+				/**
+				 * Merges all resources that are placed under the platform/android/res
+				 * folder.
+				 *
+				 * @param {Function} callback Function to call once the resource merging is complete
+				 */
+				function mergeModuleResources(callback) {
+					this.logger.trace(__('Processing native module resources'));
+					var moduleResPath = path.join(this.platformDir, 'android/res');
+					if (!fs.existsSync(moduleResPath)) {
+						this.logger.trace(__('No native module resources found, skipping!'));
+						return callback();
+					}
+					merge(moduleResPath, mergedResPath);
+					callback();
+				}
+			], cb);
+		},
+
+		/**
+		 * Generates a basic Android Manifest for use with AAPT.
+		 *
+		 * We need this dummy manifest because our modules do not provide a manifest
+		 * on their own and AAPT requires a manifest file.
+		 *
+		 * @param {Function} cb Function to call once the Android Manifest file was created
+		 */
+		function generateAaptFriendlyManifest(cb) {
+			var manifestTemplatePathAndFilename = path.join(this.moduleGenTemplateDir, 'AndroidManifest.xml.ejs');
+			var manifestOutputPathAndFilename = path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml');
+			if (!fs.existsSync(path.dirname(manifestOutputPathAndFilename))) {
+				wrench.mkdirSyncRecursive(path.dirname(manifestOutputPathAndFilename));
+			}
+			var manifestContent = ejs.render(fs.readFileSync(manifestTemplatePathAndFilename).toString(), {
+				MODULE_ID: this.manifest.moduleid
+			});
+			fs.writeFile(manifestOutputPathAndFilename, manifestContent, cb);
+		},
+
+		/**
+		 * Generates the R class for this module via the AAPT command line tool
+		 *
+		 * We use the --extra-packages options to also generate the R class for our
+		 * core modules because they currently do not provide a R.txt from which we
+		 * could regenerated the R class from. This results in duplicate symbols and
+		 * can be removed once we add support for .aar files in core modules.
+		 *
+		 * @param {Function} cb Function to call once the R class was created
+		 */
+		function generateModuleRClassFile(cb) {
+			this.logger.trace('Generating R.java for module: ' + this.manifest.moduleid);
+			if (!fs.existsSync(this.buildGenRDir)) {
+				wrench.mkdirSyncRecursive(this.buildGenRDir);
+			}
+
+			if (!fs.existsSync(bundlesPath)) {
+				wrench.mkdirSyncRecursive(bundlesPath);
+			}
+			var aaptBin = this.androidInfo.sdk.executables.aapt;
+			var aaptOptions = [
+				'package',
+				'-f',
+				'--no-crunch',
+				'-I', this.androidTargetSDK.androidJar,
+				'-M', path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml'),
+				'-S', mergedResPath,
+				'-m',
+				'-J', this.buildGenRDir,
+				'--custom-package', this.manifest.moduleid,
+				'--non-constant-id',
+				'-0', 'apk',
+				'--output-text-symbols', bundlesPath,
+				'--no-version-vectors'
+			];
+			if (extraPackages.length > 0) {
+				aaptOptions.push('--extra-packages', extraPackages.join(':'));
+			}
+			this.logger.debug('Running AAPT command: ' + aaptBin + ' ' + aaptOptions.join(' '));
+			appc.subprocess.run(aaptBin, aaptOptions, {}, function (code, out, err) {
+				if (code) {
+					this.logger.debug(out);
+					this.logger.error(err);
+					this.logger.error(__('Failed to generate R class'));
+					process.exit(1);
+				}
+
+				cb();
+			}.bind(this));
+		},
+
+		/**
+		 * Generates R classes for any bundled AAR files
+		 *
+		 * This uses the symbol info in a R.txt file that is mandatory in every
+		 * Android Archive to regenerate the R.java for each Android Library.
+		 *
+		 * It does so by reading the generated R.txt from the previous AAPT command,
+		 * which contains all symbols from our merged resources. It will then read
+		 * the symbols from the Android Library, replace every symbol value with the
+		 * value from the merged symbol table and then write the updated R.java to
+		 * disk.
+		 *
+		 * @param {Function} cb Function to call once the R classes were generated
+		 */
+		function generateRForLibraries(cb) {
+			var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
+			var fullSymbolValues = null;
+			this.androidLibraries.forEach(function (libraryInfo) {
+				var librarySymbolFile = path.join(libraryInfo.explodedPath, 'R.txt');
+				if (!fs.existsSync(librarySymbolFile)) {
+					return;
+				}
+
+				if (fullSymbolValues === null) {
+					fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
+					fullSymbolValues.load();
+				}
+
+				var librarySymbols = new SymbolLoader(librarySymbolFile);
+				librarySymbols.load();
+
+				this.logger.trace('Generating R.java for library: ' + libraryInfo.packageName);
+				var symbolWriter = new SymbolWriter(this.buildGenRDir, libraryInfo.packageName, fullSymbolValues);
+				symbolWriter.addSymbolsToWrite(librarySymbols);
+				symbolWriter.write();
+			}.bind(this));
+
+			cb();
+		}
+	];
+
+	appc.async.series(this, tasks, next);
 };
 
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
@@ -409,6 +670,12 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 		javaFiles = [];
 
 	this.dirWalker(this.javaSrcDir, function (file) {
+		if (path.extname(file) === '.java') {
+			javaFiles.push(file);
+		}
+	}.bind(this));
+
+	this.dirWalker(this.buildGenRDir, function (file) {
 		if (path.extname(file) === '.java') {
 			javaFiles.push(file);
 		}
@@ -1260,101 +1527,6 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 	next();
 };
 
-AndroidModuleBuilder.prototype.processResources = function (next) {
-	this.logger.info(__('Processing Android module resources'));
-
-	var tasks = [
-		function mergeResources(cb) {
-			this.logger.info(__('Merging module and AAR resources'));
-			var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
-			var moduleResPath = path.join(this.platformDir, 'android/res');
-
-			if (fs.existsSync(mergedResPath)) {
-				wrench.rmdirSyncRecursive(mergedResPath);
-				wrench.mkdirSyncRecursive(mergedResPath);
-			}
-
-			appc.async.series(this, [
-				function copyAarResources(callback) {
-					this.logger.trace(__('Processing Android Archive resources'));
-					var explodedArrPath = path.join(this.buildIntermediatesDir, 'exploded-aar');
-					if (!fs.existsSync(explodedArrPath)) {
-						this.logger.trace(__('No exploded Android Archives found, skipping!'));
-						return callback();
-					}
-
-					var aars = fs.readdirSync(explodedArrPath);
-					aars.forEach(function(aarName) {
-						this.logger.trace(__('Processing resources for %s', aarName));
-						var aarResPath = path.join(explodedArrPath, aarName, 'res');
-						this.logger.trace(__('Traversing %s', aarResPath));
-						this.dirWalker(aarResPath, function (file) {
-							var relativeResourcePathAndFilename = path.relative(aarResPath, file);
-							var destinationPathAndFilename = path.join(mergedResPath, relativeResourcePathAndFilename);
-							if (path.extname(file) === '.xml') {
-								this.writeXmlFile(file, destinationPathAndFilename);
-							} else {
-								appc.fs.copyFileSync(file, destinationPathAndFilename);
-							}
-						}.bind(this));
-					}.bind(this));
-					callback();
-				},
-				function copyModuleResources(callback) {
-					this.logger.trace(__('Processing native module resources'));
-					if (!fs.existsSync(moduleResPath)) {
-						this.logger.trace(__('No native module resources found, skipping!'));
-						return callback();
-					}
-					this.dirWalker(moduleResPath, function (file) {
-						var relativeResourcePathAndFilename = path.relative(moduleResPath, file);
-						var destinationPathAndFilename = path.join(mergedResPath, relativeResourcePathAndFilename);
-
-						if (path.extname(file) === '.xml') {
-							this.writeXmlFile(file, destinationPathAndFilename);
-						} else {
-							appc.fs.copyFileSync(file, destinationPathAndFilename);
-						}
-					}.bind(this));
-					callback();
-				}
-			], cb);
-		},
-
-		function copyModuleAssets(cb) {
-			this.logger.info(__('Copying module assets'));
-			var mergedAssetsPath = path.join(this.buildIntermediatesDir, 'assets');
-			if (fs.existsSync(mergedAssetsPath)) {
-				wrench.rmdirSyncRecursive(mergedAssetsPath);
-				wrench.mkdirSyncRecursive(mergedAssetsPath);
-			}
-			wrench.copyDirSyncRecursive(this.assetsDir, mergedAssetsPath);
-			cb();
-		},
-
-		function generateRespackageinfo(cb) {
-			this.logger.info(__('Generating respackageinfo'));
-			var respackageinfoPathAndFilename = path.join(this.buildIntermediatesDir, 'res/respackageinfo');
-			if (fs.existsSync(respackageinfoPathAndFilename)) {
-				fs.unlinkSync(respackageinfoPathAndFilename);
-			}
-
-			if (this.manifest.respackage) {
-				this.extraPackages[this.manifest.respackage] = 1;
-			}
-			var extraPackageIdentifiers = Object.keys(this.extraPackages);
-			if (extraPackageIdentifiers.length === 0) {
-				return cb();
-			}
-			var respackageinfoContent = extraPackageIdentifiers.join('\n');
-			fs.writeFileSync(respackageinfoPathAndFilename, respackageinfoContent);
-			cb();
-		}
-	];
-
-	appc.async.series(this, tasks, next);
-};
-
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
@@ -1480,18 +1652,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'example', path.relative(this.exampleDir, file)) });
 				}.bind(this));
 
-				// 3.1 platform folder
+				// 3. platform folder
 				if (fs.existsSync(this.platformDir)) {
 					this.dirWalker(this.platformDir, function (file) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform', path.relative(this.platformDir, file)) });
-					}.bind(this));
-				}
-
-				// 3.2 merged platform resources
-				var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
-				if (fs.existsSync(mergedResPath)) {
-					this.dirWalker(mergedResPath, function (file) {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'platform/android/res', path.relative(mergedResPath, file)) });
 					}.bind(this));
 				}
 
@@ -1523,10 +1687,9 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				// 6. assets folder, not including js files
-				var mergedAssetsPath = path.join(this.buildIntermediatesDir, 'assets');
-				this.dirWalker(mergedAssetsPath, function (file) {
+				this.dirWalker(this.assetsDir, function (file) {
 					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(mergedAssetsPath, file)) });
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
 
@@ -1541,16 +1704,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {
-						if (path.extname(file) === '.jar') {
+						var libraryExtension = path.extname(file);
+						if (libraryExtension === '.jar' || libraryExtension === '.aar') {
 							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(this.projLibDir, file)) });
 						}
-					}.bind(this));
-				}
-
-				var intermediateLibPath = path.join(this.buildIntermediatesDir, 'lib');
-				if (fs.existsSync(intermediateLibPath)) {
-					this.dirWalker(intermediateLibPath, function (file) {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'lib', path.relative(intermediateLibPath, file)) });
 					}.bind(this));
 				}
 
@@ -1560,10 +1717,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				dest.append(fs.createReadStream(this.timoduleXmlFile), { name: path.join(moduleFolder,'timodule.xml') });
 				if (fs.existsSync(this.metaDataFile)) {
 					dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolder,'metadata.json') });
-				}
-				var respackageinfoPathAndFilename = path.join(this.buildIntermediatesDir, 'res/respackageinfo');
-				if (fs.existsSync(respackageinfoPathAndFilename)) {
-					dest.append(fs.createReadStream(respackageinfoPathAndFilename), { name: path.join(moduleFolder, 'respackageinfo')});
 				}
 
 				this.logger.info(__('Writing module zip: %s', moduleZipPath));
