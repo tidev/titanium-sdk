@@ -106,7 +106,7 @@ public class TiLocation implements Handler.Callback
 			}
 		}
 
-		return providerNames.size()!=0 && getLastKnownLocation()!=null;
+		return providerNames.size() != 0 && getLastKnownLocation() != null;
 	}
 
 	public Location getLastKnownLocation()
