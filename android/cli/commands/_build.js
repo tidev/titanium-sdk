@@ -33,6 +33,8 @@ var ADB = require('titanium-sdk/lib/adb'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
+	SymbolLoader = require('appc-aar-tools').SymbolLoader,
+	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 	ti = require('titanium-sdk'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
@@ -1689,6 +1691,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
+		'processResources',
 
 		// provide a hook event before javac
 		function (next) {
@@ -1817,6 +1820,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
@@ -3062,7 +3066,6 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
 					this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
-					return done();
 				}
 
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
@@ -3092,6 +3095,17 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				copy(src, this.buildBinAssetsResourcesDir);
 				done();
 			}.bind(this));
+		}
+	}, this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
+		var buildResPath = path.join(this.buildDir, 'res');
+		if (fs.existsSync(libraryResPath)) {
+			tasks.push(function (done) {
+				copy(libraryResPath, buildResPath);
+				done();
+			});
 		}
 	}, this);
 
@@ -3622,9 +3636,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	if (!fs.existsSync(bundlesPath)) {
+		wrench.mkdirSyncRecursive(bundlesPath);
+	}
 
 	var aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
-			this.logger.info(__('Packaging application: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			this.logger.info(__('Running AAPT: %s', (exe + ' "' + args.join('" "') + '"').cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to package application:'));
@@ -3653,17 +3671,18 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-F', this.ap_File
+			'-F', this.ap_File,
+			'--output-text-symbols', bundlesPath
 		];
 
-	function runAapt() {
+	var runAapt = function runAapt() {
 		aaptHook(
 			this.androidInfo.sdk.executables.aapt,
 			args,
 			{},
 			next
 		);
-	}
+	}.bind(this);
 
 	if ( (!Object.keys(this.resPackages).length) && (!this.moduleResPackages.length) ) {
 		return runAapt();
@@ -3684,23 +3703,49 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 	args.push('--extra-packages', namespaces);
 
-	appc.async.series(this, Object.keys(this.resPackages).map(function (resFile) {
-		return function (cb) {
-			var namespace = this.resPackages[resFile],
-				tmp = temp.path();
+	runAapt();
+};
 
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
-				}
+/**
+ * Process resources from .aar files under the project's platform/android folder
+ * and generates the corrosponding R classes.
+ *
+ * Before support for .aar files we used --extra-packages and -S options for
+ * AAPT to generated the R class for a library package. This has the drawback
+ * that every R class contains all resource identifiers resulting in duplicate
+ * code. This method regenerates the R class from the R.txt that is contained in
+ * every .aar file which has resources (adopted from Android Gradle plugin).
+ *
+ * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
+ *
+ * @param {Function} next Function to call once the processing is complete
+ */
+AndroidBuilder.prototype.processResources = function processResources(next) {
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
+	var fullSymbolValues = null;
+	this.androidLibraries.forEach(function (libraryInfo) {
+		var librarySymbolFile = path.join(libraryInfo.explodedPath, 'R.txt');
+		if (!fs.existsSync(librarySymbolFile)) {
+			return;
+		}
 
-				args.push('-S', tmp+'/res');
+		if (fullSymbolValues === null) {
+			fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
+			fullSymbolValues.load();
+		}
 
-				cb();
-			}.bind(this));
-		};
-	}), runAapt);
+		var librarySymbols = new SymbolLoader(librarySymbolFile);
+		librarySymbols.load();
+
+		// TODO: Support multiple symbol files for the same package name like gradle?
+		this.logger.trace('Generating R.class for library: ' + libraryInfo.packageName);
+		var symbolWriter = new SymbolWriter(this.buildGenDir, libraryInfo.packageName, fullSymbolValues);
+		symbolWriter.addSymbolsToWrite(librarySymbols);
+		symbolWriter.write();
+	}.bind(this));
+
+	next();
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
