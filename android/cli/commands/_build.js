@@ -3789,6 +3789,19 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		}
 	}, this);
 
+	this.androidLibraries.forEach(function (libraryInfo) {
+		libraryInfo.jars.forEach(function (libraryJarPathAndFilename) {
+			var jarHash = this.hash(fs.readFileSync(libraryJarPathAndFilename).toString());
+			if (!jarNames[jarHash]) {
+				moduleJars[libraryJarPathAndFilename] = 1;
+				classpath[libraryJarPathAndFilename] = 1;
+				jarNames[jarHash] = 1;
+			} else {
+				this.logger.debug(__('Skipping duplicate jar file: %s', libraryJarPathAndFilename.cyan));
+			}
+		}, this);
+	}, this);
+
 	if (!this.forceRebuild) {
 		// if we don't have to compile the java files, then we can return here
 		// we just needed the moduleJars
@@ -4166,6 +4179,33 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', ')));
 					this.logger.warn(__('Your application will most likely encounter issues'));
 				}
+			}
+		}, this);
+
+		this.androidLibraries.forEach(function(libraryInfo) {
+			if (libraryInfo.nativeLibraries.length === 0) {
+				return;
+			}
+
+			var libraryJniPath = path.join(libraryInfo.explodedPath, 'jni')
+			try {
+				addNativeLibs(libraryJniPath);
+			} catch (e) {
+				var abis = [];
+				fs.readdirSync(libraryJniPath).forEach(function (abi) {
+					var dir = path.join(libraryJniPath, abi);
+					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+						abis.push(abi);
+					}
+				});
+				if (libraryInfo.task.originType === 'Module') {
+					this.logger.error(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName, libraryInfo.task.moduleInfo.id, abi));
+				} else if (libraryInfo.task.originType === 'Project') {
+					this.logger.error(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName, abi));
+				}
+				this.logger.error(__('Supported ABIs by the Android Library: %s', abis.join(', ')));
+				this.logger.error(__('Valid ABIs for this project: %s', this.abis(', ')));
+				process.exit(1);
 			}
 		}, this);
 
