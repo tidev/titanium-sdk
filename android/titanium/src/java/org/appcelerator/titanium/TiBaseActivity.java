@@ -139,7 +139,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
-	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -857,25 +857,32 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 		}
 		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
-			// no windows to return to
 			// check Ti.UI.Window.exitOnClose and either
 			// exit the application or send to background
-			if (windowStack.size() <= 1) {
-				if (topWindow != null) {
-					if (TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
-						Log.d(TAG, "onBackPressed: exit");
-						if (Build.VERSION.SDK_INT >= 16) {
-							finishAffinity();
-						} else {
-							TiApplication.terminateActivityStack();
-						}
+			if (topWindow != null) {
+				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+
+				// root window should exitOnClose by default
+				if (windowStack.size() <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+					exitOnClose = true;
+				}
+				if (exitOnClose) {
+					Log.d(TAG, "onBackPressed: exit");
+					if (Build.VERSION.SDK_INT >= 16) {
+						finishAffinity();
 					} else {
-						Log.d(TAG, "onBackPressed: suspend to background");
-						this.moveTaskToBack(true);
+						TiApplication.terminateActivityStack();
 					}
 					return;
+
+				// root window has exitOnClose set as false, send to background
+				} else if (windowStack.size() <= 1) {
+					Log.d(TAG, "onBackPressed: suspend to background");
+					this.moveTaskToBack(true);
+					return;
 				}
- 			}
+				removeWindowFromStack(topWindow);
+			}
 
 			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
