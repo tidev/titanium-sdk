@@ -331,18 +331,16 @@ extern NSString * const TI_APPLICATION_GUID;
      *    For backwards compatibility, if no error handler is provided, even
      *    an 4xx or 5xx response will fall back onto an onload.
      */
-    if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
+    if (errorCallback != nil && (responseCode >= 400) && (responseCode <= 599)) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
         [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
-            [self forgetSelf];
-        }];
-    } else if(hasOnload) {
+        
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+    } else if(onloadCallback != nil) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
-        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
-            [self forgetSelf];
-        }];
+        
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onload",event,onloadCallback,nil]];
     } else {
         [self forgetSelf];
     }
@@ -355,18 +353,26 @@ extern NSString * const TI_APPLICATION_GUID;
         [self forgetSelf];
         return;
     }
-    if(hasOnerror) {
+    if (errorCallback != nil) {
         NSError *error = [response error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
         [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
-            [self forgetSelf];
-        }];
+
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
     } else {
         [self forgetSelf];
     }
 }
 
+-(void)dispatchCallback:(NSArray*)args
+{
+    NSString *type = [args objectAtIndex:0];
+    id object = [args objectAtIndex:1];
+    id listener = [args objectAtIndex:2];
+
+    [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+    [self forgetSelf];
+}
 
 -(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
@@ -387,14 +393,16 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)setOnload:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"onload" notification:NO];
-    hasOnload = (callback == nil) ? NO : YES;
+    RELEASE_TO_NIL(onloadCallback);
+    
+    onloadCallback = [callback retain];
 }
 -(void)setOnerror:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"onerror" notification:NO];
-    hasOnerror = (callback == nil) ? NO : YES;;
+    RELEASE_TO_NIL(errorCallback);
+    
+    errorCallback = [callback retain];
 }
 -(void)setOnreadystatechange:(id)callback
 {
