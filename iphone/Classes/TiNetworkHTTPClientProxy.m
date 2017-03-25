@@ -44,7 +44,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)ensureClient
 {
-    if(httpRequest == nil) {
+    if (httpRequest == nil) {
         httpRequest = [[APSHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
         [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
@@ -86,17 +86,17 @@ extern NSString * const TI_APPLICATION_GUID;
     // twitter specifically disallows X-Requested-With so we only add this normal
     // XHR header if not going to twitter. however, other services generally expect
     // this header to indicate an XHR request (such as RoR)
-    if ([[url absoluteString] rangeOfString:@"twitter.com"].location==NSNotFound)
-    {
+    if ([[url absoluteString] rangeOfString:@"twitter.com"].location == NSNotFound) {
         [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
     }
-    if ( (apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url]) ){
+    
+    if (apsConnectionManager != nil && [apsConnectionManager willHandleURL:url]) {
         apsConnectionDelegate = [[apsConnectionManager connectionDelegateForUrl:url] retain];
     }
     
     [httpRequest setConnectionDelegate:apsConnectionDelegate];
     
-    if([args count] >= 3) {
+    if ([args count] >= 3) {
         [self replaceValue:[args objectAtIndex:2] forKey:@"async" notification: YES];
     }
     
@@ -120,51 +120,51 @@ extern NSString * const TI_APPLICATION_GUID;
     
     [self rememberSelf];
     
-    if([self valueForUndefinedKey:@"timeout"]) {
+    if ([self valueForUndefinedKey:@"timeout"]) {
         [httpRequest setTimeout: [TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
-    if([self valueForUndefinedKey:@"autoRedirect"]) {
+    if ([self valueForUndefinedKey:@"autoRedirect"]) {
         [httpRequest setRedirects:
          [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ];
     }
-    if([self valueForUndefinedKey:@"cache"]) {
+    if ([self valueForUndefinedKey:@"cache"]) {
         [httpRequest setCachePolicy:
          [TiUtils boolValue: [self valueForUndefinedKey:@"cache"] def:YES] ?
              NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalAndRemoteCacheData
          ];
     }
-    if([self valueForUndefinedKey:@"validatesSecureCertificate"]) {
+    if ([self valueForUndefinedKey:@"validatesSecureCertificate"]) {
         [httpRequest setValidatesSecureCertificate:
          [TiUtils boolValue: [self valueForUndefinedKey:@"validatesSecureCertificate"] def:YES] ];
     }
-    if([self valueForUndefinedKey:@"username"]) {
+    if ([self valueForUndefinedKey:@"username"]) {
         [httpRequest setRequestUsername:
          [TiUtils stringValue: [self valueForUndefinedKey:@"username"]]];
     }
-    if([self valueForUndefinedKey:@"password"]) {
+    if ([self valueForUndefinedKey:@"password"]) {
         [httpRequest setRequestPassword:
          [TiUtils stringValue: [self valueForUndefinedKey:@"password"]]];
     }
-    if([self valueForUndefinedKey:@"domain"]) {
+    if ([self valueForUndefinedKey:@"domain"]) {
         // TODO: NTLM
     }
     id file = [self valueForUndefinedKey:@"file"];
-    if(file) {
+    if (file) {
         NSString *filePath = nil;
-        if([file isKindOfClass:[TiFile class]]) {
+        if ([file isKindOfClass:[TiFile class]]) {
             filePath = [(TiFile*)file path];
         }
-        if([file isKindOfClass:[NSString class]]) {
+        if ([file isKindOfClass:[NSString class]]) {
             filePath = [TiUtils stringValue:file];
         }
-        if(filePath != nil) {
+        if (filePath != nil) {
             [httpRequest setFilePath:filePath];
         }
     }
     
     
     APSHTTPPostForm *form = nil;
-    if(args != nil) {
+    if (args != nil) {
         ENSURE_ARRAY(args);
         NSInteger dataIndex = 0;
         form = [[[APSHTTPPostForm alloc] init] autorelease];
@@ -180,7 +180,7 @@ extern NSString * const TI_APPLICATION_GUID;
                     NSString *mime = nil;
                     if ([value isKindOfClass:[TiBlob class]]) {
                         blob = (TiBlob*)value;
-                        if([blob path] != nil) {
+                        if ([blob path] != nil) {
                             name = [[blob path] lastPathComponent];
                         }
                     }else{
@@ -214,13 +214,13 @@ extern NSString * const TI_APPLICATION_GUID;
             }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
-            if([arg isKindOfClass:[TiBlob class]]) {
+            if ([arg isKindOfClass:[TiBlob class]]) {
                 blob = (TiBlob*)arg;
             } else {
                 blob = [(TiFile*)arg blob];
             }
             NSString *mime = [blob mimeType];
-            if(mime == nil) {
+            if (mime == nil) {
                 mime = @"application/octet-stream";
             }
             [form appendData:[blob data] withContentType:mime];
@@ -229,7 +229,7 @@ extern NSString * const TI_APPLICATION_GUID;
         }
     }
 
-    if(form != nil) {
+    if (form != nil) {
         [httpRequest setPostForm:form];
     }
     
@@ -238,7 +238,7 @@ extern NSString * const TI_APPLICATION_GUID;
     NSOperationQueue *operationQueue = [NetworkModule operationQueue];
     
     [[TiApp app] startNetwork];
-    if(async) {
+    if (async) {
         [httpRequest setTheQueue:operationQueue];
         [httpRequest send];
     } else {
@@ -280,10 +280,10 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onDataStream:(APSHTTPResponse *)response
 {
-    if(hasOndatastream) {
+    if (ondatastreamCallback != nil) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _downloadTime;
-        if(_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
+        if (_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
             NSDictionary *eventDict = [NSMutableDictionary dictionary];
             float downloadProgress = [response downloadProgress];
@@ -291,10 +291,11 @@ extern NSString * const TI_APPLICATION_GUID;
             if (downloadProgress > 1 || downloadProgress < 0) {
                 downloadProgress = -1.0f;
             }
-            [eventDict setValue:[NSNumber numberWithFloat: downloadProgress] forKey:@"progress"];
-            [self fireCallback:@"ondatastream" withArg:eventDict withSource:self];
+            [eventDict setValue:NUMFLOAT(downloadProgress) forKey:@"progress"];
+            
+            [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"ondatastream",eventDict,ondatastreamCallback,nil]];
         }
-        if(_downloadTime == 0) {
+        if (_downloadTime == 0) {
             _downloadTime = currentTime;
         }
     }
@@ -302,16 +303,15 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onSendStream:(APSHTTPResponse *)response
 {
-    if(hasOnsendstream) {
+    if (onsendstreamCallback != nil) {
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         NSTimeInterval diff = currentTime - _uploadTime;
-        if(_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
+        if (_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
-            NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            [eventDict setValue:[NSNumber numberWithFloat: [response uploadProgress]] forKey:@"progress"];
-            [self fireCallback:@"onsendstream" withArg:eventDict withSource:self];
+            NSDictionary *eventDict = @{@"progress": NUMFLOAT(response.uploadProgress)};
+            [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onsendstream",eventDict,onsendstreamCallback,nil]];
         }
-        if(_uploadTime == 0) {
+        if (_uploadTime == 0) {
             _uploadTime = currentTime;
         }
     }
@@ -320,7 +320,7 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
-    if([request cancelled]) {
+    if ([request cancelled]) {
         [self forgetSelf];
         return;
     }
@@ -336,7 +336,7 @@ extern NSString * const TI_APPLICATION_GUID;
         [event setObject:@"error" forKey:@"type"];
         
         [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
-    } else if(onloadCallback != nil) {
+    } else if (onloadCallback != nil) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
         
@@ -349,7 +349,7 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
     [[TiApp app] stopNetwork];
-    if([request cancelled]) {
+    if ([request cancelled]) {
         [self forgetSelf];
         return;
     }
@@ -376,15 +376,16 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
-    if(hasOnreadystatechange) {
-        [self fireCallback:@"onreadystatechange" withArg:[NSDictionary dictionaryWithObjectsAndKeys:NUMINT(response.readyState),@"readyState", nil] withSource:self];
+    if (onreadstatechangeCallback != nil) {
+        NSDictionary *event = @{@"readyState": NUMINT(response.readyState)};
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onreadystatechange",event,onreadstatechangeCallback,nil]];
     }
 }
 
 -(void)request:(APSHTTPRequest *)request onRedirect:(APSHTTPResponse *)response
 {
-    if(hasOnredirect) {
-        [self fireCallback:@"onredirect" withArg:nil withSource:self];
+    if (onredirectCallback) {
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onredirect",nil,onredirectCallback,nil]];
     }
 }
 
@@ -407,26 +408,30 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)setOnreadystatechange:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
-    hasOnreadystatechange = (callback == nil) ? NO : YES;;
+    RELEASE_TO_NIL(onreadstatechangeCallback);
+    
+    onreadstatechangeCallback = [callback retain];
 }
 -(void)setOndatastream:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"ondatastream" notification:NO];
-    hasOndatastream = (callback == nil) ? NO : YES;;
+    RELEASE_TO_NIL(ondatastreamCallback);
+    
+    ondatastreamCallback = [callback retain];
 }
 -(void)setOnsendstream:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"onsendstream" notification:NO];
-    hasOnsendstream = (callback == nil) ? NO : YES;;
+    RELEASE_TO_NIL(onsendstreamCallback);
+    
+    onsendstreamCallback = [callback retain];
 }
 -(void)setOnredirect:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    [self replaceValue:callback forKey:@"onredirect" notification:NO];
-    hasOnredirect = (callback == nil) ? NO : YES;;
+    RELEASE_TO_NIL(onredirectCallback);
+    
+    onredirectCallback = [callback retain];
 }
 
 -(void)setRequestHeader:(id)args
@@ -465,7 +470,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSNumber*)connected
 {
-    if([self response] == nil) {
+    if ([self response] == nil) {
         return NUMBOOL(NO);
     }
     APSHTTPResponseState state = [[self response] readyState];
@@ -493,14 +498,14 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(NSString*)location
 {
-    if([self response] == nil) {
+    if ([self response] == nil) {
         return [self valueForUndefinedKey:@"url"];
     }
     return [[self response] location];
 }
 -(NSString*)connectionType
 {
-    if([self response] == nil) {
+    if ([self response] == nil) {
         return [self valueForUndefinedKey:@"method"];
     }
     return [[self response] connectionType];
@@ -512,7 +517,7 @@ extern NSString * const TI_APPLICATION_GUID;
 -(TiBlob*)responseData
 {
     TiBlob *blob;
-    if([[self response] saveToFile]) {
+    if ([[self response] saveToFile]) {
         blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[[self response] filePath]];
     } else {
         NSString *contentType = [TiUtils stringValue: [[self responseHeaders] valueForKey:@"Content-Type"]];

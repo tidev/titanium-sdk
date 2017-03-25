@@ -26,13 +26,12 @@
     id<APSConnectionDelegate> apsConnectionDelegate;
     id<SecurityManagerProtocol> apsConnectionManager;
     
-    BOOL hasOnreadystatechange;
-    BOOL hasOndatastream;
-    BOOL hasOnsendstream;
-    BOOL hasOnredirect;
-    
     KrollCallback *errorCallback;
     KrollCallback *onloadCallback;
+    KrollCallback *onreadstatechangeCallback;
+    KrollCallback *ondatastreamCallback;
+    KrollCallback *onsendstreamCallback;
+    KrollCallback *onredirectCallback;
 }
 
 @property(nonatomic, readonly) APSHTTPResponse* response;
