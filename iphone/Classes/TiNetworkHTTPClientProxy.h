@@ -28,7 +28,7 @@
     
     KrollCallback *errorCallback;
     KrollCallback *onloadCallback;
-    KrollCallback *onreadstatechangeCallback;
+    KrollCallback *onreadystatechangeCallback;
     KrollCallback *ondatastreamCallback;
     KrollCallback *onsendstreamCallback;
     KrollCallback *onredirectCallback;

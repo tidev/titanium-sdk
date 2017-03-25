@@ -336,11 +336,13 @@ extern NSString * const TI_APPLICATION_GUID;
         [event setObject:@"error" forKey:@"type"];
         
         [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+        [self forgetSelf];
     } else if (onloadCallback != nil) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
         
         [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onload",event,onloadCallback,nil]];
+        [self forgetSelf];
     } else {
         [self forgetSelf];
     }
@@ -359,6 +361,7 @@ extern NSString * const TI_APPLICATION_GUID;
         [event setObject:@"error" forKey:@"type"];
 
         [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+        [self forgetSelf];
     } else {
         [self forgetSelf];
     }
@@ -371,14 +374,13 @@ extern NSString * const TI_APPLICATION_GUID;
     id listener = [args objectAtIndex:2];
 
     [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
-    [self forgetSelf];
 }
 
 -(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
-    if (onreadstatechangeCallback != nil) {
+    if (onreadystatechangeCallback != nil) {
         NSDictionary *event = @{@"readyState": NUMINT(response.readyState)};
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onreadystatechange",event,onreadstatechangeCallback,nil]];
+        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onreadystatechange",event,onreadystatechangeCallback,nil]];
     }
 }
 
@@ -408,9 +410,9 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)setOnreadystatechange:(id)callback
 {
     ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-    RELEASE_TO_NIL(onreadstatechangeCallback);
+    RELEASE_TO_NIL(onreadystatechangeCallback);
     
-    onreadstatechangeCallback = [callback retain];
+    onreadystatechangeCallback = [callback retain];
 }
 -(void)setOndatastream:(id)callback
 {
