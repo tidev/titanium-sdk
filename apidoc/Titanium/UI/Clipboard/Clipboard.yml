@@ -162,22 +162,15 @@ properties:
   - name: name
     summary: Create a new named clipboard.
     description: Create a new clipboard with a given name. See the example on how to use this.
-    parameters:
-      - name: name
-        summary: name of clipboard.
-        type: String
     since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
 
   - name: unique
     summary: Create a new clipboard identified by a unique system-generated name.
-    description: Create a new clipboard identified by a unique system-generated name. See the example 
-    on how to use this.
-    parameters:
-      - name: unique
-        summary: value of unique.
-        type: Boolean
+    description: |
+        Create a new clipboard identified by a unique system-generated name. 
+        See the example on how to use this.
     since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
@@ -185,13 +178,10 @@ properties:
   - name: allowCreation
     summary: Create a clipboard identified by name if it doesn,t exist.
     description: |
-        If create is false, it will return the existing named clipboard but will not create new one.
-        If create is true, it will return the existing clipboard (if exists) otherwise will create new 
-        clipboard with given name.
-    parameters:
-      - name: create
-        summary: value of create.
-        type: Boolean
+        If "create" is false, it will return the existing named clipboard but will 
+        not create new one.
+        If "create" is true, it will return the existing clipboard (if exists). Otherwise 
+        it will create new clipboard with given name.
     since: "6.1.0"
     platforms: [iphone, ipad]
     availability: creation
@@ -260,17 +250,17 @@ examples:
   - title: Use of named clipboard in iOS
     example: |
             var clipboard1 = Ti.UI.createClipboard({
-                name : "test",
+                name : 'myClipboard',
                 allowCreation : true
             });
             clipboard1.setText('hello');
 
             var clipboard2 = Ti.UI.createClipboard({
-                name : "test"
+                name : 'myClipboard'
             });
 
-            Ti.API.info('clipboard name is: ' + clipboard1.name);
-            Ti.API.info('Both clipboard should return hello');
+            Ti.API.info('Clipboard name is: ' + clipboard1.name);
+            Ti.API.info('Both clipboards should return "hello"');
             Ti.API.info('clipboard1.getText() ' + clipboard1.getText());
             Ti.API.info('clipboard2.getText() ' + clipboard2.getText());
 
