@@ -176,7 +176,7 @@ properties:
     availability: creation
 
   - name: allowCreation
-    summary: Create a clipboard identified by name if it doesn,t exist.
+    summary: Create a clipboard identified by name if it doesn't exist.
     description: |
         If "create" is false, it will return the existing named clipboard but will 
         not create new one.
