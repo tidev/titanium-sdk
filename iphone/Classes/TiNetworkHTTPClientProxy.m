@@ -25,6 +25,14 @@ extern NSString * const TI_APPLICATION_GUID;
     RELEASE_TO_NIL(httpRequest);
     RELEASE_TO_NIL(apsConnectionManager);
     RELEASE_TO_NIL(apsConnectionDelegate);
+    
+    RELEASE_TO_NIL(errorCallback);
+    RELEASE_TO_NIL(onloadCallback);
+    RELEASE_TO_NIL(onreadystatechangeCallback);
+    RELEASE_TO_NIL(ondatastreamCallback);
+    RELEASE_TO_NIL(onsendstreamCallback);
+    RELEASE_TO_NIL(onredirectCallback);
+    
     [super dealloc];
 }
 
@@ -285,15 +293,10 @@ extern NSString * const TI_APPLICATION_GUID;
         NSTimeInterval diff = currentTime - _downloadTime;
         if (_downloadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _downloadTime = 0;
-            NSDictionary *eventDict = [NSMutableDictionary dictionary];
-            float downloadProgress = [response downloadProgress];
-            // return progress as -1 if it is outside the valid range
-            if (downloadProgress > 1 || downloadProgress < 0) {
-                downloadProgress = -1.0f;
-            }
-            [eventDict setValue:NUMFLOAT(downloadProgress) forKey:@"progress"];
-            
-            [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"ondatastream",eventDict,ondatastreamCallback,nil]];
+            float progress = [response downloadProgress];
+            NSDictionary *event = @{@"progress": NUMFLOAT(progress > 1 || progress < 0 ? -1.0f : progress)};
+
+            [self dispatchCallbackWithType:@"ondatastream" andEvent:event callback:ondatastreamCallback];
         }
         if (_downloadTime == 0) {
             _downloadTime = currentTime;
@@ -308,8 +311,9 @@ extern NSString * const TI_APPLICATION_GUID;
         NSTimeInterval diff = currentTime - _uploadTime;
         if (_uploadTime == 0 || diff > TI_HTTP_REQUEST_PROGRESS_INTERVAL || [response readyState] == APSHTTPResponseStateDone) {
             _uploadTime = 0;
-            NSDictionary *eventDict = @{@"progress": NUMFLOAT(response.uploadProgress)};
-            [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onsendstream",eventDict,onsendstreamCallback,nil]];
+            NSDictionary *event = @{@"progress": NUMFLOAT([response uploadProgress])};
+            
+            [self dispatchCallbackWithType:@"onsendstream" andEvent:event callback:onsendstreamCallback];
         }
         if (_uploadTime == 0) {
             _uploadTime = currentTime;
@@ -335,13 +339,13 @@ extern NSString * const TI_APPLICATION_GUID;
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
         [event setObject:@"error" forKey:@"type"];
         
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+        [self dispatchCallbackWithType:@"error" andEvent:event callback:errorCallback];
         [self forgetSelf];
     } else if (onloadCallback != nil) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
         
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onload",event,onloadCallback,nil]];
+        [self dispatchCallbackWithType:@"onload" andEvent:event callback:onloadCallback];
         [self forgetSelf];
     } else {
         [self forgetSelf];
@@ -359,19 +363,28 @@ extern NSString * const TI_APPLICATION_GUID;
         NSError *error = [response error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
         [event setObject:@"error" forKey:@"type"];
-
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,errorCallback,nil]];
+        
+        [self dispatchCallbackWithType:@"error" andEvent:event callback:errorCallback];
         [self forgetSelf];
     } else {
         [self forgetSelf];
     }
 }
 
--(void)dispatchCallback:(NSArray*)args
+-(void)dispatchCallbackWithType:(NSString *)type andEvent:(id)event callback:(KrollCallback *)callback
 {
-    NSString *type = [args objectAtIndex:0];
-    id object = [args objectAtIndex:1];
-    id listener = [args objectAtIndex:2];
+#ifdef TI_USE_KROLL_THREAD
+    [NSThread detachNewThreadSelector:@selector(invokeCallbackWithInvocation:) toTarget:self withObject:@[type, event, callback]];
+#else
+    [self invokeCallbackWithInvocation:@[type, event, callback]];
+#endif
+}
+
+-(void)invokeCallbackWithInvocation:(NSArray *)invocation
+{
+    NSString *type = [invocation objectAtIndex:0];
+    id object = [invocation objectAtIndex:1];
+    id listener = [invocation objectAtIndex:2];
 
     [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
 }
@@ -380,14 +393,14 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     if (onreadystatechangeCallback != nil) {
         NSDictionary *event = @{@"readyState": NUMINT(response.readyState)};
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onreadystatechange",event,onreadystatechangeCallback,nil]];
+        [self dispatchCallbackWithType:@"onreadystatechange" andEvent:event callback:onreadystatechangeCallback];
     }
 }
 
 -(void)request:(APSHTTPRequest *)request onRedirect:(APSHTTPResponse *)response
 {
     if (onredirectCallback) {
-        [NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"onredirect",nil,onredirectCallback,nil]];
+        [self dispatchCallbackWithType:@"onredirect" andEvent:nil callback:onredirectCallback];
     }
 }
 
