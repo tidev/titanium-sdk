@@ -8,12 +8,11 @@
 #include <android/log.h>
 #include <v8.h>
 #include <v8-debug.h>
-#include <string.h>
+#include <cstring>
 #include <signal.h>
 #include <unistd.h>
 
 #include "AndroidUtil.h"
-
 #include "APIModule.h"
 #include "JNIUtil.h"
 #include "V8Runtime.h"

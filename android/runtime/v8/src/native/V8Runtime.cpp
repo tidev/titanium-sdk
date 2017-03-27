@@ -6,7 +6,7 @@
  */
 #include <jni.h>
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <v8.h>
 #include <libplatform/libplatform.h>
 #include <v8-debug.h>

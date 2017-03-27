@@ -82,7 +82,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 		return proxyTemplate.Get(isolate);
 	}
 
-	LOGD(TAG, "GetProxyTemplate");
+	LOGD(TAG, "${className}::getProxyTemplate()");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = titanium::JNIUtil::findClass("${packageName?replace('.','/')}/${className}");

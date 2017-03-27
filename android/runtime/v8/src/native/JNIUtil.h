@@ -23,10 +23,37 @@ public:
 	static JNIEnv* getJNIEnv();
 	static void terminateVM();
 	static void initCache();
+
+	/**
+	 * Looks up a Java class using java/lang/Class JNI naming style
+	 * @param  className [description]
+	 * @return           [description]
+	 */
 	static jclass findClass(const char *className);
+
 	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false);
 	static jfieldID getFieldID(jclass javaClass, const char *fieldName, const char *signature);
+
+	/**
+	 * Gets the Java class name as a jstring in the java.lang.Class style
+	 * @param  javaClass [description]
+	 * @return           [description]
+	 */
 	static jstring getClassName(jclass javaClass);
+
+	/**
+	 * Gets the Java class name as a char* in the java.lang.Class style
+	 * @param  javaClass [description]
+	 * @return           [description]
+	 */
+	static const char* getClassNameAsChar(jclass javaClass);
+
+	/**
+	 * Logs the Java class name in java.lang.Class style
+	 * @param format     [description]
+	 * @param javaClass  [description]
+	 * @param errorLevel [description]
+	 */
 	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);

@@ -8,6 +8,7 @@
 #include "ProxyFactory.h"
 
 #include <map>
+#include <string>
 #include <stdio.h>
 #include <v8.h>
 
@@ -31,11 +32,12 @@ typedef struct {
 	jmethodID javaProxyCreator;
 } ProxyInfo;
 
-typedef std::map<jclass, ProxyInfo> ProxyFactoryMap;
+typedef std::map<std::string, ProxyInfo> ProxyFactoryMap;
 static ProxyFactoryMap factories;
 
-#define GET_PROXY_INFO(jclass, info) \
-	ProxyFactoryMap::iterator i = factories.find(jclass); \
+#define GET_PROXY_INFO(javaClass, info) \
+	const char* dotClassName = JNIUtil::getClassNameAsChar(javaClass);\
+	ProxyFactoryMap::iterator i = factories.find(dotClassName);\
 	info = i != factories.end() ? &i->second : NULL
 
 #define LOG_JNIENV_ERROR(msgMore) \
@@ -43,7 +45,7 @@ static ProxyFactoryMap factories;
 
 Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass, jobject javaProxy)
 {
-	LOGV(TAG, "create v8 proxy");
+	LOGI(TAG, "create v8 proxy");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while creating Java proxy.");
@@ -53,17 +55,18 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 	v8::EscapableHandleScope scope(isolate);
 	Local<Function> creator;
 
-	LOGV(TAG, "get proxy info");
+// FIXME Do we really need the 'cache' of java class -> JS function/constructor here?
+// The pointers to the FunctionTemplates don't work anymore in our "factories" map, as they're poinetrs to Local<FunctionTemplate> which can get moved and aren't guaranteed to be persistent!
+// We'd have to move to using the Persistent<FunctionTemplate> for each class instead and storing them some other way.
+// Butw e already have a bingind cache for the class name binding lookup. The "hit" here is the IsEmpty() and GetPropertyNames()
+	// LOGI(TAG, "get proxy info");
 
-	ProxyInfo* info;
-	GET_PROXY_INFO(javaClass, info);
-	if (!info) {
+	// ProxyInfo* info;
+	// GET_PROXY_INFO(javaClass, info);
+	// if (!info) {
 		// No info has been registered for this class yet, fall back
 		// to the binding lookup table
-		jstring javaClassName = JNIUtil::getClassName(javaClass);
-		Local<Value> className = TypeConverter::javaStringToJsString(isolate, env, javaClassName);
-		env->DeleteLocalRef(javaClassName);
-
+		Local<Value> className = ProxyFactory::getJavaClassName(isolate, javaClass);
 		Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(isolate));
 
 		if (exports.IsEmpty()) {
@@ -79,13 +82,13 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 		if (names->Length() >= 1) {
 			creator = exports->Get(names->Get(0)).As<Function>();
 		}
-	} else {
-		creator = info->v8ProxyTemplate->GetFunction(isolate->GetCurrentContext()).ToLocalChecked();
-	}
+	// } else {
+	// 	creator = info->v8ProxyTemplate->GetFunction(isolate->GetCurrentContext()).ToLocalChecked();
+	// }
 
-	Local<Value> external = External::New(isolate, javaProxy);
+	Local<Value> javaObjectExternal = External::New(isolate, javaProxy);
 	TryCatch tryCatch(isolate);
-	Local<Value> argv[1] = { external };
+	Local<Value> argv[1] = { javaObjectExternal };
 	Local<Object> v8Proxy = creator->NewInstance(1, argv);
 	if (tryCatch.HasCaught()) {
 		LOGE(TAG, "Exception thrown while creating V8 proxy.");
@@ -108,6 +111,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 
 jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	LOGI(TAG, "ProxyFactory::createJavaProxy");
 	Isolate* isolate = args.GetIsolate();
 	ProxyInfo* info;
 	GET_PROXY_INFO(javaClass, info);
@@ -184,7 +188,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		info->javaProxyCreator, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
 	if (javaSourceUrl) {
-		LOGV(TAG, "delete source url!");
+		LOGI(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
 
@@ -196,6 +200,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 jobject ProxyFactory::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	LOGI(TAG, "ProxyFactory::unwrapJavaProxy");
 	if (args.Length() != 1)
 		return NULL;
 
@@ -203,19 +208,40 @@ jobject ProxyFactory::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>&
 	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
 }
 
-void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate)
+Local<Value> ProxyFactory::getJavaClassName(v8::Isolate* isolate, jclass javaClass)
 {
+	LOGI(TAG, "ProxyFactory::getJavaClassName");
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		LOG_JNIENV_ERROR("while getting Java class name as V8 value.");
+		return Local<Value>();
+	}
+
+	v8::EscapableHandleScope scope(isolate);
+
+	jstring javaClassName = JNIUtil::getClassName(javaClass);
+	Local<Value> className = TypeConverter::javaStringToJsString(isolate, env, javaClassName);
+	env->DeleteLocalRef(javaClassName);
+	return scope.Escape(className);
+}
+
+void ProxyFactory::registerProxyPair(jclass javaClass, FunctionTemplate* v8ProxyTemplate)
+{
+	LOGI(TAG, "ProxyFactory::registerProxyPair");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while registering proxy pair.");
 		return;
 	}
+	const char* className = JNIUtil::getClassNameAsChar(javaClass);
+	LOGI(TAG, "Registering Java class to JS function template pair for %s", className);
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
 	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
 
-	factories[javaProxyClass] = info;
+	std::string str(className);
+	factories[str] = info;
 }
 
 void ProxyFactory::dispose()

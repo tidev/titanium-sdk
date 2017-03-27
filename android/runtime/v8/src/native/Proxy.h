@@ -170,7 +170,7 @@ public:
 private:
 
 	/**
-	 * This is the callback used whne we need to construct a native Proxy for a JS object.
+	 * This is the callback used when we need to construct a native Proxy for a JS object.
 	 * Here we typically:
 	 * - wrap the js object in a Proxy instance
 	 * - define an own property "_properties" used for #getProperty and #setProperty callbacks
@@ -191,20 +191,6 @@ private:
 	 * @param args The function arguments.
 	 */
 	static void proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-	/**
-	 * This is a hack to workaround V8 API changes. We used to store a jclass
-	 * wrapped in an External on the proxy's template. V8 changed to only allow
-	 * Templates and Primitives (number, string, etc) via ->Set() on a Template.
-	 * So we couldn't hang an External there anymore. Now we set it via #SetNativeDataProperty
-	 * so that we always use the native getter callback method here, and we cheat
-	 * and set the External wrapping the jclass as the "data" for the callback.
-	 * So we just grab the data (External wrapping a jclass) and return it.
-	 *
-	 * @param property The name of the property (Should always be "__javaClass__")
-	 * @param info     The property callback info object to manipulate to return our value
-	 */
-	static void javaClassPropertyCallback(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 };
 
 }

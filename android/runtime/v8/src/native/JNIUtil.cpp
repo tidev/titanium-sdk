@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -240,22 +240,28 @@ jstring JNIUtil::getClassName(jclass javaClass)
 	return (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
 }
 
-void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
+const char* JNIUtil::getClassNameAsChar(jclass javaClass)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (!env) return;
-
-	jstring jClassName = (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
+	jstring jClassName = JNIUtil::getClassName(javaClass);
+	if (!jClassName) return NULL;
+	// Here we rely on an assumption that a copy is *always* made for UTF-8 strings and we don't need to ReleaseStringUTFChars
 	const char* chars = env->GetStringUTFChars(jClassName, NULL);
+	env->DeleteLocalRef(jClassName);
+
+	return chars;
+}
+
+void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
+{
+	const char* chars = JNIUtil::getClassNameAsChar(javaClass);
+	if (!chars) return;
 
 	if (errorLevel) {
 		LOGE(TAG, format, chars);
 	} else {
 		LOGD(TAG, format, chars);
 	}
-
-	env->ReleaseStringUTFChars(jClassName, chars);
-	env->DeleteLocalRef(jClassName);
 }
 
 void JNIUtil::initCache()

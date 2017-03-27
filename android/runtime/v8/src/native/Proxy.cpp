@@ -1,12 +1,14 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <jni.h>
-#include <string.h>
+#include <cstring>
+#include <string>
+
 #include <v8.h>
+#include <jni.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -57,8 +59,8 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	proxyTemplate->SetClassName(proxySymbol);
 	proxyTemplate->Inherit(EventEmitter::constructorTemplate.Get(isolate));
 
-	// Can't set an External via ->Set() on templates anymore. So we cheat and set up a native getter for __javaClass__ that gets passed the jclass as data, and that getter just returns the data/wrapped jclass External.
-	proxyTemplate->SetNativeDataProperty(javaClass, javaClassPropertyCallback, NULL, External::New(isolate, JNIUtil::krollProxyClass), static_cast<PropertyAttribute>(DontDelete | DontEnum));
+	proxyTemplate->Set(javaClass, ProxyFactory::getJavaClassName(isolate, JNIUtil::krollProxyClass),
+		static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	SetProtoMethod(isolate, proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
 	SetProtoMethod(isolate, proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
@@ -321,30 +323,20 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	EscapableHandleScope scope(isolate);
 
 	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, callback);
+	inheritedTemplate->Set(javaClassSymbol.Get(isolate),
+		ProxyFactory::getJavaClassName(isolate, javaClass),
+		static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	inheritedTemplate->SetClassName(className);
 	inheritedTemplate->Inherit(superTemplate);
 
-	// We can't set an External via #Set() anymore. So let's get creative and hack this.
-	// We'll hang a __javaClass__ property with a native getter callback at #javaClassPropertyCallback
-	// We set the Data property as the External we wanted to wrap.
-	// Then that getter can just return our External wrapping the jclass
-	Local<Value> wrappedClass = External::New(isolate, javaClass);
-	inheritedTemplate->SetNativeDataProperty(javaClassSymbol.Get(isolate), javaClassPropertyCallback, NULL, wrappedClass, static_cast<PropertyAttribute>(DontDelete | DontEnum));
-
 	return scope.Escape(inheritedTemplate);
-}
-
-void Proxy::javaClassPropertyCallback(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	// When we set up the callback, we set the wrapped jclass in an External as the data property for the callback
-	info.GetReturnValue().Set(info.Data());
 }
 
 void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGD(TAG, "proxy constructor callback!");
+	LOGI(TAG, "proxy constructor callback!");
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
@@ -366,11 +358,16 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		// Look up java class from prototype...
 		Local<Object> prototype = jsProxy->GetPrototype()->ToObject(isolate);
 		Local<Function> constructor = prototype->Get(constructorSymbol.Get(isolate)).As<Function>();
-		Local<External> wrap = constructor->Get(javaClassSymbol.Get(isolate)).As<External>();
-		jclass javaClass = static_cast<jclass>(wrap->Value());
+		Local<String> javaClassName = constructor->Get(javaClassSymbol.Get(isolate)).As<String>();
+		titanium::Utf8Value javaClassNameVal(javaClassName);
+		std::string javaClassNameString(*javaClassNameVal);
+		std::replace( javaClassNameString.begin(), javaClassNameString.end(), '.', '/');
+		// Create a copy of the char* since I'm seeing it get mangled when passed on to findClass later
+		const char* jniName = strdup(javaClassNameString.c_str());
+		jclass javaClass = JNIUtil::findClass(jniName);
 
 		// Now we create an instance of the class and hook it up
-		JNIUtil::logClassName("Creating java proxy for class %s", javaClass);
+		LOGE("Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
