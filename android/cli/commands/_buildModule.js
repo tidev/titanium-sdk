@@ -542,7 +542,6 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			var aaptOptions = [
 				'package',
 				'-f',
-				'--no-crunch',
 				'-I', this.androidTargetSDK.androidJar,
 				'-M', path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml'),
 				'-S', mergedResPath,
