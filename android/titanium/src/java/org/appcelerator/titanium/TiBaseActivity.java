@@ -605,9 +605,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
-			super.onCreate(savedInstanceState);
-			tiApp.scheduleRestart(250);
-			finish();
+			activityOnCreate(savedInstanceState);
+			TiApplication.terminateActivityStack();
+			if (Build.VERSION.SDK_INT < 23) {
+				finish();
+				tiApp.scheduleRestart(300);
+				return;
+			}
+			KrollRuntime.incrementActivityRefCount();
+			finishAndRemoveTask();
 			return;
 		}
 
