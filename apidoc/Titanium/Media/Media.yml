@@ -364,7 +364,7 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Media.requestRecorderPermission> instead.
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 3.1.3
     parameters:
       - name: callback
@@ -403,14 +403,14 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "6.1.0"
-        notes: Use <Titanium.Media.requestRecorderPermission> instead.
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 5.1.0
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
         type: Callback<MediaAuthorizationResponse>
 
-  - name: requestRecorderPermission
+  - name: requestAudioRecorderPermissions
     summary: Request the user's permission for audio recording.
     description: |
         On iOS 7.0, recording audio requires explicit permission from the user. After the user
