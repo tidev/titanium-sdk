@@ -171,9 +171,9 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 				var fileReadStream = fs.createReadStream(aarPathAndFilename);
 				fileReadStream.on('readable', function() {
 					var data = fileReadStream.read();
-					if (data)
+					if (data) {
 						hash.update(data);
-					else {
+					} else {
 						var finalHash = hash.digest('hex');
 						done(null, finalHash);
 					}
