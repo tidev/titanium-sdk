@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -47,16 +47,27 @@ public:
 	void attach(jobject javaObject);
 
 	/**
-	 * MUST CALL #unreferenceJavaObject() when done with the object!
+	 * MUST CALL #unreferenceJavaObject() when done with the object! This call will
+	 * add one to a internal reference counter and will cal ClearWeak() so GC doesn't collect the JS object!
+	 * This object will stick around forever (in V8 and JVM) unless #unreferenceJavaObject() is called.
+	 *
 	 * @return The wrapped jobject if it's still alive, NULL otherwise
 	 */
 	jobject getJavaObject();
 
 	/**
+	 * This DOES NOT CALL Ref(), so the JS object remains weak and may become GC'd
+	 * at any point on the JS side (which will also kill the strong ref on the JVM side)
+	 *
+	 * @return The wrapped jobject if it's still alive, NULL otherwise
+	 */
+	jobject getDanglingJavaObject();
+
+	/**
 	 * Must be paired with #getJavaObject(); This releases local refs in JNI,
 	 * decrements our reference counter, may make the JS object weak (eligible for GC)
 	 */
-	void unreferenceJavaObject();
+	void unreferenceJavaObject(jobject ref);
 
 	// True when we use global refs for the wrapped jobject.
 	// This is false for the emulator since it has a low limit

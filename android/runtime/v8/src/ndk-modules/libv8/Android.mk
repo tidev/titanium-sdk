@@ -15,7 +15,7 @@ LIBV8_DIR := ../../../../../../dist/android/libv8/$(V8_VERSION)
 # https://jira.appcelerator.org/browse/TIMOB-15263
 LOCAL_DISABLE_FORMAT_STRING_CHECKS=true
 
-LIBV8_MODE := release
+LIBV8_MODE := debug
 SUFFIX :=
 
 SIMPLIFIED_ARCH := $(TARGET_ARCH_ABI)

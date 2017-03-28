@@ -3,6 +3,10 @@ package org.appcelerator.kroll.runtime.v8;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxySupport;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
+
 public final class ReferenceTable
 {
 	private static HashMap<Integer, Object> references = new HashMap<Integer, Object>();
@@ -26,7 +30,17 @@ public final class ReferenceTable
 	 */
 	public static void destroyReference(int key)
 	{
-		references.remove(key);
+		Object obj = references.remove(key);
+		Log.w("ReferenceTable", "Destroying reference for " + obj);
+		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
+		if (obj instanceof KrollProxySupport) {
+			KrollProxySupport proxy = (KrollProxySupport) obj;
+			KrollObject ko = proxy.getKrollObject();
+			if (ko instanceof V8Object) {
+				V8Object v8 = (V8Object) ko;
+				v8.setPointer(0);
+			}
+		}
 	}
 
 	/*

@@ -268,6 +268,23 @@ void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel
 	env->DeleteLocalRef(jClassName);
 }
 
+bool JNIUtil::removePointer(jobject javaObject)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return false;
+	}
+	if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
+		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
+		if (krollObject) {
+			env->SetLongField(krollObject, JNIUtil::v8ObjectPtrField, 0);
+			env->DeleteLocalRef(krollObject);
+			return true;
+		}
+	}
+	return false;
+}
+
 void JNIUtil::initCache()
 {
 	LOG_TIMER(TAG, "initializing JNI cache");

@@ -153,9 +153,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 		javaProperty,
 		javaValue);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	env->DeleteLocalRef(javaProperty);
 	if (javaValueIsNew) {
@@ -200,9 +198,7 @@ void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>
 		JNIUtil::krollProxyGetIndexedPropertyMethod,
 		index);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	Local<Value> result = TypeConverter::javaObjectToJsValue(isolate, env, value);
 	env->DeleteLocalRef(value);
@@ -230,9 +226,7 @@ void Proxy::setIndexedProperty(uint32_t index, Local<Value> value, const Propert
 		index,
 		javaValue);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
 	}
@@ -263,9 +257,7 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectSetHasListenersForEventTypeMethod,
@@ -302,9 +294,7 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData);
 
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectOnEventFiredMethod,
@@ -368,7 +358,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		jclass javaClass = JNIUtil::findClass(jniName);
 
 		// Now we create an instance of the class and hook it up
-		LOGE(TAG, "Creating java proxy for class %s", jniName);
+		LOGI(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
@@ -497,9 +487,7 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 	env->CallVoidMethod(javaProxy, JNIUtil::krollProxyOnPropertiesChangedMethod, jChanges);
 	env->DeleteLocalRef(jChanges);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	return;
 }

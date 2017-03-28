@@ -177,13 +177,17 @@ JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong refPointer)
 {
+  LOGD(TAG, "V8Object::nativeRelease");
 	HandleScope scope(V8Runtime::v8_isolate);
 	JNIScope jniScope(env);
 
 	if (refPointer) {
+    // FIXME What's the right way to cast the long long int as a pointer?
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
 		if (proxy) {
-			delete proxy;
+      LOGD(TAG, "delete proxy with pointer value: %p", refPointer);
+      delete proxy;
+			// proxy->unreferenceJavaObject();
 			return true;
 		}
 	}

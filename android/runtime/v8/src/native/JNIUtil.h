@@ -49,6 +49,12 @@ public:
 	 */
 	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
 
+	/**
+	 * If the object is an V8Object, set the internal pointer to 0 to indicate the C++ proxy is deleted
+	 * @param obj [description]
+	 */
+	static bool removePointer(jobject obj);
+
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);
 	static void throwException(const char *className, const char *message);

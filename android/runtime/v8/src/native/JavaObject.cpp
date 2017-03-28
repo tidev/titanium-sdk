@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,6 +42,7 @@ JavaObject::JavaObject()
 	, javaObject_(NULL)
 	, refTableKey_(0)
 {
+	UPDATE_STATS(1, 1);
 }
 
 JavaObject::~JavaObject()
@@ -52,18 +53,23 @@ JavaObject::~JavaObject()
 	if (javaObject_ || refTableKey_ > 0) {
 		deleteGlobalRef();
 	}
-
-	if (persistent().IsEmpty())
-		return;
-	assert(persistent().IsNearDeath());
-	persistent().ClearWeak();
-	persistent().Reset();
+  LOGD(TAG, "Is near death? %s", persistent().IsNearDeath() ? "true" : "false");
 }
 
 jobject JavaObject::getJavaObject()
 {
+	// FIXME We have issues where calling TypeConverter::jsValueToJavaObject make make a strong ref ehre that never gets cleaned up!
+	// How can we handle this?
+	// - Add new method that doesn't call Ref(), keep the ref weak in V8-land and it may get GC'd whenever...
+	// - Improve tracking the object's usage better in our code so we eventually will unref it
+
 	// Adding a reference implicitly to caller
 	Ref();
+	return getDanglingJavaObject();
+}
+
+jobject JavaObject::getDanglingJavaObject()
+{
 	if (useGlobalRefs) {
 		return javaObject_;
 	} else {
@@ -71,12 +77,12 @@ jobject JavaObject::getJavaObject()
 	}
 }
 
-void JavaObject::unreferenceJavaObject() {
+void JavaObject::unreferenceJavaObject(jobject ref) {
 	// Delete ref in JNI
 	if (!useGlobalRefs) {
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		ASSERT(env != NULL);
-		env->DeleteLocalRef(javaObject_);
+		env->DeleteLocalRef(ref);
 	}
 	// unreference and make weak if no more refs
 	Unref();
@@ -101,17 +107,19 @@ void JavaObject::attach(jobject javaObject)
 // to prevent it from becoming garbage collected by Dalvik.
 void JavaObject::newGlobalRef()
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	ASSERT(env != NULL);
-
 	ASSERT(javaObject_ != NULL);
 
 	if (useGlobalRefs) {
+		JNIEnv *env = JNIUtil::getJNIEnv();
+		ASSERT(env != NULL);
 		javaObject_ = env->NewGlobalRef(javaObject_);
+		ASSERT(javaObject_ != NULL);
 	} else {
 		ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
 		refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
 		javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
+		ASSERT(refTableKey_ != 0);
+		ASSERT(javaObject_ == NULL);
 	}
 }
 
@@ -120,19 +128,23 @@ void JavaObject::newGlobalRef()
 // needed and about to be deleted.
 void JavaObject::deleteGlobalRef()
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	ASSERT(env != NULL);
-
 	if (useGlobalRefs) {
+    LOGD(TAG, "Deleting global ref");
+		JNIEnv *env = JNIUtil::getJNIEnv();
+		ASSERT(env != NULL);
 		ASSERT(javaObject_ != NULL);
+		JNIUtil::removePointer(javaObject_);
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = NULL;
 	} else {
+    LOGD(TAG, "Deleting ref in ReferenceTable");
 		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
 		refTableKey_ = 0; // throw away the key
 	}
 	// When we're done we should be wrapping nothing!
+	LOGD(TAG, "Making sure javaObject_ is NULL");
 	ASSERT(javaObject_ == NULL);
+  LOGD(TAG, "Making sure refKey is 0");
 	ASSERT(refTableKey_ == 0);
 }
 

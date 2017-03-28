@@ -10,12 +10,12 @@ APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-10
 APP_CPPFLAGS += -std=c++11
 APP_STL := c++_shared
-ifeq ($(BUILD_X86), 1)
-	APP_ABI := armeabi-v7a x86
-else
-	APP_ABI := armeabi-v7a
-endif
-
+APP_ABI := x86
+# ifeq ($(BUILD_X86), 1)
+# 	APP_ABI := armeabi-v7a x86
+# else
+# 	APP_ABI := armeabi-v7a
+# endif
 
 TARGET_DEVICE := device
 APP_OPTIM := release
