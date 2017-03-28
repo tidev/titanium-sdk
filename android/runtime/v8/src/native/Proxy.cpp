@@ -37,8 +37,8 @@ Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
 
-Proxy::Proxy(jobject javaProxy) :
-	JavaObject(javaProxy)
+Proxy::Proxy() :
+	JavaObject()
 {
 }
 
@@ -344,14 +344,15 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Local<Object> jsProxy = args.This();
 
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
-	Proxy* proxy = new Proxy(NULL);
-	proxy->wrap(isolate, jsProxy);
+	Proxy* proxy = new Proxy();
+	proxy->Wrap(jsProxy);
+	proxy->Ref(); // force a reference so we don't get GC'd before we can attach the Java object
 
 	// every instance gets a special "_properties" object for us to use internally for get/setProperty
 	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// Now we hook up a java Object from the JVM...
-	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args); // do we already have one that got passed in?
+	jobject javaProxy = Proxy::unwrapJavaProxy(args); // do we already have one that got passed in?
 	bool deleteRef = false;
 	if (!javaProxy) {
 		// No passed in java object, so let's create an instance
@@ -367,11 +368,12 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		jclass javaClass = JNIUtil::findClass(jniName);
 
 		// Now we create an instance of the class and hook it up
-		LOGE("Creating java proxy for class %s", jniName);
+		LOGE(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
 	proxy->attach(javaProxy);
+	proxy->Unref(); // get rid of our forced reference so this can become weak now
 
 	int length = args.Length();
 
@@ -452,7 +454,7 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 		return;
 	}
 
-	Proxy *proxy = unwrap(jsProxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(jsProxy);
 	if (!proxy) {
 		JSException::Error(isolate, "Failed to unwrap Proxy instance");
 		return;
@@ -511,6 +513,16 @@ void Proxy::dispose(Isolate* isolate)
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();
+}
+
+jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	LOGI(TAG, "Proxy::unwrapJavaProxy");
+	if (args.Length() != 1)
+		return NULL;
+
+	Local<Value> firstArgument = args[0];
+	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
 }
 
 } // namespace titanium

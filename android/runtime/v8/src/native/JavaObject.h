@@ -28,9 +28,7 @@ namespace titanium {
 class JavaObject : public EventEmitter
 {
 public:
-	// Creates a new instance and attaching
-	// to the given Java object.
-	JavaObject(jobject javaObject);
+	JavaObject();
 
 	// Delete this object once the Java object has been finalized.
 	virtual ~JavaObject();
@@ -41,10 +39,6 @@ public:
 		return jsObject->InternalFieldCount() > 0;
 	}
 
-	// Wrap the given JavaScript object which provides
-	// bindings to this Java object.
-	void wrap(v8::Isolate* isolate, v8::Local<v8::Object> jsObject);
-
 	// Attach to the given Java object. A reference
 	// to this object will be held until it is detached.
 	// You may only call this method once with a Java object.
@@ -52,18 +46,17 @@ public:
 	// to trigger a re-attachment.
 	void attach(jobject javaObject);
 
-	// Unreference the Java object so it may be collected.
-	// Called automatically when the associated JavaScript object
-	// has no more references from user code.
-	void detach();
-
-	// Check if this instance is detached from a Java object.
-	bool isDetached();
-
-	// When useGlobalRefs is false, you MUST DeleteLocalRef()
-	// the returned jobject when you are done using it.
-	// This is guaranteed to return a valid reference.
+	/**
+	 * MUST CALL #unreferenceJavaObject() when done with the object!
+	 * @return The wrapped jobject if it's still alive, NULL otherwise
+	 */
 	jobject getJavaObject();
+
+	/**
+	 * Must be paired with #getJavaObject(); This releases local refs in JNI,
+	 * decrements our reference counter, may make the JS object weak (eligible for GC)
+	 */
+	void unreferenceJavaObject();
 
 	// True when we use global refs for the wrapped jobject.
 	// This is false for the emulator since it has a low limit
@@ -71,12 +64,17 @@ public:
 	// hash map for holding onto references to avoid this limit.
 	static bool useGlobalRefs;
 private:
+	/**
+	 * If we're using global references, this will hold the wrapped object. Otherwise it's NULL
+	 */
 	jobject javaObject_;
+
+	/**
+	 * If we're not using global references, this will hold the key to look up the java object in our ReferenceTable
+	 */
 	jint refTableKey_;
-	bool isWeakRef_;
 
 	void newGlobalRef();
-	void weakGlobalRef();
 	void deleteGlobalRef();
 };
 

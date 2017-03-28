@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ public:
 	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
 	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
 
-	Proxy(jobject javaProxy);
+	Proxy();
 
 	/**
 	 * Initialize the base proxy template
@@ -62,8 +62,8 @@ public:
 	 * @param info  property setter callback info
 	 */
 	static void setProperty(v8::Local<v8::Name> name,
-                    		v8::Local<v8::Value> value,
-                    		const v8::PropertyCallbackInfo<void>& info);
+												v8::Local<v8::Value> value,
+												const v8::PropertyCallbackInfo<void>& info);
 
 	/**
 	 * Setter that reports to the Java proxy when a property has changed.
@@ -74,8 +74,8 @@ public:
 	 * @param info  [description]
 	 */
 	static void onPropertyChanged(v8::Local<v8::Name> name,
-                    			  v8::Local<v8::Value> value,
-                    			  const v8::PropertyCallbackInfo<void>& info);
+														v8::Local<v8::Value> value,
+														const v8::PropertyCallbackInfo<void>& info);
 	// Used when called as a function
 	static void onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args);
 
@@ -86,7 +86,7 @@ public:
 	 * @param info  [description]
 	 */
 	static void getIndexedProperty(uint32_t index,
-	                               const v8::PropertyCallbackInfo<v8::Value>& info);
+																 const v8::PropertyCallbackInfo<v8::Value>& info);
 
 	/**
 	 * Sets an indexed property on the Java proxy.
@@ -96,8 +96,8 @@ public:
 	 * @param info  property callback info
 	 */
 	static void setIndexedProperty(uint32_t index,
-	                               v8::Local<v8::Value> value,
-	                               const v8::PropertyCallbackInfo<v8::Value>& info);
+																 v8::Local<v8::Value> value,
+																 const v8::PropertyCallbackInfo<v8::Value>& info);
 
 	/**
 	 * Called by EventEmitter to notify when listeners
@@ -145,26 +145,6 @@ public:
 		v8::Local<v8::String> className,
 		v8::Local<v8::Function> callback = v8::Local<v8::Function>());
 
-	/**
-	 * Unwraps the Proxy inside a JS object.
-	 *
-	 * @param  value JS object to unwrap
-	 * @return       the Proxy used with the JS object. NULL if not wrapping a Proxy.
-	 */
-	static inline Proxy* unwrap(v8::Local<v8::Object> value)
-	{
-		if (!JavaObject::isJavaObject(value)) {
-			return NULL;
-		}
-
-		void *ptr = value->GetAlignedPointerFromInternalField(0);
-		if (!ptr) {
-			return NULL;
-		}
-
-		return static_cast<Proxy*>(ptr);
-	}
-
 	static void dispose(v8::Isolate* isolate);
 
 private:
@@ -191,6 +171,15 @@ private:
 	 * @param args The function arguments.
 	 */
 	static void proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+	/**
+	 * Used by proxyConstructor() to create a new V8/JS object. We need a way to
+	 * pass the Java object we wrap in that JS Object. This is done by passing it
+	 * as an v8::External argument.
+	 * @param  args The arguments received in our proxy constructor call
+	 * @return      The Java object passed within the arguments (first arg, as an External)
+	 */
+	static jobject unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 }

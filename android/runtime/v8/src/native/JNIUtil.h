@@ -42,13 +42,6 @@ public:
 	static jstring getClassName(jclass javaClass);
 
 	/**
-	 * Gets the Java class name as a char* in the java.lang.Class style
-	 * @param  javaClass [description]
-	 * @return           [description]
-	 */
-	static const char* getClassNameAsChar(jclass javaClass);
-
-	/**
 	 * Logs the Java class name in java.lang.Class style
 	 * @param format     [description]
 	 * @param javaClass  [description]

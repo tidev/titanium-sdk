@@ -240,28 +240,32 @@ jstring JNIUtil::getClassName(jclass javaClass)
 	return (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
 }
 
-const char* JNIUtil::getClassNameAsChar(jclass javaClass)
-{
-	JNIEnv *env = JNIScope::getEnv();
-	jstring jClassName = JNIUtil::getClassName(javaClass);
-	if (!jClassName) return NULL;
-	// Here we rely on an assumption that a copy is *always* made for UTF-8 strings and we don't need to ReleaseStringUTFChars
-	const char* chars = env->GetStringUTFChars(jClassName, NULL);
-	env->DeleteLocalRef(jClassName);
-
-	return chars;
-}
-
 void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
 {
-	const char* chars = JNIUtil::getClassNameAsChar(javaClass);
-	if (!chars) return;
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return;
+	}
+
+	jstring jClassName = JNIUtil::getClassName(javaClass);
+	if (!jClassName) {
+		return;
+	}
+
+	const char* chars = env->GetStringUTFChars(jClassName, NULL);
+
+	if (!chars) {
+		env->DeleteLocalRef(jClassName);
+		return;
+	}
 
 	if (errorLevel) {
 		LOGE(TAG, format, chars);
 	} else {
 		LOGD(TAG, format, chars);
 	}
+	env->ReleaseStringUTFChars(jClassName, chars);
+	env->DeleteLocalRef(jClassName);
 }
 
 void JNIUtil::initCache()

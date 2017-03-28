@@ -182,7 +182,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 
 	if (refPointer) {
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
-		if (proxy && proxy->isDetached()) {
+		if (proxy) {
 			delete proxy;
 			return true;
 		}

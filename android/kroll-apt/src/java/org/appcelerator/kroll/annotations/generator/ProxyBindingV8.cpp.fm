@@ -45,7 +45,7 @@ using namespace v8;
 Persistent<FunctionTemplate> ${className}::proxyTemplate;
 jclass ${className}::javaClass = NULL;
 
-${className}::${className}(jobject javaObject) : titanium::Proxy(javaObject)
+${className}::${className}() : titanium::Proxy()
 {
 }
 
@@ -101,8 +101,6 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 	proxyTemplate.Reset(isolate, t);
 	t->Set(titanium::Proxy::inheritSymbol.Get(isolate),
 		FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>));
-
-	titanium::ProxyFactory::registerProxyPair(javaClass, *t);
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
@@ -225,7 +223,7 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
 	}
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(holder);
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
@@ -259,7 +257,7 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -292,7 +290,7 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 	if (!proxy) {
 		return;
 	}
@@ -328,7 +326,7 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -345,9 +343,7 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject();
 	env->DeleteLocalRef(javaProperty);
 
 	if (env->ExceptionCheck()) {

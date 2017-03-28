@@ -865,6 +865,7 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 			if (v8ObjectPointer != 0) {
 				titanium::Proxy* proxy = (titanium::Proxy*) v8ObjectPointer;
 				v8::Local<v8::Object> v8Object = proxy->handle(isolate);
+				// FIXME How do we ever release the reference here?!
 				jobject javaProxy = proxy->getJavaObject(); // Called to explicitly go from weak reference to strong!
 				if (!JavaObject::useGlobalRefs) {
 					// But then we need to delete the local reference to avoid JNI ref leak!
