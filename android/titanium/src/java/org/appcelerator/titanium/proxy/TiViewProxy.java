@@ -59,7 +59,7 @@ import android.view.ViewAnimationUtils;
 	"borderColor", "borderRadius", "borderWidth",
 
 	// layout / dimension (size/width/height have custom accessors)
-	"left", "top", "right", "bottom", "layout", "zIndex",
+	"left", "top", "right", "bottom", "layout", "zIndex", TiC.PROPERTY_CENTER,
 
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
