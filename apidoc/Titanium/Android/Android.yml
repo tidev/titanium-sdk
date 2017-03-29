@@ -56,6 +56,11 @@ description: |
     For more information about intent filters, see the
     [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
+    #### Launch Modes
+
+    Defining launch modes using `android:launchMode` is not supported by Titanium Android.
+    However, `singleTask` behaviour can be accomplished when using [intent filters](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+
     #### Notifications
 
     Notifications alert the user that something is happening to your application while it is
