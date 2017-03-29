@@ -1201,7 +1201,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
 	{
 		if (block != nil) {
-            block(nil);
+			block(nil);
 		}
 		return;
 	}
