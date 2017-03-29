@@ -356,10 +356,6 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 4. generate exports
 		function (cb) {
-			if (!this.jsFilesToEncrypt.length) {
-				return cb();
-			}
-
 			this.jsFilesToEncrypt.forEach(function(file) {
 				var r = jsanalyze.analyzeJsFile(file, { minify: true });
 				this.tiSymbols[file] = r.symbols;
