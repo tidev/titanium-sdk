@@ -334,18 +334,32 @@ extern NSString * const TI_APPLICATION_GUID;
     if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
         [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
+#ifdef TI_USE_KROLL_THREAD
+        [self fireCallback:@"onerror" withArg:event withSource:self];
+#else
+        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
             [self forgetSelf];
         }];
+#endif
     } else if(hasOnload) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
-        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
+#ifdef TI_USE_KROLL_THREAD
+        [self fireCallback:@"onload" withArg:event withSource:self];
+#else
+        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result) {
             [self forgetSelf];
         }];
+#endif
     } else {
+#ifndef TI_USE_KROLL_THREAD
         [self forgetSelf];
+#endif
     }
+    
+#ifdef TI_USE_KROLL_THREAD
+    [self forgetSelf];
+#endif
 }
 
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
@@ -359,12 +373,23 @@ extern NSString * const TI_APPLICATION_GUID;
         NSError *error = [response error];
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
         [event setObject:@"error" forKey:@"type"];
+        
+#ifdef TI_USE_KROLL_THREAD
+        [self fireCallback:@"onerror" withArg:event withSource:self];
+#else
         [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
             [self forgetSelf];
         }];
+#endif
     } else {
+#ifndef TI_USE_KROLL_THREAD
         [self forgetSelf];
+#endif
     }
+    
+#ifdef TI_USE_KROLL_THREAD
+    [self forgetSelf];
+#endif
 }
 
 
