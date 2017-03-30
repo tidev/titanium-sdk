@@ -1704,7 +1704,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
-            [view setAutoresizingMask:UIViewAutoresizingNone];
             
             [cameraView windowDidOpen];
             [cameraView layoutChildren:NO];
