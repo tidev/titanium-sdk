@@ -858,7 +858,7 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 		return TypeConverter::javaHashMapToJsValue(isolate, env, javaObject);
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
 		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
-		if (krollObject) {
+		if (krollObject && env->IsInstanceOf(krollObject, JNIUtil::v8ObjectClass)) {
 			jlong v8ObjectPointer = env->GetLongField(krollObject, JNIUtil::v8ObjectPtrField);
 			env->DeleteLocalRef(krollObject);
 

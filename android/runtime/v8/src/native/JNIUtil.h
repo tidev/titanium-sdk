@@ -144,6 +144,7 @@ public:
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollExceptionInitMethod;
+	static jfieldID krollObjectProxySupportField;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
 	static jmethodID krollProxyCreateProxyMethod;

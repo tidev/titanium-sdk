@@ -34,7 +34,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 
 Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> className, jobject javaProxy)
 {
-	LOGI(TAG, "create v8 proxy");
+	LOGD(TAG, "ProxyFactory::createV8Proxy");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while creating Java proxy.");
@@ -87,7 +87,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 
 jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGI(TAG, "ProxyFactory::createJavaProxy");
+	LOGD(TAG, "ProxyFactory::createJavaProxy");
 	Isolate* isolate = args.GetIsolate();
 
 	JNIEnv* env = JNIScope::getEnv();
@@ -158,7 +158,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		JNIUtil::krollProxyCreateProxyMethod, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
 	if (javaSourceUrl) {
-		LOGI(TAG, "delete source url!");
+		LOGD(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
 
@@ -171,7 +171,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 Local<Value> ProxyFactory::getJavaClassName(v8::Isolate* isolate, jclass javaClass)
 {
-	LOGI(TAG, "ProxyFactory::getJavaClassName");
+	LOGD(TAG, "ProxyFactory::getJavaClassName");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOGE(TAG, "Unable to get JNIEnv while getting Java class name as V8 value.");

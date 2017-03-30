@@ -50,7 +50,13 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
-		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, object).As<Object>();
+		LOGW(TAG, "Attempting to set a property on a Java object with no/deleted Proxy on C++ side!");
+		jobject proxySupport = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+		if (proxySupport) {
+			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
+		} else {
+			return;
+		}
 	}
 
 	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
@@ -96,6 +102,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		titanium::Proxy* proxy = (titanium::Proxy*) sourcePtr;
 		source = proxy->handle(V8Runtime::v8_isolate);
 	} else {
+		// FIXME no source, and pointer to source is 0. Not a good situation! Means source proxy is probably dead!
 		source = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jsource).As<Object>();
 	}
 
@@ -133,16 +140,35 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 JNIEXPORT jobject JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
-	(JNIEnv* env, jclass clazz, jlong ptr, jstring propertyName, jobjectArray args)
+	(JNIEnv* env, jobject javaObject, jlong ptr, jstring propertyName, jobjectArray args)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	JNIScope jniScope(env);
 
 	Local<Value> jsPropertyName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, propertyName);
 
-	titanium::Proxy* proxy = (titanium::Proxy*) ptr;
-	Local<Object> object = proxy->handle(V8Runtime::v8_isolate);
-	Local<Value> property = object->Get(jsPropertyName);
+	Local<Object> jsObject;
+	if (ptr != 0) {
+		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+		jsObject = proxy->handle(V8Runtime::v8_isolate);
+	} else {
+		LOGW(TAG, "Attempting to call a property on a Java object with no/deleted Proxy on C++ side!");
+		jclass javaObjectClass = env->GetObjectClass(javaObject);
+		JNIUtil::logClassName("Java object class '%s', ptr: %p", javaObjectClass, ptr);
+		env->DeleteLocalRef(javaObjectClass);
+
+		jobject proxySupport = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		if (proxySupport) {
+			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
+		}
+	}
+
+	if (jsObject.IsEmpty()) {
+		LOGW(TAG, "Unable to get the JSObject representing this Java object, returning undefined.");
+		return JNIUtil::undefinedObject;
+	}
+
+	Local<Value> property = jsObject->Get(jsPropertyName);
 	if (!property->IsFunction()) {
 		return JNIUtil::undefinedObject;
 	}
@@ -155,7 +181,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	Local<Function> function = property.As<Function>();
-	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), object, argc, argv);
+	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), jsObject, argc, argv);
 
 	if (argv) {
 		delete[] argv;
@@ -177,17 +203,16 @@ JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong refPointer)
 {
-  LOGD(TAG, "V8Object::nativeRelease");
+	LOGD(TAG, "V8Object::nativeRelease");
 	HandleScope scope(V8Runtime::v8_isolate);
 	JNIScope jniScope(env);
 
 	if (refPointer) {
-    // FIXME What's the right way to cast the long long int as a pointer?
+		// FIXME What's the right way to cast the long long int as a pointer?
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
 		if (proxy) {
-      LOGD(TAG, "delete proxy with pointer value: %p", refPointer);
-      delete proxy;
-			// proxy->unreferenceJavaObject();
+			LOGI(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
+			delete proxy;
 			return true;
 		}
 	}

@@ -28,9 +28,9 @@ public class V8Object extends KrollObject
 
 	public void setPointer(long ptr)
 	{
-    if (ptr == 0) {
-      Log.w(TAG, "Removing ptr value (setting to 0), was: " + this.ptr);
-    }
+		if (ptr == 0) {
+			Log.d(TAG, "Removing ptr value (setting to 0), was: " + this.ptr, Log.DEBUG_MODE);
+		}
 		this.ptr = ptr;
 	}
 
@@ -83,7 +83,7 @@ public class V8Object extends KrollObject
 			return;
 		}
 
-    Log.w(TAG, "nativeRelease with pointer value: " + ptr);
+		Log.w(TAG, "nativeRelease with pointer value: " + ptr);
 		if (nativeRelease(ptr)) {
 			ptr = 0;
 			KrollRuntime.suggestGC();
@@ -108,9 +108,9 @@ public class V8Object extends KrollObject
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
-	private static native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
 	private static native boolean nativeRelease(long ptr);
 
+	private native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
 	private native void nativeSetWindow(long ptr, Object windowProxyObject);

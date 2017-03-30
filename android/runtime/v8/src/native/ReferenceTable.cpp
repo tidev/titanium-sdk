@@ -1,13 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <v8.h>
 
 #include "ReferenceTable.h"
-
+#include "Proxy.h"
 #include "JNIUtil.h"
+#include "AndroidUtil.h"
+#include "V8Runtime.h"
+
+#include "org_appcelerator_kroll_runtime_v8_ReferenceTable.h"
+
+#define TAG "ReferenceTable"
 
 namespace titanium {
 
@@ -58,3 +65,40 @@ jobject ReferenceTable::getReference(jint key)
 
 } // namespace titanium
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+using namespace titanium;
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_ReferenceTable
+ * Method:    nativeRelease
+ * Signature: ???
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_appcelerator_kroll_runtime_v8_ReferenceTable_nativeRelease
+	(JNIEnv *env, jclass clazz, jlong refPointer)
+{
+	LOGD(TAG, "ReferenceTable::nativeRelease");
+	HandleScope scope(V8Runtime::v8_isolate);
+	JNIScope jniScope(env);
+
+	if (refPointer) {
+		// FIXME What's the right way to cast the long long int as a pointer?
+		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
+		// FIXME What if the proxy is already dead?!
+		// TODO Should we delete it? Or just call something that does Unref()?
+		if (proxy) {
+			LOGI(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
+			delete proxy;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+#ifdef __cplusplus
+}
+#endif

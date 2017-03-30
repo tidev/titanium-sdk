@@ -39,12 +39,21 @@ public:
 		return jsObject->InternalFieldCount() > 0;
 	}
 
-	// Attach to the given Java object. A reference
-	// to this object will be held until it is detached.
-	// You may only call this method once with a Java object.
-	// Future calls are only allowed by passing NULL for javaObject
-	// to trigger a re-attachment.
+	/**
+	 * Attach to the given Java object. A reference to this object will be held until it is detached.
+	 * You may only call this method once with a Java object.
+	 * We will call JavaObject::MakeJavaStrong() to create a strong reference to the Java object in the JVM-side.
+	 * We'll also call NativeObject::Ref() to increment our internal reference counter to avoid getting GC'd on the V8/JS side.
+	 *
+	 * @param javaObject [description]
+	 */
 	void attach(jobject javaObject);
+
+	/**
+	 * Convert to a weak reference on the Java object so it may be collected (by the JVM)
+	 * Called through the DetachCallback when the associated JS object was triggered for GC.
+	 */
+	void detach();
 
 	/**
 	 * MUST CALL #unreferenceJavaObject() when done with the object! This call will
@@ -81,12 +90,40 @@ private:
 	jobject javaObject_;
 
 	/**
-	 * If we're not using global references, this will hold the key to look up the java object in our ReferenceTable
+	 * If we're not using global references, this will hold the key to look up the java object in our ReferenceTable. Otherwise it is 0.
 	 */
 	jint refTableKey_;
 
-	void newGlobalRef();
-	void deleteGlobalRef();
+	/**
+	 * If we've converted the Java side reference to a weak once, this will be true. If it is strong, this will be false.
+	 */
+	bool isWeakRef_;
+
+	/**
+	 * Check if this instance is detached from a Java object.
+	 * @return [description]
+	 */
+	bool isDetached();
+
+	/**
+	 * Create a strong reference to the wrapped Java object in the JVM
+	 * to prevent it from becoming GC'd.
+	 */
+	void MakeJavaStrong();
+
+	/**
+	 * Convert our strong reference to the Java object into a weak
+	 * reference to allow it to become eligible for GC by JVM.
+	 * This typically happens once V8 has detected the JavaScript object
+	 * that wraps the Java object is no longer reachable via DetachCallback.
+	 */
+	void MakeJavaWeak();
+
+	/**
+	 * Delete any references to the Java object in our Reference Table or JNI.
+	 * This is to clean up the Java side when this Proxy pair has been deleted.
+	 */
+	void DeleteJavaRef();
 };
 
 } // namespace titanium

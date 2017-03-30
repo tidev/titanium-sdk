@@ -13,7 +13,7 @@
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "JavaObject.h"
+#include "Proxy.h"
 #include "JNIUtil.h"
 #include "JSDebugger.h"
 #include "JSException.h"
