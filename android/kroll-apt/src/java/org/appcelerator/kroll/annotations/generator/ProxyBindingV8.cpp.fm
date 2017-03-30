@@ -54,13 +54,26 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	Isolate* isolate = context->GetIsolate();
 
 	Local<FunctionTemplate> pt = getProxyTemplate(isolate);
-	Local<Function> proxyConstructor = pt->GetFunction(context).ToLocalChecked();
+
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructor;
+	MaybeLocal<Function> maybeConstructor = pt->GetFunction(context);
+	if (!maybeConstructor.ToLocal(&constructor)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
+
 	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}"); // use symbol over string for efficiency
 	<#if isModule>
-	Local<Object> moduleInstance = proxyConstructor->NewInstance(context).ToLocalChecked();
+	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
+	Local<Object> moduleInstance;
+	if (!maybeInstance.ToLocal(&moduleInstance)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
 	exports->Set(nameSymbol, moduleInstance);
 	<#else>
-	exports->Set(nameSymbol, proxyConstructor);
+	exports->Set(nameSymbol, constructor);
 	</#if>
 }
 

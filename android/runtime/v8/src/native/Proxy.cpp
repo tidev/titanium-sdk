@@ -68,8 +68,14 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 
 	baseProxyTemplate.Reset(isolate, proxyTemplate);
 
-	Local<Function> constructor = proxyTemplate->GetFunction(context).ToLocalChecked();
-	exports->Set(proxySymbol, constructor);
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructor;
+	MaybeLocal<Function> maybeConstructor = proxyTemplate->GetFunction(context);
+	if (maybeConstructor.ToLocal(&constructor)) {
+		exports->Set(proxySymbol, constructor);
+	} else {
+		V8Util::fatalException(isolate, tryCatch);
+	}
 }
 
 static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, Local<Object> proxy)
@@ -326,7 +332,7 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 
 void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGI(TAG, "proxy constructor callback!");
+	LOGD(TAG, "Proxy::proxyConstructor");
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
@@ -358,7 +364,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		jclass javaClass = JNIUtil::findClass(jniName);
 
 		// Now we create an instance of the class and hook it up
-		LOGI(TAG, "Creating java proxy for class %s", jniName);
+		LOGD(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
@@ -505,7 +511,7 @@ void Proxy::dispose(Isolate* isolate)
 
 jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGI(TAG, "Proxy::unwrapJavaProxy");
+	LOGD(TAG, "Proxy::unwrapJavaProxy");
 	if (args.Length() != 1)
 		return NULL;
 
