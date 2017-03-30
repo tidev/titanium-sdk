@@ -28,9 +28,6 @@ public class V8Object extends KrollObject
 
 	public void setPointer(long ptr)
 	{
-		if (ptr == 0) {
-			Log.d(TAG, "Removing ptr value (setting to 0), was: " + this.ptr, Log.DEBUG_MODE);
-		}
 		this.ptr = ptr;
 	}
 
@@ -83,7 +80,6 @@ public class V8Object extends KrollObject
 			return;
 		}
 
-		Log.w(TAG, "nativeRelease with pointer value: " + ptr);
 		if (nativeRelease(ptr)) {
 			ptr = 0;
 			KrollRuntime.suggestGC();

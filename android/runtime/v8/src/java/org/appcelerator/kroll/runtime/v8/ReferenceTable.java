@@ -67,6 +67,7 @@ public final class ReferenceTable
 	public static int createReference(Object object)
 	{
 		int key = lastKey++;
+		Log.w("ReferenceTable", "Creating strong reference for key: " + key);
 		references.put(key, object);
 		return key;
 	}
@@ -77,6 +78,7 @@ public final class ReferenceTable
 	 */
 	public static void destroyReference(int key)
 	{
+		Log.w("ReferenceTable", "Destroying reference under key: " + key);
 		Object obj = references.remove(key);
 		if (obj instanceof ReferenceWithCleanup) {
 			// We know we're deleting the native proxy already, so tell the weak reference stuff not to delete it again
@@ -84,7 +86,6 @@ public final class ReferenceTable
 			ref.abort();
 			obj = ref.get();
 		}
-		Log.w("ReferenceTable", "Destroying reference for " + obj);
 		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
 		// This *should* prevent the native code from trying to reconstruct the proxy for any reason
 		if (obj instanceof KrollProxySupport) {
@@ -104,6 +105,7 @@ public final class ReferenceTable
 	 */
 	public static void makeWeakReference(int key)
 	{
+		Log.w("ReferenceTable", "Downgrading to weak reference for key: " + key);
 		Object ref = references.get(key);
 		references.put(key, new ReferenceWithCleanup(ref, refQueue));
 	}
@@ -117,6 +119,7 @@ public final class ReferenceTable
 	 */
 	public static Object clearWeakReference(int key)
 	{
+		Log.w("ReferenceTable", "Upgrading weak reference to strong for key: " + key);
 		Object ref = getReference(key);
 		references.put(key, ref);
 		return ref;

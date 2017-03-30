@@ -55,22 +55,22 @@ public:
 	 */
 	void detach();
 
+
 	/**
-	 * MUST CALL #unreferenceJavaObject() when done with the object! This call will
-	 * add one to a internal reference counter and will cal ClearWeak() so GC doesn't collect the JS object!
-	 * This object will stick around forever (in V8 and JVM) unless #unreferenceJavaObject() is called.
+	 * Determines if we are 'detached'. In real terms this means we either:
+	 * - Are wrapping no java object (so javaObject_ == NULL && refTableKey_ == 0)
+	 * - OR we've been informed by V8 that the JS object is GC-able and we've made the Java reference a weak one
+	 *
+	 * This is useful to know if we're being asked to release the proxy, then we can truly kill it if this is true. Otherwise we should wait until V8 and the JVM want it dead.
+	 */
+	bool isDetached();
+
+	/**
+	 * If possible call #unreferenceJavaObject() when done with the object so we can clean up the local JNI reference
 	 *
 	 * @return The wrapped jobject if it's still alive, NULL otherwise
 	 */
 	jobject getJavaObject();
-
-	/**
-	 * This DOES NOT CALL Ref(), so the JS object remains weak and may become GC'd
-	 * at any point on the JS side (which will also kill the strong ref on the JVM side)
-	 *
-	 * @return The wrapped jobject if it's still alive, NULL otherwise
-	 */
-	jobject getDanglingJavaObject();
 
 	/**
 	 * Must be paired with #getJavaObject(); This releases local refs in JNI,
@@ -100,12 +100,6 @@ private:
 	bool isWeakRef_;
 
 	/**
-	 * Check if this instance is detached from a Java object.
-	 * @return [description]
-	 */
-	bool isDetached();
-
-	/**
 	 * Create a strong reference to the wrapped Java object in the JVM
 	 * to prevent it from becoming GC'd.
 	 */
@@ -115,7 +109,11 @@ private:
 	 * Convert our strong reference to the Java object into a weak
 	 * reference to allow it to become eligible for GC by JVM.
 	 * This typically happens once V8 has detected the JavaScript object
-	 * that wraps the Java object is no longer reachable via DetachCallback.
+	 * that wraps the Java object is no longer reachable via DetachCallback (after a MakeJSWeak() registers it).
+	 * The next step in truly GC'ing/killing the object would be an explicit V8Object.nativeRelease() call,
+	 * or the WeakReference getting GC'd by the JVM, and us collecting that info
+	 * from V8Runtime.java's idle looper, and funneling it down through
+	 * ReferenceTable.nativeRelease to release the corresponding titanium::Proxy.
 	 */
 	void MakeJavaWeak();
 
@@ -124,6 +122,12 @@ private:
 	 * This is to clean up the Java side when this Proxy pair has been deleted.
 	 */
 	void DeleteJavaRef();
+
+	/**
+	 * Registers the JS object as weak, so we get a callback when it thinks it can be GC'd.
+	 * This is the first 'step' in really killing off the pairing. We typically follow up by calling MakeJavaWeak().
+	 */
+	void MakeJSWeak();
 };
 
 } // namespace titanium

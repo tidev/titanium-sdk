@@ -26,6 +26,8 @@ public:
 
 	/**
 	 * Looks up a Java class using java/lang/Class JNI naming style
+	 * NOTE THAT THIS WILL RETURN A GLOBALLY REFERENCED CLASS!!!
+	 * CALLERS SHOULD CALL JNIEnv->DeleteGlobalRef() to clean up once they've consumed the class!
 	 * @param  className [description]
 	 * @return           [description]
 	 */

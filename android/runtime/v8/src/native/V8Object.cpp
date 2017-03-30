@@ -50,13 +50,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
-		LOGW(TAG, "Attempting to set a property on a Java object with no/deleted Proxy on C++ side!");
+		LOGE(TAG, "!!! Attempting to set a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
 		jobject proxySupport = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
-		if (proxySupport) {
-			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
-		} else {
+		if (!proxySupport) {
 			return;
 		}
+		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 	}
 
 	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
@@ -152,11 +151,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
-		LOGW(TAG, "Attempting to call a property on a Java object with no/deleted Proxy on C++ side!");
-		jclass javaObjectClass = env->GetObjectClass(javaObject);
-		JNIUtil::logClassName("Java object class '%s', ptr: %p", javaObjectClass, ptr);
-		env->DeleteLocalRef(javaObjectClass);
-
+		LOGE(TAG, "!!! Attempting to call a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
 		jobject proxySupport = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
 		if (proxySupport) {
 			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
@@ -210,14 +205,16 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	if (refPointer) {
 		// FIXME What's the right way to cast the long long int as a pointer?
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
-		if (proxy) {
+		if (proxy && proxy->isDetached()) {
+			// if the proxy is detached, delete it
+			// This means we have already received notification from V8 that the JS side of the proxy can be deleted
 			LOGI(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
 			delete proxy;
-			return true;
+			return JNI_TRUE;
 		}
 	}
 
-	return false;
+	return JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL

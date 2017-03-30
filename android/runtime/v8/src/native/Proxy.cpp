@@ -366,6 +366,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		// Now we create an instance of the class and hook it up
 		LOGD(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
+		env->DeleteGlobalRef(javaClass); // JNIUtil::findClass returns a global reference to a class
 		deleteRef = true;
 	}
 	proxy->attach(javaProxy);

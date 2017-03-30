@@ -54,12 +54,12 @@ JavaObject::JavaObject()
 	, refTableKey_(0)
 	, isWeakRef_(false)
 {
-	UPDATE_STATS(1, 1);
+	UPDATE_STATS(1, 1); // add one to total counter, and 'detached' counter
 }
 
 JavaObject::~JavaObject()
 {
-	UPDATE_STATS(-1, 0);
+	UPDATE_STATS(-1, 0); // remove one from total counter
 
 	// If we have anything wrapped, get rid of it in JNI/JVM
 	if (javaObject_ || refTableKey_ > 0) {
@@ -68,27 +68,25 @@ JavaObject::~JavaObject()
 
 	// Make sure we wipe the persistent, in case we called delete on the proxy and didn't get deleted as a result of the NativeObject WeakCallback
 	persistent().Reset();
-	// LOGD(TAG, "Is near death? %s", persistent().IsNearDeath() ? "true" : "false");
 }
 
 jobject JavaObject::getJavaObject()
 {
-	// FIXME We have issues where calling TypeConverter::jsValueToJavaObject make make a strong ref ehre that never gets cleaned up!
-	// How can we handle this?
-	// - Add new method that doesn't call Ref(), keep the ref weak in V8-land and it may get GC'd whenever...
-	// - Improve tracking the object's usage better in our code so we eventually will unref it
-
-	// Adding a reference implicitly to caller
-	Ref();
-	return getDanglingJavaObject();
-}
-
-jobject JavaObject::getDanglingJavaObject()
-{
+	if (isWeakRef_) { // Did JS side try to collect our object already?
+		MakeJavaStrong(); // move back to strong reference on Java side
+		MakeJSWeak(); // ask V8 to let us know when it thinks it's dead again
+	}
 	if (useGlobalRefs) {
 		return javaObject_;
 	} else {
-		return ReferenceTable::getReference(refTableKey_);
+		// FIXME This may return NULL!
+		ASSERT(refTableKey_ != 0);
+		jobject ref = ReferenceTable::getReference(refTableKey_);
+		if (ref == NULL) {
+			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
+			LOGE(TAG, "!!! OH NO! We tried to grab a Java Object back out of the reference table, but it must have been GC'd, because it's null! Key: %d", refTableKey_);
+		}
+		return ref;
 	}
 }
 
@@ -99,8 +97,6 @@ void JavaObject::unreferenceJavaObject(jobject ref) {
 		ASSERT(env != NULL);
 		env->DeleteLocalRef(ref);
 	}
-	// unreference and make weak if no more refs
-	Unref();
 }
 
 // Attaches the Java object to this native wrapper.
@@ -111,7 +107,7 @@ void JavaObject::attach(jobject javaObject)
 {
 	// Make sure we're wrapping something
 	ASSERT(javaObject != NULL);
-	UPDATE_STATS(0, -1);
+	UPDATE_STATS(0, -1); // subtract one from the 'detached' counter
 
 	javaObject_ = javaObject;
 
@@ -120,6 +116,11 @@ void JavaObject::attach(jobject javaObject)
 	// Now we should never truly kill the JS object unless the destructor is called for this Proxy explicitly,
 	// or we get a notification from ReferenceTable that our Java object was GC'd and we therefore remove our reference!
 
+	MakeJSWeak();
+}
+
+void JavaObject::MakeJSWeak()
+{
 	// So we've stopped the JS object from being marked fully weak for GC.
 	// Now, as an ugly hack, we mark this JS object as weak in a different way so taht V8 can tell us
 	// when the JS object is ready to be GCed (the first step in it's death)
@@ -133,7 +134,7 @@ void JavaObject::attach(jobject javaObject)
 void JavaObject::detach()
 {
 	// WAIT A SECOND V8!!! DON'T KILL MY OBJECT YET! THE JVM MAY STILL WANT IT!
-	persistent().ClearWeak();
+	persistent().ClearWeak(); // Make JS Strong Again!
 
 	// if the JVM side is a weak reference or we have no object wrapped, don't do anything else
 	if (isDetached()) {
@@ -142,7 +143,6 @@ void JavaObject::detach()
 
 	// V8 says we don't need the object on the JS side
 	// Let's make the object weak in the JVM now...
-	UPDATE_STATS(0, 1);
 	MakeJavaWeak();
 }
 
@@ -153,14 +153,13 @@ bool JavaObject::isDetached()
 
 void JavaObject::MakeJavaStrong()
 {
-	ASSERT(javaObject_ != NULL);
-
 	if (useGlobalRefs) {
+		ASSERT(javaObject_ != NULL);
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		ASSERT(env != NULL);
 		jobject globalRef = env->NewGlobalRef(javaObject_);
 		if (isWeakRef_) { // if we're going from weak back to strong...
-			env->DeleteWeakGlobalRef(javaObject_);
+			env->DeleteWeakGlobalRef(javaObject_); // delete the weak ref we had
 		}
 		javaObject_ = globalRef;
 
@@ -169,10 +168,16 @@ void JavaObject::MakeJavaStrong()
 		ASSERT(javaObject_ != NULL);
 	} else {
 		if (isWeakRef_) { // if we are weak, upgrade back to strong
+			// Make sure we have a key
 			ASSERT(refTableKey_ != 0);
-			ReferenceTable::clearWeakReference(refTableKey_);
+			jobject stored = ReferenceTable::clearWeakReference(refTableKey_);
+			if (stored == NULL) {
+				// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
+				LOGE(TAG, "!!! OH NO! We tried to move a weak Java object back to strong, but it's aleady been GC'd by JVM! We're in a bad state! Key: %d", refTableKey_);
+			}
 		} else {
-			// New entry, make sure we have no key, get a new key
+			// New entry, make sure we have no key, have an object, get a new key
+			ASSERT(javaObject_ != NULL);
 			ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
 			refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
 			javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
@@ -183,14 +188,18 @@ void JavaObject::MakeJavaStrong()
 	}
 	// no longer a weak reference
 	isWeakRef_ = false;
+	UPDATE_STATS(0, -1); // one less detached
 }
 
 void JavaObject::MakeJavaWeak()
 {
+	// Make sure we're not trying to make a weak reference weak again!
+	ASSERT(!isWeakRef_);
 	if (useGlobalRefs) {
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		ASSERT(env != NULL);
 		ASSERT(javaObject_ != NULL);
+		// Convert our global ref to a weak global ref
 		jweak weakRef = env->NewWeakGlobalRef(javaObject_);
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = weakRef;
@@ -199,6 +208,7 @@ void JavaObject::MakeJavaWeak()
 		ReferenceTable::makeWeakReference(refTableKey_);
 	}
 
+	UPDATE_STATS(0, 1); // add one to "detached" counter
 	isWeakRef_ = true; // remember that our ref on Java side is weak
 }
 
@@ -214,7 +224,7 @@ void JavaObject::DeleteJavaRef()
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = NULL;
 	} else {
-		LOGD(TAG, "Deleting ref in ReferenceTable");
+		LOGI(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
 		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
 		refTableKey_ = 0; // throw away the key
 	}

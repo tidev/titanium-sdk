@@ -88,15 +88,14 @@ Java_org_appcelerator_kroll_runtime_v8_ReferenceTable_nativeRelease
 		// FIXME What's the right way to cast the long long int as a pointer?
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
 		// FIXME What if the proxy is already dead?!
-		// TODO Should we delete it? Or just call something that does Unref()?
 		if (proxy) {
-			LOGI(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
+			LOGI(TAG, "!!!!! Saved us from a memory leak! Deleting titanium::Proxy with pointer value: %p", refPointer);
 			delete proxy;
-			return true;
+			return JNI_TRUE;
 		}
 	}
 
-	return false;
+	return JNI_FALSE;
 }
 
 #ifdef __cplusplus

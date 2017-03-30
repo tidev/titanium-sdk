@@ -194,6 +194,8 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, v8::Local<v8
 
 jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject)
 {
+  // FIXME We need to capture all the possible JS variables in scope to this function somehow!
+  // Otherwise we can get to a state where we reference a JS obj that is referenced in the callback function whose java object/proxy has been GC'd
 	Local<Function> func = jsObject.As<Function>();
 	Persistent<Function, CopyablePersistentTraits<Function>> jsFunction(isolate, func);
 	jsFunction.MarkIndependent();
@@ -642,7 +644,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 		if (JavaObject::isJavaObject(jsObject)) {
 			*isNew = true;
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
-			return javaObject->getDanglingJavaObject();
+			return javaObject->getJavaObject();
 		} else {
 			// Unwrap hyperloop JS wrappers to get native java proxy
 			v8::Local<String> nativeString = STRING_NEW(isolate, "$native");
@@ -652,7 +654,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 				if (JavaObject::isJavaObject(jsObject)) {
 					*isNew = true;
 					JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
-					return javaObject->getDanglingJavaObject();
+					return javaObject->getJavaObject();
 				}
 			}
 
