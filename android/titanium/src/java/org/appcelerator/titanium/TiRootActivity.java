@@ -87,7 +87,7 @@ public class TiRootActivity extends TiLaunchActivity
 				// TIMOB-24497: launching as CATEGORY_HOME or CATEGORY_DEFAULT prevents intent data from
 				// being passed to our resumed activity. Re-launch using CATEGORY_LAUNCHER.
 				Set<String> categories = intent.getCategories();
-				if (categories == null || !categories.contains(Intent.CATEGORY_LAUNCHER)) {
+				if (categories == null || categories.contains(Intent.CATEGORY_HOME) || !categories.contains(Intent.CATEGORY_LAUNCHER)) {
 					finish();
 
 					if (categories != null) {
