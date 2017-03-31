@@ -208,7 +208,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 		if (proxy && proxy->isDetached()) {
 			// if the proxy is detached, delete it
 			// This means we have already received notification from V8 that the JS side of the proxy can be deleted
-			LOGI(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
+			LOGD(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
 			delete proxy;
 			return JNI_TRUE;
 		}
