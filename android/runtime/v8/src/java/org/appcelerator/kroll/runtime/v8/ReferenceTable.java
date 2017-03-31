@@ -21,15 +21,15 @@ public final class ReferenceTable
 	 * A simple Map used to hold strong/weak reference to the Java objects we have
 	 * paired/wrapped in native titanium::Proxy/JavaObject instances.
 	 */
-	private static HashMap<Integer, Object> references = new HashMap<Integer, Object>();
+	private static HashMap<Long, Object> references = new HashMap<Long, Object>();
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is
 	 * created.
-	 * FIXME Handle "wrapping" the value around to Integer.MIN_VALUE when
-	 * Integer.MAX_VALUE is reached? What if we ever reach back up to 0 - we need to skip it!
+	 * FIXME Handle "wrapping" the value around to Long.MIN_VALUE when
+	 * Long.MAX_VALUE is reached? What if we ever reach back up to 0 - we need to skip it!
 	 */
-	private static int lastKey = 1;
+	private static long lastKey = 1;
 
 	/**
 	 * Creates a new strong reference. Done when attaching a native Proxy to a
@@ -37,9 +37,9 @@ public final class ReferenceTable
 	 * @param object the object to reference and retain
 	 * @return an unique key for this reference
 	 */
-	public static int createReference(Object object)
+	public static long createReference(Object object)
 	{
-		int key = lastKey++;
+		long key = lastKey++;
 		Log.d(TAG, "Creating strong reference for key: " + key, Log.DEBUG_MODE);
 		references.put(key, object);
 		return key;
@@ -49,7 +49,7 @@ public final class ReferenceTable
 	 * Destroy the reference in our map. Done when we're deleting the native proxy.
 	 * @param key the key for the reference to destroy.
 	 */
-	public static void destroyReference(int key)
+	public static void destroyReference(long key)
 	{
 		Log.d(TAG, "Destroying reference under key: " + key, Log.DEBUG_MODE);
 		Object obj = references.remove(key);
@@ -73,11 +73,11 @@ public final class ReferenceTable
 	 * collected if no other references remain.
 	 * @param key the key for the reference to weaken.
 	 */
-	public static void makeWeakReference(int key)
+	public static void makeWeakReference(long key)
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = references.get(key);
-		references.put(key, new ReferenceWithCleanup(ref, refQueue));
+		references.put(key, new WeakReference<Object>(ref));
 	}
 
 	/**
@@ -87,7 +87,7 @@ public final class ReferenceTable
 	 * @param key the key for the reference.
 	 * @return the referenced object if the reference is still valid.
 	 */
-	public static Object clearWeakReference(int key)
+	public static Object clearWeakReference(long key)
 	{
 		Log.d(TAG, "Upgrading weak reference to strong for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
@@ -101,7 +101,7 @@ public final class ReferenceTable
 	 * @param key the key of the reference.
 	 * @return the object if the reference is still valid, otherwise null.
 	 */
-	public static Object getReference(int key)
+	public static Object getReference(long key)
 	{
 		Object ref = references.get(key);
 		if (ref instanceof WeakReference) {

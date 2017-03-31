@@ -7,17 +7,11 @@
 #ifndef TI_KROLL_NATIVE_OBJECT_H
 #define TI_KROLL_NATIVE_OBJECT_H
 
-#include <assert.h>
+#include <v8.h>
 #include <jni.h>
 
 #include "EventEmitter.h"
-#include "NativeObject.h"
 
-// FIXME This and NativeObject duplicate a lot of functionality!
-// We should be using NativeObject to Wrap/Unwrap
-// but we need some of the Java specifics this provides with managing the
-// reference table - moving java objects to weak or strong - and reviving
-// them when getJavaObject is called, or destroying when destructor is called!
 namespace titanium {
 
 // Provides an interface between a JavaScript object
@@ -55,7 +49,6 @@ public:
 	 */
 	void detach();
 
-
 	/**
 	 * Determines if we are 'detached'. In real terms this means we either:
 	 * - Are wrapping no java object (so javaObject_ == NULL && refTableKey_ == 0)
@@ -92,7 +85,7 @@ private:
 	/**
 	 * If we're not using global references, this will hold the key to look up the java object in our ReferenceTable. Otherwise it is 0.
 	 */
-	jint refTableKey_;
+	jlong refTableKey_;
 
 	/**
 	 * If we've converted the Java side reference to a weak once, this will be true. If it is strong, this will be false.

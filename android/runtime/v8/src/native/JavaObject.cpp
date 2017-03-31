@@ -6,12 +6,9 @@
  */
 
 #include "AndroidUtil.h"
-#include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
 #include "ReferenceTable.h"
-
-#include <v8.h>
 
 using namespace v8;
 
@@ -20,8 +17,6 @@ using namespace v8;
 namespace titanium {
 
 bool JavaObject::useGlobalRefs = true;
-
-static jobject objectMap;
 
 #ifdef TI_DEBUG
 static struct {
@@ -62,7 +57,7 @@ JavaObject::~JavaObject()
 	UPDATE_STATS(-1, 0); // remove one from total counter
 
 	// If we have anything wrapped, get rid of it in JNI/JVM
-	if (javaObject_ || refTableKey_ > 0) {
+	if (javaObject_ || refTableKey_ != 0) {
 		DeleteJavaRef();
 	}
 

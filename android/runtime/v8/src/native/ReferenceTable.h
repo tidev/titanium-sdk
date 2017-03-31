@@ -24,11 +24,11 @@ namespace titanium {
 class ReferenceTable
 {
 public:
-	static jint createReference(jobject object);
-	static void destroyReference(jint key);
-	static void makeWeakReference(jint key);
-	static jobject clearWeakReference(jint key);
-	static jobject getReference(jint key);
+	static jlong createReference(jobject object);
+	static void destroyReference(jlong key);
+	static void makeWeakReference(jlong key);
+	static jobject clearWeakReference(jlong key);
+	static jobject getReference(jlong key);
 };
 
 } // namespace titanium

@@ -363,11 +363,11 @@ void JNIUtil::initCache()
 	krollDictPutMethod = getMethodID(krollDictClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
 			false);
 
-	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)I", true);
-	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(I)V", true);
-	referenceTableMakeWeakReferenceMethod = getMethodID(referenceTableClass, "makeWeakReference", "(I)V", true);
-	referenceTableClearWeakReferenceMethod = getMethodID(referenceTableClass, "clearWeakReference", "(I)Ljava/lang/Object;", true);
-	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(I)Ljava/lang/Object;", true);
+	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)J", true);
+	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(J)V", true);
+	referenceTableMakeWeakReferenceMethod = getMethodID(referenceTableClass, "makeWeakReference", "(J)V", true);
+	referenceTableClearWeakReferenceMethod = getMethodID(referenceTableClass, "clearWeakReference", "(J)Ljava/lang/Object;", true);
+	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(J)Ljava/lang/Object;", true);
 
 	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
 	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
