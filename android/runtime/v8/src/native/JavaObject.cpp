@@ -81,7 +81,6 @@ jobject JavaObject::getJavaObject()
 	if (useGlobalRefs) {
 		return javaObject_;
 	} else {
-		// FIXME This may return NULL!
 		ASSERT(refTableKey_ != 0);
 		jobject ref = ReferenceTable::getReference(refTableKey_);
 		if (ref == NULL) {
@@ -229,7 +228,7 @@ void JavaObject::DeleteJavaRef()
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = NULL;
 	} else {
-		LOGI(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
+		LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
 		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
 		refTableKey_ = 0; // throw away the key
 	}
