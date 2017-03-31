@@ -297,8 +297,8 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
 	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
-	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData);
-
+	bool isNew;
+	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData, &isNew);
 
 	proxy->unreferenceJavaObject(javaProxy);
 
@@ -309,7 +309,9 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	env->DeleteLocalRef(krollObject);
 	env->DeleteLocalRef(javaEventType);
-	env->DeleteLocalRef(javaEventData);
+	if (isNew) {
+		env->DeleteLocalRef(javaEventData);
+	}
 }
 
 Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
