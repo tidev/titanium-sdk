@@ -194,8 +194,6 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, v8::Local<v8
 
 jobject TypeConverter::jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject)
 {
-  // FIXME We need to capture all the possible JS variables in scope to this function somehow!
-  // Otherwise we can get to a state where we reference a JS obj that is referenced in the callback function whose java object/proxy has been GC'd
 	Local<Function> func = jsObject.As<Function>();
 	Persistent<Function, CopyablePersistentTraits<Function>> jsFunction(isolate, func);
 	jsFunction.MarkIndependent();
