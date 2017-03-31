@@ -204,6 +204,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 
 	if (refPointer) {
 		// FIXME What's the right way to cast the long long int as a pointer?
+		// Maybe we can move to more correct smart pointer usage?
+		// http://stackoverflow.com/questions/26375215/c-shared-ptr-and-java-native-object-ownership
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
 		if (proxy && proxy->isDetached()) {
 			// if the proxy is detached, delete it
