@@ -129,7 +129,6 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	if (showLine) {
-		Local<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
 			titanium::Utf8Value filename(message->GetScriptResourceName());
 			titanium::Utf8Value msg(message->Get());
@@ -139,7 +138,7 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	Local<Value> stackTrace = tryCatch.StackTrace();
-	titanium::Utf8Value trace(tryCatch.StackTrace());
+	titanium::Utf8Value trace(stackTrace);
 
 	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
 		LOGD(EXC_TAG, *trace);

@@ -15,9 +15,9 @@ PROPERTIES_JS_DIR := $(MODULES_DIR)/app/src/ti/modules/titanium/app/properties
 
 CFLAGS := -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -DV8_SHARED=1
 
-# ifeq ($(TI_DEBUG),1)
+ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
-# endif
+endif
 
 # Several places in generated code we set some jvalues to NULL and
 # since NDK r8b we'd get warnings about each one.
