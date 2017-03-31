@@ -67,6 +67,8 @@ JavaObject::~JavaObject()
 	}
 
 	// Make sure we wipe the persistent, in case we called delete on the proxy and didn't get deleted as a result of the NativeObject WeakCallback
+	if (persistent().IsEmpty())
+		return;
 	persistent().Reset();
 }
 
@@ -170,11 +172,14 @@ void JavaObject::MakeJavaStrong()
 		if (isWeakRef_) { // if we are weak, upgrade back to strong
 			// Make sure we have a key
 			ASSERT(refTableKey_ != 0);
+			JNIEnv *env = JNIUtil::getJNIEnv();
+			ASSERT(env != NULL);
 			jobject stored = ReferenceTable::clearWeakReference(refTableKey_);
 			if (stored == NULL) {
 				// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
 				LOGE(TAG, "!!! OH NO! We tried to move a weak Java object back to strong, but it's aleady been GC'd by JVM! We're in a bad state! Key: %d", refTableKey_);
 			}
+			env->DeleteLocalRef(stored);
 		} else {
 			// New entry, make sure we have no key, have an object, get a new key
 			ASSERT(javaObject_ != NULL);
