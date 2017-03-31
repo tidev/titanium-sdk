@@ -12,8 +12,6 @@
 #include <jni.h>
 #include <v8.h>
 
-#include "Proxy.h"
-
 namespace titanium {
 class TypeConverter
 {

@@ -1,6 +1,11 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
@@ -25,69 +30,6 @@ public final class ReferenceTable
 	 * Integer.MAX_VALUE is reached? What if we ever reach back up to 0 - we need to skip it!
 	 */
 	private static int lastKey = 1;
-	/**
-	 *  Use a ReferenceQueue to track the WeakReferences that get killed, when we
-	 *  get one kill off the matching JS object in native code!
-	 */
-	private static ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
-
-	/**
-	 * This is a special WeakReference subclass that attempts to delete the
-	 * associated native C++ titanium::Proxy instance once we know the paired Java
-	 * object has been GC'd in the JVM.
-	 */
-	static class ReferenceWithCleanup extends WeakReference<Object> {
-
-		/**
-		 * The "pointer" to the native proxy. If set to 0, means we don't have a
-		 * valid proxy, or the proxy was already deleted.
-		 */
-		private long pointer;
-
-		ReferenceWithCleanup(Object obj, ReferenceQueue<Object> queue) {
-			super(obj, queue);
-			if (obj instanceof KrollProxySupport) {
-				KrollProxySupport proxy = (KrollProxySupport) obj;
-				KrollObject ko = proxy.getKrollObject();
-				if (ko instanceof V8Object) {
-					V8Object v8 = (V8Object) ko;
-					pointer = v8.getPointer();
-				} else {
-					pointer = 0;
-				}
-			} else {
-				pointer = 0;
-			}
-		}
-
-		/**
-		 * We already know we deleted the native proxy (due to ReferenceTable#destroyReference)
-		 * so set the pointer value to 0 so we don't try to delete it again.
-		 */
-		void abort() {
-			pointer = 0;
-		}
-
-		/**
-		 * Here we do the equivalent of V8Object.nativeRelease. We kill the native
-		 * proxy because we know the Java object has been GC'd.
-		 * @return true if we delet the native proxy, false otherwise.
-		 */
-		boolean cleanUp() {
-			if (pointer != 0) {
-				return ReferenceTable.nativeRelease(pointer);
-			}
-			return false;
-		}
-	}
-
-	/**
-	 * Returns a GC'd reference that we can clean up natively (or null if none available)
-	 */
-	static ReferenceWithCleanup poll()
-	{
-		return (ReferenceWithCleanup) refQueue.poll();
-	}
 
 	/**
 	 * Creates a new strong reference. Done when attaching a native Proxy to a
@@ -111,11 +53,8 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Destroying reference under key: " + key, Log.DEBUG_MODE);
 		Object obj = references.remove(key);
-		if (obj instanceof ReferenceWithCleanup) {
-			// We know we're deleting the native proxy already, so tell the weak reference stuff not to delete it again
-			ReferenceWithCleanup ref = (ReferenceWithCleanup) obj;
-			ref.abort(); // don't try and clean up the native proxy
-			obj = ref.get();
+		if (obj instanceof WeakReference) {
+			obj = ((WeakReference<?>)obj).get();
 		}
 		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
 		// This *should* prevent the native code from trying to reconstruct the proxy for any reason
@@ -170,7 +109,4 @@ public final class ReferenceTable
 		}
 		return ref;
 	}
-
-	// JNI method prototypes
-	private static native boolean nativeRelease(long pointer);
 }

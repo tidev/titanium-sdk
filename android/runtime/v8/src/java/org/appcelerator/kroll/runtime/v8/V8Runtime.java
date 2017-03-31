@@ -136,11 +136,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 					if (gcWantsMore) {
 						shouldGC.set(true);
 					}
-				} else {
-					ReferenceTable.ReferenceWithCleanup deadRef = ReferenceTable.poll();
-					if (deadRef != null) {
-						deadRef.cleanUp();
-					}
 				}
 				return true;
 			}

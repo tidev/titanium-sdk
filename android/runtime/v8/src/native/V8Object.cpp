@@ -101,7 +101,6 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		titanium::Proxy* proxy = (titanium::Proxy*) sourcePtr;
 		source = proxy->handle(V8Runtime::v8_isolate);
 	} else {
-		// FIXME no source, and pointer to source is 0. Not a good situation! Means source proxy is probably dead!
 		source = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jsource).As<Object>();
 	}
 
