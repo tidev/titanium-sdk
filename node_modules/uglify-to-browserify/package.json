@@ -16,7 +16,6 @@
   "_from": "uglify-to-browserify@>=1.0.0 <1.1.0",
   "_id": "uglify-to-browserify@1.0.2",
   "_inCache": true,
-  "_installable": true,
   "_location": "/uglify-to-browserify",
   "_npmUser": {
     "name": "forbeslindesay",

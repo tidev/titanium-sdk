@@ -16,7 +16,6 @@
   "_from": "yargs@>=3.10.0 <3.11.0",
   "_id": "yargs@3.10.0",
   "_inCache": true,
-  "_installable": true,
   "_location": "/yargs",
   "_nodeVersion": "2.0.2",
   "_npmUser": {

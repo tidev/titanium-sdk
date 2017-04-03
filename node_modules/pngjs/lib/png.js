@@ -12,8 +12,9 @@ var PNG = exports.PNG = function(options) {
 
   options = options || {}; // eslint-disable-line no-param-reassign
 
-  this.width = options.width || 0;
-  this.height = options.height || 0;
+  // coerce pixel dimensions to integers (also coerces undefined -> 0):
+  this.width = options.width | 0;
+  this.height = options.height | 0;
 
   this.data = this.width > 0 && this.height > 0 ?
     new Buffer(4 * this.width * this.height) : null;
@@ -116,6 +117,15 @@ PNG.prototype._handleClose = function() {
 
 
 PNG.bitblt = function(src, dst, srcX, srcY, width, height, deltaX, deltaY) { // eslint-disable-line max-params
+  // coerce pixel dimensions to integers (also coerces undefined -> 0):
+  /* eslint-disable no-param-reassign */
+  srcX |= 0;
+  srcY |= 0;
+  width |= 0;
+  height |= 0;
+  deltaX |= 0;
+  deltaY |= 0;
+  /* eslint-enable no-param-reassign */
 
   if (srcX > src.width || srcY > src.height || srcX + width > src.width || srcY + height > src.height) {
     throw new Error('bitblt reading outside image');

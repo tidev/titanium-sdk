@@ -1,5 +1,7 @@
 
-var n = 'rc'+Math.random()
+var seed = Math.random();
+var n = 'rc'+ seed;
+var N = 'RC'+ seed;
 var assert = require('assert')
 
 
@@ -17,6 +19,9 @@ process.env[n+'_someOpt__w__w__'] = 18629
 
 // Leading '__' should ignore everything up to 'z'
 process.env[n+'___z__i__'] = 9999
+
+// should ignore case for config name section.
+process.env[N+'_test_upperCase'] = 187
 
 var config = require('../')(n, {
   option: true
@@ -37,4 +42,5 @@ assert.equal(config.someOpt.z/*.x*/, 186577)
 assert.equal(config.someOpt.w.w, 18629)
 assert.equal(config.z.i, 9999)
 
+assert.equal(config.test_upperCase, 187)
 
