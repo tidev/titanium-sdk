@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.default = function (coll, limit, iteratee, callback) {
     callback = callback || _noop2.default;
-
+    var _iteratee = (0, _wrapAsync2.default)(iteratee);
     (0, _mapLimit2.default)(coll, limit, function (val, callback) {
-        iteratee(val, function (err, key) {
+        _iteratee(val, function (err, key) {
             if (err) return callback(err);
             return callback(null, { key: key, val: val });
         });
@@ -42,10 +42,13 @@ var _mapLimit = require('./mapLimit');
 
 var _mapLimit2 = _interopRequireDefault(_mapLimit);
 
+var _wrapAsync = require('./internal/wrapAsync');
+
+var _wrapAsync2 = _interopRequireDefault(_wrapAsync);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 ;
-
 /**
  * The same as [`groupBy`]{@link module:Collections.groupBy} but runs a maximum of `limit` async operations at a time.
  *
@@ -57,10 +60,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @category Collection
  * @param {Array|Iterable|Object} coll - A collection to iterate over.
  * @param {number} limit - The maximum number of async operations at a time.
- * @param {Function} iteratee - A function to apply to each item in `coll`.
- * The iteratee is passed a `callback(err, key)` which must be called once it
- * has completed with an error (which can be `null`) and the `key` to group the
- * value under. Invoked with (value, callback).
+ * @param {AsyncFunction} iteratee - An async function to apply to each item in
+ * `coll`.
+ * The iteratee should complete with a `key` to group the value under.
+ * Invoked with (value, callback).
  * @param {Function} [callback] - A callback which is called when all `iteratee`
  * functions have finished, or an error occurs. Result is an `Object` whoses
  * properties are arrays of values which returned the corresponding key.
