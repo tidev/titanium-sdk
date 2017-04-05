@@ -799,17 +799,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    if (!uploadTaskResponses) {
-        uploadTaskResponses = [[[NSMutableDictionary alloc] init] retain];
+    if(!nsURLUploadTaskResponses){
+        nsURLUploadTaskResponses = [[NSMutableDictionary alloc] init];
     }
-	
-    NSMutableData *responseData =  [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
-    if (!responseData) {
-        responseData = [NSMutableData dataWithData:data];
-        [uploadTaskResponses setValue:responseData forKey:(NSString*)@(dataTask.taskIdentifier)];
+    NSMutableDictionary *responseObj =  [nsURLUploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
+    if (!responseObj) {
+        
+        NSMutableData * responseData = [NSMutableData dataWithData:data];
+        NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
+        responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys: @(statusCode), @"statusCode",responseData, @"responseData", nil];
+        [nsURLUploadTaskResponses setValue:responseObj forKey:(NSString*)@(dataTask.taskIdentifier)];
         
     } else {
-        [responseData appendData:data];
+        [[responseObj objectForKey:@"responseData"] appendData:data ];
     }
 }
 
@@ -818,7 +820,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     //FunctionName();
     
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                 NUMUINTEGER(task.taskIdentifier), @"taskIdentifier",
+                                 [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                                  nil];
     
     if (session.configuration.identifier) {
@@ -832,23 +834,27 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                                     nil];
         [dict addEntriesFromDictionary:errorinfo];
     } else {
-        NSMutableData *responseData = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+        NSMutableDictionary *responseObj = [nsURLUploadTaskResponses objectForKey:@(task.taskIdentifier)];
         NSString *responseText = nil;
-        if (responseData) {
-            // We only send responseText as this is the responsesData dictionary only gets filled with data from uploads
-            responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        NSInteger  *statusCode = nil;
+        if (responseObj) {
+            //we only send responseText as this is the responsesData dictionary only gets filled with data from uploads
+            responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
+            statusCode = (NSInteger*)[responseObj objectForKey:@"statusCode"];
             
-            [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
+            [nsURLUploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
         }
         
         NSDictionary * success = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                   NUMINT(0), @"errorCode",
                                   @"", @"message",
                                   responseText,@"responseText",
+                                  statusCode,@"statusCode",
                                   nil];
         [dict addEntriesFromDictionary:success];
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
+    
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
