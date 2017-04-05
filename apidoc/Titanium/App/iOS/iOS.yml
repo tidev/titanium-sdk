@@ -988,7 +988,10 @@ events:
 
       - name: responseText
         summary: The response text for upload tasks (since SDK 6.1.0).
-        type: String
+        type: Number
+
+      - name: statusCode
+        summary: The response status code for upload tasks (since SDK 6.1.0)
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
