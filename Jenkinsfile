@@ -41,14 +41,27 @@ def unitTests(os, nodeVersion) {
 				dir('titanium-mobile-mocha-suite/scripts') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						sh 'npm install .'
-						// TODO Use retry here to try multiple times?
-						sh "node test.js -b ../../${zipName} -p ${os}"
-					}
-					// Kill the emulators!
-					if ('android'.equals(os)) {
-						sh 'killall -9 emulator || echo ""'
-						sh 'killall -9 emulator64-arm || echo ""'
-						sh 'killall -9 emulator64-x86 || echo ""'
+						try {
+							sh "node test.js -b ../../${zipName} -p ${os}"
+						} catch (e) {
+							if ('ios'.equals(os)) {
+								// Gather the crash report(s)
+								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								archiveArtifacts 'mocha_*.crash'
+								sh 'rm -f mocha_*.crash'
+							} else {
+								// FIXME gather crash reports/tombstones for Android?
+							}
+							throw e
+						} finally {
+							// Kill the emulators!
+							if ('android'.equals(os)) {
+								sh 'killall -9 emulator || echo ""'
+								sh 'killall -9 emulator64-arm || echo ""'
+								sh 'killall -9 emulator64-x86 || echo ""'
+							}
+						}
 					}
 					junit 'junit.*.xml'
 				}
