@@ -300,7 +300,9 @@ Module.prototype.require = function (request, context) {
 	}
 
 	// 4. THROW "not found"
-	throw new Error("Requested module not found: " + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+	var err = new Error("Cannot find module '" + request + "'");
+	err.code = 'MODULE_NOT_FOUND';
+	throw err;
 }
 
 /**
