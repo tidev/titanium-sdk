@@ -225,7 +225,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (emu.type == 'avd') {
 								return {
 									name: emu.name,
-									id: emu.name,
+									id: emu.id,
 									api: emu['api-level'],
 									version: emu['sdk-version'],
 									abi: emu.abi,
@@ -1779,7 +1779,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 
 	var deviceId = this.deviceId = argv['device-id'];
 	if (!this.buildOnly && this.target == 'emulator') {
-		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
+		var emu = this.devices.filter(function (e) { return e.id == deviceId; }).shift();
 		if (!emu) {
 			// sanity check
 			this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
