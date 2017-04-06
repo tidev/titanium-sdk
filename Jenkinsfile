@@ -155,8 +155,10 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 					if (fileExists('index.json')) {
-						// FIXME The index.json we received may actually be an Access Denied xml file. If so we should catch here and assume empty JSON?
-						indexJson = jsonParse(readFile('index.json'))
+						def contents = readFile('index.json')
+						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+							indexJson = jsonParse(contents)
+						}
 					}
 
 					// unarchive zips
