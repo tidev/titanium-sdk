@@ -16,9 +16,7 @@
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiMediaAudioSession.h"
-#ifdef USE_TI_MEDIAMUSICPLAYER
 #import "TiMediaMusicPlayer.h"
-#endif
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
@@ -123,10 +121,8 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-#ifdef USE_TI_MEDIAMUSICPLAYER
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
-#endif
     RELEASE_TO_NIL(popoverView);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
@@ -231,7 +227,6 @@ MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_UNKNOWN, AVAuthorizationStatusNotDetermine
 #endif
 
 //Constants for currentRoute
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
@@ -256,7 +251,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
-#endif
 
 //Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
@@ -291,7 +285,6 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
 #endif
 
 //Constants for MusicPlayer playback state
-#ifdef USE_TI_MEDIAMUSICPLAYER
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
@@ -310,7 +303,6 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_DEFAULT, MPMusicShuffleModeDefault);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_NONE, MPMusicShuffleModeOff);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_SONGS, MPMusicShuffleModeSongs);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
-#endif
 
 //Error constants for MediaModule
 MAKE_SYSTEM_PROP(UNKNOWN_ERROR,MediaModuleErrorUnknown);
@@ -398,7 +390,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME,MPMovieTimeOptionNearestKeyF
 MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #endif
 
-#ifdef USE_TI_MEDIAMUSICPLAYER
 -(TiMediaMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {
@@ -407,11 +398,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             TiThreadPerformOnMainThread(^{result = [self systemMusicPlayer];}, YES);
             return result;
         }
-        if ([TiUtils isIOS8OrGreater]) {
-            systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController systemMusicPlayer]];
-        } else {
-            systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
-        }
+        systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController systemMusicPlayer]];
     }
     return systemMusicPlayer;
 }
@@ -428,7 +415,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     return appMusicPlayer;
 }
-#endif
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
@@ -468,7 +454,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
 }
 
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setAudioSessionCategory:(NSString*)mode
 {
     [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -478,7 +463,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 {
     return [[TiMediaAudioSession sharedSession] sessionMode];
 }
-#endif
 
 #if defined(USE_TI_MEDIAAVAILABLECAMERAMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
 -(NSArray*)availableCameraMediaTypes
@@ -543,12 +527,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIACANRECORD
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
 }
-#endif
 
 #ifdef USE_TI_MEDIAISCAMERASUPPORTED
 -(NSNumber*)isCameraSupported
@@ -573,51 +555,39 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 #endif
 
-#ifdef USE_TI_MEDIAVOLUME
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
 }
-#endif
 
-#ifdef USE_TI_MEDIAAUDIOPLAYING
 -(NSNumber*)audioPlaying
 {
     return NUMBOOL([[TiMediaAudioSession sharedSession] isAudioPlaying]);
 }
-#endif
 
-#ifdef USE_TI_MEDIACURRENTROUTE
 -(NSDictionary*)currentRoute
 {
     return [[TiMediaAudioSession sharedSession] currentRoute];
 }
-#endif
 
 #pragma mark Public Methods
 
-#ifdef USE_TI_MEDIABEEP
 -(void)beep:(id)unused
 {
     ENSURE_UI_THREAD(beep,unused);
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 }
-#endif
 
-#ifdef USE_TI_MEDIAVIBRATE
 -(void)vibrate:(id)args
 {
     //No pattern support on iOS
     [self beep:nil];
 }
-#endif
 
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
 }
-#endif
 
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
@@ -1416,6 +1386,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [NSThread sleepForTimeInterval:0.5];
     [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
     [pool release];
+    
+#ifndef TI_USE_KROLL_THREAD
+    //TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
+    KrollContext *krollContext = [self.pageContext krollContext];
+    [krollContext forceGarbageCollectNow];
+#endif
 }
 
 -(void)sendPickerError:(int)code
@@ -1750,7 +1726,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             
             [cameraView windowWillOpen];
             [picker setCameraOverlayView:view];
-            [view setAutoresizingMask:UIViewAutoresizingNone];
             
             [cameraView windowDidOpen];
             [cameraView layoutChildren:NO];
@@ -2069,8 +2044,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
                     UIGraphicsBeginImageContext(ourRect.size);
                     CGContextRef context = UIGraphicsGetCurrentContext();
+                    CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
+                    CGContextFillRect(context, CGRectMake(0.0, 0.0, ourRect.size.width, ourRect.size.height));
                     
-                    // translated rectangle for drawing sub image 
+                    // translated rectangle for drawing sub image
                     CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
                     
                     // clip to the bounds of the image context
@@ -2117,7 +2094,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }
-	
+    
     [self sendPickerSuccess:dictionary];
 }
 
@@ -2246,7 +2223,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
 {
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 1 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe
@@ -2267,12 +2243,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
     }
-#endif
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
 {
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
     if (count == 0 && [type isEqualToString:@"routechange"])
     {
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
@@ -2285,7 +2259,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [[TiMediaAudioSession sharedSession] stopAudioSession];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
     }
-#endif
 }
 
 @end

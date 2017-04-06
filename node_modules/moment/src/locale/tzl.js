@@ -1,7 +1,7 @@
 //! moment.js locale configuration
 //! locale : Talossan [tzl]
-//! author : Robin van der Vliet : https://github.com/robin0van0der0v with the help of Iustì Canun
-
+//! author : Robin van der Vliet : https://github.com/robin0van0der0v
+//! author : Iustì Canun
 
 import moment from '../moment';
 
@@ -55,7 +55,7 @@ export default moment.defineLocale('tzl', {
         y : processRelativeTime,
         yy : processRelativeTime
     },
-    ordinalParse: /\d{1,2}\./,
+    dayOfMonthOrdinalParse: /\d{1,2}\./,
     ordinal : '%d.',
     week : {
         dow : 1, // Monday is the first day of the week.

@@ -45,7 +45,7 @@ description: |
     from processing and left intact, which means they can be correctly loaded in the WebView.
 
     For local JavaScript files not referenced in static local HTML files, for example, a
-    dynamically-genereated HTML file referencing a local JavaScript file,
+    dynamically-generated HTML file referencing a local JavaScript file,
     rename the file extension of the local JavaScript files to '.jslocal' instead of '.js'.
 
     The build process for testing your application on the simulator, emulator or device does not
@@ -390,14 +390,23 @@ events:
         type: Number
 
   - name: onStopBlacklistedUrl
-    summary: Fired when a blacklisted Url is stopped
-    description: |
-        This event is fired when a blacklisted Url is stopped
-    platforms: [android, iphone, ipad]
-    since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
+    summary: Fired when a blacklisted URL is stopped.
+    platforms: [android]
+    since: 5.4.0
     properties:
       - name: url
-        summary: URL of the web document that is stopped.
+        summary: The URL of the web document that is stopped.
+    deprecated:
+        since: "6.1.0"
+        notes: Use the  cross-platform `blacklisturl` event instead.
+        
+  - name: blacklisturl
+    summary: Fired when a blacklisted URL is stopped.
+    platforms: [android, iphone, ipad]
+    since: {android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0"}
+    properties:
+      - name: url
+        summary: The URL of the web document that is stopped.
         
 properties:
 
