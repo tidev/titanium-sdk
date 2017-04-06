@@ -30,15 +30,15 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_GUID;
 extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
+NSString * const TiExceptionCodeModuleNotFound = @"MODULE_NOT_FOUND";
+
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
 		"if(module.exports !== __OXP){return module.exports;}"
 		"return exports;})({})";
 
-
 //Defined private method inside TiBindingRunLoop.m (Perhaps to move to .c?)
 void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
-
 
 @implementation TitaniumObject
 
@@ -1210,7 +1210,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// 4. THROW "not found"
 	NSString *arch = [TiUtils currentArchitecture];
-	@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];  // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Cannot find module '%@'", path] userInfo:@{@"code": TiExceptionCodeModuleNotFound}];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
