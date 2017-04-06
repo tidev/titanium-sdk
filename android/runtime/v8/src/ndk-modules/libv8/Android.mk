@@ -1,6 +1,6 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -9,7 +9,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-V8_VERSION=5.3.332.41
+V8_VERSION=5.7.492.71
 LIBV8_DIR := ../../../../../../dist/android/libv8/$(V8_VERSION)
 
 # https://jira.appcelerator.org/browse/TIMOB-15263
