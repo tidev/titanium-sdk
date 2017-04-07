@@ -1407,7 +1407,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (this.debugPort || this.profilerPort) {
 		// if debugging/profiling, make sure we only have one device and that it has an sd card
 		if (this.target == 'emulator') {
-			var emu = this.devices.filter(function (d) { return d.name == deviceId; }).shift();
+			var emu = this.devices.filter(function (d) { return d.id == deviceId; }).shift();
 			if (!emu) {
 				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
 				process.exit(1);
