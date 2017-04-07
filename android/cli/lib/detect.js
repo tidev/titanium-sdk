@@ -43,12 +43,6 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
 		if (err) {
 			finished(err);
 		} else {
-			emus.forEach(function (emu) {
-				if (!emu.id) {
-					emu.id = emu.name;
-				}
-			});
-
 			finished(null, emus);
 		}
 	});
