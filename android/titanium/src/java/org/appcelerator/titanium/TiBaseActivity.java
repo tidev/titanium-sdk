@@ -139,7 +139,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
-	private static Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static int totalWindowStack = 0;
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -208,6 +209,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
+		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -219,6 +221,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
+		totalWindowStack--;
 
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
@@ -863,7 +866,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
 
 				// root window should exitOnClose by default
-				if (windowStack.size() <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+				if (totalWindowStack <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
 					exitOnClose = true;
 				}
 				if (exitOnClose) {
@@ -876,7 +879,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 					return;
 
 				// root window has exitOnClose set as false, send to background
-				} else if (windowStack.size() <= 1) {
+				} else if (totalWindowStack <= 1) {
 					Log.d(TAG, "onBackPressed: suspend to background");
 					this.moveTaskToBack(true);
 					return;
