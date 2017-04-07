@@ -2990,7 +2990,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
 			CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"'
-		};
+		},
+		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
 	// set additional build settings
 	if (this.target === 'simulator') {
@@ -3490,8 +3491,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						});
 					}
 
-					if (hasSwiftFiles && !extBuildSettings.SWIFT_VERSION) {
-						extBuildSettings.SWIFT_VERSION = '2.2';
+					if (hasSwiftFiles) {
+						if (!extBuildSettings.SWIFT_VERSION) {
+							extBuildSettings.SWIFT_VERSION = '2.2';
+						}
+
+						if (legacySwift) {
+							extBuildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT = 'YES';
+						} else {
+							extBuildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = 'YES';
+						}
 					}
 				}, this);
 
@@ -3603,9 +3612,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.hasWatchApp = true;
 	}
 
-	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 	Object.keys(xobjs.XCBuildConfiguration).forEach(function (key) {
-		var conf = xobjs.XCBuildConfiguration[key]
+		var conf = xobjs.XCBuildConfiguration[key];
 		if (!conf || typeof conf !== 'object' || !conf.buildSettings) {
 			return;
 		}
@@ -4777,7 +4785,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 						// if we are using app thinning, then don't copy the image, instead mark the
 						// image to be injected into the asset catalog. Also, exclude images that are
-						// managed by their bundles. 
+						// managed by their bundles.
 						} else if (useAppThinning && !relPath.match(bundleFileRegExp)) {
 							imageAssets[relPath] = info;
 						} else {
