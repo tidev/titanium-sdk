@@ -3493,7 +3493,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 					if (hasSwiftFiles) {
 						if (!extBuildSettings.SWIFT_VERSION) {
-							extBuildSettings.SWIFT_VERSION = '2.2';
+							extBuildSettings.SWIFT_VERSION = '3.1';
 						}
 
 						if (legacySwift) {
