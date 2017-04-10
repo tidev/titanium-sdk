@@ -129,15 +129,21 @@ exports.init = function (logger, config, cli) {
 						logger: logger.debug
 					});
 
-					// open xcode + organizer after packaging
-					logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
-					exec('open -a "' + builder.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
-						process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
-						exec('osascript "' + path.join(builder.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
-							logger.info(__('Packaging complete'));
-							finished();
+					// if not build-only open xcode + organizer after packaging, otherwise finish
+					if (!cli.argv['build-only']) {
+						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
+						exec('open -a "' + builder.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
+							process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
+							exec('osascript "' + path.join(builder.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
+								logger.info(__('Packaging complete'));
+								finished();
+							});
 						});
-					});
+					}
+					else{
+						logger.info(__('Packaging complete'));
+						finished();	
+					}
 					return;
 
 				case 'dist-adhoc':
