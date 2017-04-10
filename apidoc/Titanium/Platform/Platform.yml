@@ -143,9 +143,45 @@ properties:
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
+        
+        To use a UUID across different applications of the same vendor,
+        use <Titanium.Platform.indentifierForVendor> instead. 
+        
+        To use a UUID for tracking / advertising purposes, 
+        use <Titanium.Platform.identifierForAdvertising> instead.
     platforms: [android, iphone, ipad, mobileweb]
     type: String
     permission: read-only
+    
+  - name: identifierForVendor
+    summary: An alphanumeric string that uniquely identifies a device to the app’s vendor.
+    description: |
+        The value of this property is the same for apps that come from the same 
+        vendor running on the same device. A different value is returned for apps 
+        on the same device that come from different vendors, and for apps on 
+        different devices regardless of vendor. See the [Apple docs](https://developer.apple.com/reference/uikit/uidevice/1620059-identifierforvendor) for more infos.
+    platforms: [iphone, ipad]
+    type: String
+    permission: read-only
+    since: "6.2.0"
+    
+  - name: identifierForAdvertising
+    summary: An alphanumeric string unique to each device, used only for serving advertisements.
+    description: |
+        Unlike the <Titanium.Platform.identifierForVendor> property, the same 
+        value is returned to all vendors. This identifier may change—for example, 
+        if the user erases the device—so you should not cache it.
+        
+        In iOS 10.0 and later, the value of this property is all zeroes when the 
+        user has limited ad tracking.
+        
+        If the value is `null`, wait and get the value again later. This happens, 
+        for example, after the device has been restarted but before the user has 
+        unlocked the device.
+    platforms: [iphone, ipad]
+    type: String
+    permission: read-only
+    since: "6.2.0"
         
   - name: locale
     summary: System's default language.

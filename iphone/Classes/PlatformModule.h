@@ -40,6 +40,9 @@
 @property(readonly,nonatomic) NSNumber *batteryState;
 @property(readonly,nonatomic) NSNumber *batteryLevel;
 @property(readonly,nonatomic) NSString *locale;
+@property(readonly,nonatomic) NSString *identifierForVendor;
+@property(readonly,nonatomic) NSString *identifierForAdvertising;
+
 @property(readwrite,nonatomic,assign) NSNumber *batteryMonitoring;
 
 @property(readonly,nonatomic) NSNumber *BATTERY_STATE_UNKNOWN;
