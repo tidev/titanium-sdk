@@ -50,13 +50,13 @@ public class TiNinePatchHelper
 				if ((ninePatchChunk != null) && NinePatch.isNinePatchChunk(ninePatchChunk)) {
 					// The bitmap already has 9-patch pixels extracted from the image. Use it as-is.
 					// Note: This is typically the case for image's under the APK's "res/drawable" directories.
-			        nd = new NinePatchDrawable(resources, b, ninePatchChunk, new Rect(1,1,1,1), "");
+					nd = new NinePatchDrawable(resources, b, ninePatchChunk, new Rect(1,1,1,1), "");
 				}
 				else if (isNinePatch(b)) {
 					// The bitmap has 9-patch pixels on the edges. Extract it and crop the pixels off.
 					// Note: This is typically the case for images under the APK's "assets" directory.
-			        ninePatchChunk = createChunk(b);
-			        nd = new NinePatchDrawable(resources, cropNinePatch(b), ninePatchChunk, new Rect(1,1,1,1), "");
+					ninePatchChunk = createChunk(b);
+					nd = new NinePatchDrawable(resources, cropNinePatch(b), ninePatchChunk, new Rect(1,1,1,1), "");
 				}
 			}
 		}
@@ -88,8 +88,8 @@ public class TiNinePatchHelper
 			else if (isNinePatch(b)) {
 				// The bitmap has 9-patch pixels on the edges. Extract it and crop the pixels off.
 				// Note: This is typically the case for images under the APK's "assets" directory.
-		        ninePatchChunk = createChunk(b);
-		        nd = new NinePatchDrawable(resources, cropNinePatch(b), ninePatchChunk, new Rect(1,1,1,1), "");
+				ninePatchChunk = createChunk(b);
+				nd = new NinePatchDrawable(resources, cropNinePatch(b), ninePatchChunk, new Rect(1,1,1,1), "");
 			}
 			else {
 				// The given bitmap is not a 9-patch image. Display it in a drawable as-is.
@@ -164,17 +164,17 @@ public class TiNinePatchHelper
 		return (c == 0 || (c == Color.BLACK));
 	}
 
-    private Bitmap cropNinePatch(Bitmap b) {
-    	Bitmap cb = null;
+	private Bitmap cropNinePatch(Bitmap b) {
+		Bitmap cb = null;
 
-    	cb = Bitmap.createBitmap(b.getWidth()-2, b.getHeight()-2, b.getConfig());
-    	int[] pixels = new int[cb.getWidth() * cb.getHeight()];
-    	b.getPixels(pixels, 0, cb.getWidth(), 1, 1, cb.getWidth(), cb.getHeight());
-    	cb.setPixels(pixels, 0, cb.getWidth(), 0, 0, cb.getWidth(), cb.getHeight());
+		cb = Bitmap.createBitmap(b.getWidth()-2, b.getHeight()-2, b.getConfig());
+		int[] pixels = new int[cb.getWidth() * cb.getHeight()];
+		b.getPixels(pixels, 0, cb.getWidth(), 1, 1, cb.getWidth(), cb.getHeight());
+		cb.setPixels(pixels, 0, cb.getWidth(), 0, 0, cb.getWidth(), cb.getHeight());
 		cb.setDensity(b.getDensity());
 
-    	return cb;
-    }
+		return cb;
+	}
 
     byte[] createChunk(Bitmap b) {
     	byte[] chunk = null;
