@@ -412,6 +412,10 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							default: true,
 							desc: __('focus the iOS Simulator')
 						},
+						'export-ipa': {
+							default: false,
+							desc: __('for %s builds, exports archive into an ipa and places it on %s', 'dist-appstore'.cyan, 'output-dir'.cyan)
+						},
 						'xcode': {
 							// DEPRECATED
 							// secret flag to perform Xcode pre-compile build step
