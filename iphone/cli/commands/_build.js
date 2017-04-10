@@ -4092,6 +4092,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		delete plist.UILaunchImageFile;
 	}
 
+	// inject method if we are building for dist-appstore
+	if (this.target === "dist-appstore") {
+		plist.method = "app-store";
+	}
+
 	// write the Info.plist
 	var prev = this.previousBuildManifest.files && this.previousBuildManifest.files['Info.plist'],
 		contents = plist.toString('xml'),
