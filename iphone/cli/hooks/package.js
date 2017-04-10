@@ -81,6 +81,17 @@ exports.init = function (logger, config, cli) {
 
 			switch (target) {
 				case 'dist-appstore':
+
+					// if we have export-ipa we need to have an output-dir
+					var outputDir;
+					if (cli.argv['export-ipa']) {
+						outputDir = cli.argv['output-dir'] && afs.resolvePath(cli.argv['output-dir']);
+						if (!outputDir) {
+							logger.warn(__('Invalid %s, skipping packaging', '--output-dir'.cyan));
+							return finished();
+						}
+					}
+
 					logger.info(__('Preparing xcarchive'));
 
 					var productsDir = path.join(builder.buildDir, 'build', 'Products');
@@ -119,6 +130,71 @@ exports.init = function (logger, config, cli) {
 					var seconds = now.getSeconds();
 					var date = now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day);
 					var time = (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' + (seconds >= 10 ? seconds : '0' + seconds);
+
+					// if export-ipa don't move the archive, instead export it into an IPA
+					if (cli.argv['export-ipa']) {
+
+						logger.info(__('Exporting to ipa'));
+
+						// make sure the output directory is good to go
+						fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+						var ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+						fs.existsSync(ipaFile) && fs.unlinkSync(ipaFile);
+
+						// construct the command
+						var cmd = [
+							builder.xcodeEnv.executables.xcodebuild,
+							'-exportArchive',
+							'-archivePath', '"' + stagingArchiveDir + '"',
+							'-exportPath', '"' + outputDir + '"',
+							'-exportOptionsPlist', '"' + destInfoPlist + '"'
+						].join(' ');
+
+						// execute!
+						logger.debug(__('Running: %s', cmd.cyan));
+						exec(cmd, function (err, stdout, stderr) {
+							if (err) {
+								var output = stderr.trim();
+								output.split('\n').forEach(logger.trace);
+								logger.error(__('Failed to export archive to ipa'));
+
+								var pp = null;
+								var ppType = null;
+
+								function findPP(type) {
+									builder.iosInfo.provisioning[type].some(function (p) {
+										if (p.uuid === builder.provisioningProfileUUID) {
+											pp = p;
+											ppType = type;
+										}
+									});
+								}
+
+								findPP('distribution');
+								if (!pp) {
+									findPP('adhoc');
+								}
+
+								if (pp) {
+									if (ppType === 'distribution') {
+										logger.error(__('The selected provisioning profile "%s (%s)" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.', pp.name, pp.uuid));
+									} else {
+										logger.error(__('The selected provisioning profile "%s (%s)" is most likely not a valid Ad Hoc provisioning profile.', pp.name, pp.uuid));
+									}
+								} else {
+									logger.error(__('The selected provisioning profile doesn\'t appear to be a Distribution provisioning profile or match the signing identity.'));
+								}
+								logger.error(__('Please ensure you are using a valid Distribution provisioning that is linked to the signing identity, then try again.'));
+							} else {
+								logger.info(__('Packaging complete'));
+								logger.info(__('Package location: %s', ipaFile.cyan));
+							}
+							finished();
+						});
+
+						return;
+
+					}
 
 					var archivesDir = afs.resolvePath('~/Library/Developer/Xcode/Archives', date);
 					var dest = path.join(archivesDir, name + ' ' + date + ' ' + time + '.xcarchive');
