@@ -274,7 +274,5 @@
 	"Connected iOS Devices": "Connected iOS Devices",
 	"Type": "Type",
 	"iOS Version": "iOS Version",
-	"CPU Architecture": "CPU Architecture",
-	"for %s builds, exports archive into an ipa and places it on %s": "for %s builds, exports archive into an ipa and places it on %s",
-	"Exporting to ipa": "Exporting to ipa"
+	"CPU Architecture": "CPU Architecture"
 }
