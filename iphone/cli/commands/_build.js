@@ -412,10 +412,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							default: true,
 							desc: __('focus the iOS Simulator')
 						},
-						'export-ipa': {
-							default: false,
-							desc: __('for %s builds, exports archive into an ipa and places it on %s', 'dist-appstore'.cyan, 'output-dir'.cyan)
-						},
 						'xcode': {
 							// DEPRECATED
 							// secret flag to perform Xcode pre-compile build step
@@ -930,7 +926,7 @@ iOSBuilder.prototype.configOptionOutputDir = function configOptionOutputDir(orde
 
 	return {
 		abbr: 'O',
-		desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
+		desc: __('the output directory when using %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 		hint: 'dir',
 		order: order,
 		prompt: function (callback) {
@@ -4094,11 +4090,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	if (plist.UILaunchImageFile) {
 		this.logger.warn(__('Removing custom Info.plist "UILaunchImageFile" since we now use an asset catalog for launch images.'));
 		delete plist.UILaunchImageFile;
-	}
-
-	// inject method if we are building for dist-appstore
-	if (this.target === "dist-appstore") {
-		plist.method = "app-store";
 	}
 
 	// write the Info.plist
