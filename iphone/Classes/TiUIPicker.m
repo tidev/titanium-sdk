@@ -191,19 +191,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
-// We're order-dependent on type being set first, so we need to make sure that anything that relies
-// on whether or not this is a date picker needs to be set AFTER the initial configuration.
--(void)setSelectionIndicator_:(id)value
-{
-	if (picker == nil) {
-		[[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
-	}
-	else if ([self isDatePicker]==NO)
-	{
-		[(UIPickerView*)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
-	}
-}
-
 -(void)setMinDate_:(id)date
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
