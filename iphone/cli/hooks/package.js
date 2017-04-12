@@ -182,7 +182,7 @@ exports.init = function (logger, config, cli) {
 		var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
 
 		// Build the options plist file
-		if ( target === 'dist-appstore') {
+		if (target === 'dist-appstore') {
 			// write the export options plist file
 			var exportsOptions = new appc.plist();
 
