@@ -1050,7 +1050,7 @@ DEFINE_EXCEPTIONS
 			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
 		}
 	}
-    singleTapRecognizer.delegate = self;
+    	singleTapRecognizer.delegate = self;
 	return singleTapRecognizer;
 }
 
@@ -1066,7 +1066,7 @@ DEFINE_EXCEPTIONS
 			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
 		}
 	}
-    doubleTapRecognizer.delegate = self;
+    	doubleTapRecognizer.delegate = self;
 	return doubleTapRecognizer;
 }
 
@@ -1078,7 +1078,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:twoFingerTapRecognizer];
 		[self addGestureRecognizer:twoFingerTapRecognizer];
 	}
-    twoFingerTapRecognizer.delegate = self;
+    	twoFingerTapRecognizer.delegate = self;
 	return twoFingerTapRecognizer;
 }
 
@@ -1089,7 +1089,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:pinchRecognizer];
 		[self addGestureRecognizer:pinchRecognizer];
 	}
-    pinchRecognizer.delegate = self;
+    	pinchRecognizer.delegate = self;
 	return pinchRecognizer;
 }
 
@@ -1101,7 +1101,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:leftSwipeRecognizer];
 		[self addGestureRecognizer:leftSwipeRecognizer];
 	}
-    leftSwipeRecognizer.delegate = self;
+    	leftSwipeRecognizer.delegate = self;
 	return leftSwipeRecognizer;
 }
 
@@ -1113,7 +1113,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:rightSwipeRecognizer];
 		[self addGestureRecognizer:rightSwipeRecognizer];
 	}
-    rightSwipeRecognizer.delegate = self;
+    	rightSwipeRecognizer.delegate = self;
 	return rightSwipeRecognizer;
 }
 -(UISwipeGestureRecognizer*)upSwipeRecognizer
@@ -1124,7 +1124,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:upSwipeRecognizer];
 		[self addGestureRecognizer:upSwipeRecognizer];
 	}
-    upSwipeRecognizer.delegate = self;
+    	upSwipeRecognizer.delegate = self;
 	return upSwipeRecognizer;
 }
 -(UISwipeGestureRecognizer*)downSwipeRecognizer
@@ -1135,7 +1135,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:downSwipeRecognizer];
 		[self addGestureRecognizer:downSwipeRecognizer];
 	}
-    downSwipeRecognizer.delegate = self;
+    	downSwipeRecognizer.delegate = self;
 	return downSwipeRecognizer;
 }
 
@@ -1146,7 +1146,7 @@ DEFINE_EXCEPTIONS
 		[self configureGestureRecognizer:longPressRecognizer];
 		[self addGestureRecognizer:longPressRecognizer];
 	}
-    longPressRecognizer.delegate = self;
+    	longPressRecognizer.delegate = self;
 	return longPressRecognizer;
 }
 
