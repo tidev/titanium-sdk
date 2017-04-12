@@ -1762,7 +1762,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     if (TiDimensionIsDip(height)) {
         return height.value;
-    } else if (TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+    } else if (TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height) || TiDimensionIsAutoFill(height)) {
         TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:realPath.section];
         NSDictionary *item = [theSection itemAtIndex:realPath.row]; //get the item data
         id templateId = [item objectForKey:@"template"];
