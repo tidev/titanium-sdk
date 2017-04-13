@@ -24,7 +24,7 @@ var appc = require('node-appc'),
 
 	tagAttrs = {
 		'application': /^(allowTaskReparenting|allowBackup|backupAgent|backupInForeground|banner|debuggable|description|directBootAware|enabled|extractNativeLibs|fullBackupContent|fullBackupOnly|hasCode|hardwareAccelerated|icon|isGame|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|networkSecurityConfig|permission|persistent|process|restoreAnyVersion|requiredAccountType|resizeableActivity|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|usesCleartextTraffic|vmSafeMode)$/,
-		'activity': /^(allowTaskReparenting|alwaysRetainTaskState|clearTaskOnLaunch|configChanges|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|multiprocess|name|noHistory|parentActivityName|permission|process|screenOrientation|stateNotNeeded|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
+		'activity': /^(allowEmbedded|allowTaskReparenting|alwaysRetainTaskState|autoRemoveFromRecents|banner|clearTaskOnLaunch|configChanges|directBootAware|documentLaunchMode|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|maxRecents|multiprocess|name|noHistory|parentActivityName|permission|persistableMode|process|relinquishTaskIdentity|resizeableActivity|screenOrientation|showForAllUsers|stateNotNeeded|supportsPictureInPicture|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
 		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
 		'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
 		'intent-filter': /^(icon|label|priority)$/,
