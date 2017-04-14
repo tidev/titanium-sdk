@@ -147,7 +147,7 @@ exports.init = function (logger, config, cli) {
 						});
 					} else {
 						logger.info(__('Packaging complete'));
-						finished();	
+						finished();
 					}
 					return;
 
@@ -164,12 +164,11 @@ exports.init = function (logger, config, cli) {
 	/**
 	 * Centralized function to export build into an IPA
 	 */
-	function exportIPA(builder, target, stagingArchiveDir, outputDirArg, callback){
-
+	function exportIPA(builder, target, stagingArchiveDir, outputDirArg, callback) {
 		logger.debug(__('Packaging IPA for target %s', target.cyan));
 
 		var outputDir = outputDirArg && afs.resolvePath(outputDirArg);
-		if (!outputDir ) {
+		if (!outputDir) {
 			logger.warn(__('Invalid output directory %s, skipping packaging', '--output-dir'.cyan));
 			return callback();
 		}
@@ -178,21 +177,14 @@ exports.init = function (logger, config, cli) {
 		fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
 		var ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
 		fs.existsSync(ipaFile) && fs.unlinkSync(ipaFile);
-		
+
 		var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
+		var exportsOptions = new appc.plist();
 
 		// Build the options plist file
 		if (target === 'dist-appstore') {
-			// write the export options plist file
-			var exportsOptions = new appc.plist();
-
 			exportsOptions.method = 'app-store';
-
-			fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 		} else {
-			// write the export options plist file
-			var exportsOptions = new appc.plist();
-
 			exportsOptions.method = 'ad-hoc';
 
 			var pp = null;
@@ -214,8 +206,9 @@ exports.init = function (logger, config, cli) {
 			if (pp && pp.team && pp.team.length) {
 				exportsOptions.teamId = pp.team[0];
 			}
-			fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 		}
+
+		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 
 		// construct the command
 		var cmd = [
@@ -272,12 +265,5 @@ exports.init = function (logger, config, cli) {
 			}
 			callback();
 		});
-		return;
-
-
 	}
-
 };
-
-
-
