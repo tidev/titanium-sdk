@@ -44,5 +44,5 @@ describe('ES6 Arrows', function () {
   //         console.log(this._name + " knows " + f));
   //     }
   //   }
-	// });
+	});
 });
