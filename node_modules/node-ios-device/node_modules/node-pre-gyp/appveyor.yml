@@ -6,9 +6,8 @@ environment:
   AWS_SECRET_ACCESS_KEY:
     secure: "7lqDDrORt+VRTfVZh1ZcK5P3bAhFuiND9WmbDedehxLoqqdSiy8SBKWuKE2qVKyI"
   matrix:
-    - nodejs_version: 0.10.36
+    - nodejs_version: 0.10
     - nodejs_version: 4
-    - nodejs_version: 5
     - nodejs_version: 6
 
 platform:
@@ -35,7 +34,6 @@ install:
   - IF /I "%PLATFORM%" == "x86" CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
   - npm install
   - npm test
-  - .\scripts\test.bat
 
 build: off
 test: off

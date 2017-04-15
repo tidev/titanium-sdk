@@ -41,14 +41,27 @@ def unitTests(os, nodeVersion) {
 				dir('titanium-mobile-mocha-suite/scripts') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						sh 'npm install .'
-						// TODO Use retry here to try multiple times?
-						sh "node test.js -b ../../${zipName} -p ${os}"
-					}
-					// Kill the emulators!
-					if ('android'.equals(os)) {
-						sh 'killall -9 emulator || echo ""'
-						sh 'killall -9 emulator64-arm || echo ""'
-						sh 'killall -9 emulator64-x86 || echo ""'
+						try {
+							sh "node test.js -b ../../${zipName} -p ${os}"
+						} catch (e) {
+							if ('ios'.equals(os)) {
+								// Gather the crash report(s)
+								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								archiveArtifacts 'mocha_*.crash'
+								sh 'rm -f mocha_*.crash'
+							} else {
+								// FIXME gather crash reports/tombstones for Android?
+							}
+							throw e
+						} finally {
+							// Kill the emulators!
+							if ('android'.equals(os)) {
+								sh 'killall -9 emulator || echo ""'
+								sh 'killall -9 emulator64-arm || echo ""'
+								sh 'killall -9 emulator64-x86 || echo ""'
+							}
+						}
 					}
 					junit 'junit.*.xml'
 				}
@@ -84,7 +97,7 @@ timestamps {
 						windowsBranch = 'master'
 					}
 					step([$class: 'CopyArtifact',
-						projectName: "appcelerator/titanium_mobile_windows/${windowsBranch}",
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
@@ -141,7 +154,7 @@ timestamps {
 
 		stage('Deploy') {
 			// Push to S3 if not PR
-			// FIXME on oddball PRs on barnches of original repo, we shouldn't do this
+			// FIXME on oddball PRs on branches of original repo, we shouldn't do this
 			if (!isPR) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
 				node('(osx || linux) && !axway-internal && curl') {
@@ -155,8 +168,10 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 					if (fileExists('index.json')) {
-						// FIXME The index.json we received may actually be an Access Denied xml file. If so we should catch here and assume empty JSON?
-						indexJson = jsonParse(readFile('index.json'))
+						def contents = readFile('index.json')
+						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+							indexJson = jsonParse(contents)
+						}
 					}
 
 					// unarchive zips

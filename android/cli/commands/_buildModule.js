@@ -619,7 +619,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			Object.keys(proxyMap.methods).forEach(function (method) {
 				var methodMap = proxyMap.methods[method];
 				if (methodMap.hasInvocation) {
-					invocationAPIs.push(mthodMap);
+					invocationAPIs.push(methodMap);
 				}
 			});
 		}
