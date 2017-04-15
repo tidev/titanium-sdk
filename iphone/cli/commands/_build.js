@@ -926,7 +926,7 @@ iOSBuilder.prototype.configOptionOutputDir = function configOptionOutputDir(orde
 
 	return {
 		abbr: 'O',
-		desc: __('the output directory when using %s', 'dist-adhoc'.cyan),
+		desc: __('the output directory when using %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 		hint: 'dir',
 		order: order,
 		prompt: function (callback) {
