@@ -757,6 +757,12 @@ properties:
     type: Dictionary
     platforms: [android,iphone,ipad]
     since: "6.1.0"
+  - name: mediaPlaybackRequiresUserGesture
+    summary: Sets whether the WebView requires a user gesture to play media.
+    type: Boolean
+    platforms: [android]
+    since: "6.2.0"
+    default: true
 
 
 examples:
