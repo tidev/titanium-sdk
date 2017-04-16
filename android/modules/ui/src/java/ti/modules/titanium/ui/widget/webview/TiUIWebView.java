@@ -327,6 +327,15 @@ public class TiUIWebView extends TiUIView
 		settings.setBuiltInZoomControls(enableZoom);
 		settings.setSupportZoom(enableZoom);
 
+		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN_MR1 &&
+			proxy.hasProperty(TiC.PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE)
+			) {
+			Log.e(TAG, "TiUIWebView setMediaPlaybackRequiresUserGesture");
+			settings.setMediaPlaybackRequiresUserGesture(
+				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE))
+			);
+		}
+
 		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
 			settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
 		}

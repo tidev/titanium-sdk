@@ -16,6 +16,7 @@ public class TiC
 	public static final int API_LEVEL_HONEYCOMB = 11;
 	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
 	public static final int API_LEVEL_JELLY_BEAN = 16;
+	public static final int API_LEVEL_JELLY_BEAN_MR1 = 17;
 
 	public static final int PERMISSION_CODE_CALENDAR = 100;
 	public static final int PERMISSION_CODE_CAMERA = 101;
@@ -3061,6 +3062,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DEPARTMENT = "department";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE = "mediaPlaybackRequiresUserGesture";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

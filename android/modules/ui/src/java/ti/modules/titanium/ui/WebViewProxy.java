@@ -411,6 +411,24 @@ public class WebViewProxy extends ViewProxy
 		return enabled;
 	}
 
+	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
+	public void setMediaPlaybackRequiresUserGesture(boolean enabled)
+	{
+		Log.w(TAG, "WebViewProxy setMediaPlaybackRequiresUserGesture");
+		setPropertyAndFire(TiC.PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE, enabled);
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getMediaPlaybackRequiresUserGesture()
+	{
+		boolean enabled = true;
+		Log.w(TAG, "WebViewProxy getMediaPlaybackRequiresUserGesture");
+		if (hasProperty(TiC.PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE)) {
+			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MEDIA_PLAYBACK_REQUIRES_USER_GESTURE));
+		}
+		return enabled;
+	}
+
 	public void clearBasicAuthentication()
 	{
 		fusername = null;
