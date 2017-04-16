@@ -15,15 +15,15 @@
 	GDataXMLElement *element;
 }
 
-@property(nonatomic,readonly) id tagName;
+@property(nonatomic, readonly) id tagName;
 
--(id)getAttributeNode:(id)args;
--(id)getAttributeNodeNS:(id)args;
--(id)setAttributeNode:(id)args;
--(id)setAttributeNodeNS:(id)args;
--(id)removeAttributeNode:(id)args;
+- (id)getAttributeNode:(id)args;
+- (id)getAttributeNodeNS:(id)args;
+- (id)setAttributeNode:(id)args;
+- (id)setAttributeNodeNS:(id)args;
+- (id)removeAttributeNode:(id)args;
 
--(void)setElement:(GDataXMLElement*)element;
+- (void)setElement:(GDataXMLElement *)element;
 
 @end
 

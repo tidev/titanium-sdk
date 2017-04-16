@@ -12,7 +12,7 @@
 
 @implementation TiDOMAttrProxy
 
--(void)dealloc
+- (void)dealloc
 {
 	RELEASE_TO_NIL(name);
 	RELEASE_TO_NIL(value);
@@ -20,7 +20,7 @@
 	[super dealloc];
 }
 
--(void)setAttribute:(NSString*)name_ value:(NSString*)value_ owner:(GDataXMLElement*)owner_
+- (void)setAttribute:(NSString *)name_ value:(NSString *)value_ owner:(GDataXMLElement *)owner_
 {
 	RELEASE_TO_NIL(name);
 	RELEASE_TO_NIL(value);
@@ -28,18 +28,18 @@
 	name = [name_ retain];
 	value = [value_ retain];
 	owner = [owner_ retain];
-    if(value != nil)
-        isSpecified = YES;
-    else
-        isSpecified = NO;
+	if (value != nil)
+		isSpecified = YES;
+	else
+		isSpecified = NO;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.XML.Attr";
+	return @"Ti.XML.Attr";
 }
 
--(id)name
+- (id)name
 {
 	if (name != nil)
 		return name;
@@ -47,45 +47,44 @@
 		return [NSNull null];
 }
 
--(id)value
+- (id)value
 {
-    if(value != nil)
-        return value;
-    else
-        return [NSNull null];
+	if (value != nil)
+		return value;
+	else
+		return [NSNull null];
 }
 
--(void)setValue:(NSString *)data
+- (void)setValue:(NSString *)data
 {
-    ENSURE_TYPE(data, NSString);
-    RELEASE_TO_NIL(value);
-    value = [data copy];
+	ENSURE_TYPE(data, NSString);
+	RELEASE_TO_NIL(value);
+	value = [data copy];
 	[node setStringValue:data];
-    isSpecified = YES;
+	isSpecified = YES;
 }
 
--(void)setIsSpecified:(BOOL)isSpecified_
+- (void)setIsSpecified:(BOOL)isSpecified_
 {
-    isSpecified = isSpecified_;
+	isSpecified = isSpecified_;
 }
 
--(void)setNodeValue:(NSString *)data
+- (void)setNodeValue:(NSString *)data
 {
 	[self setValue:data];
 }
 
--(id)ownerElement
+- (id)ownerElement
 {
-    xmlNodePtr parentNode = [node XMLNode]->parent;
-    if (parentNode == NULL)
-        return [NSNull null];
-	
+	xmlNodePtr parentNode = [node XMLNode]->parent;
+	if (parentNode == NULL)
+		return [NSNull null];
+
 	id result = [TiDOMNodeProxy nodeForXMLNode:parentNode];
-	if (result != nil) 
-	{
+	if (result != nil) {
 		return result;
 	}
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
 	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy setDocument:[self document]];
 	[proxy setElement:[GDataXMLNode nodeBorrowingXMLNode:parentNode]];
@@ -93,15 +92,14 @@
 	return proxy;
 }
 
--(id)specified
+- (id)specified
 {
-    //TODO - Support for default values specified in the DTD.
-    if([node XMLNode]->parent == nil)
-        return NUMBOOL(YES);
-   
-    return NUMBOOL(isSpecified);
-}
+	//TODO - Support for default values specified in the DTD.
+	if ([node XMLNode]->parent == nil)
+		return NUMBOOL(YES);
 
+	return NUMBOOL(isSpecified);
+}
 
 @end
 

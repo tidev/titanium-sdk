@@ -13,17 +13,17 @@
 @private
 	NSString *name;
 	NSString *value;
-    BOOL isSpecified;
+	BOOL isSpecified;
 	GDataXMLElement *owner;
 }
 
-@property(nonatomic,readonly) id name;
-@property(nonatomic,copy,readwrite) id value;
-@property(nonatomic,readonly) id ownerElement;
-@property(nonatomic,readonly) id specified;
+@property(nonatomic, readonly) id name;
+@property(nonatomic, copy, readwrite) id value;
+@property(nonatomic, readonly) id ownerElement;
+@property(nonatomic, readonly) id specified;
 
--(void)setAttribute:(NSString*)name value:(NSString*)value owner:(GDataXMLElement*)owner;
--(void)setIsSpecified:(BOOL)isSpecified_;
+- (void)setAttribute:(NSString *)name value:(NSString *)value owner:(GDataXMLElement *)owner;
+- (void)setIsSpecified:(BOOL)isSpecified_;
 
 @end
 

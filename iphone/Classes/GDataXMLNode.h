@@ -25,7 +25,6 @@
 // created a document to retain it for as long as any
 // references rely on nodes inside that document tree.
 
-
 #import <Foundation/Foundation.h>
 
 // libxml includes require that the target Header Search Paths contain
@@ -42,7 +41,6 @@
 #import <libxml/xpath.h>
 #import <libxml/xpathInternals.h>
 
-
 #if (MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4) || defined(GDATA_TARGET_NAMESPACE)
 // we need NSInteger for the 10.4 SDK, or we're using target namespace macros
 #import "GDataDefines.h"
@@ -52,7 +50,7 @@
 #undef _INITIALIZE_AS
 #ifdef GDATAXMLNODE_DEFINE_GLOBALS
 #define _EXTERN
-#define _INITIALIZE_AS(x) =x
+#define _INITIALIZE_AS(x) = x
 #else
 #define _EXTERN extern
 #define _INITIALIZE_AS(x)
@@ -60,7 +58,8 @@
 
 // when no namespace dictionary is supplied for XPath, the default namespace
 // for the evaluated tree is registered with the prefix _def_ns
-_EXTERN const char* kGDataXMLXPathDefaultNamespacePrefix _INITIALIZE_AS("_def_ns");
+_EXTERN const char *kGDataXMLXPathDefaultNamespacePrefix
+    _INITIALIZE_AS("_def_ns");
 
 // Nomenclature for method names:
 //
@@ -104,10 +103,10 @@ typedef NSUInteger GDataXMLNodeKind;
 	// We will fix up the node's namespace and name (and those of any children)
 	// later when adding the node to a tree with addChild: or addAttribute:.
 	// See fixUpNamespacesForNode:.
-	
-	xmlNodePtr xmlNode_; // may also be an xmlAttrPtr or xmlNsPtr
-	BOOL shouldFreeXMLNode_; // if yes, xmlNode_ will be free'd in dealloc
-	
+
+	xmlNodePtr xmlNode_;      // may also be an xmlAttrPtr or xmlNsPtr
+	BOOL shouldFreeXMLNode_;  // if yes, xmlNode_ will be free'd in dealloc
+
 	// cached values
 	NSString *cachedName_;
 	NSArray *cachedChildren_;
@@ -115,11 +114,14 @@ typedef NSUInteger GDataXMLNodeKind;
 }
 
 + (GDataXMLElement *)elementWithName:(NSString *)name;
-+ (GDataXMLElement *)elementWithName:(NSString *)name stringValue:(NSString *)value;
++ (GDataXMLElement *)elementWithName:(NSString *)name
+                         stringValue:(NSString *)value;
 + (GDataXMLElement *)elementWithName:(NSString *)name URI:(NSString *)value;
 
 + (id)attributeWithName:(NSString *)name stringValue:(NSString *)value;
-+ (id)attributeWithName:(NSString *)name URI:(NSString *)attributeURI stringValue:(NSString *)value;
++ (id)attributeWithName:(NSString *)name
+                    URI:(NSString *)attributeURI
+            stringValue:(NSString *)value;
 
 + (id)namespaceWithName:(NSString *)name stringValue:(NSString *)value;
 
@@ -147,7 +149,9 @@ typedef NSUInteger GDataXMLNodeKind;
 
 // This is the preferred entry point for nodesForXPath.  This takes an explicit
 // namespace dictionary (keys are prefixes, values are URIs).
-- (NSArray *)nodesForXPath:(NSString *)xpath namespaces:(NSDictionary *)namespaces error:(NSError **)error;
+- (NSArray *)nodesForXPath:(NSString *)xpath
+                namespaces:(NSDictionary *)namespaces
+                     error:(NSError **)error;
 
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
@@ -162,16 +166,18 @@ typedef NSUInteger GDataXMLNodeKind;
 
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 + (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
-//ADDITIONS FOR DOM MODULE
+// ADDITIONS FOR DOM MODULE
 - (void)setShouldFreeXMLNode:(BOOL)flag;
 
 + (id)createNewDocFragment;
 + (id)commentWithStringValue:(NSString *)value;
-+ (id)processingInstructionWithTarget:(NSString *)theName andData:(NSString*)content;
-+ (id)dtdWithQualifiedName:(NSString*)qName publicId:(NSString*)pubId sysId:(NSString*)sysId;
++ (id)processingInstructionWithTarget:(NSString *)theName
+                              andData:(NSString *)content;
++ (id)dtdWithQualifiedName:(NSString *)qName
+                  publicId:(NSString *)pubId
+                     sysId:(NSString *)sysId;
 
 @end
-
 
 @interface GDataXMLElement : GDataXMLNode
 
@@ -181,7 +187,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)setNamespaces:(NSArray *)namespaces;
 - (void)addNamespace:(GDataXMLNode *)aNamespace;
 
-- (GDataXMLNode*)addChild:(GDataXMLNode *)child;
+- (GDataXMLNode *)addChild:(GDataXMLNode *)child;
 - (void)removeChild:(GDataXMLNode *)child;
 
 - (NSArray *)elementsForName:(NSString *)name;
@@ -189,22 +195,28 @@ typedef NSUInteger GDataXMLNodeKind;
 
 - (NSArray *)attributes;
 - (GDataXMLNode *)attributeForName:(NSString *)name;
-- (GDataXMLNode *)attributeForLocalName:(NSString *)name URI:(NSString *)attributeURI;
+- (GDataXMLNode *)attributeForLocalName:(NSString *)name
+                                    URI:(NSString *)attributeURI;
 - (void)addAttribute:(GDataXMLNode *)attribute;
 
 - (NSString *)resolvePrefixForNamespaceURI:(NSString *)namespaceURI;
-//Need to make this visible. Used in appendChild of ElementProxy
-+ (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix graftingToTreeNode:(xmlNodePtr)graftPointNode;
+// Need to make this visible. Used in appendChild of ElementProxy
++ (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix
+            graftingToTreeNode:(xmlNodePtr)graftPointNode;
 
 @end
 
 @interface GDataXMLDocument : NSObject {
 @protected
-	xmlDoc* xmlDoc_; // strong; always free'd in dealloc
+	xmlDoc *xmlDoc_;  // strong; always free'd in dealloc
 }
 
-- (id)initWithXMLString:(NSString *)str options:(unsigned int)mask error:(NSError **)error;
-- (id)initWithData:(NSData *)data options:(unsigned int)mask error:(NSError **)error;
+- (id)initWithXMLString:(NSString *)str
+                options:(unsigned int)mask
+                  error:(NSError **)error;
+- (id)initWithData:(NSData *)data
+           options:(unsigned int)mask
+             error:(NSError **)error;
 - (id)initWithRootElement:(GDataXMLElement *)element;
 - (id)initWithDocument:(xmlDocPtr)xml;
 
@@ -217,7 +229,9 @@ typedef NSUInteger GDataXMLNodeKind;
 
 // This is the preferred entry point for nodesForXPath.  This takes an explicit
 // namespace dictionary (keys are prefixes, values are URIs).
-- (NSArray *)nodesForXPath:(NSString *)xpath namespaces:(NSDictionary *)namespaces error:(NSError **)error;
+- (NSArray *)nodesForXPath:(NSString *)xpath
+                namespaces:(NSDictionary *)namespaces
+                     error:(NSError **)error;
 
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
@@ -227,11 +241,11 @@ typedef NSUInteger GDataXMLNodeKind;
 
 - (NSString *)description;
 
-//ADDITIONS FOR DOM MODULE
-- (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep;
-- (id) entityRefForName:(NSString*)theName;
-- (xmlDtdPtr) intDTD;
-- (xmlDocPtr) docNode;
+// ADDITIONS FOR DOM MODULE
+- (id)importNode:(GDataXMLNode *)theNode recursive:(BOOL)deep;
+- (id)entityRefForName:(NSString *)theName;
+- (xmlDtdPtr)intDTD;
+- (xmlDocPtr)docNode;
 @end
 
 #endif
