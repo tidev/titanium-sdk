@@ -262,17 +262,17 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			setContentOffset(l, t);
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
-
 			if (!isScrolling && isTouching){
 				isScrolling = true;
 				data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
+
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, l);
+			data.put(TiC.EVENT_PROPERTY_Y, t);
+			setContentOffset(l, t);
+			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
 		@Override
@@ -394,17 +394,17 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			setContentOffset(l, t);
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
-
 			if (!isScrolling && isTouching){
 				isScrolling = true;
 				data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
+
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, l);
+			data.put(TiC.EVENT_PROPERTY_Y, t);
+			setContentOffset(l, t);
+			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
 		@Override
