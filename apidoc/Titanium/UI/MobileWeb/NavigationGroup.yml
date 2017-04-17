@@ -94,7 +94,7 @@ examples:
                 <Window>
                     <NavigationGroup id="nav" platform="mobileweb">
                         <Window id="win2" title="Red Window" backgroundColor="red">
-                            <Button title="Open Blue Window" onClick="openBlueWindow">
+                            <Button title="Open Blue Window" onClick="openBlueWindow"/>
                         </Window>
                     </NavigationGroup>
                 </Window>
