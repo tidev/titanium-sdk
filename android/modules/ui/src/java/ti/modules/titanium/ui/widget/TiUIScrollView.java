@@ -199,10 +199,10 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching){
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling){
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
 				isScrolling = false;
 				isTouching = false;
 				KrollDict data = new KrollDict();
@@ -262,7 +262,7 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			if (!isScrolling && isTouching){
+			if (!isScrolling && isTouching) {
 				isScrolling = true;
 				data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
@@ -331,10 +331,10 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching){
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling){
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
 				isScrolling = false;
 				isTouching = false;
 				KrollDict data = new KrollDict();
@@ -394,7 +394,7 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			if (!isScrolling && isTouching){
+			if (!isScrolling && isTouching) {
 				isScrolling = true;
 				data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
