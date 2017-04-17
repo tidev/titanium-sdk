@@ -39,6 +39,9 @@ public class TiUIScrollView extends TiUIView
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
+	private boolean isScrolling = false;
+	private boolean isTouching = false;
+
 	
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -196,6 +199,15 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching){
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling){
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -254,6 +266,12 @@ public class TiUIScrollView extends TiUIView
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+
+			if (!isScrolling && isTouching){
+				isScrolling = true;
+				data = new KrollDict();
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
 		}
 
 		@Override
@@ -312,6 +330,15 @@ public class TiUIScrollView extends TiUIView
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching){
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling){
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -370,6 +397,12 @@ public class TiUIScrollView extends TiUIView
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+
+			if (!isScrolling && isTouching){
+				isScrolling = true;
+				data = new KrollDict();
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
 		}
 
 		@Override
