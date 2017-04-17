@@ -3683,7 +3683,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
-	if (this.realTargetSDK >= 24 && !("resizeableActivity" in finalAndroidManifest.application)) {
+	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity') {
 		finalAndroidManifest.application.resizeableActivity = true;
 	}
 
