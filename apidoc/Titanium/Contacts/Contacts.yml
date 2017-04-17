@@ -4,6 +4,18 @@ summary: |
     The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
     See examples for more information.
+    
+    #### Android Platform Notes
+
+    Currently, on Android, both read and write contacts permissions must be explicitly configured in
+    `tiapp.xml` in order to access the contacts:
+    
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest>
+                <uses-permission android:name="android.permission.READ_CONTACTS" />
+                <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+            </manifest>
+        </android>
 
     #### iOS Platform Notes
 
