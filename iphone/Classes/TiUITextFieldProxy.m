@@ -47,8 +47,17 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     return @"Ti.UI.TextField";
 }
 
+-(void)_initWithProperties:(NSDictionary*)props
+{
+    float defWidth = [TiUtils floatValue:[self valueForKey:@"width"] def:100];
+    float defHeight = [TiUtils floatValue:[self valueForKey:@"height"] def:100];
+
+    [self setValue:NUMDOUBLE(defHeight) forKey:@"width"];
+    [self setValue:NUMDOUBLE(defWidth) forKey:@"height"];
+    
+    [super _initWithProperties:props];
+}
+
 @end
-
-
 
 #endif
