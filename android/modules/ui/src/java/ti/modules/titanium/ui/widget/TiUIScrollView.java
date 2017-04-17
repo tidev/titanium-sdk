@@ -206,6 +206,7 @@ public class TiUIScrollView extends TiUIView
 				isScrolling = false;
 				isTouching = false;
 				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
@@ -337,6 +338,7 @@ public class TiUIScrollView extends TiUIView
 				isScrolling = false;
 				isTouching = false;
 				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
