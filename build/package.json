@@ -14,5 +14,6 @@
   "engines": {
     "node": ">=0.10.13"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "private": true
 }

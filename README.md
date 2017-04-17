@@ -1,7 +1,7 @@
 Appcelerator Titanium Mobile
 ============================
 
-[![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=appcelerator/titanium_mobile/master)](https://jenkins.appcelerator.org/job/appcelerator/job/titanium_mobile/job/master/)
+[![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master)](https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/)
 
 Welcome to the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications

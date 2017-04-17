@@ -225,7 +225,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (emu.type == 'avd') {
 								return {
 									name: emu.name,
-									id: emu.name,
+									id: emu.id,
 									api: emu['api-level'],
 									version: emu['sdk-version'],
 									abi: emu.abi,
@@ -1407,7 +1407,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (this.debugPort || this.profilerPort) {
 		// if debugging/profiling, make sure we only have one device and that it has an sd card
 		if (this.target == 'emulator') {
-			var emu = this.devices.filter(function (d) { return d.name == deviceId; }).shift();
+			var emu = this.devices.filter(function (d) { return d.id == deviceId; }).shift();
 			if (!emu) {
 				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
 				process.exit(1);
@@ -1779,7 +1779,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 
 	var deviceId = this.deviceId = argv['device-id'];
 	if (!this.buildOnly && this.target == 'emulator') {
-		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
+		var emu = this.devices.filter(function (e) { return e.id == deviceId; }).shift();
 		if (!emu) {
 			// sanity check
 			this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
