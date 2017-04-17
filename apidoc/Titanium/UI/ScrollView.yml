@@ -183,22 +183,23 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
-    since: "3.0.0"
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
    
   - name: dragend
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
+            Is always `true` on Android.
         type: Boolean
-    since: "3.0.0"
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
 properties:
   - name: canCancelEvents
