@@ -79,7 +79,25 @@ public class TiRootActivity extends TiLaunchActivity
 		if (intent != null) {
 			if (rootActivity != null) {
 				rootActivity.setIntent(intent);
+			} else {
+
+				// TIMOB-24497: launching as CATEGORY_HOME prevents intent data being passed to our
+				// resumed activity. Re-launch using CATEGORY_LAUNCHER.
+				if (intent.getCategories() != null && intent.getCategories().contains(Intent.CATEGORY_HOME)) {
+					finish();
+
+					intent.removeCategory(Intent.CATEGORY_HOME);
+					intent.addCategory(Intent.CATEGORY_LAUNCHER);
+					startActivity(intent);
+
+					restartActivity(100, 0);
+
+					activityOnCreate(savedInstanceState);
+					return;
+				}
 			}
+
+			// TIMOB-15253: implement 'singleTask' like launchMode as android:launchMode cannot be used with Titanium
 			if (tiApp.intentFilterNewTask() &&
 				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
 				intent.getDataString() != null &&
@@ -92,7 +110,7 @@ public class TiRootActivity extends TiLaunchActivity
 				startActivity(intent);
 				finish();
 				
-				super.onCreate(savedInstanceState);
+				activityOnCreate(savedInstanceState);
 				return;
 			}
 		}
