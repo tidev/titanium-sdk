@@ -619,7 +619,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			Object.keys(proxyMap.methods).forEach(function (method) {
 				var methodMap = proxyMap.methods[method];
 				if (methodMap.hasInvocation) {
-					invocationAPIs.push(mthodMap);
+					invocationAPIs.push(methodMap);
 				}
 			});
 		}
@@ -740,9 +740,13 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 				var namespace = namespaces.join('::');
 				var className = bindingJson.proxies[proxy]['proxyClassName'];
+				// If the class name doesn't have the module namespace, prepend it
+				if (className.indexOf(namespace) !== 0) {
+					className = namespace + '::' + className;
+				}
 				headers += '#include \"'+ proxy +'.h\"\n';
-				var initFunction = '::'+namespace+'::'+className+'::bindProxy';
-				var disposeFunction = '::'+namespace+'::'+className+'::dispose';
+				var initFunction = '::' + className + '::bindProxy';
+				var disposeFunction = '::' + className + '::dispose';
 
 				initTable.unshift([proxy, initFunction, disposeFunction].join(',').toString());
 
@@ -1177,7 +1181,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 };
 
 AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
-	this.logger.log(__('Compiling all java source files genereated'));
+	this.logger.log(__('Compiling all java source files generated'));
 
 	var javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
 		javaFiles = [],
@@ -1196,7 +1200,13 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 		}.bind(this));
 	});
 
-	this.dirWalker(this.projectDir, function (file) {
+	this.dirWalker(this.javaSrcDir, function (file) {
+		if (path.extname(file) === '.java') {
+			javaFiles.push(file);
+		}
+	}.bind(this));
+
+	this.dirWalker(this.buildGenDir, function (file) {
 		if (path.extname(file) === '.java') {
 			javaFiles.push(file);
 		}
@@ -1234,9 +1244,17 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 	this.logger.info(__('Verifying build architectures'));
 
-	var buildArchs = fs.readdirSync(this.libsDir),
+	var buildArchs = [],
 		manifestArchs = this.manifest['architectures'].split(' '),
-		buildDiff = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
+		buildDiff = [];
+
+	if (!fs.existsSync(this.libsDir)) {
+		this.logger.info('No native compiled libraries found, assume architectures are sane');
+		return next();
+	}
+
+	buildArchs = fs.readdirSync(this.libsDir);
+	buildDiff = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
 	if (manifestArchs.indexOf('armeabi') > -1) {
 		this.logger.error(__('Architecture \'armeabi\' is not supported by Titanium SDK %s', this.titaniumSdkVersion));
@@ -1423,13 +1441,15 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}.bind(this));
 
 				// 7. libs folder, only architectures defined in manifest
-				this.dirWalker(this.libsDir, function (file) {
-					var archLib = path.relative(this.libsDir, file).split(path.sep),
-						arch = archLib.length ? archLib[0] : undefined;
-					if (arch && manifestArchs.indexOf(arch) > -1) {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
-					}
-				}.bind(this));
+				if (fs.existsSync(this.libsDir)) {
+					this.dirWalker(this.libsDir, function (file) {
+						var archLib = path.relative(this.libsDir, file).split(path.sep),
+							arch = archLib.length ? archLib[0] : undefined;
+						if (arch && manifestArchs.indexOf(arch) > -1) {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
+						}
+					}.bind(this));
+				}
 
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {

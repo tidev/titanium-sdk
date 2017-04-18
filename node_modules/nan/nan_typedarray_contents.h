@@ -1,7 +1,7 @@
 /*********************************************************************
  * NAN - Native Abstractions for Node.js
  *
- * Copyright (c) 2016 NAN contributors
+ * Copyright (c) 2017 NAN contributors
  *
  * MIT License <https://github.com/nodejs/nan/blob/master/LICENSE.md>
  ********************************************************************/
@@ -14,6 +14,7 @@ class TypedArrayContents {
  public:
   inline explicit TypedArrayContents(v8::Local<v8::Value> from) :
       length_(0), data_(NULL) {
+    HandleScope scope;
 
     size_t length = 0;
     void*  data = NULL;
@@ -78,7 +79,9 @@ class TypedArrayContents {
 
   //Disable heap allocation
   void *operator new(size_t size);
-  void operator delete(void *, size_t);
+  void operator delete(void *, size_t) {
+    abort();
+  }
 
   size_t  length_;
   T*      data_;

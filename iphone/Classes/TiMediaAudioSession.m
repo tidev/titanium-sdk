@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
+#ifdef USE_TI_MEDIA
 
 #import "TiMediaAudioSession.h"
 #import "TiUtils.h"
@@ -41,8 +41,9 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeChangeCallback:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interruptionCallback:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:NULL];
+    
     if (error != nil) {
-        DebugLog(@"Could not activate session");
+        DebugLog(@"Could not activate session: %@ (%ld)", [error localizedDescription], [error code]);
     }
 }
 

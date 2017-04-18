@@ -86,7 +86,7 @@ export default moment.defineLocale('sl', {
     longDateFormat : {
         LT : 'H:mm',
         LTS : 'H:mm:ss',
-        L : 'DD. MM. YYYY',
+        L : 'DD.MM.YYYY',
         LL : 'D. MMMM YYYY',
         LLL : 'D. MMMM YYYY H:mm',
         LLLL : 'dddd, D. MMMM YYYY H:mm'
@@ -143,7 +143,7 @@ export default moment.defineLocale('sl', {
         y      : processRelativeTime,
         yy     : processRelativeTime
     },
-    ordinalParse: /\d{1,2}\./,
+    dayOfMonthOrdinalParse: /\d{1,2}\./,
     ordinal : '%d.',
     week : {
         dow : 1, // Monday is the first day of the week.

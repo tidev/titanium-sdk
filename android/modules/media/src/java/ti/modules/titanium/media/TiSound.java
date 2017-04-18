@@ -77,7 +77,8 @@ public class TiSound
 	private boolean stopPending = false;
 	private boolean playPending = false;
 	private boolean prepareRequired = false;
-
+	public static boolean audioFocus;
+	
 	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
@@ -582,6 +583,7 @@ public class TiSound
 	{
 		if (mp != null) {
 			if (playOnResume) {
+				requestAudioFocus(audioFocus);
 				play();
 				playOnResume = false;
 			}
@@ -630,6 +632,7 @@ public class TiSound
 				paused = false;
 				startProgressTimer();
 			}
+			requestAudioFocus(audioFocus);
 			setState(STATE_PLAYING);
 		}
 	}
@@ -654,5 +657,11 @@ public class TiSound
 		}
 		pausePending = false;
 		stopPending = false;
+	}
+
+	private boolean requestAudioFocus(boolean focus) {
+		if (!focus) return false;
+		AudioManager audioManager = (AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		return audioManager != null && audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 	}
 }

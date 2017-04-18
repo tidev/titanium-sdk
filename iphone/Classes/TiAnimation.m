@@ -596,8 +596,9 @@ doReposition = YES;\
             if (backgroundColor!=nil)
             {
                 [reverseAnimation setBackgroundColor:[TiUtils colorValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"backgroundColor"]]];
-                TiColor *color_ = [TiUtils colorValue:backgroundColor];
-                [view_ setBackgroundColor:[color_ _color]];
+
+                [[view_ proxy] replaceValue:backgroundColor.name forKey:@"backgroundColor" notification:NO];
+                [view_ setBackgroundColor:[backgroundColor _color]];
             }
             
             if (color!=nil && [view_ respondsToSelector:@selector(setColor_:)])
@@ -608,7 +609,8 @@ doReposition = YES;\
             
             if (opacity!=nil)
             {
-                [reverseAnimation setOpacity:[NSNumber numberWithFloat:[(TiUIView*)view_ alpha]]];
+                [reverseAnimation setOpacity:NUMFLOAT([(TiUIView*)view_ alpha])];
+                [[view_ proxy] replaceValue:NUMFLOAT([opacity floatValue]) forKey:@"opacity" notification:NO];
                 view_.alpha = [opacity floatValue];
             }
             
@@ -623,8 +625,9 @@ doReposition = YES;\
             
             if (visible!=nil)
             {
-                [reverseAnimation setVisible:[NSNumber numberWithBool:[TiUtils boolValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"visible"]]]];
+                [reverseAnimation setVisible:NUMBOOL([TiUtils boolValue:[(TiViewProxy*)[(TiUIView*)view_ proxy] valueForKey:@"visible"]])];
                 view_.hidden = ![visible boolValue];
+                [[view_ proxy] replaceValue:NUMBOOL(view_.hidden) forKey:@"visible" notification:NO];
             }
         };
         

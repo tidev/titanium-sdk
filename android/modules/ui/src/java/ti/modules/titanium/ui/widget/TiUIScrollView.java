@@ -617,8 +617,9 @@ public class TiUIScrollView extends TiUIView
 
 	public void scrollTo(int x, int y)
 	{
-		getNativeView().scrollTo(x, y);
-		getNativeView().computeScroll();
+		final View view = getNativeView();
+		view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+		view.computeScroll();
 	}
 
 	public void scrollToBottom()
