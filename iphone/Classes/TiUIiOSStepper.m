@@ -80,7 +80,7 @@
 {
     ENSURE_TYPE(value, NSNumber);
     NSNumber *stepValue = [NSNumber numberWithDouble:[TiUtils doubleValue:value]];
-    if (stepValue > 0) {
+    if (stepValue.intValue > 0) {
         [[self stepper] setStepValue:[TiUtils doubleValue:value]];
     } else {
         NSLog(@"[WARN] The steps must be bigger than 0.");
@@ -119,6 +119,7 @@
 {
     return NUMDOUBLE([[self stepper] value]);
 }
+
 #pragma mark backgroundImage
 
 -(void)setBackgroundImage_:(id)value

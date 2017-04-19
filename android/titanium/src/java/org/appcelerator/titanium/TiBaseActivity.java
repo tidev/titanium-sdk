@@ -140,6 +140,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static int totalWindowStack = 0;
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -208,6 +209,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
+		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -219,6 +221,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
+		totalWindowStack--;
 
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
@@ -856,16 +859,33 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 		}
-		if (!topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-			// there are no parent activities to return to
-			// override back press to background the activity
-			// note: 2 since there should always be TiLaunchActivity and TiActivity
-			if (TiApplication.activityStack.size() <= 2) {
-				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
+		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
+			// check Ti.UI.Window.exitOnClose and either
+			// exit the application or send to background
+			if (topWindow != null) {
+				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+
+				// root window should exitOnClose by default
+				if (totalWindowStack <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+					exitOnClose = true;
+				}
+				if (exitOnClose) {
+					Log.d(TAG, "onBackPressed: exit");
+					if (Build.VERSION.SDK_INT >= 16) {
+						finishAffinity();
+					} else {
+						TiApplication.terminateActivityStack();
+					}
+					return;
+
+				// root window has exitOnClose set as false, send to background
+				} else if (totalWindowStack <= 1) {
+					Log.d(TAG, "onBackPressed: suspend to background");
 					this.moveTaskToBack(true);
 					return;
 				}
- 			}
+				removeWindowFromStack(topWindow);
+			}
 
 			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();

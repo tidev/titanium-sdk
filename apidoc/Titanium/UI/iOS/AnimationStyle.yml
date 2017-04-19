@@ -1,6 +1,18 @@
 ---
 name: Titanium.UI.iOS.AnimationStyle
-summary: A set of constants for the animation styles used for view transitions.
+summary: |
+    A set of constants for the animation styles used for view transitions.
+    
+    One of the group of animation style constants 
+      * [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN)
+      * [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP)
+      * [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT)
+      * [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT)
+      * [FLIP_FROM_TOP](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_TOP)
+      * [FLIP_FROM_BOTTOM](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_BOTTOM)
+      * [CROSS_DISSOLVE](Titanium.UI.iOS.AnimationStyle.CROSS_DISSOLVE)
+      * [NONE](Titanium.UI.iOS.AnimationStyle.NONE)
+
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "5.4.0"
@@ -10,14 +22,7 @@ properties:
   - name: CURL_DOWN
     summary: Curl downwards during a transition animation.
     description: |
-        Used with the <Titanium.UI.Animation.transition> property.
-        
-        One of the group of animation style constants 
-        [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN), 
-        [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP), 
-        [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT), 
-        [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT), 
-        and [NONE](Titanium.UI.iOS.AnimationStyle.NONE).
+        Used with the <Titanium.UI.Animation.transition> property.        
     type: Number
     permission: read-only
     
@@ -25,27 +30,13 @@ properties:
     summary: Curl upwards during a transition animation.
     description: |
         Used with the <Titanium.UI.Animation.transition> property.
-        
-        One of the group of animation style constants 
-        [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN), 
-        [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP), 
-        [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT), 
-        [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT), 
-        and [NONE](Titanium.UI.iOS.AnimationStyle.NONE).
     type: Number
     permission: read-only
     
   - name: FLIP_FROM_LEFT
     summary: Flip from left to right during a transition animation.
     description: |
-        Used with the <Titanium.UI.Animation.transition> property.
-        
-        One of the group of animation style constants 
-        [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN), 
-        [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP), 
-        [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT), 
-        [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT), 
-        and [NONE](Titanium.UI.iOS.AnimationStyle.NONE).
+        Used with the <Titanium.UI.Animation.transition> property.        
     type: Number
     permission: read-only
     
@@ -53,26 +44,36 @@ properties:
     summary: Flip from right to left during a transition animation.
     description: |
         Used with the <Titanium.UI.Animation.transition> property.
-        
-        One of the group of animation style constants 
-        [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN), 
-        [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP), 
-        [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT), 
-        [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT), 
-        and [NONE](Titanium.UI.iOS.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    
+  - name: FLIP_FROM_TOP
+    summary: Flip from top to bottom during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+    type: Number
+    permission: read-only
+    since: 6.1.0
+    
+  - name: FLIP_FROM_BOTTOM
+    summary: Flip from bottom to top during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+    type: Number
+    permission: read-only
+    since: 6.1.0
+    
+  - name: CROSS_DISSOLVE
+    summary: A transition that dissolves from one view to the next.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+    type: Number
+    permission: read-only
+    since: 6.1.0
     
   - name: NONE
     summary: No animation.
     description: |
         Used with the <Titanium.UI.Animation.transition> property.
-        
-        One of the group of animation style constants 
-        [CURL_DOWN](Titanium.UI.iOS.AnimationStyle.CURL_DOWN), 
-        [CURL_UP](Titanium.UI.iOS.AnimationStyle.CURL_UP), 
-        [FLIP_FROM_LEFT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_LEFT), 
-        [FLIP_FROM_RIGHT](Titanium.UI.iOS.AnimationStyle.FLIP_FROM_RIGHT), 
-        and [NONE](Titanium.UI.iOS.AnimationStyle.NONE).
     type: Number
     permission: read-only

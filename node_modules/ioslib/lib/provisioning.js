@@ -69,6 +69,7 @@ function detect(options, callback) {
 					profileDir: profileDir,
 					development: [],
 					adhoc: [],
+					enterprise: [],
 					distribution: [],
 				},
 				issues: []
@@ -76,6 +77,7 @@ function detect(options, callback) {
 			valid = {
 				development: 0,
 				adhoc: 0,
+				enterprise: 0,
 				distribution: 0
 			},
 			ppRegExp = /.+\.mobileprovision$/;
@@ -186,15 +188,19 @@ function detect(options, callback) {
 			if (j === -1) return;
 
 			var plist = new appc.plist().parse(contents.substring(i, j + 8)),
-				dest = 'development',
+				dest = 'development', // debug
 				appPrefix = (plist.ApplicationIdentifierPrefix || []).shift(),
 				entitlements = plist.Entitlements || {},
 				expired = false;
 
-			if (!plist.ProvisionedDevices || !plist.ProvisionedDevices.length) {
-				dest = 'distribution';
-			} else if (new Buffer(plist.DeveloperCertificates[0].value, 'base64').toString().indexOf('Distribution:') != -1) {
-				dest = 'adhoc';
+			if (plist.ProvisionedDevices) {
+				if (!entitlements['get-task-allow']) {
+					dest = 'adhoc';
+				}
+			} else if (plist.ProvisionsAllDevices) {
+				dest = 'enterprise';
+			} else {
+				dest = 'distribution'; // app store
 			}
 
 			try {

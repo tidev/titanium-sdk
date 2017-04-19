@@ -46,7 +46,7 @@ public class TiUIDatePicker extends TiUIView
 		DatePicker picker;
 		// If it is not API Level 21 (Android 5.0), create picker normally.
 		// If not, it will inflate a spinner picker to address a bug.
-		if (Build.VERSION.SDK_INT != Build.VERSION_CODES.LOLLIPOP) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 			picker = new DatePicker(activity)
 			{
 				@Override

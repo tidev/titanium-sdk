@@ -65,6 +65,11 @@ async.series([
 		async.whilst(
 			function () { return !done; },
 			function (cb) {
+				if (ver === 49 || ver === 50) {
+					// there is no api version 49 or 50
+					return cb();
+				}
+
 				download(ver++, function (err) {
 					done = !!err;
 					cb();

@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import org.appcelerator.titanium.TiApplication;
@@ -85,12 +86,12 @@ public class TiFileHelper2
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		Context context = TiApplication.getInstance().getApplicationContext();
 		// Fix for TIMOB-20434 where activity is null
-		if (currentActivity == null) {
+		if (context == null) {
 		    return false;
 		}
-		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+		if (context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;
