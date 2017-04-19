@@ -6,6 +6,7 @@
 // NOTE: Appcelerator modified to convert from Category to 
 // new Class name since iPhone seems to have some issues with Categories
 // of built in Classes
+#import "TiDimension.h"
 
 @interface UIImageResize : NSObject
 {
@@ -27,4 +28,7 @@
                                   bounds:(CGSize)bounds
                     interpolationQuality:(CGInterpolationQuality)quality
 								   image:(UIImage*)image;
++(UIImage *)resizedImageWithLeftCap:(TiDimension)leftCap
+                           topCap:(TiDimension)topCap
+                              image:(UIImage *)image;
 @end

@@ -55,9 +55,9 @@
     }
     else if ([key isEqualToString:@"end"]) {
         EKRecurrenceEnd  *end = currRule.recurrenceEnd;
-        NSDictionary *recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
-                                       NUMUINTEGER(end.occurrenceCount), @"occuranceCount", nil];
-        return recurranceEnd;
+        NSDictionary *recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate",
+                                       NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
+        return recurrenceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
         return NUMINT(currRule.frequency);

@@ -1698,7 +1698,7 @@ examples:
               return Math.floor(Math.random() * max) + 1;
             }
             
-            var IMG_BASE = 'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/';
+            var IMG_BASE = 'images/';
             var defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
             
             var tableData = [];

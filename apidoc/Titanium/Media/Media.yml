@@ -96,7 +96,7 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery.
+        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
 
     platforms: [iphone, ipad, android]
     parameters:
@@ -1612,9 +1612,54 @@ properties:
     summary: The composer to filter on. Value should be a String.
     type: [MediaQueryInfoType, String]
   - name: isCompilation
-    summary: Filter by whether or not the item is a compilation.
-        Value should be a Boolean.
+    summary: |
+        Filter by whether or not the item is a compilation. 
+        The value should be a Boolean.
     type: [MediaQueryInfoType, Boolean]
+  - name: playCount
+    summary: The play count to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: persistentID
+    summary: The persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumPersistentID
+    summary: The album persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumArtistPersistentID
+    summary: The album artist persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: genrePersistentID
+    summary: The genre persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: composerPersistentID
+    summary: The composer persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: isCloudItem
+    summary: | 
+        Filter by whether or not the item is a cloud item. 
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: hasProtectedAsset
+    summary: | 
+        Filter by whether or not the item is a protected asset. 
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: podcastTitle
+    summary: The podcast title to filter on. Value should be a String.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, String]
+  - name: podcastPersistentID
+    summary: The podcast persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
 
 # Pseudo-type for query arguments
 ---

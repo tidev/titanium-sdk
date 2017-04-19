@@ -41,5 +41,4 @@ script:
   - cd ..
   - npm install
   - ls dist
-  - npm install grunt-cli
   - npm test

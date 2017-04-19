@@ -12,9 +12,9 @@ var _createTester = require('./internal/createTester');
 
 var _createTester2 = _interopRequireDefault(_createTester);
 
-var _eachOf = require('./eachOf');
+var _doParallel = require('./internal/doParallel');
 
-var _eachOf2 = _interopRequireDefault(_eachOf);
+var _doParallel2 = _interopRequireDefault(_doParallel);
 
 var _findGetResult = require('./internal/findGetResult');
 
@@ -39,9 +39,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @alias find
  * @category Collections
  * @param {Array|Iterable|Object} coll - A collection to iterate over.
- * @param {Function} iteratee - A truth test to apply to each item in `coll`.
- * The iteratee is passed a `callback(err, truthValue)` which must be called
- * with a boolean argument once it has completed. Invoked with (item, callback).
+ * @param {AsyncFunction} iteratee - A truth test to apply to each item in `coll`.
+ * The iteratee must complete with a boolean value as its result.
+ * Invoked with (item, callback).
  * @param {Function} [callback] - A callback which is called as soon as any
  * iteratee returns `true`, or after all the `iteratee` functions have finished.
  * Result will be the first item in the array that passes the truth test
@@ -57,5 +57,5 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     // result now equals the first file in the list that exists
  * });
  */
-exports.default = (0, _createTester2.default)(_eachOf2.default, _identity2.default, _findGetResult2.default);
+exports.default = (0, _doParallel2.default)((0, _createTester2.default)(_identity2.default, _findGetResult2.default));
 module.exports = exports['default'];

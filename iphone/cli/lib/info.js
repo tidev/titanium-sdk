@@ -76,7 +76,7 @@ exports.detect = function (types, config, next) {
 					issue.message += '\n' + __('Download and install the certificate from %s', '__http://appcelerator.com/ios-wwdr__');
 					break;
 				case 'IOS_NO_KEYCHAINS_FOUND':
-					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or distribution certificates.');
+					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or App Store distribution certificates.');
 					break;
 				case 'IOS_NO_VALID_DEV_CERTS_FOUND':
 					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
@@ -171,7 +171,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 	logger.log(counter ? '' : '  ' + __('None').grey + '\n');
 
-	logger.log(styleHeading(__('iOS Distribution Certificates')));
+	logger.log(styleHeading(__('iOS App Store Distribution Certificates')));
 	counter = 0;
 	if (Object.keys(data.certs.keychains).length) {
 		Object.keys(data.certs.keychains).forEach(function (keychain) {
@@ -225,11 +225,14 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	logger.log(styleHeading(__('Development iOS Provisioning Profiles')));
 	printProfiles(data.provisioning.development);
 
-	logger.log(styleHeading(__('Distribution iOS Provisioning Profiles')));
+	logger.log(styleHeading(__('App Store Distribution iOS Provisioning Profiles')));
 	printProfiles(data.provisioning.distribution);
 
 	logger.log(styleHeading(__('Ad Hoc iOS Provisioning Profiles')));
 	printProfiles(data.provisioning.adhoc);
+
+	logger.log(styleHeading(__('Enterprise Ad Hoc iOS Provisioning Profiles')));
+	printProfiles(data.provisioning.enterprise);
 
 	logger.log(styleHeading(__('iOS Simulators')));
 	if (data.simulators.ios && Object.keys(data.simulators.ios).length) {

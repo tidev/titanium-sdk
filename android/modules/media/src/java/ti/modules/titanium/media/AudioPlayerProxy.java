@@ -75,6 +75,11 @@ public class AudioPlayerProxy extends KrollProxy
 		if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
 			setProperty(TiC.PROPERTY_ALLOW_BACKGROUND, options.get(TiC.PROPERTY_ALLOW_BACKGROUND));
 		}
+		if (options.containsKey(TiC.PROPERTY_AUDIO_FOCUS)) {
+			boolean audioFocus = TiConvert.toBoolean(options.get(TiC.PROPERTY_AUDIO_FOCUS));
+			setProperty(TiC.PROPERTY_AUDIO_FOCUS, audioFocus);
+			TiSound.audioFocus = audioFocus;
+		}
 		Log.i(TAG, "Creating audio player proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
 			Log.DEBUG_MODE);
 	}

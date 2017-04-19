@@ -231,7 +231,7 @@ public class TiCompositeLayout extends ViewGroup
 
     private static int getAsPercentageValue(double percentage, int value)
     {
-        return (int) Math.round((percentage / 100.0) * value);
+        return (int) Math.floor((percentage / 100.0) * value);
     }
 
     protected int getViewWidthPadding(View child, int parentWidth)
@@ -285,6 +285,7 @@ public class TiCompositeLayout extends ViewGroup
         int wSuggested = getSuggestedMinimumWidth();
         int hSuggested = getSuggestedMinimumHeight();
         int w = Math.max(wFromSpec, wSuggested);
+        int wRemain = w;
         int wMode = MeasureSpec.getMode(widthMeasureSpec);
         int h = Math.max(hFromSpec, hSuggested);
         int hMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -299,7 +300,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode);
+                constrainChild(child, w, wMode, h, hMode, wRemain);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -314,11 +315,13 @@ public class TiCompositeLayout extends ViewGroup
 
                     if ((horizontalRowWidth + childWidth) > w) {
                         horizontalRowWidth = childWidth;
+                        maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
+                        wRemain = w;
                     } else {
                         horizontalRowWidth += childWidth;
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
-                        w -= horizontalRowWidth;
+                        wRemain -= childWidth;
                     }
 
                 } else {
@@ -362,7 +365,7 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode)
+    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int remainWidth)
     {
         boolean hasFixedHeightParent = false;
         boolean hasFixedWidthParent = false;
@@ -396,10 +399,20 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        int widthPadding = getViewWidthPadding(child, width);
-        int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
+        int widthPadding;
+        int widthSpec;
+        
+        if (p.autoFillsWidth) {
+            widthPadding = getViewWidthPadding(child, remainWidth);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(remainWidth, wMode),
                 widthPadding,
                 childDimension);
+        } else {
+            widthPadding = getViewWidthPadding(child, width);
+            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
+                widthPadding,
+                childDimension);
+        }
         // If autoFillsHeight is false, and optionHeight is null, then we use
         // size behavior.
         childDimension = LayoutParams.WRAP_CONTENT;
@@ -633,9 +646,10 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
-        TiUIHelper.firePostLayoutEvent(viewProxy);
-
+        if (changed) {
+            TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+            TiUIHelper.firePostLayoutEvent(viewProxy);
+        }
     }
 
     // option0 is left/top, option1 is right/bottom
@@ -716,9 +730,14 @@ public class TiCompositeLayout extends ViewGroup
             // the width of the screen
             right = Math.min(right, layoutRight);
         }
-
-        hpos[0] = left;
-        hpos[1] = right;
+        
+        if (optionRight != null) {
+            hpos[0] = layoutRight - left;
+            hpos[1] = layoutRight - horiztonalLayoutPreviousRight;
+        } else {
+            hpos[0] = left;
+            hpos[1] = right;
+        }
         horizontalLayoutCurrentLeft = right;
 
         if (enableHorizontalWrap) {

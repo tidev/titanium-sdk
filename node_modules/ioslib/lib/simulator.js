@@ -171,6 +171,11 @@ function detect(options, callback) {
 				}
 			});
 
+			if (!xcodeInfo.selectedXcode) {
+				emitter.emit('detected', results);
+				return callback(null, results);
+			}
+
 			simctl.list({ simctl: xcodeInfo.selectedXcode.executables.simctl }, function (err, info) {
 				if (err) {
 					return callback(err);

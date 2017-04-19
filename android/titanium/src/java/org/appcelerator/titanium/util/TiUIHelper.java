@@ -415,7 +415,7 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+				if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized(mCustomTypeFaces) {
 						mCustomTypeFaces.put(fontFamily, tf);
