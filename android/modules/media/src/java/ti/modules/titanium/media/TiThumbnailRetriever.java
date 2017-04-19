@@ -1,5 +1,6 @@
 package ti.modules.titanium.media;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -170,9 +171,9 @@ public class TiThumbnailRetriever implements Handler.Callback{
 					} else {
 						mUri = TiUIHelper.getRedirectUri(mUri);
 						if (Build.VERSION.SDK_INT >= 14){
-							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
-						}
-						else{
+							FileInputStream inputStream = new FileInputStream(mUri.getPath());
+							mMediaMetadataRetriever.setDataSource(inputStream.getFD());
+						} else{
 							mMediaMetadataRetriever.setDataSource(mUri.toString());
 						}
 					}

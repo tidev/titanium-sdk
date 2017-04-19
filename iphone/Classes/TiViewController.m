@@ -22,6 +22,7 @@
 
 -(void)dealloc
 {
+    RELEASE_TO_NIL(_previewActions);
     [super dealloc];
 }
 

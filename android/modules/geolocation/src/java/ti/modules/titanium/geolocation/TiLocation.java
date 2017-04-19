@@ -48,7 +48,7 @@ public class TiLocation implements Handler.Callback
 	public LocationManager locationManager;
 
 	private static final String TAG = "TiLocation";
-	private static final String BASE_GEO_URL = "http://api.appcelerator.com/p/v1/geo?";
+	private static final String BASE_GEO_URL = "https://api.appcelerator.com/p/v1/geo?";
 
 	private String mobileId;
 	private String appGuid;

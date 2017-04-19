@@ -817,7 +817,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return module;
 	}
 
-    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
 
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
@@ -866,7 +866,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// warn the user of the collision, but prefer the native/core module
 	NSURL *jsPath = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.js", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path], path]];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:[jsPath absoluteString]]) {
-		NSLog(@"[WARN] The requested path '%@' has a collison betweeb a native Ti%@um API/module and a JS file.", path, @"tani");
+		NSLog(@"[WARN] The requested path '%@' has a collison between a native Ti%@um API/module and a JS file.", path, @"tani");
 		NSLog(@"[WARN] The native Ti%@um API/module will be loaded in preference.", @"tani");
 		NSLog(@"[WARN] If you intended to address the JS file, please require the path using a prefixed string such as require('./%@') or require('/%@') instead.", path, path);
 	}
@@ -904,7 +904,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		// nope, return nil so we can try to fall back to resource in user's app
 		return nil;
 	}
-    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	// This is an asset inside the native module. Load it like a "normal" common js file
 	return [self loadJavascriptText:contents fromFile:filepath withContext:kroll];
 }
@@ -920,7 +920,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	if (data != nil) {
 		[self setCurrentURL:[NSURL URLWithString:[path stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
-		return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	}
 	return nil;
 }
@@ -1099,11 +1099,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		path = @"/";
 	}
 	// 1. let PARTS = path split(START)
-	NSArray* parts = [path componentsSeparatedByString:@"/"];
+	NSArray *parts = [path componentsSeparatedByString:@"/"];
 	// 2. let I = count of PARTS - 1
 	NSInteger i = [parts count] - 1;
 	// 3. let DIRS = []
-	NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
+	NSMutableArray *dirs = [NSMutableArray arrayWithCapacity:0];
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
@@ -1111,7 +1111,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		NSString* dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
+		NSString *dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
 		// c. DIRS = DIRS + DIR
 		[dirs addObject:dir];
 		// d. let I = I - 1
@@ -1302,8 +1302,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
-		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
 #ifdef TI_USE_KROLL_THREAD
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];

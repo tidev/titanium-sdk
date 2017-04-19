@@ -218,4 +218,36 @@
     return [UIImageResize resizedImage:newSize interpolationQuality:quality image:image hires:NO];
 }
 
++(UIImage *)resizedImageWithLeftCap:(TiDimension)leftCap
+                           topCap:(TiDimension)topCap
+                              image:(UIImage *)image
+{
+    CGFloat maxWidth = [image size].width;
+    CGFloat maxHeight = [image size].height;
+    
+    NSInteger left = (TiDimensionIsAuto(leftCap) || TiDimensionIsUndefined(leftCap) || leftCap.value == 0) ?
+    maxWidth/2  :
+    TiDimensionCalculateValue(leftCap, maxWidth);
+    NSInteger top = (TiDimensionIsAuto(topCap) || TiDimensionIsUndefined(topCap) || topCap.value == 0) ?
+    maxHeight/2  :
+    TiDimensionCalculateValue(topCap, maxHeight);
+    
+    if (left >= maxWidth) {
+        left = maxWidth - 2;
+    }
+    if (top >= maxHeight) {
+        top = maxHeight - 2;
+    }
+    
+    NSInteger right = left;
+    NSInteger bottom = top;
+    
+    if ((left + right) >= maxWidth) {
+        right = maxWidth - (left + 1);
+    }
+    if ((top + bottom) >= maxHeight) {
+        bottom = maxHeight - (top + 1);
+    }
+    return [image resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:UIImageResizingModeStretch];
+}
 @end

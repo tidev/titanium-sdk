@@ -22,6 +22,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 -(id)initWithCallback:(KrollCallback*)callback_ module:(YahooModule*)module_
 {
+#ifndef __clang_analyzer__
 	//Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
 	if (self = [super init])
 	{
@@ -29,6 +30,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 		module = [module_ retain];
 	}
 	return self;
+#endif
 }
 
 -(void)dealloc
@@ -156,6 +158,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 -(void)yql:(id)args
 {
+#ifndef __clang_analyzer__
 	ENSURE_ARG_COUNT(args,2);
 
 	NSString *apiQuery = [args objectAtIndex:0];
@@ -184,7 +187,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 #else
 	NSString *theurl = [NSString stringWithFormat:@"%@&q=%@",apiEndpoint,[self encode:apiQuery]];
 #endif
-	
+	// Ignore static analyzer warning here. We haven't been supporting this for a long time. To be considered for deprecation in next release.
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
 	[req setMethod:@"GET"];
@@ -196,6 +199,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
         [req send];
         [req autorelease];
     }, NO);
+#endif
 }
 
 @end

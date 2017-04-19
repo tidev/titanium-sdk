@@ -6,6 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{49264EBF-3A6F-4033-A63F-31A3E0378670}</ProjectGuid>
     <OutputType>Exe</OutputType>
+    <OutputPath>bin\Release\</OutputPath>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>wptool</RootNamespace>
     <AssemblyName>wptool</AssemblyName>
