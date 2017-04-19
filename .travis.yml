@@ -40,5 +40,4 @@ script:
   - node scons.js package --version-tag $VTAG
   - cd ..
   - ls dist
-  - npm install grunt-cli
   - npm test
