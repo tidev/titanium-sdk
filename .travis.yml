@@ -37,7 +37,7 @@ script:
   - cd build
   - npm install .
   - node scons.js build
-  - node scons.js package --version-tag $VTAG --all
+  - node scons.js package --version-tag $VTAG
   - cd ..
   - npm install
   - ls dist
