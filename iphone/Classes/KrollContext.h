@@ -28,7 +28,7 @@
 @interface KrollContext : NSObject
 {
 @private
-	id<KrollDelegate> delegate;
+	__unsafe_unretained id<KrollDelegate> delegate;
 	BOOL stopped;
 
 //Garbage collection variables.

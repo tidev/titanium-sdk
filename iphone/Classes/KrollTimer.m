@@ -26,16 +26,9 @@
 		condition = [[NSCondition alloc] init];
 		TiValueProtect(context, function);
 		TiValueProtect(context, jsThis);
-		kroll = [kroll_ retain];
+        kroll = kroll_;
 	}
 	return self;
-}
-
--(void)dealloc
-{
-	[condition release];
-	[kroll release];
-	[super dealloc];
 }
 
 -(void)start
@@ -79,13 +72,6 @@
 
 -(void)main
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	// we need to retain a reference to ourselves while the timer is 
-	// active otherwise we'll get garbage collected by context and 
-	// timer will stop
-	[self retain];
-	
 	NSConditionLock *invokeCond = [[NSConditionLock alloc] initWithCondition:0];
 
 	NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration/1000];
@@ -100,11 +86,8 @@
 		// Always break if stopped; it means we were cancelled.  Even if started and then immediately
 		// stopped, this is the behavior we want.
 		if (stopped) break;
-
-		NSAutoreleasePool *loopPool = [[NSAutoreleasePool alloc] init];
 		
 		// calculate the next interval before execution so we exclude it's time
-		[date release];
 		date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration/1000];
 
 #ifndef TI_USE_KROLL_THREAD
@@ -118,26 +101,17 @@
 		// push the invocation to happen on the context thread
             [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
         }
-		[loopPool release];
 		[invokeCond lockWhenCondition:1];
 		[invokeCond unlockWithCondition:0];
 
 		// if we only fire once, stop now; otherwise, we keep looping through until cancelled.
 		if (onetime) break;
 	}
-	
-	[invokeCond release];
-	[date release];
-	
+		
 	TiValueUnprotect(context, function);
 	TiValueUnprotect(context, jsThis);
 	
 	[self cancel];
-	
-	// release our own reference
-	[self autorelease];
-	
-	[pool release];
 }
 
 @end
