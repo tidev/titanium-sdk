@@ -7,13 +7,13 @@ import os, sys, shutil
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-file_dir = os.path.expanduser("~/Library/Developer/Xcode/Templates/Application/File Templates/Appcelerator")
+file_dir = os.path.expanduser("~/Library/Developer/Xcode/Templates/Project Templates/iOS/Appcelerator")
 
 if os.path.exists(file_dir):
 	shutil.rmtree(file_dir)
 
 shutil.copytree(os.path.join(template_dir,'Titanium'), file_dir)
 
-print "Appcelerator Titanium XCode templates installed"
+print "Appcelerator Titanium Xcode templates installed"
 
 sys.exit(0)
