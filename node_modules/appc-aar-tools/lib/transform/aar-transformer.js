@@ -3,7 +3,7 @@
 
 var async = require('async');
 var DOMParser = require('xmldom').DOMParser;
-var extract = require('extract-zip');
+var extract = require('extract-zip-fork');
 var find = require('findit2');
 var fs = require('fs-extra');
 var path = require('path');
