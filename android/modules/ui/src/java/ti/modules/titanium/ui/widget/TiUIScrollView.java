@@ -261,12 +261,12 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-			KrollDict data = new KrollDict();
 			if (!isScrolling && isTouching) {
-				isScrolling = true;				
+				isScrolling = true;
+				KrollDict data = new KrollDict();			
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
-			data = new KrollDict();
+			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			setContentOffset(l, t);
