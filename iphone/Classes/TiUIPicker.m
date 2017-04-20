@@ -71,25 +71,24 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		if ([shouldSize numberFromString:widthString] != nil) {
 			[[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
 		}
-
 		if ([shouldSize numberFromString:heightString] != nil) {
 			[[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
 		}
         
-		if (type == -1) {
-			picker = (UIControl *)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-			[((UIPickerView *) picker) setDelegate:self];
-			[((UIPickerView *) picker) setDataSource:self];
-
-			// Required hack for iOS 10.x (TIMOB-24574), remove when Apple fixes it.
-			[(UIPickerView *) picker selectRow:0 inComponent:0 animated:YES];
-		} else {
+		if (type == -1)
+		{
+			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			((UIPickerView*)picker).delegate = self;
+			((UIPickerView*)picker).dataSource = self;
+		}
+		else
+		{
 			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-			[(UIDatePicker *)picker setTimeZone:[NSTimeZone localTimeZone]];
-			[(UIDatePicker *)picker setDatePickerMode:type];
+			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
+			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
-
 		[picker setBackgroundColor:[UIColor whiteColor]];
 		[self addSubview:picker];
 	}
@@ -188,6 +187,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	if (curtype!=type && [self isDatePicker])
 	{
 		[(UIDatePicker*)picker_ setDatePickerMode:type];
+	}
+}
+
+// We're order-dependent on type being set first, so we need to make sure that anything that relies
+// on whether or not this is a date picker needs to be set AFTER the initial configuration.
+-(void)setSelectionIndicator_:(id)value
+{
+	if (picker == nil) {
+		[[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
+	}
+	else if ([self isDatePicker]==NO)
+	{
+		[(UIPickerView*)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
 	}
 }
 
