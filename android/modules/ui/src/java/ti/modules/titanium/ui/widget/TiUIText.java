@@ -153,7 +153,6 @@ public class TiUIText extends TiUIView
 		} else {
 			tv.setText("");
 		}
-		disableChangeEvent = false;
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
@@ -228,6 +227,7 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
 		}
+		disableChangeEvent = false;
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
