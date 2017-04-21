@@ -45,10 +45,10 @@ public class TiNetworkListener {
         @Override
         public void onReceive(Context context, Intent intent)
         {
-			if (!init) {
-				init = true;
-				return;
-			}
+            if (!init) {
+                init = true;
+                return;
+            }
             String action = intent.getAction();
  
             if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
