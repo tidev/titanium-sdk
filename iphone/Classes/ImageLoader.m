@@ -112,33 +112,7 @@
     if (stretchableImage == nil || recapStretchableImage) {
         [stretchableImage release];
         UIImage *theImage = [self fullImage];
-        CGFloat maxWidth = [theImage size].width;
-        CGFloat maxHeight = [theImage size].height;
-        
-        NSInteger left = (TiDimensionIsAuto(leftCap) || TiDimensionIsUndefined(leftCap) || leftCap.value == 0) ?
-                                maxWidth/2  : 
-                                TiDimensionCalculateValue(leftCap, maxWidth);
-        NSInteger top = (TiDimensionIsAuto(topCap) || TiDimensionIsUndefined(topCap) || topCap.value == 0) ? 
-                                maxHeight/2  : 
-                                TiDimensionCalculateValue(topCap, maxHeight);
-        
-        if (left >= maxWidth) {
-            left = maxWidth - 2;
-        }
-        if (top >= maxHeight) {
-            top = maxHeight - 2;
-        }
-            
-        NSInteger right = left;
-        NSInteger bottom = top;
-            
-        if ((left + right) >= maxWidth) {
-            right = maxWidth - (left + 1);
-        }
-        if ((top + bottom) >= maxHeight) {
-            bottom = maxHeight - (top + 1);
-        }
-        stretchableImage = [[theImage resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:UIImageResizingModeStretch] retain];
+        stretchableImage = [[UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:theImage] retain];
         recapStretchableImage = NO;
     }
 	return stretchableImage;

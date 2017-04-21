@@ -75,7 +75,9 @@ function getAvdName(port, callback) {
 exports.isRunning = function isRunning(config, emu, devices, callback) {
 	var emuRegExp = /^emulator\-(\d+)$/;
 
-	devices = devices.filter(function (d) { return emuRegExp.test(d.id) && d.state === 'device'; });
+	devices = devices.filter(function (d) {
+		return emuRegExp.test(d.id) && d.state === 'device';
+	});
 	if (!devices.length || !emu.type == 'avd') return callback(null, false);
 
 	var queue = async.queue(function (task, next) {
@@ -96,7 +98,7 @@ exports.isRunning = function isRunning(config, emu, devices, callback) {
 	devices.forEach(function (device) {
 		queue.push(function (cb) {
 			var m = device.id.match(emuRegExp);
-			if (m && device.emulator.name == emu.name) {
+			if (m && device.emulator.id == emu.id) {
 				cb(null, device);
 			} else {
 				// this should never happen
@@ -131,7 +133,7 @@ exports.isEmulator = function isEmulator(config, device, callback) {
 			callback(true);
 		} else {
 			callback(null, results.androidInfo.avds.filter(function (e) {
-				return e.name == results.avdName;
+				return e.id == results.avdName;
 			}).shift());
 		}
 	});
@@ -235,7 +237,7 @@ exports.start = function start(config, emu, opts, callback) {
 
 				// default args
 				var args = [
-					'-avd', emu.name,                                // use a specific android virtual device
+					'-avd', emu.id,                                  // use a specific android virtual device
 					'-port', port,                                   // TCP port that will be used for the console
 					'-no-boot-anim',                                 // disable animation for faster boot
 					'-partition-size', opts.partitionSize || 128     // system/data partition size in MBs

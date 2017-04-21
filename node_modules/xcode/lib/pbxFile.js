@@ -29,7 +29,8 @@ var FILETYPE_BY_EXTENSION = {
         xcdatamodel: 'wrapper.xcdatamodel',
         xcodeproj: 'wrapper.pb-project',
         xctest: 'wrapper.cfbundle',
-        xib: 'file.xib'
+        xib: 'file.xib',
+        strings: 'text.plist.strings'
     },
     GROUP_BY_FILETYPE = {
         'archive.ar': 'Frameworks',
@@ -59,7 +60,8 @@ var FILETYPE_BY_EXTENSION = {
         'text': 4,
         'text.plist.xml': 4,
         'text.script.sh': 4,
-        'text.xcconfig': 4
+        'text.xcconfig': 4,
+        'text.plist.strings': 4
     };
 
 

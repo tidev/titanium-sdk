@@ -105,10 +105,15 @@ function mapImage8Bit(image, pxData, getPxPos, bpp, data, rawPos) { // eslint-di
 
       for (var i = 0; i < 4; i++) {
         var idx = pixelBppMap[bpp][i];
-        if (i === data.length) {
-          throw new Error('Ran out of data');
+        if (idx === 0xff) {
+          pxData[pxPos + i] = 0xff;
+        } else {
+          var dataPos = idx + rawPos;
+          if (dataPos === data.length) {
+            throw new Error('Ran out of data');
+          }
+          pxData[pxPos + i] = data[dataPos];
         }
-        pxData[pxPos + i] = idx !== 0xff ? data[idx + rawPos] : 0xff;
       }
       rawPos += bpp; //eslint-disable-line no-param-reassign
     }
