@@ -507,7 +507,6 @@ public class TiUIText extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
 		    editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
-		    disableChangeEvent = !editable;
 		}
 
 		tv.setEnabled(true);
