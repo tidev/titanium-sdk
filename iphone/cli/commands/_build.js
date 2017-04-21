@@ -3723,6 +3723,12 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(next) {
 	this.logger.info(__('Creating Entitlements.plist'));
 
+	// Check if the Ti.Facebook iOS module is included
+	// to determine whether we need include keychain entitlements
+	var isFacebookModuleEmbedded = this.tiapp.modules.some(function (module) {
+		return module.id == 'facebook' && (module.platform.indexOf('ios') !== -1 || module.platform.indexOf('iphone') !== -1);			
+	}, this);
+		
 	// allow the project to have its own custom entitlements
 	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
 		plist = new appc.plist(),
@@ -3772,6 +3778,16 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
 		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
 			plist['keychain-access-groups'].push(plist['application-identifier']);
+		}
+	} else if (isFacebookModuleEmbedded) {
+				
+		// No provisioning profile is found (e.g. Simulator), but we need keychain-access
+		// for the Simulator as well. So we'll use the $(AppIdentifierPrefix) prefix-flag
+		var applicationIdentifier = '$(AppIdentifierPrefix)' + this.tiapp.id;
+		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
+		
+		if (!plist['keychain-access-groups'].some(function (id) { return id === applicationIdentifier; })) {
+			plist['keychain-access-groups'].push(applicationIdentifier);
 		}
 	}
 
