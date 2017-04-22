@@ -27,21 +27,21 @@ var eos = function(stream, opts, callback) {
 
 	var onfinish = function() {
 		writable = false;
-		if (!readable) callback();
+		if (!readable) callback.call(stream);
 	};
 
 	var onend = function() {
 		readable = false;
-		if (!writable) callback();
+		if (!writable) callback.call(stream);
 	};
 
 	var onexit = function(exitCode) {
-		callback(exitCode ? new Error('exited with error code: ' + exitCode) : null);
+		callback.call(stream, exitCode ? new Error('exited with error code: ' + exitCode) : null);
 	};
 
 	var onclose = function() {
-		if (readable && !(rs && rs.ended)) return callback(new Error('premature close'));
-		if (writable && !(ws && ws.ended)) return callback(new Error('premature close'));
+		if (readable && !(rs && rs.ended)) return callback.call(stream, new Error('premature close'));
+		if (writable && !(ws && ws.ended)) return callback.call(stream, new Error('premature close'));
 	};
 
 	var onrequest = function() {

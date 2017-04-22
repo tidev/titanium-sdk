@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
-#import "Tibuffer.h"
+#import "TiBuffer.h"
 #import "KrollCallback.h"
 #import "TiBase.h"
 
