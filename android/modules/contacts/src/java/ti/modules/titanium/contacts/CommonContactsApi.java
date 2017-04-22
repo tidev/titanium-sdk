@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiC;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -65,10 +66,10 @@ public abstract class CommonContactsApi
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity = TiApplication.getAppCurrentActivity();
+		Context context = TiApplication.getInstance().getApplicationContext();
 		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
-		if (currentActivity != null &&
-				currentActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+		if (context != null &&
+				context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		Log.w(TAG, "Contact permissions are missing");

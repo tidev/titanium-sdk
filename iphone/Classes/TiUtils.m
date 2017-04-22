@@ -168,51 +168,56 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 +(BOOL)isIOS4_2OrGreater
 {
-	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
+    return [TiUtils isIOSVersionOrGreater:@"4.2"];
 }
 
 +(BOOL)isIOS5OrGreater
 {
-  return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+    return [TiUtils isIOSVersionOrGreater:@"5.0"];
 }
 
 +(BOOL)isIOS6OrGreater
 {
-    return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+    return [TiUtils isIOSVersionOrGreater:@"6.0"];
 }
 
 +(BOOL)isIOS7OrGreater
 {
-    return [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
+    return [TiUtils isIOSVersionOrGreater:@"7.0"];
 }
 
 +(BOOL)isIOS8OrGreater
 {
-    return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
+    return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
 +(BOOL)isIOS9OrGreater
 {
-    return [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
+    return [TiUtils isIOSVersionOrGreater:@"9.0"];
 }
 
 +(BOOL)isIOS9_1OrGreater
 {
-    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+    return [TiUtils isIOSVersionOrGreater:@"9.1"];
 }
 
 +(BOOL)isIOS9_3OrGreater
 {
-    return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
+    return [TiUtils isIOSVersionOrGreater:@"9.3"];
 }
 
 +(BOOL)isIOS10OrGreater
 {
 #if IS_XCODE_8
-    return [[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending;
+    return [TiUtils isIOSVersionOrGreater:@"10.0"];
 #else
     return NO;
 #endif
+}
+
++(BOOL)isIOSVersionOrGreater:(NSString *)version
+{
+    return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
 }
 
 +(BOOL)isIPad
@@ -1981,6 +1986,38 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }];
     
     return responseHeader;
+}
+
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:image];
+    } else if ([image isKindOfClass:[NSString class]]) {
+        if ([image isEqualToString:@""]) {
+            return nil;
+        }
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL withLeftCap:leftCap topCap:topCap];
+        if (resultImage == nil)
+        {
+            UIImage *downloadedImgage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:downloadedImgage];
+        }
+        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[UIImage imageNamed:image]];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
+            resultImage = [UIImageResize resizedImage:[resultImage size]
+                                 interpolationQuality:kCGInterpolationNone
+                                                image:resultImage
+                                                hires:NO];
+        }
+    } else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [UIImageResize resizedImageWithLeftCap:leftCap topCap:topCap image:[(TiBlob*)image image]];
+    }
+    return resultImage;
 }
 
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy

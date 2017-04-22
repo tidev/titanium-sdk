@@ -1,99 +1,181 @@
 #!groovy
 
-node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && ant && gperf && osx') {
-	currentBuild.result = 'SUCCESS'
+currentBuild.result = 'SUCCESS'
 
-	// Wrap in timestamper
-	timestamps {
-		try {
-			def gitCommit = ''
+// Variables which we assign and share between nodes
+// Don't modify these yourself
+def gitCommit = ''
+def basename = ''
+def vtag = ''
+def isPR = false
+
+// Variables we can change
+def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+
+@NonCPS
+def jsonParse(def json) {
+	new groovy.json.JsonSlurperClassic().parseText(json)
+}
+
+def unitTests(os, nodeVersion) {
+	return {
+		// TODO Customize labels by os we're testing
+		node('android-emulator && git && android-sdk && osx') {
+			timeout(20) {
+				// Unarchive the osx build of the SDK (as a zip)
+				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
+				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
+				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+				// if our test suite already exists, delete it...
+				sh 'rm -rf titanium-mobile-mocha-suite'
+				// clone the tests suite fresh
+				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
+				dir('titanium-mobile-mocha-suite') {
+					// TODO Do a shallow clone, using same credentials as from scm object
+					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
+				}
+				// copy over any overridden unit tests into this workspace
+				unstash 'override-tests'
+				sh 'cp -R tests/ titanium-mobile-mocha-suite'
+				// Now run the unit test suite
+				dir('titanium-mobile-mocha-suite/scripts') {
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						sh 'npm install .'
+						try {
+							sh "node test.js -b ../../${zipName} -p ${os}"
+						} catch (e) {
+							if ('ios'.equals(os)) {
+								// Gather the crash report(s)
+								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								archiveArtifacts 'mocha_*.crash'
+								sh 'rm -f mocha_*.crash'
+							} else {
+								// FIXME gather crash reports/tombstones for Android?
+							}
+							throw e
+						} finally {
+							// Kill the emulators!
+							if ('android'.equals(os)) {
+								sh 'killall -9 emulator || echo ""'
+								sh 'killall -9 emulator64-arm || echo ""'
+								sh 'killall -9 emulator64-x86 || echo ""'
+							}
+						}
+					}
+					junit 'junit.*.xml'
+				}
+			} // timeout
+		}
+	}
+}
+
+// Wrap in timestamper
+timestamps {
+	try {
+		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
 				// checkout scm
 				// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
 				checkout([
 					$class: 'GitSCM',
 					branches: scm.branches,
-					extensions: scm.extensions + [[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
+					extensions: scm.extensions + [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
 				gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+				isPR = env.BRANCH_NAME.startsWith('PR-')
 			}
 
-			def basename = ''
-			def vtag = ''
-			def isPR = env.BRANCH_NAME.startsWith('PR-')
-			timeout(45) {
-				ansiColor('xterm') {
-					stage('Build') {
-						// Skip the Windows SDK portion on PR builds?
-						if (!isPR) {
-							// Grab Windows SDK piece
-							def windowsBranch = env.BRANCH_NAME.replaceAll(/_/, ".")
-							step ([$class: 'CopyArtifact',
-								projectName: "titanium_mobile_windows_${windowsBranch}",
-								filter: 'dist/windows/']);
-							sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-						}
+			// Skip the Windows SDK portion if a PR, we don't need it
+			stage('Windows') {
+				if (!isPR) {
+					// Grab Windows SDK from merge target banch, if unset assume master
+					def windowsBranch = env.CHANGE_TARGET
+					if (!windowsBranch) {
+						windowsBranch = 'master'
+					}
+					step([$class: 'CopyArtifact',
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
+						selector: [$class: 'StatusBuildSelector', stable: false],
+						filter: 'dist/windows/'])
+					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+				} // !isPR
+			} // stage
 
-						// Normal build, pull out the version
-						def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-						echo "VERSION:         ${version}"
-						// Create a timestamp
-						def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-						echo "TIMESTAMP:       ${timestamp}"
-						vtag = "${version}.v${timestamp}"
-						echo "VTAG:            ${vtag}"
-						basename = "dist/mobilesdk-${vtag}"
-						echo "BASENAME:        ${basename}"
-						// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-						dir('build') {
+			stage('Build') {
+				// Normal build, pull out the version
+				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+				echo "VERSION:         ${version}"
+				// Create a timestamp
+				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+				echo "TIMESTAMP:       ${timestamp}"
+				vtag = "${version}.v${timestamp}"
+				echo "VTAG:            ${vtag}"
+				basename = "dist/mobilesdk-${vtag}"
+				echo "BASENAME:        ${basename}"
+				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+				dir('build') {
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						timeout(5) {
 							sh 'npm install .'
+						}
+						timeout(15) {
 							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+						}
+						ansiColor('xterm') {
 							if (isPR) {
 								// For PR builds, just package android and iOS for osx
 								sh "node scons.js package android ios --version-tag ${vtag}"
 							} else {
 								// For non-PR builds, do all platforms for all OSes
-								sh "node scons.js package --version-tag ${vtag} --all"
+								timeout(15) {
+									sh "node scons.js package --version-tag ${vtag} --all"
+								}
 							}
-						}
-						// Stash the zip for later, so we can parallelize the tests
-						//stash includes: "${basename}-*.zip", name: 'zip'
-					}
-
-					// TODO Separate out the node requirements for test vs build.
-					// Specifically, for build we need:
-					// node-4 && npm && git && android-sdk && android-ndk && ant && gperf && (osx || linux)
-					// For test we need:
-					// node-4 && android-emulator && npm && git && android-sdk && osx
-					stage('Test') {
-						// TODO Unstash the SDK zip and run tests in parallel for android/ios on separate nodes!
-						dir('titanium-mobile-mocha-suite') {
-							// TODO Do a shallow clone, using same credentials as above
-							git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
-						}
-						sh 'cp -R tests/ titanium-mobile-mocha-suite'
-						dir('titanium-mobile-mocha-suite/scripts') {
-							sh 'npm install .'
-							sh "node test.js -b ../../${basename}-osx.zip -p android,ios"
-							junit 'junit.*.xml'
-						}
-					}
+						} // ansiColor
+					} // nodeJs
 				}
-			}
+				archiveArtifacts artifacts: "${basename}-*.zip"
+				stash includes: 'dist/parity.html', name: 'parity'
+				stash includes: 'tests/', name: 'override-tests'
+			} // end 'Build' stage
+		} // end node for checkout/build
 
-			stage('Deploy') {
-				// Push to S3 if not PR
-				if (!isPR) {
+		// Run unit tests in parallel for android/iOS
+		stage('Test') {
+			parallel(
+				'android unit tests': unitTests('android', nodeVersion),
+				'iOS unit tests': unitTests('ios', nodeVersion),
+				failFast: true
+			)
+		}
+
+		stage('Deploy') {
+			// Push to S3 if not PR
+			// FIXME on oddball PRs on branches of original repo, we shouldn't do this
+			if (!isPR) {
+				// Now allocate a node for uploading artifacts to s3 and in Jenkins
+				node('(osx || linux) && !axway-internal && curl') {
 					def indexJson = []
+					if (fileExists('index.json')) {
+						sh 'rm -f index.json'
+					}
 					try {
-						sh "wget http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
-						indexJson = new groovy.json.JsonSlurperClassic().parseText(readFile('index.json'))
+						sh "curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/${env.BRANCH_NAME}/index.json"
 					} catch (err) {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
+					if (fileExists('index.json')) {
+						def contents = readFile('index.json')
+						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+							indexJson = jsonParse(contents)
+						}
+					}
 
+					// unarchive zips
+					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
@@ -151,6 +233,7 @@ node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && 
 						userMetadata: []])
 
 					// Upload the parity report
+					unstash 'parity'
 					sh "mv dist/parity.html ${basename}-parity.html"
 					step([
 						$class: 'S3BucketPublisher',
@@ -166,25 +249,19 @@ node('node-4 && android-emulator && npm && git && android-sdk && android-ndk && 
 						profileName: 'builds.appcelerator.com',
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
-				}
-			}
+				} // node
+			} // !isPR
+		} // stage
+	}
+	catch (err) {
+		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
+		currentBuild.result = 'FAILURE'
+		mail body: "project build error is here: ${env.BUILD_URL}",
+			from: 'hudson@appcelerator.com',
+			replyTo: 'no-reply@appcelerator.com',
+			subject: 'project build failed',
+			to: 'eng-platform@appcelerator.com'
 
-			stage('Results') {
-				archive 'dist/*.zip'
-			}
-		}
-		catch (err) {
-			currentBuild.result = 'FAILURE'
-
-			office365ConnectorSend(message: 'Build failed', status: currentBuild.result, webhookUrl: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/1e4f6c138db84aeca1b55a0340750b55/72931ee3-e99d-4daf-84d2-1427168af2d9')
-
-			mail body: "project build error is here: ${env.BUILD_URL}",
-				from: 'hudson@appcelerator.com',
-				replyTo: 'no-reply@appcelerator.com',
-				subject: 'project build failed',
-				to: 'eng-platform@appcelerator.com'
-
-			throw err
-		}
+		throw err
 	}
 }

@@ -76,8 +76,43 @@ public class TiRootActivity extends TiLaunchActivity
 		Intent intent = getIntent();
 		TiRootActivity rootActivity = tiApp.getRootActivity();
 
-		if (intent != null && rootActivity != null) {
-			rootActivity.setIntent(intent);
+		if (intent != null) {
+			if (rootActivity != null) {
+				rootActivity.setIntent(intent);
+			} else {
+
+				// TIMOB-24497: launching as CATEGORY_HOME prevents intent data being passed to our
+				// resumed activity. Re-launch using CATEGORY_LAUNCHER.
+				if (intent.getCategories() != null && intent.getCategories().contains(Intent.CATEGORY_HOME)) {
+					finish();
+
+					intent.removeCategory(Intent.CATEGORY_HOME);
+					intent.addCategory(Intent.CATEGORY_LAUNCHER);
+					startActivity(intent);
+
+					restartActivity(100, 0);
+
+					activityOnCreate(savedInstanceState);
+					return;
+				}
+			}
+
+			// TIMOB-15253: implement 'singleTask' like launchMode as android:launchMode cannot be used with Titanium
+			if (tiApp.intentFilterNewTask() &&
+				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
+				intent.getDataString() != null &&
+				(intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
+
+				if (rootActivity == null) {
+					intent.setAction(Intent.ACTION_MAIN);
+				}
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+				finish();
+				
+				activityOnCreate(savedInstanceState);
+				return;
+			}
 		}
 
 		if (willFinishFalseRootActivity(savedInstanceState)) {
