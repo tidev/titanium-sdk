@@ -352,10 +352,11 @@ properties:
     description: |
         If `true`, selection indicator is enabled.
 
-        On iOS 7 and later, the picker indicator is always shown and you cannot control it. Manually 
-        setting the property is deprecated on iOS since 6.1.0 and will be ignored by the SDK.
+        On iOS 7 and later, the picker indicator is always shown and you cannot control it.
+
+        On iOS 6 and prior, if enabled, a blue bar is displayed to indicate the current selection.
     type: Boolean
-    default: true
+    default: true (Android), false (iPhone, iPad)
     platforms: [android, iphone, ipad]
     
   - name: selectionOpens
