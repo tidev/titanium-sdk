@@ -44,8 +44,9 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		labelProxy.setActivity(activity);
 		//Generate properties
 		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "6dp");
-		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "55%");
+		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "75%");
 		defaultLabelProperties.put(TiC.PROPERTY_TEXT, "label");
+		defaultLabelProperties.put(TiC.PROPERTY_COLOR, "#fff");
 		defaultLabelProperties.put(TiC.PROPERTY_ENABLED, true);
 		//bind the proxy and default propertiess
 		DataItem labelItem = new DataItem(labelProxy, TiC.PROPERTY_TITLE, rootItem);
