@@ -208,46 +208,6 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
-    RELEASE_TO_NIL(_animationStyleProxy);
-#endif
-#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
-    RELEASE_TO_NIL(_RowAnimationStyle);
-#endif
-#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
-    RELEASE_TO_NIL(_AlertDialogStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
-    RELEASE_TO_NIL(_TableViewCellSelectionStyle);
-    RELEASE_TO_NIL(_ListViewCellSelectionStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
-    RELEASE_TO_NIL(_TableViewScrollPosition);
-    RELEASE_TO_NIL(_ListViewScrollPosition);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-    RELEASE_TO_NIL(_TableViewStyle);
-    RELEASE_TO_NIL(_ListViewStyle);
-#endif
-#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
-    RELEASE_TO_NIL(_ProgressBarStyle);
-#endif
-#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
-    RELEASE_TO_NIL(_ScrollIndicatorStyle);
-#endif
-#ifdef USE_TI_UIIOSSTATUSBAR
-    RELEASE_TO_NIL(_StatusBar);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTON
-    RELEASE_TO_NIL(_SystemButton);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-    RELEASE_TO_NIL(_SystemButtonStyle);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMICON
-    RELEASE_TO_NIL(_SystemIcon);
-#endif
-
     [super dealloc];
 }
 
@@ -684,7 +644,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
         return nil;
     }
     
-    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
+    TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
     
     return image;
 }

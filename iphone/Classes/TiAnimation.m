@@ -157,8 +157,7 @@ self.p = v;\
 	RELEASE_TO_NIL(transition);
 	RELEASE_TO_NIL(callback);
 	RELEASE_TO_NIL(view);
-	RELEASE_TO_NIL(animatedView);
-    [animatedViewProxy release];
+	[animatedViewProxy release];
 	[super dealloc];
 }
 

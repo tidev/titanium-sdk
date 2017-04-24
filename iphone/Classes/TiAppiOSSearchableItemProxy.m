@@ -24,6 +24,12 @@
     return self;
 }
 
+-(void)dealloc
+{
+	RELEASE_TO_NIL(_item);
+	[super dealloc];
+}
+
 -(NSString*)apiName
 {
     return @"Ti.App.iOS.SearchableItem";
