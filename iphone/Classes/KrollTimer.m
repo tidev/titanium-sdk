@@ -72,6 +72,7 @@
 
 -(void)main
 {
+    @autoreleasepool {
 	NSConditionLock *invokeCond = [[NSConditionLock alloc] initWithCondition:0];
 
 	NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration/1000];
@@ -86,6 +87,7 @@
 		// Always break if stopped; it means we were cancelled.  Even if started and then immediately
 		// stopped, this is the behavior we want.
 		if (stopped) break;
+		@autoreleasepool {
 		
 		// calculate the next interval before execution so we exclude it's time
 		date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration/1000];
@@ -101,6 +103,7 @@
 		// push the invocation to happen on the context thread
             [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
         }
+		}
 		[invokeCond lockWhenCondition:1];
 		[invokeCond unlockWithCondition:0];
 
@@ -112,6 +115,7 @@
 	TiValueUnprotect(context, jsThis);
 	
 	[self cancel];
+    }
 }
 
 @end

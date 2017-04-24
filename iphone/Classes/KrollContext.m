@@ -831,11 +831,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (queue!=nil)
 	{
 		[queue removeAllObjects];
-	}
 
-	queue = nil;
-	krollContextId = nil;
-	lock = nil;
+		queue = nil;
+		krollContextId = nil;
+		lock = nil;
+	}
 
 	if (timerLock!=nil)
 	{
@@ -925,7 +925,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		if ([timers count]==0)
 		{
 			// don't waste memory if we don't have any timers
-            timers = nil;
+			timers = nil;
 		}
 	}
 #ifdef TI_USE_KROLL_THREAD
@@ -1185,12 +1185,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #if CONTEXT_DEBUG == 1
 	NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested",self);
 #endif
-
+	@autoreleasepool {
 	pthread_mutex_lock(&KrollEntryLock);
 	TiGarbageCollect(context);
 	pthread_mutex_unlock(&KrollEntryLock);
 	gcrequest = NO;
 	loopCount = 0;
+	}
 #endif
 	return 0;
 }

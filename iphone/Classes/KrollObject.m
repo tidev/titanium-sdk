@@ -203,7 +203,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
         }
 
 
-		NSString* name = (NSString*)CFBridgingRelease(TiStringCopyCFString(kCFAllocatorDefault, prop));
+		NSString* name = (__bridge NSString*)TiStringCopyCFString(kCFAllocatorDefault, prop);
 
 		id result = [o valueForKey:name];
 
@@ -281,7 +281,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		{
 			return false;
 		}
-		NSString* name = (NSString*)CFBridgingRelease(TiStringCopyCFString(kCFAllocatorDefault, prop));
+		NSString* name = (__bridge NSString*)TiStringCopyCFString(kCFAllocatorDefault, prop);
 
 		id v = TiValueToId([o context], value);
 #if KOBJECT_DEBUG == 1

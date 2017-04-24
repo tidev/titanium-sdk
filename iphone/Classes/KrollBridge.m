@@ -92,6 +92,13 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 }
 #endif
 
+-(void)dealloc
+{
+	host = nil;
+	modules = nil;
+	dynprops = nil;
+}
+
 -(void)gc
 {
 }
@@ -310,6 +317,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			[thisModule unprotectJsobject];
 		}
 	}
+
+	modules = nil;
 }
 
 -(void)dealloc
@@ -319,6 +328,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #endif
 
 	[self removeProxies];
+	preload = nil;
+	context = nil;
+	titanium = nil;
 	OSSpinLockLock(&krollBridgeRegistryLock);
 	CFSetRemoveValue(krollBridgeRegistry, (__bridge const void *)(self));
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -374,6 +386,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_
 {
+	@autoreleasepool {
 	NSError *error = nil;
 	TiValueRef exception = NULL;
 
@@ -454,6 +467,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
+	}
 }
 
 - (void)evalFile:(NSString*)path callback:(id)callback selector:(SEL)selector
@@ -537,6 +551,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didStartNewContext:(KrollContext*)kroll
 {
+	@autoreleasepool {
 	// Load the "Titanium" object into the global scope
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
@@ -600,6 +615,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		[cls performSelector:@selector(didStartNewContext:bridge:) withObject:kroll withObject:self];
 	}
 #endif
+	}
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll
@@ -1193,7 +1209,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	KrollBridge * registryObjects[bridgeCount];
     
 #warning FIXME: Is this correct?
-	CFSetGetValues(krollBridgeRegistry, (CFTypeRef *)(void *)registryObjects);
+	CFSetGetValues(krollBridgeRegistry, (void *)registryObjects);
 
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
@@ -1222,7 +1238,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 #warning FIXME: Is this correct?
-	CFSetGetValues(krollBridgeRegistry, (CFTypeRef *)(void*)registryObjects);
+	CFSetGetValues(krollBridgeRegistry, (void *)registryObjects);
 
 	NSMutableArray *results = [[NSMutableArray alloc] initWithCapacity:0];
 	for (NSUInteger currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; ++currentBridgeIndex) {
@@ -1246,7 +1262,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 #warning FIXME: Is this correct?
-	CFSetGetValues(krollBridgeRegistry, (CFTypeRef *)(void *)registryObjects);
+	CFSetGetValues(krollBridgeRegistry, (void *)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
@@ -1275,7 +1291,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
 	KrollBridge * registryObjects[bridgeCount];
 #warning FIXME: Is this correct?
-	CFSetGetValues(krollBridgeRegistry, (CFTypeRef *)(void *)registryObjects);
+	CFSetGetValues(krollBridgeRegistry, (void *)registryObjects);
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 #ifdef TI_USE_KROLL_THREAD

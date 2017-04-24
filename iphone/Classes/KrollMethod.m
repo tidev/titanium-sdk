@@ -22,6 +22,7 @@ TiClassRef KrollMethodClassRef = NULL;
 TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
 {
     waitForMemoryPanicCleared();
+    @autoreleasepool {
 	KrollMethod* o = (__bridge KrollMethod*) TiObjectGetPrivate(func);
 	@try
 	{
@@ -69,6 +70,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		*exception = [KrollObject toValue:[o context] value:ex];
 	}
 	return TiValueMakeUndefined(jsContext);
+    }
 }
 
 TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
@@ -77,7 +79,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	
 	KrollMethod* o = (__bridge KrollMethod*) TiObjectGetPrivate(thisObj);
 	TiStringRef jsString = TiValueToStringCopy(jsContext, func, NULL);
-	NSString* funcName = (NSString *)CFBridgingRelease(TiStringCopyCFString(kCFAllocatorDefault, jsString));
+	NSString* funcName = (__bridge NSString *)TiStringCopyCFString(kCFAllocatorDefault, jsString);
 	TiStringRelease(jsString);
 
 	@try {
