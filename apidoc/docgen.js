@@ -636,11 +636,13 @@ function addOnMerge(baseObj, addObj) {
 function mkdirDashP(path) {
 	var p = path.replace(/\\/g, '/');
 	p = p.substring(0, path.lastIndexOf('/'));
-	if (!fs.existsSync(p)) {
-		mkdirDashP(p);
-	}
-	if (!fs.existsSync(path)) {
-		fs.mkdirSync(path);
+	if (p.length) {
+		if (!fs.existsSync(p)) {
+			mkdirDashP(p);
+		}
+		if (!fs.existsSync(path)) {
+			fs.mkdirSync(path);
+		}
 	}
 }
 
