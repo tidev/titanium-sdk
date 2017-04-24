@@ -58,7 +58,7 @@ exec('npm -v', function (err, stdout, stderr) {
 
 	console.log('Removing old Node modules');
 
-	rm(path.join(titaniumDir, 'node_modules'), ['titanium-sdk']);
+	rm(path.join(titaniumDir, 'node_modules'), []);
 
 	console.log('\nRunning npm install');
 
