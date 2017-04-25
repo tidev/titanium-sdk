@@ -1,7 +1,7 @@
 # Appcelerator Titanium [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master)](https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/)
 
-Welcome to the Titanium open source project. Titanium provides a platform for developers to build completely
-native cross-platform mobile applications using JavaScript.
+Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build 
+completely native cross-platform mobile applications using JavaScript.
 
 Currently supported native platforms are iOS, Android and Windows Phone / Windows Desktop.
 
@@ -14,7 +14,6 @@ see the LICENSE file for specific details.
 
 With Titanium, you use JavaScript to code your application. Titanium's compiler will compile
 your application code into an efficient native executable for each target mobile platform.
-Titanium writes native code so you don't have to. 🙂
 
 - [x] Native apps built using JavaScript (no hybrid, no embedded WebView)
 - [x] Apps are compiled and run locally with full offline support
@@ -36,12 +35,12 @@ Titanium writes native code so you don't have to. 🙂
 - [x] Support for Push Notifications
 - [x] Support for In-Application Email
 - [x] Support for In-Application SMS, Telephone
-- [x] Support for Filesystem (reading, writing, etc)
-- [x] Support for Gestures (such as Shake)
+- [x] Support for Filesystem (create, read, write, etc.)
+- [x] Support for Gestures (such as Shake and Pinch)
 - [x] Support for Platform and Device capabilities
-- [x] Support for complex native views such as Coverflow, Image viewers, Table views, Grouped Views, Composites, etc.
-- [x] Support for Web views incorporating HTML5, CSS etc.
-- [x] Completely extensible via Module API for building your own controls or extending capabilities at compile-time
+- [x] Support for complex native views such as Coverflow, Image Views, Table Views, Grouped Views, Composites, etc.
+- [x] Support for Web Views incorporating HTML5, CSS etc.
+- [x] Completely extensible via Module API and Hyperloop for building your own controls or extending capabilities
 
 And much, much more (see our [Documentation](http://docs.appcelerator.com/platform/latest/#!/api/Titanium) for more infos).
 
