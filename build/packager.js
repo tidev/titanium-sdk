@@ -223,6 +223,17 @@ Packager.prototype.package = function (next) {
 		function (cb) {
 			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
 		}.bind(this),
+		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
+		function (cb) {
+			exec('npm prune --production', {cwd: this.zipSDKDir}, function (err, stdout, stderr) {
+				if (err) {
+					console.log(stdout);
+					console.error(stderr);
+					return cb(err);
+				}
+				cb();
+			});
+		}.bind(this),
 		this.includePackagedModules.bind(this),
 		function (cb) {
 			var ignoreDirs = ['packaged', '.pyc'];
