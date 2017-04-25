@@ -121,6 +121,9 @@ timestamps {
 					timeout(5) {
 						sh(returnStatus: true, script: 'npm install .') // ignore PEERINVALID grunt issue for now
 					}
+					dir('apidoc') {
+						sh 'node validate.js'
+					}
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
