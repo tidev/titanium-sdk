@@ -403,7 +403,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'device-id': {
 						abbr: 'C',
-						desc: __('the name of the Android emulator or the device id to install the application to'),
+						desc: __('the id of the Android emulator or the device id to install the application to'),
 						hint: __('name'),
 						order: 130,
 						prompt: function (callback) {
