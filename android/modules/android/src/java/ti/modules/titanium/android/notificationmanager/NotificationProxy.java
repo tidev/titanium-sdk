@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
@@ -40,6 +41,7 @@ public class NotificationProxy extends KrollProxy
 	private int flags, ledARGB, ledOnMS, ledOffMS;
 	private Uri sound;
 	private int audioStreamType;
+	public HashMap wakeParams;
 
 	public NotificationProxy()
 	{
@@ -51,6 +53,7 @@ public class NotificationProxy extends KrollProxy
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
 		audioStreamType = Notification.STREAM_DEFAULT;
+		wakeParams = new HashMap();
 	}
 
 	@Override
@@ -131,6 +134,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
 			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY));
 		}
+		if (d.containsKey(TiC.PROPERTY_WAKE_LOCK)) {
+			setWakeLock((HashMap) d.get(TiC.PROPERTY_WAKE_LOCK));
+		}
 		checkLatestEventInfoProperties(d);
 	}
 
@@ -190,6 +196,15 @@ public class NotificationProxy extends KrollProxy
 	{
 		notificationBuilder.setPriority(priority);
 		setProperty(TiC.PROPERTY_PRIORITY, priority);
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setWakeLock(HashMap d)
+	{
+		if (d == null) {
+			return;
+		}
+		wakeParams = d;
 	}
 	
 	@Kroll.method @Kroll.setProperty
