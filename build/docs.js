@@ -1,5 +1,4 @@
-var exec = require('child_process').exec,
-	spawn = require('child_process').spawn,
+var spawn = require('child_process').spawn,
 	fs = require('fs'),
 	path = require('path'),
 	async = require('async'),
@@ -12,12 +11,8 @@ function Documentation(outputDir) {
 }
 
 Documentation.prototype.prepare = function(next) {
-	exec('npm install', {cwd: DOC_DIR}, function (err, stdout, stderr) {
-		if (err) {
-			return next(err);
-		}
-		next();
-	});
+	// no-op now...
+	next();
 };
 
 Documentation.prototype.generateParityReport = function (next) {
