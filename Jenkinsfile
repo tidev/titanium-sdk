@@ -119,7 +119,8 @@ timestamps {
 				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 					// Install dev dependencies
 					timeout(5) {
-						sh(returnStatus: true, script: 'npm install .') // ignore PEERINVALID grunt issue for now
+						// We already check in our production dependencies, so only install devDependencies
+						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 					}
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
