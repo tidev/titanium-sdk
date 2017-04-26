@@ -497,6 +497,8 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
+		disableChangeEvent = true;
+
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = 0;
 		}
@@ -540,6 +542,8 @@ public class TiUIText extends TiUIView
 
 		} else {
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
+
+				disableChangeEvent = false;
 
 				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 					case TEXT_AUTOCAPITALIZATION_NONE:
@@ -674,6 +678,8 @@ public class TiUIText extends TiUIView
 		if (!field) {
 			tv.setSingleLine(false);
 		}
+
+		disableChangeEvent = false;
 
 	}
 
