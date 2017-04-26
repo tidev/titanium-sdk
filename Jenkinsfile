@@ -115,15 +115,18 @@ timestamps {
 				echo "VTAG:            ${vtag}"
 				basename = "dist/mobilesdk-${vtag}"
 				echo "BASENAME:        ${basename}"
-				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-				dir('build') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						timeout(5) {
-							sh 'npm install .'
-						}
+
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Install dev dependencies
+					timeout(5) {
+						// We already check in our production dependencies, so only install devDependencies
+						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+					}
+					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+					dir('build') {
 						timeout(15) {
 							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-						}
+						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
 								// For PR builds, just package android and iOS for osx
@@ -132,11 +135,11 @@ timestamps {
 								// For non-PR builds, do all platforms for all OSes
 								timeout(15) {
 									sh "node scons.js package --version-tag ${vtag} --all"
-								}
+								} // timeout
 							}
 						} // ansiColor
-					} // nodeJs
-				}
+					} // dir
+				} // nodeJs
 				archiveArtifacts artifacts: "${basename}-*.zip"
 				stash includes: 'dist/parity.html', name: 'parity'
 				stash includes: 'tests/', name: 'override-tests'
