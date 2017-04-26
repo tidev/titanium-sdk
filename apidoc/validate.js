@@ -454,10 +454,10 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 		requiredKeys = syntax.required,
 		optionalKeys = syntax.optional;
 	// Ensure required keys exist and then validate them
-	for (var key in requiredKeys) {
-		if (key in obj) {
-			if ((err = validateKey(obj[key], requiredKeys[key], key, className))) {
-				errors[key] = err;
+	for (var requiredKey in requiredKeys) {
+		if (requiredKey in obj) {
+			if ((err = validateKey(obj[requiredKey], requiredKeys[requiredKey], requiredKey, className))) {
+				errors[requiredKey] = err;
 			}
 		} else {
 			// We're missing a required field. Check the parent to see if it's filled in there.
@@ -476,27 +476,27 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 						}
 					}
 					if (parent) {
-						parentValue = parent[key];
+						parentValue = parent[requiredKey];
 					}
 				}
 			}
 
 			if (!parentValue) {
-				errors[key] = 'Required property "' + key + '" not found';
+				errors[requiredKey] = 'Required property "' + requiredKey + '" not found';
 			}
 		}
 	}
 	// Validate optional keys if they're on the object
-	for (var key in optionalKeys) {
-		if (key in obj) {
-			if ((err = validateKey(obj[key], optionalKeys[key], key, className))) {
-				errors[key] = err;
+	for (var optionalKey in optionalKeys) {
+		if (optionalKey in obj) {
+			if ((err = validateKey(obj[optionalKey], optionalKeys[optionalKey], optionalKey, className))) {
+				errors[optionalKey] = err;
 			}
 		}
 	}
 	// Find keys on obj that aren't required or optional!
 	for (var possiblyInvalidKey in obj) {
-		if (key.indexOf('__') == 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
+		if (key.indexOf('__') === 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
 			errors[possiblyInvalidKey] = 'Invalid key(s) in ' + className + ': ' + possiblyInvalidKey;
 		}
 	}
