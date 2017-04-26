@@ -161,10 +161,17 @@ public class TiHTTPClient
 	        TiHTTPClient c = this;
 
 	        contentLength = connection.getContentLength();
-	        setReadyState(READY_STATE_HEADERS_RECEIVED);
 
-	        setStatus(connection.getResponseCode());
-	        setStatusText(connection.getResponseMessage());
+			// Note on getHeaderFields()
+			// HttpURLConnection include a mapping
+			// for the null key; in HTTP's case, this maps to the HTTP status line and is
+			// treated as being at position 0 when indexing into the header fields.
+			responseHeaders = connection.getHeaderFields();
+			setStatus(connection.getResponseCode());
+			// Send the READY_STATE_HEADERS_RECEIVED state once the headers and the status are read
+			setReadyState(READY_STATE_HEADERS_RECEIVED);
+
+			setStatusText(connection.getResponseMessage());
 	        setReadyState(READY_STATE_LOADING);
 
 	        if (proxy.hasProperty(TiC.PROPERTY_FILE)) {
@@ -186,12 +193,6 @@ public class TiHTTPClient
 	        if (autoRedirect && !mURL.sameFile(currentLocation)) {
 	            redirectedLocation = currentLocation.toString();
 	        }
-
-	        // Note on getHeaderFields()
-	        // HttpURLConnection include a mapping
-	        // for the null key; in HTTP's case, this maps to the HTTP status line and is
-	        // treated as being at position 0 when indexing into the header fields.
-	        responseHeaders = connection.getHeaderFields();
 
 	        contentEncoding = connection.getContentEncoding();
 
