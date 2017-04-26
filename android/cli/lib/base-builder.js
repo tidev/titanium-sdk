@@ -1,5 +1,5 @@
 var appc = require('node-appc');
-var Builder = require('titanium-sdk/lib/builder');
+var Builder = require('node-titanium-sdk/lib/builder');
 var DOMParser = require('xmldom').DOMParser;
 var fs = require('fs');
 var path = require('path');
