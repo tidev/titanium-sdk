@@ -8,7 +8,7 @@ var exec = require('child_process').exec,
 
 function Documentation(outputDir) {
 	this.outputDir = outputDir;
-	this.hasWindows = fs.existsSync(ROOT_DIR, 'windows');
+	this.hasWindows = fs.existsSync(path.join(ROOT_DIR, 'windows'));
 }
 
 Documentation.prototype.prepare = function(next) {
@@ -29,13 +29,14 @@ Documentation.prototype.generateParityReport = function (next) {
 	}
 
 	console.log('Generating parity report...');
+
 	prc = spawn('node', args, {cwd: DOC_DIR});
 
 	prc.stdout.on('data', function (data) {
-		console.log(data.toString());
+		console.log(data.toString().trim());
 	});
 	prc.stderr.on('data', function (data) {
-		console.error(data.toString());
+		console.error(data.toString().trim());
 	});
 	prc.on('close', function (code) {
 		if (code != 0) {
@@ -53,15 +54,14 @@ Documentation.prototype.generateJSCA = function (next) {
 							'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly')]);
 	}
 	console.log('Generating JSCA...');
-	console.log(args);
 
 	prc = spawn('node', args, {cwd: DOC_DIR});
 
 	prc.stdout.on('data', function (data) {
-		console.log(data.toString());
+		console.log(data.toString().trim());
 	});
 	prc.stderr.on('data', function (data) {
-		console.error(data.toString());
+		console.error(data.toString().trim());
 	});
 	prc.on('close', function (code) {
 		if (code != 0) {
