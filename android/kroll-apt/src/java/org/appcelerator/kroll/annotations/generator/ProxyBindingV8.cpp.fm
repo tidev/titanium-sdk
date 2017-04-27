@@ -59,7 +59,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	Local<Function> constructor;
 	MaybeLocal<Function> maybeConstructor = pt->GetFunction(context);
 	if (!maybeConstructor.ToLocal(&constructor)) {
-		V8Util::fatalException(isolate, tryCatch);
+		titanium::V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
 
@@ -68,7 +68,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
 	Local<Object> moduleInstance;
 	if (!maybeInstance.ToLocal(&moduleInstance)) {
-		V8Util::fatalException(isolate, tryCatch);
+		titanium::V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
 	exports->Set(nameSymbol, moduleInstance);
