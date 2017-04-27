@@ -134,7 +134,7 @@ timestamps {
 		stage('Test') {
 			parallel(
 				'android unit tests': unitTests('android', nodeVersion),
-				'iOS unit tests': unitTests('ios', nodeVersion),
+				// 'iOS unit tests': unitTests('ios', nodeVersion),
 				failFast: true
 			)
 		}
