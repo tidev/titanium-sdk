@@ -54,11 +54,10 @@ class SymbolWriter {
       rClassContent += '\tpublic static final class ' + className + ' {\n';
       var resourceClassEntries = symbols[className];
       Object.keys(resourceClassEntries).forEach((symbolName) => {
-        var value = this.fullValues.symbols[className][symbolName];
-        if (typeof value === 'undefined') {
-          return;
+        var value = this.fullValues.symbols[className] && this.fullValues.symbols[className][symbolName];
+        if (typeof value !== 'undefined') {
+          rClassContent += '\t\tpublic static final ' + value.type + ' ' + value.name + ' = ' + value.value + ';\n';
         }
-        rClassContent += '\t\tpublic static final ' + value.type + ' ' + value.name + ' = ' + value.value + ';\n';
       });
       rClassContent += '\t}\n';
     });
