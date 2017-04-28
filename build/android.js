@@ -9,7 +9,7 @@ var path = require('path'),
 	globCopy = utils.globCopy;
 
 function readProperties(filepath) {
-	var contents = fs.readFileSync(filepath).toString(),
+	var contents = fs.readFileSync(filepath).toString().replace(/\r\n/g, '\n'),
 		regexp = /^([^=]+)\s*=\s*(.+)$/gm,
 		matches,
 		result = {};

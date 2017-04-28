@@ -17,7 +17,7 @@ const
 	crypto = require('crypto'),
 	fs = require('fs'),
 	path = require('path'),
-	ti = require('titanium-sdk'),
+	ti = require('./titanium'),
 	wrench = require('wrench'),
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
