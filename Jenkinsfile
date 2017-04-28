@@ -91,8 +91,8 @@ timestamps {
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
-					// Grab Windows SDK from merge target banch, if unset assume master
-					def windowsBranch = env.CHANGE_TARGET
+					// Grab Windows SDK from merge target branch, if unset assume master
+					def windowsBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
 					if (!windowsBranch) {
 						windowsBranch = 'master'
 					}
