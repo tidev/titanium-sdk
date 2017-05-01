@@ -81,6 +81,19 @@ public class TiRootActivity extends TiLaunchActivity
 
 		if (intent != null) {
 			if (rootActivity != null) {
+
+				// TIMOB-24527: FLAG_ACTIVITY_NEW_DOCUMENT creates a new activity instance
+				// which overrides any previous event handlers and prevents resumed instances
+				// from functioning correctly. We need to ignore this flag.
+				if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_DOCUMENT) != 0) {
+					intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+					finish();
+					startActivity(intent);
+
+					KrollRuntime.incrementActivityRefCount();
+					activityOnCreate(savedInstanceState);
+					return;
+				}
 				rootActivity.setIntent(intent);
 			} else {
 
