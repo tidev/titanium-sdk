@@ -34,12 +34,10 @@ script:
   - "export VERSION=`sed -n 's/^ *\"version\": *\"//p' package.json | tr -d '\"' | tr -d ','`"
   - export TIMESTAMP=`date +'%Y%m%d%H%M%S'`
   - export VTAG=$VERSION.v$TIMESTAMP
-  - cd build
   - npm install .
+  - cd build
   - node scons.js build
   - node scons.js package --version-tag $VTAG
   - cd ..
-  - npm install
   - ls dist
-  - npm install grunt-cli
   - npm test

@@ -150,11 +150,15 @@ public class ListViewProxy extends TiViewProxy {
 	}
 	
 	public int handleSectionCount () {
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
+		
 		if (listView != null) {
 			return ((TiListView) listView).getSectionCount();
 		}
-		return 0;
+		return preloadSections.size();
 	}
 
 	@Kroll.method
@@ -471,6 +475,9 @@ public class ListViewProxy extends TiViewProxy {
 	
 	private ListSectionProxy[] handleSections()
 	{
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
 
 		if (listView != null) {

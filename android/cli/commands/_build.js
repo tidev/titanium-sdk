@@ -14,27 +14,27 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var ADB = require('titanium-sdk/lib/adb'),
+var ADB = require('node-titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
-	android = require('titanium-sdk/lib/android'),
+	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs'),
-	i18n = require('titanium-sdk/lib/i18n'),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	i18n = require('node-titanium-sdk/lib/i18n'),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	ti = require('node-titanium-sdk'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -225,7 +225,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							if (emu.type == 'avd') {
 								return {
 									name: emu.name,
-									id: emu.name,
+									id: emu.id,
 									api: emu['api-level'],
 									version: emu['sdk-version'],
 									abi: emu.abi,
@@ -403,7 +403,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'device-id': {
 						abbr: 'C',
-						desc: __('the name of the Android emulator or the device id to install the application to'),
+						desc: __('the id of the Android emulator or the device id to install the application to'),
 						hint: __('name'),
 						order: 130,
 						prompt: function (callback) {
@@ -1407,7 +1407,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (this.debugPort || this.profilerPort) {
 		// if debugging/profiling, make sure we only have one device and that it has an sd card
 		if (this.target == 'emulator') {
-			var emu = this.devices.filter(function (d) { return d.name == deviceId; }).shift();
+			var emu = this.devices.filter(function (d) { return d.id == deviceId; }).shift();
 			if (!emu) {
 				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
 				process.exit(1);
@@ -1779,7 +1779,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 
 	var deviceId = this.deviceId = argv['device-id'];
 	if (!this.buildOnly && this.target == 'emulator') {
-		var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
+		var emu = this.devices.filter(function (e) { return e.id == deviceId; }).shift();
 		if (!emu) {
 			// sanity check
 			this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
@@ -3698,10 +3698,12 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	}
 
 	// add permissions
-	Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
-	Object.keys(permissions).forEach(function (perm) {
-		finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
-	});
+	if (!this.tiapp['override-permissions']) {
+		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
+		Object.keys(permissions).forEach(function (perm) {
+			finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
+		});
+	}
 
 	// if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
 	fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);
