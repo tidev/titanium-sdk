@@ -91,8 +91,8 @@ timestamps {
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
-					// Grab Windows SDK from merge target banch, if unset assume master
-					def windowsBranch = env.CHANGE_TARGET
+					// Grab Windows SDK from merge target branch, if unset assume master
+					def windowsBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
 					if (!windowsBranch) {
 						windowsBranch = 'master'
 					}
@@ -121,6 +121,11 @@ timestamps {
 					timeout(5) {
 						// We already check in our production dependencies, so only install devDependencies
 						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+					}
+					sh 'npm test' // Run linting first
+					// Then validate docs
+					dir('apidoc') {
+						sh 'node validate.js'
 					}
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
