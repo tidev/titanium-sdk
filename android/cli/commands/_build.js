@@ -1688,6 +1688,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		// overwritten by some module's strings.xml
 		'generateI18N',
 
+		'generateFileProviderPaths',
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
@@ -3403,6 +3404,22 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 			this.logger.log();
 			process.exit(1);
 		}
+	}
+
+	next();
+};
+
+AndroidBuilder.prototype.generateFileProviderPaths = function generateFileProviderPaths(next) {
+	var xmlDir = path.join(this.buildResDir, 'values', 'theme.xml');
+
+	if fppFile = path.join(xmlDir, 'file_provider_paths.xml');
+	if (!fs.existsSync(xmlDir)) {
+		fs.mkdirSync(xmlDir);
+	}
+
+	if (!fs.existsSync(fppFile)) {
+		this.logger.info(__('Generating %s', fppFile.cyan));
+		fs.writeFileSync(fppFile, fs.readFileSync(path.join(this.templatesDir, 'file_provider_paths.xml')));
 	}
 
 	next();
