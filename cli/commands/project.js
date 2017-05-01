@@ -6,7 +6,7 @@
  */
 
 var path = require('path'),
-	ti = require('titanium-sdk'),
+	ti = require('node-titanium-sdk'),
 	appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	mix = appc.util.mix;

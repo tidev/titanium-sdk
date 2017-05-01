@@ -32,9 +32,9 @@ if (platforms.length === 1 && platforms[0] == 'full') {
 async.series([
 	function (next) {
 		git.getHash(path.join(__dirname, '..'), function (err, hash) {
-			program.githash = hash;
+			program.githash = hash || 'n/a';
 			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.githash);
-			next(err);
+			next();
 		});
 	}
 ], function (err) {
