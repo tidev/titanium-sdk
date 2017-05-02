@@ -578,7 +578,7 @@ public class TiBlob extends KrollProxy
 
 			if (opts == null) {
 				opts = new BitmapFactory.Options();
-				opts.inPreferredConfig = Bitmap.Config.RGB_565;
+				opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			}
 
 			// The only opts that can be used to uniquely name an image is the inSampleSize
@@ -714,7 +714,7 @@ public class TiBlob extends KrollProxy
 			
 			opts = new BitmapFactory.Options();
 			opts.inSampleSize = sampleSize;
-			opts.inPreferredConfig = Bitmap.Config.RGB_565;
+			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		}
 		
 		
