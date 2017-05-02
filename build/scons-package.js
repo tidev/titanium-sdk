@@ -55,6 +55,10 @@ git.getHash(path.join(__dirname, '..'), function (err, hash) {
 	console.log('Packaging MobileSDK (%s)...', versionTag);
 
 	new Documentation(outputDir).generate(function (err) {
+		if (err) {
+			console.error(err);
+			process.exit(1);
+		}
 		// Now package for each OS.
 		// MUST RUN IN SERIES - this all runs in same directory, so running in
 		// parallel for each OS would cause all sorts of collisions right now.
