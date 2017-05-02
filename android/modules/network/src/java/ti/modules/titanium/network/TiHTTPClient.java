@@ -210,7 +210,7 @@ public class TiHTTPClient
 			}
 
 			// If no charset is defined, default to UTF-8
-			if ("".equals(charset)) {
+			if (charset.isEmpty()) {
 				charset = "UTF-8";
 			}
 			responseData = null;
