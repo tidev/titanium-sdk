@@ -59,8 +59,10 @@
     "grunt-clang-format": "*",
     "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.13.2",
+    "js-yaml": "~3.2.2",
     "mocha": "*",
     "optimist": "^0.6.1",
+    "pagedown": "~1.1.0",
     "should": "^11.2.1"
   },
   "repository": {
