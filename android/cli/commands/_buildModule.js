@@ -833,6 +833,23 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		return next();
 	}
 
+	// Set commonjs: true in manifest!
+	if (!this.manifest.commonjs) {
+		var manifestContents = fs.readFileSync(this.manifestFile).toString(),
+			found = false,
+			replaceCommonjsValue = function(match, offset, string) {
+				found = true;
+				return 'commonjs: true';
+			};
+		manifestContents = manifestContents.replace(/^commonjs:\s*.+$/mg, replaceCommonjsValue);
+		if (!found) {
+			manifestContents = manifestContents.trim() + '\ncommonjs: true\n';
+		}
+		fs.writeFileSync(this.manifestFile, manifestContents);
+		this.manifest.commonjs = true;
+		this.logger.info(__('Manifest re-written to set commonjs value'));
+	}
+
 	this.logger.info(__('Generating v8 bindings'));
 
 	var dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
