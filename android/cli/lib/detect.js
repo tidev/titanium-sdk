@@ -11,9 +11,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var android = require('titanium-sdk/lib/android'),
-	ADB = require('titanium-sdk/lib/adb'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+var android = require('node-titanium-sdk/lib/android'),
+	ADB = require('node-titanium-sdk/lib/adb'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__;
 

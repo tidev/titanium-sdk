@@ -8,11 +8,11 @@
 var appc = require('node-appc'),
 	fields = require('fields'),
 	fs = require('fs'),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	sprintf = require('sprintf'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	ti = require('node-titanium-sdk'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
