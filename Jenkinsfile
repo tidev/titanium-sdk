@@ -41,14 +41,27 @@ def unitTests(os, nodeVersion) {
 				dir('titanium-mobile-mocha-suite/scripts') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						sh 'npm install .'
-						// TODO Use retry here to try multiple times?
-						sh "node test.js -b ../../${zipName} -p ${os}"
-					}
-					// Kill the emulators!
-					if ('android'.equals(os)) {
-						sh 'killall -9 emulator || echo ""'
-						sh 'killall -9 emulator64-arm || echo ""'
-						sh 'killall -9 emulator64-x86 || echo ""'
+						try {
+							sh "node test.js -b ../../${zipName} -p ${os}"
+						} catch (e) {
+							if ('ios'.equals(os)) {
+								// Gather the crash report(s)
+								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								archiveArtifacts 'mocha_*.crash'
+								sh 'rm -f mocha_*.crash'
+							} else {
+								// FIXME gather crash reports/tombstones for Android?
+							}
+							throw e
+						} finally {
+							// Kill the emulators!
+							if ('android'.equals(os)) {
+								sh 'killall -9 emulator || echo ""'
+								sh 'killall -9 emulator64-arm || echo ""'
+								sh 'killall -9 emulator64-x86 || echo ""'
+							}
+						}
 					}
 					junit 'junit.*.xml'
 				}
@@ -78,8 +91,8 @@ timestamps {
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
-					// Grab Windows SDK from merge target banch, if unset assume master
-					def windowsBranch = env.CHANGE_TARGET
+					// Grab Windows SDK from merge target branch, if unset assume master
+					def windowsBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
 					if (!windowsBranch) {
 						windowsBranch = 'master'
 					}
@@ -102,15 +115,23 @@ timestamps {
 				echo "VTAG:            ${vtag}"
 				basename = "dist/mobilesdk-${vtag}"
 				echo "BASENAME:        ${basename}"
-				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-				dir('build') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						timeout(5) {
-							sh 'npm install .'
-						}
+
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Install dev dependencies
+					timeout(5) {
+						// We already check in our production dependencies, so only install devDependencies
+						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+					}
+					sh 'npm test' // Run linting first
+					// Then validate docs
+					dir('apidoc') {
+						sh 'node validate.js'
+					}
+					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+					dir('build') {
 						timeout(15) {
 							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-						}
+						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
 								// For PR builds, just package android and iOS for osx
@@ -119,11 +140,11 @@ timestamps {
 								// For non-PR builds, do all platforms for all OSes
 								timeout(15) {
 									sh "node scons.js package --version-tag ${vtag} --all"
-								}
+								} // timeout
 							}
 						} // ansiColor
-					} // nodeJs
-				}
+					} // dir
+				} // nodeJs
 				archiveArtifacts artifacts: "${basename}-*.zip"
 				stash includes: 'dist/parity.html', name: 'parity'
 				stash includes: 'tests/', name: 'override-tests'
@@ -155,8 +176,10 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 					if (fileExists('index.json')) {
-						// FIXME The index.json we received may actually be an Access Denied xml file. If so we should catch here and assume empty JSON?
-						indexJson = jsonParse(readFile('index.json'))
+						def contents = readFile('index.json')
+						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+							indexJson = jsonParse(contents)
+						}
 					}
 
 					// unarchive zips

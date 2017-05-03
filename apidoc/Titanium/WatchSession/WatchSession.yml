@@ -535,8 +535,8 @@ examples:
         The following example demonstrates how to create a new watch session, and call methods to transfer
         data to the watch. Also include event listeners for receiving data from the watch.
         
-        It is important to note that this only works if there is a corresponding watchOS2 app written
-        in Objective-C in the Xcode project inside the extensions folder of the Titanium Project.
+        It is important to note that this only works if there is a corresponding watchOS app written
+        in Objective-C / Swift in the Xcode project inside the extensions folder of the Titanium Project.
         
         #### app.js
         
@@ -575,7 +575,7 @@ examples:
 
             statusBtn.addEventListener('click', function(e) {
                 eventsArea.value += '\nbtn pressed '
-                + '\nwatchOS2 is supported: ' + Ti.WatchSession.isSupported
+                + '\nwatchOS is supported: ' + Ti.WatchSession.isSupported
                 + '\nwatch is paired: ' + Ti.WatchSession.isPaired
                 + '\nwatchApp is installed: ' + Ti.WatchSession.isWatchAppInstalled
                 + '\nwatchComplication is enabled: ' + Ti.WatchSession.isComplicationEnabled

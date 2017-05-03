@@ -9,6 +9,7 @@ import { hooks } from '../utils/hooks';
 import { MONTH } from './constants';
 import toInt from '../utils/to-int';
 import isArray from '../utils/is-array';
+import isNumber from '../utils/is-number';
 import indexOf from '../utils/index-of';
 import { createUTC } from '../create/utc';
 import getParsingFlags from '../create/parsing-flags';
@@ -66,15 +67,23 @@ addParseToken(['MMM', 'MMMM'], function (input, array, config, token) {
 
 // LOCALES
 
-var MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?/;
+var MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/;
 export var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_');
 export function localeMonths (m, format) {
+    if (!m) {
+        return isArray(this._months) ? this._months :
+            this._months['standalone'];
+    }
     return isArray(this._months) ? this._months[m.month()] :
         this._months[(this._months.isFormat || MONTHS_IN_FORMAT).test(format) ? 'format' : 'standalone'][m.month()];
 }
 
 export var defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
 export function localeMonthsShort (m, format) {
+    if (!m) {
+        return isArray(this._monthsShort) ? this._monthsShort :
+            this._monthsShort['standalone'];
+    }
     return isArray(this._monthsShort) ? this._monthsShort[m.month()] :
         this._monthsShort[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
 }
@@ -174,7 +183,7 @@ export function setMonth (mom, value) {
         } else {
             value = mom.localeData().monthsParse(value);
             // TODO: Another silent failure?
-            if (typeof value !== 'number') {
+            if (!isNumber(value)) {
                 return mom;
             }
         }
