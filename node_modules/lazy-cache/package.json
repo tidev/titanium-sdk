@@ -16,7 +16,6 @@
   "_from": "lazy-cache@>=1.0.3 <2.0.0",
   "_id": "lazy-cache@1.0.4",
   "_inCache": true,
-  "_installable": true,
   "_location": "/lazy-cache",
   "_nodeVersion": "5.5.0",
   "_npmOperationalInternal": {

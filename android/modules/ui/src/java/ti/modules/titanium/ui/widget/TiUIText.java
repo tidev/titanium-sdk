@@ -21,6 +21,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -40,6 +41,8 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -84,7 +87,7 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
-	protected EditText tv;
+	protected TiUIEditText tv;
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
@@ -102,7 +105,7 @@ public class TiUIText extends TiUIView
 			}
 			return;
 		}
-		tv = (EditText) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(tvId, null);
+		tv = (TiUIEditText) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(tvId, null);
 
 		tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
 		{
@@ -220,6 +223,11 @@ public class TiUIText extends TiUIView
 			setTextPadding((HashMap)d.get(TiC.PROPERTY_PADDING));
 		}
 		
+		if (d.containsKey(TiC.PROPERTY_FULLSCREEN)) {
+			if (!TiConvert.toBoolean(d.get(TiC.PROPERTY_FULLSCREEN),true)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+			}
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -318,6 +326,10 @@ public class TiUIText extends TiUIView
 			setAttributedStringText((AttributedStringProxy)newValue);
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap)newValue);
+		} else if (key.equals(TiC.PROPERTY_FULLSCREEN)) {
+			if (!TiConvert.toBoolean(newValue,true)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -424,6 +436,18 @@ public class TiUIText extends TiUIView
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
+		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
+		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+			if (getNativeView() != null) {
+				ViewGroup view = (ViewGroup) getNativeView().getParent();
+				view.setFocusableInTouchMode(true);
+				view.requestFocus();
+			}
+			Context context = TiApplication.getInstance().getApplicationContext();
+			InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+		}
+
 		String value = tv.getText().toString();
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, value);
@@ -510,6 +534,7 @@ public class TiUIText extends TiUIView
 					tv.setTransformationMethod(null);
 				}
 			}
+			tv.setKeyListener(null);
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);

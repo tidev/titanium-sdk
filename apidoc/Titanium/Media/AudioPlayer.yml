@@ -3,8 +3,8 @@ name: Titanium.Media.AudioPlayer
 summary: |
     An audio player object used for streaming audio to the device, and low-level control of the audio playback.
 description: |
-    On Android, when you are done playing a given audio file, you must call the 
-    [release](Titanium.Media.AudioPlayer.release) method to stop buffering audio data and 
+    On Android, when you are done playing a given audio file, you must call the
+    [release](Titanium.Media.AudioPlayer.release) method to stop buffering audio data and
     release associated system resources.
 
     On iOS, you can control how the audio stream interacts with other system sounds
@@ -14,24 +14,24 @@ description: |
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
-examples: 
+examples:
   - title: Audio Streaming
     example: |
         The following example demonstrates using the `AudioPlayer` object to stream audio.
 
-            var win = Titanium.UI.createWindow({  
+            var win = Titanium.UI.createWindow({
                 title:'Audio Test',
                 backgroundColor:'#fff',
                 layout: 'vertical'
             });
-            
+
             var startStopButton = Titanium.UI.createButton({
                 title:'Start/Stop Streaming',
                 top:10,
                 width:200,
                 height:40
             });
-            
+
             var pauseResumeButton = Titanium.UI.createButton({
                 title:'Pause/Resume Streaming',
                 top:10,
@@ -39,18 +39,18 @@ examples:
                 height:40,
                 enabled:false
             });
-            
+
             win.add(startStopButton);
             win.add(pauseResumeButton);
-            
-            // allowBackground: true on Android allows the 
-            // player to keep playing when the app is in the 
+
+            // allowBackground: true on Android allows the
+            // player to keep playing when the app is in the
             // background.
-            var audioPlayer = Ti.Media.createAudioPlayer({ 
+            var audioPlayer = Ti.Media.createAudioPlayer({
                 url: 'www.example.com/podcast.mp3',
                 allowBackground: true
-            });           
-                
+            });
+
             startStopButton.addEventListener('click',function() {
                 // When paused, playing returns false.
                 // If both are false, playback is stopped.
@@ -59,9 +59,9 @@ examples:
                     audioPlayer.stop();
                     pauseResumeButton.enabled = false;
                     if (Ti.Platform.name === 'android')
-                    { 
+                    {
                         audioPlayer.release();
-                    }   
+                    }
                 }
                 else
                 {
@@ -69,7 +69,7 @@ examples:
                     pauseResumeButton.enabled = true;
                 }
             });
-            
+
             pauseResumeButton.addEventListener('click', function() {
                 if (audioPlayer.paused) {
                     audioPlayer.start();
@@ -78,20 +78,20 @@ examples:
                     audioPlayer.pause();
                 }
             });
-            
+
             audioPlayer.addEventListener('progress',function(e) {
                 Ti.API.info('Time Played: ' + Math.round(e.progress) + ' milliseconds');
             });
-            
+
             audioPlayer.addEventListener('change',function(e)
             {
                 Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
             });
-            
+
             win.addEventListener('close',function() {
                 audioPlayer.stop();
                 if (Ti.Platform.osname === 'android')
-                { 
+                {
                     audioPlayer.release();
                 }
             });
@@ -101,22 +101,22 @@ examples:
 methods:
   - name: getPaused
     summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
-    returns: 
+    returns:
         type: Boolean
     platforms: [iphone, ipad]
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
-    returns: 
+    returns:
         type: Boolean
     platforms: [android]
   - name: getPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
-    returns: 
+    returns:
         type: Boolean
     platforms: [iphone, ipad]
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
-    returns: 
+    returns:
         type: Boolean
     platforms: [android]
   - name: pause
@@ -138,7 +138,7 @@ methods:
     summary: Sets the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     description: |
         On iOS, this method can be used to pause and unpause playback. For portability,
-        it is preferable to use the [pause](Titanium.Media.AudioPlayer.pause) and 
+        it is preferable to use the [pause](Titanium.Media.AudioPlayer.pause) and
         [start](Titanium.Media.AudioPlayer.start) methods instead.
     parameters:
       - name: paused
@@ -153,7 +153,7 @@ methods:
     platforms: [android]
   - name: getAudioSessionId
     summary: Returns the audio session id.
-    returns: 
+    returns:
         type: Number
     since: "5.4.0"
     platforms: [android]
@@ -163,7 +163,7 @@ methods:
     summary: |
         Converts a [state](Titanium.Media.AudioPlayer.state) value into a text description
         suitable for display.
-    parameters: 
+    parameters:
       - name: state
         summary: State value to convert.
         type: Number
@@ -274,6 +274,15 @@ properties:
     default: false
     availability: creation
     platforms: [android]
+  - name: audioFocus
+    summary: Focuses on the current audio player and stops other audio playing.
+    description: |
+        If true then all other audio sources will be stopped
+        when Titanium.AudioPlayer is started or resumed.
+    type: Boolean
+    default: false
+    availability: creation
+    platforms: [android]
   - name: bitRate
     summary: Bit rate of the current playback stream.
     type: Number
@@ -289,7 +298,7 @@ properties:
   - name: idle
     summary: Boolean indicating if the player is idle.
     description: |
-        `true` if the player is in the initialized state: that is, not playing, paused, 
+        `true` if the player is in the initialized state: that is, not playing, paused,
         or waiting for data.
     type: Boolean
     permission: read-only
@@ -304,7 +313,7 @@ properties:
     type: Boolean
     permission: read-only
   - name: progress
-    summary: Current playback progress, in milliseconds. 
+    summary: Current playback progress, in milliseconds.
     description: |
         Returns zero if `bitRate` has not yet been detected.
     type: Number

@@ -562,51 +562,58 @@ typedef enum
 
 /**
  Whether or not the current OS version is equal to or greater than 5.0.
- @return _YES_ if the current OS version is equal to or greater thann 5.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 5.0, _NO_ otherwise.
  */
 +(BOOL)isIOS5OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 6.0.
- @return _YES_ if the current OS version is equal to or greater thann 6.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 6.0, _NO_ otherwise.
  */
 +(BOOL)isIOS6OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 7.0.
- @return _YES_ if the current OS version is equal to or greater thann 7.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 7.0, _NO_ otherwise.
  */
 +(BOOL)isIOS7OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 8.0.
- @return _YES_ if the current OS version is equal to or greater thann 8.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 8.0, _NO_ otherwise.
  */
 +(BOOL)isIOS8OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 9.0.
- @return _YES_ if the current OS version is equal to or greater thann 9.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 9.0, _NO_ otherwise.
  */
 +(BOOL)isIOS9OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 9.1.
- @return _YES_ if the current OS version is equal to or greater thann 9.1, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 9.1, _NO_ otherwise.
  */
 +(BOOL)isIOS9_1OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 9.3.
- @return _YES_ if the current OS version is equal to or greater thann 9.3, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 9.3, _NO_ otherwise.
  */
 +(BOOL)isIOS9_3OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 10.0.
- @return _YES_ if the current OS version is equal to or greater thann 10.0, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 10.0, _NO_ otherwise.
  */
 +(BOOL)isIOS10OrGreater;
+
+/**
+ Whether or not the current OS version is equal to or greater than the specified version.
+ @param version The version to compare.
+ @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
+ */
++(BOOL)isIOSVersionOrGreater:(NSString *)version;
 
 /**
  Whether or not the current device is an iPhone 4.

@@ -55,19 +55,39 @@ var CRC_TABLE = [
   0x2d02ef8d
 ];
 
-if (typeof Int32Array !== 'undefined')
+if (typeof Int32Array !== 'undefined') {
   CRC_TABLE = new Int32Array(CRC_TABLE);
+}
+
+function ensureBuffer(input) {
+  if (Buffer.isBuffer(input)) {
+    return input;
+  }
+
+  var hasNewBufferAPI =
+      typeof Buffer.alloc === "function" &&
+      typeof Buffer.from === "function";
+
+  if (typeof input === "number") {
+    return hasNewBufferAPI ? Buffer.alloc(input) : new Buffer(input);
+  }
+  else if (typeof input === "string") {
+    return hasNewBufferAPI ? Buffer.from(input) : new Buffer(input);
+  }
+  else {
+    throw new Error("input must be buffer, number, or string, received " +
+                    typeof input);
+  }
+}
 
 function bufferizeInt(num) {
-  var tmp = Buffer(4);
+  var tmp = ensureBuffer(4);
   tmp.writeInt32BE(num, 0);
   return tmp;
 }
 
 function _crc32(buf, previous) {
-  if (!Buffer.isBuffer(buf)) {
-    buf = Buffer(buf);
-  }
+  buf = ensureBuffer(buf);
   if (Buffer.isBuffer(previous)) {
     previous = previous.readUInt32BE(0);
   }

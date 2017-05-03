@@ -780,6 +780,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUDIO_FOCUS = "audioFocus";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
 
 	/**
