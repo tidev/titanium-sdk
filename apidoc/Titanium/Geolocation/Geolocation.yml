@@ -935,7 +935,10 @@ properties:
   - name: speed
     summary: |
         Current speed in meters/second. On iOS, a negative value indicates that the 
-        heading data is not valid.
+        heading data is not valid or the accuracy is configured incorrectly. 
+        Note: Due to the Apple Geolocation API, set the <Titanium.Geolocation.accuracy> 
+        property to <Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION> in order to properly 
+        measure speed changes and prevent the app from returning negative values.
     type: Number
 
   - name: timestamp
