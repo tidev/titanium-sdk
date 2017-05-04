@@ -949,6 +949,20 @@ methods:
             is not a view, an exception will be raised.
         type: Titanium.UI.View
 
+  - name: getViewById
+    summary: Returns the matching view of a given view ID.
+    returns:
+        type: Titanium.UI.View
+    parameters:
+      - name: id
+        summary: |
+            The ID of the view that should be returned. Use the `id` property in your views to 
+            enable it for indexing in this method.
+        type: String
+        optional: false
+    since: 6.1.0
+    platforms: [iphone, ipad, android]
+
 properties:
   - name: accessibilityHidden
     summary: Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.

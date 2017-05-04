@@ -277,7 +277,7 @@ function plist(filename) {
 	Object.defineProperty(this, 'parse', {
 		value: function (str) {
 			var dom = new DOMParser({
-				errorHandler: function (err) {
+				errorHandler: function (level, err) {
 					throw err;
 				}
 			}).parseFromString(str, 'text/xml');

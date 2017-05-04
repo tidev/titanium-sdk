@@ -114,10 +114,11 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		if (emus.length) {
 			logger.log(emus.map(function (emu) {
 				return '  ' + emu.name.cyan + '\n' +
-					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n' +
+					'  ' + rpad('  ' + __('ID'))          + ' = ' + styleValue(emu.id) + '\n' +
 					'  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target) + '\n' +
 					'  ' + rpad('  ' + __('ABI'))         + ' = ' + styleValue(emu.abi) + '\n' +
 					'  ' + rpad('  ' + __('Skin'))        + ' = ' + styleValue(emu.skin) + '\n' +
+					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n' +
 					'  ' + rpad('  ' + __('SD Card'))     + ' = ' + styleValue(emu.sdcard || __('no sd card')) + '\n' +
 					(emu['based-on']
 						? '  ' + rpad('  ' + __('Based On'))    + ' = ' + styleValue(__('Android %s (API level %s)', emu['based-on']['android-version'], emu['based-on']['api-level'])) + '\n'
@@ -138,6 +139,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		if (emus.length) {
 			logger.log(emus.map(function (emu) {
 				return '  ' + emu.name.cyan + '\n' +
+					'  ' + rpad('  ' + __('ID'))                  + ' = ' + styleValue(emu.id) + '\n' +
 					'  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n' +
 					'  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n' +
 					'  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n' +

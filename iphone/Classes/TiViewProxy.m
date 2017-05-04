@@ -219,7 +219,7 @@ static NSArray* touchEventsArray;
 #ifdef TI_USE_KROLL_THREAD
 	if ([NSThread isMainThread]) {
 #else
-        [self rememberProxy:childView];
+		[self rememberProxy:childView];
 #endif
 		// Lock the assignment of the position to prevent race-conditions
 		pthread_rwlock_wrlock(&childrenLock);
@@ -230,34 +230,31 @@ static NSArray* touchEventsArray;
 		pthread_rwlock_unlock(&childrenLock);
         
 		[childView setParent:self];
-
-		// Turn on clipping because I have children
-		[[self view] updateClipping];
-
-		[self contentsWillChange];
-		if(parentVisible && !hidden)
-		{
-			[childView parentWillShow];
-		}
+        
+		if (windowOpened) {
+			// Turn on clipping because I have children
+			[[self view] updateClipping];
+			[self contentsWillChange];
+            
+			if (parentVisible && !hidden) {
+				[childView parentWillShow];
+			}
 		
 #ifndef TI_USE_AUTOLAYOUT
-		//If layout is non absolute push this into the layout queue
-		//else just layout the child with current bounds
-		if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle) ) {
-			[self contentsWillChange];
-		}
-		else
+			// If layout is non absolute push this into the layout queue
+			// else just layout the child with current bounds
+			if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
+				[self contentsWillChange];
+			} else
 #endif
-        {
-			[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
+			{
+				[self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
+			}
 		}
 #ifdef TI_USE_KROLL_THREAD
-	}
-	else
-	{
+	} else {
 		[self rememberProxy:childView];
-		if (windowOpened)
-		{
+		if (windowOpened) {
 			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
 			return;
 		}
@@ -386,6 +383,26 @@ static NSArray* touchEventsArray;
         [self setHidden:YES withArgs:arg];
         [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
     }, NO);
+}
+
+-(id)getViewById:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSString);
+    
+    for (TiViewProxy *child in [self children]) {
+        if ([[child children] count] > 0) {
+            TiViewProxy *parentChild = [child getViewById:arg];
+            if (parentChild) {
+                return parentChild;
+            }
+        }
+        
+        if ([[child valueForKey:@"id"] isEqualToString:arg]) {
+            return child;
+        }
+    }
+    
+    return nil;
 }
 
 -(void)animate:(id)arg
@@ -1412,6 +1429,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 #endif
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
 	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
+	[self initializeProperty:@"touchEnabled" defaultValue:NUMBOOL(YES)];
 
 	if (properties!=nil)
 	{
@@ -2694,7 +2712,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
                 recalculateWidth = YES;
                 followsFillBehavior = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
+                desiredWidth = [child autoWidthForSize:CGSizeMake(bounds.size.width - offsetH,boundingHeight - offsetV)] + offsetH;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
 				desiredWidth = 2 * ( boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
@@ -2702,13 +2720,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 recalculateWidth = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
+                desiredWidth = [child autoWidthForSize:CGSizeMake(bounds.size.width - offsetH,boundingHeight - offsetV)] + offsetH;
             }
         }
         else {
             //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             recalculateWidth = YES;
-            desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
+            desiredWidth = [child autoWidthForSize:CGSizeMake(bounds.size.width - offsetH,boundingHeight - offsetV)] + offsetH;
             if (TiDimensionIsAutoSize(constraint)) {
                 followsFillBehavior = NO;
             } else if(TiDimensionIsAutoFill(constraint)) {

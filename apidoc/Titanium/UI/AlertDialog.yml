@@ -96,7 +96,9 @@ events:
             case returns `true`. 
             
             On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
-            returned, if defined, or `-1` otherwise. 
+            returned, if defined, or `-1` otherwise. Also note that the cancel button may not be
+            used on the iPad, because iOS will internally decide whether or not to show it in
+            the current context (e.g. in a popover).
             
             See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
             parity issue.

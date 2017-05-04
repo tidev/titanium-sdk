@@ -652,6 +652,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
 
+	public boolean intentFilterNewTask()
+	{
+		return getAppProperties().getBool("intent-filter-new-task", false);
+	}
+
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
