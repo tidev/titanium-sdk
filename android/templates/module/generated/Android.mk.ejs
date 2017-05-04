@@ -26,12 +26,17 @@ GEN_JNI_DIR := $(GEN_DIR)/jni
 ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 BOOTSTRAP_CPP := $(wildcard $(LOCAL_PATH)/../*Bootstrap.cpp)
 
+GPERF := gperf
+ifeq ($(OS), Windows_NT)
+GPERF := $(TI_MOBILE_SDK)\build\win32\gperf
+endif
+
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
 	$(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
 
 $(BOOTSTRAP_CPP): $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
 
 $(GEN_DIR)/KrollGeneratedBindings.cpp:
-	gperf -L C++ -E -t "$(GEN_DIR)/KrollGeneratedBindings.gperf" > "$(GEN_DIR)/KrollGeneratedBindings.cpp"
+	$(GPERF) -L C++ -E -t "$(GEN_DIR)/KrollGeneratedBindings.gperf" > "$(GEN_DIR)/KrollGeneratedBindings.cpp"
 
 include $(BUILD_SHARED_LIBRARY)
