@@ -153,6 +153,42 @@ methods:
     osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad]
 
+  - name: remove
+    summary: Removes the clipboard.
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+
+properties:
+  - name: name
+    summary: Create a new named clipboard.
+    description: Create a new clipboard with a given name. See the example on how to use this.
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+    availability: creation
+    type: String
+
+  - name: unique
+    summary: Create a new clipboard identified by a unique system-generated name.
+    description: |
+        Create a new clipboard identified by a unique system-generated name. 
+        See the example on how to use this.
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+    availability: creation
+    type: Boolean
+
+  - name: allowCreation
+    summary: Create a clipboard identified by name if it doesn't exist.
+    description: |
+        If "create" is false, it will return the existing named clipboard but will 
+        not create new one.
+        If "create" is true, it will return the existing clipboard (if exists). Otherwise 
+        it will create new clipboard with given name.
+    since: "6.1.0"
+    platforms: [iphone, ipad]
+    availability: creation
+    type: Boolean
+
 examples:
   - title: Copy Text to the Clipboard
     example: |
@@ -213,6 +249,33 @@ examples:
             win.add(btn1);
             win.add(btn2);
             win.open();
+
+  - title: Use of named clipboard in iOS
+    example: |
+            var clipboard1 = Ti.UI.createClipboard({
+                name : 'myClipboard',
+                allowCreation : true
+            });
+            clipboard1.setText('hello');
+
+            var clipboard2 = Ti.UI.createClipboard({
+                name : 'myClipboard'
+            });
+
+            Ti.API.info('Clipboard name is: ' + clipboard1.name);
+            Ti.API.info('Both clipboards should return "hello"');
+            Ti.API.info('clipboard1.getText() ' + clipboard1.getText());
+            Ti.API.info('clipboard2.getText() ' + clipboard2.getText());
+
+  - title: Use of unique named clipboard in iOS
+    example: |
+            var clipboard = Ti.UI.createClipboard({
+                unique : true
+            });
+            clipboard.setText('hello');
+
+            Ti.API.info('clipboard name is: ' + clipboard.name);
+            Ti.API.info('clipboard.getText() ' + clipboard.getText());
 
 ---
 name: ClipboardItemsType

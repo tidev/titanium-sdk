@@ -935,6 +935,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
 }
 
+#pragma mark UIGestureRecognizer Delegates
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+{
+    return !willHandleTouches;
+}
+
 #pragma mark TiEvaluator
 
 - (void)evalFile:(NSString*)path
