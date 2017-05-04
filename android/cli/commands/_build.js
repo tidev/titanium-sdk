@@ -14,27 +14,27 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var ADB = require('titanium-sdk/lib/adb'),
+var ADB = require('node-titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
-	android = require('titanium-sdk/lib/android'),
+	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs'),
-	i18n = require('titanium-sdk/lib/i18n'),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	i18n = require('node-titanium-sdk/lib/i18n'),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	ti = require('node-titanium-sdk'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -403,7 +403,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'device-id': {
 						abbr: 'C',
-						desc: __('the name of the Android emulator or the device id to install the application to'),
+						desc: __('the id of the Android emulator or the device id to install the application to'),
 						hint: __('name'),
 						order: 130,
 						prompt: function (callback) {
@@ -3605,6 +3605,18 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			}
 		}, this);
 	}, this);
+
+	// TIMOB-15253: Titanium Android cannot be used with 'android:launchMode' as it can dispose the KrollRuntime instance
+	// prevent 'android:launchMode' from being defined in the AndroidManifest.xml
+	if (tiappAndroidManifest && tiappAndroidManifest.application) {
+		for (var activity in tiappAndroidManifest.application.activity) {
+			var parameters = tiappAndroidManifest.application.activity[activity];
+			if (parameters['launchMode']) {
+				delete parameters['launchMode'];
+				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+			}
+		}
+	}
 
 	// gather activities
 	var tiappActivities = this.tiapp.android && this.tiapp.android.activities;

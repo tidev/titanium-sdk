@@ -20,24 +20,16 @@ var path = require('path'),
  * @param  {Function} next     [description]
  */
 function zip(folder, filename, next) {
-	var prc,
-		args = ['-c', '/usr/bin/zip -9 -q -r "../' + path.basename(filename) + '" *'];
-	console.log(args);
-	prc = spawn('bash', args, {cwd: folder});
-	prc.stdout.on('data', function (data) {
-		console.log(data.toString());
-	});
-	prc.stderr.on('data', function(data) {
-		console.error(data.toString());
-	});
-	prc.on('close', function (code) {
+	var command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build', 'win32', 'zip') : 'zip';
+	exec(command + ' -9 -q -r "' + path.join('..', path.basename(filename)) + '" *', {cwd: folder}, function(err, stdout, stderr) {
+		if (err) {
+			return next(err);
+		}
+
 		var outputFolder = path.resolve(folder, '..'),
 			destFolder = path.dirname(filename),
 			outputFile = path.join(outputFolder, path.basename(filename));
-		if (code !== 0) {
-			return next('Zip Failed with code: ' + code);
-		}
-		// If output file isn't in location we want, copy it over?
+
 		if (outputFile == filename) {
 			return next();
 		}
@@ -47,7 +39,8 @@ function zip(folder, filename, next) {
 
 function unzip(zipfile, dest, next) {
 	console.log('Unzipping ' + zipfile + ' to ' + dest);
-	exec('unzip -o "' + zipfile  + '" -d "' + dest + '"', function (err, stdout, stderr) {
+	var command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build', 'win32', 'unzip') : 'unzip';
+	exec(command + ' -o "' + zipfile  + '" -d "' + dest + '"', function (err, stdout, stderr) {
 		if (err) {
 			return next(err);
 		}
@@ -229,6 +222,17 @@ Packager.prototype.package = function (next) {
 		}.bind(this),
 		function (cb) {
 			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
+		}.bind(this),
+		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
+		function (cb) {
+			exec('npm prune --production', {cwd: this.zipSDKDir}, function (err, stdout, stderr) {
+				if (err) {
+					console.log(stdout);
+					console.error(stderr);
+					return cb(err);
+				}
+				cb();
+			});
 		}.bind(this),
 		this.includePackagedModules.bind(this),
 		function (cb) {
