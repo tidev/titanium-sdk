@@ -32,7 +32,7 @@ def unitTests(os, nodeVersion) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
+					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: 'es6'
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
