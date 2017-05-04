@@ -5,13 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITEXTAREA
-#import "TiUIAttributedStringProxy.h"
 #import "TiUITextArea.h"
 #import "TiUITextAreaProxy.h"
 
 #import "TiUtils.h"
 #import "Webcolor.h"
 #import "TiApp.h"
+
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+#import "TiUIAttributedStringProxy.h"
+#endif
 
 @implementation TiUITextViewImpl
 
@@ -128,18 +131,18 @@
 -(void)checkLinkForTouch:(UITouch *)touch
 {
     // TIMOB-23887: This is similar to UILabel implementation, rather native link recognizer of UITextView, to support TIMOB-19165.
-    BOOL testLink = (textWidgetView != nil) &&([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]);
+    BOOL testLink = (textWidgetView != nil) && ([(TiViewProxy *)[self proxy] _hasListeners:@"link" checkParent:NO]);
     BOOL isEditable =  ((UITextView *)[self textWidgetView]).isEditable;
     BOOL isLinkEnabled = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"handleLinks"] def:YES];
     if (testLink && isLinkEnabled && !isEditable)
     {
-        UITextView* textView = (UITextView*)[self textWidgetView];
+        UITextView *textView = (UITextView *)[self textWidgetView];
         CGPoint tapPoint = [touch locationInView:textView];
         [self checkLinkAttributeForString:[textView attributedText] atPoint:tapPoint];
     }
 }
 
-- (NSUInteger)characterIndexAtPoint:(NSAttributedString*)theString atPoint:(CGPoint)point
+- (NSUInteger)characterIndexAtPoint:(NSAttributedString *)theString atPoint:(CGPoint)point
 {
     UITextView *textView = ((UITextView *)[self textWidgetView]);
     NSTextContainer *textContainer = textView.textContainer;
@@ -179,7 +182,7 @@
     }
 }
 
--(BOOL)checkLinkAttributeForString:(NSAttributedString*)theString atPoint:(CGPoint)p
+-(BOOL)checkLinkAttributeForString:(NSAttributedString *)theString atPoint:(CGPoint)p
 {
     NSUInteger idx = [self characterIndexAtPoint:theString atPoint:p];
     
