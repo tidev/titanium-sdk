@@ -39,7 +39,7 @@
     "markdown": "0.5.0",
     "moment": "2.18.1",
     "node-appc": "0.2.43",
-    "node-titanium-sdk": "0.1.1",
+    "node-titanium-sdk": "0.2.1",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
@@ -59,8 +59,10 @@
     "grunt-clang-format": "*",
     "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.13.2",
+    "js-yaml": "~3.2.2",
     "mocha": "*",
     "optimist": "^0.6.1",
+    "pagedown": "~1.1.0",
     "should": "^11.2.1"
   },
   "repository": {
