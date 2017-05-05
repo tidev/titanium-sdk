@@ -132,9 +132,9 @@ static NSArray* imageKeySequence;
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(urlRequest);
+    RELEASE_TO_NIL(urlRequest);
     [self replaceValue:nil forKey:@"image" notification:NO];
-    
+
     RELEASE_TO_NIL(imageURL);
 #ifdef TI_USE_KROLL_THREAD
     RELEASE_TO_NIL(loadEventState);
@@ -201,16 +201,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	[self cancelPendingImageLoads]; //Just in case we have a crusty old urlRequest.
 	NSMutableDictionary* info = [NSMutableDictionary dictionary];
     
-    NSNumber* hires = [self valueForKey:@"hires"];
-    NSArray* requestHeaders = [self valueForKey:@"requestHeaders"];
+	NSNumber* hires = [self valueForKey:@"hires"];
+	NSArray* requestHeaders = [self valueForKey:@"requestHeaders"];
     
-    if (hires) {
-        [info setObject:hires forKey:@"hires"];
-    }
+	if (hires) {
+		[info setObject:hires forKey:@"hires"];
+	}
     
-    if (requestHeaders) {
-        [info setObject:requestHeaders forKey:@"requestHeaders"];
-    }
+	if (requestHeaders) {
+		[info setObject:requestHeaders forKey:@"requestHeaders"];
+	}
     
 	urlRequest = [[[ImageLoader sharedLoader] loadImage:url delegate:self userInfo:info] retain];
 }
@@ -236,7 +236,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		[(TiUIImageView *)[self view] imageLoadSuccess:request image:image];
 	}
-    [self setImageURL:[urlRequest url]];
+	[self setImageURL:[urlRequest url]];
 	RELEASE_TO_NIL(urlRequest);
 }
 
