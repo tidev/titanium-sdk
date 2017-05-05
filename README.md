@@ -112,8 +112,8 @@ Building Locally
 Previously Titanium used scons and python scripts to build the SDK.
 If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
 
-	cd build
 	npm install
+	cd build
 	node scons.js build --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
 	node scons.js package
 	node scons.js install
@@ -124,8 +124,8 @@ The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDR
 
 You can use the `-h` flag to display the full list of comands and options.
 
-	cd build
 	npm install
+	cd build
 	node scons.js build [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
 	node scons.js package [platform1] [platform2]
 	node scons.js install

@@ -5,10 +5,10 @@
  * See the LICENSE file for more information.
  */
 
-var ADB = require('titanium-sdk/lib/adb'),
+var ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	async = require('async'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fs = require('fs'),
 	path = require('path'),
 	__ = appc.i18n(__dirname).__;
