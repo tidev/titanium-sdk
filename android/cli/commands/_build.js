@@ -3695,18 +3695,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
-	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
-	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
-	// elements, otherwise changes in orientation will cause the app to restart
-	if (this.realTargetSDK >= 13) {
-		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-			var activity = finalAndroidManifest.application.activity[name];
-			if (!activity.configChanges) {
-				activity.configChanges = ['screenSize'];
-			} else if (activity.configChanges.indexOf('screenSize') == -1) {
-				activity.configChanges.push('screenSize');
-			}
-		});
+	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity') {
+		finalAndroidManifest.application.resizeableActivity = true;
 	}
 
 	// add permissions
