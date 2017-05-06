@@ -3,7 +3,7 @@ when the iOS app is compiled:
 
     <project-dir>/build/iphone
 
-You can place files such as asset catalog files and storyboards in this
+You can place files such as asset catalog files, .framework files and storyboards in this
 directory.
 
 Files in this directory are copied directly on top of whatever files are already

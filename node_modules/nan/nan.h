@@ -1,7 +1,7 @@
 /*********************************************************************
  * NAN - Native Abstractions for Node.js
  *
- * Copyright (c) 2016 NAN contributors:
+ * Copyright (c) 2017 NAN contributors:
  *   - Rod Vagg <https://github.com/rvagg>
  *   - Benjamin Byholm <https://github.com/kkoopa>
  *   - Trevor Norris <https://github.com/trevnorris>
@@ -9,10 +9,11 @@
  *   - Brett Lawson <https://github.com/brett19>
  *   - Ben Noordhuis <https://github.com/bnoordhuis>
  *   - David Siegel <https://github.com/agnat>
+ *   - Michael Ira Krufky <https://github.com/mkrufky>
  *
  * MIT License <https://github.com/nodejs/nan/blob/master/LICENSE.md>
  *
- * Version 2.4.0: current Node 6.3.0, Node 12: 0.12.15, Node 10: 0.10.46, iojs: 3.3.1
+ * Version 2.6.2: current Node 7.9.0, Node 12: 0.12.18, Node 10: 0.10.48, iojs: 3.3.1
  *
  * See https://github.com/nodejs/nan for the latest update to this file
  **********************************************************************************/
@@ -32,6 +33,7 @@
 #define NODE_4_0_MODULE_VERSION  46
 #define NODE_5_0_MODULE_VERSION  47
 #define NODE_6_0_MODULE_VERSION  48
+#define NODE_7_0_MODULE_VERSION  51
 
 #ifdef _MSC_VER
 # define NAN_HAS_CPLUSPLUS_11 (_MSC_VER >= 1800)
@@ -351,7 +353,9 @@ class HandleScope {
   HandleScope(const HandleScope &);
   void operator=(const HandleScope &);
   void *operator new(size_t size);
-  void operator delete(void *, size_t);
+  void operator delete(void *, size_t) {
+    abort();
+  }
 };
 
 class EscapableHandleScope {
@@ -392,7 +396,9 @@ class EscapableHandleScope {
   EscapableHandleScope(const EscapableHandleScope &);
   void operator=(const EscapableHandleScope &);
   void *operator new(size_t size);
-  void operator delete(void *, size_t);
+  void operator delete(void *, size_t) {
+    abort();
+  }
 };
 
 //=== TryCatch =================================================================
@@ -425,11 +431,14 @@ class TryCatch {
 #if defined(V8_MAJOR_VERSION) && (V8_MAJOR_VERSION > 4 ||                      \
   (V8_MAJOR_VERSION == 4 && defined(V8_MINOR_VERSION) && V8_MINOR_VERSION >= 3))
   inline v8::MaybeLocal<v8::Value> StackTrace() const {
-    return try_catch_.StackTrace(GetCurrentContext());
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::EscapableHandleScope scope(isolate);
+    return scope.Escape(try_catch_.StackTrace(isolate->GetCurrentContext())
+                            .FromMaybe(v8::Local<v8::Value>()));
   }
 #else
   inline MaybeLocal<v8::Value> StackTrace() const {
-    return MaybeLocal<v8::Value>(try_catch_.StackTrace());
+    return try_catch_.StackTrace();
   }
 #endif
 
@@ -630,23 +639,23 @@ class TryCatch {
   }
 
 # define X(NAME)                                                               \
-    inline v8::Local<v8::Value> NAME(const char *msg) {                    \
+    inline v8::Local<v8::Value> NAME(const char *msg) {                        \
       EscapableHandleScope scope;                                              \
       return scope.Escape(v8::Exception::NAME(New(msg).ToLocalChecked()));     \
     }                                                                          \
                                                                                \
-    inline                                                                 \
+    inline                                                                     \
     v8::Local<v8::Value> NAME(v8::Local<v8::String> msg) {                     \
       return v8::Exception::NAME(msg);                                         \
     }                                                                          \
                                                                                \
-    inline void Throw ## NAME(const char *msg) {                           \
+    inline void Throw ## NAME(const char *msg) {                               \
       HandleScope scope;                                                       \
       v8::Isolate::GetCurrent()->ThrowException(                               \
           v8::Exception::NAME(New(msg).ToLocalChecked()));                     \
     }                                                                          \
                                                                                \
-    inline void Throw ## NAME(v8::Local<v8::String> msg) {                 \
+    inline void Throw ## NAME(v8::Local<v8::String> msg) {                     \
       HandleScope scope;                                                       \
       v8::Isolate::GetCurrent()->ThrowException(                               \
           v8::Exception::NAME(msg));                                           \
@@ -681,8 +690,8 @@ class TryCatch {
     return node::Buffer::New(
         v8::Isolate::GetCurrent(), data, length, callback, hint);
 #else
-    return MaybeLocal<v8::Object>(node::Buffer::New(
-        v8::Isolate::GetCurrent(), data, length, callback, hint));
+    return node::Buffer::New(v8::Isolate::GetCurrent(), data, length, callback,
+                             hint);
 #endif
   }
 
@@ -697,8 +706,7 @@ class TryCatch {
     return node::Buffer::Copy(
         v8::Isolate::GetCurrent(), data, size);
 #else
-    return MaybeLocal<v8::Object>(node::Buffer::New(
-        v8::Isolate::GetCurrent(), data, size));
+    return node::Buffer::New(v8::Isolate::GetCurrent(), data, size);
 #endif
   }
 
@@ -710,8 +718,7 @@ class TryCatch {
     return node::Buffer::New(
         v8::Isolate::GetCurrent(), size);
 #else
-    return MaybeLocal<v8::Object>(node::Buffer::New(
-        v8::Isolate::GetCurrent(), size));
+    return node::Buffer::New(v8::Isolate::GetCurrent(), size);
 #endif
   }
 
@@ -725,8 +732,7 @@ class TryCatch {
 #if NODE_MODULE_VERSION > IOJS_2_0_MODULE_VERSION
     return node::Buffer::New(v8::Isolate::GetCurrent(), data, size);
 #else
-    return MaybeLocal<v8::Object>(
-        node::Buffer::Use(v8::Isolate::GetCurrent(), data, size));
+    return node::Buffer::Use(v8::Isolate::GetCurrent(), data, size);
 #endif
   }
 
@@ -742,36 +748,48 @@ class TryCatch {
       v8::Local<v8::String> s
     , const v8::ScriptOrigin& origin
   ) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::EscapableHandleScope scope(isolate);
     v8::ScriptCompiler::Source source(s, origin);
-    return v8::ScriptCompiler::Compile(GetCurrentContext(), &source);
+    return scope.Escape(
+        v8::ScriptCompiler::Compile(isolate->GetCurrentContext(), &source)
+            .FromMaybe(v8::Local<BoundScript>()));
   }
 
   inline MaybeLocal<BoundScript> CompileScript(
       v8::Local<v8::String> s
   ) {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::EscapableHandleScope scope(isolate);
     v8::ScriptCompiler::Source source(s);
-    return v8::ScriptCompiler::Compile(GetCurrentContext(), &source);
+    return scope.Escape(
+        v8::ScriptCompiler::Compile(isolate->GetCurrentContext(), &source)
+            .FromMaybe(v8::Local<BoundScript>()));
   }
 
   inline MaybeLocal<v8::Value> RunScript(
       v8::Local<UnboundScript> script
   ) {
-    return script->BindToCurrentContext()->Run(GetCurrentContext());
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::EscapableHandleScope scope(isolate);
+    return scope.Escape(script->BindToCurrentContext()
+                            ->Run(isolate->GetCurrentContext())
+                            .FromMaybe(v8::Local<v8::Value>()));
   }
 
   inline MaybeLocal<v8::Value> RunScript(
       v8::Local<BoundScript> script
   ) {
-    return script->Run(GetCurrentContext());
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::EscapableHandleScope scope(isolate);
+    return scope.Escape(script->Run(isolate->GetCurrentContext())
+                            .FromMaybe(v8::Local<v8::Value>()));
   }
 #else
   inline MaybeLocal<v8::String>
   NewOneByteString(const uint8_t * value, int length = -1) {
-    return MaybeLocal<v8::String>(
-        v8::String::NewFromOneByte(
-            v8::Isolate::GetCurrent()
-          , value
-          , v8::String::kNormalString, length));
+    return v8::String::NewFromOneByte(v8::Isolate::GetCurrent(), value,
+                                      v8::String::kNormalString, length);
   }
 
   inline MaybeLocal<BoundScript> CompileScript(
@@ -779,28 +797,27 @@ class TryCatch {
     , const v8::ScriptOrigin& origin
   ) {
     v8::ScriptCompiler::Source source(s, origin);
-    return MaybeLocal<BoundScript>(
-        v8::ScriptCompiler::Compile(v8::Isolate::GetCurrent(), &source));
+    return v8::ScriptCompiler::Compile(v8::Isolate::GetCurrent(), &source);
   }
 
   inline MaybeLocal<BoundScript> CompileScript(
       v8::Local<v8::String> s
   ) {
     v8::ScriptCompiler::Source source(s);
-    return MaybeLocal<BoundScript>(
-        v8::ScriptCompiler::Compile(v8::Isolate::GetCurrent(), &source));
+    return v8::ScriptCompiler::Compile(v8::Isolate::GetCurrent(), &source);
   }
 
   inline MaybeLocal<v8::Value> RunScript(
       v8::Local<UnboundScript> script
   ) {
-    return MaybeLocal<v8::Value>(script->BindToCurrentContext()->Run());
+    EscapableHandleScope scope;
+    return scope.Escape(script->BindToCurrentContext()->Run());
   }
 
   inline MaybeLocal<v8::Value> RunScript(
       v8::Local<BoundScript> script
   ) {
-    return MaybeLocal<v8::Value>(script->Run());
+    return script->Run();
   }
 #endif
 
@@ -810,8 +827,9 @@ class TryCatch {
     , int argc
     , v8::Local<v8::Value>* argv) {
 #if NODE_MODULE_VERSION < IOJS_3_0_MODULE_VERSION
-    return New(node::MakeCallback(
-        v8::Isolate::GetCurrent(), target, func, argc, argv));
+    EscapableHandleScope scope;
+    return scope.Escape(New(node::MakeCallback(
+        v8::Isolate::GetCurrent(), target, func, argc, argv)));
 #else
     return node::MakeCallback(
         v8::Isolate::GetCurrent(), target, func, argc, argv);
@@ -824,8 +842,9 @@ class TryCatch {
     , int argc
     , v8::Local<v8::Value>* argv) {
 #if NODE_MODULE_VERSION < IOJS_3_0_MODULE_VERSION
-    return New(node::MakeCallback(
-        v8::Isolate::GetCurrent(), target, symbol, argc, argv));
+    EscapableHandleScope scope;
+    return scope.Escape(New(node::MakeCallback(
+        v8::Isolate::GetCurrent(), target, symbol, argc, argv)));
 #else
     return node::MakeCallback(
         v8::Isolate::GetCurrent(), target, symbol, argc, argv);
@@ -838,8 +857,9 @@ class TryCatch {
     , int argc
     , v8::Local<v8::Value>* argv) {
 #if NODE_MODULE_VERSION < IOJS_3_0_MODULE_VERSION
-    return New(node::MakeCallback(
-        v8::Isolate::GetCurrent(), target, method, argc, argv));
+    EscapableHandleScope scope;
+    return scope.Escape(New(node::MakeCallback(
+        v8::Isolate::GetCurrent(), target, method, argc, argv)));
 #else
     return node::MakeCallback(
         v8::Isolate::GetCurrent(), target, method, argc, argv);
@@ -886,6 +906,7 @@ class Utf8String {
  public:
   inline explicit Utf8String(v8::Local<v8::Value> from) :
       length_(0), str_(str_st_) {
+    HandleScope scope;
     if (!from.IsEmpty()) {
       v8::Local<v8::String> string = from->ToString();
       if (!string.IsEmpty()) {
@@ -1012,23 +1033,24 @@ class Utf8String {
   }
 
 # define X(NAME)                                                               \
-    inline v8::Local<v8::Value> NAME(const char *msg) {                    \
+    inline v8::Local<v8::Value> NAME(const char *msg) {                        \
       EscapableHandleScope scope;                                              \
       return scope.Escape(v8::Exception::NAME(New(msg).ToLocalChecked()));     \
     }                                                                          \
                                                                                \
-    inline                                                                 \
+    inline                                                                     \
     v8::Local<v8::Value> NAME(v8::Local<v8::String> msg) {                     \
       return v8::Exception::NAME(msg);                                         \
     }                                                                          \
                                                                                \
-    inline void Throw ## NAME(const char *msg) {                           \
+    inline void Throw ## NAME(const char *msg) {                               \
       HandleScope scope;                                                       \
       v8::ThrowException(v8::Exception::NAME(New(msg).ToLocalChecked()));      \
     }                                                                          \
                                                                                \
-    inline                                                                 \
+    inline                                                                     \
     void Throw ## NAME(v8::Local<v8::String> errmsg) {                         \
+      HandleScope scope;                                                       \
       v8::ThrowException(v8::Exception::NAME(errmsg));                         \
     }
 
@@ -1054,8 +1076,8 @@ class Utf8String {
     // arbitrary buffer lengths requires
     // NODE_MODULE_VERSION >= IOJS_3_0_MODULE_VERSION
     assert(length <= imp::kMaxLength && "too large buffer");
-    return MaybeLocal<v8::Object>(scope.Escape(
-        New(node::Buffer::New(data, length, callback, hint)->handle_)));
+    return scope.Escape(
+        New(node::Buffer::New(data, length, callback, hint)->handle_));
   }
 
   inline MaybeLocal<v8::Object> CopyBuffer(
@@ -1067,11 +1089,10 @@ class Utf8String {
     // NODE_MODULE_VERSION >= IOJS_3_0_MODULE_VERSION
     assert(size <= imp::kMaxLength && "too large buffer");
 #if NODE_MODULE_VERSION >= NODE_0_10_MODULE_VERSION
-    return MaybeLocal<v8::Object>(
-        scope.Escape(New(node::Buffer::New(data, size)->handle_)));
+    return scope.Escape(New(node::Buffer::New(data, size)->handle_));
 #else
-    return MaybeLocal<v8::Object>(scope.Escape(
-        New(node::Buffer::New(const_cast<char*>(data), size)->handle_)));
+    return scope.Escape(
+        New(node::Buffer::New(const_cast<char *>(data), size)->handle_));
 #endif
   }
 
@@ -1080,8 +1101,7 @@ class Utf8String {
     // NODE_MODULE_VERSION >= IOJS_3_0_MODULE_VERSION
     EscapableHandleScope scope;
     assert(size <= imp::kMaxLength && "too large buffer");
-    return MaybeLocal<v8::Object>(
-        scope.Escape(New(node::Buffer::New(size)->handle_)));
+    return scope.Escape(New(node::Buffer::New(size)->handle_));
   }
 
   inline void FreeData(char *data, void *hint) {
@@ -1097,8 +1117,8 @@ class Utf8String {
     // arbitrary buffer lengths requires
     // NODE_MODULE_VERSION >= IOJS_3_0_MODULE_VERSION
     assert(size <= imp::kMaxLength && "too large buffer");
-    return MaybeLocal<v8::Object>(scope.Escape(New(
-        node::Buffer::New(data, size, FreeData, NULL)->handle_)));
+    return scope.Escape(
+        New(node::Buffer::New(data, size, FreeData, NULL)->handle_));
   }
 
 namespace imp {
@@ -1118,27 +1138,26 @@ widenString(std::vector<uint16_t> *ws, const uint8_t *s, int l) {
   NewOneByteString(const uint8_t * value, int length = -1) {
     std::vector<uint16_t> wideString;  // NOLINT(build/include_what_you_use)
     imp::widenString(&wideString, value, length);
-    return imp::Factory<v8::String>::return_t(v8::String::New(
-        &wideString.front(), static_cast<int>(wideString.size())));
+    return v8::String::New(wideString.data(),
+                           static_cast<int>(wideString.size()));
   }
 
   inline MaybeLocal<BoundScript> CompileScript(
       v8::Local<v8::String> s
     , const v8::ScriptOrigin& origin
   ) {
-    return MaybeLocal<BoundScript>(
-        v8::Script::Compile(s, const_cast<v8::ScriptOrigin *>(&origin)));
+    return v8::Script::Compile(s, const_cast<v8::ScriptOrigin *>(&origin));
   }
 
   inline MaybeLocal<BoundScript> CompileScript(
     v8::Local<v8::String> s
   ) {
-    return MaybeLocal<BoundScript>(v8::Script::Compile(s));
+    return v8::Script::Compile(s);
   }
 
   inline
   MaybeLocal<v8::Value> RunScript(v8::Local<v8::Script> script) {
-    return MaybeLocal<v8::Value>(script->Run());
+    return script->Run();
   }
 
   inline v8::Local<v8::Value> MakeCallback(
@@ -1146,7 +1165,8 @@ widenString(std::vector<uint16_t> *ws, const uint8_t *s, int l) {
     , v8::Local<v8::Function> func
     , int argc
     , v8::Local<v8::Value>* argv) {
-    return New(node::MakeCallback(target, func, argc, argv));
+    v8::HandleScope scope;
+    return scope.Close(New(node::MakeCallback(target, func, argc, argv)));
   }
 
   inline v8::Local<v8::Value> MakeCallback(
@@ -1154,7 +1174,8 @@ widenString(std::vector<uint16_t> *ws, const uint8_t *s, int l) {
     , v8::Local<v8::String> symbol
     , int argc
     , v8::Local<v8::Value>* argv) {
-    return New(node::MakeCallback(target, symbol, argc, argv));
+    v8::HandleScope scope;
+    return scope.Close(New(node::MakeCallback(target, symbol, argc, argv)));
   }
 
   inline v8::Local<v8::Value> MakeCallback(
@@ -1162,7 +1183,8 @@ widenString(std::vector<uint16_t> *ws, const uint8_t *s, int l) {
     , const char* method
     , int argc
     , v8::Local<v8::Value>* argv) {
-    return New(node::MakeCallback(target, method, argc, argv));
+    v8::HandleScope scope;
+    return scope.Close(New(node::MakeCallback(target, method, argc, argv)));
   }
 
   inline void FatalException(const TryCatch& try_catch) {
@@ -1205,6 +1227,7 @@ class Utf8String {
  public:
   inline explicit Utf8String(v8::Local<v8::Value> from) :
       length_(0), str_(str_st_) {
+    v8::HandleScope scope;
     if (!from.IsEmpty()) {
       v8::Local<v8::String> string = from->ToString();
       if (!string.IsEmpty()) {
@@ -1417,9 +1440,12 @@ class Callback {
   Call(int argc, v8::Local<v8::Value> argv[]) const {
 #if (NODE_MODULE_VERSION > NODE_0_10_MODULE_VERSION)
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    return Call_(isolate, isolate->GetCurrentContext()->Global(), argc, argv);
+    v8::EscapableHandleScope scope(isolate);
+    return scope.Escape(
+        Call_(isolate, isolate->GetCurrentContext()->Global(), argc, argv));
 #else
-    return Call_(v8::Context::GetCurrent()->Global(), argc, argv);
+    v8::HandleScope scope;
+    return scope.Close(Call_(v8::Context::GetCurrent()->Global(), argc, argv));
 #endif
   }
 
@@ -1549,6 +1575,8 @@ class Callback {
   Callback *callback;
 
   virtual void HandleOKCallback() {
+    HandleScope scope;
+
     callback->Call(0, NULL);
   }
 
@@ -1815,6 +1843,7 @@ inline void SetPrototypeTemplate(
   , const char *name
   , v8::Local<v8::Data> value
 ) {
+  HandleScope scope;
   SetTemplate(templ->PrototypeTemplate(), name, value);
 }
 
@@ -1824,6 +1853,7 @@ inline void SetPrototypeTemplate(
   , v8::Local<v8::Data> value
   , v8::PropertyAttribute attributes
 ) {
+  HandleScope scope;
   SetTemplate(templ->PrototypeTemplate(), name, value, attributes);
 }
 
@@ -1832,6 +1862,7 @@ inline void SetInstanceTemplate(
   , const char *name
   , v8::Local<v8::Data> value
 ) {
+  HandleScope scope;
   SetTemplate(templ->InstanceTemplate(), name, value);
 }
 
@@ -1841,6 +1872,7 @@ inline void SetInstanceTemplate(
   , v8::Local<v8::Data> value
   , v8::PropertyAttribute attributes
 ) {
+  HandleScope scope;
   SetTemplate(templ->InstanceTemplate(), name, value, attributes);
 }
 
@@ -1953,7 +1985,7 @@ inline bool SetAccessor(
   , v8::Local<v8::Value> data = v8::Local<v8::Value>()
   , v8::AccessControl settings = v8::DEFAULT
   , v8::PropertyAttribute attribute = v8::None) {
-  EscapableHandleScope scope;
+  HandleScope scope;
 
   imp::NativeGetter getter_ =
       imp::GetterCallbackWrapper;
@@ -2189,12 +2221,18 @@ inline void SetCallAsFunctionHandler(
 
 #include "nan_object_wrap.h"  // NOLINT(build/include)
 
+//=== HiddenValue/Private ======================================================
+
+#include "nan_private.h"  // NOLINT(build/include)
+
 //=== Export ==================================================================
 
 inline
 void
 Export(ADDON_REGISTER_FUNCTION_ARGS_TYPE target, const char *name,
     FunctionCallback f) {
+  HandleScope scope;
+
   Set(target, New<v8::String>(name).ToLocalChecked(),
       GetFunction(New<v8::FunctionTemplate>(f)).ToLocalChecked());
 }
@@ -2203,17 +2241,21 @@ Export(ADDON_REGISTER_FUNCTION_ARGS_TYPE target, const char *name,
 
 struct Tap {
   explicit Tap(v8::Local<v8::Value> t) : t_() {
+    HandleScope scope;
+
     t_.Reset(To<v8::Object>(t).ToLocalChecked());
   }
 
   ~Tap() { t_.Reset(); }  // not sure if neccessary
 
   inline void plan(int i) {
+    HandleScope scope;
     v8::Local<v8::Value> arg = New(i);
     MakeCallback(New(t_), "plan", 1, &arg);
   }
 
   inline void ok(bool isOk, const char *msg = NULL) {
+    HandleScope scope;
     v8::Local<v8::Value> args[2];
     args[0] = New(isOk);
     if (msg) args[1] = New(msg).ToLocalChecked();
@@ -2221,6 +2263,7 @@ struct Tap {
   }
 
   inline void pass(const char * msg = NULL) {
+    HandleScope scope;
     v8::Local<v8::Value> hmsg;
     if (msg) hmsg = New(msg).ToLocalChecked();
     MakeCallback(New(t_), "pass", msg ? 1 : 0, &hmsg);
@@ -2246,13 +2289,13 @@ namespace imp {
 template <typename T> struct Maybefier;
 
 template <typename T> struct Maybefier<v8::Local<T> > {
-  static MaybeLocal<T> convert(v8::Local<T> v) {
-    return MaybeLocal<T>(v);
+  inline static MaybeLocal<T> convert(v8::Local<T> v) {
+    return v;
   }
 };
 
 template <typename T> struct Maybefier<MaybeLocal<T> > {
-  static MaybeLocal<T> convert(MaybeLocal<T> v) {
+  inline static MaybeLocal<T> convert(MaybeLocal<T> v) {
     return v;
   }
 };
@@ -2260,7 +2303,7 @@ template <typename T> struct Maybefier<MaybeLocal<T> > {
 }  // end of namespace imp
 
 template <typename T, template <typename> class MaybeMaybe>
-MaybeLocal<T>
+inline MaybeLocal<T>
 MakeMaybe(MaybeMaybe<T> v) {
   return imp::Maybefier<MaybeMaybe<T> >::convert(v);
 }
@@ -2268,6 +2311,10 @@ MakeMaybe(MaybeMaybe<T> v) {
 //=== TypedArrayContents =======================================================
 
 #include "nan_typedarray_contents.h"  // NOLINT(build/include)
+
+//=== JSON =====================================================================
+
+#include "nan_json.h"  // NOLINT(build/include)
 
 }  // end of namespace Nan
 

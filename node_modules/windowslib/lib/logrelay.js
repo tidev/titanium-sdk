@@ -16,7 +16,7 @@ const
 	EventEmitter = require('events').EventEmitter,
 	net = require('net'),
 	util = require('util'),
-	uuid = require('node-uuid'),
+	uuid = require('uuid'),
 	__ = appc.i18n(__dirname).__;
 
 module.exports = LogRelay;

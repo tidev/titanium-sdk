@@ -1,9 +1,9 @@
 Native Abstractions for Node.js
 ===============================
 
-**A header file filled with macro and utility goodness for making add-on development for Node.js easier across versions 0.8, 0.10, 0.12, 1, 4, 5 and 6.**
+**A header file filled with macro and utility goodness for making add-on development for Node.js easier across versions 0.8, 0.10, 0.12, 1, 2, 3, 4, 5, 6 and 7.**
 
-***Current version: 2.4.0***
+***Current version: 2.6.2***
 
 *(See [CHANGELOG.md](https://github.com/nodejs/nan/blob/master/CHANGELOG.md) for complete ChangeLog)*
 
@@ -24,9 +24,11 @@ This project also contains some helper utilities that make addon development a b
  * **[Governance & Contributing](#governance)**
 
 <a name="news"></a>
+
 ## News & Updates
 
 <a name="usage"></a>
+
 ## Usage
 
 Simply add **NAN** as a dependency in the *package.json* of your Node addon:
@@ -46,6 +48,7 @@ Pull in the path to **NAN** in your *binding.gyp* so that you can use `#include 
 This works like a `-I<path-to-NAN>` when compiling your addon.
 
 <a name="example"></a>
+
 ## Example
 
 Just getting started with Nan? Take a look at the **[Node Add-on Examples](https://github.com/nodejs/node-addon-examples)**.
@@ -56,15 +59,16 @@ For a simpler example, see the **[async pi estimation example](https://github.co
 
 Yet another example is **[nan-example-eol](https://github.com/CodeCharmLtd/nan-example-eol)**. It shows newline detection implemented as a native addon.
 
-Also take a look at our comprehensive **[C++ test suite](https://github.com/nodejs/nan/tree/master/test/cpp)** which has a plehora of code snippets for your pasting pleasure.
+Also take a look at our comprehensive **[C++ test suite](https://github.com/nodejs/nan/tree/master/test/cpp)** which has a plethora of code snippets for your pasting pleasure.
 
 <a name="api"></a>
+
 ## API
 
 Additional to the NAN documentation below, please consult:
 
-* [The V8 Getting Started Guide](https://developers.google.com/v8/get_started)
-* [The V8 Embedders Guide](https://developers.google.com/v8/embed)
+* [The V8 Getting Started * Guide](https://github.com/v8/v8/wiki/Getting%20Started%20with%20Embedding)
+* [The V8 Embedders * Guide](https://github.com/v8/v8/wiki/Embedder%27s%20Guide)
 * [V8 API Documentation](http://v8docs.nodesource.com/)
 * [Node Add-on Documentation](https://nodejs.org/api/addons.html)
 
@@ -117,7 +121,7 @@ The creation of `HandleScope` objects is different across the supported versions
  - <a href="doc/scopes.md#api_nan_handle_scope"><b><code>Nan::HandleScope</code></b></a>
  - <a href="doc/scopes.md#api_nan_escapable_handle_scope"><b><code>Nan::EscapableHandleScope</code></b></a>
 
-Also see the V8 Embedders Guide section on [Handles and Garbage Collection](https://developers.google.com/v8/embed#handles).
+Also see the V8 Embedders Guide section on [Handles and Garbage Collection](https://github.com/v8/v8/wiki/Embedder%27s%20Guide#handles-and-garbage-collection).
 
 ### Persistent references
 
@@ -192,6 +196,10 @@ The `Nan::MaybeLocal` and `Nan::Maybe` types are monads that encapsulate `v8::Lo
   - <a href="doc/maybe_types.md#api_nan_get_start_column"><b><code>Nan::GetStartColumn()</code></b></a>
   - <a href="doc/maybe_types.md#api_nan_get_end_column"><b><code>Nan::GetEndColumn()</code></b></a>
   - <a href="doc/maybe_types.md#api_nan_clone_element_at"><b><code>Nan::CloneElementAt()</code></b></a>
+  - <a href="doc/maybe_types.md#api_nan_has_private"><b><code>Nan::HasPrivate()</code></b></a>
+  - <a href="doc/maybe_types.md#api_nan_get_private"><b><code>Nan::GetPrivate()</code></b></a>
+  - <a href="doc/maybe_types.md#api_nan_set_private"><b><code>Nan::SetPrivate()</code></b></a>
+  - <a href="doc/maybe_types.md#api_nan_delete_private"><b><code>Nan::DeletePrivate()</code></b></a>
   - <a href="doc/maybe_types.md#api_nan_make_maybe"><b><code>Nan::MakeMaybe()</code></b></a>
 
 ### Script
@@ -201,6 +209,15 @@ NAN provides a `v8::Script` helpers as the API has changed over the supported ve
  - <a href="doc/script.md#api_nan_compile_script"><b><code>Nan::CompileScript()</code></b></a>
  - <a href="doc/script.md#api_nan_run_script"><b><code>Nan::RunScript()</code></b></a>
 
+
+### JSON
+
+The _JSON_ object provides the c++ versions of the methods offered by the `JSON` object in javascript. V8 exposes these methods via the `v8::JSON` object.
+
+ - <a href="doc/json.md#api_nan_json_parse"><b><code>Nan::JSON.Parse</code></b></a>
+ - <a href="doc/json.md#api_nan_json_stringify"><b><code>Nan::JSON.Stringify</code></b></a>
+
+Refer to the V8 JSON object in the [V8 documentation](https://v8docs.nodesource.com/node-7.4/da/d6f/classv8_1_1_j_s_o_n.html) for more information about these methods and their arguments.
 
 ### Errors
 
@@ -244,7 +261,7 @@ NAN's `node::Buffer` helpers exist as the API has changed across supported Node 
 `Nan::AsyncWorker` and `Nan::AsyncProgressWorker` are helper classes that make working with asynchronous code easier.
 
  - <a href="doc/asyncworker.md#api_nan_async_worker"><b><code>Nan::AsyncWorker</code></b></a>
- - <a href="doc/asyncworker.md#api_nan_async_progress_worker"><b><code>Nan::AsyncProgressWorkerBase & Nan::AsyncProgressWorker</code></b></a>
+ - <a href="doc/asyncworker.md#api_nan_async_progress_worker"><b><code>Nan::AsyncProgressWorkerBase &amp; Nan::AsyncProgressWorker</code></b></a>
  - <a href="doc/asyncworker.md#api_nan_async_queue_worker"><b><code>Nan::AsyncQueueWorker</code></b></a>
 
 ### Strings & Bytes
@@ -304,6 +321,7 @@ The hooks to access V8 internals—including GC and statistics—are different a
 
 
 <a name="tests"></a>
+
 ### Tests
 
 To run the NAN tests do:
@@ -322,6 +340,7 @@ make test
 ```
 
 <a name="governance"></a>
+
 ## Governance & Contributing
 
 NAN is governed by the [io.js](https://iojs.org/) Addon API Working Group
@@ -357,6 +376,7 @@ Modifications of the contents of the NAN repository are made on a collaborative 
 If a change proposal cannot reach a consensus, a WG member can call for a vote amongst the members of the WG. Simple majority wins.
 
 <a id="developers-certificate-of-origin"></a>
+
 ## Developer's Certificate of Origin 1.1
 
 By making a contribution to this project, I certify that:
@@ -384,6 +404,7 @@ By making a contribution to this project, I certify that:
   this project or the open source license(s) involved.
 
 <a name="collaborators"></a>
+
 ### WG Members / Collaborators
 
 <table><tbody>
@@ -393,11 +414,11 @@ By making a contribution to this project, I certify that:
 <tr><th align="left">Nathan Rajlich</th><td><a href="https://github.com/TooTallNate">GitHub/TooTallNate</a></td><td><a href="http://twitter.com/TooTallNate">Twitter/@TooTallNate</a></td></tr>
 <tr><th align="left">Brett Lawson</th><td><a href="https://github.com/brett19">GitHub/brett19</a></td><td><a href="http://twitter.com/brett19x">Twitter/@brett19x</a></td></tr>
 <tr><th align="left">Ben Noordhuis</th><td><a href="https://github.com/bnoordhuis">GitHub/bnoordhuis</a></td><td><a href="http://twitter.com/bnoordhuis">Twitter/@bnoordhuis</a></td></tr>
-<tr><th align="left">David Siegel</th><td><a href="https://github.com/agnat">GitHub/agnat</a></td><td>-</td></tr>
+<tr><th align="left">David Siegel</th><td><a href="https://github.com/agnat">GitHub/agnat</a></td><td><a href="http://twitter.com/agnat">Twitter/@agnat</a></td></tr>
 </tbody></table>
 
 ## Licence &amp; copyright
 
-Copyright (c) 2016 NAN WG Members / Collaborators (listed above).
+Copyright (c) 2017 NAN WG Members / Collaborators (listed above).
 
 Native Abstractions for Node.js is licensed under an MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE file for more details.
