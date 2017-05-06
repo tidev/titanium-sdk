@@ -29,8 +29,8 @@
 		"android":["jaxen-1.1.1.jar","ti-commons-codec-1.3.jar","kroll-common.jar","titanium.jar","filesystem.jar","android-support-multidex.jar"],
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["nineoldandroids-appc-2.4.0.jar"],
-		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
-		"cardview":["cardview-v7-23.0.1.jar"],
+		"appcompat":["android-support-annotations.jar", "android-support-v4.jar", "android-support-v4-internal_impl.jar", "android-support-v7-appcompat.jar"],
+		"cardview":["cardview-v7-23.4.0.jar"],
 		"analytics":["aps-analytics.jar"]
 	},
 	"runtimes":
