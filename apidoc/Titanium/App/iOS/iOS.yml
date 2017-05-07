@@ -991,7 +991,7 @@ events:
         type: String
 
       - name: statusCode
-        summary: The response status code for upload tasks (since SDK 6.1.0)
+        summary: The response status code for upload tasks (since SDK 6.1.0).
         type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
