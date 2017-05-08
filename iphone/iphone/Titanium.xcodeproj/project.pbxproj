@@ -27,7 +27,7 @@
 		1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459A13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
+		1DCC542F13FF0B0800DF3EE5 /* TiDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TiDOMCharacterDataProxy.m */; };
 		1DD9388C1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
@@ -76,14 +76,14 @@
 		24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
 		24CA8980111161050084E2DE /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8958111161050084E2DE /* PLSqliteResultSet.m */; };
 		24CA8981111161050084E2DE /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA895A111161050084E2DE /* SBJSON.m */; };
-		24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89A91111615D0084E2DE /* KrollBridge.m */; };
-		24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AB1111615D0084E2DE /* KrollCallback.m */; };
-		24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AD1111615D0084E2DE /* KrollContext.m */; };
-		24CA89BB1111615D0084E2DE /* KrollMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AF1111615D0084E2DE /* KrollMethod.m */; };
-		24CA89BC1111615D0084E2DE /* KrollMethodDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B11111615D0084E2DE /* KrollMethodDelegate.m */; };
-		24CA89BD1111615D0084E2DE /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B31111615D0084E2DE /* KrollObject.m */; };
-		24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; };
-		24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; };
+		24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89A91111615D0084E2DE /* KrollBridge.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AB1111615D0084E2DE /* KrollCallback.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AD1111615D0084E2DE /* KrollContext.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BB1111615D0084E2DE /* KrollMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AF1111615D0084E2DE /* KrollMethod.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BC1111615D0084E2DE /* KrollMethodDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B11111615D0084E2DE /* KrollMethodDelegate.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BD1111615D0084E2DE /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B31111615D0084E2DE /* KrollObject.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0C111161FD0084E2DE /* YahooModule.m */; };
 		24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
 		24CA8B68111161FE0084E2DE /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
@@ -294,7 +294,7 @@
 		84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
 		84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84ED2CD01AEEC0C00049FB68 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84ED2CCD1AEEC0A70049FB68 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
+		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
@@ -387,8 +387,8 @@
 		1D19459A13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIDOMDocumentTypeProxy.m; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DCC542D13FF0B0700DF3EE5 /* TIDOMCharacterDataProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIDOMCharacterDataProxy.h; sourceTree = "<group>"; };
-		1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TIDOMCharacterDataProxy.m; sourceTree = "<group>"; };
+		1DCC542D13FF0B0700DF3EE5 /* TiDOMCharacterDataProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMCharacterDataProxy.h; sourceTree = "<group>"; };
+		1DCC542E13FF0B0800DF3EE5 /* TiDOMCharacterDataProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMCharacterDataProxy.m; sourceTree = "<group>"; };
 		1DD9388A1609230900091777 /* TiBindingTiValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingTiValue.h; sourceTree = "<group>"; };
 		1DD9388B1609230900091777 /* TiBindingTiValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingTiValue.m; sourceTree = "<group>"; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -482,8 +482,8 @@
 		24CA8958111161050084E2DE /* PLSqliteResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqliteResultSet.m; sourceTree = "<group>"; };
 		24CA8959111161050084E2DE /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = ../Classes/SBJSON.h; sourceTree = SOURCE_ROOT; };
 		24CA895A111161050084E2DE /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJSON.m; path = ../Classes/SBJSON.m; sourceTree = SOURCE_ROOT; };
-		24CA89A81111615D0084E2DE /* KrollBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollBridge.h; sourceTree = "<group>"; };
-		24CA89A91111615D0084E2DE /* KrollBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollBridge.m; sourceTree = "<group>"; };
+		24CA89A81111615D0084E2DE /* KrollBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollBridge.h; path = ../Classes/KrollBridge.h; sourceTree = "<group>"; };
+		24CA89A91111615D0084E2DE /* KrollBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollBridge.m; path = ../Classes/KrollBridge.m; sourceTree = "<group>"; };
 		24CA89AA1111615D0084E2DE /* KrollCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollCallback.h; path = ../Classes/KrollCallback.h; sourceTree = SOURCE_ROOT; };
 		24CA89AB1111615D0084E2DE /* KrollCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollCallback.m; path = ../Classes/KrollCallback.m; sourceTree = SOURCE_ROOT; };
 		24CA89AC1111615D0084E2DE /* KrollContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollContext.h; path = ../Classes/KrollContext.h; sourceTree = SOURCE_ROOT; };
@@ -1277,6 +1277,8 @@
 		24CA89A7111161460084E2DE /* Kroll */ = {
 			isa = PBXGroup;
 			children = (
+				24CA89A81111615D0084E2DE /* KrollBridge.h */,
+				24CA89A91111615D0084E2DE /* KrollBridge.m */,
 				ABD472F213BB73BF00502912 /* KrollCoverage.h */,
 				ABD472F313BB73BF00502912 /* KrollCoverage.m */,
 				24CA89AA1111615D0084E2DE /* KrollCallback.h */,
@@ -1379,8 +1381,6 @@
 			children = (
 				24CA8B3C111161FE0084E2DE /* Bridge.h */,
 				24CA8B3B111161FE0084E2DE /* Bridge.m */,
-				24CA89A81111615D0084E2DE /* KrollBridge.h */,
-				24CA89A91111615D0084E2DE /* KrollBridge.m */,
 				24CA8AE9111161FE0084E2DE /* TiAction.h */,
 				24CA8AE8111161FE0084E2DE /* TiAction.m */,
 				24CA8AE7111161FE0084E2DE /* TiAnimation.h */,
@@ -2063,8 +2063,8 @@
 				24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */,
 				848C2592145F37A200E1B0F1 /* TiDOMCDATANodeProxy.h */,
 				848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */,
-				1DCC542D13FF0B0700DF3EE5 /* TIDOMCharacterDataProxy.h */,
-				1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */,
+				1DCC542D13FF0B0700DF3EE5 /* TiDOMCharacterDataProxy.h */,
+				1DCC542E13FF0B0800DF3EE5 /* TiDOMCharacterDataProxy.m */,
 				848C2598145F3FE100E1B0F1 /* TiDOMCommentProxy.h */,
 				848C2599145F3FE100E1B0F1 /* TiDOMCommentProxy.m */,
 				24EB07D2111D4264001DC2D1 /* TiDOMDocumentProxy.h */,
@@ -2907,7 +2907,7 @@
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
-				1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
+				1DCC542F13FF0B0800DF3EE5 /* TiDOMCharacterDataProxy.m in Sources */,
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
 				0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */,
 				83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */,

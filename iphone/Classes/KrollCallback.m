@@ -68,10 +68,6 @@ static NSLock *callbackLock;
 	[callbacks removeObject:self];
 	[callbackLock unlock];
 
-	[type release];
-#ifdef TI_USE_KROLL_THREAD
-    [contextLock release];
-#endif
 	if ([KrollBridge krollBridgeExists:bridge])
 	{
 		if ([context isKJSThread])
@@ -84,13 +80,11 @@ static NSLock *callbackLock;
 			KrollUnprotectOperation * delayedUnprotect = [[KrollUnprotectOperation alloc]
 					initWithContext:jsContext withJsobject:function andJsobject:thisObj];
 			[context enqueue:delayedUnprotect];
-			[delayedUnprotect release];
 		}
 	}
 	function = NULL;
 	thisObj = NULL;
 	context = NULL;
-	[super dealloc];
 }
 
 - (BOOL)isEqual:(id)anObject
@@ -132,9 +126,7 @@ static NSLock *callbackLock;
 #endif
 		return nil;
 	}
-	
-	[context retain];
-	
+		
 	TiValueRef _args[[args count]];
 	for (size_t c = 0; c < [args count]; c++)
 	{
@@ -144,9 +136,7 @@ static NSLock *callbackLock;
 	TiValueRef top = NULL;
 	if (thisObject_!=nil)
 	{
-		// hold the this reference until this thread completes
-		[[thisObject_ retain] autorelease];
-		// if we have a this pointer passed in, use it instead of the one we 
+		// if we have a this pointer passed in, use it instead of the one we
 		// constructed this callback with -- nice for when you want to effectively
 		// do fn.call(this,arg) or fn.apply(this,[args])
 		//
@@ -169,7 +159,6 @@ static NSLock *callbackLock;
 	}
 	
 	id val = [KrollObject toID:context value:retVal];
-	[context release];
 #ifdef TI_USE_KROLL_THREAD
     [contextLock unlock];
 #endif
@@ -218,7 +207,6 @@ static NSLock *callbackLock;
 	if (protecting) {
 		[self unprotectJsobject];
 	}
-    [super dealloc];
 }
 
 -(void)protectJsobject
@@ -266,7 +254,7 @@ static NSLock *callbackLock;
 	 * Properties can only be added to objects
 	 */
 	if(TiValueIsObject([context context], jsobject)) {
-		TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
+		TiStringRef keyRef = TiStringCreateWithCFString((__bridge CFStringRef) key);
 		TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
 		TiStringRelease(keyRef);
 	}
@@ -277,7 +265,7 @@ static NSLock *callbackLock;
 
 KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback)
 {
-	KrollWrapper * wrapper = [[[KrollWrapper alloc] init] autorelease];
+	KrollWrapper * wrapper = [[KrollWrapper alloc] init];
 	[wrapper setBridge:(KrollBridge*)[[callback context] delegate]];
 	[wrapper setJsobject:[callback function]];
 	return wrapper;

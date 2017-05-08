@@ -20,7 +20,7 @@
 	TiContextRef jsContext;
 	TiObjectRef thisObj;
 	TiObjectRef function;
-	KrollContext *context;
+	__unsafe_unretained KrollContext *context;
 	KrollBridge * bridge;
 #ifdef TI_USE_KROLL_THREAD
     NSLock* contextLock;
@@ -69,7 +69,7 @@
 @interface KrollWrapper : NSObject
 {
 	TiObjectRef jsobject;
-	KrollBridge * bridge;
+	__unsafe_unretained KrollBridge * bridge;
 	BOOL	protecting;
 }
 

@@ -14,17 +14,11 @@
 {
 	if (self = [super init])
 	{
-		target = [target_ retain];
+        target = target_;
 		selector = selector_;
 		args = args_;
 	}
 	return self;
-}
-
--(void)dealloc
-{
-	[target release];
-	[super dealloc];
 }
 
 -(id)target
