@@ -385,6 +385,16 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
  */
 Module.prototype.nodeModulesPaths = function (startDir) {
 	// 1. let PARTS = path split(START)
+	// Make sure we have an absolute path to start with
+	startDir = path.resolve(startDir);
+
+	// Return early if we are at root, this avoids doing a pointless loop
+	// and also returning an array with duplicate entries
+	// e.g. ["/node_modules", "/node_modules"]
+	if (startDir === '/') {
+		return ['/node_modules'];
+	}
+
 	var parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
 		i = parts.length - 1,
@@ -395,7 +405,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
-		if (parts[i] === 'node_modules') {
+		if (parts[i] === 'node_modules' || parts[i] === '') {
+  			i = i - 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -405,6 +416,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// d. let I = I - 1
 		i = i - 1;
 	}
+	// Always add /node_modules to the search path
+	dirs.push('/node_modules');
 	return dirs;
 }
 
