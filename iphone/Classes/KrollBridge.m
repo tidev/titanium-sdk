@@ -818,7 +818,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
+	NSURL *url_ = [TiHost resourceBasedURL:path baseURL:NULL];
+	KrollWrapper *wrapper = (id) [self loadCommonJSModule:contents withSourceURL:url_];
 
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
 	// are accessible. We store the exports object and then put references to its properties on the toplevel
@@ -866,7 +867,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// warn the user of the collision, but prefer the native/core module
 	NSURL *jsPath = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.js", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path], path]];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:[jsPath absoluteString]]) {
-		NSLog(@"[WARN] The requested path '%@' has a collison betweeb a native Ti%@um API/module and a JS file.", path, @"tani");
+		NSLog(@"[WARN] The requested path '%@' has a collison between a native Ti%@um API/module and a JS file.", path, @"tani");
 		NSLog(@"[WARN] The native Ti%@um API/module will be loaded in preference.", @"tani");
 		NSLog(@"[WARN] If you intended to address the JS file, please require the path using a prefixed string such as require('./%@') or require('/%@') instead.", path, path);
 	}

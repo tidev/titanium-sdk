@@ -123,18 +123,17 @@ public class WebViewProxy extends ViewProxy
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
 
-	@Kroll.method
-	public void setHtml(String html, @Kroll.argument(optional = true) KrollDict d)
+	@Kroll.method @Kroll.setProperty
+	public void setHtml(String html)
 	{
 		setProperty(TiC.PROPERTY_HTML, html);
-		setProperty(OPTIONS_IN_SETHTML, d);
 
 		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
 		// view is created.
 		TiUIView v = peekView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIWebView) v).setHtml(html, d);
+				((TiUIWebView) v).setHtml(html);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_SET_HTML);
 			}
@@ -200,8 +199,7 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				case MSG_SET_HTML:
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
-					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
-					getWebView().setHtml(html, d);
+					getWebView().setHtml(html);
 					return true;
 			}
 		}
