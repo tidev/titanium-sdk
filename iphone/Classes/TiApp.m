@@ -523,8 +523,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
     }
     
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
-	completionHandler();
+    [self tryToPostNotification:localNotification forNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
@@ -539,9 +538,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if (category != nil) {
         event[@"category"] = category;
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
-    [event autorelease];
-    completionHandler();
+    
+    [self tryToPostNotification:[event autorelease] forNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
 
@@ -589,6 +587,24 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark -
 
 #pragma mark Helper Methods
+
+- (void)tryToPostNotification:(NSDictionary *)_notification forNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+{
+    typedef void (^NotificationBlock)();
+    
+    NotificationBlock myNotificationBlock = ^void() {
+        [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:_notification userInfo:nil];
+        completionHandler();
+    };
+    
+    if (appBooted) {
+        myNotificationBlock();
+    } else {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self tryToPostNotification:_notification forNotificationName:_notificationName completionHandler:completionHandler];
+        });
+    }
+}
 
 -(void)postNotificationwithKey:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName{
     
