@@ -6061,7 +6061,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#ifdef USE_TI_UILISTVIEW',
 			'#define USE_TI_UILABEL',
 			'#define USE_TI_UIBUTTON',
+			'#define USE_TI_UIBUTTONBAR',
 			'#define USE_TI_UIIMAGEVIEW',
+			'#define USE_TI_UIMASKEDIMAGE',
 			'#define USE_TI_UIPROGRESSBAR',
 			'#define USE_TI_UIACTIVITYINDICATOR',
 			'#define USE_TI_UISWITCH',
@@ -6070,6 +6072,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UITEXTAREA',
 			'#define USE_TI_UISCROLLABLEVIEW',
 			'#define USE_TI_UIIOSSTEPPER',
+			'#define USE_TI_UIIOSBLURVIEW',
+			'#define USE_TI_UIIOSLIVEPHOTOVIEW',
+			'#define USE_TI_UIIOSTABBEDBAR',
 			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
