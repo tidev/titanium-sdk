@@ -181,12 +181,12 @@ function exportAPI (api, type, className) {
 	content.push(exportExamples(api));
 
 	switch (type) {
-	case 'method':
-		content.push(exportReturnType(api));
-		content.push(exportParams(api.parameters));
-		break;
-	case 'event':
-		content.push(exportParams(api.properties));
+		case 'method':
+			content.push(exportReturnType(api));
+			content.push(exportParams(api.parameters));
+			break;
+		case 'event':
+			content.push(exportParams(api.properties));
 	}
 
 	rv = {
