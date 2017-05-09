@@ -853,6 +853,23 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		return next();
 	}
 
+	// Set commonjs: true in manifest!
+	if (!this.manifest.commonjs) {
+		var manifestContents = fs.readFileSync(this.manifestFile).toString(),
+			found = false,
+			replaceCommonjsValue = function(match, offset, string) {
+				found = true;
+				return 'commonjs: true';
+			};
+		manifestContents = manifestContents.replace(/^commonjs:\s*.+$/mg, replaceCommonjsValue);
+		if (!found) {
+			manifestContents = manifestContents.trim() + '\ncommonjs: true\n';
+		}
+		fs.writeFileSync(this.manifestFile, manifestContents);
+		this.manifest.commonjs = true;
+		this.logger.info(__('Manifest re-written to set commonjs value'));
+	}
+
 	this.logger.info(__('Generating v8 bindings'));
 
 	var dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
@@ -975,7 +992,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 				done();
 			}.bind(this));
 		}.bind(this)),
-		args = [ this.manifest.moduleid, this.buildGenJsDir ].concat(this.jsFilesToEncrypt),
+		args = [ this.manifest.guid, this.manifest.moduleid, this.buildGenJsDir ].concat(this.jsFilesToEncrypt),
 		opts = {
 			env: appc.util.mix({}, process.env, {
 				// we force the JAVA_HOME so that titaniumprep doesn't complain
