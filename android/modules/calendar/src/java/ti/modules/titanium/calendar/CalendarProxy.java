@@ -30,18 +30,21 @@ import android.text.format.DateUtils;
 @Kroll.proxy(parentModule=CalendarModule.class)
 public class CalendarProxy extends KrollProxy {
 
-	protected String id, name;
+	protected String id, name, sourceName, sourceType, sourceIdentifier;
 	private static final String TAG = "Calendar";
 	protected boolean selected, hidden;
 	private static final long MAX_DATE_RANGE = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
 
-	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
+	public CalendarProxy(String id, String name, boolean selected, boolean hidden, String sourceName, String sourceType, String sourceIdentifier)
 	{
 		super();
 
 		this.id = id;
 		this.name = name;
 		this.selected = selected;
+		this.sourceName = sourceName;
+		this.sourceType = sourceType;
+		this.sourceIdentifier = sourceIdentifier;
 		this.hidden = hidden;
 	}
 
@@ -82,6 +85,23 @@ public class CalendarProxy extends KrollProxy {
 			while (cursor.moveToNext()) {
 				String id = cursor.getString(0);
 				String name = cursor.getString(1);
+                
+				String sourceName = null;
+				String sourceType = null;
+				String sourceIdentifier = null;
+                
+				if (cursor.getColumnIndex("account_name") != -1) {
+					sourceName = cursor.getString(cursor.getColumnIndex("account_name"));
+				}
+                
+				if (cursor.getColumnIndex("account_type") != -1) {
+					sourceType = cursor.getString(cursor.getColumnIndex("account_type"));
+				}
+
+				if (cursor.getColumnIndex("_sync_id") != -1) {
+					sourceIdentifier = cursor.getString(cursor.getColumnIndex("_sync_id"));
+				}
+
 				boolean selected = !cursor.getString(2).equals("0");
 				// For API level >= 11 (3.0), there is no column "hidden".
 				boolean hidden = false;
@@ -89,7 +109,7 @@ public class CalendarProxy extends KrollProxy {
 					hidden = !cursor.getString(3).equals("0");
 				}
 
-				calendars.add(new CalendarProxy(id, name, selected, hidden));
+				calendars.add(new CalendarProxy(id, name, selected, hidden, sourceName, sourceType, sourceIdentifier));
 			}
 		}
 
@@ -215,6 +235,24 @@ public class CalendarProxy extends KrollProxy {
 	public boolean getHidden()
 	{
 		return hidden;
+	}
+    
+	@Kroll.getProperty @Kroll.method
+	public String getSourceName()
+	{
+		return sourceName;
+	}
+    
+	@Kroll.getProperty @Kroll.method
+	public String getSourceType()
+	{
+		return sourceType;
+	}
+    
+	@Kroll.getProperty @Kroll.method
+	public String getSourceIdentifier()
+	{
+		return sourceIdentifier;
 	}
 
 	@Override
