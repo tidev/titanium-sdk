@@ -384,7 +384,6 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
  * @return {[String]}              The array of paths to search
  */
 Module.prototype.nodeModulesPaths = function (startDir) {
-	// 1. let PARTS = path split(START)
 	// Make sure we have an absolute path to start with
 	startDir = path.resolve(startDir);
 
@@ -394,7 +393,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	if (startDir === '/') {
 		return ['/node_modules'];
 	}
-
+	// 1. let PARTS = path split(START)
 	var parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
 		i = parts.length - 1,
