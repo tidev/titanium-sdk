@@ -534,6 +534,7 @@ public class TiUIText extends TiUIView
 					tv.setTransformationMethod(null);
 				}
 			}
+			tv.setKeyListener(null);
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);

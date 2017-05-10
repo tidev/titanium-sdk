@@ -56,6 +56,11 @@ description: |
     For more information about intent filters, see the
     [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
+    #### Launch Modes
+
+    Defining launch modes using `android:launchMode` is not supported by Titanium Android.
+    However, `singleTask` behaviour can be accomplished when using [intent filters](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+
     #### Notifications
 
     Notifications alert the user that something is happening to your application while it is
@@ -102,26 +107,14 @@ description: |
     from Titanium SDK 5.4.0. This is used to requests any permission you may need. An example of
     using this is shown below.
 
-        var cameraPermission = "android.permission.CAMERA";
-        var storagePermission = "android.permission.READ_EXTERNAL_STORAGE";
-        var hasCameraPermission = Ti.Android.hasPermission(cameraPermission);
-        var hasStoragePermission = Ti.Android.hasPermission(storagePermission);
-        var permissionsToRequest = [];
-        if (!hasCameraPermission) {
-            permissionsToRequest.push(cameraPermission);
-        }
-        if (!hasStoragePermission) {
-            permissionsToRequest.push(storagePermission);
-        }
-        if (permissionsToRequest.length > 0) {
-            Ti.Android.requestPermissions(permissionsToRequest, function(e) {
-                if (e.success) {
-                    Ti.API.info("SUCCESS");
-                } else {
-                    Ti.API.info("ERROR: " + e.error);
-                }
-            });
-        }
+        var permissions = ['android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE'];
+        Ti.Android.requestPermissions(permissions, function(e) {
+            if (e.success) {
+                Ti.API.info("SUCCESS");
+            } else {
+                Ti.API.info("ERROR: " + e.error);
+            }
+        });
 
 extends: Titanium.Module
 platforms: [android]
@@ -219,7 +212,9 @@ methods:
             The permission to check for access. This can be any of the constants listed here
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             For example, `android.permission.WRITE_CONTACTS`. 
-        type: String
+
+            Since Titanium 6.1.0, the method will also accept Array<String>
+        type: [String, Array<String>]
     returns:
         type: Boolean 
     since: "5.4.0"
@@ -238,7 +233,9 @@ methods:
             Besides this, there are also requestPermission methods that are ready for commonly used situations. These methods are
             <Titanium.Calendar.requestCalendarPermissions>, <Titanium.Contacts.requestContactsPermissions>,
             <Titanium.Filesystem.requestStoragePermissions>, <Titanium.Geolocation.requestLocationPermissions> and <Titanium.Media.requestCameraPermissions>.
-        type: Array<String>
+
+            Since Titanium 6.1.0, the method will also accept a String. Any requests where permissions are already granted will yield a successful callback.
+        type: [String, Array<String>]
       - name: callback
         summary: Function to call upon user decision to grant access.
         optional: true
