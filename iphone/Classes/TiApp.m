@@ -100,12 +100,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return contextGroup;
 }
 
-
 +(TiContextGroupRef)contextGroup
 {
 	return [sharedApp contextGroup];
 }
 
+- (NSMutableDictionary *)queuedBootEvents
+{
+    if (queuedBootEvents == nil) {
+        queuedBootEvents = [[[NSMutableDictionary alloc] init] retain];
+    }
+    
+    return queuedBootEvents;
+}
 
 -(void)startNetwork
 {
@@ -299,10 +306,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
 			RELEASE_TO_NIL(launchedShortcutItem);
 		}
+        
+        if (queuedBootEvents != nil) {
+            for (NSString *notificationName in queuedBootEvents) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
+            }
+            RELEASE_TO_NIL(queuedBootEvents);
+        }
 
-		if (localNotification != nil) {
-			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
-		}
 		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
@@ -512,7 +523,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:notificationSettings userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:self userInfo:notificationSettings];
 }
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
@@ -523,7 +534,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
     }
     
-    [self tryToPostNotification:localNotification forNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
+    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
@@ -539,7 +550,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         event[@"category"] = category;
     }
     
-    [self tryToPostNotification:[event autorelease] forNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
 
@@ -588,26 +599,27 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 #pragma mark Helper Methods
 
-- (void)tryToPostNotification:(NSDictionary *)_notification forNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
 {
     typedef void (^NotificationBlock)();
     
     NotificationBlock myNotificationBlock = ^void() {
-        [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:_notification userInfo:nil];
-        completionHandler();
+        [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:self userInfo:_notification];
+        
+        if (completionHandler != nil) {
+            completionHandler();
+        }
     };
     
     if (appBooted) {
         myNotificationBlock();
     } else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self tryToPostNotification:_notification forNotificationName:_notificationName completionHandler:completionHandler];
-        });
+        [[self queuedBootEvents] setObject:_notification forKey:_notificationName];
     }
 }
 
--(void)postNotificationwithKey:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName{
-    
+-(void)tryToPostBackgroundModeNotification:(NSMutableDictionary*)userInfo withNotificationName:(NSString*)notificationName
+{
     //Check to see if the app booted and we still have the completionhandler in the system
     NSString* key = [userInfo objectForKey:@"handlerId"] ;
     BOOL shouldContinue = NO;
@@ -624,10 +636,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if (appBooted ) {
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
-        //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self postNotificationwithKey:userInfo withNotificationName:notificationName];
-        });
+        [[self queuedBootEvents] setObject:userInfo forKey:notificationName];
     }
 }
 
@@ -742,7 +751,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                                              key, @"handlerId", nil];
-    [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
+    [self tryToPostBackgroundModeNotification:dict withNotificationName:kTiBackgroundTransfer];
 
 }
 
@@ -1080,9 +1089,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
     } else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
-        });
+        [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
     }
     
     return YES;
@@ -1261,7 +1268,8 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
+    
+    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
 }
 
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
@@ -1297,10 +1305,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
                                                             object:self userInfo:dict];
     } else {
         if(bootWait) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
-                                                                    object:self userInfo:dict];
-            });
+            [[self queuedBootEvents] setObject:dict forKey:kTiApplicationShortcut];
         }
     }
     

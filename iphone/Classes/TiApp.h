@@ -52,10 +52,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSString *remoteDeviceUUID;
 	
 	id remoteNotificationDelegate;
-	NSDictionary* remoteNotification;
-	NSMutableDictionary* pendingCompletionHandlers;
-    NSMutableDictionary* pendingReplyHandlers;
-    NSMutableDictionary* backgroundTransferCompletionHandlers;
+	NSDictionary *remoteNotification;
+	NSMutableDictionary *pendingCompletionHandlers;
+    NSMutableDictionary *pendingReplyHandlers;
+    NSMutableDictionary *backgroundTransferCompletionHandlers;
+    NSMutableDictionary *queuedBootEvents;
     BOOL appBooted;
     
 	NSString *sessionId;
