@@ -181,7 +181,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
     float alpha = 1.0;
     if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
     {
-        if ([hexCode rangeOfString:@"rgba"].location == NSNotFound)
+        if ([hexCode rangeOfString:@"rgb"].location == NSNotFound)
         {
             DebugLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
         }
