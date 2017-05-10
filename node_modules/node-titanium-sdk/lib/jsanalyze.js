@@ -19,6 +19,7 @@ var appc = require('node-appc'),
 	babylon = require('babylon'),
 	types = require('babel-types'),
 	traverse = require('babel-traverse').default,
+	babili = require.resolve('babel-preset-babili'),
 	__ = appc.i18n(__dirname).__,
 	apiUsage = {};
 
@@ -109,7 +110,7 @@ exports.analyzeJs = function analyzeJs(contents, opts) {
 
 	// parse the js file
 	try {
-		ast = babylon.parse(contents, { sourceFilename: opts.filename });
+		ast = babylon.parse(contents, { filename: opts.filename });
 	} catch (ex) {
 		var errmsg = [ __('Failed to parse %s', opts.filename) ];
 		if (ex.line) {
@@ -161,7 +162,8 @@ exports.analyzeJs = function analyzeJs(contents, opts) {
 
 	// minify
 	if (opts.minify) {
-		var minified = babel.transformFromAst(ast, contents, {minified: true, compact: true, comments: false, presets: ['babili']});
+		// FIXME we can't re-use the ast here, because we traversed it
+		var minified = babel.transform(contents, {filename: opts.filename, minified: true, compact: true, comments: false, presets: [babili]});
 		results.contents = minified.code;
 	}
 
