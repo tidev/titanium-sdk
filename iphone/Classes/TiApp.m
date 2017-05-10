@@ -306,13 +306,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
 			RELEASE_TO_NIL(launchedShortcutItem);
 		}
-        
-        if (queuedBootEvents != nil) {
-            for (NSString *notificationName in queuedBootEvents) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
-            }
-            RELEASE_TO_NIL(queuedBootEvents);
-        }
+
+		if (queuedBootEvents != nil) {
+			for (NSString *notificationName in queuedBootEvents) {
+				[[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
+			}
+			RELEASE_TO_NIL(queuedBootEvents);
+		}
 
 		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
@@ -1268,8 +1268,8 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
-    
-    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
+
+	[self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
 }
 
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
