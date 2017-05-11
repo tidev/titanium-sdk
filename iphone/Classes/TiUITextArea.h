@@ -27,6 +27,7 @@
 -(void)setShowUndoRedoActions:(id)value;
 
 -(UIView<UITextInputTraits>*)textWidgetView;
+-(void)checkLinkForTouch:(UITouch *)touch;
 
 @end
 
