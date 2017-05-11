@@ -75,7 +75,7 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#sha256(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt',
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
 			contents = f.read();
 		should(Ti.Utils.sha256(contents).toString()).eql('9f81cd4f510080f1da92386b391cf2539b21f6363df491b89787e50fbc33b2c3');
 	});
