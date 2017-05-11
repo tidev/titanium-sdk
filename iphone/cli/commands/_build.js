@@ -1594,7 +1594,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 					pps = this.iosInfo.provisioning.development;
 					pp = getPPbyUUID();
 				} else if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
-					pps = [].concat(this.iosInfo.provisioning.distribution, this.iosInfo.provisioning.adhoc);
+					pps = [].concat.apply([], [this.iosInfo.provisioning.distribution, this.iosInfo.provisioning.adhoc, this.iosInfo.provisioning.enterprise]);
 					pp = getPPbyUUID();
 				}
 
