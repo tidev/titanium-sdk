@@ -238,13 +238,4 @@ describe('requireJS', function () {
 		should(baz2.filename).be.eql('/node_modules/baz/index.js');
 		should(baz2.dirname).be.eql('/node_modules/baz');
 	});
-
-	//FIXME: TIMOB-24673 - Android returns {} here rather than the expected error message
-	((utilities.isAndroid()) ? it.skip : it.only)('require(/foo) should load Resources/foo', function() {
-		try {
-			var foo = require('/foo');
-		} catch(e) {
-			should(e.indexOf('Couldn\'t find module: /foo for architecture')).not.eql(-1)
-		}
-	});
 });
