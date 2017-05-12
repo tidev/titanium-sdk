@@ -72,7 +72,7 @@ exports.config = function config(logger, config, cli) {
 								if (!cli.argv.$originalPlatform) {
 									cli.argv.$originalPlatform = platform;
 								}
-								platform = ti.resolvePlatform(platform);
+								platform = cli.argv.platform = ti.resolvePlatform(platform);
 
 								var p = platformConf[platform];
 								p && p.options && Object.keys(p.options).forEach(function (name) {
