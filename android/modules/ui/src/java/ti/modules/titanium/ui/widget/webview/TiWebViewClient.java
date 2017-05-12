@@ -89,6 +89,15 @@ public class TiWebViewClient extends WebViewClient
 	}
 
 	@Override
+	public void onLoadResource(WebView view, String url)
+	{
+		super.onLoadResource(view, url);
+		KrollDict data = new KrollDict();
+		data.put("url", url);
+		webView.getProxy().fireEvent("beforeresourceload", data);
+	}
+
+	@Override
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
 	{
 		super.onReceivedError(view, errorCode, description, failingUrl);

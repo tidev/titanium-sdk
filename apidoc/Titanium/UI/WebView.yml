@@ -313,6 +313,16 @@ events:
         constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone]
 
+  - name: beforeresourceload
+    summary: Fired before the web view starts loading its resources.
+    description: |
+        This event gets fired each time the web view loads a resource. This includes every JS, CSS, image files, etc. contained
+        in the URL. This event also detects URL changes to frames / iFrames within the web view.
+    platforms: [android]
+    properties:
+      - name: url
+        summary: URL of the web resource being loaded.
+
   - name: error
     summary: Fired when the web view cannot load the content. 
     description: |
