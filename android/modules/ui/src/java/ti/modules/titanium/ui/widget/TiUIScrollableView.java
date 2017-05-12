@@ -311,6 +311,14 @@ public class TiUIScrollableView extends TiUIView
 				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
+		
+		if (d.containsKey("margin")) {
+			int marginDp = TiConvert.toInt(d, "margin");
+			DisplayMetrics dm = proxy.getActivity().getResources().getDisplayMetrics();
+			float marginPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, marginDp, dm);
+			mPager.setPageMargin((int) Math.round(marginPx));
+			mPager.setOffscreenPageLimit(2);
+		}
 
 		if (d.containsKey("cacheSize")) {
 			int cacheSize = TiConvert.toInt(d.get("cacheSize"));
