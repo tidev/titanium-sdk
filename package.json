@@ -46,7 +46,6 @@
     "request": "2.81.0",
     "sprintf": "0.1.5",
     "temp": "0.8.3",
-    "titanium-sdk": "*",
     "windowslib": "0.4.29",
     "wrench": "1.5.9",
     "xcode": "0.9.2",
