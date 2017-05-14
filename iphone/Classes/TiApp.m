@@ -303,7 +303,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		appBooted = YES;
 
 		if(launchedShortcutItem != nil) {
-			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+			[self handleShortcutItem:launchedShortcutItem queueToBootIfNotLaunched:YES];
 			RELEASE_TO_NIL(launchedShortcutItem);
 		}
 
@@ -1272,11 +1272,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
 }
 
--(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
- waitForBootIfNotLaunched:(BOOL) bootWait {
-    
-    
-    if(shortcutItem.type == nil) {
+-(BOOL)handleShortcutItem:(UIApplicationShortcutItem *) shortcutItem queueToBootIfNotLaunched:(BOOL)bootWait
+{
+    if (shortcutItem.type == nil) {
         NSLog(@"[ERROR] The shortcut type property is required");
         return NO;
     }
@@ -1293,7 +1291,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
         [dict setObject:shortcutItem.localizedSubtitle forKey:@"subtitle" ];
     }
     
-    if(shortcutItem.userInfo !=nil) {
+    if (shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
     
@@ -1303,10 +1301,8 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
                                                             object:self userInfo:dict];
-    } else {
-        if(bootWait) {
-            [[self queuedBootEvents] setObject:dict forKey:kTiApplicationShortcut];
-        }
+    } else if (bootWait) {
+        [[self queuedBootEvents] setObject:dict forKey:kTiApplicationShortcut];
     }
     
     return YES;
@@ -1317,7 +1313,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
   completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
     
-    BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem waitForBootIfNotLaunched:NO];
+    BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
     completionHandler(handledShortCutItem);
     
 }
