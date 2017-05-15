@@ -346,15 +346,15 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 			isEmpty = [TiThreadBlockQueue count] <= 0;
 			if (!isEmpty) {
 				thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
+				[thisAction autorelease];
 				[TiThreadBlockQueue removeObjectAtIndex:0];
 			}
 		pthread_mutex_unlock(&TiThreadBlockMutex);
 		
 		if (thisAction != nil) {
-			NSAutoreleasePool * smallPool = [[NSAutoreleasePool alloc] init];
-			thisAction();
-			[thisAction release];
-			[smallPool release];
+			@autoreleasepool {
+				thisAction();
+			}
 		}
 		//It's entirely possible that the action itself caused more entries.
 
