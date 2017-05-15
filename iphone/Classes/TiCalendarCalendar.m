@@ -175,9 +175,9 @@
     NSDateComponents *comps = [[NSDateComponents alloc] init];
     NSTimeInterval secondsPerDay = 24 * 60 * 60;
 
-    // We do this for parity with Javascript and Android
     int month = [TiUtils intValue:[arg objectAtIndex:1]];
-    month += 1;
+    // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
+    // month += 1;
 
     [comps setDay:[TiUtils intValue:[arg objectAtIndex:2]]];
     [comps setMonth:month];
@@ -205,7 +205,8 @@
 
     // We do this for parity with Javascript and Android
     int month = [TiUtils intValue:[args objectAtIndex:1]];
-    month += 1;
+    // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
+    // month += 1;
     
     NSDateComponents *comps = [[NSDateComponents alloc] init];
     
