@@ -129,7 +129,7 @@ bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *out
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex] & kBits_00000011) << 4 | (theInPtr[theInIndex + 1] & kBits_11110000) >> 4];
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex + 1] & kBits_00001111) << 2 | (theInPtr[theInIndex + 2] & kBits_11000000) >> 6];
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex + 2] & kBits_00111111) >> 0];
-		if (theOutIndex % 74 == 72)
+		if (theOutIndex % 76 == 74)
 		{
 			outOutputData[theOutIndex++] = '\r';
 			outOutputData[theOutIndex++] = '\n';
@@ -142,7 +142,7 @@ bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *out
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex] & kBits_00000011) << 4 | (0 & kBits_11110000) >> 4];
 		outOutputData[theOutIndex++] = '=';
 		outOutputData[theOutIndex++] = '=';
-		if (theOutIndex % 74 == 72)
+		if (theOutIndex % 76 == 74)
 		{
 			outOutputData[theOutIndex++] = '\r';
 			outOutputData[theOutIndex++] = '\n';
@@ -154,7 +154,7 @@ bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *out
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex] & kBits_00000011) << 4 | (theInPtr[theInIndex + 1] & kBits_11110000) >> 4];
 		outOutputData[theOutIndex++] = kBase64EncodeTable[(theInPtr[theInIndex + 1] & kBits_00001111) << 2 | (0 & kBits_11000000) >> 6];
 		outOutputData[theOutIndex++] = '=';
-		if (theOutIndex % 74 == 72)
+		if (theOutIndex % 76 == 74)
 		{
 			outOutputData[theOutIndex++] = '\r';
 			outOutputData[theOutIndex++] = '\n';
