@@ -21,43 +21,19 @@ exports.init = function (logger, config, cli) {
 		post: function (builder, finished) {
 			if (cli.argv.target !== 'device') return finished();
 
-			var devices = {};
+			if (cli.argv['build-only']) {
+				logger.info(__('Performed build only, skipping installing of the application'));
+				return finished();
+			}
 
-			async.parallel([
-				function (next) {
-					var pkgapp = path.join(builder.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-					if (fs.existsSync(pkgapp)) {
-						run(pkgapp, builder.xcodeAppDir, function (code, out, err) {
-							if (code) {
-								logger.warn(__('An error occurred running the iOS Package Application tool'));
-								err.split('\n').forEach(logger.debug);
-							}
-							next();
-						});
-					} else {
-						logger.warn(__('Unable to locate iOS Package Application tool'));
-						next();
-					}
-				},
-				function (next) {
-					if (cli.argv['build-only']) {
-						return next();
-					}
-					ioslib.device.detect({ bypassCache: true }, function (err, results) {
-						if (!err) {
-							results.devices.forEach(function (device) {
-								if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
-									devices[device.udid] = device;
-								}
-							});
+			ioslib.device.detect({ bypassCache: true }, function (err, results) {
+				var devices = {};
+				if (!err) {
+					results.devices.forEach(function (device) {
+						if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
+							devices[device.udid] = device;
 						}
-						next();
 					});
-				}
-			], function () {
-				if (cli.argv['build-only']) {
-					logger.info(__('Performed build only, skipping installing of the application'));
-					return finished();
 				}
 
 				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
@@ -163,13 +139,15 @@ exports.init = function (logger, config, cli) {
 									try {
 										var headers = JSON.parse(msg);
 										if (headers.appId !== builder.tiapp.id) {
-											logger.error(__('Tried to connect to app "%s", but connected to another app with id "%s"', builder.tiapp.id, headers.appId));
-											logger.error(__('It is likely that you have two apps using the same log server port %s', builder.tiLogServerPort));
-											logger.error(__('Either stop all instances of the other app or explicitly set a unique <log-server-port> in the <ios> section of the tiapp.xml') + '\n');
+											logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
+											logger.error(__('Stop the running Titanium app, then rebuild this app'));
+											logger.error(__('-or-'));
+											logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml'));
 											handle.stop();
 
 											running = false;
 											if (--runningCount <= 0) {
+												logger.log();
 												process.exit(1);
 											}
 										}

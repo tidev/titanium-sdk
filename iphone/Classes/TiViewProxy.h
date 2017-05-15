@@ -210,6 +210,12 @@ enum
 -(void)hide:(id)arg;
 
 /**
+ Returns the view by the given ID.
+ @param arg The ID of the view to receive.
+ */
+-(id)getViewById:(id)arg;
+
+/**
  Tells the view proxy to run animation on its view.
  @param arg An animation object.
  */

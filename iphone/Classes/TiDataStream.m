@@ -23,10 +23,10 @@
     return self;
 }
 
--(void)_destroy
+-(void)dealloc
 {
     RELEASE_TO_NIL(data);
-    [super _destroy];
+    [super dealloc];
 }
 
 #pragma mark I/O Stream implementation

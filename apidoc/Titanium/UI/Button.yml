@@ -184,7 +184,16 @@ properties:
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
     platforms: [android, iphone, ipad, mobileweb]
-
+    
+  - name: backgroundSelectedColor
+    summary: Selected background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.         
+    type: String
+    platforms: [iphone, ipad, android, mobileweb]
+    default: Background color of this view.
+    since: {iphone: "6.1.0", ipad: "6.1.0", android: 0.9.0, mobileweb: 1.8.0}
+    
   - name: backgroundSelectedImage
     summary: |
         Background image for the button in its selected state, specified as a local file 

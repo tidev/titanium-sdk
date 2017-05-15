@@ -375,7 +375,28 @@
 		case UITableViewCellStyleValue2:
 			self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
             self.detailTextLabel.backgroundColor = [UIColor clearColor];
-			// pass through
+            
+            id subtitleColor = [properties objectForKey:@"subtitleColor"];
+            if ([self shouldUpdateValue:subtitleColor forKeyPath:@"detailTextLabel.textColor"]) {
+                UIColor *color = subtitleColor != nil ? [[TiUtils colorValue:subtitleColor] _color] : nil;
+                if (color != nil) {
+                    [self recordChangeValue:subtitleColor forKeyPath:@"detailTextLabel.textColor" withBlock:^{
+                        [self.detailTextLabel setTextColor:color];
+                    }];
+                }
+            }
+            
+            id selectedSubtitleColor = [properties objectForKey:@"selectedSubtitleColor"];
+            if ([self shouldUpdateValue:selectedSubtitleColor forKeyPath:@"detailTextLabel.highlightedTextColor"]) {
+                UIColor *color = selectedSubtitleColor != nil ? [[TiUtils colorValue:selectedSubtitleColor] _color] : nil;
+                if (color != nil) {
+                    [self recordChangeValue:selectedSubtitleColor forKeyPath:@"detailTextLabel.highlightedTextColor" withBlock:^{
+                        [self.detailTextLabel setHighlightedTextColor:color];
+                    }];
+                }
+            }
+            
+            // pass through
 		case UITableViewCellStyleDefault:
 			self.textLabel.text = [[properties objectForKey:@"title"] description];
             self.textLabel.backgroundColor = [UIColor clearColor];
@@ -413,10 +434,10 @@
 			}
 
 			id colorValue = [properties objectForKey:@"color"];
-			if ([self shouldUpdateValue:colorValue forKeyPath:@"textLabel.color"]) {
+			if ([self shouldUpdateValue:colorValue forKeyPath:@"textLabel.textColor"]) {
 				UIColor *color = colorValue != nil ? [[TiUtils colorValue:colorValue] _color] : nil;
 				if (color != nil) {
-					[self recordChangeValue:colorValue forKeyPath:@"textLabel.color" withBlock:^{
+					[self recordChangeValue:colorValue forKeyPath:@"textLabel.textColor" withBlock:^{
 						[self.textLabel setTextColor:color];
 					}];
 				}

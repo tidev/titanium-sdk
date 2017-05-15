@@ -44,7 +44,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
 	private static final int LEFT_MARGIN = 5;
-	private static final int RIGHT_MARGIN = 7;
+	private static final int RIGHT_MARGIN = 27;
 	private static final int MIN_HEIGHT = 48;
 
 	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
@@ -487,7 +487,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (hasChildView) {
 				content.setMinimumHeight(0);
 			} else {
-				content.setMinimumHeight(MIN_HEIGHT);
+				content.setMinimumHeight(TiConvert.toTiDimension(MIN_HEIGHT, TiDimension.TYPE_HEIGHT).getAsPixels(this));
 			}
 
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);

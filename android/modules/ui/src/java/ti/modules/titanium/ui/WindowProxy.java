@@ -151,12 +151,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	    if (!animated) {
 	        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 	        topActivity.startActivity(intent);
-	        topActivity.overridePendingTransition(0, 0); // Suppress default transition.
-	    } else if (options.containsKey(TiC.INTENT_PROPERTY_ENTER_ANIMATION)
-	            || options.containsKey(TiC.INTENT_PROPERTY_EXIT_ANIMATION)) {
+	        topActivity.overridePendingTransition(0, 0);
+	    } else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 	        topActivity.startActivity(intent);
-	        topActivity.overridePendingTransition(TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_ENTER_ANIMATION), 0),
-	                TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_EXIT_ANIMATION), 0));
+	        int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+	        int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+	        topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 	    } else {
 	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 	            topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
@@ -172,18 +172,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
 		if (activity != null && !activity.isFinishing()) {
-			if (!animated) {
-				activity.overridePendingTransition(0, 0); // Suppress default transition.
-			} else if (options.containsKey(TiC.INTENT_PROPERTY_ENTER_ANIMATION)
-				|| options.containsKey(TiC.INTENT_PROPERTY_EXIT_ANIMATION)) {
-				activity.overridePendingTransition(TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_ENTER_ANIMATION), 0),
-					TiConvert.toInt(options.get(TiC.INTENT_PROPERTY_EXIT_ANIMATION), 0));
-			} 
-			
 			if (super.hasActivityTransitions()) {
 			    activity.finishAfterTransition();
 			} else {
 			    activity.finish();
+			}
+			if (!animated) {
+				activity.overridePendingTransition(0, 0);
+			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+				activity.overridePendingTransition(enterAnimation, exitAnimation);
 			}
 
 			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here

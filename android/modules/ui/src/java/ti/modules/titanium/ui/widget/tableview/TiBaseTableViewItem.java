@@ -52,36 +52,46 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 				// recheck to so we don't leak a bitmap.
 				int density = TiPlatformHelper.applicationLogicalDensity;
 				if (childIndicatorBitmap == null) {
-					String path = "/org/appcelerator/titanium/res/drawable/btn_more.png"; // default medium
+					String path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; // default medium
 
 					switch (density) {
-						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
-						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_18.png"; break;
+						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_72.png"; break;
+						case DisplayMetrics.DENSITY_MEDIUM : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
+						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_36.png"; break;
 					}
 
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
-						path = "/org/appcelerator/titanium/res/drawable/btn_more_64.png";
+						path = "/org/appcelerator/titanium/res/drawable/btn_more_96.png";
 					}
 
 					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
-						path = "/org/appcelerator/titanium/res/drawable/btn_more_100.png";
+						path = "/org/appcelerator/titanium/res/drawable/btn_more_144.png";
+					}
+
+					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXXHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_more_192.png";
 					}
 
 					childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
 				}
 				if (checkIndicatorBitmap == null) {
-					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"; // default medium
+					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; // default medium
 					switch (density) {
-						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
-						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_18.png"; break;
+						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_72.png"; break;
+						case DisplayMetrics.DENSITY_MEDIUM : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
+						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_36.png"; break;
 					}
 
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
-						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
+						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_96.png";
 					}
 
 					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
-						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_100.png";
+						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_144.png";
+					}
+
+					if (Build.VERSION.SDK_INT >= 18 && density >= DisplayMetrics.DENSITY_XXXHIGH) {
+						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_192.png";
 					}
 
 

@@ -43,14 +43,12 @@ define(
 			createBuffer: function(args) {
 				return new Buffer(args);
 			},
-
 			include: function(files) {
 				typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
 				files.forEach(function(f) {
 					require("Ti/_/include!" + f);
 				});
 			},
-
 			deferStart: function() {
 				if (loaded) {
 					API.warn("app.js already loaded!");

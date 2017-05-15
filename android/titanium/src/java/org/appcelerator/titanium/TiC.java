@@ -577,8 +577,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "activityEnterAnimation";
-	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "activityExitAnimation";
 	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
 	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
 	public static final String PROPERTY_RETURN_TRANSITION = "activityReturnTransition";
@@ -782,6 +780,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUDIO_FOCUS = "audioFocus";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
 
 	/**
@@ -939,6 +942,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BLACKLIST_URL = "blacklisturl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
@@ -1030,6 +1038,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCELED_ON_TOUCH_OUTSIDE = "canceledOnTouchOutside";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CAN_SCROLL = "canScroll";
 
 	/**
 	 * @module.api
@@ -1254,6 +1267,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 
 	/**
@@ -1416,7 +1434,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
-
+		
 	/**
 	 * @module.api
 	 */
@@ -1604,6 +1622,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_IMAGES = "images";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
 	 * @module.api
@@ -1869,8 +1892,19 @@ public class TiC
 	 */
 	public static final String PROPERTY_MIN = "min";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_AGE = "minAge";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 
 	/**
@@ -1878,6 +1912,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
+	
 	/**
 	 * @module.api
 	 */
@@ -1986,7 +2025,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_STOP_BLACKISTED_URL = "onStopBlacklistedUrl";
+	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
 
 	/**
 	 * @module.api
@@ -2708,6 +2747,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
 
 	/**
 	 * @module.api

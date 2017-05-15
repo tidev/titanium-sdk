@@ -157,17 +157,21 @@ properties:
     since: "5.4.0"
         
   - name: maxLines
-    summary: Makes the label at most this many lines tall.
-    platforms: [android]
+    summary: Makes the label at most this many lines tall. 
+    platforms: [android, iphone, ipad]
     type: Number
-    since: "4.1.0"
+    since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
     
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |
         Enables font scaling to fit and forces the label content to be limited to a single line.
+        
+        On Android, setting this property will force the `ellipsize` property to be
+        <Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END> which is the default behavior as well.
     type: Number
-    platforms: [iphone, ipad]
+    since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
+    platforms: [android, iphone, ipad]
     
   - name: shadowColor
     summary: Shadow color of the [text](Titanium.UI.Label.text), as a color name or hex triplet.

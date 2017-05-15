@@ -55,13 +55,13 @@
     }
     else if ([key isEqualToString:@"end"]) {
         EKRecurrenceEnd *end = currRule.recurrenceEnd;
-        NSDictionary *recurranceEnd = nil;
+        NSDictionary *recurrenceEnd = nil;
         if (end.occurrenceCount > 0) {
-            recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys: NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
+            recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys: NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
         } else if (end.endDate != nil) {
-            recurranceEnd = [NSDictionary dictionaryWithObjectsAndKeys: [TiUtils UTCDateForDate:end.endDate], @"endDate", nil];
+            recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys: [TiUtils UTCDateForDate:end.endDate], @"endDate", nil];
         }
-        return recurranceEnd;
+        return recurrenceEnd;
     }
     else if ([key isEqualToString:@"frequency"]) {
         return NUMINT(currRule.frequency);

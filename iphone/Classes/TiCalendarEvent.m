@@ -194,8 +194,8 @@
     else if ([key isEqualToString:@"recurrenceRules"]) {
         ENSURE_TYPE_OR_NIL(value,NSArray);
         NSMutableArray * rules = [NSMutableArray arrayWithCapacity:[value count]];
-        for (TiCalendarRecurrenceRule *recurranceRule_ in value) {
-            EKRecurrenceRule * ruleToBeAdded = [recurranceRule_ ruleForRecurrence];
+        for (TiCalendarRecurrenceRule *recurrenceRule_ in value) {
+            EKRecurrenceRule * ruleToBeAdded = [recurrenceRule_ ruleForRecurrence];
             [rules addObject:ruleToBeAdded];
         }
         currEvent.recurrenceRules = rules;
@@ -393,28 +393,28 @@
                                                                            setPositions:setPositions
                                                                                     end:end] autorelease];
         if (rule == NULL) {
-            [self throwException:@"Error while trying to create recurrance rule."
+            [self throwException:@"Error while trying to create recurrence rule."
                        subreason:nil
                         location:CODELOCATION];
             
             return NULL;
         }
-        TiCalendarRecurrenceRule* recurranceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
+        TiCalendarRecurrenceRule* recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
                                                                                                       rule:rule] autorelease];
-        return recurranceRule;
+        return recurrenceRule;
     } /*endof if (frequency != EKRecurrenceFrequencyDaily)*/
     else {
         EKRecurrenceRule* rule = [[[EKRecurrenceRule alloc] initRecurrenceWithFrequency:frequency interval:interval end:end] autorelease];
         if (rule == NULL) {
-            [self throwException:@"Error while trying to create recurrance rule."
+            [self throwException:@"Error while trying to create recurrence rule."
                        subreason:nil
                         location:CODELOCATION];
             
             return NULL;
         }
-        TiCalendarRecurrenceRule* recurranceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
+        TiCalendarRecurrenceRule* recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext]
                                                                                                       rule:rule] autorelease];
-        return recurranceRule;
+        return recurrenceRule;
     }
 }
 

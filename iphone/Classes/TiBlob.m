@@ -404,6 +404,18 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return nil;
 }
 
+- (id)imageAsCompressed:(id)args
+{
+	[self ensureImageLoaded];
+	if (image != nil) {
+		ENSURE_ARG_COUNT(args,1);
+        
+		float compressionQuality = [TiUtils floatValue:[args objectAtIndex:0] def:1.0];
+		return [[[TiBlob alloc] initWithData:UIImageJPEGRepresentation(image,compressionQuality) mimetype:@"image/jpeg"] autorelease];
+	}
+	return nil;
+}
+
 - (id)imageAsCropped:(id)args
 {
 	[self ensureImageLoaded];

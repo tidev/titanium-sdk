@@ -10,36 +10,37 @@ description: |
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
+
 methods:
   - name: beep
     summary: Plays a device beep notification.
     platforms: [iphone, ipad]
   - name: hideCamera
-    summary: Hides the device camera UI. 
+    summary: Hides the device camera UI.
     description: |
-        Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
+        Must be called after calling `showCamera` and only when `autohide` is set to `false`.
         This method causes the media capture UI to be hidden.
     platforms: [iphone, ipad, android]
     since:
         android: "3.2.0"
   - name: hideMusicLibrary
-    summary: Hides the music library.  
+    summary: Hides the music library.
     description: |
-        Must be called after calling [openMusicLibrary](Titanium.Media.openMusicLibrary) 
+        Must be called after calling [openMusicLibrary](Titanium.Media.openMusicLibrary)
         and only when `autohide` is set to `false`.
     platforms: [iphone, ipad]
   - name: isMediaTypeSupported
     summary: Returns `true` if the source supports the specified media type.
     description: |
         You can query whether a given media type is supported by the device's
-        camera (`source` == 'camera') or photo library (`source` == 'photo').  
+        camera (`source` == 'camera') or photo library (`source` == 'photo').
 
-        An additional value, `photogallery` can be  used to query the media 
-        supported by the device's camera roll or saved image album, which is a 
-        subset of the iOS photo library. However, when calling 
-        [openPhotoGallery](Titanium.Media.openPhotoGallery) on iOS, the entire 
-        library is displayed, and there is currently no way to restrict the 
-        gallery to show only the camera roll/saved images album. 
+        An additional value, `photogallery` can be  used to query the media
+        supported by the device's camera roll or saved image album, which is a
+        subset of the iOS photo library. However, when calling
+        [openPhotoGallery](Titanium.Media.openPhotoGallery) on iOS, the entire
+        library is displayed, and there is currently no way to restrict the
+        gallery to show only the camera roll/saved images album.
     returns:
         type: Boolean
     parameters:
@@ -55,7 +56,7 @@ methods:
   - name: openMusicLibrary
     summary: Shows the music library and allows the user to select one or more tracks.
     description: |
-        If `autohide` is set to `false`, you must hide the library explicitly using 
+        If `autohide` is set to `false`, you must hide the library explicitly using
         [hideMusicLibrary](Titanium.Media.hideMusicLibrary).
     platforms: [iphone, ipad]
     parameters:
@@ -67,8 +68,8 @@ methods:
     description: |
         In iOS 6, Apple introduced the Info.plist key `NSPhotoLibraryUsageDescription` that is used to display an
         own description while authorizing gallery permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
-        for more information. 
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
@@ -90,36 +91,36 @@ methods:
         Media can be passed as either a `Blob` object or a `File` object. If the `media` argument
         is not one of these types, an error is generated.
 
-        Note that when passing a file (or a blob created from a file), the file name must 
+        Note that when passing a file (or a blob created from a file), the file name must
         have the appropriate extension for the data--for example, `image.jpg` or `video1.mov` work,
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery. 
-        
+        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
+
     platforms: [iphone, ipad, android]
     parameters:
       - name: media
-        summary: Media to save to the camera roll or media gallery. 
+        summary: Media to save to the camera roll or media gallery.
         type: [Titanium.Blob, Titanium.Filesystem.File]
       - name: callbacks
         summary: |
-            Pass a dictionary with the following supported keys: `success` a function that 
-            will be called when the save succeeds, and `error` a function that will be 
+            Pass a dictionary with the following supported keys: `success` a function that
+            will be called when the save succeeds, and `error` a function that will be
             called upon receiving an error.
         type: Object
     since:
         android: "3.3.0"
   - name: setOverrideAudioRoute
     summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode.
-    description: | 
+    description: |
         By default, when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode,
         the audio output is routed to the speaker in the receiver. This method lets you specify
         that audio should be routed to the built-in speaker.
 
         If you override the audio route while audio is playing the changes won't not take effect until  the audio is restarted.
     platforms: [iphone, ipad]
-    parameters: 
+    parameters:
       - name: route
         summary: The specified audio route.
         type: Number
@@ -146,12 +147,12 @@ methods:
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
 
-        Images taken with the camera will not have accurate geolocation data embedded in the images; 
-        the latitude and longitude will be set to '0'.  This is not an error, but a limitation which 
+        Images taken with the camera will not have accurate geolocation data embedded in the images;
+        the latitude and longitude will be set to '0'.  This is not an error, but a limitation which
         Apple has put on the camera API.
 
         Important: Use <Titanium.Media.hasCameraPermissions> and <Titanium.Media.requestCameraPermissions>
-        to ask for camera permissions. This is especially important when running on iOS 10 and later, since 
+        to ask for camera permissions. This is especially important when running on iOS 10 and later, since
         the application may crash otherwise.
 
     platforms: [iphone, ipad, android]
@@ -165,19 +166,19 @@ methods:
         Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
         iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
     returns:
-        type: Boolean 
+        type: Boolean
     platforms: [iphone, ipad]
     since: "6.0.0"
   - name: requestMusicLibraryPermissions
     summary: Request permissions for the native music-library.
     description: |
         Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
-        iOS versions. Because of that, the callback will ignore the permission-check and always return 
+        iOS versions. Because of that, the callback will ignore the permission-check and always return
         `{success: true}` for devices that run iOS < 9.3.
 
-        Important: On iOS 10, Apple introduced the Info.plist key `NSAppleMusicUsageDescription` that is used to 
+        Important: On iOS 10, Apple introduced the Info.plist key `NSAppleMusicUsageDescription` that is used to
         display an own description while authorizing the music library. This key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     parameters:
       - name: callback
@@ -187,8 +188,8 @@ methods:
     since: "6.0.0"
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
-    description: | 
-        Use <Titanium.Media.hasMusicLibraryPermissions> to check the granted permissions and  
+    description: |
+        Use <Titanium.Media.hasMusicLibraryPermissions> to check the granted permissions and
         <Titanium.Media.requestMusicLibraryPermissions> to request the permissions. This is especially important
         when running on an iOS 10 device, because the music-library access will crash without having the privacy-key
         `NSAppleMusicUsageDescription` that is specified in <Titanium.Media.requestMusicLibraryPermissions>.
@@ -206,11 +207,11 @@ methods:
     summary: Stops monitoring the microphone sound level.
     platforms: [iphone, ipad]
   - name: takePicture
-    summary: Uses the device camera to capture a photo. 
+    summary: Uses the device camera to capture a photo.
     description: |
-        Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
+        Must be called after calling `showCamera` and only when `autohide` is set to `false`.
 
-        This method causes the media capture device to capture a photo and call the 
+        This method causes the media capture device to capture a photo and call the
         `success` callback.
     platforms: [iphone, ipad, android]
   - name: startVideoCapture
@@ -222,7 +223,7 @@ methods:
     summary: Stops video capture using the camera specified.
     platforms: [android, iphone, ipad]
     since:
-        android: 5.4.0    
+        android: 5.4.0
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -234,7 +235,7 @@ methods:
       - name: camera
         summary: Constant indicating to which camera you want to switch.
         type: Number
-        constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
+        constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]
     since:
         android: 3.2.0
         iphone: 1.8.1
@@ -242,9 +243,9 @@ methods:
   - name: hasCameraPermissions
     summary: Returns `true` if the app has camera access.
     returns:
-        type: Boolean 
+        type: Boolean
     platforms: [iphone, ipad, android]
-    since: "5.1.0"    
+    since: "5.1.0"
   - name: requestCameraPermissions
     summary: Requests for camera access.
     description: |
@@ -256,11 +257,11 @@ methods:
         use <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSCameraUsageDescription` that is used to display an
-        own description while authorizing camera permissions. In iOS 10, this key is mandatory when taking a photo 
+        own description while authorizing camera permissions. In iOS 10, this key is mandatory when taking a photo
         and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
-        for more information. When using the camera to take a video, you also need the `NSMicrophoneUsageDescription` key. 
+        for more information. When using the camera to take a video, you also need the `NSMicrophoneUsageDescription` key.
         In addition, the authorization dialog will only show if user has not made a decision, yet.
-        If the user has, the callback will return the earlier decision. To change the permission the user needs to 
+        If the user has, the callback will return the earlier decision. To change the permission the user needs to
         change it in the device settings.
     parameters:
       - name: callback
@@ -269,13 +270,13 @@ methods:
     platforms: [iphone, ipad, android]
     since: "5.1.0"
     osver: {ios: {min: "7.0"}}
-    
+
   - name: hasPhotoGalleryPermissions
     summary: Returns `true` if the app has photo gallery permissions.
     returns:
-        type: Boolean 
+        type: Boolean
     platforms: [iphone, ipad]
-    since: "6.0.0"    
+    since: "6.0.0"
 
   - name: requestPhotoGalleryPermissions
     summary: Requests for photo gallery permissions.
@@ -283,9 +284,9 @@ methods:
         In iOS 6, Apple introduced the Info.plist key `NSPhotoLibraryUsageDescription` that is used to display an
         own description while authorizing photo gallery permissions. In iOS 10, this key is mandatory when accessing the
         photo gallery and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
-        for more information. If the user has, the callback will return the earlier decision. To change the permission the 
+        for more information. If the user has, the callback will return the earlier decision. To change the permission the
         user needs to change it in the device settings.
-        
+
         This API is available in iOS 8 and later. Earlier versions of iOS, as well as apps that do not include this method,
         will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
@@ -294,8 +295,8 @@ methods:
         type: Callback<RequestPhotoGalleryAccessResult>
     platforms: [iphone, ipad]
     since: "6.0.0"
-    osver: {ios: {min: "8.0"}}    
-    
+    osver: {ios: {min: "8.0"}}
+
   - name: requestCameraAccess
     deprecated:
        since: "5.1.0"
@@ -303,7 +304,7 @@ methods:
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting
-       it in <Titanium.Media.showCamera>. The request view will only show if user has not yet made 
+       it in <Titanium.Media.showCamera>. The request view will only show if user has not yet made
        a decision. If he has, the callback will return his earlier decision, and if any changes has
        to be made, the user has to change it in the device settings.
     parameters:
@@ -317,11 +318,11 @@ methods:
     summary: Takes a screen shot of the visible UI on the device.
     description: |
        This method is asynchronous. The screenshot is returned in the callback argument.
-       The callback argument's `media` property contains the screenshot image as a 
+       The callback argument's `media` property contains the screenshot image as a
        [Blob](Titanium.Blob) object.
     parameters:
       - name: callback
-        summary: Function to call upon capture. 
+        summary: Function to call upon capture.
         type: Callback<ScreenshotResult>
     platforms: [iphone, ipad, android]
   - name: vibrate
@@ -330,18 +331,18 @@ methods:
         On Android and Mobile Web, a `pattern` argument can be provided to specify a
         vibration pattern.
 
-        The `pattern` is an array of Number values.  Each number in the array is 
-        interpreted as a duration in milliseconds. The first number is the *delay* 
-        before the pattern starts, and the remaining numbers are interpreted as 
+        The `pattern` is an array of Number values.  Each number in the array is
+        interpreted as a duration in milliseconds. The first number is the *delay*
+        before the pattern starts, and the remaining numbers are interpreted as
         alternating periods of on and off times. For example, the following pattern:
 
-        [ 0, 500, 100, 500, 100, 500 ] 
+        [ 0, 500, 100, 500, 100, 500 ]
 
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
-        
+
         On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
-    parameters: 
+    parameters:
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
@@ -351,19 +352,19 @@ methods:
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user 
-        grants or denies permission, the system remembers the choice for future use in the same app. 
-        If permission is not granted, or if the user has not yet responded to the permission prompt, 
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad]
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Media.requestAudioPermissions> instead.
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 3.1.3
     parameters:
       - name: callback
@@ -372,30 +373,82 @@ methods:
 
   - name: hasAudioPermissions
     summary: Returns `true` if the app has audio permissions.
-    returns:
-        type: Boolean 
-    platforms: [iphone, ipad]
-    since: "6.0.0"    
-
-  - name: requestAudioPermissions
-    summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user 
-        grants or denies permission, the system remembers the choice for future use in the same app. 
-        If permission is not granted, or if the user has not yet responded to the permission prompt, 
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) 
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
+    returns:
+        type: Boolean
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "6.1.0"
+        notes: Use <Titanium.Media.hasAudioRecorderPermissions> instead.
+    since: "6.0.0"
+
+  - name: hasAudioRecorderPermissions
+    summary: Returns `true` if the app has audio permissions.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
+    returns:
+        type: Boolean
+    platforms: [iphone, ipad]
+    since: "6.1.0"
+
+  - name: requestAudioPermissions
+    summary: Request the user's permission for audio recording.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad]
+    deprecated:
+        since: "6.1.0"
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 5.1.0
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
         type: Callback<MediaAuthorizationResponse>
-        
+
+  - name: requestAudioRecorderPermissions
+    summary: Request the user's permission for audio recording.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
+    platforms: [iphone, ipad]
+    since: 6.1.0
+    parameters:
+      - name: callback
+        summary: Callback function to execute when the users responds to the authorization alert.
+        type: Callback<MediaAuthorizationResponse>
+
 events:
   - name: cameraready
     summary: Fires when the camera overlay is ready to take pictures.
@@ -438,6 +491,7 @@ events:
         summary: New volume level in dB.
         type: Number
     platforms: [iphone, ipad]
+
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
     summary: Audio file format 3GPP2.
@@ -583,33 +637,33 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_CATEGORY_AMBIENT
-    summary: For long-duration sounds such as rain, car engine noise, and so on. 
+    summary: For long-duration sounds such as rain, car engine noise, and so on.
     description: |
-        Also used for for 'play along' style applications, such a virtual piano that a 
+        Also used for for 'play along' style applications, such a virtual piano that a
         user plays over iPod audio.
-        
+
         See also: [AUDIO_SESSION_CATEGORY_SOLO_AMBIENT](Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT).
     type: String
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.4.2"
   - name: AUDIO_SESSION_CATEGORY_PLAYBACK
-    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application. 
+    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application.
     description: |
-        When using this mode, your application audio continues with the Ring/Silent switch set 
-        to silent or when the screen locks. This property normally disallows mixing iPod audio 
+        When using this mode, your application audio continues with the Ring/Silent switch set
+        to silent or when the screen locks. This property normally disallows mixing iPod audio
         with application audio.
     type: String
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.4.2"
   - name: AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD
-    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. 
+    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application.
     description: |
-        This category is appropriate for simultaneous recording and playback, and also for 
-        applications that record and play back but not simultaneously. If you want to ensure 
-        that sounds such as Messages alerts do not play while your application is recording, 
-        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally 
+        This category is appropriate for simultaneous recording and playback, and also for
+        applications that record and play back but not simultaneously. If you want to ensure
+        that sounds such as Messages alerts do not play while your application is recording,
+        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally
         disallows mixing iPod audio with application audio.
 
         In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
@@ -625,13 +679,13 @@ properties:
     platforms: [iphone, ipad]
     since: "3.4.2"
   - name: AUDIO_SESSION_CATEGORY_SOLO_AMBIENT
-    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on. 
+    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on.
     description: |
-        When you use this category, audio from built-in applications, such as the iPod, 
-        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` 
+        When you use this category, audio from built-in applications, such as the iPod,
+        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent`
         or when the screen locks.
 
-        To use long-duration sounds without silencing built-in applications, 
+        To use long-duration sounds without silencing built-in applications,
         see [AUDIO_SESSION_CATEGORY_AMBIENT](Titanium.Media.AUDIO_SESSION_CATEGORY_AMBIENT).
     type: String
     permission: read-only
@@ -642,11 +696,11 @@ properties:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
         removed: "6.0.0"
-    summary: For long-duration sounds such as rain, car engine noise, and so on. 
+    summary: For long-duration sounds such as rain, car engine noise, and so on.
     description: |
-        Also used for for 'play along' style applications, such a virtual piano that a 
+        Also used for for 'play along' style applications, such a virtual piano that a
         user plays over iPod audio.
-        
+
         See also: [AUDIO_SESSION_MODE_SOLO_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT).
     type: Number
     permission: read-only
@@ -656,10 +710,10 @@ properties:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
         removed: "6.0.0"
-    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application. 
+    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application.
     description: |
-        When using this mode, your application audio continues with the Ring/Silent switch set 
-        to silent or when the screen locks. This property normally disallows mixing iPod audio 
+        When using this mode, your application audio continues with the Ring/Silent switch set
+        to silent or when the screen locks. This property normally disallows mixing iPod audio
         with application audio.
     type: Number
     permission: read-only
@@ -669,12 +723,12 @@ properties:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
         removed: "6.0.0"
-    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. 
+    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application.
     description: |
-        This category is appropriate for simultaneous recording and playback, and also for 
-        applications that record and play back but not simultaneously. If you want to ensure 
-        that sounds such as Messages alerts do not play while your application is recording, 
-        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally 
+        This category is appropriate for simultaneous recording and playback, and also for
+        applications that record and play back but not simultaneously. If you want to ensure
+        that sounds such as Messages alerts do not play while your application is recording,
+        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally
         disallows mixing iPod audio with application audio.
 
         In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
@@ -695,19 +749,19 @@ properties:
     deprecated:
         since: "3.4.2"
         notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
-    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on. 
+    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on.
     description: |
-        When you use this category, audio from built-in applications, such as the iPod, 
-        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` 
+        When you use this category, audio from built-in applications, such as the iPod,
+        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent`
         or when the screen locks.
 
-        To use long-duration sounds without silencing built-in applications, 
+        To use long-duration sounds without silencing built-in applications,
         see [AUDIO_SESSION_MODE_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_AMBIENT).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_OVERRIDE_ROUTE_NONE
-    summary: Constant that specifies audio should output to the default audio route. See <Titanium.Media.setOverrideAudioRoute> for more information. 
+    summary: Constant that specifies audio should output to the default audio route. See <Titanium.Media.setOverrideAudioRoute> for more information.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -902,7 +956,6 @@ properties:
     summary: Constant for media device busy error.
     type: Number
     permission: read-only
-
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
@@ -918,7 +971,6 @@ properties:
     summary: Media type constant for video media.
     type: String
     permission: read-only
-
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
@@ -958,7 +1010,6 @@ properties:
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_ARTIST
     summary: Constant for grouping query results by artist.
-    platforms: [iphone, ipad]
     value: 2
     type: Number
     permission: read-only
@@ -984,11 +1035,10 @@ properties:
   - name: MUSIC_MEDIA_GROUP_PLAYLIST
     summary: Constant for grouping query results by playlist.
     value: 6
-    type: Number    
+    type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
-    platforms: [iphone, ipad]
     summary: Constant for grouping query results by podcast title.
     value: 7
     type: Number
@@ -1068,108 +1118,104 @@ properties:
     summary: Constant for media no camera error.
     type: Number
     permission: read-only
-
   - name: NO_VIDEO
     summary: Constant for media no video error.
     type: Number
     permission: read-only
-
   - name: QUALITY_HIGH
-    summary: Media type constant for high-quality video recording. 
+    summary: Media type constant for high-quality video recording.
     description: |
-        Recorded files are suitable for on-device playback and for wired transfer to the 
+        Recorded files are suitable for on-device playback and for wired transfer to the
         Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_LOW
-    summary: Media type constant for low-quality video recording. 
+    summary: Media type constant for low-quality video recording.
     description: |
         Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_MEDIUM
-    summary: Media type constant for medium-quality video recording. 
+    summary: Media type constant for medium-quality video recording.
     description: |
-        Recorded files can usually be transferred using Wi-Fi. This is the default video 
+        Recorded files can usually be transferred using Wi-Fi. This is the default video
         quality setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_640x480
-    summary: Media type constant for medium-quality video recording. 
+    summary: Media type constant for medium-quality video recording.
     description: |
-        If recording, specifies that you want to use VGA-quality video recording (pixel dimensions 
+        If recording, specifies that you want to use VGA-quality video recording (pixel dimensions
         of 640x480).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_IFRAME_1280x720
-    summary: Media type constant for medium-quality video recording. 
+    summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 6.0.0 
+    since: 6.0.0
   - name: QUALITY_IFRAME_960x540
-    summary: Media type constant for medium-quality video recording. 
+    summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    since: 6.0.0 
+    since: 6.0.0
   - name: UNKNOWN_ERROR
     summary: Constant for unknown media error.
     type: Number
     permission: read-only
-
   - name: VIDEO_CONTROL_DEFAULT
     summary: Constant for default video controls.
     description: |
         Used in conjunction with the
-        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
-
   - name: VIDEO_CONTROL_EMBEDDED
-    summary: Constant for video controls for an embedded view. 
+    summary: Constant for video controls for an embedded view.
     description: |
         Used in conjunction with the
-        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
 
         On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
-        only be shown or hidden. 
+        only be shown or hidden.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_FULLSCREEN
-    summary: Constant for fullscreen video controls. 
+    summary: Constant for fullscreen video controls.
     description: |
         Used in conjunction with the
-        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
 
-        On iOS, use VIDEO_CONTROL_FULLSCREEN when creating a video player that occupies the entire 
-        screen, that is, the parent window should be a fullscreen window 
-        ([fullscreen](Titanium.UI.Window.fullscreen) set to `true`) and the video player should 
+        On iOS, use VIDEO_CONTROL_FULLSCREEN when creating a video player that occupies the entire
+        screen, that is, the parent window should be a fullscreen window
+        ([fullscreen](Titanium.UI.Window.fullscreen) set to `true`) and the video player should
         occupy the entirety of the parent window.
 
-        If the user clicks the **Done** button in the fullscreen control bar, the video player 
-        pauses playback and generates a [complete](Titanium.Media.VideoPlayer.complete) event. 
+        If the user clicks the **Done** button in the fullscreen control bar, the video player
+        pauses playback and generates a [complete](Titanium.Media.VideoPlayer.complete) event.
 
-        Note that if you create a video player that does *not* occupy the entire screen, and later 
-        switch to fullscreen mode, the video controls are switched automatically. That is, if 
-        `mediaControlStyle` is set to VIDEO_CONTROL_DEFAULT or VIDEO_CONTROL_EMBEDDED, it is 
-        automatically switched to the fullscreen controls when the player enters fullscreen mode. 
+        Note that if you create a video player that does *not* occupy the entire screen, and later
+        switch to fullscreen mode, the video controls are switched automatically. That is, if
+        `mediaControlStyle` is set to VIDEO_CONTROL_DEFAULT or VIDEO_CONTROL_EMBEDDED, it is
+        automatically switched to the fullscreen controls when the player enters fullscreen mode.
         This is true whether the user initiates the mode switch by clicking the fullscreen button
-        in the embedded controls, or if you programmatically switch to full screen mode (by setting 
-        the `fullscreen` property to true). 
+        in the embedded controls, or if you programmatically switch to full screen mode (by setting
+        the `fullscreen` property to true).
 
-        On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may 
-        only be shown or hidden.  
+        On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
+        only be shown or hidden.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -1177,16 +1223,16 @@ properties:
     summary: Constant for video controls hidden.
     description: |
         Used in conjunction with the
-        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_NONE
-    summary: Constant for no video controls. 
+    summary: Constant for no video controls.
     description: |
         Used in conjunction with the
-        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property 
+        [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
@@ -1293,8 +1339,8 @@ properties:
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
-        Video is scaled until the video fills the entire screen. Content at the edges 
-        of the larger of the two dimensions is clipped so that the other dimension fits the 
+        Video is scaled until the video fills the entire screen. Content at the edges
+        of the larger of the two dimensions is clipped so that the other dimension fits the
         screen exactly. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
@@ -1302,8 +1348,8 @@ properties:
   - name: VIDEO_SCALING_ASPECT_FIT
     summary: Scale video to fit the screen, letterboxing if necessary.
     description: |
-        Video is scaled until the larger dimension fits on the screen exactly. In the 
-        other dimension, the region between the edge of the movie and the edge of the screen 
+        Video is scaled until the larger dimension fits on the screen exactly. In the
+        other dimension, the region between the edge of the movie and the edge of the screen
         is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
@@ -1321,19 +1367,19 @@ properties:
     permission: read-only
 
   - name: VIDEO_SOURCE_TYPE_FILE
-    summary: Video source type is a file. 
+    summary: Video source type is a file.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_STREAMING
-    summary: Video source type is a remote stream. 
+    summary: Video source type is a remote stream.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_UNKNOWN
-    summary: Video source type is unknown. 
+    summary: Video source type is unknown.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number
     permission: read-only
@@ -1379,6 +1425,7 @@ properties:
   - name: audioLineType
     deprecated:
         since: "3.4.2"
+        removed: "3.6.0"
         notes: Use <Titanium.Media.currentRoute> instead.
     summary: Returns the line type constant for the current line type.
     type: Number
@@ -1394,7 +1441,7 @@ properties:
     description: |
         Set to one of the `AUDIO_SESSION_CATEGORY` constants defined in <Titanium.Media>.
 
-        Must be set while the audio session is inactive (no sounds are playing, no listeners 
+        Must be set while the audio session is inactive (no sounds are playing, no listeners
         for audio properties on the Media module, but the iPod may be active).
     type: Number
     constants: Titanium.Media.AUDIO_SESSION_CATEGORY*
@@ -1409,7 +1456,7 @@ properties:
     description: |
         Set to one of the `AUDIO_SESSION_MODE` constants defined in <Titanium.Media>.
 
-        Must be set while the audio session is inactive (no sounds are playing, no listeners 
+        Must be set while the audio session is inactive (no sounds are playing, no listeners
         for audio properties on the Media module, but the iPod may be active).
     type: Number
     constants: Titanium.Media.AUDIO_SESSION_MODE*
@@ -1440,7 +1487,7 @@ properties:
   - name: averageMicrophonePower
     summary: Current average microphone level in dB or -1 if microphone monitoring is disabled.
     description: |
-        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor), 
+        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor),
         [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
@@ -1494,7 +1541,7 @@ properties:
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
-        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor), 
+        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor),
         [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
@@ -1519,8 +1566,8 @@ properties:
   - name: success
     summary: Function to call when the music library selection is made.
     type: Callback<MusicLibraryResponseType>
-  - name:  error 
-    summary: Function to call upon receiving an error. 
+  - name:  error
+    summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
   - name: cancel
     summary: Function to call if the user presses the cancel button.
@@ -1529,7 +1576,7 @@ properties:
     summary: Specifies that the library should be hidden automatically after media selection is completed.
     type: Boolean
     default: true
-  - name: animated 
+  - name: animated
     summary: Boolean if the dialog should be animated when showing and hiding.
     type: Boolean
     default: true
@@ -1537,11 +1584,11 @@ properties:
     summary: An array of media type constants defining selectable media.
     description: |
         Specify one or more of the `MUSIC_MEDIA_TYPE` constants from <Titanium.Media>. To
-        specify multiple types, either pass an array of values, or pass a 
+        specify multiple types, either pass an array of values, or pass a
         single value that represents the bitwise-OR of the desired media types. For example,
         the following values are equivalent:
 
-            mediaTypes: [Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC, Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST] 
+            mediaTypes: [Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC, Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST]
 
         Or:
 
@@ -1549,7 +1596,7 @@ properties:
     type: [Number, Array<Number>]
     constants: Titanium.Media.MUSIC_MEDIA_TYPE_*
     default: All available types.
-  - name: allowMultipleSelections 
+  - name: allowMultipleSelections
     summary: Set to `true` to allow the user to select multiple items from the library.
     type: Boolean
     default: false
@@ -1571,7 +1618,7 @@ properties:
         Media types in this collection, represented as the bitwise OR of the media type
         values for all media types represented in `items`.
     type: Number
-   
+
 # Pseudo-type for queryMediaLibrary argument
 ---
 name: MediaQueryType
@@ -1607,10 +1654,55 @@ properties:
     summary: The composer to filter on. Value should be a String.
     type: [MediaQueryInfoType, String]
   - name: isCompilation
-    summary: Filter by whether or not the item is a compilation.
-        Value should be a Boolean.
+    summary: |
+        Filter by whether or not the item is a compilation. 
+        The value should be a Boolean.
     type: [MediaQueryInfoType, Boolean]
-    
+  - name: playCount
+    summary: The play count to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: persistentID
+    summary: The persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumPersistentID
+    summary: The album persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumArtistPersistentID
+    summary: The album artist persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: genrePersistentID
+    summary: The genre persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: composerPersistentID
+    summary: The composer persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: isCloudItem
+    summary: | 
+        Filter by whether or not the item is a cloud item. 
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: hasProtectedAsset
+    summary: | 
+        Filter by whether or not the item is a protected asset. 
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: podcastTitle
+    summary: The podcast title to filter on. Value should be a String.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, String]
+  - name: podcastPersistentID
+    summary: The podcast persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+
 # Pseudo-type for query arguments
 ---
 name: MediaQueryInfoType
@@ -1627,22 +1719,22 @@ properties:
     summary: Whether or not the predicate is for an exact match.  The
         default is `true`.
     type: Boolean
-    
+
 # Camera options pseudo-type
 ---
 name: CameraOptionsType
 summary: Simple object for specifying options to [showCamera](Titanium.Media.showCamera).
 properties:
-  - name: success 
+  - name: success
     summary: Function to call when the camera is closed after a successful capture/selection.
     type: Callback<CameraMediaItemType>
-  - name: error 
+  - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
-  - name: cancel 
+  - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
-  - name: autohide 
+  - name: autohide
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
     default: true
@@ -1653,7 +1745,7 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
-  - name: animated 
+  - name: animated
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
@@ -1667,43 +1759,43 @@ properties:
     type: Boolean
     platforms: [iphone, ipad]
     default: false
-  - name: mediaTypes 
-    summary: | 
+  - name: mediaTypes
+    summary: |
         Array of media type constants to allow. Note: If you want to select live photos, iOS only  allows
-        you to select existing live photos from the gallery, capturing new live photos is not supported by 
+        you to select existing live photos from the gallery, capturing new live photos is not supported by
         iOS public API, yet.
     constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_LIVEPHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
     platforms: [android, iphone, ipad]
     since:
-        android: 5.4.0    
+        android: 5.4.0
   - name: videoMaximumDuration
     summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
     platforms: [android, iphone, ipad]
     since:
-        android: 5.4.0    
-  - name: videoQuality 
-    summary: Constant to indicate the video quality during capture. 
+        android: 5.4.0
+  - name: videoQuality
+    summary: Constant to indicate the video quality during capture.
     type: Number
     platforms: [android, iphone, ipad]
     constants: Titanium.Media.QUALITY_*
     since:
-        android: 5.4.0  
+        android: 5.4.0
   - name: whichCamera
     summary: Opens the camera with the specified camera direction.
     type: Number
-    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]    
+    constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]
     platforms: [android]
     since:
-        android: 5.4.0      
-  - name: showControls 
+        android: 5.4.0
+  - name: showControls
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
-  - name: overlay 
+  - name: overlay
     summary: View to added as an overlay to the camera UI (on top).
     description: |
         On iOS, the overlay view is usually used in conjunction with `showControls: false`.
@@ -1715,8 +1807,8 @@ properties:
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
         Can be used to size and position the camera or photogallery view behind an overlay view.
-        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
-        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
+        iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple 
+        that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]
@@ -1727,17 +1819,17 @@ properties:
     type: Boolean
     default: false
     platforms: [ipad]
-  - name: popoverView 
+  - name: popoverView
     summary: View to position the camera or photo gallery popover on top of.
     description: |
-        This property is only used if the camera is displayed in a 
+        This property is only used if the camera is displayed in a
         popover (`inPopOver` is `true`).
     type: Titanium.UI.View
     platforms: [ipad]
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
     description: |
-        This property is only used if the camera is displayed in a 
+        This property is only used if the camera is displayed in a
         popover (`inPopOver` is `true`).
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
@@ -1759,26 +1851,26 @@ properties:
 ---
 name: PhotoGalleryOptionsType
 summary: |
-    Simple object for specifying options to 
+    Simple object for specifying options to
     [openPhotoGallery](Titanium.Media.openPhotoGallery).
 properties:
-  - name: success 
+  - name: success
     summary: Function to call when the photo gallery is closed after a successful selection.
     type: Callback<CameraMediaItemType>
-  - name: error 
+  - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
-  - name: cancel 
+  - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
-  - name: autohide 
-    summary: | 
+  - name: autohide
+    summary: |
         Specifies if the photo gallery should be hidden automatically after the media
         selection is completed.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
-  - name: animated 
+  - name: animated
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
@@ -1787,17 +1879,17 @@ properties:
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
     platforms: [iphone, ipad]
-  - name: mediaTypes 
+  - name: mediaTypes
     summary: |
-        Array of media type constants to allow. If you want to allow live photos with 
-        <Titanium.Media.MEDIA_TYPE_LIVEPHOTO> on iOS 9.1 and later, you also need to specify 
+        Array of media type constants to allow. If you want to allow live photos with
+        <Titanium.Media.MEDIA_TYPE_LIVEPHOTO> on iOS 9.1 and later, you also need to specify
         at least <Titanium.Media.MEDIA_TYPE_PHOTO> as a fallback. If you do not allow live
         photos, they still can be selected, but will be represented as a normal photo (static).
     type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     default: Only photo and video allowed.
     platforms: [iphone, ipad]
-  - name: popoverView 
+  - name: popoverView
     summary: View to position the photo gallery popover on top of.
     type: Titanium.UI.View
     platforms: [ipad]
@@ -1849,7 +1941,7 @@ properties:
     since: "3.1.0"
   - name: livePhoto
     summary: |
-        The live photo object, as a <Titanium.UI.iOS.LivePhoto> and 
+        The live photo object, as a <Titanium.UI.iOS.LivePhoto> and
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto
     since: "5.2.0"
@@ -1859,7 +1951,7 @@ properties:
 ---
 name: CropRectType
 summary: Simple object for describing the crop rectangle for an image.
-properties: 
+properties:
   - name: x
     summary: X coordinate of the crop rectangle's upper-left corner.
     type: Number
@@ -1875,7 +1967,7 @@ properties:
 ---
 name: PreviewRectType
 summary: |
-    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used. 
+    Simple object for describing the preview image rectangle. This will be undefined when custom camera overlay is not used.
 properties:
   - name: width
     summary: Width preview image, in pixels.
@@ -1957,7 +2049,7 @@ name: RouteDescription
 summary: An Object describing the current audio route.
 platforms: [iphone, ipad]
 since: "3.4.2"
-properties: 
+properties:
   - name: inputs
     summary: An Array of current input ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<Object>

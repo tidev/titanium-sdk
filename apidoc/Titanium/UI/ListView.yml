@@ -662,7 +662,6 @@ events:
            The expected y axis offset when the scrolling action decelerates to a stop. 
         type: Number
 
-
 properties:
   - name: allowsSelection
     summary: Determines whether this item can be selected.
@@ -681,8 +680,11 @@ properties:
     description: Set to false to disable scrolling.
     type: Boolean
     default: true
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since:
+        android: 6.1.0
+        iphone: 3.2.0
+        ipad: 3.2.0
+    platforms: [android, iphone, ipad]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
@@ -1104,7 +1106,6 @@ properties:
     availability: creation
     
 methods:
-
   - name: scrollToItem
     summary: Scrolls to a specific item.
     description: |
@@ -1502,7 +1503,7 @@ examples:
             tableHeader.add(border);
 
             var imageArrow = Ti.UI.createImageView({
-                image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
+                image:'arrow.png',
                 left:20, bottom:10,
                 width:23, height:60
             });
@@ -1655,7 +1656,7 @@ examples:
                 </Window>
             </Alloy>
 
-  - title: Alloy example of `<PullView>` element
+  - title: Alloy example of <PullView> element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 

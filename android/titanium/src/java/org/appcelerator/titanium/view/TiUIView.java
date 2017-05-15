@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
@@ -86,6 +88,7 @@ public abstract class TiUIView
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -157,7 +160,7 @@ public abstract class TiUIView
 	protected GestureDetector detector = null;
 
 	private AtomicBoolean bLayoutPending = new AtomicBoolean();
-
+	private AtomicBoolean bTransformPending = new AtomicBoolean();
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -352,7 +355,7 @@ public abstract class TiUIView
 	public void animate()
 	{
 		View outerView = getOuterView();
-		if (outerView == null) {
+		if (outerView == null || bTransformPending.get()) {
 			return;
 		}
 
@@ -517,9 +520,23 @@ public abstract class TiUIView
 	protected void startTransformAfterLayout(final View v)
 	{
 		final TiViewProxy p = this.proxy;
+		bTransformPending.set(true);
 		OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
 			public void onGlobalLayout()
 			{
+				animBuilder.setCallback(new KrollFunction() {
+					public Object call(KrollObject krollObject, HashMap args) {
+						return null;
+					}
+					public Object call(KrollObject krollObject, Object[] args) {
+						return null;
+					}
+					public void callAsync(KrollObject krollObject, HashMap args) {}
+					public void callAsync(KrollObject krollObject, Object[] args) {
+						bTransformPending.set(false);
+						proxy.handlePendingAnimation(true);
+					}
+				});
 				animBuilder.start(p, v);
 				try {
 					if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
@@ -919,9 +936,9 @@ public abstract class TiUIView
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
-		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
-		    }
+			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setScaleX(getOuterView(), TiConvert.toFloat(newValue));
@@ -945,7 +962,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
-		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -1081,8 +1098,8 @@ public abstract class TiUIView
 		}
 
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull
-		        && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
-		    ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
+				&& d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
 
@@ -1230,12 +1247,22 @@ public abstract class TiUIView
 				}
 				d = null;
 			}
+			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;
 			if (proxy != null) {
 				proxy.setModelListener(null);
 			}
 		}
+		if (children != null) {
+			for (TiUIView child : children) {
+				remove(child);
+			}
+			children.clear();
+		}
+		children = null;
+		proxy = null;
+		layoutParams = null;
 	}
 
 	private void setVisibility(int visibility)
@@ -1386,7 +1413,7 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER) {
+					if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1429,7 +1456,7 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER) {
+			if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -1566,7 +1593,7 @@ public abstract class TiUIView
 			@Override
 			public boolean onDoubleTap(MotionEvent e)
 			{
-				if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
+				if (proxy != null && (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK))) {
 					boolean handledTap = fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					boolean handledClick = fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
 					return handledTap || handledClick;
@@ -1578,7 +1605,7 @@ public abstract class TiUIView
 			public boolean onSingleTapConfirmed(MotionEvent e)
 			{
 				Log.d(TAG, "TAP, TAP, TAP on " + proxy, Log.DEBUG_MODE);
-				if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 					return fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click. A single tap is a quick tap only, whereas clicks can be held
@@ -1597,7 +1624,7 @@ public abstract class TiUIView
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 			{
 				Log.d(TAG, "SWIPE on " + proxy, Log.DEBUG_MODE);
-				if (proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
 					KrollDict data = dictFromEvent(e2);
 					if (Math.abs(velocityX) > Math.abs(velocityY)) {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
@@ -1614,7 +1641,7 @@ public abstract class TiUIView
 			{
 				Log.d(TAG, "LONGPRESS on " + proxy, Log.DEBUG_MODE);
 
-				if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 					fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 				}
 			}
@@ -1631,7 +1658,7 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
 
-				if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 					scaleDetector.onTouchEvent(event);
 					if (scaleDetector.isInProgress()) {
 						pointersDown = 0;
@@ -1660,7 +1687,7 @@ public abstract class TiUIView
 					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					// Don't fire twofingertap if there is no listener
-					if (proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_TWOFINGERTAP) && pointersDown == 1) {
 						float x = event.getX();
 						float y = event.getY();
 						if (x >= 0 && x < touchable.getWidth() && y >= 0 && y < touchable.getHeight()) {
@@ -1674,7 +1701,7 @@ public abstract class TiUIView
 
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
-					if (proxy.hierarchyHasListener(motionEvent)) {
+					if (proxy != null && proxy.hierarchyHasListener(motionEvent)) {
 						fireEvent(motionEvent, dictFromEvent(event));
 					}
 				}
@@ -1696,9 +1723,12 @@ public abstract class TiUIView
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			if (!enabled) {
-				touchable.setEnabled(false);
-			}
+			touchable.setEnabled(enabled);
+		}
+		//Checking and setting touch sound for view
+		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
+			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 		registerTouchEvents(touchable);
 
@@ -1714,7 +1744,6 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 
 	}
-
 
 	public void registerForKeyPress()
 	{
@@ -1775,7 +1804,7 @@ public abstract class TiUIView
 					switch (keyCode) {
 						case KeyEvent.KEYCODE_ENTER:
 						case KeyEvent.KEYCODE_DPAD_CENTER:
-							if (proxy.hasListeners(TiC.EVENT_CLICK)) {
+							if (proxy != null && proxy.hasListeners(TiC.EVENT_CLICK)) {
 								fireEvent(TiC.EVENT_CLICK, null);
 								return true;
 							}
@@ -1940,7 +1969,7 @@ public abstract class TiUIView
 		});
 	}
 
-	private void disableHWAcceleration()
+	protected void disableHWAcceleration()
 	{
 		if (borderView == null) {
 			return;

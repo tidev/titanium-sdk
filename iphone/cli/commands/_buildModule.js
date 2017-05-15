@@ -16,17 +16,17 @@ var appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
 	crypto = require('crypto'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('node-titanium-sdk/lib/builder'),
 	ioslib = require('ioslib'),
 	iosPackageJson = appc.pkginfo.package(module),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	ejs = require('ejs'),
 	fs = require('fs'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	spawn = require('child_process').spawn,
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
+	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
@@ -152,6 +152,9 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 		}
 	}, this);
 
+	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
+
 	this.licenseDefault = "TODO: place your license here and we'll include it in the module distribution";
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
 	if (!fs.existsSync(this.licenseFile)) {
@@ -256,9 +259,17 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				},
 				function (cb) {
 					var child = spawn(exe, args, opts),
-						out = '';
+						out = '',
+						relativePaths = [],
+						basepath = args[1];
 
-					child.stdin.write(jsFilesToEncrypt.join('\n'));
+					// titanium_prep is dumb and assumes all paths are relative to the assets dir we passed in as an argument
+					// So we *must* chop the paths down to relative paths
+					jsFilesToEncrypt.forEach(function (file) {
+						relativePaths.push(path.relative(basepath, file));
+					}, this);
+
+					child.stdin.write(relativePaths.join('\n'));
 					child.stdin.end();
 
 					child.stdout.on('data', function (data) {
@@ -344,14 +355,16 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		// 3. write encrypted data to template
 		function (cb) {
 			var data = ejs.render(fs.readFileSync(this.assetsTemplateFile).toString(), renderData),
-				moduleAssetsFile = path.join(this.projectDir, 'Classes', this.moduleIdAsIdentifier+'ModuleAssets.m');
+				moduleAssetsDir = path.join(this.projectDir, 'Classes'),
+				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier+'ModuleAssets.m');
 
 			this.logger.debug(__('Writing module assets file: %s', moduleAssetsFile.cyan));
+			fs.existsSync(moduleAssetsDir) || wrench.mkdirSyncRecursive(moduleAssetsDir);
 			fs.writeFileSync(moduleAssetsFile, data);
 			cb();
 		},
 
-		// 4. genereate exports
+		// 4. generate exports
 		function (cb) {
 			this.jsFilesToEncrypt.forEach(function(file) {
 				var r = jsanalyze.analyzeJsFile(file, { minify: true });
@@ -592,7 +605,25 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 4. Resources folder
+		// 4. hooks folder
+		var hookFiles = {};
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file) {
+				var relFile = path.relative(this.hooksDir, file);
+				hookFiles[relFile] = 1;
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+			}.bind(this));
+		}
+		if (fs.existsSync(this.sharedHooksDir)) {
+			this.dirWalker(this.sharedHooksDir, function (file) {
+				var relFile = path.relative(this.sharedHooksDir, file);
+				if (!hookFiles[relFile]) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
+				}
+			}.bind(this));
+		}
+
+		// 5. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function (file, name) {
 				if (name !== 'README.md') {
@@ -601,7 +632,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 5. assets folder, not including js files
+		// 6. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function (file) {
 				if (path.extname(file) != '.js') {
@@ -610,15 +641,23 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 6. the merge *.a file
-		// 7. LICENSE file
-		// 8. manifest
-		// 9. module.xcconfig
-		// 10. metadata.json
+		// 7. the merge *.a file
+		// 8. LICENSE file
+		// 9. manifest
 		dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
 		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders,'LICENSE') });
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders,'manifest') });
-		dest.append(fs.createReadStream(this.moduleXcconfigFile), { name: path.join(moduleFolders,'module.xcconfig') });
+
+		// 10. module.xcconfig
+		if (fs.existsSync(this.moduleXcconfigFile)) {
+			var contents = fs.readFileSync(this.moduleXcconfigFile).toString();
+
+			contents = '// This flag is generated by the module build, do not change it.\nTI_MODULE_VERSION=' + this.moduleVersion + '\n\n' + contents;
+
+			dest.append(contents, { name: path.join(moduleFolders,'module.xcconfig') });
+		}
+
+		// 11. metadata.json
 		dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolders,'metadata.json') });
 
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));

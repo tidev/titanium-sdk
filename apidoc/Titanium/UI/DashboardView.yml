@@ -177,9 +177,7 @@ examples:
         with a longpress of a dashboard item (default behavior). Toggle edit mode with a click to 
         the toolbar button.
         
-        Copy the files in the KitchenSink 
-        [dashboard](https://github.com/appcelerator/titanium_mobile/tree/master/demos/KitchenSink/Resources/images/dashboard) 
-        directory to the local project `/images/dashboard` directory.
+        Copy your image files to the local project `/images/dashboard` directory.
         
                 
             var win = Ti.UI.createWindow({

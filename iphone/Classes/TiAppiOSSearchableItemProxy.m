@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_APPIOSSEARCHABLEITEM
+#if defined(USE_TI_APPIOSSEARCHQUERY) || defined(USE_TI_APPIOSSEARCHABLEITEM)
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiUtils.h"
@@ -22,6 +22,12 @@
         
     }
     return self;
+}
+
+-(void)dealloc
+{
+	RELEASE_TO_NIL(_item);
+	[super dealloc];
 }
 
 -(NSString*)apiName

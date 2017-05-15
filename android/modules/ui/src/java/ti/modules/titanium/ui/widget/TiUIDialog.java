@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -25,6 +26,7 @@ import android.support.v7.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
+import android.view.ViewParent;
 import android.widget.ListView;
 
 public class TiUIDialog extends TiUIView
@@ -164,7 +166,18 @@ public class TiUIDialog extends TiUIView
 			//reset the child view context to parent context
 			proxy.setActivity(dialogWrapper.getActivity());
 			view = proxy.getOrCreateView();
-			getBuilder().setView(view.getNativeView());
+			
+			// handle view border
+			ViewParent viewParent = view.getNativeView().getParent();
+			if (viewParent != null) {
+				if (viewParent instanceof TiBorderWrapperView) {
+					getBuilder().setView((TiBorderWrapperView)viewParent);
+				} else {
+					Log.w(TAG, "could not set androidView, unsupported object: " + proxy.getClass().getSimpleName());
+				}
+			} else {
+				getBuilder().setView(view.getNativeView());
+			}
 		}
 	}
 

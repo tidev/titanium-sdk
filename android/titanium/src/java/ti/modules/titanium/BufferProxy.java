@@ -196,6 +196,9 @@ public class BufferProxy extends KrollProxy
 	@Kroll.method
 	public int append(Object[] args)
 	{
+		if (args.length < 1) {
+			throw new IllegalArgumentException("At least 1 argument required for append: src");
+		}
 		int destLength = buffer.length;
 		BufferProxy src = (BufferProxy) args[0];
 		byte[] sourceBuffer = src.getBuffer();

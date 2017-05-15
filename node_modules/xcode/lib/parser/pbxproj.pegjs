@@ -1,16 +1,7 @@
 {
-    function merge(hash, secondHash) {
-        secondHash = secondHash[0]
-        for(var i in secondHash) {
-       		hash[i] = merge_obj(hash[i], secondHash[i]);
-        }
-
-        return hash;
-    }
-    
     function merge_obj(obj, secondObj) {
-    	if (!obj)
-    		return secondObj;
+        if (!obj)
+            return secondObj;
 
         for(var i in secondObj)
             obj[i] = merge_obj(obj[i], secondObj[i]);
@@ -47,15 +38,14 @@ EmptyBody
     { return Object.create(null) }
 
 AssignmentList
-  = _ head:Assignment _ tail:AssignmentList* _
-    { 
-      if (tail) return merge(head,tail)
-      else return head
-    }
-    / _ head:DelimitedSection _ tail:AssignmentList*
+  = _ list:((a:Assignment / d:DelimitedSection) _)+
     {
-      if (tail) return merge(head,tail)
-      else return head
+        var returnObject = list[0][0];
+        for(var i = 1; i < list.length; i++){
+            var another = list[i][0];
+            returnObject = merge_obj(returnObject, another);
+        }
+        return returnObject;
     }
 
 /*
@@ -68,7 +58,7 @@ Assignment
 
 SimpleAssignment
   = id:Identifier _ "=" _ val:Value ";"
-    { 
+    {
       var result = Object.create(null);
       result[id] = val
       return result
@@ -195,7 +185,7 @@ NumberValue
 
 DecimalValue
   = decimal:(IntegerValue "." IntegerValue)
-    { 
+    {
         // store decimals as strings
         // as JS doesn't differentiate bw strings and numbers
         return decimal.join('')

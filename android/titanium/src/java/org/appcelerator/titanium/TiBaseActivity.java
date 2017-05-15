@@ -130,7 +130,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected Activity previousActivity;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected int orientationDegrees;
 	protected TiMenuSupport menuHelper;
@@ -141,6 +140,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static int totalWindowStack = 0;
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -209,6 +209,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
+		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -220,6 +221,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
+		totalWindowStack--;
 
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
@@ -606,13 +608,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
-			super.onCreate(savedInstanceState);
-			tiApp.scheduleRestart(250);
-			finish();
+			activityOnCreate(savedInstanceState);
+			TiApplication.terminateActivityStack();
+			if (Build.VERSION.SDK_INT < 23) {
+				finish();
+				tiApp.scheduleRestart(300);
+				return;
+			}
+			KrollRuntime.incrementActivityRefCount();
+			finishAndRemoveTask();
 			return;
 		}
 
-		previousActivity = tiApp.getRootOrCurrentActivity();
 		TiApplication.addToActivityStack(this);
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
@@ -852,20 +859,39 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 		}
-		
 		// Override default Android behavior for "back" press
 		// if the top window has a callback to handle the event.
 		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-			
-		} else {
-			// there are no parent activities to return to
-			// override back press to background the activity
-			if (previousActivity == null || previousActivity == getTiApp().getRootActivity()) {
-				this.moveTaskToBack(true);
-				return;
- 			}
+		}
+		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
+			// check Ti.UI.Window.exitOnClose and either
+			// exit the application or send to background
+			if (topWindow != null) {
+				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+
+				// root window should exitOnClose by default
+				if (totalWindowStack <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+					exitOnClose = true;
+				}
+				if (exitOnClose) {
+					Log.d(TAG, "onBackPressed: exit");
+					if (Build.VERSION.SDK_INT >= 16) {
+						finishAffinity();
+					} else {
+						TiApplication.terminateActivityStack();
+					}
+					return;
+
+				// root window has exitOnClose set as false, send to background
+				} else if (totalWindowStack <= 1) {
+					Log.d(TAG, "onBackPressed: suspend to background");
+					this.moveTaskToBack(true);
+					return;
+				}
+				removeWindowFromStack(topWindow);
+			}
 
 			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
@@ -1525,6 +1551,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (orientationListener != null) {
 			orientationListener.disable();
+			orientationListener = null;
 		}
 
 		super.onDestroy();
@@ -1550,11 +1577,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//LW windows
 		if (window == null && view != null) {
 			view.releaseViews();
+			view.release();
 			view = null;
 		}
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
+			window.releaseViews();
+			window.removeAllChildren();
+			window.release();
 			window = null;
 		}
 

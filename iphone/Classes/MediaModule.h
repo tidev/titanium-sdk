@@ -10,9 +10,7 @@
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
-#ifdef USE_TI_MEDIAMUSICPLAYER
 #import "TiMediaMusicPlayer.h"
-#endif
 #import "TiViewProxy.h"
 
 @interface MediaModule : TiModule
@@ -44,10 +42,8 @@
 #endif
 	
 	// Music players
-#ifdef USE_TI_MEDIAMUSICPLAYER
 	TiMediaMusicPlayer* systemMusicPlayer;
 	TiMediaMusicPlayer* appMusicPlayer;
-#endif
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -80,10 +76,9 @@
 @property(nonatomic,readonly) NSNumber* cameraAuthorizationStatus;
 @property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
-#ifdef USE_TI_MEDIAMUSICPLAYER
+
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
-#endif
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
@@ -237,19 +232,6 @@
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_BLUETOOTHHFP;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_USBAUDIO;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_CARAUDIO;
-
-//Deprecated Properties
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADSET_INOUT;
-@property(nonatomic,readonly) NSNumber* AUDIO_RECEIVER_AND_MIC;
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES_AND_MIC;
-@property(nonatomic,readonly) NSNumber* AUDIO_LINEOUT;
-@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES;
-@property(nonatomic,readonly) NSNumber* AUDIO_SPEAKER;
-@property(nonatomic,readonly) NSNumber* AUDIO_MICROPHONE;
-@property(nonatomic,readonly) NSNumber* AUDIO_MUTED;
-@property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
-@property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
-@property(nonatomic,readonly) NSNumber* audioLineType;
 
 @end
 

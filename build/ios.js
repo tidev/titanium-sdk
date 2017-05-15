@@ -49,7 +49,7 @@ function downloadURL(url, callback) {
 		if (req.statusCode >= 400) {
 			// something went wrong, abort
 			console.log();
-			console.error('Request failed with HTTP status code %s %s', req.statusCode, http.STATUS_CODES[req.statusCode] || '');
+			console.error('Request failed with HTTP status code %s %s', req.statusCode, req.statusMessage);
 			return callback(err);
 		} else if (req.headers['content-length']) {
 			// we know how big the file is, display the progress bar
@@ -170,14 +170,6 @@ IOS.prototype.package = function (packager, next) {
 				// Copy support/osx/* to zipSDKDir
 				function (cb) {
 					fs.copy(path.join(SUPPORT_DIR, 'osx'), packager.zipSDKDir, cb);
-				}.bind(this),
-				// Copy iphone/Resources/modules/<name>/* to this.zipSDKDir/iphone/modules/<name>/images
-				function (cb) {
-					var moduleDirs = fs.readdirSync(path.join(IOS_ROOT, 'Resources', 'modules'));
-					async.each(moduleDirs, function (dir, callback) {
-						var moduleLibDir = path.join(IOS_ROOT, 'Resources', 'modules', dir);
-						fs.copy(moduleLibDir, path.join(DEST_IOS, 'modules', dir, 'images'), callback);
-					}, cb);
 				}.bind(this)
 			], callback);
 		}.bind(this)
