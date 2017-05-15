@@ -37,65 +37,61 @@
 
 #pragma mark Public API
 
+MAKE_SYSTEM_PROP(ENCODE_TYPE_LF, NSDataBase64EncodingEndLineWithLineFeed);
+MAKE_SYSTEM_PROP(ENCODE_TYPE_CR, NSDataBase64EncodingEndLineWithCarriageReturn);
+MAKE_SYSTEM_PROP(ENCODE_TYPE_64, NSDataBase64Encoding64CharacterLineLength);
+MAKE_SYSTEM_PROP(ENCODE_TYPE_76, NSDataBase64Encoding76CharacterLineLength);
+
 -(TiBlob*)base64encode:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
-	const char *data;
-	size_t len;
+    ENSURE_UI_THREAD(base64encode, args);
+    
+    NSData *base64Data = nil;
+    NSData *data = nil;
+    
+        
+    if([[args objectAtIndex:0] isKindOfClass:[NSString class]]) {
+        data = [[args objectAtIndex:0]
+                    dataUsingEncoding:NSUTF8StringEncoding];
+        
+    } else if ([[args objectAtIndex:0] isKindOfClass:[TiBlob class]]) {
+        data = [(TiBlob*)[args objectAtIndex:0] data];
+    } else {
+        [self throwException:@"Invalid datatype passed in"
+                   subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[[args objectAtIndex:0] class]]
+                    location:CODELOCATION];
+    }
 
-	if ([args isKindOfClass:[TiBlob class]]) {
-		NSData * blobData = [(TiBlob*)args data];
-		data = (char *)[blobData bytes];
-		len = [blobData length];
-	}
-	else
-	{
-		NSString *str = [self convertToString:args];
-		data = (char *)[str UTF8String];
-		len = [str length];
-	}
-
-	char *base64Result;
-    size_t theResultLength;
-	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-	if (result)
-	{
-		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-		free(base64Result);
-		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-	}    
-	return nil;
+    if ([args count] > 1) {
+        ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+        base64Data = [data base64EncodedDataWithOptions:[TiUtils intValue:[args objectAtIndex:1] def:NSDataBase64Encoding76CharacterLineLength]];
+        return  [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease];
+    }
+    
+    base64Data = [data base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] ;
 }
 
 -(TiBlob*)base64decode:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
-	
-	NSString *str = [self convertToString:args];
-	
-	const char *data = [str UTF8String];
-	size_t len = [str length];
-	
-	size_t outsize = TI_EstimateBas64DecodedDataSize(len);
-	char *base64Result = NULL;
-	if(len>0){
-		base64Result = malloc(sizeof(char)*outsize);
-	}
-
-	if (base64Result==NULL) {
-		return nil;
-	}
-
-	size_t theResultLength = outsize;	
-	bool result = TI_Base64DecodeData(data, len, base64Result, &theResultLength);
-	if (result)
-	{
-		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-		free(base64Result);
-		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-	}
-	free(base64Result);
-	return nil;
+    ENSURE_UI_THREAD(base64encode, args);
+    ENSURE_SINGLE_ARG(args,NSObject);
+    NSData *base64Data = nil;
+    NSData *data = nil;
+    
+    if ([args isKindOfClass:[NSString class]]) {
+        NSString *argument = [TiUtils stringValue:args];
+        data = [argument dataUsingEncoding:NSUTF8StringEncoding];
+    } else if ([args isKindOfClass:[TiBlob class]]) {
+        data = [(TiBlob*)args data];
+    } else {
+        [self throwException:@"Invalid datatype passed in"
+                   subreason:[NSString stringWithFormat:@"Expected a string or a TiBlob, was: %@",[args class]]
+                    location:CODELOCATION];
+    }
+    base64Data = [[NSData alloc]initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return base64Data ? [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:base64Data mimetype:@"application/octet-stream"] autorelease] : nil;
+    
 }
 
 -(NSString*)md5HexDigest:(id)args
