@@ -68,15 +68,6 @@ methods:
         type: Dictionary<Titanium.Calendar.RecurrenceRule>
     platforms: [iphone, ipad]
 
-  - name: setRrule
-    summary: Set the RRULE (RFC 2445) string for this event.
-    parameters:
-        - name: rrule
-          summary: RFC 2445 String
-          type: String
-    platforms: [android]
-    since: "6.2.0"
-
   - name: createRecurrenceRuleFromString
     summary: Creates a recurrence rule from a RRULE string representation (RFC 2445).
     returns:
@@ -102,11 +93,11 @@ methods:
       - name: span
         summary: |
             The span to use. Indicates whether the save affects future instances of the 
-            event in the case of a recurring event.
+            event in the case of a recurring event. Only available on iOS.
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
 
   - name: remove
     summary: Removes an event from the event store.
@@ -163,16 +154,17 @@ properties:
 
   - name: allDay
     summary: Indicates whether this event is all day.
-    description: |
-        This property is read-only on Android.
     type: Boolean
     default: false
     platforms: [android, iphone, ipad]
 
+  - name: calendarID
+    summary: Get the calendar ID of this event.
+    type: String
+    platforms: [android]
+
   - name: begin
     summary: Start date/time of this event.
-    description: |
-        This property is read-only on Android.
     type: Date
     platforms: [android, iphone, ipad]
 
@@ -184,7 +176,6 @@ properties:
   - name: description
     summary: Description of this event.
     type: String
-    permission: read-only
     platforms: [android]
 
   - name: duration
@@ -195,8 +186,6 @@ properties:
 
   - name: end
     summary: End date/time of this event.
-    description: |
-        This property is read-only on Android.
     type: Date
     platforms: [android, iphone, ipad]
 
@@ -220,8 +209,6 @@ properties:
 
   - name: location
     summary: Location of this event.
-    description: |
-        This property is read-only on Android.
     type: String
     platforms: [android, iphone, ipad]
     
@@ -259,8 +246,6 @@ properties:
     
   - name: title
     summary: Title of this event.
-    description: |
-        This property is read-only on Android.
     type: String
     platforms: [android, iphone, ipad]
 
