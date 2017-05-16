@@ -581,7 +581,23 @@ Module.prototype._runScript = function (source, filename) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 
-		return runInThisContext(source, filename, true);
+		// check if we have an inspector binding...
+		var inspector = kroll.binding('inspector');
+		if (inspector) {
+			// If debugger is enabled, load app.js and pause right before we execute it
+			var inspectorWrapper = inspector.callAndPauseOnStart;
+			if (inspectorWrapper) {
+				// FIXME Why can't we do normal Module.wrap(source) here?
+				// I get "Uncaught TypeError: Cannot read property 'createTabGroup' of undefined" for "Ti.UI.createTabGroup();"
+				// Not sure why app.js is special case and can't be run under normal self-invoking wrapping function that gets passed in global/kroll/Ti/etc
+				// Let's wrap it in simpler version that receives no args
+				source = '(function () {' + source + '\n});';
+				var f = Script.runInThisContext(source, filename, true);
+				return inspectorWrapper(f);
+			}
+		}
+		// run app.js "normally" (i.e. not under debugger/inspector)
+		return Script.runInThisContext(source, filename, true);
 	}
 
 	// Create context-bound modules.
