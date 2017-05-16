@@ -25,8 +25,6 @@ LOCAL_SRC_FILES := $(SRC_FILES)
 
 LOCAL_JS_FILES := $(JS_FILES)
 
-# When using V8 i18n support/ICU
-#LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libicudata libicuuc libicui18n libv8_base libv8_nosnapshot
 # When setting v8_enable_i18n_support=0
 LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libv8_base libv8_nosnapshot
 
