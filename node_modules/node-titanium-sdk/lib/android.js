@@ -558,13 +558,15 @@ exports.detect = function detect(config, opts, finished) {
 		var index = 1;
 		platforms.sort(sortFn).concat(addons.sort(sortFn)).forEach(function (platform) {
 			var abis = [];
-			Object.keys(platform.abis).forEach(function (type) {
-				platform.abis[type].forEach(function (abi) {
-					if (abis.indexOf(abi) === -1) {
-						abis.push(abi);
-					}
+			if (platform.abis) {
+				Object.keys(platform.abis).forEach(function (type) {
+					platform.abis[type].forEach(function (abi) {
+						if (abis.indexOf(abi) === -1) {
+							abis.push(abi);
+						}
+					});
 				});
-			});
+			}
 
 			var info = {
 				id:          platform.id,
@@ -668,9 +670,11 @@ exports.detect = function detect(config, opts, finished) {
 				var info = config['image.sysdir.1'] && systemImagesByPath[config['image.sysdir.1'].replace(/\/$/, '')];
 				if (info) {
 					var platform = platformsById[info.id];
-					target = platform.name + ' (API level ' + platform.apiLevel + ')';
-					sdk = platform.version;
-					apiLevel = platform.apiLevel;
+					if (platform) {
+						target = platform.name + ' (API level ' + platform.apiLevel + ')';
+						sdk = platform.version;
+						apiLevel = platform.apiLevel;
+					}
 				}
 
 				results.avds.push({
