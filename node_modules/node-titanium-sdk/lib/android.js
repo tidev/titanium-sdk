@@ -892,7 +892,7 @@ function findNDK(dir, config, callback) {
 		});
 
 		if (releasetxt && fs.existsSync(releasetxt)) {
-			version = fs.readFileSync(releasetxt).toString().split('\n').shift().trim();
+			version = fs.readFileSync(releasetxt).toString().split(/\r?\n/).shift().trim();
 		}
 	}
 
@@ -934,7 +934,7 @@ function readProps(file) {
 	}
 
 	var props = {};
-	fs.readFileSync(file).toString().split('\n').forEach(function (line) {
+	fs.readFileSync(file).toString().split(/\r?\n/).forEach(function (line) {
 		var m = line.match(pkgPropRegExp);
 		if (m) {
 			props[m[1].trim()] = m[2].trim();
