@@ -163,12 +163,11 @@ public class TiUITimePicker extends TiUIView
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 		calendar.set(Calendar.MINUTE, minute);
+		proxy.setProperty("value", calendar.getTime());
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", calendar.getTime());
-			fireEvent("change", data);		
+			fireEvent("change", data);
 		}
-		// Make sure .value is readable by user
-		proxy.setProperty("value", calendar.getTime());
 	}
 }
