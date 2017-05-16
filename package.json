@@ -39,7 +39,7 @@
     "markdown": "0.5.0",
     "moment": "2.18.1",
     "node-appc": "0.2.43",
-    "node-titanium-sdk": "0.2.2",
+    "node-titanium-sdk": "0.2.3",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
