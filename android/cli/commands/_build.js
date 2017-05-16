@@ -1343,7 +1343,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}
 		}
 
-		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id === deviceId; });
 		devices.forEach(function (device) {
 			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
 				if (this.target == 'emulator') {
