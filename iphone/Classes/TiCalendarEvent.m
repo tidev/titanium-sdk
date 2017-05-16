@@ -572,14 +572,14 @@
                                                     setPositions:setPositions
                                                              end:recurrenceEnd];
     if (rule == nil) {
-        [self throwException:@"Error while trying to create recurrance rule from RRULE string."
+        [self throwException:@"Error while trying to create recurrence rule from RRULE string."
             subreason: nil
             location: CODELOCATION];
         return nil;
     }
     
-    TiCalendarRecurrenceRule* recurranceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule] autorelease];
-    return recurranceRule;
+    TiCalendarRecurrenceRule* recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule] autorelease];
+    return recurrenceRule;
 }
 
 -(void) addRecurrenceRule:(id)arg
