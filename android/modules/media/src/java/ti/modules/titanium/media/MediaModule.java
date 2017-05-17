@@ -1291,6 +1291,13 @@ public class MediaModule extends KrollModule
 
 	}
 
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getCanRecord()
+	{
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature( "android.hardware.microphone");
+	}
+
 	@Override
 	public String getApiName()
 	{
