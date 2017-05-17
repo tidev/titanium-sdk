@@ -22,7 +22,7 @@ var ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('node-titanium-sdk/lib/builder'),
+	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
@@ -33,6 +33,8 @@ var ADB = require('node-titanium-sdk/lib/adb'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
+	SymbolLoader = require('appc-aar-tools').SymbolLoader,
+	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
@@ -70,8 +72,6 @@ function AndroidBuilder() {
 	this.targets = ['emulator', 'device', 'dist-playstore'];
 
 	this.validABIs = ['armeabi-v7a', 'x86'];
-
-	this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
@@ -1343,7 +1343,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}
 		}
 
-		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id === deviceId; });
 		devices.forEach(function (device) {
 			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
 				if (this.target == 'emulator') {
@@ -1691,6 +1691,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
+		'processResources',
 
 		// provide a hook event before javac
 		function (next) {
@@ -1819,6 +1820,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
@@ -2441,13 +2443,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (_t.xmlMergeRegExp.test(filename)) {
-							_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-								_t.writeXmlFile(from, to);
-								cb();
-							})(from, to, next);
-							break;
-						}
+						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+							_t.writeXmlFile(from, to);
+							cb();
+						})(from, to, next);
+						break;
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
@@ -3050,7 +3050,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				delete _t.lastBuildFiles[to];
 				if (fs.statSync(from).isDirectory()) {
 					copy(from, to);
-				} else if (_t.xmlMergeRegExp.test(filename)) {
+				} else if (path.extname(filename) === '.xml') {
 					_t.writeXmlFile(from, to);
 				} else {
 					afs.copyFileSync(from, to, { logger: _t.logger.debug });
@@ -3066,7 +3066,6 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
 					this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
-					return done();
 				}
 
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
@@ -3096,6 +3095,17 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				copy(src, this.buildBinAssetsResourcesDir);
 				done();
 			}.bind(this));
+		}
+	}, this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
+		var buildResPath = path.join(this.buildDir, 'res');
+		if (fs.existsSync(libraryResPath)) {
+			tasks.push(function (done) {
+				copy(libraryResPath, buildResPath);
+				done();
+			});
 		}
 	}, this);
 
@@ -3181,94 +3191,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	}
 
 	next();
-};
-
-AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
-	var filename = path.basename(dest),
-		destExists = fs.existsSync(dest),
-		destDir = path.dirname(dest),
-		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-		destDoc,
-		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-		root = dom.documentElement,
-		nodes = {},
-		_t = this,
-		byName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				if (nodes[n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[n] = node;
-			}
-		},
-		byTagAndName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				nodes[node.tagName] || (nodes[node.tagName] = {});
-				if (nodes[node.tagName][n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[node.tagName][n] = node;
-			}
-		};
-
-	if (destExists) {
-		// we're merging
-		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement;
-		xml.forEachAttr(destDoc, function (attr) {
-			root.setAttribute(attr.name, attr.value);
-		});
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	} else {
-		// copy the file, but make sure there are no dupes
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	}
-
-	xml.forEachAttr(srcDoc, function (attr) {
-		root.setAttribute(attr.name, attr.value);
-	});
-
-	switch (filename) {
-		case 'arrays.xml':
-		case 'attrs.xml':
-		case 'bools.xml':
-		case 'colors.xml':
-		case 'dimens.xml':
-		case 'ids.xml':
-		case 'integers.xml':
-		case 'strings.xml':
-			destDoc && xml.forEachElement(destDoc, byName);
-			xml.forEachElement(srcDoc, byName);
-			Object.keys(nodes).forEach(function (name) {
-				root.appendChild(dom.createTextNode('\n\t'));
-				if (filename == 'strings.xml') {
-					nodes[name].setAttribute('formatted', 'false');
-				}
-				root.appendChild(nodes[name]);
-			});
-			break;
-
-		case 'styles.xml':
-			destDoc && xml.forEachElement(destDoc, byTagAndName);
-			xml.forEachElement(srcDoc, byTagAndName);
-			Object.keys(nodes).forEach(function (tag) {
-				Object.keys(nodes[tag]).forEach(function (name) {
-					root.appendChild(dom.createTextNode('\n\t'));
-					root.appendChild(nodes[tag][name]);
-				});
-			});
-			break;
-	}
-
-	root.appendChild(dom.createTextNode('\n'));
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-	destExists && fs.unlinkSync(dest);
-	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
@@ -3728,9 +3650,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	if (!fs.existsSync(bundlesPath)) {
+		wrench.mkdirSyncRecursive(bundlesPath);
+	}
 
 	var aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
-			this.logger.info(__('Packaging application: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			this.logger.info(__('Running AAPT: %s', (exe + ' "' + args.join('" "') + '"').cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to package application:'));
@@ -3759,17 +3685,18 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-F', this.ap_File
+			'-F', this.ap_File,
+			'--output-text-symbols', bundlesPath
 		];
 
-	function runAapt() {
+	var runAapt = function runAapt() {
 		aaptHook(
 			this.androidInfo.sdk.executables.aapt,
 			args,
 			{},
 			next
 		);
-	}
+	}.bind(this);
 
 	if ( (!Object.keys(this.resPackages).length) && (!this.moduleResPackages.length) ) {
 		return runAapt();
@@ -3790,23 +3717,49 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 	args.push('--extra-packages', namespaces);
 
-	appc.async.series(this, Object.keys(this.resPackages).map(function (resFile) {
-		return function (cb) {
-			var namespace = this.resPackages[resFile],
-				tmp = temp.path();
+	runAapt();
+};
 
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
-				}
+/**
+ * Process resources from .aar files under the project's platform/android folder
+ * and generates the corrosponding R classes.
+ *
+ * Before support for .aar files we used --extra-packages and -S options for
+ * AAPT to generated the R class for a library package. This has the drawback
+ * that every R class contains all resource identifiers resulting in duplicate
+ * code. This method regenerates the R class from the R.txt that is contained in
+ * every .aar file which has resources (adopted from Android Gradle plugin).
+ *
+ * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
+ *
+ * @param {Function} next Function to call once the processing is complete
+ */
+AndroidBuilder.prototype.processResources = function processResources(next) {
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
+	var fullSymbolValues = null;
+	this.androidLibraries.forEach(function (libraryInfo) {
+		var librarySymbolFile = path.join(libraryInfo.explodedPath, 'R.txt');
+		if (!fs.existsSync(librarySymbolFile)) {
+			return;
+		}
 
-				args.push('-S', tmp+'/res');
+		if (fullSymbolValues === null) {
+			fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
+			fullSymbolValues.load();
+		}
 
-				cb();
-			}.bind(this));
-		};
-	}), runAapt);
+		var librarySymbols = new SymbolLoader(librarySymbolFile);
+		librarySymbols.load();
+
+		// TODO: Support multiple symbol files for the same package name like gradle?
+		this.logger.trace('Generating R.class for library: ' + libraryInfo.packageName);
+		var symbolWriter = new SymbolWriter(this.buildGenDir, libraryInfo.packageName, fullSymbolValues);
+		symbolWriter.addSymbolsToWrite(librarySymbols);
+		symbolWriter.write();
+	}.bind(this));
+
+	next();
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
@@ -3848,6 +3801,19 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 				}
 			}, this);
 		}
+	}, this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		libraryInfo.jars.forEach(function (libraryJarPathAndFilename) {
+			var jarHash = this.hash(fs.readFileSync(libraryJarPathAndFilename).toString());
+			if (!jarNames[jarHash]) {
+				moduleJars[libraryJarPathAndFilename] = 1;
+				classpath[libraryJarPathAndFilename] = 1;
+				jarNames[jarHash] = 1;
+			} else {
+				this.logger.debug(__('Skipping duplicate jar file: %s', libraryJarPathAndFilename.cyan));
+			}
+		}, this);
 	}, this);
 
 	if (!this.forceRebuild) {
@@ -4227,6 +4193,33 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', ')));
 					this.logger.warn(__('Your application will most likely encounter issues'));
 				}
+			}
+		}, this);
+
+		this.androidLibraries.forEach(function(libraryInfo) {
+			if (libraryInfo.nativeLibraries.length === 0) {
+				return;
+			}
+
+			var libraryJniPath = path.join(libraryInfo.explodedPath, 'jni')
+			try {
+				addNativeLibs(libraryJniPath);
+			} catch (e) {
+				var abis = [];
+				fs.readdirSync(libraryJniPath).forEach(function (abi) {
+					var dir = path.join(libraryJniPath, abi);
+					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+						abis.push(abi);
+					}
+				});
+				if (libraryInfo.task.originType === 'Module') {
+					this.logger.error(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName, libraryInfo.task.moduleInfo.id, abi));
+				} else if (libraryInfo.task.originType === 'Project') {
+					this.logger.error(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName, abi));
+				}
+				this.logger.error(__('Supported ABIs by the Android Library: %s', abis.join(', ')));
+				this.logger.error(__('Valid ABIs for this project: %s', this.abis(', ')));
+				process.exit(1);
 			}
 		}, this);
 
