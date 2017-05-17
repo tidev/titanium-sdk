@@ -2816,7 +2816,7 @@ AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindi
 };
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
-	var depMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'dependency.json'))),
+	var depMap = this.dependencyMap,
 		modulesMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'modules.json'))),
 		modulesPath = path.join(this.platformPath, 'modules'),
 		moduleBindings = {},
