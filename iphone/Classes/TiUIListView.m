@@ -39,9 +39,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
 
-    TiUISearchBarProxy *searchViewProxy;
-    UITableViewController *tableController;
-    UISearchDisplayController *searchController;
+    TiUISearchBarProxy *searchViewProxy;    
+    UISearchController *searchController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -120,7 +119,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(_headerWrapper)
     RELEASE_TO_NIL(_footerViewProxy);
     RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(tableController);
     RELEASE_TO_NIL(searchController);
     RELEASE_TO_NIL(sectionTitles);
     RELEASE_TO_NIL(sectionIndices);
@@ -528,9 +526,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self buildResultsForSearchText];
     }
     [_tableView reloadData];
-    if ([searchController isActive]) {
-        [[searchController searchResultsTableView] reloadData];
-    } 
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -832,11 +827,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-        if ([searchController isActive]) {
-            [[searchController searchResultsTableView] reloadData];
-        } else {
             [_tableView reloadData];
-        }
     }
 }
 
@@ -858,7 +849,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [self tableView];
     [searchViewProxy setDelegate:nil];
     RELEASE_TO_NIL(searchViewProxy);
-    RELEASE_TO_NIL(tableController);
     RELEASE_TO_NIL(searchController);
     [_searchWrapper removeAllChildren:nil];
 
@@ -871,6 +861,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[searchViewProxy searchBar] setPlaceholder:@"Search"];
         }
         self.searchString = [[searchViewProxy searchBar] text];
+        [self initSearchController:self];
         if (self.searchString) {
             [self buildResultsForSearchText];
             [_tableView reloadData];
@@ -879,7 +870,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     } else {
         keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
     }
-    
 }
 
 -(void)cleanup:(id)unused
@@ -1993,7 +1983,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
 #endif
         [_searchWrapper refreshView:nil];
-        [self initSearchController:self];
     }
 }
 
@@ -2004,7 +1993,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
-    [[searchController searchResultsTableView] reloadData];
+    [_tableView reloadData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2013,7 +2002,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         self.searchString = @"";
         [self buildResultsForSearchText];
         if ([searchController isActive]) {
-            [searchController setActive:NO animated:YES];
+            [searchController setActive:false];
         }
     }
 }
@@ -2041,61 +2030,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [self buildResultsForSearchText];
 }
 
-#pragma mark - UISearchDisplayDelegate Methods
+#pragma mark - UISearchControllerDelegate
 
-- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
-{
-    id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
-    ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
-    
-    if (!searchButtonTitle) {
-        return;
-    }
-
-    // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
-    // as soon as we remove iOS < 9 support
-    id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
-    [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
-}
-
--(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
-{
-    TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
-    TiColor * resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
-    id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
-    id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
-    
-    ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
-    ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
-    
-    if (resultsBackgroundColor) {
-        // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
-        UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
-        [controller.searchResultsTableView setBackgroundColor:color];
-    }
-    
-    if (resultsSeparatorColor) {
-        [controller.searchResultsTableView setSeparatorColor:[resultsSeparatorColor _color]];
-    }
-    
-    if (resultsSeparatorInsets) {
-        [controller.searchResultsTableView setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
-    }
-    
-    if (resultsSeparatorStyle) {
-        [controller.searchResultsTableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
-    }
-    
-    return YES;
-}
-
-- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+- (void)willDismissSearchController:(UISearchController *)searchController
 {
     self.searchString = @"";
     [self buildResultsForSearchText];
-    if ([searchController isActive]) {
-        [searchController setActive:NO animated:YES];
-    }
     if (_searchWrapper != nil) {
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
@@ -2103,12 +2043,39 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 #ifndef TI_USE_AUTOLAYOUT
             [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
 #endif
-            [_searchWrapper refreshView:nil];
+             [_searchWrapper refreshView:nil];
         }
     }
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
     [self clearSearchController:self];
+    [_tableView reloadData];
+}
+
+- (void)presentSearchController:(UISearchController *)controller
+{
+    id dimBgValue = [[self  proxy] valueForKey:@"dimsBackground"];
+    searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:dimBgValue def:NO];
+    
+    id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
+    ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
+    
+    if (!searchButtonTitle) {
+        return;
+    }
+    
+    // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
+    // as soon as we remove iOS < 9 support
+    id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+    [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+}
+
+#pragma mark - UISearchResultsUpdating
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)controller
+{
+    self.searchString = [controller.searchBar text];
+    [self buildResultsForSearchText];
     [_tableView reloadData];
 }
 
@@ -2225,22 +2192,22 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)clearSearchController:(id)sender
 {
     if (sender == self) {
-        RELEASE_TO_NIL(tableController);
-        RELEASE_TO_NIL(searchController);
         [searchViewProxy ensureSearchBarHeirarchy];
     }
 }
 
 -(void)initSearchController:(id)sender
 {
-    if (sender == self && tableController == nil) {
-        tableController = [[UITableViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.tableView = [self tableView];
-        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-        searchController.searchResultsDataSource = self;
-        searchController.searchResultsDelegate = self;
+    if (sender == self && searchController == nil)
+    {
+        searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
         searchController.delegate = self;
+        searchController.searchResultsUpdater = self;
+        searchController.hidesNavigationBarDuringPresentation = NO;
+        searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, searchController.searchBar.frame.size.width, 44.0);
+        searchController.searchBar.placeholder = [[searchViewProxy searchBar] placeholder];
+        searchViewProxy.searchBar.text = [[searchViewProxy searchBar] text];
+        [searchViewProxy setSearchBar:searchController.searchBar];
     }
 }
 
