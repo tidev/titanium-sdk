@@ -616,7 +616,7 @@ public class MediaModule extends KrollModule
 	}
 
 	private static File createGalleryImageFile(String extension) {
-		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
+		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, true);
 	}
 
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
