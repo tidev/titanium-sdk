@@ -872,7 +872,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
-				setImageSource(newValue);
+				TiDrawableReference source = makeImageSource(newValue);
+				Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
+				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
+					view.setOrientation(source.getOrientation());
+				}
+				if (proxy.hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
+					source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+				}
+				setImageSource(source);
 				firedLoad = false;
 				setImageInternal();
 			}
