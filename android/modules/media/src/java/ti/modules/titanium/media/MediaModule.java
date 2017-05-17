@@ -363,6 +363,18 @@ public class MediaModule extends KrollModule
 		return false;
 	}
 
+	@Kroll.method
+	public boolean hasAudioPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
 	private boolean hasCameraPermission() {
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
@@ -431,6 +443,17 @@ public class MediaModule extends KrollModule
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 
+	}
+
+	@Kroll.method
+	public void requestAudioPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (hasAudioPermissions()) {
+			return;
+		}
+		String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO};
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE,permissionCallback, getKrollObject());
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
 	}
 
 	/*
