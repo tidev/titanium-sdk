@@ -1691,7 +1691,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
-		'processResources',
+		'generateRClasses',
 
 		// provide a hook event before javac
 		function (next) {
@@ -3721,25 +3721,22 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 };
 
 /**
- * Process resources from .aar files under the project's platform/android folder
- * and generates the corrosponding R classes.
+ * Regenerates all R classes from modules and their contained Android Libraries
  *
- * Before support for .aar files we used --extra-packages and -S options for
- * AAPT to generated the R class for a library package. This has the drawback
- * that every R class contains all resource identifiers resulting in duplicate
- * code. This method regenerates the R class from the R.txt that is contained in
- * every .aar file which has resources (adopted from Android Gradle plugin).
+ * To do so this method regenerates the R class from the R.txt that is contained
+ * in every .aar file which has resources (adopted from Android Gradle plugin).
+ * In addition, if a Titanium module itself has resources defined it will also
+ * contain a R.txt just like Android Libraries.
  *
  * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
  *
- * @param {Function} next Function to call once the processing is complete
+ * @param {Function} next Function to call once all R classes have been regenerated
  */
-AndroidBuilder.prototype.processResources = function processResources(next) {
+AndroidBuilder.prototype.generateRClasses = function generateRClasses(next) {
 	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
 	var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
 	var fullSymbolValues = null;
-	this.androidLibraries.forEach(function (libraryInfo) {
-		var librarySymbolFile = path.join(libraryInfo.explodedPath, 'R.txt');
+	var generateRClass = function generateRClass(packageName, librarySymbolFile) {
 		if (!fs.existsSync(librarySymbolFile)) {
 			return;
 		}
@@ -3753,11 +3750,19 @@ AndroidBuilder.prototype.processResources = function processResources(next) {
 		librarySymbols.load();
 
 		// TODO: Support multiple symbol files for the same package name like gradle?
-		this.logger.trace('Generating R.class for library: ' + libraryInfo.packageName);
-		var symbolWriter = new SymbolWriter(this.buildGenDir, libraryInfo.packageName, fullSymbolValues);
+		this.logger.trace('Generating R.class for package: ' + packageName);
+		var symbolWriter = new SymbolWriter(this.buildGenDir, packageName, fullSymbolValues);
 		symbolWriter.addSymbolsToWrite(librarySymbols);
 		symbolWriter.write();
-	}.bind(this));
+	}.bind(this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		generateRClass(libraryInfo.packageName, path.join(libraryInfo.explodedPath, 'R.txt'));
+	}, this);
+
+	this.modules.forEach(function(moduleInfo) {
+		generateRClass(moduleInfo.id, path.join(moduleInfo.modulePath, 'R.txt'));
+	}, this);
 
 	next();
 };
