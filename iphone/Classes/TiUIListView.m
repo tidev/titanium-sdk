@@ -409,7 +409,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // The following is unreliable since it uses a private API name, but one which has existed
     // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
     // which is more fragile.
-    if ((sectionTitles == nil) || (tableView != _tableView) ) {
+    if ((sectionTitles == nil) || ([searchController isActive]) ) {
         return rowWidth;
     }
     NSArray* subviews = [tableView subviews];
@@ -827,7 +827,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-            [_tableView reloadData];
+        [_tableView reloadData];
     }
 }
 
@@ -919,7 +919,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -940,7 +940,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)theIndex
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return 0;
     }
     
@@ -1070,7 +1070,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return NO;
     }
     
@@ -1201,7 +1201,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -1247,7 +1247,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return NO;
     }
     
@@ -1359,9 +1359,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     NSUInteger sectionCount = 0;
+    bool active = searchController.active;
     
     //TIMOB-15526
-    if (tableView != _tableView && tableView.backgroundColor == [UIColor clearColor]) {
+    if ([searchController isActive] && tableView.backgroundColor == [UIColor clearColor]) {
         tableView.backgroundColor = [UIColor whiteColor];
     }
 
@@ -1462,7 +1463,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -1480,7 +1481,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -1569,7 +1570,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     [cell setTintColor:theTint];
     
-    if (searchActive || (tableView != _tableView)) {
+    if (searchActive || ([searchController isActive])) {
         return;
     } else {
         //Tell the proxy about the cell to be displayed for marker event
@@ -1579,7 +1580,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -1597,7 +1598,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return nil;
     }
     
@@ -1617,7 +1618,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return 0.0;
     }
     
@@ -1679,7 +1680,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    if (tableView != _tableView) {
+    if ([searchController isActive]) {
         return 0.0;
     }
     
@@ -2002,7 +2003,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         self.searchString = @"";
         [self buildResultsForSearchText];
         if ([searchController isActive]) {
-            [searchController setActive:false];
+            [searchController setActive:NO];
         }
     }
 }
@@ -2032,7 +2033,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 #pragma mark - UISearchControllerDelegate
 
-- (void)willDismissSearchController:(UISearchController *)searchController
+- (void)didDismissSearchController:(UISearchController *)searchController
 {
     self.searchString = @"";
     [self buildResultsForSearchText];
@@ -2046,17 +2047,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
              [_searchWrapper refreshView:nil];
         }
     }
-    //IOS7 DP3. TableView seems to be adding the searchView to
-    //tableView. Bug on IOS7?
-    [self clearSearchController:self];
+    [searchViewProxy ensureSearchBarHeirarchy];
     [_tableView reloadData];
 }
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-    id dimBgValue = [[self  proxy] valueForKey:@"dimsBackground"];
-    searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:dimBgValue def:NO];
-    
     id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
     ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
     
@@ -2189,17 +2185,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     return resultHeight;
 }
 
--(void)clearSearchController:(id)sender
-{
-    if (sender == self) {
-        [searchViewProxy ensureSearchBarHeirarchy];
-    }
-}
-
 -(void)initSearchController:(id)sender
 {
-    if (sender == self && searchController == nil)
-    {
+    if (sender == self && searchController == nil) {
         searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
         searchController.delegate = self;
         searchController.searchResultsUpdater = self;
