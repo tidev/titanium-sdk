@@ -2193,7 +2193,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         searchController.searchResultsUpdater = self;
         searchController.hidesNavigationBarDuringPresentation = NO;
         searchController.dimsBackgroundDuringPresentation = NO;
-        searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, searchController.searchBar.frame.size.width, 44.0);
+        searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
+        searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         searchController.searchBar.placeholder = [[searchViewProxy searchBar] placeholder];
         searchController.searchBar.text = [[searchViewProxy searchBar] text];
         [searchViewProxy setSearchBar:searchController.searchBar];
