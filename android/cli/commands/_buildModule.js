@@ -443,7 +443,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						var resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						var respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							var packageName = fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim();
+							var packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
 							if (!this.hasAndroidLibrary(packageName)) {
 								extraPackages.push(packageName);
 								resArchives.push(resArchivePathAndFilename);
