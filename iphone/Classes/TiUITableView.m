@@ -1837,17 +1837,15 @@
 		searchField = [search retain];
 		[searchField windowWillOpen];
 		[searchField setDelegate:self];
-        [self tableView];
-
+		[self tableView];
 		[self updateSearchView];
-        
-        [self initSearhController];
+		[self initSearhController];
 
 		if (searchHidden)
 		{
             // This seems like inconsistent behavior, as much of our 'search hide' logic works out to
             
-            animateHide = YES;
+			animateHide = YES;
 			[self hideSearchScreen:nil];
 			return;
 		}
