@@ -39,4 +39,4 @@ To rebuild the parser js file after editing the grammar, run:
 
 ## License
 
-MIT
+Apache V2

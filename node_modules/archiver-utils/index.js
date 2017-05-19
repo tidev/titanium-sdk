@@ -142,7 +142,9 @@ utils.walkdir = function(dirpath, base, callback) {
 
         if (stats && stats.isDirectory()) {
           utils.walkdir(filepath, base, function(err, res) {
-            Array.prototype.push.apply(results, res);
+            res.forEach(function(dirEntry) {
+              results.push(dirEntry);
+            });
             next();
           });
         } else {

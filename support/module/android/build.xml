@@ -131,7 +131,7 @@ timodule.xml.
 	</path>
 
 	<target name="python.set.exec">
-		<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+		<property name="python.bat" location="${titanium.platform}/../win32/python.bat"/>
 		<condition property="python.exec" value="${python.bat}" else="python">
 			<os family="windows"/>
 		</condition>
@@ -153,10 +153,13 @@ timodule.xml.
 	<target name="process.aidl" depends="init">
 		<echo>Generating java files from the .aidl files</echo>
 
+		<condition property="aidl.exec" value="aidl.exe" else="aidl">
+			<os family="windows"/>
+		</condition>
 		<path id="aidlexe">
 			<last>
 				<fileset dir="${android.platform}/../../build-tools">
-					<include name="**/*/aidl"/>
+					<include name="**/*/${aidl.exec}"/>
 				</fileset>
 			</last>
 		</path>
