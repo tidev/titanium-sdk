@@ -9,11 +9,11 @@ import org.appcelerator.kroll.common.Log;
  * Warning - this class was generated from your application's tiapp.xml
  * Any changes you make here will be overwritten
  */
-public final class TitaniumtestAppInfo implements ITiAppInfo
+public final class TitaniumTestAppInfo implements ITiAppInfo
 {
 	private static final String LCAT = "AppInfo";
 
-	public TitaniumtestAppInfo(TiApplication app) {
+	public TitaniumTestAppInfo(TiApplication app) {
 	}
 
 	public String getDeployType() {
