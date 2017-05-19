@@ -3073,7 +3073,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 					resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
 
 				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
-					var packageName = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
+					var packageName = fs.readFileSync(resPkgFile).toString().split(/\r?\n/).shift().trim();
 					if (!this.hasAndroidLibrary(packageName)) {
 						this.resPackages[resFile] = packageName;
 					} else {
