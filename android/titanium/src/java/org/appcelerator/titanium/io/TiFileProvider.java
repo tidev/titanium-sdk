@@ -114,14 +114,12 @@ public class TiFileProvider extends ContentProvider {
 	}
 	
 	private static File getFileFrom(Uri uri) {
-		if (uri == null) {
-			return null;
-		}
-		String uriPath = uri.toString();
 		String uriPrefix = getUriPrefix();
-		if (uriPrefix != null && uriPath.startsWith(uriPrefix)) {
-			uriPath = uriPath.substring(uriPrefix.length());
-			return new File(uriPath);
+		if (uriPrefix != null && uri != null) {
+			String uriPath = uri.toString();
+			if (uriPath.startsWith(uriPrefix)) {
+				return new File(uriPath.substring(uriPrefix.length()));
+			}
 		}
 		return null;
 	}
