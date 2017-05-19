@@ -61,6 +61,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.view.Window;
 
 @SuppressWarnings("deprecation")
@@ -130,6 +131,18 @@ public class MediaModule extends KrollModule
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
+
+	private static class ApiLevel16
+	{
+		private ApiLevel16() {}
+
+			public void setIntentClipData(Intent intent, android.content.ClipData data)
+			{
+				if (intent != null) {
+					intent.setClipData(data);
+				}
+			}
+	}
 
 	public MediaModule()
 	{
@@ -244,8 +257,20 @@ public class MediaModule extends KrollModule
 		}
 
 		//Create Intent
-		Uri fileUri = Uri.fromFile(imageFile); // create a file to save the image
+		Uri fileUri;
+		// API 24+ dissallows file:// schematics instead content://, using a FileProvider, is used
+		if (Build.VERSION.SDK_INT < 24) {
+			fileUri = Uri.fromFile(imageFile);
+		} else {
+			final TiApplication tiapp = TiApplication.getInstance();
+			final String id = tiapp.getAppInfo().getId();
+			fileUri = FileProvider.getUriForFile(tiapp, id + ".fileprovider", imageFile);
+		}
 		Intent intent = new Intent(intentType);
+		intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		if (Build.VERSION.SDK_INT >= 16) {
+			ApiLevel16.setIntentClipData(intent, android.content.ClipData.newRawUri("", fileUri));
+		}
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, videoQuality);
 		intent.putExtra("android.intent.extras.CAMERA_FACING", cameraType);
