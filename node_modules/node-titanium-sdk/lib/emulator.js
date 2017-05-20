@@ -387,7 +387,7 @@ EmulatorManager.prototype.start = function start(id, opts, callback) {
 			return;
 		}
 
-		opts.logger && opts.logger.trace(__('Emulator not running, detecting running emulators'));
+		opts.logger && opts.logger.trace(__('Emulator not running, detecting emulator info'));
 
 		// not running, start the emulator
 		this.detect(opts, function (err, emus) {
@@ -400,7 +400,7 @@ EmulatorManager.prototype.start = function start(id, opts, callback) {
 			}).shift();
 
 			// this should never happen because it would have happened already thanks to isRunning()
-			if (!emu) return callback(new Error(__('Invalid emulator "%s"', name)), null);
+			if (!emu) return callback(new Error(__('Invalid emulator "%s"', id)), null);
 
 			opts.logger && opts.logger.trace(__('Starting the emulator...'));
 

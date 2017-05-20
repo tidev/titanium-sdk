@@ -524,7 +524,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
 			Object templates = d.get(TiC.PROPERTY_TEMPLATES);
 			if (templates != null) {
-				processTemplates(new KrollDict((HashMap)templates));
+				processTemplates(new KrollDict((HashMap) templates));
 			}
 		} 
 		
@@ -816,7 +816,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	protected void processTemplates(KrollDict templates) {
 		for (String key : templates.keySet()) {
 			//Here we bind each template with a key so we can use it to look up later
-			KrollDict properties = new KrollDict((HashMap)templates.get(key));
+			KrollDict properties = new KrollDict((HashMap) templates.get(key));
 			TiListViewTemplate template = new TiListViewTemplate(key, properties);
 			//Set type to template, for recycling purposes.
 			template.setType(getItemType());
