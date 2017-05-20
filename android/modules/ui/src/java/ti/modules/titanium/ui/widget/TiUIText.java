@@ -153,7 +153,6 @@ public class TiUIText extends TiUIView
 		} else {
 			tv.setText("");
 		}
-		disableChangeEvent = false;
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
@@ -228,6 +227,7 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
 		}
+		disableChangeEvent = false;
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -497,6 +497,8 @@ public class TiUIText extends TiUIView
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
+		disableChangeEvent = true;
+
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = 0;
 		}
@@ -534,12 +536,15 @@ public class TiUIText extends TiUIView
 					tv.setTransformationMethod(null);
 				}
 			}
+			tv.setKeyListener(null);
 		} else if (d.containsKey(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
 			&& TiConvert.toInt(d, TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 			tv.setInputType(InputType.TYPE_NULL);
 
 		} else {
 			if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
+
+				disableChangeEvent = false;
 
 				switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
 					case TEXT_AUTOCAPITALIZATION_NONE:
@@ -674,6 +679,8 @@ public class TiUIText extends TiUIView
 		if (!field) {
 			tv.setSingleLine(false);
 		}
+
+		disableChangeEvent = false;
 
 	}
 
