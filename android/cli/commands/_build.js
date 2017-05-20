@@ -14,27 +14,29 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var ADB = require('titanium-sdk/lib/adb'),
+var ADB = require('node-titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
-	android = require('titanium-sdk/lib/android'),
+	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/AndroidManifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs'),
-	i18n = require('titanium-sdk/lib/i18n'),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	i18n = require('node-titanium-sdk/lib/i18n'),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
-	ti = require('titanium-sdk'),
-	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	SymbolLoader = require('appc-aar-tools').SymbolLoader,
+	SymbolWriter = require('appc-aar-tools').SymbolWriter,
+	ti = require('node-titanium-sdk'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -70,8 +72,6 @@ function AndroidBuilder() {
 	this.targets = ['emulator', 'device', 'dist-playstore'];
 
 	this.validABIs = ['armeabi-v7a', 'x86'];
-
-	this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
@@ -403,7 +403,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					},
 					'device-id': {
 						abbr: 'C',
-						desc: __('the name of the Android emulator or the device id to install the application to'),
+						desc: __('the id of the Android emulator or the device id to install the application to'),
 						hint: __('name'),
 						order: 130,
 						prompt: function (callback) {
@@ -1343,7 +1343,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}
 		}
 
-		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
+		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id === deviceId; });
 		devices.forEach(function (device) {
 			if (Array.isArray(device.abi) && !device.abi.some(function (a) { return this.abis.indexOf(a) != -1; }.bind(this))) {
 				if (this.target == 'emulator') {
@@ -1691,6 +1691,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'generateTheme',
 		'generateAndroidManifest',
 		'packageApp',
+		'generateRClasses',
 
 		// provide a hook event before javac
 		function (next) {
@@ -1819,6 +1820,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
+	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
@@ -2441,13 +2443,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 
 					case 'xml':
-						if (_t.xmlMergeRegExp.test(filename)) {
-							_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-								_t.writeXmlFile(from, to);
-								cb();
-							})(from, to, next);
-							break;
-						}
+						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+							_t.writeXmlFile(from, to);
+							cb();
+						})(from, to, next);
+						break;
 
 					default:
 						// normal file, just copy it into the build/android/bin/assets directory
@@ -3050,7 +3050,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				delete _t.lastBuildFiles[to];
 				if (fs.statSync(from).isDirectory()) {
 					copy(from, to);
-				} else if (_t.xmlMergeRegExp.test(filename)) {
+				} else if (path.extname(filename) === '.xml') {
 					_t.writeXmlFile(from, to);
 				} else {
 					afs.copyFileSync(from, to, { logger: _t.logger.debug });
@@ -3066,7 +3066,6 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
 				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
 					this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
-					return done();
 				}
 
 				if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
@@ -3096,6 +3095,17 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				copy(src, this.buildBinAssetsResourcesDir);
 				done();
 			}.bind(this));
+		}
+	}, this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
+		var buildResPath = path.join(this.buildDir, 'res');
+		if (fs.existsSync(libraryResPath)) {
+			tasks.push(function (done) {
+				copy(libraryResPath, buildResPath);
+				done();
+			});
 		}
 	}, this);
 
@@ -3181,94 +3191,6 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	}
 
 	next();
-};
-
-AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
-	var filename = path.basename(dest),
-		destExists = fs.existsSync(dest),
-		destDir = path.dirname(dest),
-		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-		destDoc,
-		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-		root = dom.documentElement,
-		nodes = {},
-		_t = this,
-		byName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				if (nodes[n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[n] = node;
-			}
-		},
-		byTagAndName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				nodes[node.tagName] || (nodes[node.tagName] = {});
-				if (nodes[node.tagName][n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[node.tagName][n] = node;
-			}
-		};
-
-	if (destExists) {
-		// we're merging
-		destDoc = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(dest).toString(), 'text/xml')).documentElement;
-		xml.forEachAttr(destDoc, function (attr) {
-			root.setAttribute(attr.name, attr.value);
-		});
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Merging %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	} else {
-		// copy the file, but make sure there are no dupes
-		if (typeof srcOrDoc == 'string') {
-			this.logger.debug(__('Copying %s => %s', srcOrDoc.cyan, dest.cyan));
-		}
-	}
-
-	xml.forEachAttr(srcDoc, function (attr) {
-		root.setAttribute(attr.name, attr.value);
-	});
-
-	switch (filename) {
-		case 'arrays.xml':
-		case 'attrs.xml':
-		case 'bools.xml':
-		case 'colors.xml':
-		case 'dimens.xml':
-		case 'ids.xml':
-		case 'integers.xml':
-		case 'strings.xml':
-			destDoc && xml.forEachElement(destDoc, byName);
-			xml.forEachElement(srcDoc, byName);
-			Object.keys(nodes).forEach(function (name) {
-				root.appendChild(dom.createTextNode('\n\t'));
-				if (filename == 'strings.xml') {
-					nodes[name].setAttribute('formatted', 'false');
-				}
-				root.appendChild(nodes[name]);
-			});
-			break;
-
-		case 'styles.xml':
-			destDoc && xml.forEachElement(destDoc, byTagAndName);
-			xml.forEachElement(srcDoc, byTagAndName);
-			Object.keys(nodes).forEach(function (tag) {
-				Object.keys(nodes[tag]).forEach(function (name) {
-					root.appendChild(dom.createTextNode('\n\t'));
-					root.appendChild(nodes[tag][name]);
-				});
-			});
-			break;
-	}
-
-	root.appendChild(dom.createTextNode('\n'));
-	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-	destExists && fs.unlinkSync(dest);
-	fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
 };
 
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
@@ -3606,6 +3528,18 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}, this);
 	}, this);
 
+	// TIMOB-15253: Titanium Android cannot be used with 'android:launchMode' as it can dispose the KrollRuntime instance
+	// prevent 'android:launchMode' from being defined in the AndroidManifest.xml
+	if (tiappAndroidManifest && tiappAndroidManifest.application) {
+		for (var activity in tiappAndroidManifest.application.activity) {
+			var parameters = tiappAndroidManifest.application.activity[activity];
+			if (parameters['launchMode']) {
+				delete parameters['launchMode'];
+				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+			}
+		}
+	}
+
 	// gather activities
 	var tiappActivities = this.tiapp.android && this.tiapp.android.activities;
 	tiappActivities && Object.keys(tiappActivities).forEach(function (filename) {
@@ -3716,9 +3650,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	this.ap_File = path.join(this.buildBinDir, 'app.ap_');
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	if (!fs.existsSync(bundlesPath)) {
+		wrench.mkdirSyncRecursive(bundlesPath);
+	}
 
 	var aaptHook = this.cli.createHook('build.android.aapt', this, function (exe, args, opts, done) {
-			this.logger.info(__('Packaging application: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			this.logger.info(__('Running AAPT: %s', (exe + ' "' + args.join('" "') + '"').cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to package application:'));
@@ -3747,17 +3685,18 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
-			'-F', this.ap_File
+			'-F', this.ap_File,
+			'--output-text-symbols', bundlesPath
 		];
 
-	function runAapt() {
+	var runAapt = function runAapt() {
 		aaptHook(
 			this.androidInfo.sdk.executables.aapt,
 			args,
 			{},
 			next
 		);
-	}
+	}.bind(this);
 
 	if ( (!Object.keys(this.resPackages).length) && (!this.moduleResPackages.length) ) {
 		return runAapt();
@@ -3778,23 +3717,54 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
 	args.push('--extra-packages', namespaces);
 
-	appc.async.series(this, Object.keys(this.resPackages).map(function (resFile) {
-		return function (cb) {
-			var namespace = this.resPackages[resFile],
-				tmp = temp.path();
+	runAapt();
+};
 
-			appc.zip.unzip(resFile, tmp, {}, function (ex) {
-				if (ex) {
-					this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-					process.exit(1);
-				}
+/**
+ * Regenerates all R classes from modules and their contained Android Libraries
+ *
+ * To do so this method regenerates the R class from the R.txt that is contained
+ * in every .aar file which has resources (adopted from Android Gradle plugin).
+ * In addition, if a Titanium module itself has resources defined it will also
+ * contain a R.txt just like Android Libraries.
+ *
+ * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
+ *
+ * @param {Function} next Function to call once all R classes have been regenerated
+ */
+AndroidBuilder.prototype.generateRClasses = function generateRClasses(next) {
+	var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+	var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
+	var fullSymbolValues = null;
+	var generateRClass = function generateRClass(packageName, librarySymbolFile) {
+		if (!fs.existsSync(librarySymbolFile)) {
+			return;
+		}
 
-				args.push('-S', tmp+'/res');
+		if (fullSymbolValues === null) {
+			fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
+			fullSymbolValues.load();
+		}
 
-				cb();
-			}.bind(this));
-		};
-	}), runAapt);
+		var librarySymbols = new SymbolLoader(librarySymbolFile);
+		librarySymbols.load();
+
+		// TODO: Support multiple symbol files for the same package name like gradle?
+		this.logger.trace('Generating R.class for package: ' + packageName);
+		var symbolWriter = new SymbolWriter(this.buildGenDir, packageName, fullSymbolValues);
+		symbolWriter.addSymbolsToWrite(librarySymbols);
+		symbolWriter.write();
+	}.bind(this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		generateRClass(libraryInfo.packageName, path.join(libraryInfo.explodedPath, 'R.txt'));
+	}, this);
+
+	this.modules.forEach(function(moduleInfo) {
+		generateRClass(moduleInfo.id, path.join(moduleInfo.modulePath, 'R.txt'));
+	}, this);
+
+	next();
 };
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
@@ -3836,6 +3806,19 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 				}
 			}, this);
 		}
+	}, this);
+
+	this.androidLibraries.forEach(function (libraryInfo) {
+		libraryInfo.jars.forEach(function (libraryJarPathAndFilename) {
+			var jarHash = this.hash(fs.readFileSync(libraryJarPathAndFilename).toString());
+			if (!jarNames[jarHash]) {
+				moduleJars[libraryJarPathAndFilename] = 1;
+				classpath[libraryJarPathAndFilename] = 1;
+				jarNames[jarHash] = 1;
+			} else {
+				this.logger.debug(__('Skipping duplicate jar file: %s', libraryJarPathAndFilename.cyan));
+			}
+		}, this);
 	}, this);
 
 	if (!this.forceRebuild) {
@@ -4215,6 +4198,33 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', ')));
 					this.logger.warn(__('Your application will most likely encounter issues'));
 				}
+			}
+		}, this);
+
+		this.androidLibraries.forEach(function(libraryInfo) {
+			if (libraryInfo.nativeLibraries.length === 0) {
+				return;
+			}
+
+			var libraryJniPath = path.join(libraryInfo.explodedPath, 'jni')
+			try {
+				addNativeLibs(libraryJniPath);
+			} catch (e) {
+				var abis = [];
+				fs.readdirSync(libraryJniPath).forEach(function (abi) {
+					var dir = path.join(libraryJniPath, abi);
+					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+						abis.push(abi);
+					}
+				});
+				if (libraryInfo.task.originType === 'Module') {
+					this.logger.error(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName, libraryInfo.task.moduleInfo.id, abi));
+				} else if (libraryInfo.task.originType === 'Project') {
+					this.logger.error(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName, abi));
+				}
+				this.logger.error(__('Supported ABIs by the Android Library: %s', abis.join(', ')));
+				this.logger.error(__('Valid ABIs for this project: %s', this.abis(', ')));
+				process.exit(1);
 			}
 		}, this);
 
