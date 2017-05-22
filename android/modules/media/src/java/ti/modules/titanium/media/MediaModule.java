@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -130,6 +131,18 @@ public class MediaModule extends KrollModule
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
+
+	private static class ApiLevel16
+	{
+		private ApiLevel16() {}
+
+		public static void setIntentClipData(Intent intent, ClipData data)
+		{
+			if (intent != null) {
+				intent.setClipData(data);
+			}
+		}
+	}
 
 	public MediaModule()
 	{
@@ -244,8 +257,12 @@ public class MediaModule extends KrollModule
 		}
 
 		//Create Intent
-		Uri fileUri = Uri.fromFile(imageFile); // create a file to save the image
+		Uri fileUri = TiFileProvider.createUriFrom(imageFile);
 		Intent intent = new Intent(intentType);
+		intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		if (Build.VERSION.SDK_INT >= 16) {
+			ApiLevel16.setIntentClipData(intent, android.content.ClipData.newRawUri("", fileUri));
+		}
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, videoQuality);
 		intent.putExtra("android.intent.extras.CAMERA_FACING", cameraType);
@@ -593,7 +610,7 @@ public class MediaModule extends KrollModule
 	}
 
 	private static File createGalleryImageFile(String extension) {
-		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
+		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, true);
 	}
 
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
