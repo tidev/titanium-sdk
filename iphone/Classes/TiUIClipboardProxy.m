@@ -65,9 +65,73 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 @implementation TiUIClipboardProxy
 
+-(id) init
+{
+    if (self = [super init])
+    {
+        shouldCreatePasteboard = true;
+        isNamedPasteBoard = false;
+        isUnique = false;
+    };
+    return self;
+}
+
 -(NSString*)apiName
 {
     return @"Ti.UI.Clipboard";
+}
+
+-(UIPasteboard *)pasteboard {
+    if (isNamedPasteBoard)
+    {
+        return _pasteboard;
+    }
+    return [UIPasteboard generalPasteboard];
+}
+
+-(void)setName:(id)arg
+{
+    if (!isUnique)
+    {
+        ENSURE_STRING(arg);
+        pasteboardName = arg;
+        _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
+        isNamedPasteBoard = true;
+    }
+}
+
+-(NSString *)name
+{
+    return [[self pasteboard] name];
+}
+
+-(void)setAllowCreation:(id)arg
+{
+    BOOL value = [TiUtils boolValue:arg def:true];
+    shouldCreatePasteboard = value;
+    if (!isUnique && pasteboardName && !shouldCreatePasteboard)
+    {
+        [self remove];
+        _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
+        isNamedPasteBoard = true;
+    }
+}
+
+-(void)setUnique:(id)arg
+{
+    BOOL value = [TiUtils boolValue:arg def:false];
+    isUnique = value;
+    if (isUnique)
+    {
+        _pasteboard = [UIPasteboard pasteboardWithUniqueName];
+        isNamedPasteBoard = true;
+    }
+}
+
+-(void)remove
+{
+    [UIPasteboard removePasteboardWithName:[self pasteboard].name];
+    _pasteboard = nil;
 }
 
 -(void)clearData:(id)arg
@@ -76,7 +140,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
 
 	NSString *mimeType = arg ?: @"application/octet-stream";
-	UIPasteboard *board = [UIPasteboard generalPasteboard];
+	UIPasteboard *board = [self pasteboard];
 	ClipboardType dataType = mimeTypeToDataType(mimeType);
 	
 	switch (dataType)
@@ -104,7 +168,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 		case CLIPBOARD_UNKNOWN:
 		default:
 		{
-			[[UIPasteboard generalPasteboard] setItems:@[]];
+			[[self pasteboard] setItems:@[]];
 		}
 	}
 }
@@ -113,7 +177,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 	ENSURE_UI_THREAD(clearText,args);
 
-	UIPasteboard *board = [UIPasteboard generalPasteboard];
+	UIPasteboard *board = [self pasteboard];
 	board.strings = nil;
 }
 	 
@@ -143,7 +207,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 // Must run on main thread.
 -(id)getData_:(NSString *)mimeType
 {
-	UIPasteboard *board = [UIPasteboard generalPasteboard];
+	UIPasteboard *board = [self pasteboard];
 	ClipboardType dataType = mimeTypeToDataType(mimeType);
 	switch (dataType)
 	{
@@ -205,7 +269,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	NSString *mimeType = arg;
 	__block BOOL result=NO;
 	TiThreadPerformOnMainThread(^{
-		UIPasteboard *board = [UIPasteboard generalPasteboard];
+		UIPasteboard *board = [self pasteboard];
 		ClipboardType dataType = mimeTypeToDataType(mimeType);
 		
 		switch (dataType)
@@ -247,7 +311,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        return NUMBOOL([[UIPasteboard generalPasteboard] hasStrings]);
+        return NUMBOOL([[self pasteboard] hasStrings]);
     }
 #endif
     
@@ -258,7 +322,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        return NUMBOOL([[UIPasteboard generalPasteboard] hasColors]);
+        return NUMBOOL([[self pasteboard] hasColors]);
     }
 #endif
 
@@ -270,7 +334,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        return NUMBOOL([[UIPasteboard generalPasteboard] hasImages]);
+        return NUMBOOL([[self pasteboard] hasImages]);
     }
 #endif
     
@@ -282,7 +346,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
-        return NUMBOOL([[UIPasteboard generalPasteboard] hasURLs]);
+        return NUMBOOL([[self pasteboard] hasURLs]);
     }
 #endif
     
@@ -314,9 +378,9 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         
         TiThreadPerformOnMainThread(^{
             if (options == nil) {
-                [[UIPasteboard generalPasteboard] setItems:result];
+                [[self pasteboard] setItems:result];
             } else {
-                [[UIPasteboard generalPasteboard] setItems:result options:options];
+                [[self pasteboard] setItems:result options:options];
             }
             RELEASE_TO_NIL(result);
         }, YES);
@@ -331,7 +395,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         __block id items;
         
         TiThreadPerformOnMainThread(^{
-            items = [[[UIPasteboard generalPasteboard] items] retain];
+            items = [[[self pasteboard] items] retain];
             
             // Check for invalid UTI's / mime-types to prevent a runtime-crash
             for (NSDictionary *item in items) {
@@ -368,7 +432,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
         DebugLog(@"[WARN] setData: data object was nil.");
         return;
     }
-	UIPasteboard *board = [UIPasteboard generalPasteboard];
+	UIPasteboard *board = [self pasteboard];
 	ClipboardType dataType = mimeTypeToDataType(mimeType);
 	
 	switch (dataType)

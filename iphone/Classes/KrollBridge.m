@@ -818,7 +818,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
+	NSURL *url_ = [TiHost resourceBasedURL:path baseURL:NULL];
+	KrollWrapper *wrapper = (id) [self loadCommonJSModule:contents withSourceURL:url_];
 
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
 	// are accessible. We store the exports object and then put references to its properties on the toplevel
@@ -866,7 +867,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// warn the user of the collision, but prefer the native/core module
 	NSURL *jsPath = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.js", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path], path]];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:[jsPath absoluteString]]) {
-		NSLog(@"[WARN] The requested path '%@' has a collison betweeb a native Ti%@um API/module and a JS file.", path, @"tani");
+		NSLog(@"[WARN] The requested path '%@' has a collison between a native Ti%@um API/module and a JS file.", path, @"tani");
 		NSLog(@"[WARN] The native Ti%@um API/module will be loaded in preference.", @"tani");
 		NSLog(@"[WARN] If you intended to address the JS file, please require the path using a prefixed string such as require('./%@') or require('/%@') instead.", path, path);
 	}
@@ -1094,29 +1095,38 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (NSArray *)nodeModulesPaths:(NSString *)path
 {
-	// What if we're at root? path may be nil here. So let's hack that case
+	// Note that in this function paths must be returned with no leading slash
+	// i.e "node_modules" rather than "/node_modules" (like Android does)
+
+	NSMutableArray *dirs = [NSMutableArray arrayWithCapacity:0];
+	// Return early if we are at root, this avoids doing a pointless loop
+	// and also returning an array with duplicate entries
+	// e.g. ["node_modules", "node_modules"]
 	if (path == nil) {
-		path = @"/";
+		[dirs addObject:@"node_modules"];
+		return dirs;
 	}
 	// 1. let PARTS = path split(START)
 	NSArray *parts = [path componentsSeparatedByString:@"/"];
 	// 2. let I = count of PARTS - 1
 	NSInteger i = [parts count] - 1;
 	// 3. let DIRS = []
-	NSMutableArray *dirs = [NSMutableArray arrayWithCapacity:0];
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
-		if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
+		if ([[parts objectAtIndex:i] isEqual: @"node_modules"] || [[parts objectAtIndex:i] isEqual: @""]) {
+			i = i - 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		NSString *dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
+		NSString *dir = [[[parts subarrayWithRange:NSMakeRange(0, i + 1)] componentsJoinedByString:@"/"] stringByAppendingPathComponent:@"node_modules"];
 		// c. DIRS = DIRS + DIR
 		[dirs addObject:dir];
 		// d. let I = I - 1
 		i = i - 1;
 	}
+	// Always add /node_modules to the search path
+	[dirs addObject:@"node_modules"];
 	return dirs;
 }
 

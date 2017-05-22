@@ -85,7 +85,6 @@ ArchiveOutputStream.prototype.entry = function(ae, source, callback) {
   if (Buffer.isBuffer(source)) {
     this._appendBuffer(ae, source, callback);
   } else if (util.isStream(source)) {
-    source.on('error', callback);
     this._appendStream(ae, source, callback);
   } else {
     this._archive.processing = false;

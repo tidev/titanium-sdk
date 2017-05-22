@@ -56,6 +56,9 @@ module.exports = function kindOf(val) {
   if (type === '[object Arguments]') {
     return 'arguments';
   }
+  if (type === '[object Error]') {
+    return 'error';
+  }
 
   // buffer
   if (typeof Buffer !== 'undefined' && isBuffer(val)) {

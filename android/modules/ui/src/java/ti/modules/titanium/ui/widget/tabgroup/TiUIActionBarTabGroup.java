@@ -335,9 +335,16 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			pendingDisableTabs = true;
 			checkAndDisableTabsIfRequired();
 		}
-		ColorDrawable drawable = (tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) ? TiConvert.toColorDrawable((String) tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)) : TiConvert.toColorDrawable((String) tabProxy.getTabGroup().getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR));
-		actionBar.setStackedBackgroundDrawable(drawable);
-		actionBar.setBackgroundDrawable(drawable);
+		ColorDrawable drawable = null;
+		if (tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
+			drawable = TiConvert.toColorDrawable((String) tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR));
+		} else if (tabProxy.getTabGroup() != null) {
+			drawable = TiConvert.toColorDrawable((String) tabProxy.getTabGroup().getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR));
+		}
+		if (drawable != null) {
+			actionBar.setStackedBackgroundDrawable(drawable);
+			actionBar.setBackgroundDrawable(drawable);
+		}
 	}
 
 	@Override

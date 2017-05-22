@@ -92,6 +92,9 @@ public class ListViewProxy extends TiViewProxy {
 				addPreloadSections((Object[]) obj, -1, true);
 			}
 		}
+		if (options.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
+			setProperty(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, options.get(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE));
+		}
 	}
 	
 	public void clearPreloadSections() {
@@ -150,11 +153,15 @@ public class ListViewProxy extends TiViewProxy {
 	}
 	
 	public int handleSectionCount () {
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
+		
 		if (listView != null) {
 			return ((TiListView) listView).getSectionCount();
 		}
-		return 0;
+		return preloadSections.size();
 	}
 
 	@Kroll.method
@@ -471,6 +478,9 @@ public class ListViewProxy extends TiViewProxy {
 	
 	private ListSectionProxy[] handleSections()
 	{
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
 
 		if (listView != null) {

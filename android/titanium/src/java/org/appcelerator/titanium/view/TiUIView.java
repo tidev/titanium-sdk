@@ -88,6 +88,7 @@ public abstract class TiUIView
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -935,9 +936,9 @@ public abstract class TiUIView
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
-		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
-		    }
+			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setScaleX(getOuterView(), TiConvert.toFloat(newValue));
@@ -961,7 +962,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
-		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -1097,8 +1098,8 @@ public abstract class TiUIView
 		}
 
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull
-		        && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
-		    ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
+				&& d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
 
@@ -1412,7 +1413,7 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER) {
+					if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1455,7 +1456,7 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER) {
+			if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -1722,9 +1723,12 @@ public abstract class TiUIView
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			if (!enabled) {
-				touchable.setEnabled(false);
-			}
+			touchable.setEnabled(enabled);
+		}
+		//Checking and setting touch sound for view
+		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
+			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 		registerTouchEvents(touchable);
 
@@ -1740,7 +1744,6 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 
 	}
-
 
 	public void registerForKeyPress()
 	{

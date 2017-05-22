@@ -96,7 +96,9 @@ events:
             case returns `true`. 
             
             On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
-            returned, if defined, or `-1` otherwise. 
+            returned, if defined, or `-1` otherwise. Also note that the cancel button may not be
+            used on the iPad, because iOS will internally decide whether or not to show it in
+            the current context (e.g. in a popover).
             
             See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
             parity issue.
@@ -286,6 +288,15 @@ properties:
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_NEXT>
 
+  - name: loginValue
+    summary: Value of the login text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
+
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
@@ -349,6 +360,15 @@ properties:
     since: 5.1.0
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DONE>
+
+  - name: passwordValue
+    summary: Value of the password text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
 
   - name: passwordKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -428,6 +448,16 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     platforms: [android, iphone, ipad, mobileweb]
+    
+  - name: value
+    summary: Value of the text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
 
 examples:
   - title: Single-button Alert Dialog (using alias)
