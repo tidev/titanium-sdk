@@ -325,6 +325,18 @@ methods:
         summary: Function to call upon capture.
         type: Callback<ScreenshotResult>
     platforms: [iphone, ipad, android]
+  - name: requestStoragePermissions
+    summary: Requests for storage access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant storage access.
+        type: Callback<RequestCameraAccessResult>
+    platforms: [android]
+    since: "6.0.0"
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
