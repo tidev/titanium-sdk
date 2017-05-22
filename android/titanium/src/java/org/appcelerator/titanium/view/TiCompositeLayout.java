@@ -730,14 +730,14 @@ public class TiCompositeLayout extends ViewGroup
             right = Math.min(right, layoutRight);
         }
         
-        if (optionRight != null) {
+        if (optionLeft == null && optionRight != null) {
             hpos[0] = layoutRight - left;
             hpos[1] = layoutRight - horiztonalLayoutPreviousRight;
         } else {
             hpos[0] = left;
             hpos[1] = right;
+            horizontalLayoutCurrentLeft = right;
         }
-        horizontalLayoutCurrentLeft = right;
 
         if (enableHorizontalWrap) {
             // Don't update row on the first iteration since we already do it
