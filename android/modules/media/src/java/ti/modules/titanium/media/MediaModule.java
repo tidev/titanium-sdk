@@ -381,7 +381,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean hasAudioRecordPermissions() {
+	public boolean hasAudioRecorderPermissions() {
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
@@ -463,8 +463,8 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestAudioRecordPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
-		if (hasAudioRecordPermissions()) {
+	public void requestAudioRecorderPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (hasAudioRecorderPermissions()) {
 			return;
 		}
 		String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO};
