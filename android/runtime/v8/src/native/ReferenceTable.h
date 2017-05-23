@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,11 +24,11 @@ namespace titanium {
 class ReferenceTable
 {
 public:
-	static jint createReference(jobject object);
-	static void destroyReference(jint key);
-	static void makeWeakReference(jint key);
-	static jobject clearWeakReference(jint key);
-	static jobject getReference(jint key);
+	static jlong createReference(jobject object);
+	static void destroyReference(jlong key);
+	static void makeWeakReference(jlong key);
+	static jobject clearWeakReference(jlong key);
+	static jobject getReference(jlong key);
 };
 
 } // namespace titanium
