@@ -123,7 +123,7 @@ AndroidBaseBuilder.prototype.hasAndroidLibrary = function hasAndroidLibrary(pack
  * Checks if one of our bundled Android Support Libraries (.jar) is also available
  * as an Android Library (.aar) provided by the user.
  *
- * This is used during the build prodess to allow users to replace any of our
+ * This is used during the build process to allow users to replace any of our
  * bundled Android Support Libraries with one of their own choosing. Currently
  * supported Android Support Library versions are 24.2.0 - 25.x.
  *
