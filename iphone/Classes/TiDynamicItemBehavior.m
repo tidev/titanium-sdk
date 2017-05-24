@@ -327,11 +327,12 @@
         NSUInteger theIndex = [_items indexOfObject:args];
         __block TiPoint* returnVal = nil;
         TiThreadPerformOnMainThread(^{
-            returnVal = [[_linearVelocities objectAtIndex:theIndex] copy];
+            returnVal = [[_linearVelocities objectAtIndex:theIndex] retain];
         }, YES);
         
         NSDictionary* result = [TiUtils pointToDictionary:[returnVal point]];
-        [returnVal release];
+        RELEASE_TO_NIL(returnVal);
+        
         return result;
     } else {
         DebugLog(@"[ERROR] The item specified is not an item managed by this behavior object");
