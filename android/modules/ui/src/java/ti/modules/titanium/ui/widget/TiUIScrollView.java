@@ -39,6 +39,9 @@ public class TiUIScrollView extends TiUIView
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
+	private boolean isScrolling = false;
+	private boolean isTouching = false;
+
 	
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -199,6 +202,16 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
@@ -248,7 +261,11 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				KrollDict data = new KrollDict();			
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
@@ -315,6 +332,16 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
@@ -364,8 +391,12 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-
 			KrollDict data = new KrollDict();
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
+			data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			setContentOffset(l, t);
@@ -441,7 +472,7 @@ public class TiUIScrollView extends TiUIView
 		}
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
-			scrollTo(offsetX, offsetY);
+			scrollTo(offsetX, offsetY, false);
 		}
 		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = getNativeView();
@@ -615,10 +646,20 @@ public class TiUIScrollView extends TiUIView
 		return mScrollingEnabled;
 	}
 
-	public void scrollTo(int x, int y)
+	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
 		final View view = getNativeView();
-		view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+		if (smoothScroll) {
+			if (view instanceof TiHorizontalScrollView) {
+				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
+				scrollView.smoothScrollTo(x, y);
+			} else if (view instanceof TiVerticalScrollView) {
+				TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
+				scrollView.smoothScrollTo(x, y);
+			}
+		} else {
+			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+		}
 		view.computeScroll();
 	}
 

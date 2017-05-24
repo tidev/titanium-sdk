@@ -9,7 +9,7 @@ const
 	appc = require('node-appc'),
 	fs = require('fs'),
 	path = require('path'),
-	genymotion = require('titanium-sdk/lib/emulators/genymotion'),
+	genymotion = require('node-titanium-sdk/lib/emulators/genymotion'),
 	__ = appc.i18n(__dirname).__;
 
 exports.name = 'miscinfo';

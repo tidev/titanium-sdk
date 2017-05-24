@@ -87,6 +87,7 @@ bl.pipe(fs.createWriteStream('gibberish.txt'))
   * <a href="#append"><code>bl.<b>append(buffer)</b></code></a>
   * <a href="#get"><code>bl.<b>get(index)</b></code></a>
   * <a href="#slice"><code>bl.<b>slice([ start[, end ] ])</b></code></a>
+  * <a href="#shallowSlice"><code>bl.<b>shallowSlice([ start[, end ] ])</b></code></a>
   * <a href="#copy"><code>bl.<b>copy(dest, [ destStart, [ srcStart [, srcEnd ] ] ])</b></code></a>
   * <a href="#duplicate"><code>bl.<b>duplicate()</b></code></a>
   * <a href="#consume"><code>bl.<b>consume(bytes)</b></code></a>
@@ -134,6 +135,13 @@ Get the length of the list in bytes. This is the sum of the lengths of all of th
 `slice()` returns a new `Buffer` object containing the bytes within the range specified. Both `start` and `end` are optional and will default to the beginning and end of the list respectively.
 
 If the requested range spans a single internal buffer then a slice of that buffer will be returned which shares the original memory range of that Buffer. If the range spans multiple buffers then copy operations will likely occur to give you a uniform Buffer.
+
+--------------------------------------------------------
+<a name="shallowSlice"></a>
+### bl.shallowSlice([ start, [ end ] ])
+`shallowSlice()` returns a new `BufferList` object containing the bytes within the range specified. Both `start` and `end` are optional and will default to the beginning and end of the list respectively.
+
+No copies will be performed. All buffers in the result share memory with the original list.
 
 --------------------------------------------------------
 <a name="copy"></a>
@@ -195,6 +203,6 @@ See the <b><code>[Buffer](http://nodejs.org/docs/latest/api/buffer.html)</code><
 <a name="license"></a>
 ## License &amp; copyright
 
-Copyright (c) 2013-2014 bl contributors (listed above).
+Copyright (c) 2013-2016 bl contributors (listed above).
 
 bl is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.

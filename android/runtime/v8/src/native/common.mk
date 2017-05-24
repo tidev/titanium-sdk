@@ -19,12 +19,7 @@ ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
 endif
 
-# Several places in generated code we set some jvalues to NULL and
-# since NDK r8b we'd get warnings about each one.
-CFLAGS += -Wno-conversion-null
-
-# cf https://groups.google.com/forum/?fromgroups=#!topic/android-ndk/Q8ajOD37LR0
-CFLAGS += -Wno-psabi
+CFLAGS += -Wno-conversion-null -Wno-format-security -Wno-format -Wno-tautological-compare -Wno-unused-result -Wno-deprecated-register
 
 CLEAN_GEN := rm -f $(GENERATED_DIR)/*
 CLEAN_OBJ := rm -rf $(OBJ_DIR)/*

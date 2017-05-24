@@ -715,8 +715,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     CGRect oldBounds = [[self webview] bounds];
     BOOL oldVal = webview.scalesPageToFit;
     [webview setScalesPageToFit:NO];
-    [webview setBounds:CGRectMake(0, 0, 10, 1)];
-    CGFloat ret = [webview sizeThatFits:CGSizeMake(10, 1)].height;
+    [webview setBounds:CGRectMake(0, 0, value, 1)];
+    CGFloat ret = [webview sizeThatFits:CGSizeMake(value, 1)].height;
     [webview setBounds:oldBounds];
     [webview setScalesPageToFit:oldVal];
     return ret;
@@ -933,6 +933,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
     return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
+}
+
+#pragma mark UIGestureRecognizer Delegates
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+{
+    return !willHandleTouches;
 }
 
 #pragma mark TiEvaluator
