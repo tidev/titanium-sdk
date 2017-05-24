@@ -338,9 +338,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			NSString *title = NSLocalizedString(@"Location Services Disabled",@"Location Services Disabled Alert Title");
 			NSString *msg = NSLocalizedString(@"You currently have all location services for this device disabled. If you proceed, you will be asked to confirm whether location services should be reenabled.",@"Location Services Disabled Alert Message");
 			NSString *ok = NSLocalizedString(@"OK",@"Location Services Disabled Alert OK Button");
-			UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:ok otherButtonTitles:nil];
-			[servicesDisabledAlert show];
-			[servicesDisabledAlert release];
+            
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *action = [UIAlertAction actionWithTitle:ok style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:action];
+            [[TiApp app] showModalController:alertController animated:YES];
 		}
 	}
 	[lock unlock];
