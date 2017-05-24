@@ -6,14 +6,14 @@
  */
 #include <jni.h>
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <v8.h>
 #include <libplatform/libplatform.h>
 #include <v8-debug.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "JavaObject.h"
+#include "Proxy.h"
 #include "JNIUtil.h"
 #include "JSDebugger.h"
 #include "JSException.h"
@@ -307,7 +307,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
 {
-	v8::Debug::ProcessDebugMessages();
+	v8::Debug::ProcessDebugMessages(V8Runtime::v8_isolate);
 }
 
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
@@ -340,6 +340,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 	}
 
 	jmethodID method = env->GetMethodID(cls, "getSourceCode", "(Ljava/lang/String;)Ljava/lang/String;");
+	env->DeleteLocalRef(cls);
 	if (!method) {
 		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
 		return;
