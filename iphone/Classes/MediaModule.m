@@ -595,13 +595,21 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #ifdef USE_TI_MEDIAREQUESTAUTHORIZATION
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
-    [self requestAudioPermissions:args];
+    DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"5.1.0", @"Media.requestAudioRecorderPermissions");
+    [self requestAudioRecorderPermissions:args];
 }
 #endif
 
 #ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
 -(id)hasAudioPermissions:(id)unused
+{
+    DEPRECATED_REPLACED(@"Media.hasAudioPermissions", @"6.1.0", @"Media.hasAudioRecorderPermissions");
+    return [self hasAudioRecorderPermissions:unused];
+}
+#endif
+
+#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS)
+-(id)hasAudioRecorderPermissions:(id)unused
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
     
@@ -615,6 +623,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 #ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
 -(void)requestAudioPermissions:(id)args
+{
+    DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestAudioRecorderPermissions");
+    [self requestAudioRecorderPermissions:args];
+}
+#endif
+
+#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUDIOPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUTHORIZATION)
+-(void)requestAudioRecorderPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;

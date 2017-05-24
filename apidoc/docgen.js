@@ -455,7 +455,16 @@ function processAPIs (api) {
 					'__subtype': 'method'
 				};
 				api.__creatable = true;
-				'methods' in doc[cls] ? doc[cls].methods.push(createMethod) : doc[cls].methods = [createMethod];
+				if ('methods' in doc[cls]) {
+					if (!doc[cls].methods) {
+						common.log(common.LOG_WARN, 'Empty \'methods\' listing for class: %s', cls);
+						doc[cls].methods = [createMethod];
+					} else {
+						doc[cls].methods.push(createMethod);
+					}
+				} else {
+					doc[cls].methods = [createMethod];
+				}
 			}
 		}
 	}
