@@ -373,8 +373,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         if (fields != nil) {
             NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
             for (id field in fields) {
-				id property = nil;
-				if (property = [[[TiContactsPerson iOS9propertyKeys] allKeysForObject:field] objectAtIndex:0]) {
+                id property = nil;
+                if (property = [[[TiContactsPerson iOS9propertyKeys] allKeysForObject:field] objectAtIndex:0]) {
                     [pickerFields addObject:property];
                 }
             }
@@ -385,8 +385,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         return;
         
     }
-	picker = [[ABPeoplePickerNavigationController alloc] init];
-	[picker setPeoplePickerDelegate:self];
+    picker = [[ABPeoplePickerNavigationController alloc] init];
+    [picker setPeoplePickerDelegate:self];
     
     if (selectedPropertyCallback == nil) {
         [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
