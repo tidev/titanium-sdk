@@ -3700,7 +3700,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-F', this.ap_File,
-			'--output-text-symbols', bundlesPath
+			'--output-text-symbols', bundlesPath,
+			'--no-version-vectors'
 		];
 
 	var runAapt = function runAapt() {
