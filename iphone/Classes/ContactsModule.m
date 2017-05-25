@@ -388,17 +388,15 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
 	
-    if ([TiUtils isIOS8OrGreater]) {
-        if (selectedPropertyCallback == nil) {
-            [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
-        }
-        
-        if (selectedPersonCallback == nil) {
-            [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
-        }
+    if (selectedPropertyCallback == nil) {
+        [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
     }
     
-	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    if (selectedPersonCallback == nil) {
+        [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
+    }
+    
+    animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	NSArray* fields = [args objectForKey:@"fields"];
 	ENSURE_TYPE_OR_NIL(fields, NSArray)
@@ -905,7 +903,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 {
 	if (selectedPersonCallback) {
 		TiContactsPerson* person = nil;
-		if ([TiUtils isIOS8OrGreater] && (ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized)) {
+		if ((ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized)) {
 			// In iOS 8 selected contact is returned without requiring user permission. But we cannot query metadata like recordid.
 			person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] person:selectedPerson module:self] autorelease];
 		} else {
@@ -962,7 +960,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 			}
 		} else {
 			//birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
-			if ([TiUtils isIOS8OrGreater] && property == appleUndocumentedBirthdayProperty) {
+			if (property == appleUndocumentedBirthdayProperty) {
 				CFTypeRef val = nil;
 				if (identifier == 0) {
 					propertyName = @"birthday";

@@ -131,94 +131,73 @@ static BOOL alertShowing = NO;
 
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
         
-        if ([TiUtils isIOS8OrGreater]) {
-            RELEASE_TO_NIL(alertController);
-            [[[TiApp app] controller] incrementActiveAlertControllerCount];
-            
-            alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-                                                                  message:[TiUtils stringValue:[self valueForKey:@"message"]]
-                                                            preferredStyle:UIAlertControllerStyleAlert] retain];
-            int curIndex = 0;
-            
-            //Configure the Buttons
-            for (id btn in buttonNames) {
-                NSString* btnName = [TiUtils stringValue:btn];
-                if (!IS_NULL_OR_NIL(btnName)) {
-                    
-                    UIAlertActionStyle alertActionStyle;
-                    
-                    if (curIndex == cancelIndex) {
-                        alertActionStyle = UIAlertActionStyleCancel;
-                    } else if (curIndex == destructiveIndex) {
-                        alertActionStyle = UIAlertActionStyleDestructive;
-                    } else {
-                        alertActionStyle  = UIAlertActionStyleDefault;
-                    }
-
-                    UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
-                                                                        style:alertActionStyle
-                                                                      handler:^(UIAlertAction * action){
-                                                                                [self fireClickEventWithAction:action];
-                                                                                }];
-                    [alertController addAction:theAction];
+        RELEASE_TO_NIL(alertController);
+        [[[TiApp app] controller] incrementActiveAlertControllerCount];
+        
+        alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+                                                               message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                                        preferredStyle:UIAlertControllerStyleAlert] retain];
+        int curIndex = 0;
+        
+        //Configure the Buttons
+        for (id btn in buttonNames) {
+            NSString* btnName = [TiUtils stringValue:btn];
+            if (!IS_NULL_OR_NIL(btnName)) {
+                
+                UIAlertActionStyle alertActionStyle;
+                
+                if (curIndex == cancelIndex) {
+                    alertActionStyle = UIAlertActionStyleCancel;
+                } else if (curIndex == destructiveIndex) {
+                    alertActionStyle = UIAlertActionStyleDestructive;
+                } else {
+                    alertActionStyle  = UIAlertActionStyleDefault;
                 }
-                curIndex++;
+                
+                UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
+                                                                    style:alertActionStyle
+                                                                  handler:^(UIAlertAction * action){
+                                                                      [self fireClickEventWithAction:action];
+                                                                  }];
+                [alertController addAction:theAction];
             }
-            
-            if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
-                [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
-            }
-            
-            //Configure the TextFields
-            if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
-                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]];
-                    textField.text = [TiUtils stringValue:[self valueForKey:@"value"]];
-                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
-                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
-                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                }];
-            } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
-                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
-                    textField.text = [TiUtils stringValue:[self valueForKey:@"loginValue"]];
-                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
-                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
-                }];
-                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
-                    textField.text = [TiUtils stringValue:[self valueForKey:@"passwordValue"]];
-                    textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
-                    textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
-                    textField.secureTextEntry = YES;
-                }];
-            }
-            
-            [self retain];
-            [[TiApp app] showModalController:alertController animated:YES];
-            
-        } else {
-            RELEASE_TO_NIL(alert);
-            alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-                                               message:[TiUtils stringValue:[self valueForKey:@"message"]]
-                                              delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
-            for (id btn in buttonNames)
-            {
-                NSString * thisButtonName = [TiUtils stringValue:btn];
-                [alert addButtonWithTitle:thisButtonName];
-            }
-            
-            [alert setCancelButtonIndex:cancelIndex];
-            
-            
-            [alert setAlertViewStyle:style];
-            
-            [self retain];
-            [alert show];
+            curIndex++;
         }
+        
+        if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
+            [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
+        }
+        
+        //Configure the TextFields
+        if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
+            [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
+                textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]];
+                textField.text = [TiUtils stringValue:[self valueForKey:@"value"]];
+                textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
+                textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
+                textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+            }];
+        } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
+            [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
+                textField.text = [TiUtils stringValue:[self valueForKey:@"loginValue"]];
+                textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
+                textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+                textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
+            }];
+            [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
+                textField.text = [TiUtils stringValue:[self valueForKey:@"passwordValue"]];
+                textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
+                textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+                textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
+                textField.secureTextEntry = YES;
+            }];
+        }
+        
+        [self retain];
+        [[TiApp app] showModalController:alertController animated:YES];
 	}
 }
 
