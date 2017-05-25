@@ -387,15 +387,13 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     }
 	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
-	
-    if ([TiUtils isIOS8OrGreater]) {
-        if (selectedPropertyCallback == nil) {
-            [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
-        }
-        
-        if (selectedPersonCallback == nil) {
-            [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
-        }
+    
+    if (selectedPropertyCallback == nil) {
+        [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
+    }
+    
+    if (selectedPersonCallback == nil) {
+        [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
     }
     
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
@@ -905,7 +903,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 {
     if (selectedPersonCallback) {
         TiContactsPerson* personObject = nil;
-        if ([TiUtils isIOS8OrGreater] && (ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized)) {
+        if (ABAddressBookGetAuthorizationStatus() != kABAuthorizationStatusAuthorized) {
             // In iOS 8 selected contact is returned without requiring user permission. But we cannot query metadata like recordid.
             personObject = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] person:person module:self] autorelease];
         } else {
@@ -934,8 +932,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
         //if statement to handle undocumented ring and text tone property from apple
         //only implemented in this method, since apple doesn't want people fooling around with these
         //null values are accompanied. Only inform app that user selected this property in the peoplePicker
-        if (property == appleUndocumentedToneProperty)
-        {
+        if (property == appleUndocumentedToneProperty) {
             if (identifier == appleUndocumentedRingToneIdentifier) {
                 propertyName = @"ringTone";
             }
@@ -948,8 +945,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
             if (identifier == appleUndocumentedTextVibrationIdentifier) {
                 propertyName = @"textVibration";
             }
-        }
-        else if (identifier == kABMultiValueInvalidIdentifier) {
+        } else if (identifier == kABMultiValueInvalidIdentifier) {
             propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
             
             // Contacts is poorly-designed enough that we should worry about receiving NULL values for properties which are actually assigned.
@@ -960,7 +956,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
             }
         } else {
             //birthdays for iOS8 is multivalue and NOT kABPersonBirthdayProperty only in DELEGATE, but undocumented in Apple
-            if ([TiUtils isIOS8OrGreater] && property == appleUndocumentedBirthdayProperty) {
+            if (property == appleUndocumentedBirthdayProperty) {
                 CFTypeRef val = nil;
                 if (identifier == 0) {
                     propertyName = @"birthday";
