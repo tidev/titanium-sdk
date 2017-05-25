@@ -82,8 +82,7 @@ static BOOL alertShowing = NO;
         [alertCondition unlock];
         // alert show should block the JS thread like the browser
         TiThreadPerformOnMainThread(^{[self show:args];}, YES);
-    }
-    else {
+    } else {
         persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
@@ -152,7 +151,7 @@ static BOOL alertShowing = NO;
         }
         
         //Configure the TextFields
-        if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
+        if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
             [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                 textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
                 textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]];
@@ -178,10 +177,9 @@ static BOOL alertShowing = NO;
                 textField.secureTextEntry = YES;
             }];
         }
-        
         [self retain];
         [[TiApp app] showModalController:alertController animated:YES];
-	}
+    }
 }
 
 -(void)suspended:(NSNotification*)note

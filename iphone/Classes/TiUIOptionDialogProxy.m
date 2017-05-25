@@ -146,7 +146,7 @@
     if (!showDialog) {
         return;
     }
-	if (alertController == nil){
+	if (alertController == nil) {
 		return;
 	}
 
