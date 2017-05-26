@@ -459,7 +459,7 @@ class SimpleFileCache {
 function registerHyperloopCompatibilityFixes(cli, builder, logger) {
 	var hyperloopModule = null;
 	builder.nativeLibModules.forEach(function (module) {
-		if (module.id === 'hyperloop' && appc.version.lte(module.version, '2.2.0')) {
+		if (module.id === 'hyperloop' && appc.version.lt(module.version, '2.2.0')) {
 			hyperloopModule = module;
 		}
 	});
