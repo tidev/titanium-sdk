@@ -1,0 +1,99 @@
+---
+name: Titanium.UI.Android.DrawerLayout
+summary: An elevated view with rounded corners.
+description: |
+    DrawerLayout acts as a top-level container for window content that allows for interactive "drawer" views to be pulled out from one or both vertical edges of the window.
+
+    As per the Android Design guide, any drawers positioned to the left/start should always contain content for navigating around the application, whereas any drawers positioned to the right/end should always contain actions to take on the current content.
+
+    For design guidelines, see
+    [Google Design Guidelines: DrawerLayout](https://developer.android.com/training/implementing-navigation/nav-drawer.html)
+extends: Titanium.UI.View
+since: "6.2.0"
+platforms: [android]
+
+properties:
+
+  - name: isLeftOpen
+    summary: Determine whether the left drawer is open
+    type: Boolean
+
+  - name: isRightOpen
+    summary: Determine whether the right drawer is open
+    type: Boolean
+
+  - name: isLeftVisible
+    summary: Determine whether the left drawer is visible
+    type: Boolean
+
+  - name: isRightVisible
+    summary: Determine whether the right drawer is visible
+    type: Boolean
+
+  - name: leftWidth
+    summary: Get or set the width of the left draw
+    type: Number
+
+  - name: rightWidth
+    summary: Get or set the width of the right draw
+    type: Number
+
+  - name: leftView
+    summary: Get or set the view of the left draw
+    type: Titanium.UI.View
+
+  - name: rightView
+    summary: Get or set the view of the right draw
+    type: Titanium.UI.View
+
+  - name: centerView
+    summary: Get or set the center view
+    type: Titanium.UI.View
+
+  - name: drawerIndicatorEnabled
+    summary: Determine the drawer indicator status
+    type: Boolean
+
+  - name: drawerLockMode
+    summary: Get or set the drawerLockMode
+    type: Number
+
+  - name: toolbarEnabled
+    summary: Determine whether to enable the toolbar
+    type: Boolean
+
+examples:
+
+  - title: Simple DrawerLayout
+    example: |
+            var win = Ti.UI.createWindow(),
+                leftView = Ti.UI.createView({backgroundColor:'red'}),
+                centerView = Ti.UI.createView({backgroundColor:'yellow'}),
+                rightView = Ti.UI.createView({backgroundColor:'orange'}),
+                drawer = Ti.UI.Android.createDrawerLayout({
+                    leftView: leftView,
+                    centerView: centerView,
+                    rightView: rightView
+                }),
+                btn = Ti.UI.createButton({title: 'RIGHT'});
+
+            btn.addEventListener('click', function() {
+                drawer.toggleRight();
+            });
+
+            centerView.add(btn);
+
+            win.addEventListener('open', function(){
+                var activity = win.getActivity(),
+                    actionbar = activity.getActionBar();
+
+                if (actionbar) {
+                    actionbar.displayHomeAsUp = true;
+                    actionbar.onHomeIconItemSelected = function() {
+                        drawer.toggleLeft();
+                    };
+                }
+            });
+
+            win.add(drawer);
+            win.open();
