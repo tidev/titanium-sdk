@@ -1780,6 +1780,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					dest.append(fs.createReadStream(this.metaDataFile), { name: path.join(moduleFolder,'metadata.json') });
 				}
 
+				var symbolOutputPathAndFilename = path.join(this.buildIntermediatesDir, 'bundles/R.txt');
+				if (fs.existsSync(symbolOutputPathAndFilename)) {
+					dest.append(fs.createReadStream(symbolOutputPathAndFilename), {name: path.join(moduleFolder, 'R.txt')});
+				}
+
 				this.logger.info(__('Writing module zip: %s', moduleZipPath));
 				dest.finalize();
 			} catch (ex) {
