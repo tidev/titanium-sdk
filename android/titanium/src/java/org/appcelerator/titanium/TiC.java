@@ -581,6 +581,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DRAWER_CLOSE = "drawerclose";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAWER_OPEN = "draweropen";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAWER_SLIDE = "drawerslide";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
 	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
@@ -1167,6 +1182,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CENTER_VIEW = "centerView";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 
 	/**
@@ -1293,6 +1313,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAG_MARGIN = "dragMargin";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_INDICATOR_ENABLED = "drawerIndicatorEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_LOCK_MODE = "drawerLockMode";
 
 	/**
 	 * @module.api
@@ -1807,6 +1842,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LEFT_VIEW = "leftView";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LEFT_WIDTH = "leftWidth";
 
 	/**
 	 * @module.api
@@ -2357,6 +2397,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_RIGHT_WIDTH = "rightWidth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ROTATE = "rotate";
 
 	/**
@@ -2797,6 +2842,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
 
 	/**
 	 * @module.api
