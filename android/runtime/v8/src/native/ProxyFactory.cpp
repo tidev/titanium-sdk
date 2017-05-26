@@ -1,13 +1,12 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #include "ProxyFactory.h"
 
-#include <map>
 #include <stdio.h>
 #include <v8.h>
 
@@ -17,7 +16,6 @@
 #include "KrollBindings.h"
 #include "Proxy.h"
 #include "TypeConverter.h"
-#include "V8Runtime.h"
 #include "V8Util.h"
 
 #define TAG "ProxyFactory"
@@ -26,24 +24,17 @@ using namespace v8;
 
 namespace titanium {
 
-typedef struct {
-	FunctionTemplate* v8ProxyTemplate;
-	jmethodID javaProxyCreator;
-} ProxyInfo;
-
-typedef std::map<jclass, ProxyInfo> ProxyFactoryMap;
-static ProxyFactoryMap factories;
-
-#define GET_PROXY_INFO(jclass, info) \
-	ProxyFactoryMap::iterator i = factories.find(jclass); \
-	info = i != factories.end() ? &i->second : NULL
-
 #define LOG_JNIENV_ERROR(msgMore) \
-	LOGE(TAG, "Unable to find class %s", msgMore)
+	LOGE(TAG, "Unable to find class %s", msgMore);
 
 Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass, jobject javaProxy)
 {
-	LOGV(TAG, "create v8 proxy");
+	return ProxyFactory::createV8Proxy(isolate, ProxyFactory::getJavaClassName(isolate, javaClass), javaProxy);
+}
+
+Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> className, jobject javaProxy)
+{
+	LOGD(TAG, "ProxyFactory::createV8Proxy");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while creating Java proxy.");
@@ -51,56 +42,44 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 	}
 
 	v8::EscapableHandleScope scope(isolate);
-	Local<Function> creator;
 
-	LOGV(TAG, "get proxy info");
+	Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(isolate));
 
-	ProxyInfo* info;
-	GET_PROXY_INFO(javaClass, info);
-	if (!info) {
-		// No info has been registered for this class yet, fall back
-		// to the binding lookup table
-		jstring javaClassName = JNIUtil::getClassName(javaClass);
-		Local<Value> className = TypeConverter::javaStringToJsString(isolate, env, javaClassName);
-		env->DeleteLocalRef(javaClassName);
-
-		Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(isolate));
-
-		if (exports.IsEmpty()) {
-			titanium::Utf8Value classStr(className);
-			LOGE(TAG, "Failed to find class for %s", *classStr);
-			LOG_JNIENV_ERROR("while creating V8 Proxy.");
-			return scope.Escape(Local<Object>());
-		}
-
-		// TODO: The first value in exports should be the type that's exported
-		// But there's probably a better way to do this
-		Local<Array> names = exports->GetPropertyNames();
-		if (names->Length() >= 1) {
-			creator = exports->Get(names->Get(0)).As<Function>();
-		}
-	} else {
-		creator = info->v8ProxyTemplate->GetFunction(isolate->GetCurrentContext()).ToLocalChecked();
+	if (exports.IsEmpty()) {
+		titanium::Utf8Value classStr(className);
+		LOGE(TAG, "Failed to find class for %s", *classStr);
+		LOG_JNIENV_ERROR("while creating V8 Proxy.");
+		return Local<Object>();
 	}
 
-	Local<Value> external = External::New(isolate, javaProxy);
+	// FIXME: We pick the first item in exports as the constructor. We should do something more intelligent (for ES6 look at default export?)
+	Local<Array> names = exports->GetPropertyNames();
+	if (names->Length() < 1) {
+		titanium::Utf8Value classStr(className);
+		LOGE(TAG, "Failed to find class for %s", *classStr);
+		LOG_JNIENV_ERROR("while creating V8 Proxy.");
+		return Local<Object>();
+	}
+	Local<Function> creator = exports->Get(names->Get(0)).As<Function>();
+
+	Local<Value> javaObjectExternal = External::New(isolate, javaProxy);
 	TryCatch tryCatch(isolate);
-	Local<Value> argv[1] = { external };
+	Local<Value> argv[1] = { javaObjectExternal };
 	Local<Object> v8Proxy = creator->NewInstance(1, argv);
 	if (tryCatch.HasCaught()) {
 		LOGE(TAG, "Exception thrown while creating V8 proxy.");
 		V8Util::reportException(isolate, tryCatch);
-		return scope.Escape(Local<Object>());
+		return Local<Object>();
 	}
 
-	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy); // The v8Proxy is a JS Object containing an internal pointer to the Proxy object that wraps it in C++ world.
-	jlong ptr = (jlong) proxy; // We take the address of that C++ Proxy/JavaObject and store it on the Java side to reference when we need to get teh proxy or JS object again
+	// The v8Proxy is a JS Object containing an internal pointer to the Proxy object that wraps it in C++ world.
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy);
+	// We take the address of that C++ Proxy/JavaObject and store it on the Java side to reference when we need to get the proxy or JS object again
+	jlong ptr = (jlong) proxy;
 
-	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
-		JNIUtil::v8ObjectInitMethod, ptr);
+	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr);
 
-	env->SetObjectField(javaProxy,
-		JNIUtil::krollProxyKrollObjectField, javaV8Object);
+	env->SetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField, javaV8Object);
 	env->DeleteLocalRef(javaV8Object);
 
 	return scope.Escape(v8Proxy);
@@ -108,15 +87,8 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, jclass javaClass
 
 jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	LOGD(TAG, "ProxyFactory::createJavaProxy");
 	Isolate* isolate = args.GetIsolate();
-	ProxyInfo* info;
-	GET_PROXY_INFO(javaClass, info);
-
-	if (!info) {
-		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
-		LOGE(TAG, "No proxy info found for class.");
-		return NULL;
-	}
 
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
@@ -175,52 +147,48 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		javaArgs = TypeConverter::jsArgumentsToJavaArray(env, args);
 	}
 
+	// This does: Object javaV8Object = new V8Object(pv8Proxy);
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, pv8Proxy);
 
-	// Create the java proxy using the creator static method provided.
-	// Send along a pointer to the v8 proxy so the two are linked.
+	// This does: KrollProxy.createProxy(javaClass, javaV8Object, javaArgs, javaSourceUrl);
+	// Which creates a new instance of the class using default no-arg constructor,
+	// and then calls #setupProxy() with the rest of the args on the instance.
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
-		info->javaProxyCreator, javaClass, javaV8Object, javaArgs, javaSourceUrl);
+		JNIUtil::krollProxyCreateProxyMethod, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
 	if (javaSourceUrl) {
-		LOGV(TAG, "delete source url!");
+		LOGD(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
 
 	env->DeleteLocalRef(javaV8Object);
 	env->DeleteLocalRef(javaArgs);
+	// We don't delete the global jclass reference...
 
 	return javaProxy;
 }
 
-jobject ProxyFactory::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
+Local<Value> ProxyFactory::getJavaClassName(v8::Isolate* isolate, jclass javaClass)
 {
-	if (args.Length() != 1)
-		return NULL;
-
-	Local<Value> firstArgument = args[0];
-	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
-}
-
-void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate)
-{
+	LOGD(TAG, "ProxyFactory::getJavaClassName");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
-		LOG_JNIENV_ERROR("while registering proxy pair.");
-		return;
+		LOGE(TAG, "Unable to get JNIEnv while getting Java class name as V8 value.");
+		return Local<Value>();
 	}
 
-	ProxyInfo info;
-	info.v8ProxyTemplate = v8ProxyTemplate;
-	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
+	v8::EscapableHandleScope scope(isolate);
 
-	factories[javaProxyClass] = info;
+	jstring javaClassName = JNIUtil::getClassName(javaClass);
+	Local<Value> className = TypeConverter::javaStringToJsString(isolate, env, javaClassName);
+	env->DeleteLocalRef(javaClassName);
+	return scope.Escape(className);
 }
 
 void ProxyFactory::dispose()
 {
-	factories.clear();
+	// no-op for now
 }
 
 }
