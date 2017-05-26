@@ -9,7 +9,6 @@
  */
 
 var AarTransformer = require('appc-aar-tools').AarTransformer;
-var appc = require('node-appc');
 var async = require('async');
 var crypto = require('crypto');
 var fs = require('fs');
@@ -42,11 +41,11 @@ const LIBRARY_ORIGIN_PORJECT = 'Project';
 
 exports.cliVersion = '>=3.2';
 
-exports.init = function (logger, config, cli) {
+exports.init = function (logger, config, cli, appc) {
 	cli.on('build.pre.compile', {
 		post: function(builder, callback) {
+			registerHyperloopCompatibilityFixes(cli, builder, appc, logger);
 			scanProjectAndStartTransform(builder, logger, callback);
-			registerHyperloopCompatibilityFixes(cli, builder, logger);
 		}
 	});
 
@@ -454,13 +453,15 @@ class SimpleFileCache {
  *
  * @param {Object} cli CLI instance
  * @param {Object} builder Builder instance
+ * @param {Object} appc Appc node utilities
  * @param {Object} logger Logger instance
  */
-function registerHyperloopCompatibilityFixes(cli, builder, logger) {
+function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
 	var hyperloopModule = null;
-	builder.nativeLibModules.forEach(function (module) {
+	builder.nativeLibModules.some(function (module) {
 		if (module.id === 'hyperloop' && appc.version.lt(module.version, '2.2.0')) {
 			hyperloopModule = module;
+			return true;
 		}
 	});
 	if (hyperloopModule === null) {
@@ -477,22 +478,26 @@ function registerHyperloopCompatibilityFixes(cli, builder, logger) {
 		 * @param {Object} data Hook data
 		 * @param {Function} callback Callback function
 		 */
-		pre: function(data, callback) {
+		pre: function (data, callback) {
 			logger.trace('Cleaning AAPT options from changes made by Hyperloop');
 			var aaptOptions = data.args[1];
 			var extraPackagesIndex = aaptOptions.indexOf('--extra-packages') + 1;
+			if (extraPackagesIndex === -1) {
+				return callback();
+			}
 			var extraPackages = aaptOptions[extraPackagesIndex];
 			var parameterIndex = aaptOptions.indexOf('-S');
-			while(parameterIndex !== -1) {
+			var packageNameRegex = /package="(.*)"/;
+			while (parameterIndex !== -1) {
 				var resourcePath = aaptOptions[parameterIndex + 1];
 				if (resourcePath.indexOf(hyperloopBuildPath) !== -1) {
 					var manifestPathAndFilename = path.join(resourcePath, '../AndroidManifest.xml');
 					if (fs.existsSync(manifestPathAndFilename)) {
 						var manifestContent = fs.readFileSync(manifestPathAndFilename).toString();
-						var packageNameMatch = manifestContent.match(/package="(.*)"/);
+						var packageNameMatch = manifestContent.match(packageNameRegex);
 						if (packageNameMatch !== null) {
 							var packageName = packageNameMatch[1];
-							extraPackages = extraPackages.replace(':' + packageName, '');
+							extraPackages = extraPackages.split(':').filter(n => n !== packageName).join(':');
 							logger.trace('Removed package ' + packageName + ' from AAPT --extra-packages option');
 						}
 					}
@@ -518,7 +523,7 @@ function registerHyperloopCompatibilityFixes(cli, builder, logger) {
 		 * @param {Object} data Hook data
 		 * @param {Function} callback Callback function
 		 */
-		pre: function(data, callback) {
+		pre: function (data, callback) {
 			logger.trace('Cleaning dexer paths from changes made by Hyperloop');
 			var builder = data.ctx;
 			var dexerOptions = data.args[1].slice(0, 6);
