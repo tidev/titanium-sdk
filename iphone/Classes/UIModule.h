@@ -283,6 +283,10 @@
 
 #endif
 
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_SPACING;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING;
+
 @property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
 @property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
 

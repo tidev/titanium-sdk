@@ -39,6 +39,8 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 
+#import "TiUIParagraphStyleProxy.h"
+
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -624,6 +626,10 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
     return NUMINTEGER(NSLineBreakByTruncatingMiddle);
 }
 #endif
+
+MAKE_SYSTEM_PROP(PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR, ParagraphAttributeHyphenationFactor);
+MAKE_SYSTEM_PROP(PARAGRAPH_ATTRIBUTE_LINE_SPACING, ParagraphAttributeLineSpacing);
+MAKE_SYSTEM_PROP(PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING, ParagraphAttributeParagraphSpacing);
 
 #ifdef USE_TI_UICLIPBOARD
 -(NSString*)CLIPBOARD_OPTION_LOCAL_ONLY
