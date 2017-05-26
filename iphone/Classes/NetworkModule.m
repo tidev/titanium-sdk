@@ -252,23 +252,23 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
 -(void)registerForPushNotifications:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
     ENSURE_UI_THREAD(registerForPushNotifications, args);
-	
-	RELEASE_TO_NIL(pushNotificationCallback);
-	RELEASE_TO_NIL(pushNotificationError);
-	RELEASE_TO_NIL(pushNotificationSuccess);
-	
-	pushNotificationSuccess = [[args objectForKey:@"success"] retain];
-	pushNotificationError = [[args objectForKey:@"error"] retain];
-	pushNotificationCallback = [[args objectForKey:@"callback"] retain];
-	
-	[[TiApp app] setRemoteNotificationDelegate:self];
     
-    UIApplication * app = [UIApplication sharedApplication];
+    RELEASE_TO_NIL(pushNotificationCallback);
+    RELEASE_TO_NIL(pushNotificationError);
+    RELEASE_TO_NIL(pushNotificationSuccess);
     
-	//for iOS8 or greater only
-	//Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
+    pushNotificationSuccess = [[args objectForKey:@"success"] retain];
+    pushNotificationError = [[args objectForKey:@"error"] retain];
+    pushNotificationCallback = [[args objectForKey:@"callback"] retain];
+    
+    [[TiApp app] setRemoteNotificationDelegate:self];
+    
+    UIApplication *app = [UIApplication sharedApplication];
+    
+    //for iOS8 or greater only
+    //Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
     [app registerForRemoteNotifications];
     
     if ([args objectForKey:@"types"] != nil) {
@@ -276,14 +276,13 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     }
     // check to see upon registration if we were started with a push
     // notification and if so, go ahead and trigger our callback
-	id currentNotification = [[TiApp app] remoteNotification];
-	if (currentNotification!=nil && pushNotificationCallback!=nil)
-	{
-		NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
-		[event setObject:currentNotification forKey:@"data"];
-		[event setObject:NUMBOOL(YES) forKey:@"inBackground"];
-		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
-	}
+    id currentNotification = [[TiApp app] remoteNotification];
+    if (currentNotification != nil && pushNotificationCallback != nil) {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:currentNotification forKey:@"data"];
+        [event setObject:NUMBOOL(YES) forKey:@"inBackground"];
+        [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+    }
 }
 
 -(void)unregisterForPushNotifications:(id)args
