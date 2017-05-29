@@ -7,6 +7,7 @@ var exec = require('child_process').exec,
 	program = require('commander'),
 	packageJSON = require('../package.json'),
 	version = packageJSON.version,
+	Documentation = require('./docs'),
 	git = require('./git'),
 	Packager = require('./packager'),
 	platforms = [],
@@ -82,6 +83,7 @@ async.series([
 	}
 ], function (err) {
 	if (err) {
+		console.error(err);
 		process.exit(1);
 		return;
 	}
@@ -91,6 +93,7 @@ async.series([
 		new Platform(program).clean(next);
 	}, function (err) {
 		if (err) {
+			console.error(err);
 			process.exit(1);
 		}
 
@@ -99,33 +102,43 @@ async.series([
 			new Platform(program).build(next);
 		}, function (err) {
 			if (err) {
+				console.error(err);
 				process.exit(1);
 			}
-			// TODO Avoid zipping during packaging and just copy over to install it!
-			async.eachSeries(oses, function (targetOS, next) {
-				// Match our master platform list against OS_TO_PLATFORMS[item] listing.
-				// Only package the platform if its in both arrays
-				var filteredPlatforms = [];
-				for (var i = 0; i < platforms.length; i++) {
-					if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) != -1) {
-						filteredPlatforms.push(platforms[i]);
-					}
-				}
 
-				new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.githash).package(next);
-			}, function (err) {
+			// Generate docs
+			new Documentation(DIST_DIR).generate(function (err) {
 				if (err) {
 					console.error(err);
 					process.exit(1);
 				}
-				console.log('Packaging version (%s) complete', versionTag);
 
-				install(versionTag, function (err) {
+				// TODO Avoid zipping during packaging and just copy over to install it!
+				async.eachSeries(oses, function (targetOS, next) {
+					// Match our master platform list against OS_TO_PLATFORMS[item] listing.
+					// Only package the platform if its in both arrays
+					var filteredPlatforms = [];
+					for (var i = 0; i < platforms.length; i++) {
+						if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) != -1) {
+							filteredPlatforms.push(platforms[i]);
+						}
+					}
+
+					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.githash).package(next);
+				}, function (err) {
 					if (err) {
 						console.error(err);
 						process.exit(1);
 					}
-					process.exit(0);
+					console.log('Packaging version (%s) complete', versionTag);
+
+					install(versionTag, function (err) {
+						if (err) {
+							console.error(err);
+							process.exit(1);
+						}
+						process.exit(0);
+					});
 				});
 			});
 		});
