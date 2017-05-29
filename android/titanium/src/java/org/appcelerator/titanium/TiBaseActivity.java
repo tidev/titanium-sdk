@@ -14,6 +14,7 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -28,11 +29,7 @@ import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.TiLifecycle.OnCreateOptionsMenuEvent;
 import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
-import org.appcelerator.titanium.proxy.ActionBarProxy;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.*;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -744,6 +741,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+		setCustomActionBar();
+	}
+
+	private void setCustomActionBar() {
+		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
+			this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)).getToolbarInstance()));
 		}
 	}
 

@@ -1362,6 +1362,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EXTEND_BACKGROUND = "extendBackground";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FATHER = "father";
 
 	/**
@@ -2642,6 +2647,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TABS = "tabs";
 
 	/**
@@ -2797,6 +2807,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLUCENT = "translucent";
 
 	/**
 	 * @module.api
