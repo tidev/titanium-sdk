@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -21,9 +22,11 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;;
+import android.support.v7.app.AppCompatActivity;
+import org.appcelerator.titanium.view.TiUIView;;
 
 @Kroll.proxy(propertyAccessors = {
+	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
 	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU,
 	TiC.PROPERTY_ON_CREATE,
@@ -53,7 +56,9 @@ public class ActivityProxy extends KrollProxy
 	protected ActionBarProxy actionBarProxy;
 
 	private KrollFunction resultCallback;
-	
+
+	public TiToolbarProxy toolbarProxy;
+
 	public ActivityProxy()
 	{
 	}
@@ -91,7 +96,6 @@ public class ActivityProxy extends KrollProxy
 
 				return null;
 			}
-
 			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
 			decorViewProxy.setActivity(activity);
 			savedDecorViewProxy = decorViewProxy;
@@ -277,6 +281,13 @@ public class ActivityProxy extends KrollProxy
 		} else {
 				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
 		}
+	}
+
+	@Kroll.method
+	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy) {
+		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
+		if (activity != null)
+			activity.setSupportActionBar((Toolbar)tiToolbarProxy.getToolbarInstance());
 	}
 
 	private void handleOpenOptionsMenu()
